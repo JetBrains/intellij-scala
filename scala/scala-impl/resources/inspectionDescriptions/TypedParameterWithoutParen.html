@@ -1,0 +1,19 @@
+<html>
+<body>
+In Dotty, a function literal's parameter clause with one typed parameter must be surrounded by parenthesis.
+
+<p>
+Before:
+<pre>
+call { a: Int => a }
+</pre>
+
+<br>
+After:
+<pre>
+call { (a: Int) => a }
+</pre>
+</p>
+
+</body>
+</html>

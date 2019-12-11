@@ -21,6 +21,8 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def effectiveParameters: Seq[ScParameter]
 
+  def hasParenthesis: Boolean
+
   //hack: no ClassParamList present at the moment
   def unsafeClassParameters: Seq[ScClassParameter] = effectiveParameters.asInstanceOf[Seq[ScClassParameter]]
 

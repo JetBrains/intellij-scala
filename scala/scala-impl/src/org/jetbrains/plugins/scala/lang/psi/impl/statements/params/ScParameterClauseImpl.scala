@@ -7,6 +7,7 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
@@ -32,7 +33,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   override def toString: String = "ParametersClause"
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def parameters: Seq[ScParameter] = {
+  override def parameters: Seq[ScParameter] = {
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   }
 
@@ -68,8 +69,12 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     syntheticParameters ++ parameters
   }
 
+  override def hasParenthesis: Boolean =
+    getFirstChild.elementType == ScalaTokenTypes.tLPARENTHESIS &&
+      getLastChild.elementType == ScalaTokenTypes.tRPARENTHESIS
+
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def isImplicit: Boolean = {
+  override def isImplicit: Boolean = {
     import ScModifierList._
 
     def hasImplicitKeyword =
@@ -80,7 +85,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     byStubOrPsi(_.isImplicit)(hasImplicitKeyword)
   }
 
-  def addParameter(param: ScParameter): ScParameterClause = {
+  override def addParameter(param: ScParameter): ScParameterClause = {
     val params = parameters
     val vararg =
       if (params.isEmpty) false

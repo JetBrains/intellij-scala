@@ -1069,6 +1069,14 @@
               shortName="ApparentResultTypeRefinement"
               language="Scala" level="WARNING"
               enabledByDefault="true"/>
+      <localInspection
+              implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.TypedParameterWithoutParenthesisInspection"
+              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+              key="typed.parameter.without.parenthesis.in.function.literal"
+              groupPath="Scala" groupName="Method signature"
+              shortName="TypedParameterWithoutParen"
+              language="Scala" level="INFORMATION"
+              enabledByDefault="true"/>
 
         <!--Scalastyle inspection-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
