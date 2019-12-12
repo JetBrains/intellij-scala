@@ -133,7 +133,6 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
     paramNameLabel.setLabelFor(paramNameField)
     val paramNamePanel = new JPanel(new BorderLayout(0, 2))
     paramNamePanel.add(paramNameLabel, BorderLayout.NORTH)
-    IJSwingUtilities.adjustComponentsOnMac(paramNameLabel, paramNameField)
     paramNamePanel.add(paramNameField, BorderLayout.SOUTH)
     paramNamePanel
   }
@@ -160,7 +159,6 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
     })
     val paramTypePanel = new JPanel(new BorderLayout(0, 2))
     paramTypePanel.add(typeLabel, BorderLayout.NORTH)
-    IJSwingUtilities.adjustComponentsOnMac(typeLabel, typeCombobox)
     paramTypePanel.add(typeCombobox, BorderLayout.SOUTH)
 
     paramTypePanel
@@ -179,7 +177,6 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
         introducedParamTableItem.foreach(_.parameter.defaultValue = defaultForIntroducedTextField.getText.trim)
       }
     })
-    IJSwingUtilities.adjustComponentsOnMac(label, defaultForIntroducedTextField)
     panel.add(defaultForIntroducedTextField, BorderLayout.CENTER)
     val optionsPanel = new JPanel(new BorderLayout())
     replaceOccurrencesChb = new JCheckBox("Replace all occurrences")
