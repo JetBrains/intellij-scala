@@ -115,14 +115,6 @@ final class ScalaPsiElementFactoryImpl(project: Project) extends JVMElementFacto
 
   override def createType(resolve: PsiClass, substitutor: PsiSubstitutor, languageLevel: LanguageLevel): PsiClassType = ???
 
-  /*
-    This function is deprecated and will be removed in the next version.
-    I added the override so that we will be informed when it is actually removed.
-    So if you are updating the idea version and the compiler gives you an error that this
-    doesn't override anything, just remove this function and everything should be fine.
-   */
-  override def createType(resolve: PsiClass, substitutor: PsiSubstitutor, languageLevel: LanguageLevel, annotations: Array[PsiAnnotation]): PsiClassType = ???
-
   override def createType(aClass: PsiClass, parameters: PsiType): PsiClassType = ???
 
   override def createRawSubstitutor(owner: PsiTypeParameterListOwner): PsiSubstitutor = ???
