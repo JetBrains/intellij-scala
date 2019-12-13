@@ -17,7 +17,7 @@ trait ConverterExtension { converter: UastFabrics =>
   def convertTo[U <: UElement: ClassTag: NotNothing](
     element: PsiElement,
     @Nullable parent: UElement,
-    /**/ convertLambdas: Boolean = true
+    convertLambdas: Boolean = true
   ): Option[U]
 
   def convertWithParentTo[U <: UElement: ClassTag: NotNothing](
@@ -37,9 +37,8 @@ trait ConverterExtension { converter: UastFabrics =>
               convertLambdas: Boolean = true): Option[UElement] =
     convertTo[UElement](element, parent, convertLambdas)
 
-  def convertWithParent(element: PsiElement,
-                        convertLambdas: Boolean = true): Option[UElement] =
-    convertWithParentTo[UElement](element, convertLambdas)
+  def convertWithParent(element: PsiElement): Option[UElement] =
+    convertWithParentTo[UElement](element, convertLambdas = false)
 
   def convertToUExpressionOrEmpty(element: PsiElement,
                                   @Nullable parent: UElement,

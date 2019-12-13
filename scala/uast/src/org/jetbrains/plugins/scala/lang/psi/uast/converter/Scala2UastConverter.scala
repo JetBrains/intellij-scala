@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScMethodLike, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscoreFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueOrVariable}
@@ -42,7 +43,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
   override def convertTo[U <: UElement: ClassTag: NotNothing](
     element: PsiElement,
     @Nullable parent: UElement,
-    /**/ convertLambdas: Boolean = true
+    convertLambdas: Boolean = true
   ): Option[U] =
     convertToFree[U](element, convertLambdas).map(_.pinTo(parent))
 
@@ -154,12 +155,10 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
             case _ => null
           }
 
-        case us: ScExpression
-            if ScUnderScoreSectionUtil.isUnderscoreFunction(us) &&
-              convertLambdas =>
+        case us: ScExpression if isUnderscoreFunction(us) && convertLambdas =>
           new ScUUnderscoreLambdaExpression(us, _)
 
-        case mv @ MethodValue(_) if convertLambdas =>
+        case mv: ScExpression if isMethodValue(mv, convertLambdas) =>
           mv match {
             case ref: ScReference =>
               new ScUCallableReferenceExpression(ref, _)
@@ -325,11 +324,15 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     }
   }
 
+  private def isMethodValue(expr: ScExpression, convertLambdas: Boolean): Boolean = {
+    convertLambdas && MethodValue.unapply(expr).isDefined
+  }
+
   private def firstConvertibleAncestor(element: PsiElement): Option[UElement] =
     Stream
       .iterate(element.getParent)(_.getParent)
       .takeWhile(_ != null)
-      .flatMap(e => convertWithParent(e, convertLambdas = false))
+      .flatMap(e => convertWithParent(e))
       .headOption
 
   private def makeUParent(sourcePsi: PsiElement,

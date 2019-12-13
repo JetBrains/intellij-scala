@@ -1079,11 +1079,7 @@ object ScalaPsiUtil {
 
   object MethodValue {
     def unapply(expr: ScExpression): Option[PsiMethod] =
-      if (!expr.expectedType(fromUnderscore = false).exists {
-        case FunctionType(_, _)            => true
-        case expected if expr.isSAMEnabled => SAMUtil.toSAMType(expected, expr).isDefined
-        case _                             => false
-      }) None
+      if (!isPossibleByClass(expr) || !functionOrSamTypeExpected(expr)) None
       else
         expr match {
           case ref: ScReferenceExpression if !ref.getParent.isInstanceOf[MethodInvocation] =>
@@ -1148,6 +1144,20 @@ object ScalaPsiUtil {
         case _ => 1
       }
     }
+
+    private def isPossibleByClass(expr: ScExpression): Boolean = expr match {
+      case _: ScReferenceExpression |
+           _: ScGenericCall |
+           _: ScUnderscoreSection |
+           _: ScMethodCall => true
+      case _ => false
+    }
+
+    private def functionOrSamTypeExpected(expr: ScExpression): Boolean =
+      expr.expectedType(fromUnderscore = false).exists {
+        case FunctionType(_, _) => true
+        case expected           => expr.isSAMEnabled && SAMUtil.toSAMType(expected, expr).isDefined
+      }
   }
 
   def isConcreteElement(element: PsiElement): Boolean = {
