@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.collection.JavaConverters._
 import scala.util.Random
@@ -126,7 +125,7 @@ object AllProjectHighlightingTest {
 
     for (element <- random.shuffle(scalaFile.depthFirst().filter(_.isInstanceOf[ScalaPsiElement]))) {
       try {
-        annotator.annotate(element, mock)
+        annotator.annotate(element)(mock)
       } catch {
         case NonFatal(t) =>
           reporter.reportError(fileName, element.getTextRange, s"Exception while highlighting: $t")

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.template.kindOf
@@ -30,7 +30,7 @@ import scala.collection.Seq
 object AnnotatorUtils {
 
   def checkConformance(expression: ScExpression, typeElement: ScTypeElement)
-                      (implicit holder: AnnotationHolder): Unit = {
+                      (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = expression
 
     if (ScMethodType.hasMethodType(expression)) {
@@ -49,7 +49,7 @@ object AnnotatorUtils {
 
   //fix for SCL-7176
   def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement])
-                                        (implicit holder: AnnotationHolder): Unit = {
+                                        (implicit holder: ScalaAnnotationHolder): Unit = {
     element match {
       case fun: ScFunctionDeclaration if fun.isNative =>
       case modOwner: ScModifierListOwner =>
@@ -67,7 +67,7 @@ object AnnotatorUtils {
 
   def registerTypeMismatchError(actualType: ScType, expectedType: ScType,
                                 expression: ScExpression)
-                               (implicit holder: AnnotationHolder): Unit = {
+                               (implicit holder: ScalaAnnotationHolder): Unit = {
 
     if (ScMethodType.hasMethodType(expression)) {
       return
@@ -82,7 +82,7 @@ object AnnotatorUtils {
   }
 
   def annotationWithoutHighlighting(te: PsiElement)
-                                   (implicit holder: AnnotationHolder): Annotation = {
+                                   (implicit holder: ScalaAnnotationHolder): Annotation = {
     val teAnnotation = holder.createErrorAnnotation(te, null)
     teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
     val emptyAttr = new TextAttributes()
@@ -110,7 +110,7 @@ object AnnotatorUtils {
   // TODO encapsulate
   def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
                             elementToHighlight: PsiElement)
-                           (implicit holder: AnnotationHolder): Unit = {
+                           (implicit holder: ScalaAnnotationHolder): Unit = {
     if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplisitConversions) {
       val range = elementToHighlight.getTextRange
       val annotation: Annotation = holder.createInfoAnnotation(range, null)

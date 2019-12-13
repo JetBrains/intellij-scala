@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 
@@ -12,7 +11,7 @@ object ScStringLiteralAnnotator extends ElementAnnotator[ScLiteral] {
   private val StringCharactersCountLimit = StringLiteralSizeLimit / 4
 
   override def annotate(literal: ScLiteral, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = literal match {
+                       (implicit holder: ScalaAnnotationHolder): Unit = literal match {
     case interpolated: ScInterpolatedStringLiteral =>
       createStringIsTooLongAnnotation(interpolated, interpolated.getStringParts: _*)
     case ScLiteral(string) => createStringIsTooLongAnnotation(literal, string)
@@ -20,7 +19,7 @@ object ScStringLiteralAnnotator extends ElementAnnotator[ScLiteral] {
   }
 
   private def createStringIsTooLongAnnotation(literal: ScLiteral, strings: String*)
-                                             (implicit holder: AnnotationHolder) = {
+                                             (implicit holder: ScalaAnnotationHolder) = {
     import extensions.PsiElementExt
     implicit val virtualFile: Option[VirtualFile] = literal.containingVirtualFile
 

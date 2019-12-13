@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /**
@@ -10,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 abstract class AnnotatorPart[T <: ScalaPsiElement : reflect.ClassTag] {
 
   def annotate(element: T, typeAware: Boolean)
-              (implicit holder: AnnotationHolder): Unit
+              (implicit holder: ScalaAnnotationHolder): Unit
 }
 
 /*{
@@ -20,7 +19,7 @@ abstract class AnnotatorPart[T <: ScalaPsiElement : reflect.ClassTag] {
                                  severity: HighlightSeverity = HighlightSeverity.ERROR)
 
  override final def annotate(definition: ScTemplateDefinition,
-                             holder: AnnotationHolder,
+                             holder: ScalaAnnotationHolder,
                              typeAware: Boolean): Unit = for {
    Descriptor(range, message, severity) <- collectProblemDescriptors(definition, typeAware)
  } holder.createAnnotation(severity, range, message)

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
@@ -51,6 +50,6 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
   }
 
   def annotate(element: PsiElement)
-              (implicit holder: AnnotationHolder): Unit =
-    ScalaAnnotator.forProject.annotate(element, holder)
+              (implicit holder: ScalaAnnotationHolder): Unit =
+    ScalaAnnotator.forProject.annotate(element)
 }

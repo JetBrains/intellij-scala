@@ -3,7 +3,7 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.{AnnotationHolder, AnnotationSession}
+import com.intellij.lang.annotation.AnnotationSession
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPr
 object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpolatedStringLiteral] {
 
   override def annotate(literal: ScInterpolatedStringLiteral, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = literal.reference match {
+                       (implicit holder: ScalaAnnotationHolder): Unit = literal.reference match {
     case Some(partReference: ScInterpolatedExpressionPrefix) =>
       partReference match {
         case Resolved(resolveResult) =>
@@ -42,7 +42,7 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
   private def annotateDesugared(reference: ScReferenceExpression,
                                 offsetToRange: Map[Int, TextRange],
                                 session: AnnotationSession)
-                               (implicit holder: AnnotationHolder): Unit =
+                               (implicit holder: ScalaAnnotationHolder): Unit =
     ScReferenceAnnotator.annotateReference(reference, inDesugaring = true) {
 
       new annotationHolder.DelegateAnnotationHolder(session) {

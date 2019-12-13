@@ -13,9 +13,9 @@ import org.junit.Assert
 class InterpolatedStringsAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private def collectAnnotatorMessages(text: String) = {
     configureFromFileTextAdapter("dummy.scala", text)
-    val mock = new AnnotatorHolderMock(getFileAdapter)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFileAdapter)
 
-    ScalaAnnotator.forProject(getProjectAdapter).annotate(getFileAdapter.asInstanceOf[ScalaFile].getLastChild, mock)
+    ScalaAnnotator.forProject(getProjectAdapter).annotate(getFileAdapter.asInstanceOf[ScalaFile].getLastChild)
     mock.annotations
   }
   

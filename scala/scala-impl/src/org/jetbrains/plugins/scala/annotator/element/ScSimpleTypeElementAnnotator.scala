@@ -3,7 +3,6 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ResolvesTo, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs}
@@ -17,13 +16,13 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
 
   // TODO Shouldn't the ScExpressionAnnotator be enough?
   override def annotate(element: ScSimpleTypeElement, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     //todo: check bounds conformance for parameterized type
     checkAbsentTypeArgs(element)
   }
 
   private def checkAbsentTypeArgs(element: ScSimpleTypeElement)
-                                 (implicit holder: AnnotationHolder): Unit = {
+                                 (implicit holder: ScalaAnnotationHolder): Unit = {
     // Dirty hack(see SCL-12582): we shouldn't complain about missing type args since they will be added by a macro after expansion
     def isFreestyleAnnotated(ah: ScAnnotationsHolder): Boolean = {
       (ah.findAnnotationNoAliases("freestyle.free") != null) ||

@@ -3,7 +3,6 @@ package annotator
 package element
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
@@ -14,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScEnumerators
 object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] {
 
   override def annotate(enumerators: ScEnumerators, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     val msg = ScalaBundle.message("semicolon.not.allowed.here")
     findErroneousSemicolons(enumerators).foreach { errSemicolon =>
       val annotation = holder.createErrorAnnotation(errSemicolon, msg)

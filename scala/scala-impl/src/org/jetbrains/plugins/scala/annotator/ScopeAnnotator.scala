@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isScope
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -14,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdTypes, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -35,11 +34,11 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
                                  classParameters: List[ScClassParameter])
 
   def annotate(element: ScalaPsiElement, typeAware: Boolean)
-              (implicit holder: AnnotationHolder): Unit =
+              (implicit holder: ScalaAnnotationHolder): Unit =
     annotateScope(element)
 
   def annotateScope(element: PsiElement)
-                   (implicit holder: AnnotationHolder): Unit = {
+                   (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!isScope(element)) return
 
     //don't annotate clashing definitions on top level of worksheet files and scala files that explicitly allow multiple declarations

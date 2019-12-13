@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiElement
 
 class ScopeAnnotatorHeavyTest extends ScalaHighlightingTestBase {
 
   override def annotate(element: PsiElement)
-                       (implicit holder: AnnotationHolder): Unit =
+                       (implicit holder: ScalaAnnotationHolder): Unit =
     ScopeAnnotator.annotateScope(element)
 
   def testNoTypeErasureForArray() {

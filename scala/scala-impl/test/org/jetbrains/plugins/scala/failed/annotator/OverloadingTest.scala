@@ -1,20 +1,18 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiErrorElement, PsiReference}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaBundle}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
-import org.jetbrains.plugins.scala.annotator.Message
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 /**
   * User: Dmitry.Naydanov
@@ -52,14 +50,14 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Match
     Some(mock.annotations)
   }
 
-  protected def annotate(element: ScPatternDefinition, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  protected def annotate(element: ScPatternDefinition, holder: ScalaAnnotationHolder, typeAware: Boolean): Unit = {
     for (expr <- element.expr; element <- element.children.instanceOf[ScTypeElement])
       checkConformance(expr, element, holder)
   }
 
   // TODO Why do we have this custom _implementation_ in a _test_?
   // TODO Use TypeMismatchError.register
-  private def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder): Unit = {
+  private def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: ScalaAnnotationHolder): Unit = {
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
       if (!actual.conforms(expected)) {

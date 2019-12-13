@@ -70,7 +70,10 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     ScPatternDefinitionAnnotator.annotate(definition)
-    file.depthFirst().instanceOf[ScUnderscoreSection].foreach(annotator.annotate(_, mock))
+    file
+      .depthFirst()
+      .instanceOf[ScUnderscoreSection]
+      .foreach(annotator.annotate)
     mock.annotations
   }
   

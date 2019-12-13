@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package modifiers
 
-import com.intellij.lang.annotation.{AnnotationHolder, HighlightSeverity}
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -38,7 +38,7 @@ private[annotator] object ModifierChecker {
   }
 
   def checkModifiers(modifierList: ScModifierList)
-                    (implicit holder: AnnotationHolder): Unit = modifierList.getParent match {
+                    (implicit holder: ScalaAnnotationHolder): Unit = modifierList.getParent match {
     case owner: ScModifierListOwner =>
       val modifiers = mutable.HashSet.empty[ScalaModifier]
 
@@ -294,7 +294,7 @@ private[annotator] object ModifierChecker {
   private def registerQuickFix(message: String, element: PsiElement,
                                owner: ScModifierListOwner, modifier: ScalaModifier,
                                severity: HighlightSeverity = ERROR)
-                              (implicit holder: AnnotationHolder): Unit = {
+                              (implicit holder: ScalaAnnotationHolder): Unit = {
     holder.createAnnotation(severity, element.getTextRange, message)
       .registerFix(new quickfix.ModifierQuickFix.Remove(owner, null, modifier))
   }

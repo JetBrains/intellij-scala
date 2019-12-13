@@ -4,7 +4,7 @@ package element
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder, HighlightSeverity}
+import com.intellij.lang.annotation.{Annotation, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -42,7 +42,7 @@ import scala.collection.Seq
 object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   override def annotate(element: ScReference, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
       annotateReference(element)
     }
@@ -51,7 +51,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   def qualifierPart(element: ScReference, typeAware: Boolean)
-                   (implicit holder: AnnotationHolder): Unit = {
+                   (implicit holder: ScalaAnnotationHolder): Unit = {
     element.qualifier match {
       case None => checkNotQualifiedReferenceElement(element, typeAware)
       case Some(_) => checkQualifiedReferenceElement(element, typeAware)
@@ -59,7 +59,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   def annotateReference(reference: ScReference, inDesugaring: Boolean = false)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     val results = reference.multiResolveScala(false)
 
     if (results.length > 1) {
@@ -201,7 +201,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     * Annotates: val a = 1; a += 1;
     */
   private def annotateAssignmentReference(reference: ScReference)
-                                         (implicit holder: AnnotationHolder): Unit = {
+                                         (implicit holder: ScalaAnnotationHolder): Unit = {
     val qualifier = reference.getContext match {
       case x: ScMethodCall => x.getEffectiveInvokedExpr match {
         case x: ScReferenceExpression => x.qualifier
@@ -224,7 +224,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def checkNotQualifiedReferenceElement(refElement: ScReference, typeAware: Boolean)
-                                               (implicit holder: AnnotationHolder): Unit = {
+                                               (implicit holder: ScalaAnnotationHolder): Unit = {
     refElement match {
       case _: ScInterpolatedExpressionPrefix =>
         return //do not inspect interpolated literal, it will be highlighted in other place
@@ -424,7 +424,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReference, typeAware: Boolean)
-                                            (implicit holder: AnnotationHolder): Unit = {
+                                            (implicit holder: ScalaAnnotationHolder): Unit = {
     val resolve = refElement.multiResolveScala(false)
 
     UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
@@ -510,7 +510,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   // some properties cannot be shown because they are synthetic for example.
   // filter these out
-  private def withoutNonHighlightables(problems: Seq[ApplicabilityProblem], holder: AnnotationHolder): Seq[ApplicabilityProblem] = problems.filter {
+  private def withoutNonHighlightables(problems: Seq[ApplicabilityProblem], holder: ScalaAnnotationHolder): Seq[ApplicabilityProblem] = problems.filter {
     case PositionalAfterNamedArgument(argument) => inSameFile(argument, holder)
     case ParameterSpecifiedMultipleTimes(assignment) => inSameFile(assignment, holder)
     case UnresolvedParameter(assignment) => inSameFile(assignment, holder)
@@ -533,13 +533,13 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     case InternalApplicabilityProblem(_) => true
   }
 
-  private def inSameFile(elem: PsiElement, holder: AnnotationHolder): Boolean = {
+  private def inSameFile(elem: PsiElement, holder: ScalaAnnotationHolder): Boolean = {
     elem != null && elem.getContainingFile == holder.getCurrentAnnotationSession.getFile
   }
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReference,
                                       fun: PsiNamedElement)
-                                     (implicit holder: AnnotationHolder): Unit = {
+                                     (implicit holder: ScalaAnnotationHolder): Unit = {
     val typeTo = resolveResult.implicitType match {
       case Some(tp) => tp
       case _ => Any(expr.projectContext)
@@ -548,7 +548,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference)
-                                     (implicit holder: AnnotationHolder): Unit = {
+                                     (implicit holder: ScalaAnnotationHolder): Unit = {
     if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReferenceImpl]) return
     resolve(0) match {
       case r if !r.isAccessible =>

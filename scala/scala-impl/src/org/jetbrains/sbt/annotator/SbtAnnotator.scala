@@ -3,6 +3,8 @@ package annotator
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -18,7 +20,10 @@ final class SbtAnnotator extends Annotator {
 
   import SbtAnnotator._
 
-  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = element match {
+  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit =
+    annotate(element)(new ScalaAnnotationHolderAdapter(holder))
+
+  def annotate(element: PsiElement)(holder: ScalaAnnotationHolder): Unit = element match {
     case file: SbtFileImpl =>
       val sbtVersion = file.module
         .flatMap(_.sbtVersion)

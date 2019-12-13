@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiClass, PsiField, PsiMethod}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
 
   override def annotate(element: ScAssignment, typeAware: Boolean = true)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     val left = element.leftExpression

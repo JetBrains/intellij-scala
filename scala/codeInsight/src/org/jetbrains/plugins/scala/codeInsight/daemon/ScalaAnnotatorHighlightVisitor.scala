@@ -7,6 +7,7 @@ import com.intellij.codeInsight.daemon.impl.{AnnotationHolderImpl, HighlightInfo
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
@@ -26,7 +27,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
 
   override def suitableForFile(file: PsiFile): Boolean = file.hasScalaPsi
 
-  def visit(element: PsiElement): Unit = {
+  override def visit(element: PsiElement): Unit = {
     if (DumbService.getInstance(project).isDumb) return
 
     val file = element.getContainingFile
@@ -35,7 +36,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
     val manager = HighlightingLevelManager.getInstance(project)
 
     if (manager.shouldHighlight(file)) {
-      highlighter.AnnotatorHighlighter.highlightElement(element, myAnnotationHolder)
+      highlighter.AnnotatorHighlighter.highlightElement(element, new ScalaAnnotationHolderAdapter(myAnnotationHolder))
     }
 
     if (applicationUnitTestModeEnabled || manager.shouldInspect(file)) {
@@ -48,10 +49,10 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
     myAnnotationHolder.clear()
   }
 
-  def analyze(file: PsiFile,
-              updateWholeFile: Boolean,
-              holder: HighlightInfoHolder,
-              analyze: Runnable): Boolean = {
+  override def analyze(file: PsiFile,
+                       updateWholeFile: Boolean,
+                       holder: HighlightInfoHolder,
+                       analyze: Runnable): Boolean = {
 //    val time = System.currentTimeMillis()
     val scalaFile = file.findScalaLikeFile.orNull
     if (scalaFile == null) return true

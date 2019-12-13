@@ -3,7 +3,6 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -13,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
 
   override def annotate(element: ScTypeBoundsOwner, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!Option(PsiTreeUtil.getParentOfType(element, classOf[ScTypeParamClause])).flatMap(_.parent).exists(_.isInstanceOf[ScFunction])) {
       for {
         lower <- element.lowerBound.toOption

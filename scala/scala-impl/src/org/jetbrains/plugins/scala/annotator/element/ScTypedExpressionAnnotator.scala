@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.annotator.Tree.Leaf
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Mismatch, asString}
@@ -10,21 +9,20 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.extensions._
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
 
   override def annotate(element: ScTypedExpression, typeAware: Boolean = true)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
-      implicit val context = TypePresentationContext(element)
+      implicit val context: TypePresentationContext = TypePresentationContext(element)
       element.typeElement.foreach(checkUpcasting(element.expr, _))
     }
   }
 
   // SCL-15544
   private def checkUpcasting(expression: ScExpression, typeElement: ScTypeElement)
-                            (implicit holder: AnnotationHolder, context: TypePresentationContext): Unit = {
+                            (implicit holder: ScalaAnnotationHolder, context: TypePresentationContext): Unit = {
     expression.getTypeAfterImplicitConversion().tr.foreach { actual =>
       val expected = typeElement.calcType
 

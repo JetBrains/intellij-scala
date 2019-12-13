@@ -80,8 +80,8 @@ class ValueClassAnnotatorTest extends SimpleTestCase {
     val file: ScalaFile = code.parse
 
     val annotator = ScalaAnnotator.forProject
-    val mock = new AnnotatorHolderMock(file)
-    file.depthFirst().foreach(annotator.annotate(_, mock))
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+    file.depthFirst().foreach(annotator.annotate)
     mock.errorAnnotations
   }
 

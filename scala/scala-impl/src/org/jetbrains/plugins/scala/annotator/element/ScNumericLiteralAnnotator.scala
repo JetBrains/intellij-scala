@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.{AnnotationHolder, HighlightSeverity}
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.annotator.quickfix.NumberLiteralQuickFix._
 import org.jetbrains.plugins.scala.extensions.ElementText
@@ -15,7 +15,7 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
   import project.ScalaLanguageLevel._
 
   protected def annotate(literal: L)
-                        (implicit holder: AnnotationHolder): Option[(ScExpression, Boolean)] = {
+                        (implicit holder: ScalaAnnotationHolder): Option[(ScExpression, Boolean)] = {
     val languageLevel = literal.scalaLanguageLevel
 
     val text = literal.getLastChild.getText
@@ -102,7 +102,7 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
 object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](isLong = true) {
 
   override def annotate(literal: ScLongLiteral, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     annotate(literal) match {
       case Some((target, _)) if ConvertMarker.isApplicableTo(literal) =>
         val range = literal.getTextRange
@@ -118,7 +118,7 @@ object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](i
 object ScIntegerLiteralAnnotator extends ScNumericLiteralAnnotator[ScIntegerLiteral](isLong = false) {
 
   override def annotate(literal: ScIntegerLiteral, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     annotate(literal) match {
       case Some((target, true)) =>
         val annotation = holder.createErrorAnnotation(

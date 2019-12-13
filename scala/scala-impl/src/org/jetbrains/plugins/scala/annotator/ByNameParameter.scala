@@ -3,7 +3,6 @@ package annotator
 
 import java.awt.Color
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.extensions._
@@ -21,7 +20,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
   private val Foreground = new Color(128, 128, 128)
 
   override def annotate(exp: ScExpression, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     if(!ScalaProjectSettings.getInstance(exp.getProject).isShowArgumentsToByNameParams) return
 
     if(!ScalaProjectSettings.getInstance(exp.getProject).isIncludeBlockExpressions && exp.isInstanceOf[ScBlockExpr]) return

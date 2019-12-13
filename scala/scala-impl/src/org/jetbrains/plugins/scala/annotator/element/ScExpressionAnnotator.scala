@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{annotationWithoutHighlighting, smartCheckConformance}
 import org.jetbrains.plugins.scala.annotator.quickfix.{AddBreakoutQuickFix, ChangeTypeFix, WrapInOptionQuickFix}
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
@@ -21,7 +20,7 @@ import scala.annotation.tailrec
 object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
 
   override def annotate(element: ScExpression, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     // TODO Annotating ScUnderscoreSection is technically correct, but reveals previously hidden red code in ScalacTestdataHighlightingTest.tuples_1.scala
     // TODO see visitUnderscoreExpression in ScalaAnnotator
     if (element.isInstanceOf[ScUnderscoreSection]) {
@@ -41,7 +40,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
   }
 
   def checkExpressionType(element: ScExpression, typeAware: Boolean)
-                         (implicit holder: AnnotationHolder): Unit = {
+                         (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     @tailrec

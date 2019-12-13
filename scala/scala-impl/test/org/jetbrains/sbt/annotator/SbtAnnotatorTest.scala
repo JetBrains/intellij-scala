@@ -1,11 +1,9 @@
 package org.jetbrains.sbt
 package annotator
 
-import com.intellij.ide.startup.impl.StartupManagerImpl
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
-import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.Consumer
@@ -73,7 +71,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     val file = loadTestFile()
     val mock = new AnnotatorHolderMock(file)
     val annotator = new SbtAnnotator
-    annotator.annotate(file, mock)
+    annotator.annotate(file)(mock)
     mock.annotations
   }
 

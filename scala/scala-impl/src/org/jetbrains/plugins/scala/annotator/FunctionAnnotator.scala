@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -28,7 +28,7 @@ trait FunctionAnnotator {
   import FunctionAnnotator._
 
   def annotateFunction(function: ScFunctionDefinition, typeAware: Boolean = true)
-                      (implicit holder: AnnotationHolder): Unit = {
+                      (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!function.hasExplicitType && function.definedReturnType.isLeft) {
       val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
       function.recursiveReferences.foreach {

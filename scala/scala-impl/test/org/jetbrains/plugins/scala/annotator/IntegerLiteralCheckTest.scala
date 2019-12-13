@@ -75,11 +75,11 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
     val annotator = ScalaAnnotator.forProject
     val file: ScalaFile = ("val x = " + literalText).parse
 
-    val mock = new AnnotatorHolderMock(file)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     file.depthFirst()
       .filter(_.isInstanceOf[base.ScLiteral.Numeric])
-      .foreach(annotator.annotate(_, mock))
+      .foreach(annotator.annotate)
 
     mock.annotations
       .filterNot(_.isInstanceOf[Info])

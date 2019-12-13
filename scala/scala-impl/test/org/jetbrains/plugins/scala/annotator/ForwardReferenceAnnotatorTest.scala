@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -48,11 +47,12 @@ class ForwardReferenceAnnotatorTest extends AnnotatorSimpleTestCase {
     val annotator = ScalaAnnotator.forProject
     val parse: ScalaFile = (Header + code).parse
 
-    val mock = new AnnotatorHolderMock(parse)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(parse)
 
-    parse.depthFirst().instancesOf[ScReference].foreach { ref =>
-      annotator.annotate(ref, mock)
-    }
+    parse
+      .depthFirst()
+      .instancesOf[ScReference]
+      .foreach(annotator.annotate)
 
     mock.errorAnnotations
   }

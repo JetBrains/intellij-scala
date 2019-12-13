@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.quickfix.PullUpQuickFix
 import org.jetbrains.plugins.scala.extensions._
@@ -39,7 +38,7 @@ trait OverridingAnnotator {
   }
 
   def checkOverrideMethods(function: ScFunction, isInSources: Boolean = false)
-                          (implicit holder: AnnotationHolder): Unit = function.getParent match {
+                          (implicit holder: ScalaAnnotationHolder): Unit = function.getParent match {
     case _: ScTemplateBody =>
       val signaturesWithSelfType = function.superSignaturesIncludingSelfType
       val signatures = function.superSignatures
@@ -49,7 +48,7 @@ trait OverridingAnnotator {
   }
 
   def checkOverrideValues(value: ScValue, isInSources: Boolean = false)
-                         (implicit holder: AnnotationHolder): Unit = value.getParent match {
+                         (implicit holder: ScalaAnnotationHolder): Unit = value.getParent match {
     case _: ScTemplateBody |
          _: ScEarlyDefinitions =>
       value.declaredElements.foreach { td =>
@@ -62,7 +61,7 @@ trait OverridingAnnotator {
   }
 
   def checkOverrideVariables(variable: ScVariable, isInSources: Boolean = false)
-                            (implicit holder: AnnotationHolder): Unit = variable.getParent match {
+                            (implicit holder: ScalaAnnotationHolder): Unit = variable.getParent match {
     case _: ScTemplateBody |
          _: ScEarlyDefinitions =>
       variable.declaredElements.foreach { td =>
@@ -75,14 +74,14 @@ trait OverridingAnnotator {
   }
 
   def checkOverrideClassParameters(parameter: ScClassParameter)
-                                  (implicit holder: AnnotationHolder): Unit = {
+                                  (implicit holder: ScalaAnnotationHolder): Unit = {
     val supersWithSelfType = superValsSignatures(parameter, withSelfType = true)
     val supers = superValsSignatures(parameter)
     checkOverrideMembers(parameter, parameter, supersWithSelfType, supers, isConcreteTermSignature, "Parameter")
   }
 
   def checkOverrideTypeAliases(alias: ScTypeAlias)
-                              (implicit holder: AnnotationHolder): Unit = alias.getParent match {
+                              (implicit holder: ScalaAnnotationHolder): Unit = alias.getParent match {
     case _: ScTemplateBody =>
       val supersWithSelfType = superTypeMembers(alias, withSelfType = true).filter(_.isInstanceOf[ScTypeAlias])
       val supers = superTypeMembers(alias).filter(_.isInstanceOf[ScTypeAlias])
@@ -96,7 +95,7 @@ trait OverridingAnnotator {
                                         superSignatures: Seq[Res],
                                         isConcrete: Res => Boolean,
                                         memberType: String)
-                                       (implicit holder: AnnotationHolder): Unit = {
+                                       (implicit holder: ScalaAnnotationHolder): Unit = {
     import lang.lexer.{ScalaModifier, ScalaTokenTypes}
     import ScalaModifier.{OVERRIDE, Override}
     import quickfix.ModifierQuickFix._

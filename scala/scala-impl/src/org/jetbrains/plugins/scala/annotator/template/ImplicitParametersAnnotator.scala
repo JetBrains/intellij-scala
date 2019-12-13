@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
@@ -20,7 +20,7 @@ import scala.collection.Seq
 object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner] {
 
   override def annotate(element: ImplicitArgumentsOwner, typeAware: Boolean = true)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     element.findImplicitArguments.foreach { params =>
       UsageTracker.registerUsedElementsAndImports(element, params, checkWrite = false)
 
@@ -33,7 +33,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
   }
 
   private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: Seq[ScalaResolveResult])
-                               (implicit holder: AnnotationHolder): Unit = {
+                               (implicit holder: ScalaAnnotationHolder): Unit = {
     //todo: cover ambiguous implicit case (right now it is not always correct)
     parameters.filter(_.isNotFoundImplicitParameter) match {
       case Seq() =>

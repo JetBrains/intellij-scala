@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
@@ -15,7 +14,7 @@ abstract class ParametersAnnotatorTestBase extends ScalaHighlightingTestBase {
     result
   }
 
-  override def annotate(element: PsiElement)(implicit holder: AnnotationHolder): Unit = {
+  override def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit = {
     element match {
       case owner: ScParameterOwner =>
         ScParametersAnnotator.annotate(owner.clauses.get)

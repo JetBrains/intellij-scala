@@ -11,6 +11,7 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
+import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.template._
@@ -50,8 +51,10 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
   override final implicit def projectContext: ProjectContext = project
 
-  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
-    implicit val h: AnnotationHolder = holder
+  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit =
+    annotate(element)(new ScalaAnnotationHolderAdapter(holder))
+
+  def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit = {
 
     val typeAware = isAdvancedHighlightingEnabled(element)
     val (compiled, isInSources) = element.getContainingFile match {
@@ -219,7 +222,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
   def checkBoundsVariance(toCheck: PsiElement, toHighlight: PsiElement, checkParentOf: PsiElement,
                           upperV: Variance = Covariant, checkTypeDeclaredSameBracket: Boolean = true, insideParameterized: Boolean = false)
-                         (implicit holder: AnnotationHolder): Unit = {
+                         (implicit holder: ScalaAnnotationHolder): Unit = {
     toCheck match {
       case boundOwner: ScTypeBoundsOwner =>
         checkAndHighlightBounds(boundOwner.upperTypeElement, upperV)
@@ -260,7 +263,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   }
 
   private def checkFunctionForVariance(fun: ScFunction)
-                                      (implicit holder: AnnotationHolder) {
+                                      (implicit holder: ScalaAnnotationHolder) {
     if (!modifierIsThis(fun) && !compoundType(fun)) { //if modifier contains [this] or if it is a compound type we do not highlight it
       checkBoundsVariance(fun, fun.nameId, fun.getParent)
       if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
@@ -283,7 +286,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   }
 
   private def checkTypeVariance(typeable: Typeable, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement)
-                               (implicit holder: AnnotationHolder): Unit = {
+                               (implicit holder: ScalaAnnotationHolder): Unit = {
     typeable.`type`() match {
       case Right(tp) =>
         ScalaType.expandAliases(tp) match {
@@ -295,13 +298,13 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   }
 
   def checkClassParameterVariance(toCheck: ScClassParameter)
-                                 (implicit holder: AnnotationHolder): Unit = {
+                                 (implicit holder: ScalaAnnotationHolder): Unit = {
     if (toCheck.isVar && !modifierIsThis(toCheck) && !childHasAnnotation(Some(toCheck), "uncheckedVariance"))
       checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck)
   }
 
   def checkTemplateParentsVariance(parents: ScTemplateParents)
-                                  (implicit holder: AnnotationHolder): Unit = {
+                                  (implicit holder: ScalaAnnotationHolder): Unit = {
     for (typeElement <- parents.typeElements) {
       if (!childHasAnnotation(Some(typeElement), "uncheckedVariance") && !parents.parent.flatMap(_.parent).exists(_.isInstanceOf[ScNewTemplateDefinition]))
         checkTypeVariance(typeElement, Covariant, typeElement, parents)
@@ -310,7 +313,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
   def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Variance,
                                     declaredElements: Seq[Typeable with ScNamedElement])
-                                   (implicit holder: AnnotationHolder) {
+                                   (implicit holder: ScalaAnnotationHolder) {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
         checkTypeVariance(element, variance, element.nameId, toCheck)
@@ -335,7 +338,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
   //fix for SCL-807
   private def checkVariance(typeParam: ScType, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement, checkIfTypeIsInSameBrackets: Boolean = false, insideParameterized: Boolean = false)
-                           (implicit holder: AnnotationHolder) = {
+                           (implicit holder: ScalaAnnotationHolder) = {
 
     def highlightVarianceError(elementV: Variance, positionV: Variance, name: String) = {
       if (positionV != elementV && elementV != Invariant) {

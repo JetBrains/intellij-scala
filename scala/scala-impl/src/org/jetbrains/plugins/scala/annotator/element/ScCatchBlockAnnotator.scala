@@ -3,7 +3,6 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.quickfix.ChangeTypeFix
 import org.jetbrains.plugins.scala.extensions._
@@ -22,7 +21,7 @@ import scala.collection.Seq
 object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
 
   override def annotate(element: ScCatchBlock, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     element.expression match {

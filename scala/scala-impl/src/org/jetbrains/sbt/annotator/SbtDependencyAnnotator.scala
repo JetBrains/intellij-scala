@@ -4,6 +4,8 @@ package annotator
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleType}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
@@ -22,6 +24,9 @@ class SbtDependencyAnnotator extends Annotator {
   private case class ArtifactInfo(group: String, artifact: String, version: String)
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit =
+    annotate(element)(new ScalaAnnotationHolderAdapter(holder))
+
+  def annotate(element: PsiElement)(holder: ScalaAnnotationHolder): Unit =
     try {
       doAnnotate(element, holder)
     } catch {
@@ -30,7 +35,7 @@ class SbtDependencyAnnotator extends Annotator {
         // NotificationUtil.showMessage(null, exc.getMessage)
     }
 
-  private def doAnnotate(element: PsiElement, holder: AnnotationHolder): Unit = {
+  private def doAnnotate(element: PsiElement, holder: ScalaAnnotationHolder): Unit = {
     def moduleByName(name: String) = ModuleManager.getInstance(element.getProject).getModules.find(_.getName == name)
 
     def findBuildModule(module: Option[Module]): Option[Module] = module match {

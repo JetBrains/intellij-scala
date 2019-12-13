@@ -4,7 +4,8 @@ import com.intellij.psi.PsiElement
 
 class ScalaLibVarianceTest extends VarianceTestBase {
 
-  override def annotateFun(element: PsiElement, annotator: ScalaAnnotator, mock: AnnotatorHolderMock): Unit = annotator.annotate(element, mock)
+  override def annotateFun(element: PsiElement, annotator: ScalaAnnotator, mock: AnnotatorHolderMock): Unit =
+    annotator.annotate(element)(mock)
 
   protected def code(insertLine: String): String =
     s"""

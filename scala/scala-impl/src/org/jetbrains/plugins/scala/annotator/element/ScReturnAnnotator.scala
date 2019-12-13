@@ -3,7 +3,7 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.lang.annotation.Annotation
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.types.api
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 object ScReturnAnnotator extends ElementAnnotator[ScReturn] {
 
   override def annotate(element: ScReturn, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     val function = element.method.getOrElse {

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -24,14 +23,14 @@ import scala.collection.mutable.ArrayBuffer
 object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
   override def annotate(element: ScPattern, typeAware: Boolean = true)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
       checkPattern(element)
     }
   }
 
   private def checkPattern(pattern: ScPattern)
-                          (implicit holder: AnnotationHolder): Unit = {
+                          (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = pattern
 
     for {
@@ -48,7 +47,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     *
     */
   private def checkPatternType(_patType: ScType, exprType: ScType, pattern: ScPattern)
-                              (implicit holder: AnnotationHolder) = {
+                              (implicit holder: ScalaAnnotationHolder) = {
     implicit val ctx: ProjectContext = pattern
     implicit val tpc: TypePresentationContext = TypePresentationContext(pattern)
 

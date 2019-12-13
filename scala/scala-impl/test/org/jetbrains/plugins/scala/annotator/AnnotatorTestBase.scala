@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiErrorElement, PsiReference}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
@@ -46,6 +45,6 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement : reflect.ClassTag] extend
   }
 
   protected def annotate(element: T)
-                        (implicit holder: AnnotationHolder): Unit =
+                        (implicit holder: ScalaAnnotationHolder): Unit =
     ElementAnnotator.annotate(element)
 }

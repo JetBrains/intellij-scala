@@ -3,7 +3,7 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.lang.annotation.Annotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -13,7 +13,7 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
   import ScConstructorInvocationAnnotator._
 
   override def annotate(element: ScSelfInvocation, typeAware: Boolean = true)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     if (!typeAware)

@@ -26,7 +26,7 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndI
         val visitor = new ScalaRecursiveElementVisitor {
           override def visitScalaElement(element: ScalaPsiElement) {
             try {
-              annotator.annotate(element, mock)
+              annotator.annotate(element)(mock)
               super.visitScalaElement(element)
             } catch {
               case ignored: Throwable => //this should be checked in AllProjectHighlightingTest

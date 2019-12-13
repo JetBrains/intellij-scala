@@ -126,7 +126,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
       val visitor = new ScalaRecursiveElementVisitor {
         override def visitScalaElement(element: ScalaPsiElement) {
           try {
-            annotator.annotate(element, mock)
+            annotator.annotate(element)(mock)
           } catch {
             case e: Throwable =>
               println(s"Exception in ${file.getName}, Stacktrace: ")

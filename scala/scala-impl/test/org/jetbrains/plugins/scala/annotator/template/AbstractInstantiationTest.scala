@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
-import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScNewTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 
@@ -57,7 +56,7 @@ class AbstractInstantiationTest extends AnnotatorTestBase[ScNewTemplateDefinitio
   }
 
   override protected def annotate(element: ScNewTemplateDefinition)
-                                 (implicit holder: AnnotationHolder): Unit =
+                                 (implicit holder: ScalaAnnotationHolder): Unit =
     ScNewTemplateDefinitionAnnotator.annotateAbstractInstantiation(element)
 
   private def message(params: String*) =

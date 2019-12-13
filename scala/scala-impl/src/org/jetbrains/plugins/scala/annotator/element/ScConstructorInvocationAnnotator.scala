@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
@@ -24,7 +23,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorInvocation] {
 
   override def annotate(element: ScConstructorInvocation, typeAware: Boolean = true)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
       ImplicitParametersAnnotator.annotate(element, typeAware)
       annotateConstructorInvocation(element)
@@ -33,7 +32,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
 
   // TODO duplication with application annotator.
   private def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation)
-                                           (implicit holder: AnnotationHolder) {
+                                           (implicit holder: ScalaAnnotationHolder) {
     constrInvocation.typeElement match {
       case lit: ScLiteralTypeElement =>
         holder.createErrorAnnotation(constrInvocation.typeElement, s"Class type required but ($lit) found")
@@ -92,7 +91,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
   }
 
   def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ConstructorInvocationLike)
-                      (implicit holder: AnnotationHolder): Unit = {
+                      (implicit holder: ScalaAnnotationHolder): Unit = {
     val element = r.element
     def argsElements = argsElementsTextRange(constrInvocation)
     // TODO decouple

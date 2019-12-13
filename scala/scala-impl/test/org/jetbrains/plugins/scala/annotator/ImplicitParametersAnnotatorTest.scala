@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
@@ -13,7 +12,7 @@ abstract class ImplicitParametersAnnotatorTestBase extends AnnotatorTestBase[Imp
   protected def notFound(types: String*) = ImplicitParametersAnnotator.message(types)
 
   override protected def annotate(element: ImplicitArgumentsOwner)
-                                 (implicit holder: AnnotationHolder): Unit =
+                                 (implicit holder: ScalaAnnotationHolder): Unit =
     ImplicitParametersAnnotator.annotate(element)
 }
 

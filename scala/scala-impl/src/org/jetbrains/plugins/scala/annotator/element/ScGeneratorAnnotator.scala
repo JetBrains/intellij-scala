@@ -3,7 +3,7 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.{AnnotationHolder, AnnotationSession}
+import com.intellij.lang.annotation.AnnotationSession
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotationHolder, ErrorIndication}
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
 object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
 
   override def annotate(element: ScGenerator, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     checkGenerator(element, typeAware)
 
     element.valKeyword match {
@@ -27,7 +27,7 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
   }
 
   private def checkGenerator(generator: ScGenerator, typeAware: Boolean)
-                            (implicit holder: AnnotationHolder): Unit = {
+                            (implicit holder: ScalaAnnotationHolder): Unit = {
 
     for {
       forExpression <- generator.forStatement
@@ -85,7 +85,7 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
   }
 
   private def delegateHolderFor(target: PsiElement, session: AnnotationSession)
-                               (implicit holder: AnnotationHolder): DelegateAnnotationHolder with ErrorIndication =
+                               (implicit holder: ScalaAnnotationHolder): DelegateAnnotationHolder with ErrorIndication =
     new DelegateAnnotationHolder(session) with ErrorIndication {
 
       override protected val element: Some[PsiElement] = Some(target)

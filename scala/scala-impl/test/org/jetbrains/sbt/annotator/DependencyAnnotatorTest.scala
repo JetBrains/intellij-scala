@@ -1,8 +1,6 @@
 package org.jetbrains.sbt
 package annotator
 
-import java.util.Collections
-
 import _root_.junit.framework.Assert._
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.io.FileUtil
@@ -75,7 +73,7 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
 
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitLiteral(lit: ScLiteral) {
-        annotator.annotate(lit, mock)
+        annotator.annotate(lit)(mock)
         super.visitLiteral(lit)
       }
     }

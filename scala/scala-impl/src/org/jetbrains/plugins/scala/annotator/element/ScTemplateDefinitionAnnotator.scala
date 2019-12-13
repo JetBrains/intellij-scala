@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiMethod, PsiModifier}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMethodsQuickFix, ModifierQuickFix}
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMem
 object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefinition] {
 
   override def annotate(element: ScTemplateDefinition, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     annotateFinalClassInheritance(element)
     annotateMultipleInheritance(element)
     annotateNeedsToBeTrait(element)
@@ -40,7 +39,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
   // TODO package private
   def annotateFinalClassInheritance(element: ScTemplateDefinition)
-                                   (implicit holder: AnnotationHolder): Unit = {
+                                   (implicit holder: ScalaAnnotationHolder): Unit = {
     val newInstance = element.isInstanceOf[ScNewTemplateDefinition]
     val hasBody = element.extendsBlock.templateBody.isDefined
 
@@ -58,7 +57,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   }
 
   def annotateIllegalInheritance(element: ScTemplateDefinition)
-                                (implicit holder: AnnotationHolder): Unit = {
+                                (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(element)
     element.selfTypeElement.flatMap(_.`type`().toOption).
       orElse(element.`type`().toOption)
@@ -80,7 +79,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
   // TODO package private
   def annotateObjectCreationImpossible(element: ScTemplateDefinition)
-                                      (implicit holder: AnnotationHolder) {
+                                      (implicit holder: ScalaAnnotationHolder) {
     val isNew = element.isInstanceOf[ScNewTemplateDefinition]
     val isObject = element.isInstanceOf[ScObject]
 
@@ -122,7 +121,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   }
 
   def annotateMultipleInheritance(element: ScTemplateDefinition)
-                                 (implicit holder: AnnotationHolder): Unit = {
+                                 (implicit holder: ScalaAnnotationHolder): Unit = {
     superRefs(element).groupBy(_._2).flatMap {
       case (clazz, entries) if isMixable(clazz) && entries.size > 1 => entries.map {
         case (range, _) => (range, ScalaBundle.message("illegal.inheritance.multiple", kindOf(clazz), clazz.name))
@@ -135,7 +134,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   }
 
   def annotateNeedsToBeTrait(element: ScTemplateDefinition)
-                            (implicit holder: AnnotationHolder): Unit = superRefs(element) match {
+                            (implicit holder: ScalaAnnotationHolder): Unit = superRefs(element) match {
     case _ :: tail =>
       tail.collect {
         case (range, clazz) if !isMixable(clazz) =>
@@ -149,7 +148,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
   // TODO package private
   def annotateUndefinedMember(element: ScTemplateDefinition)
-                             (implicit holder: AnnotationHolder): Unit = {
+                             (implicit holder: ScalaAnnotationHolder): Unit = {
     val isNew = element.isInstanceOf[ScNewTemplateDefinition]
     val isObject = element.isInstanceOf[ScObject]
 
@@ -169,7 +168,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
   // TODO test
   private def annotateSealedclassInheritance(element: ScTemplateDefinition)
-                                            (implicit holder: AnnotationHolder): Unit = element.getContainingFile match {
+                                            (implicit holder: ScalaAnnotationHolder): Unit = element.getContainingFile match {
     case file: ScalaFile if !file.isCompiled =>
       val references = element match {
         case templateDefinition: ScNewTemplateDefinition if templateDefinition.extendsBlock.templateBody.isEmpty => Nil
@@ -190,7 +189,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
   // TODO package private
   def annotateNeedsToBeAbstract(element: ScTemplateDefinition, typeAware: Boolean = true)
-                               (implicit holder: AnnotationHolder): Unit = element match {
+                               (implicit holder: ScalaAnnotationHolder): Unit = element match {
     case _: ScNewTemplateDefinition | _: ScObject =>
     case _ if !typeAware || isAbstract(element) =>
     case _ =>
@@ -222,7 +221,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   }
 
   def annotateNeedsToBeMixin(element: ScTemplateDefinition)
-                            (implicit holder: AnnotationHolder): Unit = {
+                            (implicit holder: ScalaAnnotationHolder): Unit = {
     if (element.isInstanceOf[ScTrait]) return
 
     val nodes = TypeDefinitionMembers.getSignatures(element).allNodesIterator

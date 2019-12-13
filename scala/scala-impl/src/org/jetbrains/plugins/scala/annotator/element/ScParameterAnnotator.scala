@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -11,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
 
   override def annotate(element: ScParameter, typeAware: Boolean = true)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     element.owner match {
       case null =>
         holder.createErrorAnnotation(element, "Parameter without an owner: " + element.name)
@@ -37,7 +36,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
   }
 
   private def annotateCallByNameParameter(element: ScParameter)
-                                         (implicit holder: AnnotationHolder): Any = {
+                                         (implicit holder: ScalaAnnotationHolder): Any = {
     def errorWithMessageAbout(topic: String): Unit = {
       val message = s"$topic parameters may not be call-by-name"
       holder.createErrorAnnotation(element, message)

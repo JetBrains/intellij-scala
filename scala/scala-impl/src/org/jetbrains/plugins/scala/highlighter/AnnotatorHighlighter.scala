@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package highlighter
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -46,7 +46,7 @@ object AnnotatorHighlighter {
     }
   }
 
-  def highlightReferenceElement(refElement: ScReference, holder: AnnotationHolder) {
+  def highlightReferenceElement(refElement: ScReference, holder: ScalaAnnotationHolder) {
     implicit val project: ProjectContext = refElement.projectContext
 
     def annotateCollectionByType(resolvedType: ScType) {
@@ -240,7 +240,7 @@ object AnnotatorHighlighter {
     }
   }
 
-  def highlightElement(element: PsiElement, holder: AnnotationHolder) {
+  def highlightElement(element: PsiElement, holder: ScalaAnnotationHolder) {
     element match {
       case r: ScReference => highlightReferenceElement(r, holder)
       case x: ScAnnotation => visitAnnotation(x, holder)
@@ -311,7 +311,7 @@ object AnnotatorHighlighter {
     }
   }
 
-  private def visitAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
+  private def visitAnnotation(annotation: ScAnnotation, holder: ScalaAnnotationHolder): Unit = {
     val annotation1 = holder.createInfoAnnotation(annotation.getFirstChild, null)
     annotation1.setTextAttributes(DefaultHighlighter.ANNOTATION)
     val element = annotation.annotationExpr.constructorInvocation.typeElement
@@ -319,12 +319,12 @@ object AnnotatorHighlighter {
     annotation2.setTextAttributes(DefaultHighlighter.ANNOTATION)
   }
 
-  private def visitTypeAlias(typeAlias: ScTypeAlias, holder: AnnotationHolder): Unit = {
+  private def visitTypeAlias(typeAlias: ScTypeAlias, holder: ScalaAnnotationHolder): Unit = {
     val annotation = holder.createInfoAnnotation(typeAlias.nameId, null)
     annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
   }
 
-  private def visitParameter(param: ScParameter, holder: AnnotationHolder): Unit = {
+  private def visitParameter(param: ScParameter, holder: ScalaAnnotationHolder): Unit = {
     val annotation = holder.createInfoAnnotation(param.nameId, null)
     val attributesKey =
       if (param.isAnonymousParameter) DefaultHighlighter.ANONYMOUS_PARAMETER
@@ -332,25 +332,25 @@ object AnnotatorHighlighter {
     annotation.setTextAttributes(attributesKey)
   }
 
-  private def visitPattern(pattern: ScPattern, holder: AnnotationHolder, attribute: TextAttributesKey): Unit = {
+  private def visitPattern(pattern: ScPattern, holder: ScalaAnnotationHolder, attribute: TextAttributesKey): Unit = {
     for (binding <- pattern.bindings if !binding.isWildcard) {
       val annotation = holder.createInfoAnnotation(binding.nameId, null)
       annotation.setTextAttributes(attribute)
     }
   }
 
-  private def visitCaseClause(clause: ScCaseClause, holder: AnnotationHolder): Unit = {
+  private def visitCaseClause(clause: ScCaseClause, holder: ScalaAnnotationHolder): Unit = {
     clause.pattern match {
       case Some(x) => visitPattern(x, holder, DefaultHighlighter.PATTERN)
       case None =>
     }
   }
 
-  private def visitGenerator(generator: ScGenerator, holder: AnnotationHolder): Unit = {
+  private def visitGenerator(generator: ScGenerator, holder: ScalaAnnotationHolder): Unit = {
     visitPattern(generator.pattern, holder, DefaultHighlighter.GENERATOR)
   }
 
-  private def visitForBinding(forBinding: ScForBinding, holder: AnnotationHolder): Unit = {
+  private def visitForBinding(forBinding: ScForBinding, holder: ScalaAnnotationHolder): Unit = {
     visitPattern(forBinding.pattern, holder, DefaultHighlighter.GENERATOR)
   }
 

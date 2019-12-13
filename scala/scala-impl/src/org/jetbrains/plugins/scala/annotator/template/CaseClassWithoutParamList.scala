@@ -4,7 +4,6 @@ package template
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageL
 object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
 
   override def annotate(element: ScClass, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     def createAnnotation(nameId: PsiElement) = {
       if (element.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {
         val message = "case classes without a parameter list are not allowed"

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 private object TypeMismatchError {
   def register(element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)
               (formatMessage: (String, String) => String)
-              (implicit holder: AnnotationHolder): Annotation = {
+              (implicit holder: ScalaAnnotationHolder): Annotation = {
     val annotatedElement = elementAt(element, blockLevel)
     implicit val context: TypePresentationContext = TypePresentationContext(annotatedElement)
 

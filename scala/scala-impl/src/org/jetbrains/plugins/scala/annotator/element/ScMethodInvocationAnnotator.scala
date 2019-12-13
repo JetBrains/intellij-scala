@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
@@ -21,14 +20,14 @@ import scala.annotation.tailrec
 object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
   override def annotate(element: MethodInvocation, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
       annotateMethodInvocation(element)
     }
   }
 
   def annotateMethodInvocation(call: MethodInvocation)
-                              (implicit holder: AnnotationHolder) {
+                              (implicit holder: ScalaAnnotationHolder) {
     implicit val ctx: ProjectContext = call
     implicit val tpc: TypePresentationContext = TypePresentationContext(call)
 

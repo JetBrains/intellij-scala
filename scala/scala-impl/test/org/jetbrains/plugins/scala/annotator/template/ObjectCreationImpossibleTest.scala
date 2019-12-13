@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.annotator.template
 
-import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator._
-import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
@@ -87,6 +86,6 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitio
   }
 
   override protected def annotate(element: ScTemplateDefinition)
-                                 (implicit holder: AnnotationHolder): Unit =
+                                 (implicit holder: ScalaAnnotationHolder): Unit =
     ScTemplateDefinitionAnnotator.annotateObjectCreationImpossible(element)
 }

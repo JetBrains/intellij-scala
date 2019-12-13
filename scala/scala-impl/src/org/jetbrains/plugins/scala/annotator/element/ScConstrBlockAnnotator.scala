@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
@@ -10,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
 object ScConstrBlockAnnotator extends ElementAnnotator[ScConstrBlock] {
 
   override def annotate(element: ScConstrBlock, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
     element.selfInvocation match {
       case Some(invocation) =>
         invocation.bind match {

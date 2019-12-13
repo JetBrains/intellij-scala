@@ -572,9 +572,9 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
 
     val annotator = ScalaAnnotator.forProject
     val file: ScalaFile = parseText(scalaCode)
-    val mock = new AnnotatorHolderMock(file)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    file.depthFirst().foreach(annotator.annotate(_, mock))
+    file.depthFirst().foreach(annotator.annotate)
 
     mock.errorAnnotations.filter {
       case Error(_, null) => false
