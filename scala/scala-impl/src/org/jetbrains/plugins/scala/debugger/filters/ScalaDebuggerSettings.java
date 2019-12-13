@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.debugger.filters;
 
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.options.SimpleConfigurable;
+import com.intellij.openapi.util.Getter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.xdebugger.settings.DebuggerSettingsCategory;
 import com.intellij.xdebugger.settings.XDebuggerSettings;
@@ -11,10 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Collections;
 
+import static java.util.Collections.singletonList;
+
 /**
  * @author ilyas
  */
-public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettings> {
+public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettings> implements Getter<ScalaDebuggerSettings> {
 
   public Boolean DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = true;
   public Boolean FRIENDLY_COLLECTION_DISPLAY_ENABLED = true;
@@ -25,6 +27,7 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
   public Boolean SHOW_VARIABLES_FROM_OUTER_SCOPES = true;
   public Boolean FORCE_CLASS_PREPARE_REQUESTS_FOR_NESTED_TYPES = true;
   public Boolean FORCE_POSITION_LOOKUP_IN_NESTED_TYPES = true;
+  public Boolean ALWAYS_SMART_STEP_INTO = true;
 
   public ScalaDebuggerSettings() {
     super("scala_debugger");
@@ -34,8 +37,12 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
   @Override
   public Collection<? extends Configurable> createConfigurables(@NotNull DebuggerSettingsCategory category) {
     //todo: split settings configurables somehow
-    if (category == DebuggerSettingsCategory.GENERAL) {
-      return Collections.singletonList(new ScalaDebuggerSettingsConfigurable(this));
+    switch (category) {
+      case GENERAL:
+        return singletonList(new ScalaDebuggerSettingsConfigurable(this));
+      case STEPPING:
+        return singletonList(SimpleConfigurable.create("scala.debugger.stepping" ,"Scala", ScalaSteppingConfigurable.class, this));
+
     }
     return Collections.emptyList();
   }
@@ -52,4 +59,8 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
     return getInstance(ScalaDebuggerSettings.class);
   }
 
+  @Override
+  public ScalaDebuggerSettings get() {
+    return this;
+  }
 }

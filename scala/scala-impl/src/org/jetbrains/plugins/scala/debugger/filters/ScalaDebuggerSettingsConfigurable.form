@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettingsConfigurable">
-  <grid id="27dc6" binding="myPanel" layout-manager="GridLayoutManager" row-count="9" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="myPanel" layout-manager="GridLayoutManager" row-count="8" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="20" y="20" width="550" height="400"/>
@@ -8,23 +8,14 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="99d36" class="javax.swing.JCheckBox" binding="myIgnoreScalaMethods">
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <selected value="false"/>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.debug.disable.specific.methods"/>
-        </properties>
-      </component>
       <vspacer id="c37da">
         <constraints>
-          <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
       <component id="8d6d6" class="javax.swing.JCheckBox" binding="friendlyDisplayOfScalaCheckBox" default-binding="true">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="friendly.collection.display.enabled"/>
@@ -33,7 +24,7 @@
       <grid id="a3322" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -70,7 +61,7 @@
       </grid>
       <component id="8207f" class="javax.swing.JCheckBox" binding="doNotExpandStreamsCheckBox" default-binding="true">
         <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="friendly.collection.do.not.display.streams"/>
@@ -78,17 +69,17 @@
       </component>
       <hspacer id="dfa0b">
         <constraints>
-          <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
       <hspacer id="8015c">
         <constraints>
-          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
       <component id="1f306" class="javax.swing.JLabel">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value=""/>
@@ -96,7 +87,7 @@
       </component>
       <component id="6ad38" class="javax.swing.JLabel">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="   "/>
@@ -104,7 +95,7 @@
       </component>
       <component id="f2dfc" class="javax.swing.JCheckBox" binding="dontShowRuntimeRefs" default-binding="true">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="dont.show.runtime.refs"/>
@@ -112,7 +103,7 @@
       </component>
       <component id="d789e" class="javax.swing.JCheckBox" binding="showOuterVariables">
         <constraints>
-          <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="show.variables.from.outer.scopes.in.variables.view"/>
@@ -120,7 +111,7 @@
       </component>
       <component id="e14e1" class="javax.swing.JCheckBox" binding="forceClassPrepareRequestsForNestedTypes">
         <constraints>
-          <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="force.class.prepare.request.for.nested.types"/>
@@ -128,7 +119,7 @@
       </component>
       <component id="2a410" class="javax.swing.JCheckBox" binding="forcePositionLookupInNestedTypes">
         <constraints>
-          <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="force.position.lookup.in.nested.types"/>
