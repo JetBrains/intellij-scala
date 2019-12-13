@@ -83,6 +83,11 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
     val requiredType = implicitly[ClassTag[U]].runtimeClass
 
+    //performance optimization
+    if (!isPossibleToConvert(requiredType, sourcePsi)) {
+      return None
+    }
+
     //noinspection GetOrElseNull,ConvertibleToMethodValue
     val elementOpt: Option[Free[UElement]] =
       Option((sourcePsi match {
@@ -486,6 +491,14 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case _ => parent
       }
     }
+  }
+
+  private def isPossibleToConvert[U](uastRequiredType: Class[U], scalaElement: PsiElement): Boolean = {
+    def isLiteralExpression = scalaElement.isInstanceOf[ScLiteral]
+
+    //avoid converting everything to UAST from PropertyFoldingBuilder
+    if (uastRequiredType == classOf[ULiteralExpression]) isLiteralExpression
+    else true
   }
 
   private class LazyAnyUParentUIdentifier(@Nullable sourcePsi: PsiElement)
