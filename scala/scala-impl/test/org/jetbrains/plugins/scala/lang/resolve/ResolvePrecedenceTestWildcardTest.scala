@@ -5,58 +5,6 @@ import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12, Scala_2_1
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
 
-
-class ResolvePrecedenceTest2_13
-    extends ScalaLightCodeInsightFixtureTestAdapter
-    with SimpleResolveTestBase {
-  override implicit val version: ScalaVersion = Scala_2_13
-
-  def testSCL16057(): Unit = doResolveTest(
-    s"""
-       |package foo
-       |
-       |import cats.Monoid
-       |object Test {
-       |  val a: Mon${REFSRC}oid[Int] = ???
-       |}
-       |""".stripMargin -> "HasRef.scala",
-    s"""
-       |package object cats {
-       |  type Mo${REFTGT}noid[A] = A
-       |}
-       |""".stripMargin -> "DefinesRef.scala",
-    s"""
-       |package foo
-       |trait Monoid[A]
-       |""".stripMargin -> "PackageLocal.scala"
-  )
-}
-
-class ResolvePrecedenceTest2_12
-  extends ScalaLightCodeInsightFixtureTestAdapter
-    with SimpleResolveTestBase {
-  override implicit val version: ScalaVersion = Scala_2_12
-
-  def testSCL16057(): Unit = doResolveTest(
-    s"""
-       |package foo
-       |
-       |object Test {
-       |  val a: Mon${REFSRC}oid[Int] = ???
-       |}
-       |""".stripMargin -> "HasRef.scala",
-    s"""
-       |package object cats {
-       |  type Monoid[A] = A
-       |}
-       |""".stripMargin -> "DefinesRef.scala",
-    s"""
-       |package foo
-       |trait M${REFTGT}onoid[A]
-       |""".stripMargin -> "PackageLocal.scala"
-  )
-}
-
 class ResolvePrecedenceTestWildcardImportSameUnit
     extends ScalaLightCodeInsightFixtureTestAdapter
     with SimpleResolveTestBase {
