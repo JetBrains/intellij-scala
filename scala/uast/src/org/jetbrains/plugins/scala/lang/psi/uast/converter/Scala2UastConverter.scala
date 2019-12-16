@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.converter
+package org.jetbrains.plugins.scala
+package lang.psi.uast.converter
 
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiMethod}
@@ -84,7 +85,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     val requiredType = implicitly[ClassTag[U]].runtimeClass
 
     //performance optimization
-    if (!isPossibleToConvert(requiredType, sourcePsi)) {
+    if (!isUnitTestMode && !isPossibleToConvert(requiredType, sourcePsi)) {
       return None
     }
 
@@ -323,8 +324,14 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
     elementOpt.flatMap { element =>
       element.standalone match {
-        case _: U => Some(element.asInstanceOf[Free[U]])
-        case _    => None
+        case _: U =>
+
+          if (isUnitTestMode && !isPossibleToConvert(requiredType, sourcePsi)) {
+            throw new AssertionError(s"${requiredType.getName} is not expected from ${sourcePsi.getClass.getName}")
+          }
+
+          Some(element.asInstanceOf[Free[U]])
+        case _ => None
       }
     }
   }
