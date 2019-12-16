@@ -136,7 +136,7 @@ object ImplicitResolveResult {
       for {
         expressions <- methodProcessor.argumentClauses
         expression <- expressions
-        (typeResult, _) = expression.getTypeAfterImplicitConversion(checkImplicits = false, isShape = methodProcessor.isShapeResolve, None)
+        typeResult = expression.getTypeAfterImplicitConversion(checkImplicits = false, isShape = methodProcessor.isShapeResolve, None).tr
       } yield typeResult.getOrAny
     case _ => Seq.empty
   }

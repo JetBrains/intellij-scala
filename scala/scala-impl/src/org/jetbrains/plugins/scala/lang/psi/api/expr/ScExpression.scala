@@ -8,13 +8,13 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -34,7 +34,7 @@ import scala.annotation.tailrec
 trait ScExpression extends ScBlockStatement
   with PsiAnnotationMemberValue
   with ImplicitArgumentsOwner
-  with Typeable {
+  with Typeable with Compatibility.Expression {
 
   import ScExpression._
 
@@ -115,13 +115,48 @@ trait ScExpression extends ScBlockStatement
 
     inner(this)
   }
+
+  @CachedWithRecursionGuard(
+    this,
+    ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion")),
+    ModCount.getBlockModificationCount
+  )
+  override def getTypeAfterImplicitConversion(
+    checkImplicits:  Boolean        = true,
+    isShape:         Boolean        = false,
+    expectedOption:  Option[ScType] = None,
+    ignoreBaseTypes: Boolean        = false,
+    fromUnderscore:  Boolean        = false
+  ): ExpressionTypeResult = {
+    def isJavaReflectPolymorphic =
+      this.scalaLanguageLevelOrDefault >= Scala_2_11 &&
+        ScalaPsiUtil.isJavaReflectPolymorphicSignature(this)
+
+    if (isShape) ExpressionTypeResult(Right(shape(this).getOrElse(Nothing)))
+    else {
+      val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
+      val tr       = this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+
+      (expected, tr.toOption) match {
+        case (Some(expType), Some(tp))
+          if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
+
+          this.tryAdaptTypeToSAM(tp, expType, fromUnderscore).getOrElse(
+            if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
+            else                          this.updateTypeWithImplicitConversion(tp, expType)
+          )
+        case _ => ExpressionTypeResult(tr)
+      }
+    }
+  }
 }
 
 object ScExpression {
-
-  case class ExpressionTypeResult(tr: TypeResult,
-                                  importsUsed: scala.collection.Set[ImportUsed] = Set.empty,
-                                  implicitConversion: Option[ScalaResolveResult] = None) {
+  final case class ExpressionTypeResult(
+    tr:                 TypeResult,
+    importsUsed:        collection.Set[ImportUsed] = Set.empty,
+    implicitConversion: Option[ScalaResolveResult] = None
+  ) {
     def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
   }
 
@@ -150,7 +185,7 @@ object ScExpression {
     @CachedWithRecursionGuard(expr, None, ModCount.getBlockModificationCount)
     def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
 
-    def getTypeIgnoreBaseType: TypeResult = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
+    def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
     @CachedWithRecursionGuard(expr, Failure("Recursive getNonValueType"), ModCount.getBlockModificationCount)
     def getNonValueType(ignoreBaseType: Boolean = false,
@@ -171,71 +206,6 @@ object ScExpression {
               fromUnderscore = true).tr.getOrAny,
               params, isImplicit = false)
           Right(methType)
-        }
-      }
-    }
-
-    /**
-      * This method returns real type, after using implicit conversions.
-      * Second parameter to return is used imports for this conversion.
-      *
-      * @param expectedOption  to which type we trying to convert
-      * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
-      *                        this parameter is useful for refactorings (introduce variable)
-      */
-    @CachedWithRecursionGuard(expr, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion")), ModCount.getBlockModificationCount)
-    def getTypeAfterImplicitConversion(checkImplicits: Boolean = true,
-                                       isShape: Boolean = false,
-                                       expectedOption: Option[ScType] = None,
-                                       ignoreBaseTypes: Boolean = false,
-                                       fromUnderscore: Boolean = false): ExpressionTypeResult = {
-
-      def isJavaReflectPolymorphic = expr.scalaLanguageLevelOrDefault >= Scala_2_11 && ScalaPsiUtil.isJavaReflectPolymorphicSignature(expr)
-
-      if (isShape) ExpressionTypeResult(Right(shape(expr).getOrElse(Nothing)))
-      else {
-        val expected = expectedOption.orElse(expectedType(fromUnderscore = fromUnderscore))
-        val tr       = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
-
-        (expected, tr.toOption) match {
-          case (Some(expType), Some(tp))
-            if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
-
-            tryAdaptToSAM(tp, expType, fromUnderscore).getOrElse(
-              if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
-              else {
-                val functionType = FunctionType(expType, Seq(tp))
-
-                val implicitCollector = new ImplicitCollector(
-                  expr,
-                  functionType,
-                  functionType,
-                  None,
-                  isImplicitConversion = true
-                )
-
-                val fromImplicit = implicitCollector.collect() match {
-                  case Seq(res) =>
-                    extractImplicitParameterType(res).flatMap {
-                      case FunctionType(rt, Seq(_)) => Some(rt)
-                      case paramType =>
-                        expr.elementScope.cachedFunction1Type.flatMap { functionType =>
-                          paramType.conforms(functionType, ConstraintSystem.empty) match {
-                            case ConstraintSystem(substitutor) => Some(substitutor(functionType.typeArguments(1)))
-                            case _                             => None
-                          }
-                        }.filterNot(_.isInstanceOf[UndefinedType])
-                    }.map(_ -> res)
-                  case _ => None
-                }
-
-                fromImplicit match {
-                  case Some((mr, result)) => ExpressionTypeResult(Right(mr), result.importsUsed, Some(result))
-                  case _                  => ExpressionTypeResult(tr)
-                }
-              }
-            )
-          case _ => ExpressionTypeResult(tr)
         }
       }
     }
@@ -382,38 +352,6 @@ object ScExpression {
         case designatorType: ScDesignatorType => designatorType.getValType
         case lt: ScLiteralType                => getStdType(lt.wideType)
         case _                                => None
-      }
-    }
-
-    private def tryAdaptToSAM(
-      tp:             ScType,
-      pt:             ScType,
-      fromUnderscore: Boolean
-    ): Option[ExpressionTypeResult] = {
-      def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
-        def expectedResult = Some(ExpressionTypeResult(Right(pt)))
-
-        tp match {
-          case FunctionType(_, params) if expr.isSAMEnabled =>
-            SAMUtil.toSAMType(pt, expr) match {
-              case Some(methodType) if tp.conforms(methodType) => expectedResult
-              case Some(methodType @ FunctionType(retTp, _))
-                  if etaExpansionHappened && retTp.isUnit =>
-                val newTp = FunctionType(Unit, params)
-
-                if (newTp.conforms(methodType)) expectedResult
-                else                            None
-              case _ => None
-            }
-          case _ => None
-        }
-      }
-
-      expr match {
-        case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM()
-        case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM()
-        case MethodValue(_)                                              => checkForSAM(etaExpansionHappened = true)
-        case _                                                           => None
       }
     }
   }

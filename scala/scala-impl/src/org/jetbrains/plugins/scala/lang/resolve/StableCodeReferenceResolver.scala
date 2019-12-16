@@ -5,20 +5,17 @@ package resolve
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 
 class StableCodeReferenceResolver(reference: ScStableCodeReference, shapeResolve: Boolean,
                                   allConstructorResults: Boolean, noConstructorResolve: Boolean) {
 
   def resolve(ref: ScStableCodeReference, incomplete: Boolean): Array[ScalaResolveResult] = {
-    import ref.projectContext
-
     val kinds = getKindsFor(ref)
     val proc = if (ref.isConstructorReference && !noConstructorResolve) {
       val constr = ref.getConstructorInvocation.get
       val typeArgs = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
-      val effectiveArgs = constr.arguments.toList.map(_.exprs.map(new Expression(_))) match {
+      val effectiveArgs = constr.arguments.toList.map(_.exprs) match {
         case List() => List(List())
         case x => x
       }

@@ -32,7 +32,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
         if (throwable == null) return
         val throwableType = ScDesignatorType(throwable)
         def checkMember(memberName: String, checkReturnTypeIsBoolean: Boolean) {
-          val processor = new MethodResolveProcessor(expr, memberName, List(Seq(new Compatibility.Expression(throwableType))),
+          val processor = new MethodResolveProcessor(expr, memberName, List(Seq(Compatibility.Expression(throwableType))),
             Seq.empty, Seq.empty)
           processor.processType(tp, expr)
           val candidates = processor.candidates
