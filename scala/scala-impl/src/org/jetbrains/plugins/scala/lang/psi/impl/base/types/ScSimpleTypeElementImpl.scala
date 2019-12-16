@@ -147,7 +147,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             InferUtil.localTypeInference(
               nonValueType.internalType,
               params(clauseIdx),
-              constrInvocation.arguments(clauseIdx).exprs.map(new Expression(_)),
+              constrInvocation.arguments(clauseIdx).exprs,
               nonValueType.typeParameters,
               canThrowSCE = canThrowSCE,
               filterTypeParams = false)
@@ -169,7 +169,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 def updateRes(expected: ScType): ScTypePolymorphicType = {
                   InferUtil.localTypeInference(previous.internalType,
                     Seq(Parameter(expected, isRepeated = false, index = 0)),
-                    Seq(new Expression(ScSubstitutor.bind(previous.typeParameters)(UndefinedType(_)).apply(res.inferValueType))),
+                    Seq(Expression(ScSubstitutor.bind(previous.typeParameters)(UndefinedType(_)).apply(res.inferValueType))),
                     previous.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
                 }
                 val fromUnderscore = constrInvocation.newTemplate match {

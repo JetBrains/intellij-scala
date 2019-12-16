@@ -11,102 +11,189 @@ import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, Set}
+import scala.collection.Seq
 import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
  * @author ven
  */
 object Compatibility {
-  private lazy val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.types.Compatibility")
+  private lazy val LOG =
+    Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.types.Compatibility")
 
   @TestOnly
   var seqClass: Option[PsiClass] = None
 
-  case class Expression(expr: ScExpression)(implicit pc: ProjectContext) {
-
-    var typez: ScType = _
-    var place: PsiElement = _
-    def this(tp: ScType)(implicit pc: ProjectContext) = {
-      this(null: ScExpression)
-      typez = tp
-    }
-    def this(tp: ScType, place: PsiElement)(implicit pc: ProjectContext) {
-      this(tp)
-      this.place = place
-    }
-
-
-    @CachedWithRecursionGuard(place, (Right(typez), Set.empty), ModCount.getBlockModificationCount)
-    private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult, Set[ImportUsed]) =
-      expectedOption.filterNot(typez.conforms(_)).flatMap { expected =>
-        implicit val elementScope: ElementScope = place.elementScope
-
-        val functionType = FunctionType(expected, Seq(typez))
-        new ImplicitCollector(place, functionType, functionType, None, isImplicitConversion = true).collect() match {
-          case Seq(res) =>
-            extractImplicitParameterType(res).flatMap {
-              case FunctionType(rt, Seq(_)) => Some(rt)
-              case paramType =>
-                elementScope.cachedFunction1Type.flatMap { functionType =>
-                  paramType.conforms(functionType, ConstraintSystem.empty) match {
-                    case ConstraintSystem(substitutor) => Some(substitutor(functionType.typeArguments(1)))
-                    case _ => None
-                  }
-                }.filterNot {
-                  _.isInstanceOf[UndefinedType]
-                }
-            }.map { result =>
-              (Right(result), res.importsUsed)
-            }
-          case _ => None
-        }
-      }.getOrElse {
-        (Right(typez), Set.empty)
-      }
-
-    def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
-                                       expectedOption: Option[ScType]): (TypeResult, collection.Set[ImportUsed]) = {
-      if (expr != null) {
-        val expressionTypeResult = expr.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
-        (expressionTypeResult.tr, expressionTypeResult.importsUsed)
-      } else {
-        import scala.collection.Set
-
-        def default: (TypeResult, Set[ImportUsed]) = (Right(typez), Set.empty)
-
-        if (isShape || !checkImplicits || place == null) default
-        else eval(typez, expectedOption)
-      }
-    }
+  trait Expression {
+    /**
+     * Returns actual type of an expression, after applying implicit conversions
+     * and SAM adaptations, along with imports used in conversions.
+     *
+     * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing/widening,
+     *                        useful for refactorings (introduce variable)
+     */
+    def getTypeAfterImplicitConversion(
+      checkImplicits:  Boolean,
+      isShape:         Boolean,
+      expectedOption:  Option[ScType],
+      ignoreBaseTypes: Boolean = false,
+      fromUnderscore:  Boolean = false
+    ): ExpressionTypeResult
   }
 
   object Expression {
-    import scala.language.implicitConversions
+    def apply(
+      tpe:   ScType,
+      place: Option[PsiElement] = None
+    )(implicit
+      ctx: ProjectContext
+    ): Expression = OfType(tpe, place)
 
-    implicit def scExpression2Expression(expr: ScExpression)(implicit pc: ProjectContext): Expression = Expression(expr)
-    implicit def seq2ExpressionSeq(seq: Seq[ScExpression])(implicit pc: ProjectContext): Seq[Expression] = seq.map(Expression(_))
-    implicit def args2ExpressionArgs(list: List[Seq[ScExpression]])(implicit pc: ProjectContext): List[Seq[Expression]] = {
-      list.map(_.map(Expression(_)))
+    def apply(tpe: ScType, place: PsiElement)(implicit ctx: ProjectContext): Expression =
+      apply(tpe, Option(place))
+
+    def unapply(e: Expression): Option[ScExpression] = e match {
+      case e: ScExpression => Option(e)
+      case _               => None
+    }
+
+    final case class OfType(tpe: ScType, place: Option[PsiElement])(implicit ctx: ProjectContext)
+        extends Expression {
+      private def default: ExpressionTypeResult = ExpressionTypeResult(Right(tpe))
+
+      override def getTypeAfterImplicitConversion(
+        checkImplicits:  Boolean,
+        isShape:         Boolean,
+        expectedOption:  Option[ScType],
+        ignoreBaseTypes: Boolean,
+        fromUnderscore:  Boolean
+      ): ExpressionTypeResult =
+        place.fold(default) { e =>
+          if (isShape || !checkImplicits) default
+          else                            typeAfterConversion(e, tpe, expectedOption)
+        }
+
+      @CachedWithRecursionGuard(
+        e,
+        ExpressionTypeResult(Right(tpe)),
+        ModCount.getBlockModificationCount
+      )
+      private def typeAfterConversion(
+        e:            PsiElement,
+        tpe:          ScType,
+        expectedType: Option[ScType]
+      ): ExpressionTypeResult =
+        expectedType.collect {
+          case etpe if !tpe.conforms(etpe) =>
+            e.tryAdaptTypeToSAM(tpe, etpe, fromUnderscore = false, checkResolve = false)
+              .getOrElse(e.updateTypeWithImplicitConversion(tpe, etpe))
+        }.getOrElse(default)
+    }
+
+  }
+
+  implicit class ExpressionExt(private val expr: Expression) extends AnyVal {
+    def scExpressionOrNull: ScExpression = expr match {
+      case e: ScExpression => e
+      case _               => null
+    }
+  }
+
+  implicit class PsiElementExt(private val place: PsiElement) extends AnyVal {
+    implicit def elementScope: ElementScope = ElementScope(place)
+
+    final def tryAdaptTypeToSAM(
+      tp:             ScType,
+      pt:             ScType,
+      fromUnderscore: Boolean,
+      checkResolve:   Boolean = true
+    ): Option[ExpressionTypeResult] = {
+      def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
+        def expectedResult = Some(ExpressionTypeResult(Right(pt)))
+
+        tp match {
+          case FunctionType(_, params) if place.isSAMEnabled =>
+            SAMUtil.toSAMType(pt, place) match {
+              case Some(methodType) if tp.conforms(methodType) => expectedResult
+              case Some(methodType @ FunctionType(retTp, _))
+                  if etaExpansionHappened && retTp.isUnit =>
+                val newTp = FunctionType(Unit, params)
+
+                if (newTp.conforms(methodType)) expectedResult
+                else None
+              case _ => None
+            }
+          case _ => None
+        }
+      }
+
+      place match {
+        case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
+        case e: ScExpression if !fromUnderscore && ScalaPsiUtil.isAnonExpression(e) =>
+          checkForSAM()
+        case MethodValue(_)     => checkForSAM(etaExpansionHappened = true)
+        case _ if !checkResolve => checkForSAM()
+        case _                  => None
+      }
+    }
+
+    final def updateTypeWithImplicitConversion(
+      tpe:          ScType,
+      expectedType: ScType
+    ): ExpressionTypeResult = {
+      val functionType = FunctionType(expectedType, Seq(tpe))
+
+      val implicitCollector = new ImplicitCollector(
+        place,
+        functionType,
+        functionType,
+        None,
+        isImplicitConversion = true
+      )
+
+      val fromImplicit = implicitCollector.collect() match {
+        case Seq(res) =>
+          extractImplicitParameterType(res).flatMap {
+            case FunctionType(rt, Seq(_)) => Some(rt)
+            case paramType =>
+              elementScope.cachedFunction1Type.flatMap { functionType =>
+                paramType.conforms(functionType, ConstraintSystem.empty) match {
+                  case ConstraintSystem(substitutor) =>
+                    Some(substitutor(functionType.typeArguments(1)))
+                  case _ => None
+                }
+              }.filterNot(_.isInstanceOf[UndefinedType])
+          }.map(_ -> res)
+        case _ => None
+      }
+
+      fromImplicit match {
+        case Some((mr, result)) =>
+          ExpressionTypeResult(Right(mr), result.importsUsed, Some(result))
+        case _ => ExpressionTypeResult(Right(tpe))
+      }
     }
   }
 
@@ -146,9 +233,9 @@ object Compatibility {
 
   def collectSimpleProblems(exprs: Seq[Expression], parameters: Seq[Parameter]): Seq[ApplicabilityProblem] = {
     val problems = new ArrayBuffer[ApplicabilityProblem]()
+
     exprs.foldLeft(parameters) { (parameters, expression) =>
-      if (expression.expr == null) parameters.tail
-      else expression.expr match {
+      expression match {
         case a: ScAssignment if a.referenceName.nonEmpty =>
           parameters.find(_.name == a.referenceName.get) match {
             case Some(parameter) =>
@@ -188,7 +275,7 @@ object Compatibility {
     val excess = exprs.length - maxParams
 
     if (excess > 0) {
-      val arguments = exprs.takeRight(excess).map(_.expr)
+      val arguments = exprs.takeRight(excess).map(_.scExpressionOrNull)
       return ConformanceExtResult(arguments.map(ExcessArgument), constraintAccumulator)
     }
 
@@ -211,7 +298,7 @@ object Compatibility {
 
     def doNoNamed(expr: Expression): List[ApplicabilityProblem] = {
       if (namedMode) {
-        List(PositionalAfterNamedArgument(expr.expr))
+        List(PositionalAfterNamedArgument(expr.scExpressionOrNull))
       }
       else {
         val getIt = used.indexOf(false)
@@ -219,14 +306,18 @@ object Compatibility {
         val param        = parameters(getIt)
         val paramType    = param.paramType
         val expectedType = param.expectedType
+
         val typeResult =
-          expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1
+          expr.getTypeAfterImplicitConversion(
+            checkWithImplicits, isShapesResolve, Option(expectedType)
+          ).tr
+
         typeResult.toOption match {
           case None => Nil
           case Some(exprType) =>
             val conforms = exprType.weakConforms(paramType)
-            matched ::= (param, expr.expr, exprType)
-            if (!conforms) List(TypeMismatch(expr.expr, paramType))
+            matched ::= (param, expr.scExpressionOrNull, exprType)
+            if (!conforms) List(TypeMismatch(expr.scExpressionOrNull, paramType))
             else {
               constraintAccumulator += exprType.conforms(paramType, ConstraintSystem.empty, checkWeak = true).constraints
               List.empty
@@ -272,7 +363,7 @@ object Compatibility {
                 }
               }
 
-            case None => problems :::= doNoNamed(Expression(expr)).reverse
+            case None => problems :::= doNoNamed(expr).reverse
           }
         case Expression(assign@ScAssignment.Named(name)) =>
           val index = parameters.indexWhere { p =>
@@ -284,7 +375,7 @@ object Compatibility {
               if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
               else assign.rightExpression.getOrElse(assign)
             }
-            problems :::= doNoNamed(Expression(extractExpression(assign))).reverse
+            problems :::= doNoNamed(extractExpression(assign)).reverse
           } else {
             if (!checkNames) {
               val internalProblem = InternalApplicabilityProblem("Found named parameter which were not supposed to be checked")
@@ -340,7 +431,7 @@ object Compatibility {
     else if (exprs.length > parameters.length) {
       if (namedMode) {
         // if we are in nameMode we cannot supply
-        val excessiveExprs = exprs.drop(parameters.length).map(_.expr)
+        val excessiveExprs = exprs.drop(parameters.length).map(_.scExpressionOrNull)
         return ConformanceExtResult(excessiveExprs.map(ExcessArgument), constraintAccumulator, defaultParameterUsed, matched)
       }
       assert (parameters.last.isRepeated, "This case should have been handled by excessive check above")
@@ -348,13 +439,13 @@ object Compatibility {
       val paramType: ScType = parameters.last.paramType
       val expectedType: ScType = parameters.last.expectedType
       while (k < exprs.length) {
-        for (exprType <- exprs(k).getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1) {
+        for (exprType <- exprs(k).getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) {
           val conforms = exprType.weakConforms(paramType)
           if (!conforms) {
-            return ConformanceExtResult(Seq(TypeMismatch(exprs(k).expr, paramType)),
+            return ConformanceExtResult(Seq(TypeMismatch(exprs(k).scExpressionOrNull, paramType)),
               constraintAccumulator, defaultParameterUsed, matched)
           } else {
-            matched ::= (parameters.last, exprs(k).expr, exprType)
+            matched ::= (parameters.last, exprs(k).scExpressionOrNull, exprType)
             constraintAccumulator += exprType.conforms(paramType, ConstraintSystem.empty, checkWeak = true).constraints
           }
         }
@@ -482,10 +573,13 @@ object Compatibility {
 
         val params = paramClause.effectiveParameters.map(toParameter(_, prevSubstitutor))
 
-        val argExprs = args.map(new Expression(_))
         val eligibleForAutoTupling = args.length != 1 && params.length == 1 && !params.head.isDefault
 
-        val curRes = checkConformanceExt(checkNames = true, params, argExprs, checkWithImplicits = true, isShapesResolve = false) match {
+        val curRes =
+          checkConformanceExt(
+            checkNames = true,
+            params, args, checkWithImplicits = true, isShapesResolve = false
+          ) match {
           case res if eligibleForAutoTupling && res.problems.nonEmpty =>
             // try autotupling. If the conformance check succeeds without problems we use that result
             ScalaPsiUtil

@@ -177,7 +177,10 @@ object ScalaPsiUtil {
       // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
       case _ =>
         def getType(expression: Expression) = {
-          val (result, _) = expression.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
+          val result =
+            expression
+              .getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
+              .tr
           result.getOrAny
         }
 
@@ -188,7 +191,7 @@ object ScalaPsiUtil {
     }
 
     maybeType.map { t =>
-      Seq(new Expression(t, firstLeaf(context)))
+      Seq(Expression(t, firstLeaf(context)))
     }
   }
 

@@ -285,18 +285,18 @@ object MethodResolveProcessor {
               case tpe => tpe
             }
 
-            val expr = new Expression(withUndefParams.inferValueType, ref)
+            val expr = Expression(withUndefParams.inferValueType, ref)
 
             expr.getTypeAfterImplicitConversion(
               checkImplicits = true,
               isShape        = false,
               Option(expectedType)
-            )._1.toOption
+            ).tr.toOption
           }
 
         val constraints =
-          typeAfterConversions.map(
-            _.conforms(expectedType, ConstraintSystem.empty)
+          typeAfterConversions.map(tpe =>
+            substitutor(tpe).conforms(expectedType, ConstraintSystem.empty)
           ).getOrElse(ConstraintsResult.Left)
 
         constraints match {
@@ -575,7 +575,7 @@ object MethodResolveProcessor {
 
     // filter to check for wrong parameter names
     if (argumentClauses.nonEmpty && filtered.nonEmpty) {
-      argumentClauses.head.map(assignmemt => assignmemt.expr).
+      argumentClauses.head.
         collect { case assignment: ScAssignment => assignment.referenceName }.foreach { listOfNames =>
         filtered = filtered.filter { r =>
           r.element match {

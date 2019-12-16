@@ -382,7 +382,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             }
           case Some((clazz, subst)) =>
             val processor: MethodResolveProcessor = new MethodResolveProcessor(elem, "this",
-              arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, Seq.empty /* todo: ? */ ,
+              arguments.toList.map(_.exprs), typeArgs, Seq.empty /* todo: ? */ ,
               constructorResolve = true, enableTupling = true)
             val state = ScalaResolveState.withSubstitutor(subst)
             clazz match {

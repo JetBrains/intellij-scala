@@ -57,7 +57,7 @@ object ScTryImpl {
                              (implicit projectContext: ProjectContext): Option[MethodResolveProcessor] =
     expression.elementScope.getCachedClass("java.lang.Throwable")
       .map(ScDesignatorType(_))
-      .map(new Compatibility.Expression(_))
+      .map(Compatibility.Expression(_))
       .map { compatibilityExpression =>
         new MethodResolveProcessor(expression, "apply", List(Seq(compatibilityExpression)), Seq.empty, Seq.empty)
       }

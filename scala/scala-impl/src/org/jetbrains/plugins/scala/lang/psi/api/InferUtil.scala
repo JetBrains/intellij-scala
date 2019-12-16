@@ -179,12 +179,12 @@ object InferUtil {
           val maybeType = results.headOption
             .flatMap(extractImplicitParameterType)
 
-          exprs ++= maybeType.map(new Expression(_))
+          exprs ++= maybeType.map(Expression(_))
         }
         val evaluator = ScalaMacroEvaluator.getInstance(project)
         evaluator.checkMacro(results.head.getElement, MacroContext(place, Some(paramType))) match {
-          case Some(tp) => exprs += new Expression(tp)
-          case None => updateExpr()
+          case Some(tp) => exprs += Expression(tp)
+          case None     => updateExpr()
         }
         paramsForInfer += param
       } else {
@@ -305,7 +305,7 @@ object InferUtil {
       val valueType = sameDepth.inferValueType
 
       val expectedParam = Parameter("", None, expected, expected)
-      val expressionToUpdate = new Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).apply(valueType))
+      val expressionToUpdate = Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).apply(valueType))
 
       val inferredWithExpected =
         localTypeInference(internal, Seq(expectedParam), Seq(expressionToUpdate), typeParams,

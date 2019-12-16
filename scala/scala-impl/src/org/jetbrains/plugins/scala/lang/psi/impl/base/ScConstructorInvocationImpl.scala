@@ -147,7 +147,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
               try {
                 nonValueType = InferUtil.localTypeInference(nonValueType.internalType,
                   Seq(Parameter(expected, isRepeated = false, index = 0)),
-                  Seq(new Expression(ScSubstitutor.bind(nonValueType.typeParameters)(UndefinedType(_)).
+                  Seq(Expression(ScSubstitutor.bind(nonValueType.typeParameters)(UndefinedType(_)).
                     apply(subst(tp).inferValueType))),
                   nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false)
               } catch {

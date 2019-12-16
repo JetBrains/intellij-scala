@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInv
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Update
@@ -183,21 +184,27 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         arguments.collect {
           case ScAssignment(left: ScReferenceExpression, Some(right)) if left.qualifier.isEmpty => right
           case argument => argument
-        }.map {
-          new Expression(_) {
-
-            override def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
-                                                        expectedOption: Option[ScType]): (TypeResult, collection.Set[ImportUsed]) =
-              super.getTypeAfterImplicitConversion(
+        }.map { expr =>
+          new Expression {
+            override def getTypeAfterImplicitConversion(
+              checkImplicits: Boolean,
+              isShape:        Boolean,
+              expectedOption: Option[ScType],
+              ignoreBaseTypes: Boolean,
+              fromUnderscore:  Boolean
+            ): ScExpression.ExpressionTypeResult = {
+              expr.getTypeAfterImplicitConversion(
                 checkImplicits,
                 isShape,
                 expectedOption.map {
                   case SecondType(t) => t
-                  case t => t
+                  case t             => t
                 }
               ) match {
-                case (typeResult, imports) => (typeResult.map(SecondType(_)), imports)
+                case ExpressionTypeResult(typeResult, imports, _) =>
+                  ExpressionTypeResult(typeResult.map(SecondType(_)), imports)
               }
+            }
           }
         }
       case arguments => arguments

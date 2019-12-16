@@ -59,10 +59,12 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     val clazz = psiClass.asInstanceOf[ScClass]
     val method = PsiTreeUtil.getContextOfType(this, classOf[ScFunction])
     if (method == null) return Array.empty
+
     val expressions: Seq[Expression] = args match {
-      case Some(arguments) => arguments.exprs.map(new Expression(_))
-      case None => Seq.empty
+      case Some(arguments) => arguments.exprs
+      case None            => Seq.empty
     }
+
     val proc = new MethodResolveProcessor(this, "this", List(expressions), Seq.empty,
       Seq.empty /*todo: ? */ , StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve,
       enableTupling = true, selfConstructorResolve = true)

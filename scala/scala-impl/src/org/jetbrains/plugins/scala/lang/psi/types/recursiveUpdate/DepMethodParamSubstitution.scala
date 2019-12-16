@@ -29,7 +29,7 @@ private case class ParamsToExprs(params: Seq[Parameter], exprs: Seq[Expression],
     val expr = exprs.lift(idx)
     val expectedType = if (useExpected) params.lift(idx).map(_.expectedType) else None
 
-    expr.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, expectedType)._1.getOrAny)
+    expr.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, expectedType).tr.getOrAny)
   }
 }
 

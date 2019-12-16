@@ -144,8 +144,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               }
               val i: Int = if (params1.nonEmpty) 0.max(length - params1.length) else 0
               val default: Expression =
-                new Expression(if (params1.nonEmpty) params1.last.paramType else Nothing, elem)
-              val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType, elem)) ++
+                Expression(if (params1.nonEmpty) params1.last.paramType else Nothing, elem)
+              val exprs: Seq[Expression] = params1.map(p => Expression(p.paramType, elem)) ++
                       Seq.fill(i)(default)
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>

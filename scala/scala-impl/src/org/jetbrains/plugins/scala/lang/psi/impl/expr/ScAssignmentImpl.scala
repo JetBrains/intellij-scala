@@ -9,7 +9,6 @@ import com.intellij.psi.PsiField
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -80,7 +79,7 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
               case _: PsiField => None
               case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
                 val processor = new MethodResolveProcessor(ref, ScalaNamesUtil.clean(fun.name) + "_=",
-                  rightExpression.map(expr => List(Seq(new Expression(expr)))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,
+                  rightExpression.map(expr => List(Seq(expr))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,
                   isShapeResolve = shapeResolve, kinds = StdKinds.methodsOnly)
                 r.fromType match {
                   case Some(tp) => processor.processType(tp, ref)

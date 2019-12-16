@@ -176,8 +176,10 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |  } yield b
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
-      case Error(_, "Expression of type Iterable[String] doesn't conform to expected type Option[Int]") :: Nil =>
+    assertMatches(errorsFromScalaCode(code)) {
+      case Error(_, "Expression of type Option[String] doesn't conform to expected type Option[Int]") ::
+        Error(_, "Expression of type Option[String] doesn't conform to expected type Option[Int]") ::
+        Nil =>
     }
   }
 
