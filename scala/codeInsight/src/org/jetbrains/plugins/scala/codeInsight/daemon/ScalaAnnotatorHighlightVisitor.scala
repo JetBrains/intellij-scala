@@ -39,7 +39,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
       highlighter.AnnotatorHighlighter.highlightElement(element, new ScalaAnnotationHolderAdapter(myAnnotationHolder))
     }
 
-    if (applicationUnitTestModeEnabled || manager.shouldInspect(file)) {
+    if (isUnitTestMode || manager.shouldInspect(file)) {
       ScalaAnnotator(project).annotate(element, myAnnotationHolder)
     }
 

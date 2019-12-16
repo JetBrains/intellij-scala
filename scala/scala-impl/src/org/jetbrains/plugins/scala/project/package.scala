@@ -353,7 +353,7 @@ package object project {
     def isIdBindingEnabled: Boolean = isEnabledIn(_.isIdBindingEnabled)
 
     private def isEnabledIn(predicate: Module => Boolean): Boolean =
-      applicationUnitTestModeEnabled ||
+      isUnitTestMode ||
         file.module.exists(predicate)
   }
 

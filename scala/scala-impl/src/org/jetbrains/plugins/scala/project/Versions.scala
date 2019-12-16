@@ -54,7 +54,7 @@ object Versions {
   }
 
   case object Scala extends Kind(
-    if (applicationInternalModeEnabled)
+    if (isInternalMode)
       ScalaCandidatesEntity :: DottyEntity :: Nil
     else
       ScalaEntity :: Nil

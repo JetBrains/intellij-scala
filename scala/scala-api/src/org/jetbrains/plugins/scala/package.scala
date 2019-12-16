@@ -7,12 +7,12 @@ import com.intellij.util.SystemProperties
 
 package object scala {
 
-  def applicationInternalModeEnabled: Boolean = application match {
+  def isInternalMode: Boolean = application match {
     case null => SystemProperties.is(PluginManagerCore.IDEA_IS_INTERNAL_PROPERTY)
     case application => application.isInternal
   }
 
-  def applicationUnitTestModeEnabled: Boolean = application.isUnitTestMode
+  def isUnitTestMode: Boolean = application.isUnitTestMode
 
   def inWriteAction[T](body: => T): T = application match {
     case application if application.isWriteAccessAllowed => body
