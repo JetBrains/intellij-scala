@@ -7,7 +7,9 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInsight.intention.types.AbstractTypeAnnotationIntention._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScTypedExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -20,14 +22,14 @@ abstract class AbstractTypeAnnotationIntention extends PsiElementBaseIntentionAc
   import AbstractTypeAnnotationIntention.complete
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
-    element match {
-      case _: PsiElement if checkIntention(this, element) =>
+    adjustElementAtOffset(element, editor) match {
+      case element: PsiElement if checkIntention(this, element) =>
         complete(element, descriptionStrategy)
       case _ => false
     }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
-    complete(element, invocationStrategy(Option(editor)))
+    complete(adjustElementAtOffset(element, editor), invocationStrategy(Option(editor)))
 
   protected def descriptionStrategy: Strategy
 
@@ -35,6 +37,8 @@ abstract class AbstractTypeAnnotationIntention extends PsiElementBaseIntentionAc
 }
 
 object AbstractTypeAnnotationIntention {
+  private def adjustElementAtOffset(element: PsiElement, editor: Editor): PsiElement =
+    ScalaPsiUtil.adjustElementAtOffset(element, editor.getCaretModel.getOffset)
 
   private[types] def functionParent(element: PsiElement): Option[ScFunctionDefinition] =
     for {

@@ -5,7 +5,6 @@ package psi
 import java.{util => ju}
 
 import com.intellij.application.options.CodeStyle
-
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.java.JavaLanguage
@@ -435,6 +434,33 @@ object ScalaPsiUtil {
     else {
       val maxEndOffset = allInRange.map(_.endOffset).max
       allInRange.filter(_.endOffset == maxEndOffset)
+    }
+  }
+
+  /*
+   * Adjusts the element to the previous element if the offset could also point to the previous element
+   *
+   * identifier<caret><ws> -> return identifier
+   * identifier<ws1><caret><ws2> -> return ws2
+   * +<caret>identifier -> return identifier
+   * identifier<caret>+ -> return identifier iff preferIdentifier else return +
+   *
+   */
+  def adjustElementAtOffset(element: PsiElement, offset: Int, preferIdentifier: Boolean = false): PsiElement = {
+    if (offset != element.getTextOffset)
+      return element
+
+    val prev = PsiTreeUtil.prevLeaf(element)
+    if (prev == null || prev.is[PsiWhiteSpace])
+      return element
+
+    element match {
+      case _: PsiWhiteSpace =>
+        prev
+      case _ if preferIdentifier && prev.elementType == ScalaTokenTypes.tIDENTIFIER =>
+        prev
+      case _ =>
+        element
     }
   }
 

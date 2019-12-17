@@ -50,7 +50,6 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.HintListener;
 import com.intellij.ui.LightweightHint;
 import com.intellij.ui.ScreenUtil;
@@ -65,7 +64,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.actions.ScalaExpressionTypeProvider;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import scala.Option;
 
@@ -343,14 +342,7 @@ public class MouseHoverHandler implements ProjectComponent {
 
         // When offset is the end-offset of the identifier, the next element will be found
         // so if that happens, we just use the left leaf sibling if that is the identifier
-        if (elementAtPointer.getNode().getElementType() != ScalaTokenTypes.tIDENTIFIER) {
-          PsiElement prevElement = PsiTreeUtil.prevLeaf(elementAtPointer);
-          if (prevElement != null &&
-                  prevElement.getTextRange().getEndOffset() == offset &&
-                  prevElement.getNode().getElementType() == ScalaTokenTypes.tIDENTIFIER) {
-            elementAtPointer = prevElement;
-          }
-        }
+        elementAtPointer = ScalaPsiUtil.adjustElementAtOffset(elementAtPointer, offset, true);
 
         Option<String> typeInfoHint = ScalaExpressionTypeProvider.getTypeInfoHint(elementAtPointer);
         if (typeInfoHint.isDefined()) {
