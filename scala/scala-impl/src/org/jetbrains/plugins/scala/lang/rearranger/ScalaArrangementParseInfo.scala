@@ -6,11 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 import scala.collection.{immutable, mutable}
 
-/**
- * @author Roman.Shein
- * Date: 09.07.13
- */
-class ScalaArrangementParseInfo {
+private class ScalaArrangementParseInfo {
 
   /**
    * All entries created from PSI tree by the moment.

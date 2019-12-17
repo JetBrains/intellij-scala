@@ -22,10 +22,6 @@ import com.intellij.psi.codeStyle.arrangement.std._
 import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
- * @author Roman.Shein
- *         Date: 08.07.13
- */
 class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with ArrangementStandardSettingsAware {
 
   override def parseWithNew(root: PsiElement, document: Document, ranges: java.util.Collection[TextRange],
@@ -145,7 +141,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     }
   }
 
-  private def setupDepthFirstDependency(info: ScalaArrangementDependency) {
+  private def setupDepthFirstDependency(info: ScalaArrangementDependency): Unit = {
     for (dependency <- info.getDependentMethodInfos) {
       setupDepthFirstDependency(dependency)
       val dependentEntry = dependency.getAnchorMethod
@@ -155,7 +151,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     }
   }
 
-  private def setupBreadthFirstDependency(info: ScalaArrangementDependency) {
+  private def setupBreadthFirstDependency(info: ScalaArrangementDependency): Unit = {
     val toProcess = mutable.Queue[ScalaArrangementDependency]()
     toProcess += info
     while (toProcess.nonEmpty) {
@@ -286,4 +282,8 @@ object ScalaRearranger {
   private val defaultSettings = getDefaultSettings
 
   private val SETTINGS_SERIALIZER = new DefaultArrangementSettingsSerializer(new ScalaSettingsSerializerMixin(), defaultSettings)
+
+  private class ScalaSettingsSerializerMixin extends DefaultArrangementSettingsSerializer.Mixin {
+    def deserializeToken(id: String): ArrangementSettingsToken = getTokenById(id).orNull
+  }
 }

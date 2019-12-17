@@ -7,10 +7,6 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier.
 
 import scala.collection.immutable
 
-/**
- * @author Roman Shein
- * Date: 09.07.13
- */
 package object rearranger {
 
   val SCALA_GETTERS_AND_SETTERS_ID = "SCALA_KEEP_SCALA_GETTERS_SETTERS_TOGETHER"

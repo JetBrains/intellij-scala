@@ -24,12 +24,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-/**
- * @author Roman.Shein
- *         Date: 09.07.13
- */
-class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Document, ranges: Iterable[TextRange],
-                              groupingRules: Set[ArrangementSettingsToken]) extends ScalaElementVisitor {
+private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
+                                      document: Document,
+                                      ranges: Iterable[TextRange],
+                                      groupingRules: Set[ArrangementSettingsToken])
+  extends ScalaElementVisitor {
 
   import ScalaArrangementVisitor.getTokenType
 

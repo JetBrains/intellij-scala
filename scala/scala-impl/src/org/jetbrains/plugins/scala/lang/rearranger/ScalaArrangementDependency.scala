@@ -1,18 +1,16 @@
 package org.jetbrains.plugins.scala
 package lang.rearranger
 
-import scala.collection.immutable
+import org.jetbrains.annotations.Nullable
 
-/**
- * @author Roman.Shein
- * Date: 25.07.13
- */
-class ScalaArrangementDependency(anchor: ScalaArrangementEntry) {
-  private var methodsInfo = immutable.List[ScalaArrangementDependency]()
+private class ScalaArrangementDependency(@Nullable anchor: ScalaArrangementEntry) {
 
-  def addDependentMethodInfo(info: ScalaArrangementDependency) {methodsInfo = info::methodsInfo}
+  private var methodsInfo = List[ScalaArrangementDependency]()
+
+  def addDependentMethodInfo(info: ScalaArrangementDependency): Unit = methodsInfo = info :: methodsInfo
 
   def getDependentMethodInfos: List[ScalaArrangementDependency] = methodsInfo
 
+  @Nullable
   def getAnchorMethod: ScalaArrangementEntry = anchor
 }
