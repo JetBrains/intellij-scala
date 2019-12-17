@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPatternPrefix
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
-import org.jetbrains.sbt.RichOption
 
 import scala.annotation.tailrec
 import scala.collection.{JavaConverters, immutable, mutable}

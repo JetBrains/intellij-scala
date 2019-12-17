@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.sbt._
 import org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider._
 import org.jetbrains.sbt.language.SbtFileType
 

@@ -135,6 +135,7 @@ package object sbt {
 
   implicit class RichOption[T](private val opt: Option[T]) extends AnyVal {
     // Use for safely checking for null in chained calls
+    // TODO: duplicates one from org.jetbrains.sbt.RichOption#safeMap, remove this, do not depend on sbt module for this method
     @inline def safeMap[A](f: T => A): Option[A] = if (opt.isEmpty) None else Option(f(opt.get))
 
     def toJavaOptional: Optional[T] = opt match {

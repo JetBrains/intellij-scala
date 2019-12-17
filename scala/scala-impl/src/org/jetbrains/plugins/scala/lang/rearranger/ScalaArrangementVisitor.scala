@@ -9,7 +9,7 @@ import com.intellij.psi.codeStyle.arrangement.ArrangementUtil
 import com.intellij.psi.codeStyle.arrangement.std.ArrangementSettingsToken
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScModifierList, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
@@ -86,10 +86,15 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
 
   override def visitFile(file: PsiFile): Unit = file.acceptChildren(this)
 
-  override def visitPatternDefinition(pat: ScPatternDefinition) {
+  override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {
     //TODO: insert inter-field dependency here
-    processEntry(getEntryForRange(pat.getParent, expandTextRangeToComment(pat), getTokenType(pat),
-      pat.pList.patterns.toList.head.bindings.head.getName, canArrange = true), pat, pat.expr.orNull)
+    val name  = pat.pList.patterns.headOption.flatMap(_.bindings.headOption).safeMap(_.getName) match {
+      case Some(value) => value
+      case None        => return
+    }
+    val range = expandTextRangeToComment(pat)
+    val entry = getEntryForRange(pat.getParent, range, getTokenType(pat), name, canArrange = true)
+    processEntry(entry, pat, pat.expr.orNull)
   }
 
   override def visitScalaElement(v: ScalaPsiElement): Unit = v match {

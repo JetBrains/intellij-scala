@@ -388,6 +388,9 @@ package object extensions {
   implicit class OptionExt[T](private val option: Option[T]) extends AnyVal {
     def getOrThrow(exception: => Exception): T = option.getOrElse(throw exception)
 
+    // Use for safely checking for null in chained calls
+    @inline def safeMap[A](f: T => A): Option[A] = if (option.isEmpty) None else Option(f(option.get))
+
     def filterByType[S: ClassTag]: Option[S] = {
       option match {
         case Some(element) if implicitly[ClassTag[S]].runtimeClass.isInstance(element) =>
