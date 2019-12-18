@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
-import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -36,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.collection.{Seq, mutable}
@@ -401,12 +401,15 @@ object ScalaAnnotator {
       }
   }
 
-  def isAdvancedHighlightingEnabled(file: PsiFile): Boolean = file match {
-    case scalaFile: ScalaFile =>
-      HighlightingAdvisor.getInstance(file.getProject).enabled && !isLibrarySource(scalaFile) && !scalaFile.isInScala3Module
-    case _: JavaDummyHolder =>
-      HighlightingAdvisor.getInstance(file.getProject).enabled
-    case _ => false
+  def isAdvancedHighlightingEnabled(file: PsiFile): Boolean = {
+    val settings = ScalaProjectSettings.getInstance(file.getProject)
+    file match {
+      case scalaFile: ScalaFile =>
+        settings.isTypeAwareHighlightingEnabled && !isLibrarySource(scalaFile) && !scalaFile.isInScala3Module
+      case _: JavaDummyHolder =>
+        settings.isTypeAwareHighlightingEnabled
+      case _ => false
+    }
   }
 
   private def isInIgnoredRange(element: PsiElement, file: PsiFile): Boolean = {

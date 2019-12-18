@@ -17,7 +17,6 @@ import javax.swing.{JLabel, SwingUtilities}
 import javax.swing.event.AncestorEvent
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
-import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -128,9 +127,11 @@ class MouseHandler(project: Project,
     errorTooltip = None
   }
 
-  private def handlingRequired = ImplicitHints.enabled ||
-    (HighlightingAdvisor.getInstance(project).enabled &&
-      ScalaProjectSettings.getInstance(project).isShowNotFoundImplicitArguments)
+  private def handlingRequired = {
+    val settings = ScalaProjectSettings.getInstance(project)
+    ImplicitHints.enabled ||
+      (settings.isTypeAwareHighlightingEnabled && settings.isShowNotFoundImplicitArguments)
+  }
 
   private def activateHyperlink(editor: Editor, inlay: Inlay, text: Text, event: MouseEvent): Unit = {
     text.hyperlink = true
