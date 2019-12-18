@@ -15,7 +15,7 @@ import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.util.{Consumer, FileContentUtil}
 import javax.swing.Icon
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
@@ -94,15 +94,17 @@ final class HighlightingAdvisor(project: Project) extends ProjectComponent with 
   }
 
   private def configureWidget(bar: StatusBar) {
-    (applicable, installed) match {
-      case (true, true) => // do nothing
-      case (true, false) =>
-        bar.addWidget(Widget, project)
-        installed = true
-      case (false, true) =>
-        bar.removeWidget(Widget.ID)
-        installed = false
-      case (false, false) => // do nothing
+    invokeLater {
+      (applicable, installed) match {
+        case (true, true) => // do nothing
+        case (true, false) =>
+          bar.addWidget(Widget, project)
+          installed = true
+        case (false, true) =>
+          bar.removeWidget(Widget.ID)
+          installed = false
+        case (false, false) => // do nothing
+      }
     }
   }
 
