@@ -27,38 +27,6 @@ import scala.collection.JavaConverters._
   new Storage("highlighting.xml"))
 )
 final class HighlightingAdvisor(project: Project) extends ProjectComponent with PersistentStateComponent[HighlightingSettings] {
-  @Language("HTML")
-  private val AdviceMessage = """
-  <html>
-   <body>
-   <p><a href="https://confluence.jetbrains.net/display/SCA/Type-aware+highlighting">Type-aware highlighting</a>
-    helps to discover type mismatches, unresolved symbols and many other type-related errors.</p>
-   <br>
-   <p>However, the feature is in beta and sometimes may report "false errors" in regular code.</p>
-   <br>
-   <a href="ftp://enable">Enable type-aware highlighting</a> (recommended) or <a href="ftp://disable">leave it disabled</a>
-   </body>
-  </html>"""
-
-  @Language("HTML")
-  private val EnabledMessage = """
-  <html>
-   <body>
-   <p><a href="https://confluence.jetbrains.net/display/SCA/Type-aware+highlighting">Type-aware highlighting</a> has been enabled.</p>
-   <!--<br>
-   <a href="ftp://disable">Disable it again</a>-->
-   </body>
-  </html>"""
-
-  @Language("HTML")
-  private val DisabledMessage = """
-  <html>
-   <body>
-   <p><a href="https://confluence.jetbrains.net/display/SCA/Type-aware+highlighting">Type-aware highlighting</a> has been disabled.</p>
-   <!--<br>
-   <a href="ftp://enable">Enable it again</a>-->
-   </body>
-  </html>"""
 
   private var installed = false
 
@@ -67,9 +35,6 @@ final class HighlightingAdvisor(project: Project) extends ProjectComponent with 
   project.subscribeToModuleRootChanged() { _ =>
     statusBar.foreach { bar =>
       configureWidget(bar)
-      if (applicable) {
-        notifyIfNeeded()
-      }
     }
   }
 
@@ -78,7 +43,6 @@ final class HighlightingAdvisor(project: Project) extends ProjectComponent with 
   override def projectOpened(): Unit = {
     statusBar.foreach { bar =>
       configureWidget(bar)
-      notifyIfNeeded()
     }
   }
 
@@ -106,20 +70,6 @@ final class HighlightingAdvisor(project: Project) extends ProjectComponent with 
     }
   }
 
-  private def notifyIfNeeded() {
-    if (settings.SUGGEST_TYPE_AWARE_HIGHLIGHTING && !enabled && applicable) {
-      notify("Configure type-aware highlighting for the project", AdviceMessage, NotificationType.WARNING)
-    }
-  }
-
-  private def notify(title: String, message: String, notificationType: NotificationType) {
-    NotificationUtil.builder(project, message) setNotificationType notificationType setTitle title setHandler {
-      case "enable" => enabled = true
-      case "disable" => enabled = false
-      case _ =>
-    }
-  }
-
   def toggle() {
     if (applicable) {
       enabled = !enabled
@@ -140,8 +90,6 @@ final class HighlightingAdvisor(project: Project) extends ProjectComponent with 
     statusBar.foreach { bar =>
       updateWidget(bar)
       reparseActiveFile()
-
-      notify(status, if (enabled) EnabledMessage else DisabledMessage, NotificationType.INFORMATION)
     }
   }
 
