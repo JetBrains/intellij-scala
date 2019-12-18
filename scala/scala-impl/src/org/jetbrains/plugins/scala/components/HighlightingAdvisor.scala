@@ -4,7 +4,6 @@ package components
 import java.awt.event.MouseEvent
 
 import com.intellij.ide.DataManager
-import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{ActionManager, CommonDataKeys, DataContext}
 import com.intellij.openapi.components._
 import com.intellij.openapi.editor.ex.EditorEx
@@ -14,23 +13,18 @@ import com.intellij.openapi.wm.StatusBarWidget.{PlatformType, WidgetPresentation
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.util.{Consumer, FileContentUtil}
 import javax.swing.Icon
-import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.JavaConverters._
 
-@State(
-  name = "HighlightingAdvisor", storages = Array(
-  new Storage("highlighting.xml"))
-)
-final class HighlightingAdvisor(project: Project) extends ProjectComponent with PersistentStateComponent[HighlightingSettings] {
+final class HighlightingAdvisor(project: Project) extends ProjectComponent {
 
   private var installed = false
 
-  private var settings = new HighlightingSettings()
+  private def settings = ScalaProjectSettings.getInstance(project)
 
   project.subscribeToModuleRootChanged() { _ =>
     statusBar.foreach { bar =>
@@ -51,12 +45,6 @@ final class HighlightingAdvisor(project: Project) extends ProjectComponent with 
       configureWidget(bar)
     }
 
-  def getState: HighlightingSettings = settings
-
-  def loadState(state: HighlightingSettings) {
-    settings = state
-  }
-
   private def configureWidget(bar: StatusBar) {
     (applicable, installed) match {
       case (true, true) => // do nothing
@@ -72,26 +60,18 @@ final class HighlightingAdvisor(project: Project) extends ProjectComponent with 
 
   def toggle() {
     if (applicable) {
-      enabled = !enabled
+      settings.toggleTypeAwareHighlighting()
+
+      statusBar.foreach { bar =>
+        updateWidget(bar)
+        reparseActiveFile()
+      }
     }
   }
 
   private def applicable = project.hasScala
 
-  def enabled: Boolean = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
-
-  private def enabled_=(enabled: Boolean) {
-    settings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
-
-    if (this.enabled == enabled) return
-
-    settings.TYPE_AWARE_HIGHLIGHTING_ENABLED = enabled
-
-    statusBar.foreach { bar =>
-      updateWidget(bar)
-      reparseActiveFile()
-    }
-  }
+  def enabled: Boolean = settings.isTypeAwareHighlightingEnabled
 
   private def status = s"Scala type-aware highlighting: ${if (enabled) "enabled" else "disabled"}"
 

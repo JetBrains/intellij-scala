@@ -111,6 +111,8 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean TYPE_MISMATCH_HINTS = true;
 
+  private boolean TYPE_AWARE_HIGHLIGHTING_ENABLED = true;
+
   public static ScalaProjectSettings in(@NotNull Project project) {
     return getInstance(project);
   }
@@ -304,6 +306,15 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public void setTypeMismatchHints(boolean value) {
     TYPE_MISMATCH_HINTS = value;
   }
+
+  public boolean isTypeAwareHighlightingEnabled() {
+    return TYPE_AWARE_HIGHLIGHTING_ENABLED;
+  }
+
+  public void toggleTypeAwareHighlighting() {
+    TYPE_AWARE_HIGHLIGHTING_ENABLED = !TYPE_AWARE_HIGHLIGHTING_ENABLED;
+  }
+
 
   public int getCollectionTypeHighlightingLevel() {
     return COLLECTION_TYPE_HIGHLIGHTING_LEVEL;
