@@ -37,7 +37,7 @@ import scala.Tuple2;
  * Date: 02.07.2008
  */
 
-
+// TODO: rewrite this whole class
 abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
   protected static final String ALL_MARKER = "<all>";
@@ -93,6 +93,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
 
     int startOffset = fileText.indexOf(TestUtils.BEGIN_MARKER);
+    int endOffset = -1;
     if (startOffset >= 0) {
       replaceAllOccurences = false;
       fileText = TestUtils.removeBeginMarker(fileText);
@@ -111,13 +112,22 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
           if (startOffset >= 0) {
             replaceAllOccurences = true;
             fileText = removeMarker(fileText, ALL_MARKER);
+          } else {
+            startOffset = fileText.indexOf(TestUtils.CARET_MARKER);
+            if (startOffset >= 0) {
+              replaceAllOccurences = false;
+              fileText = removeMarker(fileText, TestUtils.CARET_MARKER);
+              endOffset = startOffset;
+            }
           }
         }
       }
     }
 
-    int endOffset = fileText.indexOf(TestUtils.END_MARKER);
-    fileText = TestUtils.removeEndMarker(fileText);
+    if (endOffset < 0) {
+      endOffset = fileText.indexOf(TestUtils.END_MARKER);
+      fileText = TestUtils.removeEndMarker(fileText);
+    }
     myFile = createLightFile(fileText, project);
     fileEditorManager = FileEditorManager.getInstance(project);
     VirtualFile virtualFile = myFile.getVirtualFile();
@@ -126,39 +136,49 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     assert myEditor != null;
 
     try {
-      myEditor.getSelectionModel().setSelection(startOffset, endOffset);
+      boolean justCaret = startOffset == endOffset;
+      if (justCaret) {
+        myEditor.getCaretModel().moveToOffset(startOffset);
+      } else {
+        myEditor.getSelectionModel().setSelection(startOffset, endOffset);
+      }
 
       // gathering data for introduce variable
       ScalaIntroduceVariableHandler introduceVariableHandler = new ScalaIntroduceVariableHandler();
 
       Assert.assertTrue(myFile instanceof ScalaFile);
-      PsiElement element = PsiTreeUtil.getParentOfType(myFile.findElementAt(startOffset), ScExpression.class, ScTypeElement.class);
-      if (element instanceof ScExpression){
-        ScExpression selectedExpr = null;
-        ScType[] types = null;
 
-        Option<Tuple2<ScExpression, ScType[]>> maybeExpression =
-                ScalaRefactoringUtil.getExpressionWithTypes(myFile, startOffset, endOffset, project, myEditor);
-        if (maybeExpression.isDefined()) {
-          Tuple2<ScExpression, ScType[]> tuple2 = maybeExpression.get();
-          selectedExpr = tuple2._1();
-          types = tuple2._2();
-        }
-        Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
+      if (justCaret) {
+        introduceVariableHandler.invoke(myFile, project, myEditor, null); // dataContext it isn't currently used inside
+        result =  myEditor.getDocument().getText();
+      } else {
+        PsiElement element = PsiTreeUtil.getParentOfType(myFile.findElementAt(startOffset), ScExpression.class, ScTypeElement.class);
+        if (element instanceof ScExpression){
+          ScExpression selectedExpr = null;
+          ScType[] types = null;
 
-        OccurrencesInFile occurrencesInFile = new OccurrencesInFile(myFile, new TextRange(startOffset, endOffset), ScalaRefactoringUtil.getOccurrenceRanges(selectedExpr, myFile));
-        introduceVariableHandler.runRefactoring(occurrencesInFile, selectedExpr, "value", types[0], replaceAllOccurences, false, myEditor.getProject(), myEditor);
+          Option<Tuple2<ScExpression, ScType[]>> maybeExpression =
+              ScalaRefactoringUtil.getExpressionWithTypes(myFile, startOffset, endOffset, project, myEditor);
+          if (maybeExpression.isDefined()) {
+            Tuple2<ScExpression, ScType[]> tuple2 = maybeExpression.get();
+            selectedExpr = tuple2._1();
+            types = tuple2._2();
+          }
+          Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
-        result = myEditor.getDocument().getText();
-      } else if (element instanceof ScTypeElement){
-        Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeElement(myFile, startOffset, endOffset);
-        if (optionType.isEmpty()){
-          result = "Selected block should be presented as type element";
-        } else {
-          ScTypeElement typeElement = optionType.get();
-          String typeName = getName(fileText);
+          OccurrencesInFile occurrencesInFile = new OccurrencesInFile(myFile, new TextRange(startOffset, endOffset), ScalaRefactoringUtil.getOccurrenceRanges(selectedExpr, myFile));
+          introduceVariableHandler.runRefactoring(occurrencesInFile, selectedExpr, "value", types[0], replaceAllOccurences, false, myEditor.getProject(), myEditor);
 
-          ScopeItem[] scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, project, myEditor, myFile, typeElement);
+          result = myEditor.getDocument().getText();
+        } else if (element instanceof ScTypeElement){
+          Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeElement(myFile, startOffset, endOffset);
+          if (optionType.isEmpty()){
+            result = "Selected block should be presented as type element";
+          } else {
+            ScTypeElement typeElement = optionType.get();
+            String typeName = getName(fileText);
+
+            ScopeItem[] scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, project, myEditor, myFile, typeElement);
 
 //          if (replaceOccurrencesFromInheritors) {
 //            ScTypeDefinition classOrTrait = PsiTreeUtil.getParentOfType(scopes.get(0).fileEncloser(), ScClass.class, ScTrait.class);
@@ -172,15 +192,16 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 //            }
 //          }
 
-          OccurrenceData occurrences = OccurrenceData.apply(typeElement, replaceAllOccurences,
-                  replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes[0]);
+            OccurrenceData occurrences = OccurrenceData.apply(typeElement, replaceAllOccurences,
+                replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes[0]);
 
-          introduceVariableHandler.runRefactoringForTypes(myFile, typeElement, typeName, occurrences, scopes[0], myEditor.getProject(), myEditor);
+            introduceVariableHandler.runRefactoringForTypes(myFile, typeElement, typeName, occurrences, scopes[0], myEditor.getProject(), myEditor);
 
-          result = removeTypenameComment(myEditor.getDocument().getText());
+            result = removeTypenameComment(myEditor.getDocument().getText());
+          }
+        } else {
+          Assert.fail("Element should be typeElement or Expression");
         }
-      } else {
-        Assert.fail("Element should be typeElement or Expression");
       }
 
       //int caretOffset = myEditor.getCaretModel().getOffset();

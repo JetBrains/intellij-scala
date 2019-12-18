@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import java.{util => ju}
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Pass, TextRange}
@@ -71,8 +72,10 @@ trait IntroduceExpressions {
 
       if (isInplaceAvailable(editor)) {
         runInplace(suggestedNames, occurrencesInFile)
-      } else {
+      } else if (!ApplicationManager.getApplication.isUnitTestMode) {
         runWithDialog(suggestedNames, occurrencesInFile)
+      } else {
+        runWithoutDialog(suggestedNames, occurrencesInFile)
       }
     }
 
@@ -148,6 +151,18 @@ trait IntroduceExpressions {
         isVariable = dialog.isDeclareVariable
       )
     }
+  }
+
+  @TestOnly
+  private def runWithoutDialog(suggestedNames: SuggestedNames, occurrences: OccurrencesInFile)
+                              (implicit project: Project, editor: Editor): Unit = {
+    val SuggestedNames(_, types, names) = suggestedNames
+    runRefactoring(occurrences, suggestedNames.expression,
+      varName = names.head,
+      varType = types.head,
+      replaceAllOccurrences = false,
+      isVariable = false
+    )
   }
 }
 

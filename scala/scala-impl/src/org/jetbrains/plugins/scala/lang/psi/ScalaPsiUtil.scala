@@ -427,7 +427,7 @@ object ScalaPsiUtil {
    */
   def elementsAtRange[T <: PsiElement : ClassTag](file: PsiFile, startOffset: Int, endOffset: Int): Seq[T] = {
     def fit(e: PsiElement): Boolean =
-      e.startOffset == startOffset && e.endOffset <= endOffset
+      e != null && e.startOffset == startOffset && e.endOffset <= endOffset
 
     val startElem = file.findElementAt(startOffset)
     val allInRange = startElem.withParentsInFile.takeWhile(fit).toList.filterBy[T]
