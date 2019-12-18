@@ -38,6 +38,7 @@ import java.util.List;
 public class TestUtils {
   private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.util.TestUtils");
 
+  public static final String CARET_MARKER = "<caret>";
   public static final String BEGIN_MARKER = "<begin>";
   public static final String END_MARKER = "<end>";
 
