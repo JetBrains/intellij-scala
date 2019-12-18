@@ -198,7 +198,6 @@ object RecursionManager {
                                                    sizeAfter: Int,
                                                    minDepthBefore: Int,
                                                    localCacheBefore: LocalCacheMap): Unit = {
-      exits += 1
       if (sizeAfter != progressMap.size) {
         LOG.error("Map size changed: " + progressMap.size + " " + sizeAfter + " " + realKey.userObject)
       }
@@ -230,6 +229,7 @@ object RecursionManager {
         minStackDepthInRecursion = Int.MaxValue
       }
 
+      exits += 1
       checkZero()
     }
 
@@ -241,14 +241,19 @@ object RecursionManager {
       }
     }
 
-    private[RecursionManager] def checkZero(): Boolean = {
-      if (progressMap.size == 1 && progressMap.values().iterator().next() != 1) {
-        val message = "Recursion stack: first inserted key should have a depth of 1"
-        LOG.error(message + progressMap + "; value=" + progressMap.values().iterator().next())
-        return false
-      }
-      true
-    }
+private[RecursionManager] def checkZero(): Boolean = {
+  if (progressMap.size == 1 && progressMap.values().iterator().next() != 1) {
+    val message = "Recursion stack: first inserted key should have a depth of 1"
+    LOG.error(message + "\n" +
+      progressMap +
+      "\nvalue=" + progressMap.values().iterator().next() +
+      "\nenters=" + enters +
+      "\nexits=" + exits +
+      "\ndepth=" + depth)
+    return false
+  }
+  true
+}
   }
 }
 
