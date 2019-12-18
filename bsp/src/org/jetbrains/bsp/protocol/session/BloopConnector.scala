@@ -109,8 +109,11 @@ class BloopConnector(bloopExecutable: File, base: File, compilerOutput: File, ca
   )
 
   private def runBloop(params: List[String]) = {
-    val command = bloopExecutable.getCanonicalPath.toString :: params
-    Process(command, base).run(proclog)
+    val bloopPath = bloopExecutable.toString match {
+      case "bloop" => "bloop" // Allow to use bloop from  $PATH rather then localize it in current directory
+      case _ => bloopExecutable.getCanonicalPath
+    }
+    Process(bloopPath :: params, base).run(proclog)
   }
 
 }
