@@ -18,7 +18,7 @@ import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiModificationTrackerImpl, Psi
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.{ArrayUtil, ObjectUtils}
-import org.jetbrains.annotations.TestOnly
+import org.jetbrains.annotations.{CalledInAwt, TestOnly}
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
@@ -463,6 +463,15 @@ class ScalaPsiManager(implicit val project: Project) {
   }
 
   def clearAllCaches(): Unit = invokeLater {
+    doClearAllCaches()
+  }
+
+  def clearAllCachesAndWait(): Unit = invokeAndWait {
+    doClearAllCaches()
+  }
+
+  @CalledInAwt()
+  private def doClearAllCaches(): Unit = {
     if (!project.isDisposed) {
       clearOnRootsChange()
       TopLevelModificationTracker.incModificationCount()
