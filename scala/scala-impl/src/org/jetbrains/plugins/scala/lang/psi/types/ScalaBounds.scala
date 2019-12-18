@@ -3,6 +3,8 @@ package lang
 package psi
 package types
 
+import java.util.concurrent.atomic.AtomicLong
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
@@ -289,28 +291,28 @@ trait ScalaBounds extends api.Bounds {
       def lubWithExpandedAliases(t1: ScType, t2: ScType): ScType = {
         (t1, t2) match {
           case (ScDesignatorType(t: ScParameter), _) =>
-            lub(t.getRealParameterType.getOrAny, t2, checkWeak)
+            lubInner(t.getRealParameterType.getOrAny, t2, depth, checkWeak)
           case (ScDesignatorType(t: ScTypedDefinition), _) if !t.isInstanceOf[ScObject] =>
-            lub(t.`type`().getOrAny, t2, checkWeak)
+            lubInner(t.`type`().getOrAny, t2, depth, checkWeak)
           case (_, ScDesignatorType(t: ScParameter)) =>
-            lub(t1, t.getRealParameterType.getOrAny, checkWeak)
+            lubInner(t1, t.getRealParameterType.getOrAny, depth, checkWeak)
           case (_, ScDesignatorType(t: ScTypedDefinition)) if !t.isInstanceOf[ScObject] =>
-            lub(t1, t.`type`().getOrAny, checkWeak)
-          case (ex: ScExistentialType, _) => lubInner(ex.quantified, t2, checkWeak, stopAddingUpperBound).unpackedType
-          case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, checkWeak, stopAddingUpperBound).unpackedType
-          case (tpt: TypeParameterType, _) if !stopAddingUpperBound => lub(tpt.upperType, t2, checkWeak)
-          case (_, tpt: TypeParameterType) if !stopAddingUpperBound => lub(t1, tpt.upperType, checkWeak)
+            lubInner(t1, t.`type`().getOrAny, depth, checkWeak)
+          case (ex: ScExistentialType, _) => lubInner(ex.quantified, t2, depth, checkWeak).unpackedType
+          case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, depth, checkWeak).unpackedType
+          case (tpt: TypeParameterType, _) if !stopAddingUpperBound => lubInner(tpt.upperType, t2, depth - 1, checkWeak)
+          case (_, tpt: TypeParameterType) if !stopAddingUpperBound => lubInner(t1, tpt.upperType, depth - 1, checkWeak)
           case (arg @ ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
             if !stopAddingUpperBound =>
-            arg.copyWithBounds(glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
+            arg.copyWithBounds(glb(lower, lower2, checkWeak), lubInner(upper, upper2, depth - 1, checkWeak))
           case (arg @ ScExistentialArgument(name, args, lower, upper), r) if !stopAddingUpperBound =>
-            arg.copyWithBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
+            arg.copyWithBounds(glb(lower, r, checkWeak), lubInner(upper, t2, depth - 1, checkWeak))
           case (r, arg @ ScExistentialArgument(name, args, lower, upper)) if !stopAddingUpperBound =>
-            arg.copyWithBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
+            arg.copyWithBounds(glb(lower, r, checkWeak), lubInner(upper, t2, depth - 1, checkWeak))
           case (_: ValType, _: ValType) => AnyVal
-          case (lit1: ScLiteralType, lit2: ScLiteralType) => lub(lit1.wideType, lit2.wideType)
+          case (lit1: ScLiteralType, lit2: ScLiteralType) => lubInner(lit1.wideType, lit2.wideType, depth, checkWeak = true)
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
-            val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak)
+            val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, checkWeak)
             ex match {
               case Some(w) => ScExistentialType(JavaArrayType(v))
               case None => JavaArrayType(v)
@@ -319,7 +321,7 @@ trait ScalaBounds extends api.Bounds {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>
-            val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, depth, checkWeak)
+            val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, checkWeak)
             ex match {
               case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)))
               case None => ScParameterizedType(des, Seq(v))
@@ -328,7 +330,7 @@ trait ScalaBounds extends api.Bounds {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>
-            val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, depth, checkWeak)
+            val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, checkWeak)
             ex match {
               case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)))
               case None => ScParameterizedType(des, Seq(v))
@@ -376,7 +378,7 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType, depth: Int, checkWeak: Boolean, count: Int = 1)
+  private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType, checkWeak: Boolean, count: Int = 1)
                                              (implicit stopAddingUpperBound: Boolean): (ScType, Option[ScExistentialArgument]) = {
     if (substed1 equiv substed2) (substed1, None) else {
       if (substed1 conforms substed2) {
@@ -431,7 +433,7 @@ trait ScalaBounds extends api.Bounds {
             case scp: ScTypeParam if scp.isCovariant => if (depth > 0) lubInner(substed1, substed2, depth - 1, checkWeak) else Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2, checkWeak)
             case _ =>
-              val (v, ex) = calcForTypeParamWithoutVariance(substed1, substed2, depth, checkWeak, count = wildcards.length + 1)
+              val (v, ex) = calcForTypeParamWithoutVariance(substed1, substed2, checkWeak, count = wildcards.length + 1)
               wildcards ++= ex
               v
           })
@@ -494,6 +496,9 @@ trait ScalaBounds extends api.Bounds {
 }
 
 object ScalaBounds {
+
+  private val counter = new AtomicLong(0)
+
   sealed trait BoundKind {
     def inverse: BoundKind
   }

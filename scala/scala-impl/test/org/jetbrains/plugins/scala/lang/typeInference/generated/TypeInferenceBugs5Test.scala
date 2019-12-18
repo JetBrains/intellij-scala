@@ -1123,6 +1123,28 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
        |//Builder[Columns]
        |""".stripMargin
   }
+
+  def testSCL16757(): Unit = doTest(
+    s"""
+      |trait SeqLike[+A, +Repr]
+      |
+      |trait Seq[+A] extends SeqLike[A, Seq[A]]
+      |
+      |object Nil extends SeqLike[Nothing, Seq[Nothing]]
+      |
+      |object :+ {
+      |  def unapply[T,Coll <: SeqLike[T, Coll]](t: Coll with SeqLike[T, Coll]): Option[(Coll, T)] = ???
+      |}
+      |object Test {
+      |  ${START}someUnresolvedName match {
+      |    case b :+ c => b
+      |    case a => Nil
+      |  }$END
+      |}
+      |//this is a type of incorrect expression, it may change if type inference changes
+      |//SeqLike[T, SeqLike[Any, Any]]
+      |""".stripMargin
+  )
 }
 
 class TypeInferenceBugs5Test_with_parser_combinators extends TypeInferenceBugs5TestBase {
