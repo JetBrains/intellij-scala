@@ -79,8 +79,9 @@ private[compilerReferences] class JpsCompilationWatcher(
         compileContext: CompileContext
       ): Unit = {
         val timestamp   = System.currentTimeMillis()
-        val key         = Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS")
-        val wasUpToDate = compileContext.getUserData(key) == ExitStatus.UP_TO_DATE
+        val key         = Option(Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS"))
+        val status      = key.flatMap(k => Option(compileContext.getUserData(k)))
+        val wasUpToDate = status.contains(ExitStatus.UP_TO_DATE)
 
         val modules =
           Option(compileContext.getCompileScope)

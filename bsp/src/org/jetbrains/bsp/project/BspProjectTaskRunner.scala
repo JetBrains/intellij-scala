@@ -4,8 +4,13 @@ import java.io.File
 import java.nio.file.Paths
 import java.util
 
+import com.intellij.compiler.impl.CompileContextImpl
 import com.intellij.compiler.impl.CompilerUtil
+import com.intellij.compiler.impl.ExitStatus
+import com.intellij.compiler.impl.ProjectCompileScope
+import com.intellij.compiler.progress.CompilerTask
 import com.intellij.openapi.compiler.CompilerPaths
+import com.intellij.openapi.compiler.CompilerTopics
 import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, ModuleData}
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
@@ -14,6 +19,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.bsp.BSP
@@ -81,6 +87,15 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       val modules = validTasks.map(_.getModule).toArray
       val outputRoots = CompilerPaths.getOutputPaths(modules)
       refreshRoots(project, outputRoots)
+
+      val sesssion = new CompilerTask(project, "Hacking...", false, false, false, false)
+      val scope = new ProjectCompileScope(project)
+      val context = new CompileContextImpl(project, sesssion, scope, false, false)
+      val pub = project.getMessageBus.syncPublisher(CompilerTopics.COMPILATION_STATUS)
+      // Auto-test needs checks if at least one path was process (and this can be any path)
+      pub.fileGenerated("", "")
+      // We can fill errors and warnings numbers as well if build was aborted
+      pub.compilationFinished( /*aborted=*/false, /*errors=*/0, /*warnings=*/0, context)
     }
 
     // TODO save only documents in affected targets?
