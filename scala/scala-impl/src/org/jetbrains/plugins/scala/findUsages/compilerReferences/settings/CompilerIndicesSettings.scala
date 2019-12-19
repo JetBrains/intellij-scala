@@ -43,7 +43,7 @@ class CompilerIndicesSettings(project: Project) extends PersistentStateComponent
   }
 
   private[this] def hasCompatibleRunner: Boolean =
-    runners.find { runner =>
+    runners.filter { runner =>
       val task = taskManager.createAllModulesBuildTask(true, project)
       val moduleBuildTasks = task match {
         case taskList: ProjectTaskList => taskList.asScala
