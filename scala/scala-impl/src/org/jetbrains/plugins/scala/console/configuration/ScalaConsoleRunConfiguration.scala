@@ -98,7 +98,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
       params
     }
 
-    override def execute(executor: Executor, runner: ProgramRunner[_ <: RunnerSettings]): ExecutionResult = {
+    override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
       val params: JavaParameters = getJavaParameters
       val classPath = params.getClassPath
 

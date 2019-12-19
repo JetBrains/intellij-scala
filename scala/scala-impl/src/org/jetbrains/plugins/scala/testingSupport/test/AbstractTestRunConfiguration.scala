@@ -427,7 +427,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
         params
       }
 
-      override def execute(executor: Executor, runner: ProgramRunner[_ <: RunnerSettings]): ExecutionResult = {
+      override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
         val processHandler = if (testConfigurationData.useSbt) {
           //use a process running sbt
           val sbtProcessManager = SbtProcessManager.forProject(project)

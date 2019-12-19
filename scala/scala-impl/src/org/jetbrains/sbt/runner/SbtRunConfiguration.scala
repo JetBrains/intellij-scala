@@ -111,7 +111,7 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
   
   def setListener(l: Option[String => Unit]): Unit = listener = l
 
-  override def execute(executor: Executor, runner: ProgramRunner[_ <: RunnerSettings]): ExecutionResult = {
+  override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
     val r = super.execute(executor, runner)
     listener.foreach(l => Option(r.getProcessHandler).foreach(_.addProcessListener(new OutputListener() {
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = super.onTextAvailable(event, outputType)
