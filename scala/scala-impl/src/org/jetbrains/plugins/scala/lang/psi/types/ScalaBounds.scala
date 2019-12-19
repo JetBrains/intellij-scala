@@ -3,8 +3,6 @@ package lang
 package psi
 package types
 
-import java.util.concurrent.atomic.AtomicLong
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
@@ -496,8 +494,6 @@ trait ScalaBounds extends api.Bounds {
 }
 
 object ScalaBounds {
-
-  private val counter = new AtomicLong(0)
 
   sealed trait BoundKind {
     def inverse: BoundKind
