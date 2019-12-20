@@ -251,6 +251,7 @@ lazy val intelliLangIntegration = newProject(
 ).dependsOn(
   scalaImpl % "test->test;compile->compile"
 ).settings(
+  addCompilerPlugin(Dependencies.macroParadise),
   intellijInternalPlugins ++= Seq("IntelliLang")
 )
 
