@@ -11,6 +11,7 @@ import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, ScalaAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -26,17 +27,14 @@ final class AnnotatorBasedErrorInspection extends LocalInspectionTool {
 
     override def visitElement(element: PsiElement): Unit = {
       implicit val project: Project = element.getProject
-      implicit val h: ProblemsHolder = holder
 
       element.getContainingFile match {
-        case javaFile: PsiJavaFile => highlightJavaElement(element, javaFile)
+        case javaFile: PsiJavaFile => highlightJavaElement(element, javaFile, holder)
         case scalaFile: ScalaFile if !InjectedLanguageManager.getInstance(project).isInjectedFragment(scalaFile) => // todo: remove this after proper support of scala fragments in .md files
-          new annotator.ScalaAnnotator() {
+          val annotator = new ScalaAnnotator() {
             override def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = true
-          }.annotate(
-            element,
-            new DummyAnnotationHolder(element)
-          )
+          }
+          annotator.annotate(element)(new DummyAnnotationHolder(element, holder))
         case _ =>
       }
     }
@@ -47,9 +45,10 @@ object AnnotatorBasedErrorInspection {
 
   import ProblemHighlightType.{ERROR, GENERIC_ERROR_OR_WARNING}
 
-  private def highlightJavaElement(element: PsiElement, javaFile: PsiJavaFile)
-                                  (implicit project: Project,
-                                   holder: ProblemsHolder): Unit = {
+  private def highlightJavaElement(element: PsiElement,
+                                   javaFile: PsiJavaFile,
+                                   holder: ProblemsHolder)
+                                  (implicit project: Project): Unit = {
     val highlightInfoHolder = new HighlightInfoHolder(javaFile)
 
     for {
@@ -76,8 +75,7 @@ object AnnotatorBasedErrorInspection {
     }
   }
 
-  private class DummyAnnotationHolder(element: PsiElement)
-                                     (implicit holder: ProblemsHolder) extends AnnotationHolder {
+  private class DummyAnnotationHolder(element: PsiElement, holder: ProblemsHolder) extends ScalaAnnotationHolder {
 
     private val FakeAnnotation = new Annotation(
       0,
