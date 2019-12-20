@@ -20,6 +20,8 @@ import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 class RunConsoleAction extends AnAction with RunConsoleAction.RunActionBase[ScalaConsoleConfigurationType] {
 
   override def update(e: AnActionEvent): Unit = {
+    if (e.getProject.isDisposed) return
+
     e.getPresentation.setIcon(Icons.SCALA_CONSOLE)
 
     if(!e.getProject.hasScala) {
