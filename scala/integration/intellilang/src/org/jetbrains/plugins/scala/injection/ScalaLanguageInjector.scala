@@ -404,8 +404,7 @@ object ScalaLanguageInjector {
   }
 
   private[this] def parameterOf(argument: ScExpression): MaybeAnnotationOwner = {
-    //avoid reference resolving on EDT thread
-    if(isEdt && !ApplicationManager.getApplication.isUnitTestMode) return None
+    if (shouldAvoidResolve) return None
 
     def getParameter(methodInv: MethodInvocation, index: Int): Option[PsiElement with PsiAnnotationOwner] = {
       if (index == -1) None else {
@@ -436,6 +435,10 @@ object ScalaLanguageInjector {
       case _ => None
     }
   }
+
+  //avoid reference resolving on EDT thread
+  private def shouldAvoidResolve: Boolean =
+    isEdt && !ApplicationManager.getApplication.isUnitTestMode
 
   // map(x) = y check
   private[this] def assignmentTarget(leftExpression: ScExpression) = leftExpression match {
