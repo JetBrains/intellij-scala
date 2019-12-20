@@ -63,24 +63,17 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
     if (projectSettings.isDisableLangInjection)
       return
 
-    host match {
-      case expression: ScExpression
-        if Configuration.getInstance.getAdvancedConfiguration.getDfaOption != Configuration.DfaOption.OFF &&
-          injectUsingAnnotation(
-            expression,
-            literals,
-            myInjectionConfiguration.getAdvancedConfiguration.getLanguageAnnotationClass
-          ) =>
-      case _ =>
-        if (injectUsingPatterns(
-          host,
-          literals,
-          myInjectionConfiguration.getInjections(support.getId).iterator()
-        ))
-          return
-      // final expression uses return for easy debugging
-    }
+    if (injectUsingAnnotation(host, literals))
+      return
+
+    if (injectUsingPatterns(host, literals, myInjectionConfiguration.getInjections(support.getId)))
+      return
+
+    // final expression uses return for easy debugging
   }
+
+  private def isDfaEnabled: Boolean =
+    Configuration.getInstance.getAdvancedConfiguration.getDfaOption != Configuration.DfaOption.OFF
 
   /**
    * @return 1) `host` itself - if host is string literal that is not inside string concatenation <br>
@@ -198,8 +191,19 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
     InjectorUtils.registerSupport(support, true, host, language)
   }
 
+  private def injectUsingAnnotation(host: PsiElement, literals: Seq[StringLiteral])
+                                   (implicit support: ScalaLanguageInjectionSupport,
+                                    registrar: MultiHostRegistrar): Boolean =
+    host match {
+      case expression: ScExpression if isDfaEnabled =>
+        val annotationName = myInjectionConfiguration.getAdvancedConfiguration.getLanguageAnnotationClass
+        injectUsingAnnotation(expression, literals, annotationName)
+      case _                                        => false
+    }
+
+  @Measure
   private def injectUsingAnnotation(host: ScExpression, literals: Seq[StringLiteral],
-                                    qualifiedName: String)
+                                    annotationQualifiedName: String)
                                    (implicit support: ScalaLanguageInjectionSupport,
                                     registrar: MultiHostRegistrar): Boolean = {
     val maybeAnnotationOwner = host match {
@@ -212,8 +216,7 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
 
     val maybePair = for {
       annotationOwner <- maybeAnnotationOwner
-      annotation <- annotationOwner.getAnnotations
-        .find(_.getQualifiedName == qualifiedName)
+      annotation <- annotationOwner.getAnnotations.find(_.getQualifiedName == annotationQualifiedName)
       languageId <- readAttribute(annotation, "value")
       language = InjectedLanguage.findLanguageById(languageId)
       if language != null
@@ -279,6 +282,13 @@ object ScalaLanguageInjector {
                                   injections: ju.List[BaseInjection])
                                  (implicit support: ScalaLanguageInjectionSupport,
                                   registrar: MultiHostRegistrar): Boolean = {
+    /** acceptsPsiElement under the hood does many resolving
+     *
+     * @see [[org.jetbrains.plugins.scala.patterns.ScalaElementPattern]]
+     *      [[org.intellij.plugins.intelliLang.inject.config.BaseInjection#acceptsPsiElement(com.intellij.psi.PsiElement)]]
+     *      [[./scalaInjections.xml]] */
+    if (shouldAvoidResolve) return false
+
     val injectionOpt = injections.iterator.asScala.find(_.acceptsPsiElement(host))
     injectionOpt match {
       case Some(injection) =>
