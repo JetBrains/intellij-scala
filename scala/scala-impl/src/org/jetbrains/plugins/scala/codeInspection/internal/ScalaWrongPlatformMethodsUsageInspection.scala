@@ -39,9 +39,10 @@ class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
                 }
                 fondClass match {
                   case Some(_) =>
-                    val isForJavaOnly = ref.parents.find(_.isInstanceOf[ScDocCommentOwner])
-                      .flatMap(_.asInstanceOf[ScDocCommentOwner].docComment)
-                      .exists(_.getText.contains("for Java only"))
+                    val isForJavaOnly = ref.parents.exists {
+                      case docOwner: ScDocCommentOwner => docOwner.docComment.exists(_.getText.contains("for Java only"))
+                      case _                           => false
+                    }
 
                     if (!isForJavaOnly) {
                       val properMethodText = properMethod match {
