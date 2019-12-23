@@ -4,35 +4,34 @@ package testingSupport
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.testingSupport.TestResultListener._
-import org.junit.Assert._
+import org.jetbrains.plugins.scala.util.assertions.failWithCause
+import org.junit.Assert.fail
+
+import scala.concurrent.{Await, Promise}
+import scala.concurrent.duration.DurationInt
+import scala.util.{Failure, Success, Try}
 
 
 class TestResultListener(private val testConfigurationName: String) extends ProcessListener {
 
   private val outputTextAll = new StringBuilder
   private val outputTextProgress = new StringBuilder
+  private val exitCodePromise: Promise[Int] = Promise()
 
-  private def terminated = exitCodeOpt.isDefined
-  private var exitCodeOpt: Option[Int] = None
-
-  def waitForTestEnd(duration: Int): String = {
-    var i = 0
-    while (i < duration && (!terminated)) {
-      Thread.sleep(10)
-      i += 10
-    }
-
-    exitCodeOpt match {
-      case Some(0) =>
-      case Some(exitCode) =>
+  def waitForTestEnd(durationMs: Int): String = {
+    val exitCode = Try(Await.result(exitCodePromise.future, durationMs.milliseconds))
+    exitCode match {
+      case Success(0)     =>
+      case Success(code)     =>
         fail(
-          s"""test $testConfigurationName terminated with error exit code: $exitCode; captured outputs:
+          s"""test $testConfigurationName terminated with error exit code: $code; captured outputs:
              |${outputTextAll.toString}""".stripMargin
         )
-      case None =>
-        fail(
-          s"""test $testConfigurationName did not terminate correctly after $duration ms; captured outputs:
-             |${outputTextAll.toString}""".stripMargin
+      case Failure(exception) =>
+        failWithCause(
+          s"""test $testConfigurationName did not terminate correctly after $durationMs ms; captured outputs:
+             |${outputTextAll.toString}""".stripMargin,
+          exception
         )
     }
     outputTextProgress.toString
@@ -56,7 +55,7 @@ class TestResultListener(private val testConfigurationName: String) extends Proc
   override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = ()
 
   override def processTerminated(event: ProcessEvent): Unit =
-    exitCodeOpt = Some(event.getExitCode)
+    exitCodePromise.success(event.getExitCode)
 }
 
 private object TestResultListener {
