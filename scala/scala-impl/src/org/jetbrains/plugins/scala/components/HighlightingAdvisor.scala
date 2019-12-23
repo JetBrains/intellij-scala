@@ -128,7 +128,7 @@ final class HighlightingAdvisor(project: Project) extends ProjectComponent with 
     }
   }
 
-  private def applicable = project.hasScala
+  private def applicable = project.isOpen && project.hasScala
 
   def enabled: Boolean = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
 
