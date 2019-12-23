@@ -114,6 +114,9 @@ public class UTestRunner {
     }
 
     Map<String, Set<UTestPath>> suitesAndTests = failedUsed ? failedTestMap : classesToTests;
+    // TODO: (from Nikolay Tropin)
+    //  I think it would be better to encapsulate waiting logic in UTestRunner.
+    //  Reporter shouldn't be aware about number of tests and manage concurrency.
     UTestReporter reporter = new UTestReporter(suitesAndTests.size());
     UTestSuiteRunner runner = runAsyncMethod != null
         ? new UTestSuiteReflectionRunner(runAsyncMethod, treeSeqClass)
