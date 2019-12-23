@@ -11,7 +11,7 @@ import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompileServerManager, ScalaCompileServerForm, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.extensions.ThrowableExt
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.EvaluationCallback
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.PreconditionError
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{CompilerInterface, CompilerMessagesConsumer, RemoteServerConnectorResult}
@@ -175,9 +175,11 @@ class WorksheetCompiler(
 
   def compileAndRunFile(): Unit = {
     if (runType.isReplRunType && makeType != InProcessServer) {
-      val error = PreconditionError("Worksheet in REPL mode can only be executed in compile server process")
+      val error = WorksheetCompilerResult.PreconditionError("Worksheet in REPL mode can only be executed in compile server process")
       showReplRequiresCompileServerNotification(error.message)
       originalCallback(error)
+    } else if (DumbService.getInstance(project).isDumb) {
+      originalCallback(WorksheetCompilerResult.ProjectIsInDumbState)
     } else {
       runType.process(worksheetFile, editor) match {
         case Right(request) =>
@@ -218,6 +220,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
     final case class EvaluationError(cause: Throwable) extends WorksheetCompilerError
     final case class ProcessTerminatedError(returnCode: Int, message: String) extends WorksheetCompilerError
     final case class RemoteServerConnectorError(error: RemoteServerConnectorResult.Error) extends WorksheetCompilerError
+    final case object ProjectIsInDumbState extends WorksheetCompilerError
   }
 
   trait CompilerMessagesCollector {

@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
@@ -74,6 +74,8 @@ object RunWorksheetAction {
   }
 
   def runCompilerForSelectedEditor(project: Project, auto: Boolean): Unit = {
+    if (DumbService.getInstance(project).isDumb) return
+
     Stats.trigger(FeatureKey.runWorksheet)
 
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
