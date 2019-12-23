@@ -36,6 +36,6 @@ object ScFunctionDefinition {
     def unapply(fun: ScFunctionDefinition): Option[ScExpression] = Option(fun).flatMap(_.body)
   }
   object withName {
-    def unapply(fun: ScFunctionDefinition): Option[String] = Some(fun.getName)
+    def unapply(fun: ScFunctionDefinition): Option[String] = Some(fun.name)
   }
 }
