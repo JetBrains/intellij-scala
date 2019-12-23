@@ -189,7 +189,8 @@ final class WorksheetEditorPrinterRepl private[printers](
         }
         outputTextWithNewLinesOffset.foreach { case (chunkText, newLinesOffset) =>
           val prefix = buildNewLines(newLinesOffset)
-          currentOutput.append(prefix + chunkText)
+          currentOutput.append(prefix)
+          currentOutput.append(chunkText)
         }
 
         simpleAppend(currentOutput, viewerDocument)
