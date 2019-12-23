@@ -168,7 +168,7 @@ package object project {
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = scalaSdk.map(_.properties.languageLevel)
 
     def scalaCompilerClasspath: Seq[File] = module.scalaSdk
-      .fold(throw new IllegalArgumentException("No Scala SDK configured for module: " + module.getName)) {
+      .fold(throw new ScalaSdkNotConfiguredException(module)) {
         _.properties.compilerClasspath
       }
 
@@ -251,6 +251,8 @@ package object project {
       case _ => false
     }
   }
+
+  class ScalaSdkNotConfiguredException(module: Module) extends IllegalArgumentException(s"No Scala SDK configured for module: ${module.getName}")
 
   private object RootImportSetting {
     private val Yimports   = "-Yimports:"

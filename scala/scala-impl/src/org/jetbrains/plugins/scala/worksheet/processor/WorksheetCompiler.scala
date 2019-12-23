@@ -4,23 +4,21 @@ package worksheet.processor
 import java.io.File
 
 import com.intellij.compiler.progress.CompilerTask
-import com.intellij.notification.{Notification, NotificationAction, NotificationType}
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
-import com.intellij.openapi.editor.{Editor, LogicalPosition}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompileServerManager, ScalaCompileServerForm, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.extensions.ThrowableExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.ScalaSdkNotConfiguredException
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.EvaluationCallback
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{Precondition, PreconditionError}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.{RunCompile, RunRepl, WorksheetCompileRunRequest}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{CompilerInterface, CompilerMessagesConsumer, RemoteServerConnectorResult}
 import org.jetbrains.plugins.scala.worksheet.server._
@@ -29,6 +27,7 @@ import org.jetbrains.plugins.scala.worksheet.settings._
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
 import scala.collection.mutable
+import scala.util.control.NonFatal
 
 private[worksheet]
 class WorksheetCompiler(
@@ -46,16 +45,6 @@ class WorksheetCompiler(
   private val makeType = WorksheetCompiler.getMakeType(project, runType)
   private val worksheetVirtual = worksheetFile.getVirtualFile
 
-  private def showErrorNotification(msg: String): Unit =
-    errorNotification(msg).show()
-
-  private def errorNotification(msg: String): NotificationUtil.NotificationBuilder = {
-    NotificationUtil.builder(project, msg)
-      .setGroup("Scala")
-      .setNotificationType(NotificationType.ERROR)
-      .setTitle(ConfigErrorHeader)
-  }
-
   private def createCompilerTask: CompilerTask =
     new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
 
@@ -72,11 +61,14 @@ class WorksheetCompiler(
       val connector = new RemoteServerConnector(module, worksheetFile, tempFile, outputDir, className, None, makeType, true)
       connector.compileAndRun(worksheetVirtual, consumer, afterCompileCallback)
     } catch {
-      case ex: IllegalArgumentException =>
-        showErrorNotification(ex.getMessage)
-        afterCompileCallback(RemoteServerConnectorResult.UnknownError(ex))
+      case NonFatal(ex) => afterCompileCallback(toError(ex))
     }
     task.start(compileWork, EmptyRunnable)
+  }
+
+  private def toError(ex: Throwable): RemoteServerConnectorResult.UnhandledError = ex match {
+    case ex: ScalaSdkNotConfiguredException => RemoteServerConnectorResult.ExpectedError(ex)
+    case ex                                 => RemoteServerConnectorResult.UnexpectedError(ex)
   }
 
   private def runReplCompilerTask(replModeArgs: ReplModeArgs)
@@ -87,9 +79,7 @@ class WorksheetCompiler(
       val connector = new RemoteServerConnector(module, worksheetFile, new File(""), new File(""), "", Some(replModeArgs), makeType, false)
       connector.compileAndRun(worksheetVirtual, consumer, afterCompileCallback)
     } catch {
-      case ex: IllegalArgumentException =>
-        showErrorNotification(ex.getMessage)
-        afterCompileCallback(RemoteServerConnectorResult.UnknownError(ex))
+      case NonFatal(ex) => afterCompileCallback(toError(ex))
     }
     task.start(compileWork, EmptyRunnable)
   }
@@ -127,7 +117,7 @@ class WorksheetCompiler(
       case RemoteServerConnectorResult.Compiled(className, outputDir) =>
         if (runType.isReplRunType) {
           val error = new AssertionError("Worksheet is expected to be evaluated in REPL mode")
-          callback(WorksheetCompilerResult.EvaluationError(error))
+          callback(WorksheetCompilerResult.UnknownError(error))
         } else {
           WorksheetCompilerLocalEvaluator.executeWorksheet(worksheetFile.getName, worksheetFile, className, outputDir.getAbsolutePath)(callback, printer)(module)
         }
@@ -135,7 +125,7 @@ class WorksheetCompiler(
         callback(WorksheetCompilerResult.CompiledAndEvaluated)
       case RemoteServerConnectorResult.CompilationError =>
         callback(WorksheetCompilerResult.CompilationError)
-      case error: RemoteServerConnectorResult.Error =>
+      case error: RemoteServerConnectorResult.UnhandledError =>
         callback(WorksheetCompilerResult.RemoteServerConnectorError(error))
     }
 
@@ -155,48 +145,22 @@ class WorksheetCompiler(
     }
   }
 
-  private def showReplRequiresCompileServerNotification(message: String): Unit =
-    errorNotification(message)
-      .removeTitle()
-      .addAction(new NotificationAction("Enable compile server") {
-        override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-          notification.expire()
-          CompileServerManager.enableCompileServer(project)
-        }
-      })
-      .addAction(new NotificationAction("Configure compile server") {
-        override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-          notification.expire()
-          val filter = ScalaCompileServerForm.SearchFilter.USE_COMPILE_SERVER_FOR_SCALA
-          CompileServerManager.showCompileServerSettingsDialog(project, filter)
-        }
-      })
-      .show()
-
-  def compileAndRunFile(): Unit = {
-    if (runType.isReplRunType && makeType != InProcessServer) {
-      val error = WorksheetCompilerResult.PreconditionError("Worksheet in REPL mode can only be executed in compile server process")
-      showReplRequiresCompileServerNotification(error.message)
-      originalCallback(error)
-    } else if (DumbService.getInstance(project).isDumb) {
-      originalCallback(WorksheetCompilerResult.ProjectIsInDumbState)
+  def compileAndRunFile(): Unit = try {
+    if (DumbService.getInstance(project).isDumb) {
+      originalCallback(PreconditionError(Precondition.ProjectShouldBeInSmartState))
+    } else if (runType.isReplRunType && makeType != InProcessServer) {
+      originalCallback(PreconditionError(Precondition.ReplRequiresCompileServerProcess))
     } else {
       runType.process(worksheetFile, editor) match {
         case Right(request) =>
           compileAndRunCode(request)
-
-        case Left(error@WorksheetPreprocessError(message, position)) =>
-          showCompilationError(message, position)
-          originalCallback(WorksheetCompilerResult.PreprocessError(error))
+        case Left(preprocessError)  =>
+          originalCallback(WorksheetCompilerResult.PreprocessError(preprocessError))
       }
     }
-  }
-
-  private def showCompilationError(message: String, position: LogicalPosition): Unit = {
-    WorksheetCompilerUtil.showCompilationError(
-      worksheetVirtual, position, Array(message),
-      () => editor.getCaretModel.moveToLogicalPosition(position)
-    )
+  } catch {
+    case NonFatal(ex) =>
+      originalCallback(WorksheetCompilerResult.UnknownError(ex))
   }
 }
 
@@ -204,7 +168,6 @@ private[worksheet]
 object WorksheetCompiler extends WorksheetPerFileConfig {
 
   private val EmptyRunnable: Runnable = () => {}
-  private val ConfigErrorHeader = "Worksheet configuration error"
 
   type EvaluationCallback = WorksheetCompilerResult => Unit
 
@@ -215,12 +178,17 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
 
     sealed trait WorksheetCompilerError extends WorksheetCompilerResult
     final case class PreprocessError(error: WorksheetPreprocessError) extends WorksheetCompilerError
-    final case class PreconditionError(message: String) extends WorksheetCompilerError
+    final case class PreconditionError(message: Precondition) extends WorksheetCompilerError
     final case object CompilationError extends WorksheetCompilerError
-    final case class EvaluationError(cause: Throwable) extends WorksheetCompilerError
     final case class ProcessTerminatedError(returnCode: Int, message: String) extends WorksheetCompilerError
-    final case class RemoteServerConnectorError(error: RemoteServerConnectorResult.Error) extends WorksheetCompilerError
-    final case object ProjectIsInDumbState extends WorksheetCompilerError
+    final case class RemoteServerConnectorError(error: RemoteServerConnectorResult.UnhandledError) extends WorksheetCompilerError
+    final case class UnknownError(cause: Throwable) extends WorksheetCompilerError
+
+    sealed trait Precondition
+    object Precondition {
+      final case object ReplRequiresCompileServerProcess extends Precondition
+      final case object ProjectShouldBeInSmartState extends Precondition
+    }
   }
 
   trait CompilerMessagesCollector {

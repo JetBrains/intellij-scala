@@ -18,9 +18,9 @@ import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeA
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
+import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetCompilerErrorReporter}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 
@@ -104,12 +104,7 @@ object RunWorksheetAction {
 
   private def doRunCompiler(project: Project, editor: Editor, auto: Boolean)
                            (promise: Promise[RunWorksheetActionResult]): Unit = {
-
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    val vFile = psiFile.getVirtualFile
-
-    Log.debugSafe(s"worksheet file: ${vFile.getPath}")
-
     val file: ScalaFile = psiFile match {
       case file: ScalaFile if file.isWorksheetFile => file
       case _ =>
@@ -126,12 +121,14 @@ object RunWorksheetAction {
         return
     }
 
-    doRunCompiler(project, editor, auto, vFile, file, fileSettings.isMakeBeforeRun, module)(promise)
+    doRunCompiler(project, editor, auto, psiFile.getVirtualFile, file, fileSettings.isMakeBeforeRun, module)(promise)
   }
 
   private def doRunCompiler(project: Project, editor: Editor, auto: Boolean,
                             vFile: VirtualFile, file: ScalaFile, makeBeforeRun: Boolean, module: Module)
                            (promise: Promise[RunWorksheetActionResult]): Unit = {
+    Log.debugSafe(s"worksheet file: ${vFile.getPath}")
+
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     if (viewer != null && !WorksheetFileSettings.isRepl(file)) {
       invokeAndWait(ModalityState.any()) {
@@ -156,8 +153,12 @@ object RunWorksheetAction {
     def runnable(): Unit = {
       val callback: WorksheetCompilerResult => Unit = result => {
         val resultTransformed = result match {
-          case WorksheetCompilerResult.CompiledAndEvaluated => RunWorksheetActionResult.Done
-          case error: WorksheetCompilerError                => RunWorksheetActionResult.WorksheetRunError(error)
+          case WorksheetCompilerResult.CompiledAndEvaluated =>
+            RunWorksheetActionResult.Done
+          case error: WorksheetCompilerError =>
+            val reporter = new WorksheetCompilerErrorReporter(project, vFile, editor, Log)
+            reporter.reportError(error)
+            RunWorksheetActionResult.WorksheetRunError(error)
         }
         promise.success(resultTransformed)
 

@@ -22,10 +22,8 @@ import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
-
-import scala.util.control.NonFatal
 
 // TODO: remove all deprecated Base64Converter usages
 private[worksheet]
@@ -125,10 +123,6 @@ class RemoteServerConnector(
       }
 
       worksheetProcess
-    } catch {
-      case NonFatal(ex) =>
-        callback(RemoteServerConnectorResult.UnknownError(ex))
-        throw ex
     }
 
     // exceptions thrown inside the process should be propagated to callback via termination callback
@@ -149,10 +143,12 @@ object RemoteServerConnector {
     case class Compiled(worksheetClassName: String, outputDir: File) extends RemoteServerConnectorResult
     case object CompiledAndEvaluated extends RemoteServerConnectorResult
 
-    trait Error extends RemoteServerConnectorResult
-    case object CompilationError extends Error // assuming that errors are collected by CompilerInterface
-    final case class ProcessTerminatedError(rc: ExitCode) extends Error
-    final case class UnknownError(cause: Throwable) extends Error
+    sealed trait Error extends RemoteServerConnectorResult
+    object CompilationError extends Error // assuming that errors are collected by CompilerInterface
+    sealed trait UnhandledError extends Error
+    final case class ProcessTerminatedError(rc: ExitCode) extends UnhandledError
+    final case class ExpectedError(cause: Throwable) extends UnhandledError
+    final case class UnexpectedError(cause: Throwable) extends UnhandledError
   }
 
   private class MyTranslatingClient(project: Project, worksheet: VirtualFile, consumer: CompilerInterface) extends DummyClient {

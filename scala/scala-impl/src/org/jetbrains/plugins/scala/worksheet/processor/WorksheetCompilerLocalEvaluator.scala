@@ -45,7 +45,7 @@ private object WorksheetCompilerLocalEvaluator {
         processHandler.startNotify()
       } catch {
         case NonFatal(ex: Throwable) =>
-          callback(WorksheetCompilerResult.EvaluationError(ex))
+          callback(WorksheetCompilerResult.UnknownError(ex))
           throw ex
       }
     }
