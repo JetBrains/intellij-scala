@@ -286,7 +286,7 @@ val localRepoArtifacts =
 val localRepoPaths = LocalRepoPackager.localPluginRepoPaths(localRepoArtifacts)
 
 lazy val runtimeDependencies =
-  (project in file("target/tools/sbt-runtime-dependencies"))
+  (project in file("target/tools/runtime-dependencies"))
     .settings(
       scalaVersion := Versions.scalaVersion,
       libraryDependencies := DependencyGroups.runtime,

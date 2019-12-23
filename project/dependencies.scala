@@ -72,7 +72,7 @@ object Dependencies {
   val sbtStructureExtractor_100: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_1_0)
 
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
-  val bloopLauncher: ModuleID = "ch.epfl.scala" %% "bloop-launcher" % bloopVersion
+  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_${scalaBinaryVersion}" % bloopVersion
   val jamm: ModuleID = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
