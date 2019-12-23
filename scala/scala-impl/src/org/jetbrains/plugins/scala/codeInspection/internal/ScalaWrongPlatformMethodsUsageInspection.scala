@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiMethod}
+import com.intellij.psi.{PsiElementVisitor, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
@@ -78,7 +78,13 @@ private object ScalaWrongPlatformMethodsUsageInspection {
     ("getQualifiedName", (Seq("com.intellij.psi.PsiClass"),
       Some("org.jetbrains.plugins.scala.extensions.PsiClassExt.qualifiedName"))
     ),
-    ("getName", (Seq("com.intellij.navigation.NavigationItem", "com.intellij.psi.PsiNamedElement"),
+    ("getName", (
+      Seq(
+        "com.intellij.navigation.NavigationItem",
+        "com.intellij.psi.PsiNamedElement",
+        "org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction",
+        "org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement"
+      ),
       Some("org.jetbrains.plugins.scala.extensions.PsiNamedElementExt.name"))
     ),
     ("hasModifierProperty", (Seq("com.intellij.psi.PsiModifierListOwner"),
