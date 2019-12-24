@@ -18,6 +18,7 @@ import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
@@ -59,7 +60,7 @@ object ScalaI18nUtil {
   }
 
   private def mayBePropertyKey(literal: ScLiteral): Boolean = literal match {
-    case ScLiteral(string) => !string.exists {
+    case ScStringLiteral(string) => !string.exists {
       case '=' | ':' => true
       case character => Character.isWhitespace(character)
     }

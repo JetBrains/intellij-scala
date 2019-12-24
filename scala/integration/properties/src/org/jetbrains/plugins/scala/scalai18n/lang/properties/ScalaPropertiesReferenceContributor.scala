@@ -11,6 +11,7 @@ import com.intellij.patterns.PsiJavaPatterns
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.JavaClassReferenceProvider
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 
 /**
@@ -72,7 +73,7 @@ object ScalaPropertiesReferenceContributor {
     def unapply(literal: ScLiteral): Option[PropertyReference] = literal match {
       case _: ScInterpolatedStringLiteral => None
       case _ if !literal.isString || literal.isMultiLineString => None
-      case ScLiteral(text) if !text.contains(" ") => Some(new PropertyReference(text, literal, null, true))
+      case ScStringLiteral(text) if !text.contains(" ") => Some(new PropertyReference(text, literal, null, true))
       case _ => None
     }
   }

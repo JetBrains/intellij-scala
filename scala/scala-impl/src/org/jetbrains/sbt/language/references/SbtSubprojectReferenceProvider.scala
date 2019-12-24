@@ -10,6 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -77,18 +78,18 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
       extractPathFromConcatenation(expr)
     case expr : ScReferenceExpression =>
       Option(expr.resolve()).flatMap(extractPathFromReference)
-    case ScMethodCall(expr, ScLiteral(path) :: _) if expr.getText == "file" =>
+    case ScMethodCall(expr, ScStringLiteral(path) :: _) if expr.getText == "file" =>
       Option(path)
     case _ => None
   }
 
   private def extractPathFromFileCtor(constrInvocation: ScConstructorInvocation): Option[String] = {
     constrInvocation.args.map(_.exprs).flatMap {
-      case Seq(ScLiteral(path)) =>
+      case Seq(ScStringLiteral(path)) =>
         Some(path)
-      case Seq(ScLiteral(parent), ScLiteral(child)) =>
+      case Seq(ScStringLiteral(parent), ScStringLiteral(child)) =>
         Some(parent + File.separator + child)
-      case Seq(parentElt, ScLiteral(child)) =>
+      case Seq(parentElt, ScStringLiteral(child)) =>
         extractPathFromFileParam(parentElt).map(_ + File.separator + child)
       case _ => None
     }
@@ -96,7 +97,7 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
 
   private def extractPathFromConcatenation(concatExpr: ScInfixExpr): Option[String] =
     concatExpr.right match {
-      case ScLiteral(child) =>
+      case ScStringLiteral(child) =>
         extractPathFromFileParam(concatExpr.left).map(_ + File.separator + child)
       case partRef : ScReferenceExpression =>
         for {

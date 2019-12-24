@@ -6,6 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions.OptionExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -95,7 +96,7 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
 
   private def descriptionText(element: ScExpression): Option[String] = Some(element).collect {
     case ScInfixExpr(left, _, right) => Seq(left, right).map(descriptionText).mkString
-    case ScLiteral(string)           => string
+    case ScStringLiteral(string)     => string
     case ref: ScReferenceExpression  => s"<i>${ref.getText}</i>"
   }
 

@@ -3,6 +3,7 @@ package annotator
 package element
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 
 object ScStringLiteralAnnotator extends ElementAnnotator[ScLiteral] {
@@ -14,7 +15,7 @@ object ScStringLiteralAnnotator extends ElementAnnotator[ScLiteral] {
                        (implicit holder: ScalaAnnotationHolder): Unit = literal match {
     case interpolated: ScInterpolatedStringLiteral =>
       createStringIsTooLongAnnotation(interpolated, interpolated.getStringParts: _*)
-    case ScLiteral(string) => createStringIsTooLongAnnotation(literal, string)
+    case ScStringLiteral(string) => createStringIsTooLongAnnotation(literal, string)
     case _ =>
   }
 

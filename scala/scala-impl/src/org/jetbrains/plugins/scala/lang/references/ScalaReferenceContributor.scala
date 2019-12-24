@@ -12,6 +12,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.util.{IncorrectOperationException, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
@@ -84,7 +85,7 @@ private class ScalaFilePathReferenceProvider(private val myEndingSlashNotAllowed
   override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] =
     element match {
       case interp: ScInterpolated => getReferencesForInterpolated(interp)
-      case ScLiteral(text)        => getReferencesByElement(element, text, 1, true)
+      case ScStringLiteral(text)  => getReferencesByElement(element, text, 1, true)
       case _                      => PsiReference.EMPTY_ARRAY
     }
 
