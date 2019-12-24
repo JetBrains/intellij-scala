@@ -96,8 +96,9 @@ object CachesUtil {
         }
         val newValue = manager.createCachedValue(provider, false)
         CacheTracker.track(cacheTypeId, cacheTypeName, newValue, new CacheCapabilities[CachedValue[ConcurrentMap[Data, Result]]] {
-          override def cachedEntitiesCount(cache: CacheType): Int = cache.getValue.size()
-          override def clear(cache: CacheType): Unit = cache.getValue.clear()
+          private def realCache(cache: CacheType) = cache.getUpToDateOrNull.nullSafe.map(_.get())
+          override def cachedEntitiesCount(cache: CacheType): Int = realCache(cache).fold(0)(_.size())
+          override def clear(cache: CacheType): Unit = realCache(cache).foreach(_.clear())
         })
         elem.putUserDataIfAbsent(key, newValue)
       case d => d
@@ -120,8 +121,9 @@ object CachesUtil {
         }
         val newValue = manager.createCachedValue(provider, false)
         CacheTracker.track(cacheTypeId, cacheTypeName, newValue, new CacheCapabilities[CachedValue[AtomicReference[Result]]] {
-          override def cachedEntitiesCount(cache: CacheType): Int = if(cache.getValue.get() == null) 0 else 1
-          override def clear(cache: CacheType): Unit = cache.getValue.set(null)
+          private def realCache(cache: CacheType) = cache.getUpToDateOrNull.nullSafe.map(_.get())
+          override def cachedEntitiesCount(cache: CacheType): Int = realCache(cache).fold(0)(c => if (c.get() == null) 0 else 1)
+          override def clear(cache: CacheType): Unit = realCache(cache).foreach(_.set(null))
         })
         elem.putUserDataIfAbsent(key, newValue)
       case d => d
