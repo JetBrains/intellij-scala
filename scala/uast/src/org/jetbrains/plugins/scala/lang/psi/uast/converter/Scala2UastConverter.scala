@@ -500,11 +500,32 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     }
   }
 
+  //todo: is there a better way to restrict possible conversions?
   private def isPossibleToConvert[U](uastRequiredType: Class[U], scalaElement: PsiElement): Boolean = {
-    def isLiteralExpression = scalaElement.isInstanceOf[ScLiteral]
+    def isIdentifier: Boolean = scalaElement match {
+      case e: LeafPsiElement => e.getElementType == ScalaTokenTypes.tIDENTIFIER
+      case _ => false
+    }
+
+    def mayBeCallExpression: Boolean = scalaElement match {
+      case _: ScReferenceExpression |
+           _: MethodInvocation |
+           _: ScGenericCall |
+           _: ScNewTemplateDefinition => true
+      case _ => false
+    }
+
+    def mayBeMethod: Boolean = scalaElement match {
+      case _: ScMethodLike | _ :ScPrimaryConstructorWrapper | _: ScFunctionWrapper => true
+      case _ => false
+    }
 
     //avoid converting everything to UAST from PropertyFoldingBuilder
-    if (uastRequiredType == classOf[ULiteralExpression]) isLiteralExpression
+    if (uastRequiredType == classOf[ULiteralExpression]) scalaElement.isInstanceOf[ScLiteral]
+    else if (uastRequiredType == classOf[UImportStatement]) scalaElement.isInstanceOf[ScImportStmt]
+    else if (uastRequiredType == classOf[UIdentifier]) isIdentifier
+    else if (uastRequiredType == classOf[UCallExpression]) mayBeCallExpression
+    else if (uastRequiredType == classOf[UMethod]) mayBeMethod
     else true
   }
 
