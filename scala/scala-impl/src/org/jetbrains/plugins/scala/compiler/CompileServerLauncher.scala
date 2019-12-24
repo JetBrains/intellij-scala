@@ -93,7 +93,7 @@ object CompileServerLauncher {
         val bootclasspathArg =
           if (bootClassPathLibs.isEmpty) Nil
           else Seq("-Xbootclasspath/a:" + bootClassPathLibs.mkString(File.pathSeparator))
-        val classpath = (jdk.tools +: (presentFiles ++ compilerServerAddtionalCP()))
+        val classpath = (jdk.tools ++ (presentFiles ++ compilerServerAddtionalCP()))
           .map(_.canonicalPath)
           .mkString(File.pathSeparator)
 

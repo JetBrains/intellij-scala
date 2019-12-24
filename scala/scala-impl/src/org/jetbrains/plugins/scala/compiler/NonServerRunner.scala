@@ -24,7 +24,7 @@ class NonServerRunner(project: Project) {
   private val SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main"
 
   private def classPath(jdk: JDK): String = {
-    val jars = jdk.tools +: CompileServerLauncher.compilerJars
+    val jars = jdk.tools ++ CompileServerLauncher.compilerJars
     val jarPaths = jars.map(file => FileUtil.toCanonicalPath(file.getPath))
     jarPaths.mkString(File.pathSeparator)
   }
