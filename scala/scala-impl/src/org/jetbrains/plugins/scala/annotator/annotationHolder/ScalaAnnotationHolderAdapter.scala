@@ -7,7 +7,7 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 
-class ScalaAnnotationHolderAdapter(val innerHolder: AnnotationHolder) extends ScalaAnnotationHolder {
+class ScalaAnnotationHolderAdapter(private val innerHolder: AnnotationHolder) extends ScalaAnnotationHolder {
 
   override def createErrorAnnotation(elt: PsiElement, message: String): Annotation =
     innerHolder.createErrorAnnotation(elt, message)

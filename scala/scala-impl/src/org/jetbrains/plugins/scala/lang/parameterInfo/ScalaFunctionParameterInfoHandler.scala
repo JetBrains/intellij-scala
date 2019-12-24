@@ -3,6 +3,7 @@ package lang
 package parameterInfo
 
 import java.awt.Color
+import java.util
 
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.hint.ShowParameterInfoHandler
@@ -12,7 +13,6 @@ import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.containers.hash.HashSet
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -69,7 +69,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
   def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
   def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
-    val set = new HashSet[Class[_]]()
+    val set = new util.HashSet[Class[_]]()
     set.add(classOf[ScMethodCall])
     set.add(classOf[ScConstructorInvocation])
     set.add(classOf[ScSelfInvocation])
