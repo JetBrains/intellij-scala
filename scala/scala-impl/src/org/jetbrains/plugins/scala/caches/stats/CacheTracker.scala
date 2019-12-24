@@ -28,16 +28,16 @@ object CacheTracker {
 
   def isEnabled: Boolean = Tracer.isEnabled
 
-  def alwaysTrack[Cache: ClassTag](cacheTypeId: String, name: String, cache: Cache, capabilities: => CacheCapabilities[Cache]): Unit =
-    track(cacheTypeId, name, cache, capabilities, alwaysTrack = true)
+  def alwaysTrack[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String, cache: Cache): Unit =
+    track(cacheTypeId, name, cache, alwaysTrack = true)
 
-  def track[Cache: ClassTag](cacheTypeId: String, name: String, cache: Cache, capabilities: => CacheCapabilities[Cache]): Unit =
-    if (isEnabled) track(cacheTypeId, name, cache, capabilities, alwaysTrack = false)
+  def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String, cache: Cache): Unit =
+    if (isEnabled) track(cacheTypeId, name, cache, alwaysTrack = false)
 
-  private def track[Cache: ClassTag](cacheTypeId: String, name: String, cache: Cache, capabilities: => CacheCapabilities[Cache], alwaysTrack: Boolean): Unit = {
+  private def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String, cache: Cache, alwaysTrack: Boolean): Unit = {
     val cacheType =
       trackedCacheTypes
-        .computeIfAbsent(cacheTypeId, new TrackedCacheTypeImpl[Cache](_, name, capabilities, alwaysTrack))
+        .computeIfAbsent(cacheTypeId, new TrackedCacheTypeImpl[Cache](_, name, implicitly[CacheCapabilities[Cache]], alwaysTrack))
         .asInstanceOf[TrackedCacheTypeImpl[Cache]]
     cacheType.add(cache)
   }

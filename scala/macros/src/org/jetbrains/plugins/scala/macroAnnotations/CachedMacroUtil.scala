@@ -47,16 +47,10 @@ object CachedMacroUtil {
     q"_root_.org.jetbrains.plugins.scala.caches.stats.CacheTracker"
   }
 
-  def timestampedMapCacheCapabilitiesFQN(implicit c: whitebox.Context): c.universe.Tree = {
+  def cacheCapabilitiesFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.timestampedMapCacheCapabilities"
+    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.CacheCapabilties"
   }
-
-  def timestampedSingleValueCacheCapabilitiesFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.timestampedSingleValueCacheCapabilities"
-  }
-
   def defaultValue(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
     import c.universe.Quasiquote
     tp match {

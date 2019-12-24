@@ -26,7 +26,7 @@ trait Conformance {
 
   private val cache = {
     val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
-    CacheTracker.alwaysTrack(conformsInnerCache, conformsInnerCache, cache, ConformanceCacheCapabilities)
+    CacheTracker.alwaysTrack(conformsInnerCache, conformsInnerCache, cache)
     cache
   }
 
@@ -77,8 +77,9 @@ trait Conformance {
 
 object Conformance {
   val conformsInnerCache: String = "Conformance.conformsInner"
-  object ConformanceCacheCapabilities extends CacheCapabilities[ConcurrentMap[_, ConstraintsResult]] {
-    override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
-    override def clear(cache: CacheType): Unit = cache.clear()
-  }
+  implicit def ConformanceCacheCapabilities[T]: CacheCapabilities[ConcurrentMap[T, ConstraintsResult]] =
+    new CacheCapabilities[ConcurrentMap[T, ConstraintsResult]] {
+      override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
+      override def clear(cache: CacheType): Unit = cache.clear()
+    }
 }
