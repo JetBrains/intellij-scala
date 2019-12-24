@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.actions.implicitArguments
 import java.awt.event.MouseEvent
 import java.awt.{BorderLayout, Dimension}
 
-import com.intellij.ide.util.treeView.{AbstractTreeBuilder, AbstractTreeNode}
+import com.intellij.ide.util.treeView.AbstractTreeNode
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
@@ -13,10 +14,11 @@ import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, 
 import com.intellij.openapi.util.{Disposer, Ref}
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
+import com.intellij.ui.tree.{AsyncTreeModel, StructureTreeModel}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
-import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
+import javax.swing.tree.{DefaultMutableTreeNode, TreePath}
 import javax.swing.{JPanel, JTree}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -162,15 +164,18 @@ object ShowImplicitArgumentsAction {
   def showPopup(editor: Editor, results: Seq[ScalaResolveResult], isConversion: Boolean): JBPopup = {
     val project = editor.getProject
 
-    val tree = new Tree()
+    val jTree = new Tree()
     val structure = new ImplicitArgumentsTreeStructure(project, results)
-    val builder = new AbstractTreeBuilder(tree, new DefaultTreeModel(new DefaultMutableTreeNode), structure, null) {
-      override def isSmartExpand: Boolean = false
+
+    val tempDisposable = new Disposable {
+      def dispose(): Unit = ()
     }
+    val structureTreeModel = new StructureTreeModel[ImplicitArgumentsTreeStructure](structure, tempDisposable)
+    val asyncTreeModel = new AsyncTreeModel(structureTreeModel, true, tempDisposable)
 
-    val jTree = builder.getTree
-
+    jTree.setModel(asyncTreeModel)
     jTree.setRootVisible(false)
+
     val minSize = jTree.getPreferredSize
 
     val scrollPane = ScrollPaneFactory.createScrollPane(jTree, true)
@@ -211,7 +216,7 @@ object ShowImplicitArgumentsAction {
       }
     }.installOn(jTree)
 
-    Disposer.register(popup, builder)
+    Disposer.register(popup, tempDisposable)
 
     popup.showInBestPositionFor(editor)
     popup
