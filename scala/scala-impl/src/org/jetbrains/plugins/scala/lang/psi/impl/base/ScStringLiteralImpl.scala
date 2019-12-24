@@ -12,6 +12,7 @@ import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.tree.IElementType
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase
 import org.jetbrains.plugins.scala.lang.psi.types._
 
@@ -19,17 +20,14 @@ import org.jetbrains.plugins.scala.lang.psi.types._
  * @author Alexander Podkhalyuzin
  *         Date: 22.02.2008
  */
-class ScLiteralImpl(node: ASTNode,
-                    override val toString: String)
+class ScStringLiteralImpl(node: ASTNode,
+                          override val toString: String)
   extends QuotedLiteralImplBase(node, toString)
-    with ContributedReferenceHost
-    with PsiLanguageInjectionHost {
+    with ScStringLiteral {
 
   import QuotedLiteralImplBase._
-  import ScLiteralImpl._
+  import ScStringLiteralImpl._
   import lang.lexer.ScalaTokenTypes._
-
-  override protected final type V = String
 
   override protected def startQuote: String =
     if (isMultiLineString) MultiLineQuote
@@ -55,14 +53,14 @@ class ScLiteralImpl(node: ASTNode,
 
   override def isValidHost: Boolean = getValue != null
 
-  override def updateText(text: String): ScLiteralImpl = {
+  override def updateText(text: String): ScStringLiteralImpl = {
     firstNode match {
       case leaf: LeafElement => leaf.replaceWithText(text)
     }
     this
   }
 
-  override def createLiteralTextEscaper: LiteralTextEscaper[ScLiteralImpl] =
+  override def createLiteralTextEscaper: LiteralTextEscaper[ScStringLiteral] =
     if (isMultiLineString) new PassthroughLiteralEscaper(this)
     else new ScLiteralEscaper(this)
 
@@ -73,7 +71,7 @@ class ScLiteralImpl(node: ASTNode,
   private def literalElementType: IElementType = firstNode.getElementType
 }
 
-object ScLiteralImpl {
+object ScStringLiteralImpl {
 
   final case class Value(override val value: String) extends ScLiteral.Value(value) {
 

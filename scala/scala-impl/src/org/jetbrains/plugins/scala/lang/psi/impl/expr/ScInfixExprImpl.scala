@@ -7,7 +7,7 @@ package expr
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScLiteralImpl, literals}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScStringLiteralImpl, literals}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
@@ -73,7 +73,7 @@ object ScInfixExprImpl {
       case value: Boolean => ScBooleanLiteralImpl.Value(value)
       case value: Char => ScCharLiteralImpl.Value(value)
       case value: Symbol => ScSymbolLiteralImpl.Value(value)
-      case value: String => ScLiteralImpl.Value(value)
+      case value: String => ScStringLiteralImpl.Value(value)
       case _ => null
     }
 

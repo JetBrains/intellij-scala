@@ -3,8 +3,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.LiteralTextEscaper
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 
-class ScLiteralEscaper(val literal: ScLiteralImpl) extends LiteralTextEscaper[ScLiteralImpl](literal) {
+class ScLiteralEscaper(val literal: ScStringLiteral) extends LiteralTextEscaper[ScStringLiteral](literal) {
   private var outSourceOffsets: Array[Int] = _
 
   override def decode(rangeInsideHost: TextRange, outChars: java.lang.StringBuilder): Boolean = {
