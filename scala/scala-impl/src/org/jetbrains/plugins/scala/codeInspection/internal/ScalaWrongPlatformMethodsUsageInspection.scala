@@ -33,9 +33,9 @@ class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
                 val containingClass = m.containingClass
                 val fondClass = classes.find { clazz =>
                   val instance = ScalaPsiManager.instance(holder.getProject)
-                  val cachedClass = instance.getCachedClass(m.resolveScope, clazz).orNull
-                  cachedClass != null && containingClass != null &&
-                    cachedClass.sameOrInheritor(containingClass)
+                  val baseClass = instance.getCachedClass(m.resolveScope, clazz).orNull
+                  baseClass != null && containingClass != null &&
+                    containingClass.sameOrInheritor(baseClass)
                 }
                 fondClass match {
                   case Some(_) =>
