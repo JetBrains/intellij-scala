@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package caches
 package stats
 
-import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.containers.{ContainerUtil, WeakList}
 import org.jetbrains.plugins.scala.extensions._
 
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
-
 
 
 object CacheTracker {
@@ -16,10 +16,10 @@ object CacheTracker {
                                         override val alwaysTrack: Boolean) extends TrackedCacheType {
     override type Cache = C
 
-    private val trackedCaches: MyConcurrentWeakRefBuffer[Cache] = new MyConcurrentWeakRefBuffer[Cache]
+    private val trackedCaches: WeakList[Cache] = new WeakList[Cache]
     def add(cache: Cache): Unit = trackedCaches.add(cache)
 
-    override def tracked: List[Cache] = trackedCaches.values
+    override def tracked: Seq[Cache] = trackedCaches.toStrongList.asScala
     override def cachedEntityCount: Int = tracked.foldLeft(0)(_ + capabilities.cachedEntitiesCount(_))
     override def clear(): Unit = tracked.foreach(capabilities.clear)
   }
