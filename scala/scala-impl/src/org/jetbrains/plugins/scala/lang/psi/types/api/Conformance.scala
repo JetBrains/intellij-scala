@@ -24,11 +24,10 @@ trait Conformance {
 
   private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.conformance.guard")
 
-  private val cache = {
-    val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
-    CacheTracker.alwaysTrack(conformsInnerCache, conformsInnerCache, cache)
-    cache
-  }
+  private val cache =
+    CacheTracker.alwaysTrack(conformsInnerCache, conformsInnerCache) {
+      ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
+    }
 
   /**
     * Checks, whether the following assignment is correct:

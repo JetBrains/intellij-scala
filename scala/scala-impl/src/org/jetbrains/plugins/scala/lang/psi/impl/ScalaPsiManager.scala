@@ -68,12 +68,10 @@ class ScalaPsiManager(implicit val project: Project) {
   val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
     ContainerUtil.newConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]]()
 
-  val implicitCollectorCache: ImplicitCollectorCache = new ImplicitCollectorCache(project)
-  CacheTracker.alwaysTrack(
-    "ScalaPsiManager.implicitCollectorCache",
-    "ScalaPsiManager.implicitCollectorCache",
-    implicitCollectorCache
-  )
+  val implicitCollectorCache: ImplicitCollectorCache =
+    CacheTracker.alwaysTrack("ScalaPsiManager.implicitCollectorCache", "ScalaPsiManager.implicitCollectorCache") {
+      new ImplicitCollectorCache(project)
+    }
 
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 

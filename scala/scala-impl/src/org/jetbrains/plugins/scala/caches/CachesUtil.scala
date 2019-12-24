@@ -94,8 +94,9 @@ object CachesUtil {
           override def compute(): CachedValueProvider.Result[ConcurrentMap[Data, Result]] =
             new CachedValueProvider.Result(ContainerUtil.newConcurrentMap(), dependencyItem())
         }
-        val newValue = manager.createCachedValue(provider, false)
-        CacheTracker.track(cacheTypeId, cacheTypeName, newValue)
+        val newValue = CacheTracker.track(cacheTypeId, cacheTypeName) {
+          manager.createCachedValue(provider, false)
+        }
         elem.putUserDataIfAbsent(key, newValue)
       case d => d
     }
@@ -116,8 +117,9 @@ object CachesUtil {
           override def compute(): CachedValueProvider.Result[AtomicReference[Result]] =
             new CachedValueProvider.Result(new AtomicReference[Result](), dependencyItem())
         }
-        val newValue = manager.createCachedValue(provider, false)
-        CacheTracker.track(cacheTypeId, cacheTypeName, newValue)
+        val newValue = CacheTracker.track(cacheTypeId, cacheTypeName) {
+          manager.createCachedValue(provider, false)
+        }
         elem.putUserDataIfAbsent(key, newValue)
       case d => d
     }

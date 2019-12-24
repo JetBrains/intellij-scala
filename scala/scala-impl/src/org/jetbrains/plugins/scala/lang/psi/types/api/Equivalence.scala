@@ -25,7 +25,7 @@ trait Equivalence {
 
   private val cache = {
     val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
-    CacheTracker.alwaysTrack(equivInnerTraceId, equivInnerTraceId, this: Equivalence)
+    CacheTracker.alwaysTrack(equivInnerTraceId, equivInnerTraceId)(this: Equivalence)
     cache
   }
 

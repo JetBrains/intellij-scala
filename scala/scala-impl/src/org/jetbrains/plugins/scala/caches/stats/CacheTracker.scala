@@ -28,11 +28,15 @@ object CacheTracker {
 
   def isEnabled: Boolean = Tracer.isEnabled
 
-  def alwaysTrack[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String, cache: Cache): Unit =
+  def alwaysTrack[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String)(cache: Cache): Cache = {
     track(cacheTypeId, name, cache, alwaysTrack = true)
+    cache
+  }
 
-  def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String, cache: Cache): Unit =
+  def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String)(cache: Cache): Cache = {
     if (isEnabled) track(cacheTypeId, name, cache, alwaysTrack = false)
+    cache
+  }
 
   private def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String, cache: Cache, alwaysTrack: Boolean): Unit = {
     val cacheType =

@@ -70,10 +70,12 @@ object Cached {
 
           val fields = q"""
               new _root_.scala.volatile()
-              private val $mapAndCounterRef: $atomicReferenceTypeFQN[$timestampedTypeFQN[$mapType]] =
-                new $atomicReferenceTypeFQN($timestampedFQN(null, -1L))
-              import $cacheCapabilitiesFQN._
-              $cacheTrackerFQN.track($keyId, $cacheName, $mapAndCounterRef)
+              private val $mapAndCounterRef: $atomicReferenceTypeFQN[$timestampedTypeFQN[$mapType]] = {
+                import $cacheCapabilitiesFQN._
+                $cacheTrackerFQN.track($keyId, $cacheName) {
+                  new $atomicReferenceTypeFQN($timestampedFQN(null, -1L))
+                }
+              }
             """
 
           val getOrUpdateMapDef = q"""
@@ -126,10 +128,12 @@ object Cached {
         } else {
           val fields = q"""
               new _root_.scala.volatile()
-              private val $timestampedDataRef: $atomicReferenceTypeFQN[$timestampedTypeFQN[$retTp]] =
-                new $atomicReferenceTypeFQN($timestampedFQN(${defaultValue(c)(retTp)}, -1L))
-              import $cacheCapabilitiesFQN._
-              $cacheTrackerFQN.track($keyId, $cacheName, $timestampedDataRef)
+              private val $timestampedDataRef: $atomicReferenceTypeFQN[$timestampedTypeFQN[$retTp]] = {
+                import $cacheCapabilitiesFQN._
+                $cacheTrackerFQN.track($keyId, $cacheName) {
+                  new $atomicReferenceTypeFQN($timestampedFQN(${defaultValue(c)(retTp)}, -1L))
+                }
+              }
             """
 
           val updatedRhs =
