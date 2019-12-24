@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.plugins.scala
 package statistics
 
@@ -149,3 +150,4 @@ class ScalaApplicationUsagesCollector extends AbstractProjectsUsagesCollector {
     result
   }
 }
+*/
