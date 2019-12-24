@@ -96,7 +96,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     viewerFolding.runBatchFoldingOperation(() => {
       foldings.foreach(addRegion)
       WorksheetFoldGroup.save(getScalaFile, foldGroup)
-    }, false)
+    })
   }
 
   protected def isInited: Boolean = inited
