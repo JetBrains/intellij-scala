@@ -35,12 +35,12 @@
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCommentContextType"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaStringContextType"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaImplicitValueClassContextType"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaAnnotatedMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$RegularVariable"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$ArrayVariable"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$IterableVariable"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaClassNameMacro"/>
-        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaSuggestVariableNameMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaSuggestVariableNameByTypeMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaImplicitValueClassNameMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaComponentTypeOfMacro"/>

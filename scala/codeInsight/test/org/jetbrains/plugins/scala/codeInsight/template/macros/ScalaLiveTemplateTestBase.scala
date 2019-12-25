@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.codeInsight.template.impl.{TemplateImpl, TemplateManagerImpl, TemplateSettings}
-import com.intellij.testFramework.{EditorTestUtil, PlatformTestUtil}
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ui.UIUtil
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.Assert._
+
+import scala.collection.JavaConverters.mapAsJavaMapConverter
 
 abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
@@ -15,40 +16,45 @@ abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTes
 
   protected def templateGroup: String = "scala"
 
+  final protected def templateId = s"`$templateGroup/$templateName`"
+
+  protected def fileExtension: String = "scala"
+
   override protected def setUp(): Unit = {
     super.setUp()
     TemplateManagerImpl.setTemplateTesting(myFixture.getTestRootDisposable)
   }
 
   protected def doTest(@Language("Scala") before: String,
-                       @Language("Scala") after: String): Unit = {
-    doTest(before, after, templateName, templateGroup)
-  }
+                       @Language("Scala") after: String): Unit =
+    doTest(before, after, Map(), templateName, templateGroup, fileExtension)
 
   protected def doTest(@Language("Scala") before: String,
                        @Language("Scala") after: String,
-                       templateName: String): Unit = {
-    doTest(before, after, templateName, templateGroup)
-  }
+                       predefinedVarValues: Map[String, String]): Unit =
+    doTest(before, after, predefinedVarValues, templateName, templateGroup, fileExtension)
 
   protected def doTest(@Language("Scala") before: String,
                        @Language("Scala") after: String,
+                       predefinedVarValues: Map[String, String],
                        templateName: String,
-                       templateGroup: String): Unit = {
-    myFixture.configureByText(ScalaFileType.INSTANCE, before)
+                       templateGroup: String,
+                       fileExtension: String): Unit = {
+    myFixture.configureByText(s"a.$fileExtension", before)
 
-    val template: TemplateImpl = TemplateSettings.getInstance.getTemplate(templateName, templateGroup)
-    val templateId = s"`$templateGroup/$templateName`"
-    assertNotNull(s"template $templateId not found", template)
-    assertTrue(s"template $templateId should be applicable", isApplicable(template))
+    val template = findTemplate(templateName, templateGroup)
+    assertIsApplicable(template)
 
     val templateManager = TemplateManager.getInstance(getProject)
-    templateManager.startTemplate(getEditor, template)
+
+    val varValuesJava = Option(predefinedVarValues).filter(_.nonEmpty).map(_.asJava).orNull
+    templateManager.startTemplate(getEditor, template, true, varValuesJava, null)
+    templateManager.finishTemplate(getEditor)
+
     // TODO: for now caret position in the end of template editing is not tested properly
     //  Now caret is set to the end of the FIRST template variable
     //  We should find the way to apply default variable values/expressions in tests
     //  and test that caret is set to the end of the LAST template variable
-    templateManager.finishTemplate(getEditor)
 
     UIUtil.dispatchAllInvocationEvents()
     PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
@@ -56,8 +62,36 @@ abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTes
     myFixture.checkResult(after.replaceAll("\r", ""))
   }
 
-  private def isApplicable(template: TemplateImpl): Boolean = {
-    TemplateManagerImpl.isApplicable(myFixture.getFile, getEditor.getCaretModel.getOffset, template)
+  protected def findTemplate(templateName: String, templateGroup: String): TemplateImpl = {
+    val template = TemplateSettings.getInstance.getTemplate(templateName, templateGroup)
+    assertNotNull(s"template $templateId not found", template)
+    template
   }
 
+  private def isApplicable(template: TemplateImpl): Boolean =
+    TemplateManagerImpl.isApplicable(myFixture.getFile, myFixture.getCaretOffset, template)
+
+  protected def assertIsApplicable(code: String): Unit =
+    assertIsApplicable(code, fileExtension)
+
+  protected def assertIsNotApplicable(code: String): Unit =
+    assertIsNotApplicable(code, fileExtension)
+
+  protected def assertIsApplicable(code: String, fileExtension: String): Unit = {
+    myFixture.configureByText(s"a.$fileExtension", code)
+    val template = findTemplate(templateName, templateGroup)
+    assertIsApplicable(template)
+  }
+
+  protected def assertIsNotApplicable(code: String, fileExtension: String): Unit = {
+    myFixture.configureByText(s"a.$fileExtension", code)
+    val template = findTemplate(templateName, templateGroup)
+    assertIsNotApplicable(template)
+  }
+
+  protected def assertIsApplicable(template: TemplateImpl): Unit =
+    assertTrue(s"template $templateId should be applicable", isApplicable(template))
+
+  protected def assertIsNotApplicable(template: TemplateImpl): Unit =
+    assertFalse(s"template $templateId should not be applicable", isApplicable(template))
 }

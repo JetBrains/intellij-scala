@@ -28,6 +28,7 @@ package object editor {
     def offset: Int = editor.getCaretModel.getOffset
 
     def commitDocument(project: Project): Unit = editor.getDocument.commit(project)
+    def commitDocument(): Unit = editor.getDocument.commit(editor.getProject)
 
     def inScalaString(offset: Int): Boolean = {
       val afterInterpolatedInjection =
