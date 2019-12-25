@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import org.jetbrains.plugins.scala.codeInsight.template.macros.ImplicitValueClassLiveTemplateTest._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
 
@@ -13,27 +14,27 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
     s"implicit class $implicitClassName(private val $fieldName: $typeName) extends AnyVal {\n  \n}"
 
   def testWithDefaultParameters(): Unit = {
-    val before = s"""$CARET""".stripMargin
+    val before = s"$CARET"
     val after  = expectedResult("AnyOps", "value", "Any")
     doTest(before, after)
   }
 
   def testString(): Unit = {
-    val before     = s"""$CARET""".stripMargin
+    val before     = s"$CARET"
     val after      = expectedResult("StringOps", "str", "String")
     val parameters = Map("TYPE_NAME" -> "String")
     doTest(before, after, parameters)
   }
 
   def testSeq_Generic(): Unit = {
-    val before     = s"""$CARET""".stripMargin
+    val before     = s"$CARET"
     val after      = expectedResult("SeqOps[T]", "seq", "Seq[T]")
     val parameters = Map("TYPE_NAME" -> "Seq[T]")
     doTest(before, after, parameters)
   }
 
   def testSeq_Concrete(): Unit = {
-    val before     = s"""$CARET""".stripMargin
+    val before     = s"$CARET"
     val after      = expectedResult("SeqOps", "strings", "Seq[String]")
     val parameters = Map("TYPE_NAME" -> "Seq[String]")
     doTest(before, after, parameters)
@@ -114,12 +115,12 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
   }
 
   def test_should_be_applicable_at_top_level_in_worksheet(): Unit = assertIsApplicable(
-    s"""$CARET""",
+    s"$CARET",
     "sc"
   )
 
   def test_should_not_be_applicable_at_top_level_in_common_scala_file(): Unit = assertIsNotApplicable(
-    s"""$CARET""",
+    s"$CARET",
     "scala"
   )
 
@@ -129,6 +130,26 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
        |$CARET""".stripMargin,
     "scala"
   )
+
+  protected def setSettings(prefix: String, suffix: String): Unit = {
+    val settings = ScalaCodeStyleSettings.getInstance(getProject)
+    settings.IMPLICIT_VALUE_CLASS_PREFIX = prefix
+    settings.IMPLICIT_VALUE_CLASS_SUFFIX = suffix
+  }
+
+  def test_should_use_code_style_settings(): Unit = {
+    setSettings("Prefix_", "_Suffix")
+    val before = s"$CARET"
+    val after = expectedResult("Prefix_Any_Suffix", "value", "Any")
+    doTest(before, after)
+  }
+
+  def test_should_use_code_style_settings_use_default_suffix(): Unit = {
+    setSettings("", "")
+    val before = s"$CARET"
+    val after = expectedResult("AnyOps", "value", "Any")
+    doTest(before, after)
+  }
 }
 
 object ImplicitValueClassLiveTemplateTest {

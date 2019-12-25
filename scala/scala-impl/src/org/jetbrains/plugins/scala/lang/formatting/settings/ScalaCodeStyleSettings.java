@@ -248,6 +248,10 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean TRAILING_COMMA_TYPE_PARAMS_ENABLED = false;
   public boolean TRAILING_COMMA_IMPORT_SELECTOR_ENABLED = false;
 
+  public String IMPLICIT_VALUE_CLASS_PREFIX = "";
+  public String IMPLICIT_VALUE_CLASS_SUFFIX = DEFAULT_IMPLICIT_VALUE_CLASS_SUFFIX;
+  public static final String DEFAULT_IMPLICIT_VALUE_CLASS_SUFFIX = "Ops";
+
   //global
   public boolean REFORMAT_ON_COMPILE = false;
 
