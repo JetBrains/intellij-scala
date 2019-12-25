@@ -3,12 +3,6 @@
 <idea-plugin>
 
     <extensions defaultExtensionNs="com.intellij">
-        <lang.foldingBuilder language="Scala"
-                             implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.folding.ScalaPropertyFoldingBuilder"/>
-        <psi.referenceContributor implementation="org.jetbrains.plugins.scala.scalai18n.lang.properties.ScalaPropertiesReferenceContributor"/>
-        <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.folding.ScalaI18nMessageGotoDeclarationHandler"
-                                order="first"/>
-
         <localInspection language="Scala" shortName="ScalaUnresolvedPropertyKey" bundle="messages.CodeInsightBundle"
                          key="inspection.unresolved.property.key.reference.name"
                          groupBundle="messages.InspectionsBundle" groupKey="group.names.properties.files"

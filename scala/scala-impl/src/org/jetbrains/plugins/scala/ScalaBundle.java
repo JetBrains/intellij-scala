@@ -35,6 +35,8 @@ public class ScalaBundle {
   @NonNls
   private static final String BUNDLE = "org.jetbrains.plugins.scala.ScalaBundle";
 
+  private static final String x = "wrong.val.declaration";
+
   public static String message(@PropertyKey(resourceBundle = BUNDLE)String key, Object... params) {
     return CommonBundle.message(getBundle(), key, params);
   }
