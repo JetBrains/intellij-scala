@@ -91,9 +91,10 @@ trait ScUMethodCallCommon
 final class ScUMethodCallExpression(
   override protected val scExpression: ScMethodCall,
   override protected val parent: LazyUElement,
-  @Nullable override val getSourcePsi: PsiElement = null
 ) extends UCallExpressionAdapter
     with ScUMethodCallCommon {
+
+  override def getSourcePsi: PsiElement = scExpression
 
   override protected def getReferencedExpr: Option[ScExpression] =
     Option(scExpression.getInvokedExpr)
@@ -141,9 +142,10 @@ final class ScUMethodCallExpression(
 final class ScUGenericCallExpression(
   override protected val scExpression: ScGenericCall,
   override protected val parent: LazyUElement,
-  @Nullable override val getSourcePsi: PsiElement = null
 ) extends UCallExpressionAdapter
     with ScUMethodCallCommon {
+
+  override def getSourcePsi: PsiElement = scExpression
 
   override protected def getReferencedExpr: Option[ScExpression] =
     Option(scExpression.referencedExpr)
@@ -172,9 +174,10 @@ final class ScUGenericCallExpression(
 final class ScUReferenceCallExpression(
   override protected val scExpression: ScReferenceExpression,
   override protected val parent: LazyUElement,
-  @Nullable override val getSourcePsi: PsiElement = null
 ) extends UCallExpressionAdapter
     with ScUMethodCallCommon {
+
+  override def getSourcePsi: PsiElement = scExpression
 
   override protected def getReferencedExpr: Option[ScExpression] =
     Some(scExpression)

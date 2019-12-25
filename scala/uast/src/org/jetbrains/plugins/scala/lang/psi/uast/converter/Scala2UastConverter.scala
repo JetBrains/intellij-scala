@@ -214,12 +214,12 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         // Otherwise PSI visitor won't be able to find some UAST calls
         // because they will be converted to UQualifiedExpression's
         case e: ScMethodCall if requiredType == classOf[UCallExpression] =>
-          new ScUMethodCallExpression(e, _, getSourcePsi = e)
+          new ScUMethodCallExpression(e, _)
 
         case e: ScGenericCall
             if !e.getParent.isInstanceOf[ScMethodCall] &&
               requiredType == classOf[UCallExpression] =>
-          new ScUGenericCallExpression(e, _, getSourcePsi = e)
+          new ScUGenericCallExpression(e, _)
 
         case funRef @ ScReferenceExpression(
               _: PsiMethod | _: ScSyntheticFunction
@@ -227,7 +227,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
             if !funRef.getParent.isInstanceOf[ScMethodCall] &&
               !funRef.getParent.isInstanceOf[ScGenericCall] &&
               requiredType == classOf[UCallExpression] =>
-          new ScUReferenceCallExpression(funRef, _, getSourcePsi = funRef)
+          new ScUReferenceCallExpression(funRef, _)
         //endregion
 
         case e: ScNewTemplateDefinition =>
