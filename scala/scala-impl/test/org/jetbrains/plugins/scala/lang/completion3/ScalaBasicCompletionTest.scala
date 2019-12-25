@@ -972,6 +972,22 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "f"
   )
 
+  def testMakeStringInterpolated(): Unit = doCompletionTest(
+    fileText =
+      s"""object Test {
+         |  val abc = "abc"
+         |  "foo$$ab$CARET"
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""object Test {
+         |  val abc = "abc"
+         |  s"foo$$abc$CARET"
+         |}
+         |""".stripMargin,
+    item = "abc"
+  )
+
   def testCaseClassParamInValuePattern(): Unit = doCompletionTest(
     fileText =
       s"""

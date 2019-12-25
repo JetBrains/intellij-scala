@@ -302,7 +302,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
         // ========================= LEAF ELEMENTS ==============================
 
-        case e: ScLiteral => new ScULiteral(e, _)
+        case e: ScLiteral => ScULiteral(e, _)
         case e: ScUnderscoreSection if e.bindingExpr.isEmpty =>
           new ScUUnderscoreExpression(e, _)
 
