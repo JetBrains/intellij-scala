@@ -24,9 +24,9 @@ final class ScalaReferenceContributor extends PsiReferenceContributor {
 
   override def registerReferenceProviders(registrar: PsiReferenceRegistrar) {
 
-    def literalCapture: PsiJavaElementPattern.Capture[ScLiteral] = psiElement(classOf[ScLiteral])
+    def literalCapture: PsiJavaElementPattern.Capture[ScStringLiteral] = psiElement(classOf[ScStringLiteral])
 
-    registrar.registerReferenceProvider(literalCapture, new ScalaFilePathReferenceProvider(false))
+    registrar.registerReferenceProvider(literalCapture, new ScalaFilePathReferenceProvider(false), PsiReferenceRegistrar.LOWER_PRIORITY)
     registrar.registerReferenceProvider(literalCapture, new InterpolatedStringReferenceProvider())
     registrar.registerReferenceProvider(literalCapture, new ArbitraryPlaceUrlReferenceProvider())
   }
