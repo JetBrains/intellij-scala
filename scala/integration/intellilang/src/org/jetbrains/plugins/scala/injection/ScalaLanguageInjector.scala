@@ -15,6 +15,7 @@ import org.intellij.plugins.intelliLang.inject.config.BaseInjection
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.readAttribute
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -32,11 +33,8 @@ import scala.collection.{JavaConverters, immutable, mutable}
 final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends MultiHostInjector {
 
   import ScalaLanguageInjector._
-
-  override def elementsToInjectIn: ju.List[Class[_ <: PsiElement]] = ju.Arrays.asList(
-    classOf[ScLiteral],
-    classOf[ScInfixExpr]
-  )
+  
+  override def elementsToInjectIn: ju.List[Class[_ <: PsiElement]] = ElementsToInjectIn
 
   @Measure
   override def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement): Unit =  {
@@ -255,6 +253,12 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
 }
 
 object ScalaLanguageInjector {
+  
+  private val ElementsToInjectIn = ju.Arrays.asList(
+    classOf[ScInterpolatedStringLiteral],
+    classOf[ScStringLiteral],
+    classOf[ScInfixExpr]
+  )
 
   private type StringLiteral = ScLiteral with PsiLanguageInjectionHost
   private type AnnotationOwner = PsiAnnotationOwner with PsiElement
