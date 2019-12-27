@@ -186,12 +186,11 @@ object BspCommunication {
       if (connectionDetails.nonEmpty)
         new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods)
       else if (bloopConfigDir.exists())
-        new BloopConnector(
-          bspExecutionSettings.bloopExecutable,
+        new BloopLauncherConnector(
           base,
           compilerOutputDir,
-          capabilities,
-          List(platformMethod, tcpMethod))
+          capabilities
+        )
       else new DummyConnector(base.toURI)
 
     connector.connect

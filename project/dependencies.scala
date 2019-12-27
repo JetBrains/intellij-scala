@@ -5,7 +5,7 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_12
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.3.5"
+  val bloopVersion = "1.4.0-RC1+2-2d96bcf6"
   val zincVersion = "1.1.1"
   val intellijVersion = "201.3283"
   val bspVersion = "2.0.0-M4"

@@ -19,8 +19,6 @@ class GenericConnector(base: File, compilerOutput: File, capabilities: BspCapabi
   }
 
   private def prepareBspSession(details: BspConnectionDetails): Builder = {
-    details.getArgv
-
     val process =
       new java.lang.ProcessBuilder(details.getArgv)
         .directory(base)
