@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.EmptyPrivateConstructor.constr
  */
 class EmptyPrivateConstructor(c: PsiClass) extends LightMethodBuilder(c.getManager, constructorName(c)) {
   addModifier("private")
+  setContainingClass(c)
 
   override def isConstructor: Boolean = true
 }
