@@ -82,10 +82,10 @@ final class ScULocalFunction(funDef: ScFunctionDefinition,
     ScUVariable.createLightVariable(
       isField = false,
       name = funDef.name,
-      psiType = funDef.uastType(),
       isVal = true,
       containingTypeDef,
-      modifiersList = None
+      modifiersList = None,
+      funDef
     )
 } with ULocalVariableAdapter(_lightVariable) with ScUVariableCommon {
 
