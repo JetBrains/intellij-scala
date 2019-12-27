@@ -141,8 +141,6 @@ object BspSystemSettings {
 
   class State {
     @BeanProperty
-    var bloopPath: String = "bloop" // TODO can we autodetect bloop path for mac/windows?
-    @BeanProperty
     var traceBsp: Boolean = false
   }
 }
@@ -167,15 +165,13 @@ object BspLocalSettings {
 class BspLocalSettingsState extends AbstractExternalSystemLocalSettings.State
 
 class BspExecutionSettings(val basePath: File,
-                           val bloopExecutable: File,
                            val traceBsp: Boolean) extends ExternalSystemExecutionSettings
 
 object BspExecutionSettings {
 
   def executionSettingsFor(basePath: File): BspExecutionSettings = {
     val systemSettings = BspSystemSettings.getInstance
-    val bloopExecutable = new File(systemSettings.getState.bloopPath)
-    new BspExecutionSettings(basePath, bloopExecutable, systemSettings.getState.traceBsp)
+    new BspExecutionSettings(basePath, systemSettings.getState.traceBsp)
   }
 }
 
@@ -193,21 +189,19 @@ class BspSystemSettingsControl(settings: BspSettings) extends ExternalSystemSett
   }
 
   override def reset(): Unit = {
-    pane.bloopExecutablePath.setText(systemSettings.getState.bloopPath)
     pane.bspTraceCheckbox.setSelected(systemSettings.getState.traceBsp)
     pane.setPathListeners()
   }
 
   override def isModified: Boolean =
-    pane.bloopExecutablePath.getText != systemSettings.getState.bloopPath ||
     pane.bspTraceCheckbox.isSelected != systemSettings.getState.traceBsp
 
   override def apply(settings: BspSettings): Unit = {
-    systemSettings.getState.bloopPath = pane.bloopExecutablePath.getText
     systemSettings.getState.traceBsp = pane.bspTraceCheckbox.isSelected
   }
+
   override def validate(settings: BspSettings): Boolean =
-    true // TODO validate bloop path or something?
+    true
 
   override def disposeUIResources(): Unit = {}
 }

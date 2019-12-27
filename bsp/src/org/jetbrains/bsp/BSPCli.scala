@@ -51,7 +51,7 @@ object BSPCli extends App {
     override def onCancel(externalSystemTaskId: ExternalSystemTaskId): Unit = {}
   }
 
-  class Opts(val bloopExec: String, val projectPath: String, val tracePath: Option[String])
+  class Opts(val projectPath: String, val tracePath: Option[String])
 
   val opts = try {
     System.setProperty("java.awt.headless", "true")
@@ -61,7 +61,6 @@ object BSPCli extends App {
       val bspSettingsState: BspSystemSettings.State = {
         val st = new bsp.settings.BspSystemSettings.State()
         st.traceBsp = opts.tracePath.isDefined
-        st.bloopPath = opts.bloopExec
         st
       }
       override def isUnitTestMode: Boolean = false
@@ -93,7 +92,7 @@ object BSPCli extends App {
   }
 
   var running = true
-  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), new File(opts.bloopExec), true)
+  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), true)
   val bspComm = BspCommunication.forWorkspace(new File(opts.projectPath))
   val resolver = new BspProjectResolver()
   val targets = {
@@ -132,7 +131,6 @@ object BSPCli extends App {
 
     val args = nextOpt(Map(), argsArr.toList)
     new Opts(
-      assertFile(args, "bloop"),
       assertFile(args, "project"),
       args.get("log")
     )
