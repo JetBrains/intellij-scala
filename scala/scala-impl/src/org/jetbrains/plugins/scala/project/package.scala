@@ -9,7 +9,7 @@ import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
-import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
@@ -231,7 +231,7 @@ package object project {
       modulesWithScala.headOption
 
     def libraries: Seq[Library] =
-      ProjectLibraryTable.getInstance(project).getLibraries.toSeq
+      LibraryTablesRegistrar.getInstance.getLibraryTable(project).getLibraries.toSeq
 
     def baseDir: VirtualFile = LocalFileSystem.getInstance().findFileByPath(project.getBasePath)
 
