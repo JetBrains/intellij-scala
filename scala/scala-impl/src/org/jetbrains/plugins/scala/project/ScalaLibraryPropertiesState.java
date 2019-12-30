@@ -54,8 +54,6 @@ public final class ScalaLibraryPropertiesState {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(languageLevel);
-        result = 31 * result + Arrays.hashCode(compilerClasspath);
-        return result;
+        return Objects.hash(languageLevel, Arrays.hashCode(compilerClasspath));
     }
 }

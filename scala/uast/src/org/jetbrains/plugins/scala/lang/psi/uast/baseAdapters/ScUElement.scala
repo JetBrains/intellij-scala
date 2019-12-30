@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.UElement
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 /**
   * Scala adapter of the [[UElement]].
@@ -54,7 +55,7 @@ trait ScUElement extends UElement with ScUElementWithComments {
   }
 
   override def hashCode(): Int =
-    31 * super.hashCode + Option(getSourcePsi).hashCode
+    super.hashCode #+ getSourcePsi
 
   override def asSourceString(): String =
     Option(scElement).map(_.getText).orNull

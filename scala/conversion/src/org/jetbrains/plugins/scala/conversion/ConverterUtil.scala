@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.refactoring._
+import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.annotation.tailrec
@@ -240,12 +241,7 @@ object ConverterUtil {
           text == that.text && showDialog == that.showDialog
       })
 
-    override def hashCode: Int =
-      Seq(associations, text, showDialog)
-        .map(_.hashCode)
-        .foldLeft(0) {
-          (a, b) => 31 * a + b
-        }
+    override def hashCode: Int = associations #+ text #+ showDialog
 
     override def toString = s"ConvertedCode($associations, $text, $showDialog)"
   }

@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.collection.{Seq, mutable}
 
@@ -152,7 +153,7 @@ class TermSignature(_name: String,
     * Use it, while building class hierarchy.
     * Because for class hierarchy def foo(): Int is the same thing as def foo: Int and val foo: Int.
     */
-  def equivHashCode: Int = name.hashCode * 31 + parameterSizeHash
+  def equivHashCode: Int = name #+ parameterSizeHash
 
   def isJava: Boolean = false
 

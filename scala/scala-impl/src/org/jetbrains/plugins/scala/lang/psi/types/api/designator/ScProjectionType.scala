@@ -5,8 +5,6 @@ package types
 package api
 package designator
 
-import java.util.Objects
-
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions._
@@ -23,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
@@ -330,7 +329,7 @@ final class ScProjectionType private(val projected: ScType,
   //noinspection HashCodeUsesVar
   override def hashCode: Int = {
     if (hash == -1)
-      hash = Objects.hash(projected, element)
+      hash = projected #+ element
 
     hash
   }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 /**
  * @author Nikolay.Tropin
@@ -25,10 +26,7 @@ class ScalaVersion protected(val languageLevel: ScalaLanguageLevel,
     case _ => false
   }
 
-  override def hashCode(): Int = {
-    val state = Seq(languageLevel, minorSuffix)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
+  override def hashCode(): Int = languageLevel #+ minorSuffix
 
   override def toString: String = s"ScalaVersion($minor)"
 }

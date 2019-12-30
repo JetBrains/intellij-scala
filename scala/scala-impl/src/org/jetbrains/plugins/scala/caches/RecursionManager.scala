@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.caches
 
 import java.util
-import java.util.Objects
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.RecursionGuard.StackStamp
 import com.intellij.openapi.util.{RecursionManager => PlatformRM}
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.collection.JavaConverters._
 
@@ -121,7 +121,7 @@ object RecursionManager {
 
   class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {
     // remember user object hashCode to ensure our internal maps consistency
-    override val hashCode: Int = Objects.hash(guardId, userObject)
+    override val hashCode: Int = guardId #+ userObject
 
     override def equals(obj: Any): Boolean = {
       obj match {

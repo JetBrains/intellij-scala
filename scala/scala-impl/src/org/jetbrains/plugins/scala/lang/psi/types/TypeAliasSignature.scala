@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import java.util.Objects
-
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 abstract class TypeAliasSignature {
   def typeAlias: ScTypeAlias
@@ -25,9 +24,8 @@ abstract class TypeAliasSignature {
     case _ => false
   }
 
-  override def hashCode(): Int = Objects.hash(
-    name, typeParams, lowerBound, upperBound, Boolean.box(isDefinition)
-  )
+  override def hashCode(): Int =
+    name #+ typeParams #+ lowerBound #+ upperBound #+ isDefinition
 }
 
 object TypeAliasSignature {
