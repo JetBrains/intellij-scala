@@ -1,29 +1,26 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
-import java.util.jar.Attributes
 
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager, ModuleType, ModuleUtilCore}
+import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.util.io.JarUtil._
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.module.SbtModuleType
-import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -39,9 +36,6 @@ package object project {
     // the primary purpose is to attach a module for a scala scratch file
     val SCALA_ATTACHED_MODULE = new Key[Module]("ScalaAttachedModule")
   }
-
-
-  import project.ScalaLanguageLevel._
 
   implicit class LibraryExt(private val library: Library) extends AnyVal {
 
@@ -83,29 +77,35 @@ package object project {
   }
 
   implicit class ModuleExt(private val module: Module) extends AnyVal {
+
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    private def scalaModuleSettings: Option[ScalaModuleSettings] =
+      ScalaModuleSettings(module)
+
     def isSourceModule: Boolean = SbtModuleType.unapply(module).isEmpty
 
     def hasScala: Boolean =
-      scalaSdk.isDefined
+      scalaModuleSettings.isDefined
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def hasScala3: Boolean = scalaLanguageLevel.exists(_ >= Scala_3_0)
+    def hasScala3: Boolean =
+      scalaModuleSettings.exists(_.hasScala3)
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def hasNewCollectionsFramework: Boolean = scalaLanguageLevel.exists(_ >= Scala_2_13)
+    def hasNewCollectionsFramework: Boolean =
+      scalaModuleSettings.exists(_.hasNewCollectionsFramework)
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def isIdBindingEnabled: Boolean = scalaLanguageLevel.exists(_ >= Scala_2_12)
+    def isIdBindingEnabled: Boolean =
+      scalaModuleSettings.exists(_.isIdBindingEnabled)
 
-    def scalaSdk: Option[LibraryEx] = Option {
-      ScalaSdkCache(module.getProject)(module)
-    }
+    def scalaSdk: Option[LibraryEx] =
+      scalaModuleSettings.map(_.scalaSdk)
 
     def isSharedSourceModule: Boolean = ModuleType.get(module).getId == "SHARED_SOURCES_MODULE"
 
-    def isScalaJs: Boolean = ScalaCompilerConfiguration.hasCompilerPlugin(module, "scala-js")
+    def isScalaJs: Boolean =
+      scalaModuleSettings.exists(_.isScalaJs)
 
-    def isScalaNative: Boolean = ScalaCompilerConfiguration.hasCompilerPlugin(module, "scala-native")
+    def isScalaNative: Boolean =
+      scalaModuleSettings.exists(_.isScalaNative)
 
     def isJvmModule: Boolean = !isScalaJs && !isScalaNative && !isSharedSourceModule
 
@@ -140,24 +140,10 @@ package object project {
     }
 
     def sbtVersion: Option[Version] =
-      SbtSettings.getInstance(module.getProject)
-        .getLinkedProjectSettings(module)
-        .flatMap { projectSettings =>
-          Option(projectSettings.sbtVersion)
-        }.map {
-        Version(_)
-      }
+      scalaModuleSettings.flatMap(_.sbtVersion)
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def isTrailingCommasEnabled: Boolean = scalaSdk.flatMap {
-      _.compilerVersion
-    }.map {
-      Version(_)
-    }.exists {
-      _ >= Version("2.12.2")
-    } || sbtVersion.exists {
-      _ >= Version("1.0")
-    }
+    def isTrailingCommasEnabled: Boolean =
+      scalaModuleSettings.exists(_.isTrailingCommasEnabled)
 
     def scalaCompilerSettings: ScalaCompilerSettings =
       compilerConfiguration.getSettingsForModule(module)
@@ -165,38 +151,28 @@ package object project {
     def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]): Unit =
       compilerConfiguration.configureSettingsForModule(module, source, options)
 
-    def scalaLanguageLevel: Option[ScalaLanguageLevel] = scalaSdk.map(_.properties.languageLevel)
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] =
+      scalaModuleSettings.map(_.scalaLanguageLevel)
 
     def scalaCompilerClasspath: Seq[File] = module.scalaSdk
       .fold(throw new ScalaSdkNotConfiguredException(module)) {
         _.properties.compilerClasspath
       }
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def literalTypesEnabled: Boolean = scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
-      compilerConfiguration.hasSettingForHighlighting(module) {
-        _.additionalCompilerOptions.contains("-Yliteral-types")
-      }
+    def literalTypesEnabled: Boolean =
+      scalaModuleSettings.exists(_.literalTypesEnabled)
 
     /**
      * @see https://github.com/non/kind-projector
      */
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def kindProjectorPluginEnabled: Boolean = kindProjectorPlugin.isDefined
+    def kindProjectorPluginEnabled: Boolean =
+      kindProjectorPlugin.isDefined
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def kindProjectorPlugin: Option[String] =
-      compilerConfiguration.settingsForHighlighting(module).flatMap {
-        _.plugins
-      }.find {
-        _.contains("kind-projector")
-      }
+      scalaModuleSettings.flatMap(_.kindProjectorPlugin)
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def betterMonadicForPluginEnabled: Boolean =
-      compilerConfiguration.hasSettingForHighlighting(module) {
-        _.plugins.exists(_.contains("better-monadic-for"))
-      }
+      scalaModuleSettings.exists(_.betterMonadicForPluginEnabled)
 
     /**
      * Should we check if it's a Single Abstract Method?
@@ -205,72 +181,23 @@ package object project {
      *
      * @return true if language level and flags are correct
      */
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def isSAMEnabled: Boolean = scalaLanguageLevel.exists {
-      case lang if lang > Scala_2_11 => true // if scalaLanguageLevel is None, we treat it as Scala 2.12
-      case lang if lang == Scala_2_11 =>
-        compilerConfiguration.hasSettingForHighlighting(module) { settings =>
-          settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
-        }
-      case _ => false
-    }
+    def isSAMEnabled: Boolean =
+      scalaModuleSettings.exists(_.isSAMEnabled)
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def isPartialUnificationEnabled: Boolean =
-      scalaLanguageLevel.exists(_ >= Scala_2_13) ||
-        compilerConfiguration.hasSettingForHighlighting(module) {
-          _.additionalCompilerOptions.contains("-Ypartial-unification")
-        }
+      scalaModuleSettings.exists(_.isPartialUnificationEnabled)
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def isMetaEnabled: Boolean =
-      compilerConfiguration.hasSettingForHighlighting(module) {
-        _.plugins.exists(isMetaParadiseJar)
-      }
+      scalaModuleSettings.exists(_.isMetaEnabled)
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def customDefaultImports: Option[Seq[String]] =
-      compilerConfiguration
-        .settingsForHighlighting(module)
-        .flatMap(_.additionalCompilerOptions)
-        .reverseIterator
-        .collectFirst { case RootImportSetting(imports) => imports }
+      scalaModuleSettings.flatMap(_.customDefaultImports)
 
     private def compilerConfiguration =
       ScalaCompilerConfiguration.instanceIn(module.getProject)
-
-    private[this] def isMetaParadiseJar(pathname: String): Boolean = new File(pathname) match {
-      case file if containsEntry(file, "scalac-plugin.xml") =>
-        def hasAttribute(nameSuffix: String, value: String) = getJarAttribute(
-          file,
-          new Attributes.Name(s"Specification-$nameSuffix")
-        ) == value
-
-        hasAttribute("Vendor", "org.scalameta") &&
-          hasAttribute("Title", "paradise")
-      case _ => false
-    }
   }
 
   class ScalaSdkNotConfiguredException(module: Module) extends IllegalArgumentException(s"No Scala SDK configured for module: ${module.getName}")
-
-  private object RootImportSetting {
-    private val Yimports   = "-Yimports:"
-    private val Ynopredef  = "-Yno-predef"
-    private val Ynoimports = "-Yno-imports"
-
-    private[this] val importSettingsPrefixes = Seq(Yimports, Ynopredef, Ynoimports)
-
-    def unapply(setting: String): Option[Seq[String]] = {
-      val prefix = importSettingsPrefixes.find(setting.startsWith)
-
-      prefix.collect {
-        case Yimports   => setting.substring(Yimports.length).split(",").map(_.trim)
-        case Ynopredef  => Seq("java.lang", "scala")
-        case Ynoimports => Seq.empty
-      }
-    }
-  }
 
   implicit class ProjectExt(private val project: Project) extends AnyVal {
 
@@ -338,6 +265,9 @@ package object project {
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
 
+    @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
+    def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(file))
+
     def isMetaEnabled: Boolean =
       !ScStubElementType.Processing &&
         !DumbService.isDumb(file.getProject) &&
@@ -360,7 +290,7 @@ package object project {
   }
 
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
-    def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element))
+    def module: Option[Module] = Option(element.getContainingFile).flatMap(_.module)
 
     def fileIndex: ProjectFileIndex = ProjectFileIndex.getInstance(element.getProject)
 
@@ -373,6 +303,7 @@ package object project {
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.getDefault)
 
     def kindProjectorPluginEnabled: Boolean = isDefinedInModuleOrProject(_.kindProjectorPluginEnabled)
+
     def kindProjectorPlugin: Option[String] = inThisModuleOrProject(_.kindProjectorPlugin).flatten
 
     def betterMonadicForEnabled: Boolean = isDefinedInModuleOrProject(_.betterMonadicForPluginEnabled)
@@ -391,27 +322,15 @@ package object project {
         case _ => false
       })
 
-    /**
-     * Check if the containing file of the [[element]] may have custom default imports.
-     */
-    @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
-    private def isEligibleForDefaultImportCustomisation(file: PsiFile): Boolean =
-      file match {
-        case sfile: ScalaFile =>
-          if (sfile.isWorksheetFile) true
-          else sfile.getVirtualFile.toOption
-                    .fold(false)(fileIndex.isInSourceContent)
-        case _ => false
+    def defaultImports: Seq[String] = {
+      val customDefaultImports = element.getContainingFile match {
+        case sfile: ScalaFile if !sfile.isCompiled =>
+          inThisModuleOrProject(_.customDefaultImports).flatten
+        case _ => None
       }
 
-    def defaultImports: Seq[String] = {
-      val file = element.getContainingFile.toOption
-      val customDefaultImports =
-        if (!file.exists(isEligibleForDefaultImportCustomisation)) None
-        else inThisModuleOrProject(_.customDefaultImports).flatten
-
       customDefaultImports
-        .getOrElse(FileDeclarationsHolder.defaultImplicitlyImportedSymbols)
+        .getOrElse(defaultImplicitlyImportedSymbols)
     }
 
     private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
@@ -428,6 +347,8 @@ package object project {
         .flatMap(_.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE).toOption)
 
   }
+
+  private val defaultImplicitlyImportedSymbols: Seq[String] = Seq("java.lang", "scala", "scala.Predef")
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {
 
