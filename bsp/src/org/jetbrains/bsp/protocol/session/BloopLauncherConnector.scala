@@ -25,6 +25,7 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
     val jnaPlatform = new File(SbtUtil.getLibDir, "jna-platform-4.5.0.jar")
     val launcherClasspath = List(launcher, scalaSdk, jna, jnaPlatform).map(_.getCanonicalPath).asJava
 
+    // TODO handle no available jdk case
     val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance())
 
     val javaParameters: JavaParameters = new JavaParameters

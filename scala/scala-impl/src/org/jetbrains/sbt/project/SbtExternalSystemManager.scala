@@ -171,9 +171,7 @@ object SbtExternalSystemManager {
       }.getOrElse(Map.empty)
 
   private def getVmOptions(settings: SbtSettings.State, jreHome: Option[File]): Seq[String] = {
-    import DefaultOptions._
     val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
-    val ideaProxyOptions = proxyOptions { optName => !userOptions.exists(_.startsWith(optName)) }
 
     val maxHeapSizeString = settings.getMaximumHeapSize.trim
     val maxHeapOptions =
@@ -187,7 +185,16 @@ object SbtExternalSystemManager {
         Seq(s"-Xmx$maxHeapSize")
       } else Seq.empty
 
-    val allOptions = maxHeapOptions ++ ideaProxyOptions ++ userOptions
+    val givenOptions = maxHeapOptions ++ userOptions
+
+    getVmOptions(givenOptions, jreHome)
+  }
+
+  def getVmOptions(givenOptions: Seq[String], jreHome: Option[File]): Seq[String] = {
+    import DefaultOptions._
+    val ideaProxyOptions = proxyOptions { optName => !givenOptions.exists(_.startsWith(optName)) }
+
+    val allOptions = ideaProxyOptions ++ givenOptions
 
     allOptions
       .addDefaultOption(ideaManaged.key, ideaManaged.value)
@@ -243,11 +250,11 @@ object SbtExternalSystemManager {
   object DefaultOptions {
     case class JvmOption(key: String, value: String)
 
-    val fileEncoding = JvmOption("-Dfile.encoding", "UTF-8")
-    val maxPermSize = JvmOption("-XX:MaxPermSize", "256M")
+    val fileEncoding: JvmOption = JvmOption("-Dfile.encoding", "UTF-8")
+    val maxPermSize: JvmOption = JvmOption("-XX:MaxPermSize", "256M")
 
     /** custom option to signal sbt instance is run from idea. */
-    val ideaManaged = JvmOption("-Didea.managed", "true")
+    val ideaManaged: JvmOption = JvmOption("-Didea.managed", "true")
   }
 
 }
