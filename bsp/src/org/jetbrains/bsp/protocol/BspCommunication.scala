@@ -101,6 +101,11 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
       s.shutdown()
   }
 
+  def alive = session.get() match {
+    case Some(s) => s.isAlive
+    case None => false
+  }
+
   private[protocol] def isIdle(now: Long, timeout: Duration) = session.get() match {
     case None => false
     case Some(s) =>
