@@ -5,9 +5,8 @@ import java.nio.charset.Charset
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 
-import com.intellij.build.events
 import com.intellij.build.events.MessageEvent
-import com.intellij.build.events.MessageEvent.Kind._
+import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
@@ -58,7 +57,7 @@ class SbtStructureDump {
 
     val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
     val reporter = new ExternalSystemNotificationReporter(dir.getAbsolutePath, taskId, notifications)
-    val aggregator = dumpMessageAggregator(taskId, EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
+    val aggregator = shellMessageAggregator(taskId, EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
 
     shell.command(cmd, BuildMessages.empty, aggregator, showShell = false)
   }
@@ -96,7 +95,8 @@ class SbtStructureDump {
 
     runSbt(
       directory, vmExecutable, vmOptions, environment,
-      sbtLauncher, sbtCommandArgs, sbtCommands, reporter
+      sbtLauncher, sbtCommandArgs, sbtCommands, reporter,
+      "extracting project structure from sbt"
     )
   }
 
@@ -108,7 +108,8 @@ class SbtStructureDump {
              sbtLauncher: File,
              sbtCommandLineArgs: String,
              sbtCommands: String,
-             reporter: BuildTaskReporter
+             reporter: BuildTaskReporter,
+             reportMessage: String,
             ): Try[BuildMessages] = {
 
     val startTime = System.currentTimeMillis()
@@ -129,10 +130,9 @@ class SbtStructureDump {
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
-    // TODO message depends on who runs it
-    reporter.startTask(dumpTaskId, None, "extracting build structure", System.currentTimeMillis())
+    reporter.startTask(dumpTaskId, None, reportMessage, startTime)
 
-    val result = Try {
+    val resultMessages = Try {
       val processBuilder = new ProcessBuilder(processCommands.asJava)
       processBuilder.directory(directory)
       processBuilder.environment().putAll(environment.asJava)
@@ -150,20 +150,24 @@ class SbtStructureDump {
       case fail => Failure(ImportCancelledException(fail))
     }
 
-    val eventResult = result match {
+    val eventResult = resultMessages match {
       case Success(messages) =>
-        if (messages.errors.isEmpty)
-          new events.impl.SuccessResultImpl(true)
-        else {
-          new events.impl.FailureResultImpl(messages.errors.asJava)
+        messages.status match {
+          case BuildMessages.OK =>
+            new SuccessResultImpl(true)
+          case BuildMessages.Canceled =>
+            new SkippedResultImpl()
+          case BuildMessages.Error | BuildMessages.Indeterminate =>
+            new FailureResultImpl(messages.errors.asJava)
         }
+
       case Failure(x) =>
-        new events.impl.FailureResultImpl(x)
+        new FailureResultImpl(x)
     }
 
-    reporter.finishTask(dumpTaskId, "structure exported", eventResult)
+    reporter.finishTask(dumpTaskId, reportMessage, eventResult)
 
-    result
+    resultMessages
   }
 
   private def handle(process: Process,
@@ -177,9 +181,8 @@ class SbtStructureDump {
       val text = textRaw.trim
 
       if (text.nonEmpty) {
-        val msgEvent = buildEvent(text, SbtProcessBuildWarning(dumpTaskId, _), SbtProcessBuildError(dumpTaskId, _))
-        msgEvent.foreach(reportEvent(messages, reporter, _))
-        reporter.progressTask(dumpTaskId, 1, -1, "", "")
+        messages = reportEvent(messages, reporter, text)
+        reporter.progressTask(dumpTaskId, 1, -1, "", text)
         reporter.log(text)
       }
     }
@@ -211,7 +214,11 @@ class SbtStructureDump {
         handler.setShouldDestroyProcessRecursively(false)
         handler.destroyProcess()
         throw ImportCancelledException(new Exception("task canceled"))
-      } else messages
+      } else if (handler.getExitCode != 0)
+          messages.status(BuildMessages.Error)
+      else if (messages.status == BuildMessages.Indeterminate)
+        messages.status(BuildMessages.OK)
+      else messages
     }
   }
 }
@@ -220,59 +227,38 @@ object SbtStructureDump {
 
   private val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
-  private val WARN_PREFIX = "[warn]"
-  private val ERROR_PREFIX = "[error]"
-
-  private def buildEvent(text: String, toWarning: String => MessageEvent, toError: String => MessageEvent): Option[MessageEvent] =
-    if (text.startsWith("[warn]")) {
-      val strippedText = text.stripPrefix(WARN_PREFIX).trim
-      Option(toWarning(strippedText))
-    } else if (text.startsWith("[error]")) {
-      val strippedText = text.stripPrefix(ERROR_PREFIX).trim
-      Option(toError(strippedText))
-    } else None
-
   private def reportEvent(messages: BuildMessages,
                           reporter: BuildTaskReporter,
-                          event: MessageEvent): BuildMessages = {
-    event.getKind match {
-      case WARNING =>
-        // report only that there is an error, until we can parse output more precisely
-        if (messages.warnings.isEmpty) {
-          reporter.warning("error during import", None)
-        }
-        messages.addWarning(event.getMessage)
-      case ERROR =>
-        // report only that there is an error, until we can parse output more precisely
-        if (messages.errors.isEmpty) {
-          reporter.error("error during import", None)
-        }
-        messages.addError(event.getMessage)
-      case INFO | SIMPLE | STATISTICS =>
-        messages
-    }
+                          text: String): BuildMessages = {
+
+    if (text.startsWith("[error] Total time")) {
+      val msg = "sbt task failed, see log for details"
+      reporter.error(msg, None)
+      messages
+        .addError(msg)
+        .status(BuildMessages.Error)
+    } else messages
   }
 
-  private def dumpMessageAggregator(id: ExternalSystemTaskId,
+  private def shellMessageAggregator(id: ExternalSystemTaskId,
                                     dumpTaskId: EventId,
                                     shell: SbtShellCommunication,
                                     reporter: BuildTaskReporter,
                                    ): EventAggregator[BuildMessages] = {
     case (messages, TaskStart) =>
-      reporter.startTask(dumpTaskId, None, "extracting structure")
+      reporter.startTask(dumpTaskId, None, "extracting project structure from sbt shell")
       messages
 
     case (messages, TaskComplete) =>
-      reporter.finish(messages)
+      reporter.finishTask(dumpTaskId, "project structure extracted", new SuccessResultImpl())
       messages
 
     case (messages, ErrorWaitForInput) =>
       val msg = "import errors, project reload aborted"
       val ex = new ExternalSystemException(msg)
 
-      val result = new com.intellij.build.events.impl.FailureResultImpl(msg, ex)
+      val result = new FailureResultImpl(msg, ex)
       reporter.finishTask(dumpTaskId, msg, result)
-      reporter.error(msg, None)
 
       shell.send("i" + System.lineSeparator)
 

@@ -190,7 +190,6 @@ class BspSystemSettingsControl(settings: BspSettings) extends ExternalSystemSett
 
   override def reset(): Unit = {
     pane.bspTraceCheckbox.setSelected(systemSettings.getState.traceBsp)
-    pane.setPathListeners()
   }
 
   override def isModified: Boolean =

@@ -154,24 +154,7 @@ object BspCommunication {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
     val capabilities = BspCapabilities(supportedLanguages)
-
-    val id = java.lang.Long.toString(Random.nextLong(), Character.MAX_RADIX)
-
-    val tcpMethod = TcpBsp(new URI("localhost"), findFreePort(5001))
-
-    val platformMethod =
-      if (SystemInfo.isWindows) WindowsLocalBsp(id)
-      else if (SystemInfo.isUnix) {
-        val tempDir = Files.createTempDirectory("bsp-")
-        val socketFilePath = tempDir.resolve(s"$id.socket")
-        val socketFile = socketFilePath.toFile
-        socketFile.deleteOnExit()
-        UnixLocalBsp(socketFile)
-      }
-      else tcpMethod
-
     val connectionDetails = findBspConfigs(base)
-
     val configuredMethods = connectionDetails.map(ProcessBsp)
 
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile

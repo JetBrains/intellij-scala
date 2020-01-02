@@ -78,7 +78,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId, notifications)
 
     // side-effecty status reporting
-    // TODO move to dump process for real-time feedback
     structureDump.foreach { case (_, messages) =>
       val convertStartEvent = new ExternalSystemStartEventImpl(importTaskId, null, importTaskDescriptor)
       val event = new ExternalSystemTaskExecutionEvent(taskId, convertStartEvent)
@@ -176,11 +175,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       activeProcessDumper = None
 
       messageResult.flatMap { messages =>
-        if (structureFile.length > 0) Try {
+        if (messages.status != BuildMessages.OK || !structureFile.isFile || structureFile.length < 0)
+          Failure(new Exception("extracting structure failed"))
+        else Try {
           val elem = XML.load(structureFile.toURI.toURL)
           (elem, messages)
         }
-        else Failure(new Exception("structure file is empty"))
       }
     }
   }

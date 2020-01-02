@@ -21,23 +21,29 @@ class ExternalSystemNotificationReporter(workingDir: String,
   private val descriptors: mutable.Map[EventId, TaskDescriptor] = mutable.Map.empty
 
   private val viewManager =
-    Option(taskId.findProject()).map(ServiceManager.getService(_, classOf[SyncViewManager])).get // FIXME
+    Option(taskId.findProject()).map(ServiceManager.getService(_, classOf[SyncViewManager]))
 
   override def start(): Unit = {
     notifications.onStart(taskId, workingDir)
   }
 
   override def finish(messages: BuildMessages): Unit = {
-    if (messages.status == BuildMessages.OK && messages.errors.isEmpty)
+    if (messages.status == BuildMessages.OK && messages.errors.isEmpty) {
       notifications.onEnd(taskId)
+      notifications.onSuccess(taskId)
+    }
     else if (messages.status == BuildMessages.Canceled)
       notifications.onCancel(taskId)
     else if (messages.exceptions.nonEmpty)
       notifications.onFailure(taskId, messages.exceptions.head)
     else if (messages.errors.nonEmpty) {
-      val throwable = messages.errors.head.getError
+      val firstError = messages.errors.head
+      val throwable = Option(firstError.getError).getOrElse(new Exception(firstError.getMessage))
       notifications.onFailure(taskId, throwableToException(throwable))
-    }
+    } else if (messages.status == BuildMessages.Indeterminate)
+      notifications.onFailure(taskId, new Exception("task ended in indeterminate state"))
+    else
+      notifications.onFailure(taskId, new Exception("task failed"))
   }
 
   override def finishWithFailure(err: Throwable): Unit =
@@ -47,13 +53,14 @@ class ExternalSystemNotificationReporter(workingDir: String,
     notifications.onCancel(taskId)
 
   override def warning(message: String, position: Option[FilePosition]): Unit =
-    viewManager.onEvent(taskId, event(message, Kind.WARNING, position))
+    viewManager
+        .foreach(_.onEvent(taskId, event(message, Kind.WARNING, position)))
 
   override def error(message: String, position: Option[FilePosition]): Unit =
-    viewManager.onEvent(taskId, event(message, Kind.ERROR, position))
+    viewManager.foreach(_.onEvent(taskId, event(message, Kind.ERROR, position)))
 
   override def info(message: String, position: Option[FilePosition]): Unit =
-    viewManager.onEvent(taskId, event(message, Kind.INFO, position))
+    viewManager.foreach(_.onEvent(taskId, event(message, Kind.INFO, position)))
 
   override def log(message: String): Unit =
     notifications.onTaskOutput(taskId, message + "\n", true)
