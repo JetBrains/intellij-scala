@@ -16,7 +16,7 @@ import scala.util.Random
 class ExternalSystemNotificationReporter(workingDir: String,
                                          taskId: ExternalSystemTaskId,
                                          notifications: ExternalSystemTaskNotificationListener)
-  extends BuildReporter {
+  extends BuildTaskReporter {
 
   private val descriptors: mutable.Map[EventId, TaskDescriptor] = mutable.Map.empty
 
@@ -28,16 +28,16 @@ class ExternalSystemNotificationReporter(workingDir: String,
   }
 
   override def finish(messages: BuildMessages): Unit = {
-      if (messages.status == BuildMessages.OK && messages.errors.isEmpty)
-        notifications.onEnd(taskId)
-      else if (messages.status == BuildMessages.Canceled)
-        notifications.onCancel(taskId)
-      else if (messages.exceptions.nonEmpty)
-        notifications.onFailure(taskId, messages.exceptions.head)
-      else if (messages.errors.nonEmpty) {
-        val throwable = messages.errors.head.getError
-        notifications.onFailure(taskId, throwableToException(throwable))
-      }
+    if (messages.status == BuildMessages.OK && messages.errors.isEmpty)
+      notifications.onEnd(taskId)
+    else if (messages.status == BuildMessages.Canceled)
+      notifications.onCancel(taskId)
+    else if (messages.exceptions.nonEmpty)
+      notifications.onFailure(taskId, messages.exceptions.head)
+    else if (messages.errors.nonEmpty) {
+      val throwable = messages.errors.head.getError
+      notifications.onFailure(taskId, throwableToException(throwable))
+    }
   }
 
   override def finishWithFailure(err: Throwable): Unit =
@@ -58,7 +58,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
   override def log(message: String): Unit =
     notifications.onTaskOutput(taskId, message + "\n", true)
 
-  def startTask(eventId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
+  override def startTask(eventId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
 
     val taskDescriptor = descriptors.getOrElseUpdate(
       eventId,
@@ -75,7 +75,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
     notifications.onStatusChange(statusEvent)
   }
 
-  def progressTask(eventId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
+  override def progressTask(eventId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
 
     descriptors.get(eventId).foreach { taskDescriptor =>
       val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
@@ -86,7 +86,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
     }
   }
 
-  def finishTask(eventId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
+  override def finishTask(eventId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
 
     descriptors.get(eventId).foreach { taskDescriptor =>
       val startTime = taskDescriptor.descriptor.getEventTime

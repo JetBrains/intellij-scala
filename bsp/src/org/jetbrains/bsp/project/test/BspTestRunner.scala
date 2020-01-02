@@ -9,7 +9,7 @@ import ch.epfl.scala.bsp4j.TaskDataKind._
 import ch.epfl.scala.bsp4j.TestStatus._
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonObject}
-import com.intellij.execution.configurations.{RunProfileState, RunnerSettings}
+import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.process.{ProcessHandler, ProcessOutputType}
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
@@ -23,10 +23,12 @@ import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspCommunicationService
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits._
+import scala.util.{Failure, Success}
 
 class BspTestRunner(
                      val project: Project,
@@ -61,7 +63,7 @@ class BspTestRunner(
     val testsSupported = ! capabilities.getTestProvider.getLanguageIds.isEmpty
     if (testsSupported) {
       val targetIds = targets().map(uri => new BuildTargetIdentifier(uri.toString))
-      val params = new TestParams(targetIds.toList.asJava)
+      val params = new TestParams(targetIds.asJava)
       params.setOriginId(UUID.randomUUID().toString)
       testClasses match {
         case Some(m) =>
@@ -123,7 +125,7 @@ class BspTestRunner(
   }
 
   private def onBspNotification(proc: ProcessHandler, session: BspTestSession)(n: BspNotification): Unit = {
-    implicit val pr = proc
+    implicit val pr: ProcessHandler = proc
     n match {
       case LogMessage(params) => // TODO associate log messages with the running test correctly
         printProc(new Message(params.getMessage + System.lineSeparator(), "NORMAL", null))
@@ -163,8 +165,21 @@ class BspTestRunner(
       project, rc, "BSP", ex))
     val bspCommunication = BspCommunicationService.getInstance.communicate(project)
 
-    bspCommunication.run(testRequest, onBspNotification(procHandler, new BspTestSession()), _ => {}).future
-      .onComplete(_ => procHandler.shutdown())
+    val reporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, "BSP Tests")
+    reporter.start()
+
+    bspCommunication
+      .run(testRequest, onBspNotification(procHandler, new BspTestSession()), reporter, reporter.log)
+      .future
+      .onComplete { res =>
+        res match {
+          case Success(testResult) =>
+            reporter.finish(BuildMessages.empty.status(BuildMessages.OK))
+          case Failure(x) =>
+            reporter.finishWithFailure(x)
+        }
+        procHandler.shutdown()
+      }
     new DefaultExecutionResult(console, procHandler)
   }
 

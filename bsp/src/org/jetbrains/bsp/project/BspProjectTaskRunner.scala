@@ -16,6 +16,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.BspTask.BspTarget
@@ -42,6 +43,8 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     case _ => false
   }
 
+  @ApiStatus.ScheduledForRemoval(inVersion = "2020.1")
+  @deprecated
   override def run(project: Project,
                    projectTaskContext: ProjectTaskContext,
                    projectTaskNotification: ProjectTaskNotification,

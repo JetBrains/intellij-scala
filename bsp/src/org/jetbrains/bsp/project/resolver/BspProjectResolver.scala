@@ -5,11 +5,9 @@ import java.util.Collections
 import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j._
-import com.intellij.build.events.MessageEvent
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project._
-import com.intellij.openapi.externalSystem.model.task.event.ExternalSystemBuildEvent
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import org.jetbrains.bsp.BspTaskCancelled
 import org.jetbrains.bsp.BspUtil._
@@ -19,7 +17,7 @@ import org.jetbrains.bsp.project.resolver.BspResolverLogic._
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.plugins.scala.build.BuildEventMessage
+import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -38,23 +36,13 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
                                   executionSettings: BspExecutionSettings,
                                   listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
 
+    val reporter = new ExternalSystemNotificationReporter(workspaceCreationPath, id, listener)
     val workspaceCreationFile = new File(workspaceCreationPath)
     val workspace =
       if (workspaceCreationFile.isDirectory) workspaceCreationFile
       else workspaceCreationFile.getParentFile
 
     val moduleFilesDirectoryPath = new File(workspace, ".idea/modules").getAbsolutePath
-
-    def statusUpdate(msg: String): Unit = {
-      val ev = new ExternalSystemTaskNotificationEvent(id, msg)
-      listener.onStatusChange(ev)
-    }
-
-    def buildEvent(msg: String, kind: MessageEvent.Kind): Unit = {
-      val buildEvent = new BuildEventMessage(id, kind, "BSP", msg)
-      val event = new ExternalSystemBuildEvent(id, buildEvent)
-      listener.onStatusChange(event)
-    }
 
     def requests(implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[DataNode[ProjectData]] = {
       val targetsRequest = server.workspaceBuildTargets()
@@ -66,20 +54,20 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
           td.thenApply { data =>
 
             val sources = data.sources.map(_.getItems.asScala).getOrElse {
-              buildEvent("request failed: buildTarget/sources", MessageEvent.Kind.WARNING)
+              reporter.warning("request failed: buildTarget/sources", None)
               List.empty[SourcesItem]
             }
 
             val depSources = data.dependencySources.map(_.getItems.asScala).getOrElse {
-              buildEvent("request failed: buildTarget/dependencySources", MessageEvent.Kind.WARNING)
+              reporter.warning("request failed: buildTarget/dependencySources", None)
               List.empty[DependencySourcesItem]
             }
             val resources = data.resources.map(_.getItems.asScala).getOrElse {
-              buildEvent("request failed: buildTarget/resources", MessageEvent.Kind.WARNING)
+              reporter.warning("request failed: buildTarget/resources", None)
               List.empty[ResourcesItem]
             }
             val scalacOptions = data.scalacOptions.map(_.getItems.asScala).getOrElse {
-              buildEvent("request failed: buildTarget/scalacOptions", MessageEvent.Kind.WARNING)
+              reporter.warning("request failed: buildTarget/scalacOptions", None)
               List.empty[ScalacOptionsItem]
             }
 
@@ -99,7 +87,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val notifications: NotificationCallback = {
       case BspNotifications.LogMessage(params) =>
         // TODO use params.id for tree structure
-        statusUpdate(params.getMessage)
+        reporter.log(params.getMessage)
       case _ =>
     }
 
@@ -108,16 +96,16 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
     val projectJob =
-      communication.run(requests(_,_), notifications, processLogger)
+      communication.run(requests(_,_), notifications, reporter, processLogger)
 
-    listener.onStart(id, workspaceCreationPath)
-    statusUpdate("BSP import started") // TODO remove in favor of build toolwindow nodes
+    reporter.start()
+    reporter.log("BSP import started")
 
     importState = Active(communication)
     val result = waitForProjectCancelable(projectJob)
     importState = Inactive
 
-    statusUpdate("BSP import completed") // TODO remove in favor of build toolwindow nodes
+    reporter.log("BSP import completed")
 
     result match {
       case Failure(BspTaskCancelled) =>

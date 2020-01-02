@@ -9,7 +9,8 @@ import com.intellij.openapi.project.Project
 import javax.swing.JComponent
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
-class BuildToolWindowReporter(project: Project, buildId: EventId, title: String, viewManager: BuildViewManager) extends BuildReporter {
+class BuildToolWindowReporter(project: Project, buildId: EventId, title: String, viewManager: BuildViewManager)
+  extends BuildTaskReporter {
   import MessageEvent.Kind
 
   def this(project: Project, buildId: EventId, title: String) =
@@ -60,19 +61,19 @@ class BuildToolWindowReporter(project: Project, buildId: EventId, title: String,
     viewManager.onEvent(buildId, finishEvent)
   }
 
-  def startTask(taskId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
+  override def startTask(taskId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
     val startEvent = new StartEventImpl(taskId, parent.orNull, time, message)
     viewManager.onEvent(buildId, startEvent)
   }
 
-  def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
+  override def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
     val unitOrDefault = if (unit == null) "items" else unit
     val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unitOrDefault)
     viewManager.onEvent(buildId, event)
   }
 
-  def finishTask(taskId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
+  override def finishTask(taskId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
     val event = new FinishEventImpl(taskId, null, time, message, result)
     viewManager.onEvent(buildId, event)

@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.build
 
 import java.util.UUID
+import java.util.function.BiPredicate
 
 import com.intellij.build.{FilePosition, events}
 import com.intellij.build.events.impl.{AbstractBuildEvent, FileMessageEventImpl}
-import com.intellij.build.events.{MessageEvent, MessageEventResult}
+import com.intellij.build.events.{MessageEvent, MessageEventResult, Warning}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
-import com.intellij.task.{ProjectTaskContext, ProjectTaskManager, ProjectTaskResult}
+import com.intellij.task.{ProjectTask, ProjectTaskContext, ProjectTaskManager, ProjectTaskResult, ProjectTaskState}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.build.BuildMessages.{BuildStatus, Canceled, Error}
 
@@ -83,4 +84,21 @@ class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, group: String, m
     }
 
   override def getNavigatable(project: Project): Navigatable = null // TODO sensible default navigation?
+}
+
+case class TaskManagerResult(context: ProjectTaskContext,
+                             isAborted: Boolean,
+                             hasErrors: Boolean) extends ProjectTaskManager.Result {
+
+  override def getContext: ProjectTaskContext = context
+
+  override def anyTaskMatches(predicate: BiPredicate[_ >: ProjectTask, _ >: ProjectTaskState]): Boolean =
+    false // TODO figure out what this is supposed to do?
+}
+
+case class BuildFailure(message: String) extends events.impl.FailureImpl(message, /*description*/ null: String)
+
+case class BuildWarning(message: String) extends Warning {
+  override def getMessage: String = message
+  override def getDescription: String = null
 }

@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.build
 
-import java.util.function.BiPredicate
-
 import com.intellij.build._
 import com.intellij.build.events._
-import com.intellij.task._
+import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
 trait BuildReporter {
-  def start()
+  def start(): Unit
 
   def finish(messages: BuildMessages): Unit
   def finishWithFailure(err: Throwable): Unit
@@ -20,19 +18,11 @@ trait BuildReporter {
   def log(message: String): Unit
 }
 
-case class TaskManagerResult(context: ProjectTaskContext,
-                             isAborted: Boolean,
-                             hasErrors: Boolean) extends ProjectTaskManager.Result {
-
-  override def getContext: ProjectTaskContext = context
-
-  override def anyTaskMatches(predicate: BiPredicate[_ >: ProjectTask, _ >: ProjectTaskState]): Boolean =
-    false // TODO figure out what this is supposed to do?
+trait TaskReporter {
+  def startTask(eventId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit
+  def progressTask(eventId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit
+  def finishTask(eventId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit
 }
 
-case class BuildFailure(message: String) extends events.impl.FailureImpl(message, /*description*/ null: String)
+trait BuildTaskReporter extends BuildReporter with TaskReporter
 
-case class BuildWarning(message: String) extends Warning {
-  override def getMessage: String = message
-  override def getDescription: String = null
-}

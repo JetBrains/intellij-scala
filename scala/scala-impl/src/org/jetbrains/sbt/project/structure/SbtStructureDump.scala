@@ -14,7 +14,7 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.{BuildMessages, ExternalSystemNotificationReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.sbt.SbtUtil._
@@ -108,7 +108,7 @@ class SbtStructureDump {
              sbtLauncher: File,
              sbtCommandLineArgs: String,
              sbtCommands: String,
-             reporter: ExternalSystemNotificationReporter
+             reporter: BuildTaskReporter
             ): Try[BuildMessages] = {
 
     val startTime = System.currentTimeMillis()
@@ -168,7 +168,7 @@ class SbtStructureDump {
 
   private def handle(process: Process,
                      dumpTaskId: EventId,
-                     reporter: ExternalSystemNotificationReporter
+                     reporter: BuildTaskReporter
                     ): Try[BuildMessages] = {
 
     var messages = BuildMessages.empty
@@ -233,7 +233,7 @@ object SbtStructureDump {
     } else None
 
   private def reportEvent(messages: BuildMessages,
-                          reporter: ExternalSystemNotificationReporter,
+                          reporter: BuildTaskReporter,
                           event: MessageEvent): BuildMessages = {
     event.getKind match {
       case WARNING =>
@@ -256,7 +256,7 @@ object SbtStructureDump {
   private def dumpMessageAggregator(id: ExternalSystemTaskId,
                                     dumpTaskId: EventId,
                                     shell: SbtShellCommunication,
-                                    reporter: ExternalSystemNotificationReporter,
+                                    reporter: BuildTaskReporter,
                                    ): EventAggregator[BuildMessages] = {
     case (messages, TaskStart) =>
       reporter.startTask(dumpTaskId, None, "extracting structure")
