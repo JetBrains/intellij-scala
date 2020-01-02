@@ -1,16 +1,16 @@
-package org.jetbrains.plugins.scala.caches
+package org.jetbrains.plugins.scala
+package caches
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter with CacheTestUtils { self =>
-  import org.junit.Assert._
+class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter with CacheTestUtils  with AssertionMatchers { self =>
   import self.{CachedRecursiveFunction => Func}
 
   def test_simple(): Unit = {
     val a = Func("a")
 
-    assertEquals("a()", a())
-    assertEquals("@a()", a())
+    a() shouldBe "a()"
+    a() shouldBe "@a()"
   }
 
 
@@ -21,9 +21,9 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
 
     a ~> b ~> c
 
-    assertEquals("a(b(c()))", a())
-    assertEquals("@c()", c())
-    assertEquals("@b(c())", b())
+    a() shouldBe "a(b(c()))"
+    c() shouldBe "@c()"
+    b() shouldBe "@b(c())"
   }
 
   def test_non_rec_successive(): Unit = {
@@ -34,9 +34,9 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     a ~> b
     a ~> c
 
-    assertEquals("a(b()+c())", a())
-    assertEquals("@c()", c())
-    assertEquals("@b()", b())
+    a() shouldBe "a(b()+c())"
+    c() shouldBe "@c()"
+    b() shouldBe "@b()"
   }
 
   def test_self_call(): Unit = {
@@ -44,8 +44,8 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
 
     a ~> a
 
-    assertEquals("a(#a)", a())
-    assertEquals("@a(#a)", a())
+    a() shouldBe "a(#a)"
+    a() shouldBe "@a(#a)"
   }
 
   def test_loop_2(): Unit = {
@@ -55,11 +55,11 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     // simple loop
     b ~> a ~> b
 
-    assertEquals("a(b(#a))", a())
-    assertEquals("b(@a(b(#a)))", b())
+    a() shouldBe "a(b(#a))"
+    b() shouldBe "b(@a(b(#a)))"
 
-    assertEquals("@b(@a(b(#a)))", b())
-    assertEquals("@a(b(#a))", a())
+    b() shouldBe "@b(@a(b(#a)))"
+    a() shouldBe "@a(b(#a))"
   }
 
 
@@ -76,24 +76,24 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
   def test_loop_3_bc(): Unit = {
     val (a, b, c) = make3Loop()
 
-    assertEquals("a(b(c(#a)))", a())
-    assertEquals("b(c(@a(b(c(#a)))))", b())
-    assertEquals("@c(@a(b(c(#a))))", c())
+    a() shouldBe "a(b(c(#a)))"
+    b() shouldBe "b(c(@a(b(c(#a)))))"
+    c() shouldBe "@c(@a(b(c(#a))))"
 
-    assertEquals("@b(c(@a(b(c(#a)))))", b())
-    assertEquals("@a(b(c(#a)))", a())
+    b() shouldBe "@b(c(@a(b(c(#a)))))"
+    a() shouldBe "@a(b(c(#a)))"
   }
 
   def test_loop_3_cb(): Unit = {
     val (a, b, c) = make3Loop()
 
-    assertEquals("a(b(c(#a)))", a())
-    assertEquals("c(@a(b(c(#a))))", c())
-    assertEquals("b(@c(@a(b(c(#a)))))", b())
+    a() shouldBe "a(b(c(#a)))"
+    c() shouldBe "c(@a(b(c(#a))))"
+    b() shouldBe "b(@c(@a(b(c(#a)))))"
 
-    assertEquals("@b(@c(@a(b(c(#a)))))", b())
-    assertEquals("@c(@a(b(c(#a))))", c())
-    assertEquals("@a(b(c(#a)))", a())
+    b() shouldBe "@b(@c(@a(b(c(#a)))))"
+    c() shouldBe "@c(@a(b(c(#a))))"
+    a() shouldBe "@a(b(c(#a)))"
   }
 
   def test_outside_of_recursion(): Unit = {
@@ -103,11 +103,11 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
 
     a ~> b ~> c ~> b
 
-    assertEquals("a(b(c(#b)))", a())
+    a() shouldBe "a(b(c(#b)))"
     // after the call to a, a and b should be cached but not c
-    assertEquals("@b(c(#b))", b())
-    assertEquals("@a(b(c(#b)))", a())
-    assertEquals("c(@b(c(#b)))", c())
+    b() shouldBe "@b(c(#b))"
+    a() shouldBe "@a(b(c(#b)))"
+    c() shouldBe "c(@b(c(#b)))"
   }
 
   def test_before_recursion(): Unit = {
@@ -118,10 +118,10 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     a ~> b
     a ~> c ~> c
 
-    assertEquals("a(b()+c(#c))", a())
-    assertEquals("@b()", b())
-    assertEquals("@c(#c)", c())
-    assertEquals("@a(b()+c(#c))", a())
+    a() shouldBe "a(b()+c(#c))"
+    b() shouldBe "@b()"
+    c() shouldBe "@c(#c)"
+    a() shouldBe "@a(b()+c(#c))"
   }
 
 
@@ -133,10 +133,10 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     a ~> b ~> b
     a ~> c
 
-    assertEquals("a(b(#b)+c())", a())
-    assertEquals("@b(#b)", b())
-    assertEquals("@c()", c())
-    assertEquals("@a(b(#b)+c())", a())
+    a() shouldBe "a(b(#b)+c())"
+    b() shouldBe "@b(#b)"
+    c() shouldBe "@c()"
+    a() shouldBe "@a(b(#b)+c())"
   }
 
   def test_inside_of_recursion_but_before_recursive_branch(): Unit = {
@@ -147,13 +147,13 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     a ~> b
     a ~> c ~> a
 
-    assertEquals("a(b()+c(#a))", a())
+    a() shouldBe "a(b()+c(#a))"
     // b should be cached but not c
-    assertEquals("@b()", b())
-    assertEquals("c(@a(b()+c(#a)))", c())
+    b() shouldBe "@b()"
+    c() shouldBe "c(@a(b()+c(#a)))"
 
-    assertEquals("@a(b()+c(#a))", a())
-    assertEquals("@c(@a(b()+c(#a)))", c())
+    a() shouldBe "@a(b()+c(#a))"
+    c() shouldBe "@c(@a(b()+c(#a)))"
   }
 
   def test_inside_of_recursion_but_after_recursive_branch(): Unit = {
@@ -164,13 +164,13 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     a ~> b ~> a
     a ~> c
 
-    assertEquals("a(b(#a)+c())", a())
+    a() shouldBe "a(b(#a)+c())"
     // c should be cached but not b
-    assertEquals("@c()", c())
-    assertEquals("b(@a(b(#a)+c()))", b())
+    c() shouldBe "@c()"
+    b() shouldBe "b(@a(b(#a)+c()))"
 
-    assertEquals("@a(b(#a)+c())", a())
-    assertEquals("@b(@a(b(#a)+c()))", b())
+    a() shouldBe "@a(b(#a)+c())"
+    b() shouldBe "@b(@a(b(#a)+c()))"
   }
 
   def test_inside_of_recursion_but_after_recursive_branch_2(): Unit = {
@@ -182,14 +182,14 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     a ~> a2 ~> b ~> a
          a2 ~> c
 
-    assertEquals("a(a2(b(#a)+c()))", a())
+    a() shouldBe "a(a2(b(#a)+c()))"
     // c should be cached but not b
-    assertEquals("@c()", c())
-    assertEquals("a2(b(@a(a2(b(#a)+c())))+@c())", a2())
-    assertEquals("@b(@a(a2(b(#a)+c())))", b())
+    c() shouldBe "@c()"
+    a2() shouldBe "a2(b(@a(a2(b(#a)+c())))+@c())"
+    b() shouldBe "@b(@a(a2(b(#a)+c())))"
 
-    assertEquals("@a(a2(b(#a)+c()))", a())
-    assertEquals("@a2(b(@a(a2(b(#a)+c())))+@c())", a2())
+    a() shouldBe "@a(a2(b(#a)+c()))"
+    a2() shouldBe "@a2(b(@a(a2(b(#a)+c())))+@c())"
   }
 
   def test_local_cache(): Unit = {
@@ -202,8 +202,8 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     a ~> b
 
     // b is cached locally inside of a, but has to be recomputed when leaving the recursion
-    assertEquals("a(b(#a)+@@b(#a))", a())
-    assertEquals("b(@a(b(#a)+@@b(#a)))", b())
+    a() shouldBe "a(b(#a)+@@b(#a))"
+    b() shouldBe "b(@a(b(#a)+@@b(#a)))"
   }
 
   def test_local_cache_reset(): Unit = {
@@ -218,9 +218,9 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
 
     // d is locally cached when inside the recursion of c but is not cached outside of it
     val expectA = s"a(b(#a+c(#b)+@@c(#b))+c(@@b(#a+c(#b)+@@c(#b))))"
-    assertEquals(expectA, a())
+    a() shouldBe expectA
     val expectB = s"b(@$expectA+c(#b)+@@c(#b))"
-    assertEquals(expectB, b())
-    assertEquals(s"c(@$expectB)", c())
+    b() shouldBe expectB
+    c() shouldBe s"c(@$expectB)"
   }
 }
