@@ -9,6 +9,8 @@ import com.intellij.openapi.util.RecursionGuard.StackStamp
 import com.intellij.openapi.util.{RecursionManager => PlatformRM}
 import com.intellij.util.containers.ContainerUtil
 
+import scala.collection.JavaConverters._
+
 /**
   * Nikolay.Tropin
   * 26-Jan-17
@@ -113,6 +115,8 @@ object RecursionManager {
     def apply[Data >: Null <: AnyRef, LocalCacheValue](id: String): RecursionGuard[Data, LocalCacheValue] =
       guards.computeIfAbsent(id, new RecursionGuard[Data, LocalCacheValue](_))
         .asInstanceOf[RecursionGuard[Data, LocalCacheValue]]
+
+    def allGuardNames: Set[String] = guards.keySet().iterator().asScala.toSet
   }
 
   class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {
