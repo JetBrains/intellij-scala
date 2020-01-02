@@ -5,17 +5,21 @@ import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 /**
-  * If you annotate a function with @Cached annotation, the compiler will generate code to cache it.
-  *
-  * If an annotated function has parameters, one field will be generated (a HashMap).
-  * If an annotated function has no parameters, two fields will be generated: result and modCount
-  *
-  * NOTE !IMPORTANT!: function annotated with @Cached must be on top-most level because generated code generates fields
-  * right outside the cached function and if this function is inner it won't work.
-  *
-  * Author: Svyatoslav Ilinskiy
-  * Date: 9/18/15.
-  */
+ * If you annotate a function with @Cached annotation, the compiler will generate code to cache it.
+ *
+ * If an annotated function has parameters, one field will be generated (a HashMap).
+ * If an annotated function has no parameters, two fields will be generated: result and modCount
+ *
+ * NOTE !IMPORTANT!: function annotated with @Cached must be on top-most level because generated code generates fields
+ * right outside the cached function and if this function is inner it won't work.
+ *
+ * If the annotated function has a parameter called `cacheMode`,
+ * this parameter will not be used as part of the HashMap key,
+ * but will change the caching behaviour. See [[org.jetbrains.plugins.scala.CacheMode]]
+ *
+ * Author: Svyatoslav Ilinskiy
+ * Date: 9/18/15.
+ */
 class Cached(dependencyItem: Object, psiElement: Any) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro Cached.cachedImpl
 }
@@ -31,8 +35,7 @@ object Cached {
     def parameters: (Tree, Tree) = {
       c.prefix.tree match {
         case q"new Cached(..$params)" if params.length == 2 =>
-          val depItem = params(0).asInstanceOf[c.universe.Tree]
-          val psiElement = params(1).asInstanceOf[c.universe.Tree]
+          val Seq(depItem, psiElement, _*) = params.map(_.asInstanceOf[c.universe.Tree])
           val modTracker = modCountParamToModTracker(c)(depItem, psiElement)
           (modTracker, psiElement)
         case _ => abort("Wrong parameters")
@@ -43,22 +46,28 @@ object Cached {
     val (modTracker, psiElement) = parameters
 
     annottees.toList match {
-      case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+      case (dd@DefDef(mods, nameTerm, tpParams, paramss, retTp, rhs)) :: Nil =>
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
+        val name = c.freshName(nameTerm.toString)
         //generated names
-        val cachedFunName = generateTermName(name.toString, "$cachedFun")
-        val tracerName = generateTermName(name.toString, "$tracer")
-        val cacheName = withClassName(name)
+        val cachedFunName = generateTermName(name, "$cachedFun")
+        val tracerName = generateTermName(name, "$tracer")
+        val cacheName = withClassName(nameTerm)
 
-        val keyId = c.freshName(name.toString + "$cacheKey")
+        val keyId = c.freshName(name + "$cacheKey")
 
-        val mapAndCounterRef = generateTermName(name.toString, "$mapAndCounter")
-        val timestampedDataRef = generateTermName(name.toString,  "$valueAndCounter")
+        val mapAndCounterRef = generateTermName(name, "$mapAndCounter")
+        val timestampedDataRef = generateTermName(name,  "$valueAndCounter")
 
         //DefDef parameters
-        val flatParams = paramss.flatten
+        val (flatParams, hasCacheModeParam) = {
+          val params = paramss.flatten
+          val (keyParams, cacheModeParams) = params.partition(_.name.toString != "cacheMode")
+          assert(math.abs(cacheModeParams.size) <= 1)
+          (keyParams, cacheModeParams.nonEmpty)
+        }
         val paramNames = flatParams.map(_.name)
         val hasParameters: Boolean = flatParams.nonEmpty
 
@@ -68,7 +77,8 @@ object Cached {
 
           def createNewMap = q"_root_.com.intellij.util.containers.ContainerUtil.newConcurrentMap()"
 
-          val fields = q"""
+          val fields =
+            q"""
               new _root_.scala.volatile()
               private val $mapAndCounterRef: $atomicReferenceTypeFQN[$timestampedTypeFQN[$mapType]] = {
                 import $cacheCapabilitiesFQN._
@@ -78,15 +88,31 @@ object Cached {
               }
             """
 
-          val getOrUpdateMapDef = q"""
-              def getOrUpdateMap() = {
-                val timestampedMap = $mapAndCounterRef.get
-                if (timestampedMap.modCount < currModCount) {
-                  $mapAndCounterRef.compareAndSet(timestampedMap, $timestampedFQN($createNewMap, currModCount))
+          val processCacheModeIfPresent =
+            if (hasCacheModeParam)
+              q"""
+                {
+                  def getCached = {
+                    val map = $mapAndCounterRef.get.data
+                    if (map == null) null
+                    else map.get(key)
+                  }
+                  cacheMode match {
+                    case $cacheModeFqn.ComputeIfOutdated =>
+                    case $cacheModeFqn.ComputeIfNotCached =>
+                      getCached match {
+                        case Some(v) => return v
+                        case null =>
+                      }
+                    case $cacheModeFqn.CachedOrDefault(default) =>
+                      return getCached match {
+                        case Some(v) => v
+                        case null => default
+                      }
+                  }
                 }
-                $mapAndCounterRef.get.data
-              }
-            """
+               """
+            else q"()"
 
           def updatedRhs = q"""
              def $cachedFunName(): $retTp = $rhs
@@ -96,10 +122,17 @@ object Cached {
              val $tracerName = $internalTracer($keyId, $cacheName)
              $tracerName.invocation()
 
-             $getOrUpdateMapDef
-
-             val map = getOrUpdateMap()
              val key = (..$paramNames)
+
+             $processCacheModeIfPresent
+
+             val map = {
+               val timestampedMap = $mapAndCounterRef.get
+               if (timestampedMap.modCount < currModCount) {
+                 $mapAndCounterRef.compareAndSet(timestampedMap, $timestampedFQN($createNewMap, currModCount))
+               }
+               $mapAndCounterRef.get.data
+             }
 
              map.get(key) match {
                case Some(v) => v
@@ -136,6 +169,22 @@ object Cached {
               }
             """
 
+          val processCacheModeIfPresent =
+            if (hasCacheModeParam)
+              q"""
+                {
+                  cacheMode match {
+                    case $cacheModeFqn.ComputeIfNotCached if timestamped.modCount >= 0 =>
+                      return timestamped.data
+                    case $cacheModeFqn.CachedOrDefault(default) =>
+                      return if (timestamped.modCount < 0) default
+                             else timestamped.data
+                    case _ =>
+                  }
+                }
+               """
+            else q"()"
+
           val updatedRhs =
             q"""
                def $cachedFunName(): $retTp = $rhs
@@ -146,6 +195,7 @@ object Cached {
                $tracerName.invocation()
 
                val timestamped = $timestampedDataRef.get
+               $processCacheModeIfPresent
                if (timestamped.modCount == currModCount) timestamped.data
                else {
                  val stackStamp = $recursionManagerFQN.markStack()
@@ -169,7 +219,7 @@ object Cached {
           (fields, updatedRhs)
         }
 
-        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
+        val updatedDef = DefDef(mods, nameTerm, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
           ..$fields
           $updatedDef

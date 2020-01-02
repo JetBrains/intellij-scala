@@ -52,6 +52,7 @@ object CachedWithoutModificationCount {
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+        preventCacheModeParameter(c)(paramss)
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
