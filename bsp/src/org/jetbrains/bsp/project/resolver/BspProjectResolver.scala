@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project.resolver
 
-import java.io.{File, PrintWriter, StringWriter}
+import java.io.File
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
 
@@ -13,7 +13,6 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
-import org.jetbrains.bsp.{BspErrorMessage, BspTaskCancelled}
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.resolver.BspProjectResolver._
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
@@ -21,6 +20,7 @@ import org.jetbrains.bsp.project.resolver.BspResolverLogic._
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
+import org.jetbrains.bsp.{BspErrorMessage, BspTaskCancelled}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo

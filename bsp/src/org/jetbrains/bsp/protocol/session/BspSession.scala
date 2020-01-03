@@ -56,8 +56,6 @@ class BspSession private(bspIn: InputStream,
   private val queueProcessor = AppExecutorUtil.getAppScheduledExecutorService
       .scheduleWithFixedDelay(() => nextQueuedCommand, queuePause.toMillis, queuePause.toMillis, TimeUnit.MILLISECONDS)
 
-  def stopServer = serverConnection.cancelable.cancel()
-
   private def notifications(notification: BspNotification): Unit =
     notificationCallbacks.foreach(_.apply(notification))
 

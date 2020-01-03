@@ -47,7 +47,7 @@ class BspCommunicationService extends Disposable {
     }
   }
 
-  def communicate(base: File): BspCommunication =
+  private[protocol] def communicate(base: File): BspCommunication =
     comms.getOrElseUpdate(
       base.getCanonicalFile.toURI,
       {
@@ -57,13 +57,21 @@ class BspCommunicationService extends Disposable {
       }
     )
 
-  def communicate(implicit project: Project): BspCommunication =
+  @deprecated("Multiple BSP servers per IDEA project are possible. use communicate(File) instead")
+  private[protocol] def communicate(implicit project: Project): BspCommunication =
     projectPath.map(new File(_))
       .map(communicate)
       .orNull // TODO
 
+  def listOpenComms: Iterable[URI] = comms.keys
+
+  def isAlive(base: URI): Boolean = communicate(new File(base)).alive
+
   def closeCommunication(base: File): Try[Unit] =
-    comms.get(base.getCanonicalFile.toURI)
+    closeCommunication(base.getCanonicalFile.toURI)
+
+  def closeCommunication(base: URI): Try[Unit] =
+    comms.get(base)
       .toRight(new NoSuchElementException)
       .toTry
       .flatMap(_.closeSession())

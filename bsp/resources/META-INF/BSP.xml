@@ -37,7 +37,7 @@
 
         <projectOpenProcessor implementation="org.jetbrains.bsp.project.BspProjectOpenProcessor"/>
 
-        <projectConfigurable groupId="build.tools" displayName="bsp" instance="org.jetbrains.bsp.project.BspExternalSystemConfigurable" />
+        <projectConfigurable groupId="build.tools" displayName="BSP" instance="org.jetbrains.bsp.project.BspExternalSystemConfigurable" />
 
         <toolWindow id="bsp" anchor="right"
                     icon="/org/jetbrains/plugins/scala/bsp/images/toolWindowBuildServerProtocol.svg"
@@ -53,18 +53,6 @@
     </extensions>
 
     <actions>
-        <action id="Bsp.Session.CloseAll"
-                class="org.jetbrains.bsp.protocol.CloseBspSessionsAction"
-                text="Close BSP Sessions"
-                description="Close all open BSP sessions"
-                icon="AllIcons.Process.Stop">
-        </action>
-
-        <group>
-            <separator/>
-            <reference id="Bsp.Session.CloseAll"/>
-            <add-to-group group-id="ExternalSystemView.ActionsToolbar.LeftPanel"/>
-        </group>
     </actions>
 
 

@@ -1,8 +1,6 @@
 package org.jetbrains.bsp.protocol
 
 import java.io.File
-import java.net.URI
-import java.nio.file._
 import java.util.concurrent.atomic.AtomicReference
 
 import ch.epfl.scala.bsp4j.BspConnectionDetails
@@ -31,7 +29,7 @@ import org.jetbrains.plugins.scala.build.BuildTaskReporter
 
 import scala.concurrent.duration._
 import scala.io.Source
-import scala.util.{Failure, Random, Success, Try}
+import scala.util.{Failure, Success, Try}
 
 
 class BspCommunication(base: File, executionSettings: BspExecutionSettings) extends Disposable {
@@ -101,16 +99,14 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
       s.shutdown()
   }
 
-  def alive = session.get() match {
-    case Some(s) => s.isAlive
-    case None => false
-  }
 
   private[protocol] def isIdle(now: Long, timeout: Duration) = session.get() match {
     case None => false
     case Some(s) =>
       s.isAlive && (now - s.getLastActivity >  timeout.toMillis)
   }
+
+  def alive: Boolean = session.get().exists(_.isAlive)
 
   def run[T, A](task: BspSessionTask[T],
                 default: A,
