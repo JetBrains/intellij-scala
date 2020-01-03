@@ -8,7 +8,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -38,7 +38,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
-      case caseClause: ScCaseClause => caseClause.pattern.toSeq.flatMap(_.bindings).filterNot(_.isWildcard)
+      case fun: ScMethodLike => fun +: fun.parameters.filterNot(_.isWildcard)
       case declaredHolder: ScDeclaredElementsHolder => declaredHolder.declaredElements
       case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case enumerators: ScEnumerators => enumerators.patterns.flatMap(_.bindings).filterNot(_.isWildcard) //for statement
@@ -53,7 +53,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     }
   }
 
-  def shouldProcessElement(elem: PsiElement): Boolean = elem match {
+  override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
     case f: ScFunction if f.isSpecial => false
     case m: ScMember if m.hasModifierProperty(ScalaKeyword.IMPLICIT) => false
     case _ => ScalaPsiUtil.isLocalOrPrivate(elem)
