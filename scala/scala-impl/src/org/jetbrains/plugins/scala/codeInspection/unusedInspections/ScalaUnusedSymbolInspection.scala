@@ -6,10 +6,12 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -38,7 +40,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
-      case fun: ScMethodLike => fun +: fun.parameters.filterNot(_.isWildcard)
+      case fun: ScMethodLike => fun +: fun.parameters.filterNot(_.isWildcard).filterNot(_.asOptionOf[ScClassParameter].exists(_.isCaseClassVal))
       case declaredHolder: ScDeclaredElementsHolder => declaredHolder.declaredElements
       case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case enumerators: ScEnumerators => enumerators.patterns.flatMap(_.bindings).filterNot(_.isWildcard) //for statement

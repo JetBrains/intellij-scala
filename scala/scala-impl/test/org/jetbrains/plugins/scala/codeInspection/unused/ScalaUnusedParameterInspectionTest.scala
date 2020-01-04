@@ -88,4 +88,122 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   def testMultipleClausesEmptyAfter2(): Unit =
     doTest(s"($p: Int)(a: Int)", "(a: Int)",
             "(1)(2)",            "(2)")
+
+  def testPublicMethod(): Unit = checkTextHasNoErrors(
+    """
+      |object Global {
+      |  def test(a: Int): Unit = ()
+      |}
+      |""".stripMargin)
+
+  def testNotInCaseClass(): Unit = checkTextHasNoErrors(
+    "case class Test(a: Int)"
+  )
+
+  def testCaseClassSndClause(): Unit = checkTextHasError(
+    s"case class Test(a: Int)($p: Int)"
+  )
+
+  ///////// normal class parameter /////////
+  def testUnusedPrivateClass(): Unit = checkTextHasError(
+    s"""
+       |object Global {
+       |  private class Test($p: Int)
+       |}
+       |""".stripMargin
+  )
+
+  def testUnusedPublicClass(): Unit = checkTextHasError(
+    s"""
+       |object Global {
+       |  class Test($p: Int)
+       |}
+       |""".stripMargin
+  )
+
+  ///////// val class parameter /////////
+  def testUnusedPrivateClassVal(): Unit = checkTextHasError(
+    s"""
+       |object Global {
+       |  private class Test(val $p: Int)
+       |}
+       |""".stripMargin
+  )
+
+  def testUnusedPublicClassVal(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Global {
+       |  class Test(val p: Int)
+       |}
+       |""".stripMargin
+  )
+
+  def testUnusedPublicClassPrivateVal(): Unit = checkTextHasError(
+    s"""
+       |object Global {
+       |  class Test(private val $p: Int)
+       |}
+       |""".stripMargin
+  )
+
+  def testUsedPrivateClassVal(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Global {
+       |  private class Test(val p: Int)
+       |  val x = new Test(3)
+       |  println(x.p)
+       |}
+       |""".stripMargin
+  )
+
+
+  ///////// case class parameter /////////
+  def testUnusedPrivateCaseClass(): Unit = checkTextHasError(
+    s"""
+       |object Global {
+       |  private case class Test($p: Int)
+       |}
+       |""".stripMargin
+  )
+
+  def testUnusedPublicCaseClass(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Global {
+       |  case class Test(p: Int)
+       |}
+       |""".stripMargin
+  )
+
+  def testUsedPrivateCaseClass(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Global {
+       |  private case class Test(p: Int)
+       |  val x = new Test(3)
+       |  println(x.p)
+       |}
+       |""".stripMargin
+  )
+
+  // inheritance stuff
+  def testOverrideWithVal(): Unit = checkTextHasNoErrors(
+    """
+      |object Global {
+      |  trait Base {
+      |    def p: Int
+      |  }
+      |  private class Test(val p: Int) extends Base
+      |}
+      |""".stripMargin
+  )
+
+  def testOverrideWithCaseClass(): Unit = checkTextHasNoErrors(
+    """
+      |object Global {
+      |  trait Base {
+      |    def p: Int
+      |  }
+      |  private case class Test(p: Int) extends Base
+      |}
+      |""".stripMargin
+  )
 }
