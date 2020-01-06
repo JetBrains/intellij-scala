@@ -760,17 +760,22 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       (rightPsi.isInstanceOf[ScIf] || rightElementType == ScalaTokenTypes.kIF)
     if (isElseIf) {
       val isCommentAfterElse = Option(leftPsi.getNextSiblingNotWhitespace).exists(_.isInstanceOf[PsiComment])
-      return if (settings.SPECIAL_ELSE_IF_TREATMENT && !isCommentAfterElse) WITH_SPACING_NO_KEEP
-      else ON_NEW_LINE
+      val spacing =
+        if (settings.SPECIAL_ELSE_IF_TREATMENT && !isCommentAfterElse) WITH_SPACING_NO_KEEP
+        else ON_NEW_LINE
+      return spacing
     }
 
     if (rightElementType == ScalaTokenTypes.kELSE && right.lastNode != null) {
       var lastNode = left.lastNode
-      while (lastNode != null && lastNode.getPsi.isInstanceOf[PsiWhiteSpace]) lastNode = lastNode.getTreePrev
+      while (lastNode != null && lastNode.getPsi.isInstanceOf[PsiWhiteSpace])
+        lastNode = lastNode.getTreePrev
 
-      return if (lastNode == null) WITH_SPACING_DEPENDENT(rightNode.getTreeParent.getTextRange)
-      else if (settings.ELSE_ON_NEW_LINE) ON_NEW_LINE
-      else WITH_SPACING
+      val spacing =
+        if (lastNode == null) WITH_SPACING_DEPENDENT(rightNode.getTreeParent.getTextRange)
+        else if (settings.ELSE_ON_NEW_LINE) ON_NEW_LINE
+        else WITH_SPACING
+      return spacing
     }
 
     if (leftElementType == ScalaElementType.MODIFIERS) {
