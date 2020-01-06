@@ -543,14 +543,25 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
     val firstChildNode = node.getFirstChildNode
     var child = firstChildNode
-    while (child.getTreeNext != null && child.getTreeNext.getElementType != kELSE) {
-      child = child.getTreeNext
+
+    var next = child.getTreeNext
+    while (next != null && next.getElementType != kELSE && !isComment(next)) {
+      child = next
+      next = child.getTreeNext
     }
 
     val firstBlock = subBlock(firstChildNode, child, alignment)
     subBlocks.add(firstBlock)
 
+    while (next != null && isComment(next)) {
+      subBlocks.add(subBlock(next))
+      child = next
+      next = next.getTreeNext
+    }
+
+    var specialIf = false
     if (child.getTreeNext != null) {
+      // child is at `else`
       val firstChild = child.getTreeNext
       child = firstChild
       while (child.getTreeNext != null) {
@@ -558,11 +569,12 @@ class getDummyBlocks(private val block: ScalaBlock) {
           case _: ScIf if cs.SPECIAL_ELSE_IF_TREATMENT =>
             subBlocks.add(subBlock(firstChild, child, alignment, Some(firstBlock.indent)))
             subBlocks.addAll(getIfSubBlocks(child.getTreeNext, alignment))
+            specialIf = true
           case _ =>
         }
         child = child.getTreeNext
       }
-      if (subBlocks.size == 1) {
+      if (!specialIf) {
         subBlocks.add(subBlock(firstChild, child, alignment, Some(firstBlock.indent)))
       }
     }

@@ -3880,4 +3880,84 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       |}""".stripMargin
   )
 
+  def testDoNotMoveElseOnPreviousLineWithCommentWithoutSpecialTreatment(): Unit = {
+    getCommonSettings.KEEP_LINE_BREAKS = false
+    getCommonSettings.SPECIAL_ELSE_IF_TREATMENT = false
+
+    doTextTest(
+      """class Ф {
+        |  if (true) {} // qwe
+        |  else {}
+        |
+        |  if (true) {} // qwe
+        |  else
+        |  if (false) {} else
+        |    if (false) {} else {}
+        |}
+        |""".stripMargin)
+  }
+
+  def testDoNotMoveElseOnPreviousLineWithCommentWithSpecialTreatment(): Unit = {
+    getCommonSettings.KEEP_LINE_BREAKS = false
+    getCommonSettings.SPECIAL_ELSE_IF_TREATMENT = true
+    getCommonSettings.ELSE_ON_NEW_LINE = true
+
+    doTextTest(
+      """class A {
+        |  if (true) {} // qwe
+        |  else {}
+        |
+        |  if (true) {} // qwe
+        |  else if (false) {}
+        |  else if (false) {}
+        |  else {}
+        |}
+        |""".stripMargin)
+  }
+
+  def testDoNotMoveElseOnPreviousLineWithCommentWithSpecialTreatment_1(): Unit = {
+    getCommonSettings.KEEP_LINE_BREAKS = false
+    getCommonSettings.SPECIAL_ELSE_IF_TREATMENT = true
+    getCommonSettings.ELSE_ON_NEW_LINE = false
+
+    doTextTest(
+      """class A {
+        |  if (true) {} // qwe
+        |  else {}
+        |
+        |  if (true) {} // qwe
+        |  else if (false) {} else if (false) {} else {}
+        |}
+        |""".stripMargin)
+  }
+
+  def testDoNotMoveCatchOnPreviousLineWithComment(): Unit = {
+    getCommonSettings.KEEP_LINE_BREAKS = false
+
+    doTextTest(
+      """class A {
+        |  try {
+        |    42
+        |  } // qwe
+        |  catch {
+        |    case _ =>
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testDoNotMoveWhileOnPreviousLineWithComment(): Unit = {
+    getCommonSettings.KEEP_LINE_BREAKS = false
+
+    doTextTest(
+      """class A {
+        |  do {
+        |    42
+        |  } // qwe
+        |  while (true)
+        |}
+        |""".stripMargin
+    )
+  }
 }
