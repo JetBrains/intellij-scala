@@ -74,7 +74,11 @@ class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentio
       newParams = parameters,
       isAddDefaultArgs = false
     )
-    new ScalaChangeSignatureProcessor(changeInfo).run()
+    val processor = new ScalaChangeSignatureProcessor(changeInfo)
+
+    inWriteAction {
+      processor.run()
+    }
   }
 }
 
