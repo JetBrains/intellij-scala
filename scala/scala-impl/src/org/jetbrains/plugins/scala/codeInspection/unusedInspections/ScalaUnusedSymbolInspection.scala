@@ -6,12 +6,14 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -40,7 +42,13 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
-      case fun: ScMethodLike => fun +: fun.parameters.filterNot(_.isWildcard).filterNot(_.asOptionOf[ScClassParameter].exists(_.isCaseClassVal))
+      case fun: ScMethodLike =>
+        def nonPrivateClassMemberParam(param: ScParameter): Boolean =
+          !ScalaPsiUtil.isLocalOrPrivate(fun.containingClass) &&
+            param.asOptionOf[ScClassParameter].exists(p => p.isClassMember && (!p.isPrivate))
+        def overridingParam(param: ScParameter): Boolean =
+          param.asOptionOf[ScClassParameter].exists(overridesMember)
+        fun +: fun.parameters.filterNot(_.isWildcard).filterNot(nonPrivateClassMemberParam).filterNot(overridingParam)
       case declaredHolder: ScDeclaredElementsHolder => declaredHolder.declaredElements
       case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case enumerators: ScEnumerators => enumerators.patterns.flatMap(_.bindings).filterNot(_.isWildcard) //for statement
@@ -66,4 +74,9 @@ object ScalaUnusedSymbolInspection {
   val Annotation = "Declaration is never used"
 
   val ShortName: String = "ScalaUnusedSymbol"
+
+  private def overridesMember(element: ScClassParameter): Boolean = {
+    import lang.psi.ScalaPsiUtil._
+    element.hasModifierProperty(ScalaModifier.OVERRIDE) || superValsSignatures(element).nonEmpty
+  }
 }
