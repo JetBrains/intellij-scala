@@ -77,9 +77,9 @@ object SbtProjectSettings {
   def default: SbtProjectSettings =
     new SbtProjectSettings
 
-  def forProject(project: Project): SbtProjectSettings = {
+  def forProject(project: Project): Option[SbtProjectSettings] = {
     val settings = SbtSettings.getInstance(project)
-    settings.getLinkedProjectSettings(project.getBasePath)
+    Option(settings.getLinkedProjectSettings(project.getBasePath))
   }
 
   private def canonical(path: String) =

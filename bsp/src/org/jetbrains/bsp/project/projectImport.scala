@@ -103,7 +103,7 @@ class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
         .callback(new FinalImportCallback(project, settings)))
   }
 
-
+  // TODO duplicated with org.jetbrains.sbt.project.SbtOpenProjectProvider.FinalImportCallback
   private class FinalImportCallback(project: Project, projectSettings: BspProjectSettings)
   extends ExternalProjectRefreshCallback {
 

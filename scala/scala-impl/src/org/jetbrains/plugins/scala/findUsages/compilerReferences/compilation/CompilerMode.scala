@@ -14,7 +14,7 @@ object CompilerMode {
   final case object SBT extends CompilerMode
 
   def forProject(project: Project): CompilerMode = {
-    val sbtSettings  = SbtProjectSettings.forProject(project).toOption
+    val sbtSettings  = SbtProjectSettings.forProject(project)
     val usesSbtShell = sbtSettings.exists(_.useSbtShellForBuild)
 
     if (usesSbtShell) SBT

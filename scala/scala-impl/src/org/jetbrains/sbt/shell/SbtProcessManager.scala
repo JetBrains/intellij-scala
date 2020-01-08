@@ -213,7 +213,8 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
 
   private object DisableSbtVersionOverrideAction extends NotificationAction("Disable version override") {
     override def actionPerformed(anActionEvent: AnActionEvent, notification: Notification): Unit = {
-      SbtProjectSettings.forProject(project).setAllowSbtVersionOverride(false)
+      SbtProjectSettings.forProject(project)
+        .foreach(_.setAllowSbtVersionOverride(false))
       notification.expire()
     }
   }
