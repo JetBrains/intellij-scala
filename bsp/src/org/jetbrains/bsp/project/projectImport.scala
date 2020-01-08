@@ -4,9 +4,7 @@ import java.io.File
 import java.util
 import java.util.Collections
 
-import com.intellij.ide.util.newProjectWizard.AddModuleWizard
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
-import com.intellij.ide.wizard.Step
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.{AbstractOpenProjectProvider, ImportSpecBuilder}
@@ -15,21 +13,19 @@ import com.intellij.openapi.externalSystem.model.internal.InternalExternalProjec
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
-import com.intellij.openapi.externalSystem.service.project.wizard.{AbstractExternalProjectImportBuilder, AbstractExternalProjectImportProvider, SelectExternalProjectStep}
+import com.intellij.openapi.externalSystem.service.project.wizard.{AbstractExternalProjectImportBuilder, AbstractExternalProjectImportProvider}
 import com.intellij.openapi.externalSystem.service.project.{ExternalProjectRefreshCallback, ProjectDataManager}
 import com.intellij.openapi.externalSystem.service.settings.AbstractImportFromExternalSystemControl
 import com.intellij.openapi.externalSystem.service.ui.ExternalProjectDataSelectorDialog
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemSettingsControl, ExternalSystemUtil}
 import com.intellij.openapi.module.{ModifiableModuleModel, Module}
 import com.intellij.openapi.project.{Project, ProjectManager}
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Disposer, NotNullFactory}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.packaging.artifacts.ModifiableArtifactModel
-import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessorBase}
+import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
 import javax.swing.Icon
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings._
@@ -73,11 +69,11 @@ class BspProjectImportBuilder
       val shortPath = FileUtil.getLocationRelativeToUserHome(FileUtil.toSystemDependentName(projectFilePath), false)
       throw new IllegalArgumentException(s"project definition file $shortPath not found")
     }
-    new BspProjectOpenProvider().linkToExistingProject(projectFile, project)
+    new BspOpenProjectProvider().linkToExistingProject(projectFile, project)
   }
 }
 
-class BspProjectOpenProvider() extends AbstractOpenProjectProvider {
+class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
   override def isProjectFile(file: VirtualFile): Boolean =
     canOpenProject(file)
 
@@ -179,37 +175,16 @@ class BspProjectImportProvider(builder: BspProjectImportBuilder)
     ProjectImportProvider.getDefaultPath(file)
 }
 
-class BspProjectOpenProcessor extends ProjectOpenProcessorBase[BspProjectImportBuilder]{
-  override def getSupportedExtensions: Array[String] = Array()
+class BspProjectOpenProcessor extends ProjectOpenProcessor {
+
+  override def getName: String = BSP.Name
+  override def getIcon: Icon = BSP.Icon
 
   override def canOpenProject(file: VirtualFile): Boolean =
     BspProjectOpenProcessor.canOpenProject(file)
 
-  override def doGetBuilder(): BspProjectImportBuilder =
-    ProjectImportBuilder.EXTENSIONS_POINT_NAME.findExtensionOrFail(classOf[BspProjectImportBuilder])
-
-  override def doQuickImport(file: VirtualFile, wizardContext: WizardContext): Boolean = {
-
-    val builder = getBuilder
-    val provider = new BspProjectImportProvider(builder)
-    val dialog = new AddModuleWizard(null, file.getPath, provider)
-
-    builder.prepare(wizardContext)
-    builder.getControl(null).setLinkedProjectPath(file.getPath)
-
-    dialog.getWizardContext.setProjectBuilder(builder)
-    dialog.navigateToStep((step: Step) => step.isInstanceOf[SelectExternalProjectStep])
-
-    if (StringUtil.isEmpty(wizardContext.getProjectName)) {
-      val projectName = dialog.getWizardContext.getProjectName
-      if (!StringUtil.isEmpty(projectName)) {
-        wizardContext.setProjectName(projectName)
-      }
-    }
-
-    dialog.doFinishAction()
-    true
-  }
+  override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
+    new BspOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame)
 }
 
 object BspProjectOpenProcessor {
