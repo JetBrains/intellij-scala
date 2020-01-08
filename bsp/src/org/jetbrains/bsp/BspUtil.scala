@@ -14,6 +14,16 @@ import scala.util.{Failure, Success, Try}
 
 object BspUtil {
 
+  val BloopConfigDirName = ".bloop"
+
+  def bloopConfigDir(workspace: File): Option[File] = {
+    val bloopDir = new File(workspace, ".bloop")
+
+    if (bloopDir.isDirectory)
+      Some(bloopDir.getCanonicalFile)
+    else None
+  }
+
   implicit class ResponseErrorExceptionOps(err: ResponseErrorException) {
     def toBspError: BspError = {
       BspErrorMessage(s"bsp error: ${err.getMessage} (${err.getResponseError.getCode})")

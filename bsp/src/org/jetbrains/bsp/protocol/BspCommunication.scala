@@ -24,7 +24,7 @@ import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
-import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
+import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildTaskReporter
 
 import scala.concurrent.duration._
@@ -158,8 +158,6 @@ object BspCommunication {
     val connectionDetails = findBspConfigs(base)
     val configuredMethods = connectionDetails.map(ProcessBsp)
 
-    val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
-
     val vfm = VirtualFileManager.getInstance()
 
     val compilerOutputDirFromConfig = for {
@@ -176,7 +174,7 @@ object BspCommunication {
     val connector =
       if (connectionDetails.nonEmpty)
         new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods)
-      else if (bloopConfigDir.exists())
+      else if (BspUtil.bloopConfigDir(base).isDefined)
         new BloopLauncherConnector(
           base,
           compilerOutputDir,
