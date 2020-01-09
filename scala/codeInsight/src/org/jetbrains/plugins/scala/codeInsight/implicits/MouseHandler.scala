@@ -98,11 +98,14 @@ class MouseHandler(project: Project,
               clearHighlightedMatches()
           }
         } else {
-          textAtPoint.foreach { case (_, text) =>
-            if (text.errorTooltip.nonEmpty && !errorTooltip.exists(_.isVisible)) {
-              errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
-              errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
-            }
+          textAtPoint match {
+            case Some((_, text)) =>
+              if (text.errorTooltip.nonEmpty && !errorTooltip.exists(_.isVisible)) {
+                errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
+                errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
+              }
+            case None =>
+              errorTooltip.foreach(_.hide())
           }
           deactivateActiveHyperlink(e.getEditor)
         }
