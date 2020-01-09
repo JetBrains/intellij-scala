@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
@@ -44,6 +45,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, M
 import org.jetbrains.plugins.scala.projectView.FileKind
 
 import scala.annotation.tailrec
+import scala.collection.Seq
 
 abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateDefinitionStub[T],
                                                                nodeType: ScTemplateDefinitionElementType[T],
@@ -382,10 +384,20 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def getOriginalElement: PsiElement =
     ScalaPsiImplementationHelper.getOriginalClass(this)
 
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  override def syntheticTypeDefinitions: Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
+
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  override def syntheticMembers: Seq[ScMember] = SyntheticMembersInjector.injectMembers(this)
+
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  override def syntheticMethods: Seq[ScFunction] = SyntheticMembersInjector.inject(this)
+
+
   @Cached(ModCount.getBlockModificationCount, this)
   private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition =
     ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this)
-      .setDesugared(actualElement = this)
+      .setOriginal(actualElement = this)
 
   @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
   override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)

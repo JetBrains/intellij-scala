@@ -172,7 +172,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     val text = tree.toString()
 
     ScalaPsiElementFactory.createObjectWithContext(text, getContext, this).
-      setDesugared(actualElement = this)
+      setOriginal(actualElement = this)
   }
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
