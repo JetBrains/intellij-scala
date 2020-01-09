@@ -136,6 +136,18 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       .getOrElse(physicalExtendsBlock)
   }
 
+  override def desugaredElement: Option[ScTemplateDefinition] = {
+    def mayBeDesugared = getContainingFile match {
+      case sf: ScalaFile => !sf.isCompiled && sf.isValid && sf.isMetaEnabled
+      case _             => false
+    }
+
+    if (!isDesugared && mayBeDesugared) desugaredInner
+    else None
+  }
+
+  protected def desugaredInner: Option[ScTemplateDefinition] = None
+
   override final def getAllFields: Array[PsiField] =
     PsiClassImplUtil.getAllFields(this)
 

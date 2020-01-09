@@ -19,7 +19,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.projectView.FileKind
 
 import scala.annotation.tailrec
@@ -393,20 +393,18 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   override def syntheticMethods: Seq[ScFunction] = SyntheticMembersInjector.inject(this)
 
-
-  @Cached(ModCount.getBlockModificationCount, this)
-  private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition =
-    ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this)
-      .setOriginal(actualElement = this)
-
   @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
   override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
 
-  override def desugaredElement: Option[ScTemplateDefinition] = {
+  @CachedWithRecursionGuard(this, None, BlockModificationTracker(this))
+  override protected def desugaredInner: Option[ScTemplateDefinition] = {
+    def toPsi(tree: scala.meta.Tree): ScTemplateDefinition = {
+      ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this)
+        .setOriginal(actualElement = this)
+    }
+
     import scala.meta.intellij.psi._
     import scala.meta.{Defn, Term}
-
-    if (!this.isValid || DumbService.isDumb(getProject)) return None
 
     val defn = this.metaExpand match {
       case Right(templ: Defn.Class) => Some(templ)
@@ -418,7 +416,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case _ => None
     }
 
-    defn.map(cachedDesugared)
+    defn.map(toPsi)
   }
 }
 
