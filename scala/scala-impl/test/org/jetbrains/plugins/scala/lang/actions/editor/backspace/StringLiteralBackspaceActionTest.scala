@@ -5,9 +5,6 @@ import junit.framework.AssertionFailedError
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 class StringLiteralBackspaceActionTest extends ScalaBackspaceHandlerBaseTest {
-  private val q = "\""
-  private val qq = "\"\""
-  private val qqq = "\"\"\""
 
   protected def doTestWithEmptyLastLine(before: String, after: String): Unit = {
     checkGeneratedTextAfterBackspace(before, after)
