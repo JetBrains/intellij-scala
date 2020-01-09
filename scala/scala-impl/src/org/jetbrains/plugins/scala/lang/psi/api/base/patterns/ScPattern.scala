@@ -104,15 +104,18 @@ object ScPattern {
               case _ =>
             }
 
-            tuple.expectedType.flatMap {
-              case TupleType(comps) =>
-                for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
-                  if (p == pattern) return Some(t)
-                }
-                None
-              case et0 if et0.isAnyRef || et0.isAny => Some(Any)
-              case _ => None
-            }
+            @tailrec
+            def handleTupleSubpatternExpectedType(tupleExpectedType: ScType): Option[ScType] =
+              tupleExpectedType match {
+                case TupleType(comps) =>
+                  val idx = patternList.patterns.indexWhere(_ == pattern)
+                  comps.lift(idx)
+                case et0 if et0.isAnyRef || et0.isAny => Some(Any)
+                case ex: ScExistentialType            => handleTupleSubpatternExpectedType(ex.simplify())
+                case _                                => None
+              }
+
+            tuple.expectedType.flatMap(handleTupleSubpatternExpectedType)
           case _: ScXmlPattern =>
             val nodeClass: Option[PsiClass] = psiManager.getCachedClass(elementScope.scope, "scala.xml.Node")
             nodeClass.flatMap { nodeClass =>
