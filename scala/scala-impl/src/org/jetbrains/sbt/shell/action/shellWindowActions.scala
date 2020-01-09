@@ -71,7 +71,7 @@ class StopAction(project: Project) extends DumbAwareAction {
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Suspend)
   templatePresentation.setText("Stop sbt shell") // TODO i18n / language-bundle
-  templatePresentation.setDescription(null)
+  templatePresentation.setDescription(null: String)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     if (isEnabled) {
