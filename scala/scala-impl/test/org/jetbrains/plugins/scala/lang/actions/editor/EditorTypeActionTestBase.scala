@@ -4,10 +4,6 @@ import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
 abstract class EditorTypeActionTestBase extends EditorActionTestBase {
 
-  protected val q  : String = "\""
-  protected val qq : String = "\"\""
-  protected val qqq: String = "\"\"\""
-
   protected def typedChar: Char
 
   protected def doTest(before: String, after: String, fileName: String = defaultFileName): Unit =

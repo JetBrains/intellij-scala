@@ -1,20 +1,18 @@
 package org.jetbrains.plugins.scala.performance.typing
 
-import com.intellij.testFramework.EditorTestUtil
-import com.intellij.testFramework.EditorTestUtil.CARET_TAG
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
-// Also see tests in `org.jetbrains.plugins.scala.lang.actions.editor` package
-// TODO: unify tests and move to a common package
+/**
+ * !!! Also see tests in `org.jetbrains.plugins.scala.lang.actions.editor` package
+ * TODO: unify tests and move to a common package
+ */
 @Category(Array(classOf[PerfCycleTests]))
 class ScalaTypedHandlerTest extends TypingTestWithPerformanceTestBase {
   implicit val typingTimeout: Duration = 150 milliseconds
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   private val SPACE: Char = ' '
 
