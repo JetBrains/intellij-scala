@@ -17,7 +17,7 @@ abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestA
 
     myFixture.configureByText("dummy." + fileExt, original)
     myFixture.enableInspections(classOf[SpellCheckingInspection])
-    val fix = getFixture.findSingleIntention(RenameTo.FIX_NAME);
+    val fix = getFixture.findSingleIntention(RenameTo.getFixName);
     myFixture.launchAction(fix)
     selectAndCheckLookupElements(expectedWords)
     myFixture.checkResult(expected)
