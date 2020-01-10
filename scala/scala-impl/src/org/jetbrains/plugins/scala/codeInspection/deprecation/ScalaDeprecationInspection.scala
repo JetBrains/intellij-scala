@@ -3,6 +3,7 @@ package codeInspection.deprecation
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -11,15 +12,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 13.04.2010
- */
 class ScalaDeprecationInspection extends LocalInspectionTool {
+
+  override def getID: String = "ScalaDeprecation"
+
+  override def isEnabledByDefault: Boolean = true
+
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
+
     def registerDeprecationProblem(description: String, elementToHighlight: PsiElement): Unit = {
       val descriptor = holder.getManager.createProblemDescriptor(
         elementToHighlight,
@@ -53,32 +57,51 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
           }
 
           deprecatedElement.foreach { deprecatedElement =>
-
-            val message = for {
-              holder     <- deprecatedElement.asOptionOf[ScAnnotationsHolder]
-              annotation <- holder.annotations("scala.deprecated").headOption
-              message    <- ScalaPsiUtil.readAttribute(annotation, "value")
-            } yield message
-
+            val message = deprecationMessage(deprecatedElement)
             val description = s"Symbol $name is deprecated. ${message.getOrElse("")}"
             registerDeprecationProblem(description, elementToHighlight)
           }
         case _ => ()
       }
 
-    new ScalaElementVisitor {
-      override def visitFunction(fun: ScFunction): Unit = {
-        //todo: check super method is deprecated
+    def checkOverridingDeprecated(superMethod: PsiMethod, method: ScFunction): Unit = {
+      val owner = superMethod match {
+        case o: PsiDocCommentOwner if o.isDeprecated => o
+        case _ => return
       }
+      val message = deprecationMessage(owner)
+      val description = s"Super method ${method.name} is deprecated. ${message.getOrElse("")}"
+      registerDeprecationProblem(description, method.nameId)
+    }
+
+    new ScalaElementVisitor {
+
+      override def visitFunction(fun: ScFunction): Unit =
+        if (!fun.isLocal) {
+          fun.superMethods.foreach(checkOverridingDeprecated(_, fun))
+        }
 
       override def visitReference(ref: ScReference): Unit =
-        if (ref.isValid) ref.bind().foreach { checkDeprecated(_, ref.nameId, ref.refName) }
+        if (ref.isValid) {
+          val resolveResult = ref.bind()
+          resolveResult.foreach(checkDeprecated(_, ref.nameId, ref.refName))
+        }
 
       override def visitReferenceExpression(ref: ScReferenceExpression): Unit = visitReference(ref)
-      override def visitTypeProjection(proj:     ScTypeProjection): Unit      = visitReference(proj)
+      override def visitTypeProjection(proj: ScTypeProjection): Unit = visitReference(proj)
     }
   }
+}
 
-  override def getID: String               = "ScalaDeprecation"
-  override def isEnabledByDefault: Boolean = true
+object ScalaDeprecationInspection {
+
+  private val ScalaDeprecatedAnnotation = "scala.deprecated"
+  private val ScalaDeprecatedAnnotationMessageField = "value"
+
+  private def deprecationMessage(commentOwner: PsiDocCommentOwner): Option[String] =
+    for {
+      holder     <- commentOwner.asOptionOf[ScAnnotationsHolder]
+      annotation <- holder.annotations(ScalaDeprecatedAnnotation).headOption
+      message    <- ScalaPsiUtil.readAttribute(annotation, ScalaDeprecatedAnnotationMessageField)
+    } yield message
 }
