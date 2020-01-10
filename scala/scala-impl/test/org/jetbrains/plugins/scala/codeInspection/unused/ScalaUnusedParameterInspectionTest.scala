@@ -8,60 +8,62 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   private val p = START + "p" + END
 
-  private def doFunctionParameterTest(beforeClause: String, afterClause: String, argsBefore: String, argsAfter: String): Unit = {
-    val paramsPlaceholder = "<params-placeholder>"
-    val argsPlaceholder = "<args-placeholder>"
-    val code =
-      s"""
-         |class Foo {
-         |  val a = 0
-         |  val b = 0
-         |  private def test$paramsPlaceholder: Int = {
-         |    // a, b should neither be unused nor unresolvable
-         |    a + b
-         |  }
-         |
-         |  val c = a + b
-         |  test$argsPlaceholder
-         |}
-      """.stripMargin
-    checkTextHasError(code.replace(paramsPlaceholder, beforeClause).replace(argsPlaceholder, argsBefore))
+  val paramsPlaceholder = "<params-placeholder>"
+  val argsPlaceholder = "<args-placeholder>"
+
+  private def doParamTest(templ: String)(beforeClause: String, afterClause: String, argsBefore: String, argsAfter: String): Unit = {
+    checkTextHasError(templ.replace(paramsPlaceholder, beforeClause).replace(argsPlaceholder, argsBefore))
 
     val rawArgsBefore = beforeClause.replace(START, "").replace(END, "")
-    val before = code.replace(paramsPlaceholder, rawArgsBefore).replace(argsPlaceholder, argsBefore)
-    val after = code.replace(paramsPlaceholder, afterClause).replace(argsPlaceholder, argsAfter)
+    val before = templ.replace(paramsPlaceholder, rawArgsBefore).replace(argsPlaceholder, argsBefore)
+    val after = templ.replace(paramsPlaceholder, afterClause).replace(argsPlaceholder, argsAfter)
     testQuickFix(before, after, hint)
   }
 
-  private def doConstructorParameterTest(beforeClause: String, afterClause: String, argsBefore: String, argsAfter: String): Unit = {
-    val paramsPlaceholder = "<params-placeholder>"
-    val argsPlaceholder = "<args-placeholder>"
-    val code =
-      s"""
-         |class Foo {
-         |  val a = 0
-         |  val b = 0
-         |  class Test$paramsPlaceholder {
-         |    // a, b should neither be unused nor unresolvable
-         |    a + b
-         |  }
-         |
-         |  val c = a + b
-         |  new Test$argsPlaceholder
-         |}
-      """.stripMargin
-    checkTextHasError(code.replace(paramsPlaceholder, beforeClause).replace(argsPlaceholder, argsBefore))
+  private val doFunctionParameterTest = doParamTest(
+    s"""
+       |class Foo {
+       |  val a = 0
+       |  val b = 0
+       |  private def test$paramsPlaceholder: Int = {
+       |    // a, b should neither be unused nor unresolvable
+       |    a + b
+       |  }
+       |
+       |  val c = a + b
+       |  test$argsPlaceholder
+       |}
+    """.stripMargin
+  ) _
 
-    val rawArgsBefore = beforeClause.replace(START, "").replace(END, "")
-    val before = code.replace(paramsPlaceholder, rawArgsBefore).replace(argsPlaceholder, argsBefore)
-    val after = code.replace(paramsPlaceholder, afterClause).replace(argsPlaceholder, argsAfter)
-    testQuickFix(before, after, hint)
-  }
+  private val doConstructorParameterTest = doParamTest(
+    s"""
+       |class Foo {
+       |  val a = 0
+       |  val b = 0
+       |  class Test$paramsPlaceholder {
+       |    // a, b should neither be unused nor unresolvable
+       |    a + b
+       |  }
+       |
+       |  val c = a + b
+       |  new Test$argsPlaceholder
+       |}
+    """.stripMargin
+  ) _
 
   private def doTest(beforeClause: String, afterClause: String, argsBefore: String, argsAfter: String): Unit = {
     doFunctionParameterTest(beforeClause, afterClause, argsBefore, argsAfter)
     doConstructorParameterTest(beforeClause, afterClause, argsBefore, argsAfter)
   }
+
+  def testMain(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def main(args: Array[String]): Unit = ()
+      |}
+      |""".stripMargin
+  )
 
   def testEasyLast(): Unit =
     doTest(s"(a: Int, $p: Int)", "(a: Int)",
@@ -203,6 +205,73 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |    def p: Int
       |  }
       |  private case class Test(p: Int) extends Base
+      |}
+      |""".stripMargin
+  )
+
+  // implicit stuff
+  private val doImplicitParameterTest = doParamTest(
+    s"""
+       |class Unused {
+       |  trait T1
+       |  trait T2
+       |  val i = 0
+       |  val j = 0
+       |  private def test$paramsPlaceholder: Unit = {
+       |    use()
+       |    i + j
+       |  }
+       |
+       |  def use()(implicit a: T1, b: T2): Unit = {
+       |    a
+       |    b
+       |  }
+       |
+       |  {
+       |    implicit val unused: Unused = new Unused
+       |    test$argsPlaceholder
+       |  }
+       |}
+    """.stripMargin
+  ) _
+
+  def testNoCalledImplicit(): Unit = doImplicitParameterTest(
+    s"()(implicit $p: Unused)", "()",
+    "()", "()"
+  )
+
+  def testLoneImplicitExplicitlyCalled(): Unit = doImplicitParameterTest(
+    s"(implicit $p: Unused)", "()",
+    "(new Unused)", "()"
+  )
+
+  /*
+  def testImplicitWithMultipleArgs(): Unit = doImplicitParameterTest(
+    s"(implicit $p: Unused, a: T1)", "(implicit a: T1)",
+    "(new Unused, new T1)", "(new T1)"
+  )
+
+  def testImplicitWithMultipleArgs2(): Unit = doImplicitParameterTest(
+    s"(implicit a: T1, $p: Unused)", "(implicit a: T1)",
+    "(new T1, new Unused)", "(new T1)"
+  )
+   */
+
+  def testMultipleImplicitParamsWithNormalParams(): Unit = doImplicitParameterTest(
+    s"(i: Int)(implicit $p: Unused, a: T1)", "(i: Int)(a: T1)",
+    "(1)(new Unused, new T1)", "(1)(new T1)"
+  )
+
+  def testNotHighlightUsedImplicit(): Unit = checkTextHasNoErrors(
+    """
+      |trait Used
+      |object Test {
+      |  implicit val used: Used = null
+      |  test()
+      |  private def test()(implicit used: Used): Unit = {
+      |    test2()
+      |  }
+      |  private def test2()(implicit used: Used): Used = used
       |}
       |""".stripMargin
   )
