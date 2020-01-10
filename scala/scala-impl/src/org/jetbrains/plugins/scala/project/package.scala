@@ -292,8 +292,6 @@ package object project {
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
     def module: Option[Module] = Option(element.getContainingFile).flatMap(_.module)
 
-    def fileIndex: ProjectFileIndex = ProjectFileIndex.getInstance(element.getProject)
-
     def isInScalaModule: Boolean = module.exists(_.hasScala)
 
     def isInScala3Module: Boolean = module.exists(_.hasScala3)
