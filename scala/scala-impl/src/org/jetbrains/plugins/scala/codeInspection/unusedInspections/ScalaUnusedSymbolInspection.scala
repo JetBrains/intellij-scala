@@ -15,9 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
 class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def isEnabledByDefault: Boolean = true
@@ -67,6 +68,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
     case f: ScFunction if f.isSpecial => false
+    case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
     case m: ScMember if m.hasModifierProperty(ScalaKeyword.IMPLICIT) => false
     case _: ScMethodLike => true // handle in invoke
     case _ => ScalaPsiUtil.isLocalOrPrivate(elem)
