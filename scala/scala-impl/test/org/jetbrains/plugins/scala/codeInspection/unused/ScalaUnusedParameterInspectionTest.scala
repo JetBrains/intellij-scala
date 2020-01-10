@@ -268,4 +268,24 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |}
       |""".stripMargin
   )
+
+  def testNoHighlightInnerPrivateCaseClassParam(): Unit = checkTextHasError(
+    s"""
+      |object Test {
+      |  private object Inner {
+      |    case class CC($p: Int)
+      |  }
+      |
+      |  Inner
+      |}
+      |""".stripMargin
+  )
+
+  def testHighlightCaseClassParamInPrivateTopLevelObject(): Unit = checkTextHasNoErrors(
+    s"""
+       |private object Test {
+       |  case class CC($p: Int)
+       |}
+       |""".stripMargin
+  )
 }

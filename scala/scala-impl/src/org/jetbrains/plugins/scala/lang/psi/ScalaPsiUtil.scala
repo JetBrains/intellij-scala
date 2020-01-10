@@ -234,12 +234,15 @@ object ScalaPsiUtil {
     ScSubstitutor.bind(typeParameters.map(TypeParameter(_)))(UndefinedType(_, level = 1))
   }
 
+  @tailrec
   def isLocalOrPrivate(elem: PsiElement): Boolean = {
     elem.getContext match {
       case _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions => false
       case _: ScTemplateBody =>
         elem match {
-          case mem: ScMember if mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) => true
+          case mem: ScMember =>
+            if (mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)) true
+            else isLocalOrPrivate(mem.containingClass)
           case _ => false
         }
       case _ => true
