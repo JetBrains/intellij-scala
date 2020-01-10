@@ -6,6 +6,7 @@ import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.util.ui.StartupUiUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.Format.{InnerParentheses, OuterParentheses, Plain}
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
 import org.jetbrains.plugins.scala.annotator.hints.{Text, _}
@@ -16,26 +17,36 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-// TODO experimental feature (SCL-15250)
 object TypeMismatchHints {
   private[annotator] def createFor(element: PsiElement, expectedType: ScType, actualType: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): AnnotatorHints = {
-    val needsParentheses = element.is[ScInfixExpr, ScPostfixExpr]
-
-    val prefix =
-      if (needsParentheses) Seq(Hint(Seq(Text("(")), element, suffix = false))
-      else Seq.empty
-
-    val parts = Text(": ") +: partsOf(expectedType, actualType, tooltipFor(expectedType, actualType)) |> { parts =>
-      if (needsParentheses) Text(")") +: parts else parts
+    val format = element match {
+      case Parent(infix: ScInfixExpr) if infix.isRightAssoc && infix.argsElement == element => OuterParentheses
+      case _: ScInfixExpr | _: ScPostfixExpr => InnerParentheses
+      case _ => Plain
     }
 
-    val margin = if (needsParentheses) None else Hint.leftInsetLikeChar(' ')
+    val prefix = format match {
+      case InnerParentheses | OuterParentheses => Seq(Hint(Seq(Text("(")), element, suffix = false))
+      case _ => Seq.empty
+    }
 
-    val offsetDelta = Option(element.getContainingFile)
-      .flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
-      .filter(_.is[PsiWhiteSpace])
-      .map(_.getText.takeWhile(_ != '\n').length)
-      .getOrElse(0)
+    val parts = Text(": ") +: partsOf(expectedType, actualType, tooltipFor(expectedType, actualType)) |> { parts =>
+      format match {
+        case InnerParentheses => Text(")") +: parts
+        case OuterParentheses => parts :+ Text(")")
+        case _ => parts
+      }
+    }
+
+    val margin = if (format == InnerParentheses) None else Hint.leftInsetLikeChar(' ')
+
+    val offsetDelta =
+      if (format == OuterParentheses) 0
+      else Option(element.getContainingFile)
+        .flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
+        .filter(_.is[PsiWhiteSpace])
+        .map(_.getText.takeWhile(_ != '\n').length)
+        .getOrElse(0)
 
     val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta, menu = Some("TypeHintsMenu"))
 

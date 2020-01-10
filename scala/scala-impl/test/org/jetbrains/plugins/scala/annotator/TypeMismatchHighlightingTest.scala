@@ -103,10 +103,22 @@ class TypeMismatchHighlightingTest extends TypeMismatchHighlightingTestBase {
       Error("1", "Expression of type Int doesn't conform to expected type String"))
   }
 
-  // Add parentheses when needed
-  def testTypeMismatchHintParentheses(): Unit = {
+  // Add parentheses around infix expressions
+  def testTypeMismatchHintParenthesesInfix(): Unit = {
     assertMessages(errorsFromScalaCode("val v: String = 1 + 2"))(Hint("1 + 2", "("), Hint("1 + 2", "): Int"),
       Error("1 + 2", "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  // Add parentheses around postfix expressions
+  def testTypeMismatchHintParenthesesPostfix(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = 'c' ##"))(Hint("'c' ##", "("), Hint("'c' ##", "): Int"),
+      Error("'c' ##", "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  // Add parentheses around arguemnts in right-associative infix expressions
+  def testTypeMismatchHintParenthesesRightAssociative(): Unit = {
+    assertMessages(errorsFromScalaCode("object O { def +: (s: String) = () }; 1 +: O"))(Hint("1", "("), Hint("1", ": Int)"),
+      Error("1", "Type mismatch, expected: String, actual: Int"))
   }
 
   // TODO test fine-grained errors
