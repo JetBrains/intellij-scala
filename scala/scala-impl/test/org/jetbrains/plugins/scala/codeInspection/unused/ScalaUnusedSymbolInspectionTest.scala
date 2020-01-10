@@ -416,7 +416,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |class Bar
         |class Baz
         |class Moo {
-        |  def foo(x: Bar => Baz) = ???
+        |  def foo(_: Bar => Baz) = ???
         |  foo { implicit bar => new Baz  }
         |}
       """.stripMargin

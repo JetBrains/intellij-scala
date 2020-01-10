@@ -25,7 +25,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
        |class Foo {
        |  val a = 0
        |  val b = 0
-       |  private def test$paramsPlaceholder: Int = {
+       |  def test$paramsPlaceholder: Int = {
        |    // a, b should neither be unused nor unresolvable
        |    a + b
        |  }
@@ -90,13 +90,6 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   def testMultipleClausesEmptyAfter2(): Unit =
     doTest(s"($p: Int)(a: Int)", "(a: Int)",
             "(1)(2)",            "(2)")
-
-  def testPublicMethod(): Unit = checkTextHasNoErrors(
-    """
-      |object Global {
-      |  def test(a: Int): Unit = ()
-      |}
-      |""".stripMargin)
 
   def testNotInCaseClass(): Unit = checkTextHasNoErrors(
     "case class Test(a: Int)"

@@ -43,16 +43,16 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
+      case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case fun: ScMethodLike =>
         def nonPrivateClassMemberParam(param: ScParameter): Boolean =
           !ScalaPsiUtil.isLocalOrPrivate(fun.containingClass) &&
             param.asOptionOf[ScClassParameter].exists(p => p.isClassMember && (!p.isPrivate))
         def overridingParam(param: ScParameter): Boolean =
           param.asOptionOf[ScClassParameter].exists(overridesMember)
-        fun +: fun.parameters.filterNot(_.isWildcard).filterNot(nonPrivateClassMemberParam).filterNot(overridingParam)
+        ScalaPsiUtil.isLocalOrPrivate(fun).option(fun) ++: fun.parameters.filterNot(_.isWildcard).filterNot(nonPrivateClassMemberParam).filterNot(overridingParam)
       case caseClause: ScCaseClause => caseClause.pattern.toSeq.flatMap(_.bindings).filterNot(_.isWildcard)
       case declaredHolder: ScDeclaredElementsHolder => declaredHolder.declaredElements
-      case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case enumerators: ScEnumerators => enumerators.patterns.flatMap(_.bindings).filterNot(_.isWildcard) //for statement
       case _ => Seq.empty
     }
@@ -68,6 +68,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
     case f: ScFunction if f.isSpecial => false
     case m: ScMember if m.hasModifierProperty(ScalaKeyword.IMPLICIT) => false
+    case _: ScMethodLike => true // handle in invoke
     case _ => ScalaPsiUtil.isLocalOrPrivate(elem)
   }
 }
