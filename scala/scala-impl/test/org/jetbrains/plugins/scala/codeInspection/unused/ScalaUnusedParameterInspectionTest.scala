@@ -288,4 +288,24 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
        |}
        |""".stripMargin
   )
+
+  def testDontHighlightParametersInDeclarations(): Unit = checkTextHasNoErrors(
+    """
+      |trait Base {
+      |  def test(i: Int): Unit
+      |}
+      |""".stripMargin
+  )
+
+  def testDontHighlightUnusedParametersInOverridingMethod(): Unit = checkTextHasNoErrors(
+    """
+      |trait Base {
+      |  def test(i: Int): Unit
+      |}
+      |
+      |class Test extends Base {
+      |  def test(i: Int): Unit = ()
+      |}
+      |""".stripMargin
+  )
 }
