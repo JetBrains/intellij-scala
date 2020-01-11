@@ -57,8 +57,8 @@
         <!--<externalProjectDataService implementation="org.jetbrains.plugins.scala.project.migration.ImportedLibrariesService"/>-->
 
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
-
         <externalSystemViewContributor implementation="org.jetbrains.sbt.project.SbtViewContributor"/>
+        <externalIconProvider key="SBT" implementationClass="org.jetbrains.sbt.SbtIconProvider" />
 
         <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
