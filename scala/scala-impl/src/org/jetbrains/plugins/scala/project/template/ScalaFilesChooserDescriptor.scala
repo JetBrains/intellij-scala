@@ -20,9 +20,9 @@ class ScalaFilesChooserDescriptor extends FileChooserDescriptor(true, true, true
 
     val allFiles = files.filter(_.isFile) ++ files.flatMap(_.allFiles)
 
-    val components = Component.discoverIn(allFiles)
+    val components = ScalaSdkComponent.discoverIn(allFiles)
 
-    ScalaSdkDescriptor.from(components) match {
+    ScalaSdkDescriptor.buildFromComponents(components) match {
       case Left(message) => throw new ValidationException(message)
       case Right(_) => // OK
     }
