@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package project
 
 import java.io._
+import java.nio.file.{Files, Path}
+import java.util.stream
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.util.{Key, io}
@@ -105,6 +107,14 @@ package object template {
     }
   }
 
+  implicit class PathExt(path: Path) {
+    def /(string: String): Path = path.resolve(string)
+    def children: stream.Stream[Path] = Files.list(path)
+    def exists: Boolean = Files.exists(path)
+    def childExists(sub: String): Boolean = Files.exists(path / sub)
+    def isDir: Boolean = Files.isDirectory(path)
+  }
+
   implicit class FileExt(private val delegate: File) extends AnyVal {
     def /(path: String): File = new File(delegate, path)
 
@@ -114,11 +124,15 @@ package object template {
 
     def children: Seq[File] = Option(delegate.listFiles).map(_.toSeq).getOrElse(Seq.empty)
 
+    def childrenNames: Seq[String] = children.map(_.getName)
+
     def directories: Seq[File] = children.filter(_.isDirectory)
 
     def files: Seq[File] = children.filter(_.isFile)
 
-    def findByName(name: String): Option[File] = children.find(_.getName == name)
+    def findByName(name: String): Option[File] = Some(new File(delegate, name)).filter(_.exists())
+
+    def childExists(name: String): Boolean = new File(delegate, name).exists()
 
     def allFiles: Stream[File] = {
       val (files, directories) = children.toStream.span(_.isFile)

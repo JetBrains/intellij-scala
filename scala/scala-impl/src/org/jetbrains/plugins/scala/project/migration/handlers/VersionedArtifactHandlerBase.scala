@@ -6,7 +6,7 @@ import com.intellij.openapi.externalSystem.model.project.{LibraryData, LibraryPa
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.project.template.{Artifact, Component}
+import org.jetbrains.plugins.scala.project.template.{Artifact, ScalaSdkComponent}
 
 import scala.collection.JavaConverters._
 
@@ -25,8 +25,8 @@ abstract class VersionedArtifactHandlerBase(val myArtifact: Artifact, versionFro
   private val isRangeVersion = versionFrom.size == 1 && versionTo.size == 1 && continuousVersion
 
   protected def extractVersion(files: Seq[File]): Option[Version] =
-    Component.discoverIn(files, Set(getArtifact)).collectFirst {
-      case Component(artifact, _, Some(version), _) if artifact.prefix == myArtifact.prefix => Version(version)
+    ScalaSdkComponent.discoverIn(files, Set(getArtifact)).collectFirst {
+      case ScalaSdkComponent(artifact, _, Some(version), _) if artifact.prefix == myArtifact.prefix => Version(version)
     }
   
   protected def extractVersion(lib: Library): Option[Version] = {

@@ -1,10 +1,17 @@
 package org.jetbrains.plugins.scala.project.template;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import scala.Function0;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.project.sdkdetect.ScalaSdkProvider;
 import scala.Option;
 
 import javax.swing.*;
@@ -14,7 +21,6 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
 
 public class SdkSelectionDialog extends JDialog {
     private JPanel contentPane;
@@ -25,15 +31,15 @@ public class SdkSelectionDialog extends JDialog {
     private TableView<SdkChoice> myTable;
 
     private final JComponent myParent;
-    private Function0<List<SdkChoice>> myProvider;
     private final SdkTableModel myTableModel = new SdkTableModel();
     private ScalaSdkDescriptor mySelectedSdk;
 
-    public SdkSelectionDialog(JComponent parent, Function0<List<SdkChoice>> provider) {
+    private ProgressIndicator sdkScanProcess;
+
+    public SdkSelectionDialog(JComponent parent, VirtualFile contextDirectory) {
         super((Window) parent.getTopLevelAncestor());
 
         myParent = parent;
-        myProvider = provider;
 
         setTitle("Select JAR's for the new Scala SDK");
 
@@ -46,6 +52,7 @@ public class SdkSelectionDialog extends JDialog {
         buttonOK.addActionListener(e -> onOK());
         buttonCancel.addActionListener(e -> onCancel());
 
+        myTable.setModelAndUpdateColumns(myTableModel);
         myTable.getSelectionModel().addListSelectionListener(new SdkSelectionListener());
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -57,18 +64,24 @@ public class SdkSelectionDialog extends JDialog {
 
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        updateTable();
-    }
+        new Task.Backgroundable(null, ScalaBundle.message("sdk.scan.title", ""), true, PerformInBackgroundOption.DEAF) {
 
-    private void updateTable() {
-        List<SdkChoice> sdks = myProvider.apply();
+            private void updateTable(SdkChoice sdkChoice) {
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    myTableModel.addRow(sdkChoice);
+                    myTable.setModelAndUpdateColumns(myTableModel);
+                });
+            }
 
-        myTableModel.setItems(sdks);
-        myTable.setModelAndUpdateColumns(myTableModel);
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                sdkScanProcess = indicator;
+                ScalaSdkProvider scalaSdkProvider = new ScalaSdkProvider(indicator, contextDirectory);
+                scalaSdkProvider.discoverSDKsAsync(this::updateTable);
+                sdkScanProcess = null;
+            }
+        }.queue();
 
-        if (!sdks.isEmpty()) {
-            myTable.getSelectionModel().setSelectionInterval(0, 0);
-        }
     }
 
     private int setSelectionInterval(String version) {
@@ -86,8 +99,6 @@ public class SdkSelectionDialog extends JDialog {
         Option<String> result = new VersionDialog(contentPane).showAndGetSelected();
 
         if (result.isDefined()) {
-            updateTable();
-
             int rowIndex = setSelectionInterval(result.get());
 
             myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
@@ -108,11 +119,17 @@ public class SdkSelectionDialog extends JDialog {
         if (myTable.getSelectedRowCount() > 0) {
             mySelectedSdk = myTableModel.getItems().get(myTable.getSelectedRow()).sdk();
         }
+        if (sdkScanProcess != null)
+            sdkScanProcess.cancel();
+        sdkScanProcess = null;
         dispose();
     }
 
     private void onCancel() {
         mySelectedSdk = null;
+        if (sdkScanProcess != null)
+            sdkScanProcess.cancel();
+        sdkScanProcess = null;
         dispose();
     }
 
