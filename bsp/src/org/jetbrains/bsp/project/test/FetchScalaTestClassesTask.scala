@@ -1,9 +1,11 @@
 package org.jetbrains.bsp.project.test
 
+import java.nio.file.Paths
 import java.util.UUID
 import java.util.concurrent.{CompletableFuture, TimeUnit}
 
-import ch.epfl.scala.bsp4j.{BuildServerCapabilities, BuildTargetIdentifier, ScalaTestClassesParams, ScalaTestClassesResult}
+import ch.epfl.scala.bsp4j.{BuildServerCapabilities, BuildTargetIdentifier, ScalaTestClassesItem, ScalaTestClassesParams, ScalaTestClassesResult}
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
@@ -11,7 +13,7 @@ import org.jetbrains.bsp.BspErrorMessage
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
-import org.jetbrains.bsp.protocol.{BspCommunicationService, BspJob}
+import org.jetbrains.bsp.protocol.{BspCommunication, BspCommunicationService, BspJob}
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
 
 import scala.annotation.tailrec
@@ -22,7 +24,7 @@ import scala.util.{Failure, Success, Try}
 
 
 class FetchScalaTestClassesTask(project: Project,
-                                onOK: ScalaTestClassesResult => Unit,
+                                onOK: java.util.List[ScalaTestClassesItem] => Unit,
                                 onErr: Throwable => Unit
                                ) extends Task.Modal(project, "Loading", true) {
 
@@ -32,32 +34,49 @@ class FetchScalaTestClassesTask(project: Project,
     val reporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, text)
     reporter.start()
 
-    val targets = ModuleManager.getInstance(project).getModules.toList
-      .flatMap(BspMetadata.get(project, _))
-      .flatMap(x => x.targetIds.asScala)
-      .map(uri => new BuildTargetIdentifier(uri.toString))
-    val testClassesParams = {
-      val p = new ScalaTestClassesParams(targets.asJava)
-      p.setOriginId(UUID.randomUUID().toString)
-      p
+    val targetsByWorkspace = ModuleManager.getInstance(project).getModules.toList
+      .flatMap { module =>
+        val targets = BspMetadata.get(project, module).toList.flatMap(_.targetIds.asScala)
+        val modulePath = ExternalSystemApiUtil.getExternalProjectPath(module)
+        val workspacePath = Paths.get(modulePath)
+        targets.map(t => (workspacePath, new BuildTargetIdentifier(t.toString)))
+      }
+      .groupBy(_._1)
+      .mapValues(_.map(_._2))
+      .mapValues { targets =>
+        val p = new ScalaTestClassesParams(targets.asJava)
+        p.setOriginId(UUID.randomUUID().toString)
+        p
+      }
+
+    val jobs = targetsByWorkspace.map { case (workspace, params) =>
+      BspCommunication.forWorkspace(workspace.toFile)
+        .run(
+          requestTestClasses(params)(_,_),
+          _ => {},
+          reporter,
+          _ => {}
+        )
     }
 
-    val task = BspCommunicationService.getInstance
-      .communicate(project)
-      .run(
-        requestTestClasses(testClassesParams)(_,_),
-        _ => {},
-        reporter,
-        _ => {}
-      )
-    val result = waitForJobCancelable(task, indicator)
-    result match {
-      case Success(value) =>
+    // blocking wait
+    val results = jobs.map(waitForJobCancelable(_, indicator))
+
+    val items = results
+      .foldLeft(Try(List.empty[ScalaTestClassesItem])) {
+        case (results, Success(res)) =>
+          results.map(_ ++ res.getItems.asScala)
+        case (_, Failure(x)) =>
+          Failure(x)
+      }
+
+    items match {
+      case Success(res) =>
         reporter.finish(BuildMessages.empty.status(BuildMessages.OK))
-        onOK(value)
-      case Failure(exception) =>
-        reporter.finishWithFailure(exception)
-        onErr(exception)
+        onOK(res.asJava)
+      case Failure(x) =>
+        reporter.finishWithFailure(x)
+        onErr(x)
     }
   }
 

@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project.test
 
-import java.io.OutputStream
+import java.io.{File, OutputStream}
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -20,7 +20,7 @@ import com.intellij.openapi.project.Project
 import jetbrains.buildServer.messages.serviceMessages._
 import org.jetbrains.bsp.BspErrorMessage
 import org.jetbrains.bsp.data.BspMetadata
-import org.jetbrains.bsp.protocol.BspCommunicationService
+import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
@@ -163,7 +163,7 @@ class BspTestRunner(
     val procHandler = new MProcHandler
     val console = SMTestRunnerConnectionUtil.createAndAttachConsole("BSP", procHandler, new SMTRunnerConsoleProperties(
       project, rc, "BSP", ex))
-    val bspCommunication = BspCommunicationService.getInstance.communicate(project)
+    val bspCommunication = BspCommunication.forWorkspace(new File(project.getBasePath))
 
     val reporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, "BSP Tests")
     reporter.start()
