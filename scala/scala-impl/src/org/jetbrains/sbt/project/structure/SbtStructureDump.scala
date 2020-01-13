@@ -251,7 +251,10 @@ object SbtStructureDump {
 
     case (messages, TaskComplete) =>
       reporter.finishTask(dumpTaskId, "project structure extracted", new SuccessResultImpl())
-      messages
+      val messagesUpdated =
+        if (messages.status == BuildMessages.Indeterminate) messages.status(BuildMessages.OK)
+        else messages
+      messagesUpdated
 
     case (messages, ErrorWaitForInput) =>
       val msg = "import errors, project reload aborted"
