@@ -2,12 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package typeAnnotation
 
-import java.util.regex.Pattern
-
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import com.intellij.ui.{ChooserInterceptor, UiInterceptors}
-import scala.collection.JavaConverters._
 
 abstract class TypeAnnotationInspectionTest extends ScalaQuickFixTestBase {
 
@@ -400,4 +396,21 @@ class ObjectTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
        |
        |object Foo
      """.stripMargin
+}
+
+class FailingTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
+  def testErrorGivesAny(): Unit = testQuickFix(
+    text =
+      s"""
+         |class Test {
+         |  def test = unresolvedIdentifier
+         |}
+         |""".stripMargin,
+    expected =
+      s"""
+         |class Test {
+         |  def test: Any = unresolvedIdentifier
+         |}
+         |""".stripMargin
+  )
 }
