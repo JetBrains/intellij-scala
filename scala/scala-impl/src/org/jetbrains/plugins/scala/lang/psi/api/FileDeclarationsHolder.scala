@@ -211,9 +211,11 @@ object FileDeclarationsHolder {
         if (file == null) return false
 
         val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
-        !(index.isInSourceContent(file) ||
-          index.isInLibraryClasses(file) ||
-          index.isInLibrarySource(file))
+        val belongsToProject =
+          index.isInSourceContent(file) ||
+            index.isInLibraryClasses(file) ||
+            index.isInLibrarySource(file)
+        !belongsToProject
       case _ => false
     }
   }
