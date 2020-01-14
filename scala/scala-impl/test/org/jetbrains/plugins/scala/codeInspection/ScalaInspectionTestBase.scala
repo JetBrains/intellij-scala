@@ -79,10 +79,10 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   protected def configureByText(text: String): TestPrepareResult = {
     val fileText = normalize(createTestText(text))
 
-    val (fileTextClean, expectedRanges) =
+    val (_, expectedRanges) =
       MarkersUtils.extractSequentialMarkers(fileText, START, END)
 
-    val (normalizedText, offset) = findCaretOffset(fileTextClean, stripTrailingSpaces = true)
+    val (normalizedText, offset) = findCaretOffset(fileText, stripTrailingSpaces = true)
 
     val fixture = getFixture
     fixture.configureByText(fileType, normalizedText)
@@ -91,8 +91,8 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     val highlights = fixture.doHighlighting().asScala
       .filter(it => descriptionMatches(it.getDescription))
     val highlightsWithRanges = highlights
-      .map(info => (info, highlightedRange(info)))
       .filter(checkOffset(_, offset))
+      .map(info => (info, highlightedRange(info)))
 
     TestPrepareResult(expectedRanges, highlightsWithRanges)
   }
@@ -108,10 +108,13 @@ object ScalaHighlightsTestBase {
   private def highlightedRange(info: HighlightInfo): TextRange =
     new TextRange(info.getStartOffset, info.getEndOffset)
 
-  private def checkOffset(pair: (HighlightInfo, TextRange), offset: Int): Boolean = pair match {
-    case _ if offset == -1 => true
-    case (_, range) => range.containsOffset(offset)
-  }
+  private def checkOffset(highlightInfo: HighlightInfo, offset: Int): Boolean =
+    if (offset == -1) {
+      true
+    } else {
+      val range = highlightedRange(highlightInfo)
+      range.containsOffset(offset)
+    }
 }
 
 abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase
