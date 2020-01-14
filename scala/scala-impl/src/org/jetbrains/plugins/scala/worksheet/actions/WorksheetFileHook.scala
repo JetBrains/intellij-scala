@@ -12,6 +12,7 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.UserDataHolder
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.containers.ContainerUtil
@@ -19,7 +20,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.UserDataKeys
+import org.jetbrains.plugins.scala.project.{UserDataHolderExt, UserDataKeys}
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook.file2panel
 import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
@@ -101,10 +102,11 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       document.foreach(WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
     }
 
-    private def ensureWorksheetModuleIsSet(file: ScalaFile): Unit = {
-      val module = WorksheetCommonSettings(file).getModuleFor
-      file.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, module)
-    }
+    private def ensureWorksheetModuleIsSet(file: ScalaFile): Unit =
+      for {
+        module <- Option(WorksheetCommonSettings(file).getModuleFor)
+        vFile <- file.getVirtualFile.toOption
+      } vFile.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, module)
 
     private def loadEvaluationResult(source: FileEditorManager, vFile: VirtualFile): Unit =
       for {
