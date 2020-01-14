@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -111,7 +111,7 @@ object WorksheetSourceProcessor {
 
     val name = s"A$$A$iterNumber"
     val instanceName = s"inst$$A$$A"
-    val moduleOpt = Option(WorksheetCommonSettings(srcFile).getModuleFor)
+    val moduleOpt = Option(WorksheetFileSettings(srcFile).getModuleFor)
 
     val packOpt: Option[String] = for {
       dir         <- srcFile.getContainingDirectory.toOption

@@ -23,18 +23,20 @@ import scala.ref.WeakReference
   * Date: 14.03.18.
   */
 class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
+
   import WorksheetFileSettings.SerializableWorksheetAttributes._
+  import WorksheetFileSettings.SerializableWorksheetAttributes.SerializableInFileAttribute
   import WorksheetFileSettings._
 
   override def project: Project = file.getProject
 
-  private def getDefaultSettings = WorksheetCommonSettings(project)
+  private def getDefaultSettings = WorksheetProjectSettings(project)
 
   private def getSetting[T](attr: FileAttribute, orDefault: => T)(implicit ev: SerializableInFileAttribute[T]): T =
-    ev.readAttribute(attr, file).getOrElse(orDefault)
+    ev.readAttribute(attr, file.getVirtualFile).getOrElse(orDefault)
 
   private def setSetting[T](attr: FileAttribute, value: T)(implicit ev: SerializableInFileAttribute[T]): Unit =
-    ev.writeAttribute(attr, file, value)
+    ev.writeAttribute(attr, file.getVirtualFile, value)
 
   override def getRunType: WorksheetExternalRunType = getSetting(WORKSHEET_RUN_TYPE, getDefaultSettings.getRunType)
 
@@ -103,6 +105,8 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
   private val IS_AUTORUN = new FileAttribute("ScalaWorksheetAutoRun", 1, true)
   private val WORKSHEET_RUN_TYPE = new FileAttribute("ScalaWorksheetRunType", 1, false)
 
+  def apply(file: PsiFile): WorksheetFileSettings = new WorksheetFileSettings(file)
+
   def isReplLight(file: FileDeclarationsHolder): Boolean = {
     file match {
       case scalaFile: ScalaFile =>
@@ -118,19 +122,17 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
 
   def isScratchWorksheet(file: VirtualFile)
                         (implicit project: Project): Boolean = {
-    import WorksheetFileType._
-    hasScratchRootType(file) && treatScratchFileAsWorksheet
+    WorksheetFileType.hasScratchRootType(file) &&
+      WorksheetFileType.treatScratchFileAsWorksheet
   }
 
-  object SerializableWorksheetAttributes {
+  private object SerializableWorksheetAttributes {
     trait SerializableInFileAttribute[T] {
-      def readAttribute(attr: FileAttribute, file: PsiFile): Option[T] = {
+      def readAttribute(attr: FileAttribute, file: VirtualFile): Option[T] =
         FileAttributeUtilCache.readAttribute(attr, file).map(convertTo)
-      }
 
-      def writeAttribute(attr: FileAttribute, file: PsiFile, t: T): Unit = {
+      def writeAttribute(attr: FileAttribute, file: VirtualFile, t: T): Unit =
         FileAttributeUtilCache.writeAttribute(attr, file, convertFrom(t))
-      }
 
       def convertFrom(t: T): String
       def convertTo(s: String): T

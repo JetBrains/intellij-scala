@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration,
   * Date: 14.03.18.
   */
 class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSettings {
+
   private val storeComponent = WorksheetDefaultSettings.getInstance(project)
 
   override def getRunType: WorksheetExternalRunType = storeComponent.getRunType
@@ -43,4 +44,9 @@ class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSett
     case null => project.anyScalaModule.orNull
     case module => module
   }
+}
+
+object WorksheetProjectSettings {
+
+  def apply(project: Project): WorksheetProjectSettings = new WorksheetProjectSettings(project)
 }

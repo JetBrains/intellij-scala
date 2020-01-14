@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook.file2pane
 import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetFoldGroup}
 
@@ -104,7 +104,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 
     private def ensureWorksheetModuleIsSet(file: ScalaFile): Unit =
       for {
-        module <- Option(WorksheetCommonSettings(file).getModuleFor)
+        module <- Option(WorksheetFileSettings(file).getModuleFor)
         vFile <- file.getVirtualFile.toOption
       } vFile.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
 
