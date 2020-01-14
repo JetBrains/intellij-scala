@@ -20,13 +20,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 object Ascription {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    val ascriptionMarker = builder.mark
-
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
       case _ =>
-        ascriptionMarker.drop()
         return false
     }
 
@@ -36,7 +33,6 @@ object Ascription {
         builder.advanceLexer() //Ate _
         builder.getTokenText match {
           case "*" =>
-            ascriptionMarker.drop()
             builder.advanceLexer() //Ate *
             seqArgMarker.done(ScalaElementType.SEQUENCE_ARG)
             return true
@@ -47,8 +43,8 @@ object Ascription {
     }
 
     if (!Type.parse(builder)) {
-      var x = 0
       val annotationsMarker = builder.mark
+      var x = 0
       while (Annotation.parse(builder)) {
         x = x + 1
       }
@@ -58,7 +54,6 @@ object Ascription {
       }
     }
 
-    ascriptionMarker.drop()
     true
   }
 }
