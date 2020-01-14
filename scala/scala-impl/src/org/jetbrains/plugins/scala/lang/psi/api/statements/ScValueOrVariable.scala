@@ -6,6 +6,7 @@ package statements
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -32,6 +33,9 @@ trait ScValueOrVariable extends ScBlockStatement
   def declaredElements: Seq[ScTypedDefinition]
 
   def typeElement: Option[ScTypeElement]
+
+  // makes sense for definitions only, not declarations, but convenient to have here not to complicate hierarchy
+  def annotationAscription: Option[ScAnnotations] = None
 
   def declaredType: Option[ScType] =
     typeElement.flatMap {

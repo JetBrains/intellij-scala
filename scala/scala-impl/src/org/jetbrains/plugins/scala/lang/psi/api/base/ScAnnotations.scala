@@ -13,13 +13,20 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
  */
 
 trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
-  def getReferenceElements: Array[PsiJavaCodeReferenceElement] = Array[PsiJavaCodeReferenceElement]()
 
+  def getAnnotations: Array[ScAnnotation]
+
+  override def getReferenceElements: Array[PsiJavaCodeReferenceElement] = Array[PsiJavaCodeReferenceElement]()
 
   def foldFuns(initial: Any)(fail: Any)(l: List[PartialFunction[Any, _]]): Any = l match {
     case h :: t => if (h.isDefinedAt(initial)) foldFuns(h(initial))(fail)(t) else fail
     case Nil => initial
   }
+
+  //todo return appropriate roles
+  override def getRole = PsiReferenceList.Role.THROWS_LIST
+
+  override def getReferencedTypes: Array[PsiClassType] = getExceptionTypes
 
   // todo rewrite via continuations
   private def getExceptionTypes: Array[PsiClassType] = {
@@ -61,11 +68,4 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
       case _ => null
     }
   }
-
-  def getReferencedTypes: Array[PsiClassType] = getExceptionTypes
-
-  //todo return appropriate roles
-  def getRole = PsiReferenceList.Role.THROWS_LIST
-
-  def getAnnotations: Array[ScAnnotation]
 }

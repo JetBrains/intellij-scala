@@ -25,7 +25,7 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
       annotation.registerFix(new RemoveValFromGeneratorIntentionAction(element))
     }
 
-    if(element.scalaLanguageLevel.forall(_ < ScalaLanguageLevel.Scala_3_0)) {
+    if (!element.isInScala3Module) {
       element.caseKeyword.foreach { caseKeyword =>
         val annotation = holder.createWarningAnnotation(caseKeyword, ScalaBundle.message("for.pattern.bindings.require.scala3"))
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
