@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.project
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl.QueuedPsi.PrintChunk
 
@@ -255,7 +255,7 @@ final class WorksheetEditorPrinterRepl private[printers](
       extractReplMessage(messageLine)
         .getOrElse(ReplMessageInfo(messageLine, "", 0, 0, CompilerMessageCategory.INFORMATION))
 
-    val (hOffset, vOffset) = extraOffset(WorksheetCommonSettings(getScalaFile).getModuleFor)
+    val (hOffset, vOffset) = extraOffset(WorksheetFileSettings(getScalaFile).getModuleFor)
     val columnOffsetFixed = columnOffset - vOffset
     val (lineContentClean, lineOffsetFinal) = splitLineNumberFromRepl(lineContent).getOrElse {
       (lineContent, lineOffset - hOffset)

@@ -39,7 +39,7 @@ class RemoteServerConnector(
 ) extends RemoteServerConnectorBase(module, Seq(worksheet), output, needsCheck) {
 
   override protected def compilerSettings: ScalaCompilerSettings =
-    WorksheetCommonSettings(worksheetPsiFile).getCompilerProfile.getSettings
+    WorksheetFileSettings(worksheetPsiFile).getCompilerProfile.getSettings
 
   /**
     * Args (for running in compile server process only)

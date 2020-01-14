@@ -5,11 +5,11 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiFile
 import javax.swing.{JComponent, SwingConstants}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings}
 
 class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(worksheetFile.getProject, true, true) {
-  private val fileSettings = WorksheetCommonSettings(worksheetFile)
-  private val projectSettings = WorksheetCommonSettings(worksheetFile.getProject)
+  private val fileSettings = WorksheetFileSettings(worksheetFile)
+  private val projectSettings = WorksheetProjectSettings(worksheetFile.getProject)
   private val myPanel = new WorksheetAllSettingsForm(worksheetFile, getFileSettingsData, getDefaultSettingsData)
   
   setTitle("Worksheet Settings")

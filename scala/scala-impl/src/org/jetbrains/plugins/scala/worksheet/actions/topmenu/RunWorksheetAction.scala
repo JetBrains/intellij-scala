@@ -112,7 +112,7 @@ object RunWorksheetAction {
         return
     }
 
-    val fileSettings = WorksheetCommonSettings(file)
+    val fileSettings = WorksheetFileSettings(file)
 
     val module: Module = fileSettings.getModuleFor match {
       case m: Module => m

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings;
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetProjectSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -87,8 +88,8 @@ public class WorksheetSettingsSetForm {
         moduleComboBox.setToolTipText("Using class path of the module...");
 
         WorksheetCommonSettings settings = myFile != null ?
-                WorksheetCommonSettings.apply(myFile) :
-                WorksheetCommonSettings.apply(myProject);
+            WorksheetFileSettings.apply(myFile) :
+            WorksheetProjectSettings.apply(myProject);
 
         Module defaultModule = settings.getModuleFor();
         if (defaultModule != null) {
