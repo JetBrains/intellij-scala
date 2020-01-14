@@ -89,7 +89,7 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
         }
       }
 
-      if (WorksheetCommonSettings(psiFile).isInteractive) {
+      if (WorksheetFileSettings(psiFile).isInteractive) {
         handleDocumentChangedInteractiveMode(e, psiFile, offset, isRepl)
       }
     }

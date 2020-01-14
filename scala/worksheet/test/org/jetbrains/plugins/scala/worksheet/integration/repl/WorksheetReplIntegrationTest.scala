@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExcepti
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, WorksheetEvaluationTests}
 import org.junit.Assert._
@@ -242,7 +242,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """res0: Int = 42"""
     )
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    WorksheetCommonSettings(file).setInteractive(true)
+    WorksheetFileSettings(file).setInteractive(true)
 
     val robot = new EditorRobot(editor)
     robot.moveToEnd()
@@ -268,7 +268,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """res0: Int = 42"""
     )
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    WorksheetCommonSettings(file).setInteractive(true)
+    WorksheetFileSettings(file).setInteractive(true)
 
     val robot = new EditorRobot(editor)
     robot.moveToEnd()
