@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.annotator.element.ScPatternDefinitionAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
@@ -69,7 +68,6 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     val annotator = ScalaAnnotator.forProject(ctx)//new PatternDefinitionAnnotator() {}
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    ScPatternDefinitionAnnotator.annotate(definition)
     file
       .depthFirst()
       .instanceOf[ScUnderscoreSection]
