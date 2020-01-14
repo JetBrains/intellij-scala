@@ -49,12 +49,6 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 
   override def setMakeBeforeRun(value: Boolean): Unit = setSetting(IS_MAKE_BEFORE_RUN, value)
 
-  override def setModuleName(value: String): Unit = {
-    setSetting(CP_MODULE_NAME, value)
-    Option(getModuleFor).foreach(file.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, _))
-    DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
-  }
-
   override def setCompilerProfileName(value: String): Unit = setSetting(COMPILER_PROFILE, value)
 
   override def getCompilerProfile: ScalaCompilerSettingsProfile = {
@@ -76,12 +70,25 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
     maybeCustomProfile.getOrElse(configuration.defaultProfile)
   }
 
+  override def setModuleName(value: String): Unit = {
+    setSetting(CP_MODULE_NAME, value)
+    for {
+      module <- Option(getModuleFor)
+      vFile <- Option(file.getVirtualFile)
+    } vFile.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, module)
+    DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
+  }
+
   override def getModuleFor: Module = super.getModuleFor match {
     case null =>
-      (file.getVirtualFile match {
-        case virtualFile: VirtualFileWithId => Option(ProjectFileIndex.SERVICE.getInstance(project).getModuleForFile(virtualFile))
-        case _ => None
-      }).orElse(project.anyScalaModule).orNull
+      val module = file.getVirtualFile match {
+        case virtualFile: VirtualFileWithId =>
+          val fileIndex = ProjectFileIndex.SERVICE.getInstance(project)
+          Option(fileIndex.getModuleForFile(virtualFile))
+        case _ =>
+          None
+      }
+      module.orElse(project.anyScalaModule).orNull
     case module => module
   }
 }

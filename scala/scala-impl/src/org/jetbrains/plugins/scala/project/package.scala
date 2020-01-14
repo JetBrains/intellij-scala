@@ -261,6 +261,9 @@ package object project {
         file,
         project
       ) != ScalaLanguage.INSTANCE
+
+    def scratchFileModule: Option[Module] =
+      Option(file.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE))
   }
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
@@ -336,14 +339,14 @@ package object project {
 
     private def inThisModuleOrProject[T](predicate: Module => T): Option[T] =
       module
-        .orElse(worksheetModule)
+        .orElse(scratchFileModule)
         .orElse(element.getProject.anyScalaModule)
         .map(predicate)
 
-    private def worksheetModule: Option[Module] =
+    def scratchFileModule: Option[Module] =
       element.getContainingFile.toOption
-        .flatMap(_.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE).toOption)
-
+        .flatMap(_.getVirtualFile.toOption)
+        .flatMap(_.scratchFileModule)
   }
 
   private val defaultImplicitlyImportedSymbols: Seq[String] = Seq("java.lang", "scala", "scala.Predef")
