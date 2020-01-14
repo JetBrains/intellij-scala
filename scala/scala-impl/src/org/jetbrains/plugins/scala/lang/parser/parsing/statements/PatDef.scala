@@ -35,11 +35,9 @@ object PatDef {
       true
     }
 
-    def parseTypeOrAscription(): Boolean = {
+    def parseTypeOrAnnotationAscription(): Boolean = {
       if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
-        if (!Ascription.parse(builder)) {
-          builder.error(ErrMsg("annotation.or.type.expected"))
-        }
+        Ascription.parse(builder)
         true
       } else {
         false
@@ -71,7 +69,7 @@ object PatDef {
     }
     patternsMarker.done(ScalaElementType.PATTERN_LIST)
 
-    parseTypeOrAscription()
+    parseTypeOrAnnotationAscription()
     parseAssignExpression()
   }
 }
