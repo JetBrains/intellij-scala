@@ -32,7 +32,7 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
 
   class RemoveCaseFromPatternedEnumeratorFix(enumerator: ScPatternedEnumerator) extends IntentionAction {
 
-    override def getText: String = "Remove unnecessary 'case'"
+    override def getText: String = "Remove 'case'"
 
     override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
 
