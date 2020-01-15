@@ -13,25 +13,6 @@ import scala.annotation.tailrec
 
 object ParserUtils {
 
-  // _* (Scala 2 version of wildcard)
-  def eatShortSeqWildcardNext(builder: PsiBuilder): Boolean = {
-    val marker = builder.mark
-    if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
-      builder.advanceLexer()
-      if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText == "*") {
-        builder.advanceLexer()
-        marker.done(ScalaElementType.SEQ_WILDCARD)
-        true
-      } else {
-        marker.rollbackTo()
-        false
-      }
-    } else {
-      marker.drop()
-      false
-    }
-  }
-
   def isAssignmentOperator: String => Boolean = {
     case "==" | "!=" | "<=" | ">=" => false
     case "=" => true
@@ -133,6 +114,7 @@ object ParserUtils {
     }
   }
 
+  // [,] id@_*
   def parseVarIdWithWildcardBinding(builder: PsiBuilder, withComma: Boolean): Boolean =
     builder.build(ScalaElementType.NAMING_PATTERN) { repr =>
       if (withComma) {
@@ -140,11 +122,30 @@ object ParserUtils {
       }
 
       if (repr.invalidVarId) {
-        repr.advanceLexer()
+        repr.advanceLexer() // id or _
         repr.advanceLexer() // @ or :
         eatShortSeqWildcardNext(repr)
       } else {
         false
       }
     }
+
+  // _* (Scala 2 version of wildcard)
+  def eatShortSeqWildcardNext(builder: PsiBuilder): Boolean = {
+    val marker = builder.mark
+    if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
+      builder.advanceLexer()
+      if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText == "*") {
+        builder.advanceLexer()
+        marker.done(ScalaElementType.SEQ_WILDCARD)
+        true
+      } else {
+        marker.rollbackTo()
+        false
+      }
+    } else {
+      marker.drop()
+      false
+    }
+  }
 }
