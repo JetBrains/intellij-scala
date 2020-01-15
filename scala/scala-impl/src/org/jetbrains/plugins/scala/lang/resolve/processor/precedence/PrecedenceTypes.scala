@@ -1,14 +1,17 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor.precedence
 
+import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-class PrecedenceTypes(place: PsiElement) {
-  private[this] val defaultImports =
-    place.defaultImports.zipWithIndex.toMap.mapValues(_ + 1)
+final class PrecedenceTypes private (val defaultImports: Seq[String]) {
+  private[this] val defaultImportPrecedence =
+    defaultImports.zipWithIndex.toMap.mapValues(_ + 1)
 
-  val defaultImportsFqns: Set[String] = defaultImports.keySet
   val defaultImportMaxPrecedence: Int = defaultImports.size
 
   val PREFIX_COMPLETION: Int       = 0
@@ -36,10 +39,15 @@ class PrecedenceTypes(place: PsiElement) {
    * either from the predefined set or specified by `-Yimports`/`-Yno-imports`/`-Yno-predef`
    * compiler options.
    */
-  def defaultImportPrecedence(fqn: String): Option[Int] = defaultImports.get(fqn)
-  def defaultImportsWithPrecedence: Map[String, Int]    = defaultImports
+  def defaultImportPrecedence(fqn: String): Option[Int] = defaultImportPrecedence.get(fqn)
+  def defaultImportsWithPrecedence: Map[String, Int]    = defaultImportPrecedence
 
-  def importPrecedence(isPackage: Boolean, isWildcard: Boolean, isTopLevel: Boolean): Int =
+  def importPrecedence(
+    place:      PsiElement,
+    isPackage:  Boolean,
+    isWildcard: Boolean,
+    isTopLevel: Boolean
+  ): Int =
     if (isPackage) {
       if (isWildcard) WILDCARD_IMPORT_PACKAGE
       else            IMPORT_PACKAGE
@@ -52,5 +60,29 @@ class PrecedenceTypes(place: PsiElement) {
     } else {
       if (isWildcard) WILDCARD_IMPORT
       else            IMPORT
+    }
+}
+
+object PrecedenceTypes {
+  private val defaultImplicitlyImportedSymbols: Seq[String] =
+    Seq("java.lang", "scala", "scala.Predef")
+
+  private val defaultPrecedenceTypes =
+    new PrecedenceTypes(defaultImplicitlyImportedSymbols)
+
+  private def mayHaveCustomDefaultImports(e: PsiElement): Boolean =
+    e.getContainingFile match {
+      case sf: ScalaFile if !sf.isCompiled => true
+      case _                               => false
+    }
+
+  @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+  def forModule(module: Module): PrecedenceTypes =
+    module.customDefaultImports.fold(defaultPrecedenceTypes)(new PrecedenceTypes(_))
+
+  def forElement(e: PsiElement): PrecedenceTypes =
+    e.module.fold(defaultPrecedenceTypes) { m =>
+      if (mayHaveCustomDefaultImports(e)) forModule(m)
+      else                                defaultPrecedenceTypes
     }
 }

@@ -29,7 +29,7 @@ trait PrecedenceHelper {
 
   def getPlace: PsiElement
 
-  protected val precedenceTypes = new PrecedenceTypes(getPlace)
+  protected val precedenceTypes: PrecedenceTypes = PrecedenceTypes.forElement(getPlace)
 
   protected abstract class NameUniquenessStrategy extends TObjectHashingStrategy[ScalaResolveResult] {
 

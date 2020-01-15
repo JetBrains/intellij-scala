@@ -8,7 +8,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._
-import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
+import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
@@ -17,6 +17,7 @@ import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -323,16 +324,7 @@ package object project {
         case _ => false
       })
 
-    def defaultImports: Seq[String] = {
-      val customDefaultImports = element.getContainingFile match {
-        case sfile: ScalaFile if !sfile.isCompiled =>
-          inThisModuleOrProject(_.customDefaultImports).flatten
-        case _ => None
-      }
-
-      customDefaultImports
-        .getOrElse(defaultImplicitlyImportedSymbols)
-    }
+    def defaultImports: Seq[String] = PrecedenceTypes.forElement(element).defaultImports
 
     private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
       inThisModuleOrProject(predicate).getOrElse(false)
@@ -348,8 +340,6 @@ package object project {
         .flatMap(_.getVirtualFile.toOption)
         .flatMap(_.scratchFileModule)
   }
-
-  private val defaultImplicitlyImportedSymbols: Seq[String] = Seq("java.lang", "scala", "scala.Predef")
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {
 

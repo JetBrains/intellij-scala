@@ -90,8 +90,10 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
 
     val defaultImports = position.defaultImports
 
-    if (defaultImports.contains(qualNoPoint)) Some(2)
-    else                                      None
+    if (defaultImports.contains(qualNoPoint)) {
+      if (qualNoPoint == "java.lang") Option(1)
+      else                            Option(2)
+    } else None
   }
 
   def applyToMember(member: ScMember, position: PsiElement): Option[Integer] = {
