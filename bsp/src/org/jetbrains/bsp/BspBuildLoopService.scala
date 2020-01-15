@@ -3,23 +3,22 @@ package org.jetbrains.bsp
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
-import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
-import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTaskResult}
+import com.intellij.task.ProjectTaskManager
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
 
 /**
-  * Builds bsp modules on file save. We should change this to support the bsp file change notifications
+  * Builds bsp modules on file save. We should change this to support the bsp file change notifications.
+ * TODO IDEA platform already supports a save-triggered build-in-background mode. Investigate if we can replace this service.
   */
-final class BspBuildLoop(project: Project) extends ProjectComponent {
+final class BspBuildLoopService(project: Project) {
 
   private def bspSettings: Option[BspProjectSettings] =
     Option(
@@ -31,7 +30,6 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
   private val busConnection: MessageBusConnection = project.getMessageBus.connect(project)
   private val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
   private val taskManager = ProjectTaskManager.getInstance(project)
-  private val fileTypes = FileTypeManager.getInstance()
 
   busConnection.subscribe(VirtualFileManager.VFS_CHANGES, FileChangeListener)
 
@@ -89,19 +87,19 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
     private def runCompile(): Unit = {
       changesSinceCompile = false
 
-      val notification = new ProjectTaskNotification {
-        override def finished(projectTaskResult: ProjectTaskResult): Unit = {
-          if (projectTaskResult.isAborted || projectTaskResult.getErrors > 0) {
-            // modules stay queued for recompile on next try
-            // TODO only re-queue failed modules? requires information to be available in ProjectTaskResult
-          } else {
-            modulesToCompile.clear()
-          }
+      def clearOnSuccess(res: ProjectTaskManager.Result): Unit =
+        if (res.hasErrors || res.isAborted) {
+          // modules stay queued for recompile on next try
+          // TODO only re-queue failed modules? requires information to be available in ProjectTaskResult
+        } else {
+          modulesToCompile.clear()
         }
-      }
 
       ApplicationManager.getApplication.invokeLater(
-        () => taskManager.build(modulesToCompile.toArray, notification),
+        () => taskManager
+          .build(modulesToCompile.toArray: _*)
+          .onSuccess(clearOnSuccess(_)) : Unit
+        ,
         ModalityState.NON_MODAL
       )
     }
