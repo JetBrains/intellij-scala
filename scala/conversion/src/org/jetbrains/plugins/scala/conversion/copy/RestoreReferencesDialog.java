@@ -14,18 +14,20 @@ import com.intellij.util.ui.UIUtil;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Collections;
+import java.util.List;
 
 import static com.intellij.util.ui.UIUtil.ComponentStyle.SMALL;
 import static com.intellij.util.ui.UIUtil.FontColor.BRIGHTER;
 
 @SuppressWarnings(value = "unchecked")
 class RestoreReferencesDialog extends DialogWrapper {
-  private final Object[] myNamedElements;
-  private JList myList;
-  private Object[] mySelectedElements = PsiClass.EMPTY_ARRAY;
+  private final String[] myNamedElements;
+  private JList<String> myList;
+  private List<String> mySelectedElements = Collections.emptyList();
   private boolean myContainsClassesOnly = true;
 
-  public RestoreReferencesDialog(final Project project, final Object[] elements) {
+  public RestoreReferencesDialog(final Project project, final String[] elements) {
     super(project, true);
     myNamedElements = elements;
     for (Object element : elements) {
@@ -46,15 +48,13 @@ class RestoreReferencesDialog extends DialogWrapper {
   }
 
   protected void doOKAction() {
-    Object[] values = myList.getSelectedValues();
-    mySelectedElements = new Object[values.length];
-    System.arraycopy(values, 0, mySelectedElements, 0, values.length);
+    mySelectedElements = myList.getSelectedValuesList();
     super.doOKAction();
   }
 
   protected JComponent createCenterPanel() {
     final JPanel panel = new JPanel(new BorderLayout(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP));
-    myList = new JBList(myNamedElements);
+    myList = new JBList<>(myNamedElements);
     myList.setCellRenderer(new FQNameCellRenderer());
     panel.add(ScrollPaneFactory.createScrollPane(myList), BorderLayout.CENTER);
 
@@ -79,7 +79,7 @@ class RestoreReferencesDialog extends DialogWrapper {
     return "#com.intellij.codeInsight.editorActions.RestoreReferencesDialog";
   }
 
-  public Object[] getSelectedElements(){
+  public List<String> getSelectedElements(){
     return mySelectedElements;
   }
 }

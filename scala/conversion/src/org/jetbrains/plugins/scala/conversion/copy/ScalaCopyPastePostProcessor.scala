@@ -48,7 +48,8 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
         value.restore(bounds) {
           case bindingsToRestore if setting == ASK =>
-            val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
+            val dialog =
+              new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
             dialog.show()
 
             val selectedPaths = dialog.getSelectedElements
