@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 class ScalaSdkProvider(implicit indicator: ProgressIndicator, contextDirectory: VirtualFile) {
 
   protected val scalaJarDetectors: Seq[ScalaSdkDetector] =
-    Seq(new ProjectLocalDetector(contextDirectory), SystemDetector, BrewDetector, IvyDetector, MavenDetector)
+    Seq(new ProjectLocalDetector(contextDirectory), SystemDetector, BrewDetector, IvyDetector, MavenDetector, CoursierDetector)
 
   def discoverSDKsAsync(callback: SdkDiscoveredCallback = _ => ()): Seq[SdkChoice] = scalaJarDetectors.flatMap(detector => {
     indicator.setText(message("sdk.scan.title", detector.friendlyName))
