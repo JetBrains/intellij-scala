@@ -15,7 +15,7 @@ import scala.reflect.macros.whitebox
  *
  * If the annotated function has a parameter called `cacheMode`,
  * this parameter will not be used as part of the HashMap key,
- * but will change the caching behaviour. See [[org.jetbrains.plugins.scala.CacheMode]]
+ * but will change the caching behaviour. See [[org.jetbrains.plugins.scala.caches.CacheMode]]
  *
  * Author: Svyatoslav Ilinskiy
  * Date: 9/18/15.

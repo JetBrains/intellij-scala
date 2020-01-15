@@ -2,7 +2,6 @@ package org.jetbrains.bsp.project
 
 import java.io.File
 import java.nio.file.Paths
-import java.util
 
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.openapi.compiler.CompilerPaths
@@ -16,11 +15,11 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.project.test.BspTestRunConfiguration
+import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.extensions
 
 import scala.collection.JavaConverters._
@@ -43,14 +42,12 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     case _ => false
   }
 
-  @ApiStatus.ScheduledForRemoval(inVersion = "2020.1")
-  @deprecated
+
   override def run(project: Project,
                    projectTaskContext: ProjectTaskContext,
-                   projectTaskNotification: ProjectTaskNotification,
-                   tasks: util.Collection[_ <: ProjectTask]): Unit = {
+                   tasks: ProjectTask*): Promise[ProjectTaskRunner.Result] = {
 
-    val validTasks = tasks.asScala.collect {
+    val validTasks = tasks.collect {
       case task: ModuleBuildTask => task
     }
 
@@ -80,18 +77,22 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     val targets = targetsAndRebuild.map(_._1)
     val targetsToClean = targetsAndRebuild.filter(_._2).map(_._1)
 
-    def onComplete(): Unit = {
+    // TODO save only documents in affected targets?
+    extensions.invokeAndWait {
+      FileDocumentManager.getInstance().saveAllDocuments()
+    }
+    val promiseResult = new AsyncPromise[ProjectTaskRunner.Result]
+
+    promiseResult.onProcessed { _ =>
       val modules = validTasks.map(_.getModule).toArray
       val outputRoots = CompilerPaths.getOutputPaths(modules)
       refreshRoots(project, outputRoots)
     }
 
-    // TODO save only documents in affected targets?
-    extensions.invokeAndWait {
-      FileDocumentManager.getInstance().saveAllDocuments()
-    }
-    val bspTask = new BspTask(project, targets, targetsToClean, Option(projectTaskNotification), onComplete)
+    val bspTask = new BspTask(project, targets, targetsToClean, promiseResult)
     ProgressManager.getInstance().run(bspTask)
+
+    promiseResult
   }
 
   // remove this if/when external system handles this refresh on its own

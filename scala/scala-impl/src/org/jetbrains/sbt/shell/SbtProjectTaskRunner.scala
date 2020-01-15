@@ -2,7 +2,6 @@ package org.jetbrains.sbt.shell
 
 import java.io.File
 import java.util
-import java.util.UUID
 
 import com.intellij.build.events.{SuccessResult, Warning}
 import com.intellij.compiler.impl.CompilerUtil
@@ -27,7 +26,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildWarning, IndicatorReporter}
+import org.jetbrains.concurrency.{AsyncPromise, Promise}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildWarning, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -63,10 +63,9 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
   override def run(project: Project,
                    context: ProjectTaskContext,
-                   callback: ProjectTaskNotification,
-                   tasks: util.Collection[_ <: ProjectTask]): Unit = {
+                   tasks: ProjectTask*): Promise[ProjectTaskRunner.Result] = {
 
-    val validTasks = tasks.asScala.collect {
+    val validTasks = tasks.collect {
       // TODO Android AARs are currently imported as modules. need a way to filter them away before building
       case task: ModuleBuildTask
         // SbtModuleType actually denotes `-build` modules, which are not part of the regular build
@@ -101,12 +100,13 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
     val modules = validTasks.map(_.getModule)
 
+    val promiseResult = new AsyncPromise[ProjectTaskRunner.Result]()
+
     // don't run anything if there's no module to run a build for
     // TODO user feedback
-    val callbackOpt = Option(callback)
     if (moduleCommands.isEmpty){
-      val taskResult = new ProjectTaskResult(false, 0, 0)
-      callbackOpt.foreach(_.finished(taskResult))
+      val result = TaskRunnerResult(isAborted = false, hasErrors = false)
+      promiseResult.setResult(result)
     } else {
 
       val command =
@@ -118,9 +118,11 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       }
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
-      val task = new CommandTask(project, modules.toArray, command, callbackOpt)
+      val task = new CommandTask(project, modules.toArray, command, promiseResult)
       ProgressManager.getInstance().run(task)
     }
+
+    promiseResult
   }
 
   private def buildCommands(task: ModuleBuildTask): Seq[String] = {
@@ -150,7 +152,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
 }
 
-private class CommandTask(project: Project, modules: Array[Module], command: String, callbackOpt: Option[ProjectTaskNotification]) extends
+private class CommandTask(project: Project, modules: Array[Module], command: String, promise: AsyncPromise[ProjectTaskRunner.Result]) extends
   Task.Backgroundable(project, "sbt build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   import CommandTask._
@@ -229,11 +231,10 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     // handle callback
     buildMessages match {
       case Success(messages) =>
-        val taskResult = messages.toTaskResult
-        callbackOpt.foreach(_.finished(taskResult))
-      case Failure(_) =>
-        val failedResult = new ProjectTaskResult(true, 1, 0)
-        callbackOpt.foreach(_.finished(failedResult))
+        val taskResult = messages.toTaskRunnerResult
+        promise.setResult(taskResult)
+      case Failure(x) =>
+        promise.setError(x)
     }
 
     // build state reporting

@@ -7,7 +7,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
-import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalProjectSettings, ExternalSystemSettingsListener}
+import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettings
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.roots.ModifiableRootModel
@@ -60,20 +60,18 @@ object SbtModuleBuilderUtil {
     externalProjectSettings.setExternalProjectPath(contentRootDir.getAbsolutePath)
     settings.linkProject(externalProjectSettings)
 
-    if (!externalProjectSettings.isUseAutoImport) {
-      FileDocumentManager.getInstance.saveAllDocuments()
+    FileDocumentManager.getInstance.saveAllDocuments()
 
-      /** simmilar code is also called inside [[com.intellij.openapi.externalSystem.service.ExternalSystemStartupActivity.runActivity]]
-       * In case the refresh below is not finished yet another refresh is cancelled in
-       * `com.intellij.openapi.externalSystem.util.ExternalSystemUtil`*/
-      invokeLater {
-        ExternalProjectsManagerImpl.getInstance(project).init()
-        ExternalSystemUtil.refreshProjects(
-          new ImportSpecBuilder(project, SbtProjectSystem.Id)
-            .forceWhenUptodate()
-            .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-        )
-      }
+    /** similar code is also called inside [[com.intellij.openapi.externalSystem.service.ExternalSystemStartupActivity.runActivity]]
+     * In case the refresh below is not finished yet another refresh is cancelled in
+     * `com.intellij.openapi.externalSystem.util.ExternalSystemUtil`*/
+    invokeLater {
+      ExternalProjectsManagerImpl.getInstance(project).init()
+      ExternalSystemUtil.refreshProjects(
+        new ImportSpecBuilder(project, SbtProjectSystem.Id)
+          .forceWhenUptodate()
+          .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      )
     }
   }
 

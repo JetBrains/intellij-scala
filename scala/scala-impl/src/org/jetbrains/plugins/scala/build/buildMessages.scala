@@ -3,13 +3,12 @@ package org.jetbrains.plugins.scala.build
 import java.util.UUID
 import java.util.function.BiPredicate
 
-import com.intellij.build.{FilePosition, events}
 import com.intellij.build.events.impl.{AbstractBuildEvent, FileMessageEventImpl}
 import com.intellij.build.events.{MessageEvent, MessageEventResult, Warning}
+import com.intellij.build.{FilePosition, events}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
-import com.intellij.task.{ProjectTask, ProjectTaskContext, ProjectTaskManager, ProjectTaskResult, ProjectTaskState}
-import org.jetbrains.annotations.ApiStatus
+import com.intellij.task._
 import org.jetbrains.plugins.scala.build.BuildMessages.{BuildStatus, Canceled, Error}
 
 case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failure], exceptions: Seq[Exception], status: BuildStatus) {
@@ -24,19 +23,11 @@ case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failu
     this.status.combine(other.status)
   )
 
-  @ApiStatus.ScheduledForRemoval(inVersion = "2020.1")
-  @deprecated
-  def toTaskResult =
-    new ProjectTaskResult(
-      status == Canceled || status == Error,
-      errors.size,
-      warnings.size
+  def toTaskRunnerResult: ProjectTaskRunner.Result = {
+    TaskRunnerResult(
+      status == Canceled,
+      status == Error || errors.nonEmpty
     )
-
-  def toTaskManagerResult: ProjectTaskManager.Result = {
-    val context = new ProjectTaskContext() // TODO figure out what goes in here
-    val isAborted = status == Canceled || status == Error
-    TaskManagerResult(context, isAborted, errors.nonEmpty)
   }
 }
 
@@ -85,6 +76,9 @@ class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, group: String, m
 
   override def getNavigatable(project: Project): Navigatable = null // TODO sensible default navigation?
 }
+
+case class TaskRunnerResult(isAborted: Boolean,
+                            hasErrors: Boolean) extends ProjectTaskRunner.Result
 
 case class TaskManagerResult(context: ProjectTaskContext,
                              isAborted: Boolean,

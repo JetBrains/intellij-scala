@@ -12,13 +12,14 @@ import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.task.ProjectTaskNotification
+import com.intellij.task.ProjectTaskRunner
 import mercator._
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.{BspTarget, TextCollector}
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
+import org.jetbrains.concurrency.AsyncPromise
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, BuildToolWindowReporter, IndicatorReporter}
 
@@ -33,14 +34,14 @@ import scala.util.{Failure, Try}
 class BspTask[T](project: Project,
                  targets: Iterable[BspTarget],
                  targetsToClean: Iterable[BspTarget],
-                 callbackOpt: Option[ProjectTaskNotification],
-                 onComplete: ()=>Unit)
+                 promise: AsyncPromise[ProjectTaskRunner.Result]
+                )
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
   private val report = new BuildToolWindowReporter(project, bspTaskId, "bsp build")
 
-  private var diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
+  private val diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
   import BspNotifications._
   private def notifications(report: BuildTaskReporter): NotificationAggregator[BuildMessages] =
@@ -124,10 +125,7 @@ class BspTask[T](project: Project,
       reportIndicator.finish(combinedMessages)
     }
 
-    val result = combinedMessages.toTaskResult
-
-    callbackOpt.foreach(_.finished(result))
-    onComplete()
+    promise.setResult(combinedMessages.toTaskRunnerResult)
   }
 
   private def messagesWithStatus(report: BuildTaskReporter,

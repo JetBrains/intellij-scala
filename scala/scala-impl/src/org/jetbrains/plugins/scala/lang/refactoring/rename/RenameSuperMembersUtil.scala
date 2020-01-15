@@ -64,9 +64,7 @@ object RenameSuperMembersUtil {
       processor.execute(named)
       return
     }
-    afterChoosingSuperMember(maxSuperMembers, named, editor) {
-      processor.execute(_)
-    }
+    afterChoosingSuperMember(maxSuperMembers, named, editor)(processor.execute)
   }
 
   def prepareSuperMembers(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
