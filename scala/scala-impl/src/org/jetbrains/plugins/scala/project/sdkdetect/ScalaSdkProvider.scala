@@ -38,12 +38,10 @@ class ScalaSdkProvider(implicit indicator: ProgressIndicator, contextDirectory: 
     componentsByVersion
       .mapValues(ScalaSdkDescriptor.buildFromComponents)
       .toSeq
-      .collect {
-        case (Some(_), Right(descriptor)) =>
-          val choice = detector.buildSdkChoice(descriptor)
-          callback.sdkDiscovered(choice)
-          choice
-      }
-  }
+      .collect { case (Some(_), Right(descriptor)) => detector.buildSdkChoice(descriptor) }
+      .sortBy(_.sdk.version)
+      .reverse
+      .map { sdk => callback.sdkDiscovered(sdk); sdk}
+  })
 
 }
