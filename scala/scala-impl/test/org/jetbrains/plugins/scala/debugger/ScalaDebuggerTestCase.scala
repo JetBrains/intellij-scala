@@ -308,8 +308,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
         case Success(_: VoidValue) => "undefined"
         case Success(v) =>
           DebuggerUtils.getValueAsString(ctx, v)
-        case Failure(e: EvaluateException) => e.getMessage
-        case Failure(e: Throwable) => "Other error: " + e.getMessage
+        case Failure(e: EvaluateException) => e.getStackTrace.mkString("\n")
+        case Failure(e: Throwable) => "Other error: " + e.getStackTrace.mkString("\n")
       }
     }
   }
