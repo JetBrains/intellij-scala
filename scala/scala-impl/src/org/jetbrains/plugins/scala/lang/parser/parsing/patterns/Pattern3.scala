@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 29.02.2008
@@ -20,14 +21,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object Pattern3 {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    type Stack[X] = _root_.scala.collection.mutable.Stack[X]
-    val markerStack = new Stack[PsiBuilder.Marker]
-    val opStack = new Stack[String]
-    //val infixMarker = builder.mark
+    type Stack[X] = List[X]
+    var markerStack = List.empty[PsiBuilder.Marker]
+    var opStack = List.empty[String]
     var backupMarker = builder.mark
     var count = 0
     if (!SimplePattern.parse(builder)) {
-      //infixMarker.drop
       backupMarker.drop()
       return false
     }
@@ -38,21 +37,22 @@ object Pattern3 {
       var exit = false
       while (!exit) {
         if (opStack.isEmpty) {
-          opStack push s
+          opStack = s :: opStack
           val newMarker = backupMarker.precede
-          markerStack push newMarker
+          markerStack = newMarker :: markerStack
           exit = true
         }
-        else if (!compar(s, opStack.top,builder)) {
-          opStack.pop()
+        else if (!compar(s, opStack.head,builder)) {
+          opStack = opStack.tail
           backupMarker.drop()
-          backupMarker = markerStack.top.precede
-          markerStack.pop().done(ScalaElementType.INFIX_PATTERN)
+          backupMarker = markerStack.head.precede
+          markerStack.head.done(ScalaElementType.INFIX_PATTERN)
+          markerStack = markerStack.tail
         }
         else {
-          opStack push s
+          opStack = s :: opStack
           val newMarker = backupMarker.precede
-          markerStack push newMarker
+          markerStack = newMarker :: markerStack
           exit = true
         }
       }
@@ -71,15 +71,15 @@ object Pattern3 {
     backupMarker.drop()
     if (count>0) {
       while (markerStack.nonEmpty) {
-        markerStack.pop().done(ScalaElementType.INFIX_PATTERN)
+        markerStack.head.done(ScalaElementType.INFIX_PATTERN)
+        markerStack = markerStack.tail
       }
-      //infixMarker.done(ScalaElementTypes.INFIX_PATTERN)
     }
     else {
       while (markerStack.nonEmpty) {
-        markerStack.pop().drop()
+        markerStack.head.drop()
+        markerStack = markerStack.tail
       }
-      //infixMarker.drop
     }
     true
   }
