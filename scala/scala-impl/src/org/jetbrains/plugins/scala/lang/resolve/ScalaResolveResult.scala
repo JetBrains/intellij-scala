@@ -245,7 +245,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
         case _             => false
       }
 
-      importPrecedence(isPackage, isWildcard, isTopLevel)
+      importPrecedence(place, isPackage, isWildcard, isTopLevel)
     }
 
     if (precedence == -1) {

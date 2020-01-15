@@ -6,7 +6,7 @@ import java.util.jar.Attributes
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager, ModuleType, ModuleUtilCore}
+import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
@@ -19,9 +19,8 @@ import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -392,28 +391,7 @@ package object project {
         case _ => false
       })
 
-    /**
-     * Check if the containing file of the [[element]] may have custom default imports.
-     */
-    @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
-    private def isEligibleForDefaultImportCustomisation(file: PsiFile): Boolean =
-      file match {
-        case sfile: ScalaFile =>
-          if (sfile.isWorksheetFile) true
-          else sfile.getVirtualFile.toOption
-                    .fold(false)(fileIndex.isInSourceContent)
-        case _ => false
-      }
-
-    def defaultImports: Seq[String] = {
-      val file = element.getContainingFile.toOption
-      val customDefaultImports =
-        if (!file.exists(isEligibleForDefaultImportCustomisation)) None
-        else inThisModuleOrProject(_.customDefaultImports).flatten
-
-      customDefaultImports
-        .getOrElse(FileDeclarationsHolder.defaultImplicitlyImportedSymbols)
-    }
+    def defaultImports: Seq[String] = PrecedenceTypes.forElement(element).defaultImports
 
     private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
       inThisModuleOrProject(predicate).getOrElse(false)
@@ -427,7 +405,6 @@ package object project {
     private def worksheetModule: Option[Module] =
       element.getContainingFile.toOption
         .flatMap(_.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE).toOption)
-
   }
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {

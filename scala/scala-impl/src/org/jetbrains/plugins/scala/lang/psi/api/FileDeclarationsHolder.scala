@@ -147,7 +147,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     state:     ResolveState,
     place:     PsiElement
   ): Boolean = {
-    val precedenceTypes = new PrecedenceTypes(this)
+    val precedenceTypes = PrecedenceTypes.forElement(this)
     val importedSymbols = precedenceTypes.defaultImportsWithPrecedence
     val psiManager      = ScalaPsiManager.instance(getProject)
 
@@ -185,8 +185,6 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
 
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
-  val defaultImplicitlyImportedSymbols: Seq[String] = Seq("java.lang", "scala", "scala.Predef")
-
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)
                              (body: => Unit): Unit =
