@@ -3,7 +3,6 @@ package org.jetbrains.sbt.shell
 import java.util.concurrent._
 
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import org.jetbrains.ide.PooledThreadExecutor
@@ -16,11 +15,11 @@ import scala.concurrent.{Future, Promise}
 import scala.util.{Success, Try}
 
 /**
-  * Created by jast on 2016-11-06.
+  * Service for connecting with an sbt shell associated with project.
   */
-class SbtShellCommunication(project: Project) extends ProjectComponent {
+class SbtShellCommunication(project: Project) {
 
-  private lazy val process = SbtProcessManager.forProject(project)
+  private lazy val process: SbtProcessManager = SbtProcessManager.forProject(project)
 
   private val communicationActive = new Semaphore(1)
   private val shellQueueReady = new Semaphore(1)
