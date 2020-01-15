@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.project.sdkdetect
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 import java.util.stream.{Stream => JStream}
 
+import com.intellij.openapi.progress.ProgressIndicator
+import org.jetbrains.idea.maven.utils.MavenUtil
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
 
 
@@ -10,13 +13,9 @@ object MavenDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = MavenSdkChoice(descriptor)
   override def friendlyName: String = "Maven local repo"
 
-  override def buildJarStream: JStream[Path] = {
-    val homePrefix = Paths.get(sys.props("user.home"))
-    val scalaRoot = homePrefix / ".m2" / "repository" / "org" / "scala-lang"
-
-    if (scalaRoot.exists)
-      collectJarFiles(scalaRoot)
-    else
-      JStream.empty()
+  override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
+    val mavenHomeDir = MavenUtil.resolveM2Dir().toOption.map(_.toPath)
+    val scalaRoot = mavenHomeDir.map(_ / "repository" / "org" / "scala-lang")
+    scalaRoot.filter(_.exists).map(collectJarFiles).getOrElse(JStream.empty())
   }
 }

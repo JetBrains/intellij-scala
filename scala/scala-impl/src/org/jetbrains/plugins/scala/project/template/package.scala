@@ -109,10 +109,12 @@ package object template {
 
   implicit class PathExt(path: Path) {
     def /(string: String): Path = path.resolve(string)
+    def walk: stream.Stream[Path] = Files.walk(path)
     def children: stream.Stream[Path] = Files.list(path)
     def exists: Boolean = Files.exists(path)
     def childExists(sub: String): Boolean = Files.exists(path / sub)
     def isDir: Boolean = Files.isDirectory(path)
+    def nameContains(str: String): Boolean = path.getFileName.toString.contains(str)
   }
 
   implicit class FileExt(private val delegate: File) extends AnyVal {
