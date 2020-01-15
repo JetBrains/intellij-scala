@@ -4,6 +4,7 @@ import java.nio.file.{Path, Paths}
 import java.util.function.{Function => JFunction}
 import java.util.stream.{Stream => JStream}
 
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.project.template._
 
@@ -36,11 +37,12 @@ object SystemDetector extends ScalaSdkDetector {
 
   private def getSystemRoots: Seq[Path] = (rootsFromPath ++ rootsFromEnv ++ rootsFromPrograms).filter(_.exists)
 
-  override def buildJarStream: JStream[Path] = {
+  override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
     val streams = getSystemRoots.map { root =>
       root
         .children
         .filter { dir =>
+          progress(dir.toString)
           dir.isDir                                                  &&
             dir.getFileName.toString.toLowerCase.startsWith("scala") &&
             scalaChildDirs.forall(dir.childExists)                   &&
