@@ -4,6 +4,7 @@ import com.intellij.execution.ui.DefaultJreSelector;
 import com.intellij.execution.ui.JrePathEditor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -87,21 +88,27 @@ public class SbtSettingsPane {
 
     public String getCustomVMPath() {
         String pathOrName = myJrePathEditor.getJrePathOrName();
-        String vmPath = Optional.ofNullable(pathOrName)
+        return Optional.ofNullable(pathOrName)
                 .flatMap(p -> Optional.ofNullable(ProjectJdkTable.getInstance().findJdk(pathOrName)))
                 .map(Sdk::getHomePath)
                 .orElse(pathOrName);
-        return vmPath;
     }
 
+    @SuppressWarnings("unused")
     public void setLauncherPath(String path) {
         myLauncherPath.setText(path);
     }
 
+    @SuppressWarnings("unused")
     public void setCustomVMPath(String path, boolean useCustomVM) {
         // determine name or path based on available sdk's to maintain compatibility with old form data model
-        Sdk sdkByPath = ProjectJdkTable.getInstance().findMostRecentSdk(sdk -> StringUtil.equals(sdk.getHomePath(), path));
-        String pathOrName = sdkByPath != null ? sdkByPath.getName() : path;
+        String pathOrName = ProjectJdkTable.getInstance()
+                .getSdksOfType(JavaSdk.getInstance())
+                .stream()
+                .filter(sdk -> StringUtil.equals(sdk.getHomePath(), path))
+                .findFirst()
+                .map(Sdk::getName)
+                .orElse(path);
         myJrePathEditor.setPathOrName(pathOrName, useCustomVM);
     }
 
@@ -240,4 +247,5 @@ public class SbtSettingsPane {
     public JComponent $$$getRootComponent$$$() {
         return myContentPanel;
     }
+
 }
