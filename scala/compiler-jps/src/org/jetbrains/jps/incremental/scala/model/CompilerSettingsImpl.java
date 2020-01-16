@@ -86,6 +86,10 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
       list.add("-feature");
     }
 
+    if (myState.strictMode) {
+      list.add("-strict");
+    }
+
     if (myState.optimiseBytecode) {
       list.add("-optimise");
     }
@@ -181,6 +185,8 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     public boolean uncheckedWarnings;
 
     public boolean featureWarnings;
+
+    public boolean strictMode;
 
     public boolean optimiseBytecode;
 

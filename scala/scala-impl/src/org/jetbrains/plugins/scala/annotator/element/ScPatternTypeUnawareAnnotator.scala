@@ -33,8 +33,11 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
     }
 
   private def compatHighlightType(element: PsiElement): ProblemHighlightType =
-    if (element.isScala2CompatibilityEnabled) ProblemHighlightType.WEAK_WARNING
-    else ProblemHighlightType.GENERIC_ERROR
+    if (element.isCompilerStrictMode || !element.isScala2CompatibilityEnabled) {
+      ProblemHighlightType.GENERIC_ERROR
+    } else {
+      ProblemHighlightType.WEAK_WARNING
+    }
 
   private def processNamedPattern(pattern: ScNamingPattern)
                                   (implicit holder: ScalaAnnotationHolder): Unit = {

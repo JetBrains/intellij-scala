@@ -34,6 +34,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   var deprecationWarnings: Boolean = _
   var uncheckedWarnings: Boolean = _
   var featureWarnings: Boolean = _
+  var strict: Boolean = _ // Scala 3 flag to enforce 3.1 features in 3.0
   var optimiseBytecode: Boolean = _
   var explainTypeErrors: Boolean = _
   var specialization: Boolean = _
@@ -57,6 +58,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     ("-deprecation", () => deprecationWarnings, deprecationWarnings = _),
     ("-unchecked", () => uncheckedWarnings, uncheckedWarnings = _),
     ("-feature", () => featureWarnings, featureWarnings = _),
+    ("-strict", () => strict, strict = _),
     ("-optimise", () => optimiseBytecode, optimiseBytecode = _),
     ("-explaintypes", () => explainTypeErrors, explainTypeErrors = _),
     ("-no-specialization", () => !specialization, (b: Boolean) => specialization = !b),
