@@ -75,13 +75,9 @@ object PostfixTemplateTest {
 
   private val Templates = {
     import templates.ScalaExhaustiveMatchPostfixTemplate
-    def presentableName: PostfixTemplate => String = {
-      case _: ScalaExhaustiveMatchPostfixTemplate => ScalaExhaustiveMatchPostfixTemplate.exhaustiveAlias
-      case template => template.getPresentableName
-    }
-
-    ScalaPostfixTemplateProvider.Templates.map { template =>
-      presentableName(template) -> template
+    ScalaPostfixTemplateProvider.Templates.map {
+      case template: ScalaExhaustiveMatchPostfixTemplate => ScalaExhaustiveMatchPostfixTemplate.exhaustiveAlias -> template
+      case template => template.getPresentableName -> template
     }.toMap
   }
 

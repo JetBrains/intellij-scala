@@ -3,11 +3,8 @@ object Margin extends Enumeration {
   protected case class Val() extends super.Val
 
   val Top, Bottom = Val()
-  val Left, Right = Val()
-}
 
-object Test {
-    def test(margin: Margin.Value) = <start>margin<exhaustive>
+  def test(margin: Val) = <start>margin<exhaustive>
 }
 -----
 object Margin extends Enumeration {
@@ -15,14 +12,9 @@ object Margin extends Enumeration {
   protected case class Val() extends super.Val
 
   val Top, Bottom = Val()
-  val Left, Right = Val()
-}
 
-object Test {
-    def test(margin: Margin.Value) = margin match {
-      case Margin.Top =>
-      case Margin.Bottom =>
-      case Margin.Left =>
-      case Margin.Right =>
-    }
+  def test(margin: Val) = margin match {
+    case Top =>
+    case Bottom =>
+  }
 }
