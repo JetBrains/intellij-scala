@@ -12,7 +12,6 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.util.UserDataHolder
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.containers.ContainerUtil
@@ -29,6 +28,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetFoldGroup}
 
+import scala.ref.WeakReference
 import scala.util.control.NonFatal
 
 class WorksheetFileHook(private val project: Project) extends ProjectComponent  {
@@ -106,7 +106,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       for {
         module <- Option(WorksheetCommonSettings(file).getModuleFor)
         vFile <- file.getVirtualFile.toOption
-      } vFile.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, module)
+      } vFile.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
 
     private def loadEvaluationResult(source: FileEditorManager, vFile: VirtualFile): Unit =
       for {
