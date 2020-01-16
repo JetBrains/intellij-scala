@@ -296,7 +296,9 @@ package object project {
   }
 
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
-    def module: Option[Module] = Option(element.getContainingFile).flatMap(_.module)
+    def module: Option[Module] = Option(element.getContainingFile).flatMap { f =>
+      f.module.orElse(f.getVirtualFile.toOption.flatMap(_.scratchFileModule))
+    }
 
     def isInScalaModule: Boolean = module.exists(_.hasScala)
 
@@ -333,14 +335,8 @@ package object project {
 
     private def inThisModuleOrProject[T](predicate: Module => T): Option[T] =
       module
-        .orElse(scratchFileModule)
         .orElse(element.getProject.anyScalaModule)
         .map(predicate)
-
-    def scratchFileModule: Option[Module] =
-      element.getContainingFile.toOption
-        .flatMap(_.getVirtualFile.toOption)
-        .flatMap(_.scratchFileModule)
   }
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {
