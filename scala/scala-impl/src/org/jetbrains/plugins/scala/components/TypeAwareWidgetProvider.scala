@@ -3,22 +3,19 @@ package components
 
 import java.awt.event.MouseEvent
 
-import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.{ActionManager, CommonDataKeys, DataContext}
-import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, StatusBarWidgetProvider, WindowManager}
-import com.intellij.util.{Consumer, FileContentUtil}
+import com.intellij.util.Consumer
 import javax.swing.{Icon, Timer}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-
-import scala.collection.JavaConverters._
 
 class TypeAwareWidgetProvider extends StatusBarWidgetProvider {
   def getWidget(project: Project): StatusBarWidget = new TypeAwareWidgetProvider.Widget(project)
@@ -69,10 +66,8 @@ object TypeAwareWidgetProvider {
     }
 
     override def getClickConsumer: Consumer[MouseEvent] = _ => {
-      val settings = ScalaProjectSettings.getInstance(project)
-      settings.toggleTypeAwareHighlighting()
+      ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight(project)
       updateWidget()
-      reparseActiveFile()
     }
 
     private def shortcutText: Option[String] = {
@@ -82,17 +77,6 @@ object TypeAwareWidgetProvider {
 
     private def statusBar: Option[StatusBar] =
       Option(WindowManager.getInstance).flatMap(_.getStatusBar(project).toOption)
-
-    private def reparseActiveFile() {
-      val context = DataManager.getInstance.getDataContextFromFocusAsync
-      context.onSuccess((dataContext: DataContext) => {
-        CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(dataContext) match {
-          case editor: EditorEx =>
-            FileContentUtil.reparseFiles(project, Seq(editor.getVirtualFile).asJavaCollection, true)
-          case _                => // do nothing
-        }
-      })
-    }
 
     private def updateWidget(): Unit = {
       statusBar.foreach(_.updateWidget(ID))

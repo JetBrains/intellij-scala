@@ -1,8 +1,15 @@
 package org.jetbrains.plugins.scala.actions
 
 import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
+import com.intellij.util.FileContentUtil
+import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight
+import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
+import scala.collection.JavaConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -13,8 +20,22 @@ class ToggleTypeAwareHighlightingAction extends AnAction {
   def actionPerformed(e: AnActionEvent) {
     CommonDataKeys.PROJECT.getData(e.getDataContext) match {
       case project: Project =>
-        ScalaProjectSettings.getInstance(project).toggleTypeAwareHighlighting()
+        toggleSettingAndRehighlight(project)
       case _ =>
     }
+  }
+}
+
+object ToggleTypeAwareHighlightingAction {
+  def toggleSettingAndRehighlight(project: Project): Unit = {
+    val settings = ScalaProjectSettings.getInstance(project)
+    settings.toggleTypeAwareHighlighting()
+    reparseActiveFile(project)
+  }
+
+  private def reparseActiveFile(project: Project) {
+    val openEditors = EditorFactory.getInstance().getAllEditors.toSeq.filterBy[EditorEx]
+    val vFiles = openEditors.map(_.getVirtualFile).filterNot(_ == null)
+    FileContentUtil.reparseFiles(project, vFiles.asJava, true)
   }
 }
