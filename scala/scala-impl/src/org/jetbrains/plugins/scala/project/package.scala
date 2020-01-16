@@ -25,6 +25,7 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
+import scala.ref.WeakReference
 
 /**
  * @author Pavel Fatin
@@ -35,7 +36,7 @@ package object project {
 
     // used to "attach" a module to some scala file, which is out of any module for some reason
     // the primary purpose is to attach a module for a scala scratch file
-    val SCALA_ATTACHED_MODULE = new Key[Module]("ScalaAttachedModule")
+    val SCALA_ATTACHED_MODULE = new Key[WeakReference[Module]]("ScalaAttachedModule")
   }
 
   implicit class LibraryExt(private val library: Library) extends AnyVal {
@@ -265,6 +266,7 @@ package object project {
 
     def scratchFileModule: Option[Module] =
       Option(file.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE))
+        .flatMap(_.get)
   }
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {

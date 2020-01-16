@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration,
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
 
+import scala.ref.WeakReference
+
 /**
   * User: Dmitry.Naydanov
   * Date: 14.03.18.
@@ -75,7 +77,7 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
     for {
       module <- Option(getModuleFor)
       vFile <- Option(file.getVirtualFile)
-    } vFile.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, module)
+    } vFile.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
     DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
   }
 
