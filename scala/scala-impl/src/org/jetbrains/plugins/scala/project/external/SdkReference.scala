@@ -10,6 +10,7 @@ import com.intellij.serialization.PropertyMapping
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
 import scala.language.implicitConversions
+import scala.collection.JavaConverters._
 
 
 /**
@@ -40,10 +41,17 @@ object SdkUtils {
   }
 
   private def findMostRecentJdk(condition: Sdk => Boolean): Option[Sdk] = {
-    val jdkCondition = (sdk: Sdk) => sdk.getSdkType == JavaSdk.getInstance
-    val combinedCondition = (sdk: Sdk) => sdk != null && condition(sdk) && jdkCondition(sdk)
+    import scala.math.Ordering.comparatorToOrdering
+    val sdkType = JavaSdk.getInstance()
+
     implicit def asCondition[A](f: A => Boolean): Condition[A] = (a: A) => f(a)
-    Option(inReadAction(ProjectJdkTable.getInstance().findMostRecentSdk(combinedCondition)))
+    Option(inReadAction(
+      ProjectJdkTable.getInstance()
+        .getSdksOfType(JavaSdk.getInstance())
+        .asScala
+        .filter(condition)
+        .max(comparatorToOrdering(sdkType.versionComparator()))
+    ))
   }
 
   def mostRecentJdk: Option[Sdk] =
