@@ -14,20 +14,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
-import scala.collection.mutable
-
 /**
  * @author ilyas
  * @author Alexander Podkhalyuzin
  */
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
-  private val referencesStack = new mutable.Stack[ScReference]()
+  private var referencesStack = List.empty[ScReference]
   
   override def visitScalaElement(element: ScalaPsiElement) {
-    if (referencesStack.nonEmpty && referencesStack.top == element) {
-      referencesStack.pop()
-      referencesStack.push(null)
+    if (referencesStack.nonEmpty && referencesStack.head == element) {
+      referencesStack = null :: referencesStack.tail
     } else {
       element.acceptChildren(this)
     }
@@ -35,21 +32,21 @@ class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
 
   override def visitReferenceExpression(ref: ScReferenceExpression) {
     try {
-      referencesStack.push(ref)
+      referencesStack = ref :: referencesStack
       visitReference(ref)
       visitExpression(ref)
     } finally {
-      referencesStack.pop()
+      referencesStack = referencesStack.tail
     }
   }
 
   override def visitTypeProjection(proj: ScTypeProjection) {
     try {
-      referencesStack.push(proj)
+      referencesStack = proj :: referencesStack
       visitReference(proj)
       visitTypeElement(proj)
     } finally {
-      referencesStack.pop()
+      referencesStack = referencesStack.tail
     }
   }
 }
