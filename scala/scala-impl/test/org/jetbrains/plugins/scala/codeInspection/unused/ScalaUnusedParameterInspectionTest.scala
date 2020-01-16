@@ -308,4 +308,26 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |}
       |""".stripMargin
   )
+
+  def testLocalFunctionParam(): Unit = checkTextHasError(
+    s"""
+      |object Outer {
+      |  def f(): Any = {
+      |    def g($p: List[Int]): Boolean = false
+      |    g _
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testLocalPublicClassParam(): Unit = checkTextHasError(
+    s"""
+       |object PatternMatching {
+       |  def f(): Unit = {
+       |    class Test(val $p: Int)
+       |    new Test(_)
+       |  }
+       |}
+       |""".stripMargin
+  )
 }

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedS
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isLocalOrPrivate, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
@@ -46,12 +46,12 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     val elements: Seq[PsiElement] = element match {
       case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case fun: ScMethodLike =>
+        val funIsPublic = !fun.containingClass.toOption.exists(isLocalOrPrivate)
         def nonPrivateClassMemberParam(param: ScParameter): Boolean =
-          !ScalaPsiUtil.isLocalOrPrivate(fun.containingClass) &&
-            param.asOptionOf[ScClassParameter].exists(p => p.isClassMember && (!p.isPrivate))
+          funIsPublic && param.asOptionOf[ScClassParameter].exists(p => p.isClassMember && (!p.isPrivate))
         def overridingParam(param: ScParameter): Boolean =
           param.asOptionOf[ScClassParameter].exists(isOverridingParameter)
-        ScalaPsiUtil.isLocalOrPrivate(fun).option(fun) ++: fun.parameters.filterNot(_.isWildcard).filterNot(nonPrivateClassMemberParam).filterNot(overridingParam)
+        isLocalOrPrivate(fun).option(fun) ++: fun.parameters.filterNot(_.isWildcard).filterNot(nonPrivateClassMemberParam).filterNot(overridingParam)
       case caseClause: ScCaseClause => caseClause.pattern.toSeq.flatMap(_.bindings).filterNot(_.isWildcard)
       case declaredHolder: ScDeclaredElementsHolder => declaredHolder.declaredElements
       case enumerators: ScEnumerators => enumerators.patterns.flatMap(_.bindings).filterNot(_.isWildcard) //for statement
@@ -72,7 +72,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
     case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
     case _: ScMethodLike => true // handle in invoke
-    case _ => ScalaPsiUtil.isLocalOrPrivate(elem)
+    case _ => isLocalOrPrivate(elem)
   }
 }
 
@@ -82,7 +82,7 @@ object ScalaUnusedSymbolInspection {
   val ShortName: String = "ScalaUnusedSymbol"
 
   private def isOverridingParameter(param: ScClassParameter): Boolean = {
-    param.hasModifierProperty(ScalaModifier.OVERRIDE) || ScalaPsiUtil.superValsSignatures(param).nonEmpty
+    param.hasModifierProperty(ScalaModifier.OVERRIDE) || superValsSignatures(param).nonEmpty
   }
 
   private def isOverridingFunction(func: ScFunction): Boolean = {
