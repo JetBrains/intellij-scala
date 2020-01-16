@@ -19,7 +19,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
   import lexer.ScalaTokenTypes._
   import project._
 
-  private val newlinesEnabled = new collection.mutable.Stack[Boolean]
+  private var newlinesEnabled = List.empty[Boolean]
 
   private lazy val containingFile = Option {
     myDelegate.getUserData(CONTAINING_FILE_KEY)
@@ -55,20 +55,20 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
     }
 
   override final def disableNewlines(): Unit = {
-    newlinesEnabled.push(false)
+    newlinesEnabled = false :: newlinesEnabled
   }
 
   override final def enableNewlines(): Unit = {
-    newlinesEnabled.push(true)
+    newlinesEnabled = true :: newlinesEnabled
   }
 
   override final def restoreNewlinesState(): Unit = {
     assert(newlinesEnabled.nonEmpty)
-    newlinesEnabled.pop()
+    newlinesEnabled = newlinesEnabled.tail
   }
 
   protected final def isNewlinesEnabled: Boolean =
-    newlinesEnabled.isEmpty || newlinesEnabled.top
+    newlinesEnabled.isEmpty || newlinesEnabled.head
 
   private def findPreviousNewLineSafe =
     if (isNewlinesEnabled && canStartStatement)
