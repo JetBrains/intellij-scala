@@ -11,7 +11,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionParameters, ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 final class ScalaExhaustiveMatchPostfixTemplate(alias: String = ScalaExhaustiveMatchPostfixTemplate.alias) extends PostfixTemplate(
@@ -44,7 +44,9 @@ object ScalaExhaustiveMatchPostfixTemplate {
 
   private def topMostStrategy(context: PsiElement): Option[(ScExpression, PatternGenerationStrategy)] =
     PsiTreeUtil.getNonStrictParentOfType(context, classOf[ScExpression]) match {
-      case null => None
+      case null |
+           _: ScBlock |
+           _: ScFunctionExpr => None
       case expression =>
         implicit val parameters: ClauseCompletionParameters = ClauseCompletionParameters(expression, expression.getContainingFile.getResolveScope)
         expression match {

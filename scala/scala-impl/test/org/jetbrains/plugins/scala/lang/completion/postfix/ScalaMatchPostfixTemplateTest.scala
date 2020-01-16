@@ -3,8 +3,8 @@ package completion
 package postfix
 
 /**
-  * Created by Roman.Shein on 10.05.2016.
-  */
+ * Created by Roman.Shein on 10.05.2016.
+ */
 class ScalaMatchPostfixTemplateTest extends PostfixTemplateTest {
 
   override def testPath(): String = super.testPath() + "match/"
@@ -23,7 +23,11 @@ class ScalaMatchPostfixTemplateTest extends PostfixTemplateTest {
 
   def testExhaustiveJavaEnum(): Unit = doTest()
 
-  //  def testExhaustiveScalaEnum(): Unit = doTest()
+  def testExhaustiveScalaEnum(): Unit = doTest()
 
-  //  def testExhaustiveScalaEnum2(): Unit = doTest()
+  def testExhaustiveScalaEnum2(): Unit = doTest()
+
+  def testNoFunctionExprParent(): Unit = doNotApplicableTest()
+
+  def testNoBlockParent(): Unit = doNotApplicableTest()
 }
