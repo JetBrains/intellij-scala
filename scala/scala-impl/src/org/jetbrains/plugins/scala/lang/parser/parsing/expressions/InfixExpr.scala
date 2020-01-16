@@ -25,10 +25,8 @@ object InfixExpr {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
 
-    type MStack[X] = _root_.scala.collection.mutable.Stack[X]
-
-    val markerStack = new MStack[PsiBuilder.Marker]
-    val opStack = new MStack[String]
+    var markerStack = List.empty[PsiBuilder.Marker]
+    var opStack = List.empty[String]
     val infixMarker = builder.mark
     var backupMarker = builder.mark
     var count = 0
@@ -45,21 +43,22 @@ object InfixExpr {
       var exit = false
       while (!exit) {
         if (opStack.isEmpty) {
-          opStack push s
+          opStack = s :: opStack
           val newMarker = backupMarker.precede
-          markerStack push newMarker
+          markerStack = newMarker :: markerStack
           exit = true
         }
-        else if (!compar(s, opStack.top, builder)) {
-          opStack.pop()
+        else if (!compar(s, opStack.head, builder)) {
+          opStack = opStack.tail
           backupMarker.drop()
-          backupMarker = markerStack.top.precede
-          markerStack.pop().done(ScalaElementType.INFIX_EXPR)
+          backupMarker = markerStack.head.precede
+          markerStack.head.done(ScalaElementType.INFIX_EXPR)
+          markerStack = markerStack.tail
         }
         else {
-          opStack push s
+          opStack = s :: opStack
           val newMarker = backupMarker.precede
-          markerStack push newMarker
+          markerStack = newMarker :: markerStack
           exit = true
         }
       }
@@ -90,14 +89,16 @@ object InfixExpr {
     if (exitOf) backupMarker.drop()
     if (count > 0) {
       while (count > 0 && markerStack.nonEmpty) {
-        markerStack.pop().done(ScalaElementType.INFIX_EXPR)
+        markerStack.head.done(ScalaElementType.INFIX_EXPR)
+        markerStack = markerStack.tail
         count -= 1
       }
 
     }
     infixMarker.drop()
     while (markerStack.nonEmpty) {
-      markerStack.pop().drop()
+      markerStack.head.drop()
+      markerStack = markerStack.tail
     }
     true
   }
