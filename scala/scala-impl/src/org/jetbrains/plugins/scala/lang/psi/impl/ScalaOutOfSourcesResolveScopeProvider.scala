@@ -61,7 +61,7 @@ object ScalaOutOfSourcesResolveScopeProvider {
   private def isExternalScalaFile(file: VirtualFile, project: Project): Boolean =
     if (project.isDefault) false else {
       val index = ProjectRootManager.getInstance(project).getFileIndex
-      val belongsToProject = index != null && (index.isInContent(file) || index.isInSource(file))
+      val belongsToProject = index.isInContent(file) || index.isInSource(file)
       !belongsToProject
     }
 
