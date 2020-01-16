@@ -10,7 +10,7 @@ import com.intellij.patterns.StandardPatterns.{instanceOf, string}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.sbt.resolvers.SbtResolverUtils
@@ -98,17 +98,17 @@ final class SbtMavenDependencyCompletionContributor extends CompletionContributo
       place.parentOfType(classOf[ScInfixExpr], strict = false).foreach {
         case ScInfixExpr(_, oper, _) if oper.getText == "+=" || oper.getText == "++=" => // empty completion from scratch
           completeGroup(cleanText)
-        case ScInfixExpr(lop, oper, ScLiteral(artifact)) if lop == place.getContext && isValidOp(oper) =>
+        case ScInfixExpr(lop, oper, ScStringLiteral(artifact)) if lop == place.getContext && isValidOp(oper) =>
           val versionSuffix = if (oper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.getVersion}" else ""
           completeGroup(artifact + versionSuffix)
-        case ScInfixExpr(ScLiteral(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
+        case ScInfixExpr(ScStringLiteral(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
           completeArtifact(group, stripVersion = oper.getText == "%%")
         case ScInfixExpr(ScInfixExpr(llop, loper, lrop), oper, rop)
           if rop == place.getContext && oper.getText == "%" && isValidOp(loper) =>
           val versionSuffix = if (loper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.getVersion}" else ""
           for {
-            ScLiteral(group) <- Option(llop)
-            ScLiteral(artifact) <- Option(lrop)
+            ScStringLiteral(group) <- Option(llop)
+            ScStringLiteral(artifact) <- Option(lrop)
           } yield completeVersion(group, artifact + versionSuffix)
         case _ => // do nothing
       }

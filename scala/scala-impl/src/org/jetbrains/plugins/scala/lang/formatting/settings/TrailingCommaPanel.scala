@@ -137,7 +137,7 @@ private object TrailingCommaPanel {
           false
       }
     }
-    override def hashCode: Int = Objects.hash(value)
+    override def hashCode: Int = value.##
   }
 }
 

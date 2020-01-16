@@ -33,14 +33,14 @@ object WorksheetExternalRunType {
 
   def findRunTypeByName(name: String): Option[WorksheetExternalRunType] = PredefinedTypesMap.get(name)
 
-  case class WorksheetPreprocessError(message: String, position: LogicalPosition)
+  final case class WorksheetPreprocessError(message: String, position: LogicalPosition)
 
   object WorksheetPreprocessError {
 
     def apply(errorElement: PsiErrorElement, ifEditor: Option[Editor]): WorksheetPreprocessError = {
       val message = errorElement.getErrorDescription
       val position = ifEditor.map(_.offsetToLogicalPosition(errorElement.getTextOffset)).getOrElse(new LogicalPosition(0, 0))
-      new WorksheetPreprocessError(message, position)
+      WorksheetPreprocessError(message, position)
     }
   }
 

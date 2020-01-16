@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
-import java.util.Objects
-
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 // TODO make private (after decoupling Test)
 abstract class AbstractTreeElement[T <: PsiElement](val element: T, val inherited: Boolean = false)
@@ -37,6 +36,6 @@ abstract class AbstractTreeElement[T <: PsiElement](val element: T, val inherite
     else value == that.getValue
   }
 
-  override def hashCode(): Int = Objects.hash(getValue, Boolean.box(inherited))
+  override def hashCode(): Int = getValue #+ inherited
 }
 

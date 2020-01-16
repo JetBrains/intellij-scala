@@ -15,6 +15,7 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, SdkReference}
 import org.jetbrains.sbt.SbtUtil._
@@ -22,7 +23,6 @@ import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
-import org.jetbrains.sbt.project.structure.SbtStructureDump.ImportMessages
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
@@ -78,7 +78,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId, notifications)
 
     // side-effecty status reporting
-    // TODO move to dump process for real-time feedback
     structureDump.foreach { case (_, messages) =>
       val convertStartEvent = new ExternalSystemStartEventImpl(importTaskId, null, importTaskDescriptor)
       val event = new ExternalSystemTaskExecutionEvent(taskId, convertStartEvent)
@@ -134,7 +133,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                             settings:SbtExecutionSettings,
                             taskId: ExternalSystemTaskId,
                             notifications: ExternalSystemTaskNotificationListener
-                           ): Try[(Elem, ImportMessages)] = {
+                           ): Try[(Elem, BuildMessages)] = {
 
     lazy val project = taskId.findProject()
     val useShellImport = settings.useShellForImport && shellImportSupported(sbtVersion) && project != null
@@ -153,7 +152,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val dumper = new SbtStructureDump()
       activeProcessDumper = Option(dumper)
 
-      val messageResult: Try[ImportMessages] = {
+      val messageResult: Try[BuildMessages] = {
         if (useShellImport) {
           val messagesF = dumper.dumpFromShell(taskId, projectRoot, structureFilePath, options, notifications)
           Try(Await.result(messagesF, Duration.Inf)) // TODO some kind of timeout / cancel mechanism
@@ -176,11 +175,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       activeProcessDumper = None
 
       messageResult.flatMap { messages =>
-        if (structureFile.length > 0) Try {
+        if (messages.status != BuildMessages.OK || !structureFile.isFile || structureFile.length < 0)
+          Failure(new Exception("extracting structure failed"))
+        else Try {
           val elem = XML.load(structureFile.toURI.toURL)
           (elem, messages)
         }
-        else Failure(SbtException(messages.log))
       }
     }
   }
@@ -680,9 +680,9 @@ object SbtProjectResolver {
     sbtVersion >= sinceSbtVersion
 
   // TODO shared code, move to a more suitable object
-  val sinceSbtVersion = Version("0.13.0")
+  val sinceSbtVersion: Version = Version("0.13.0")
 
   // TODO shared code, move to a more suitable object
-  val sinceSbtVersionShell = Version("0.13.5")
+  val sinceSbtVersionShell: Version = Version("0.13.5")
 
 }

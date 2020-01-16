@@ -16,10 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
-/**
-  * @author Roman.Shein
-  * @since 24.09.2015.
-  */
+import scala.collection.immutable
+
 sealed abstract class ScalaVariableOfTypeMacro(nameKey: String) extends ScalaMacro {
 
   import ScalaVariableOfTypeMacro._
@@ -48,12 +46,14 @@ sealed abstract class ScalaVariableOfTypeMacro(nameKey: String) extends ScalaMac
     val elements = for {
       (typed, scType) <- findDefinitions
       typeText <- this.typeText(expressions, scType)
-    } yield LookupElementBuilder.create(typed, typed.name)
-      .withTypeText(typeText)
+    } yield {
+      LookupElementBuilder.create(typed, typed.name)
+        .withTypeText(typeText)
+    }
 
     elements match {
       case Nil | _ :: Nil if !showOne => null
-      case _ => elements.toArray
+      case _                          => elements.toArray
     }
   }
 
@@ -66,19 +66,19 @@ sealed abstract class ScalaVariableOfTypeMacro(nameKey: String) extends ScalaMac
   def arrayIsValid(array: Array[_]): Boolean = array.isEmpty
 
   protected def typeText(expressions: Array[Expression], `type`: ScType)
-                        (implicit context: ExpressionContext): Boolean =
-    typeText(
-      expressions.map(calculate),
-      `type`
-    ).isDefined
+                        (implicit context: ExpressionContext): Boolean = {
+    val text = typeText(expressions.map(calculate), `type`)
+    text.isDefined
+  }
 
   protected def typeText(expressions: Array[String], `type`: ScType): Option[String] = expressions match {
     case Array("", _*) => Some(`type`.presentableText(TypePresentationContext.emptyContext))
     case Array(IterableId, _*) =>
-      val flag = `type`.canonicalText.startsWith("_root_.scala.Array") ||
-        isIterable(`type`)
-
-      if (flag) Some(null) else None
+      if (isArray(`type`) || isIterable(`type`)) {
+        Some(null)
+      } else {
+        None
+      }
     case array if array.contains(`type`.extractClass.fold("")(_.qualifiedName)) =>
       Some(null)
     case _ => None

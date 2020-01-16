@@ -11,7 +11,7 @@ import com.intellij.execution.junit.JUnitUtil
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
-import com.intellij.openapi.util.{Pair => JBPair}
+import com.intellij.openapi.util.{Key, Pair => JBPair}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
@@ -22,11 +22,16 @@ import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createBodyFromMember, createNewLineNode, createWhitespace}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -36,6 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, Scal
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{JavaConverters, mutable}
 
@@ -50,6 +56,17 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   import PsiTreeUtil.isContextAncestor
   import ScTemplateDefinitionImpl._
   import TypeDefinitionMembers._
+
+  override def originalElement: Option[ScTemplateDefinition] = Option(getUserData(originalElemKey))
+
+  override def setOriginal(actualElement: ScTypeDefinition): this.type = {
+    putUserData(originalElemKey, actualElement)
+    members.foreach { member =>
+      member.syntheticNavigationElement = actualElement
+      member.syntheticContainingClass = actualElement
+    }
+    this
+  }
 
   protected def targetTokenType: ScalaTokenType
 
@@ -97,12 +114,39 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     result.toArray
   }
 
+  override def allFunctionsByName(name: String): Iterator[PsiMethod] = {
+    TypeDefinitionMembers.getSignatures(this).forName(name)
+      .iterator
+      .collect {
+        case p: PhysicalMethodSignature => p.method
+      }
+  }
+
   protected def isInterface(namedElement: PsiNamedElement): Boolean = namedElement match {
     case definition: ScTypedDefinition => definition.isAbstractMember
     case _ => false
   }
 
   protected def addFromCompanion(companion: ScTypeDefinition): Boolean = false
+
+  override def physicalExtendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementType.EXTENDS_BLOCK).orNull
+
+  override def extendsBlock: ScExtendsBlock = {
+    desugaredElement.map(_.extendsBlock)
+      .getOrElse(physicalExtendsBlock)
+  }
+
+  override def desugaredElement: Option[ScTemplateDefinition] = {
+    def mayBeDesugared = getContainingFile match {
+      case sf: ScalaFile => !sf.isCompiled && sf.isValid && sf.isMetaEnabled
+      case _             => false
+    }
+
+    if (!isDesugared && mayBeDesugared) desugaredInner
+    else None
+  }
+
+  protected def desugaredInner: Option[ScTemplateDefinition] = None
 
   override final def getAllFields: Array[PsiField] =
     PsiClassImplUtil.getAllFields(this)
@@ -321,9 +365,79 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
         true
     }
   }
+
+  override def selfTypeElement: Option[ScSelfTypeElement] = {
+    val qual = qualifiedName
+    if (qual != null && (qual == "scala.Predef" || qual == "scala")) return None
+    extendsBlock.selfTypeElement
+  }
+
+
+  override def isScriptFileClass: Boolean = getContainingFile match {
+    case file: ScalaFile => file.isScriptFile
+    case _ => false
+  }
+
+  override def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
+    implicit val projectContext: ProjectContext = member.projectContext
+    extendsBlock.templateBody.map {
+      _.getNode
+    }.map { node =>
+      val beforeNode = anchor.map {
+        _.getNode
+      }.getOrElse {
+        val last = node.getLastChildNode
+        last.getTreePrev match {
+          case result if isLineTerminator(result.getPsi) => result
+          case _ => last
+        }
+      }
+
+      val before = beforeNode.getPsi
+      if (isLineTerminator(before))
+        node.addChild(createNewLineNode(), beforeNode)
+      node.addChild(member.getNode, beforeNode)
+
+      val newLineNode = createNewLineNode()
+      if (isLineTerminator(before)) {
+        node.replaceChild(beforeNode, newLineNode)
+      } else {
+        node.addChild(newLineNode, beforeNode)
+      }
+
+      member
+    }.getOrElse {
+      val node = extendsBlock.getNode
+      node.addChild(createWhitespace.getNode)
+      node.addChild(createBodyFromMember(member.getText).getNode)
+      members.head
+    }
+  }
+
+  override def deleteMember(member: ScMember): Unit = {
+    member.getParent.getNode.removeChild(member.getNode)
+  }
+
+  def innerExtendsListTypes: Array[PsiClassType] = {
+    val eb = extendsBlock
+    if (eb != null) {
+      val tp = eb.templateParents
+
+      implicit val elementScope: ElementScope = ElementScope(getProject)
+      tp match {
+        case Some(tp1) => (for (te <- tp1.allTypeElements;
+                                t = te.`type`().getOrAny;
+                                asPsi = t.toPsiType
+                                if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
+        case _ => PsiClassType.EMPTY_ARRAY
+      }
+    } else PsiClassType.EMPTY_ARRAY
+  }
 }
 
 object ScTemplateDefinitionImpl {
+
+  private val originalElemKey: Key[ScTemplateDefinition] = Key.create("ScTemplateDefinition.originalElem")
 
   sealed abstract class Kind(val isFinal: Boolean)
 

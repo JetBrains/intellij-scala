@@ -5,41 +5,26 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * @author ven
  */
 trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Typeable {
 
-  import ScTemplateDefinition._
-
   def qualifiedName: String = null
 
-  def originalElement: Option[ScTemplateDefinition] = Option(getUserData(originalElemKey))
-  def setDesugared(actualElement: ScTypeDefinition): ScTemplateDefinition = {
-    putUserData(originalElemKey, actualElement)
-    members.foreach { member =>
-      member.syntheticNavigationElement = actualElement
-      member.syntheticContainingClass = actualElement
-    }
-    this
-  }
+  def originalElement: Option[ScTemplateDefinition]
+
+  def setOriginal(actualElement: ScTypeDefinition): this.type
+
   // designates that this very element has been created as a result of macro transform
   // do not confuse with desugaredElement
   def isDesugared: Boolean = originalElement.isDefined
@@ -48,26 +33,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def targetToken: LeafPsiElement
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def physicalExtendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementType.EXTENDS_BLOCK).orNull
+  def physicalExtendsBlock: ScExtendsBlock
 
-  def extendsBlock: ScExtendsBlock = desugaredElement.map(_.extendsBlock).getOrElse(physicalExtendsBlock)
-
-  def innerExtendsListTypes: Array[PsiClassType] = {
-    val eb = extendsBlock
-    if (eb != null) {
-      val tp = eb.templateParents
-
-      implicit val elementScope: ElementScope = ElementScope(getProject)
-      tp match {
-        case Some(tp1) => (for (te <- tp1.allTypeElements;
-                                t = te.`type`().getOrAny;
-                                asPsi = t.toPsiType
-                                if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
-        case _ => PsiClassType.EMPTY_ARRAY
-      }
-    } else PsiClassType.EMPTY_ARRAY
-  }
+  def extendsBlock: ScExtendsBlock
 
   def showAsInheritor: Boolean = extendsBlock.templateBody.isDefined
 
@@ -79,32 +47,20 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def members: Seq[ScMember] = extendsBlock.members
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
-  def syntheticMethods: Seq[ScFunction] = syntheticMethodsImpl
-
-  protected def syntheticMethodsImpl: Seq[ScFunction] = Seq.empty
-
   def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
-  def syntheticTypeDefinitions: Seq[ScTypeDefinition] = syntheticTypeDefinitionsImpl
+  def syntheticMethods: Seq[ScFunction] = Seq.empty
 
-  protected def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = Seq.empty
+  def syntheticTypeDefinitions: Seq[ScTypeDefinition] = Seq.empty
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
-  def syntheticMembers: Seq[ScMember] = syntheticMembersImpl
+  def syntheticMembers: Seq[ScMember] = Seq.empty
 
-  protected def syntheticMembersImpl: Seq[ScMember] = Seq.empty
-
-  def selfTypeElement: Option[ScSelfTypeElement] = {
-    val qual = qualifiedName
-    if (qual != null && (qual == "scala.Predef" || qual == "scala")) return None
-    extendsBlock.selfTypeElement
-  }
+  def selfTypeElement: Option[ScSelfTypeElement]
 
   def selfType: Option[ScType] = extendsBlock.selfType
 
   def superTypes: List[ScType] = extendsBlock.superTypes
+
   def supers: Seq[PsiClass] = extendsBlock.supers
 
   def allTypeSignatures: Iterator[TypeSignature]
@@ -115,66 +71,19 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def allSignatures: Iterator[TermSignature]
 
-  def isScriptFileClass: Boolean = getContainingFile match {
-    case file: ScalaFile => file.isScriptFile
-    case _ => false
-  }
+  def isScriptFileClass: Boolean
 
-  def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
-    implicit val projectContext: ProjectContext = member.projectContext
-    extendsBlock.templateBody.map {
-      _.getNode
-    }.map { node =>
-      val beforeNode = anchor.map {
-        _.getNode
-      }.getOrElse {
-        val last = node.getLastChildNode
-        last.getTreePrev match {
-          case result if isLineTerminator(result.getPsi) => result
-          case _ => last
-        }
-      }
+  def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember
 
-      val before = beforeNode.getPsi
-      if (isLineTerminator(before))
-        node.addChild(createNewLineNode(), beforeNode)
-      node.addChild(member.getNode, beforeNode)
+  def deleteMember(member: ScMember): Unit
 
-      val newLineNode = createNewLineNode()
-      if (isLineTerminator(before)) {
-        node.replaceChild(beforeNode, newLineNode)
-      } else {
-        node.addChild(newLineNode, beforeNode)
-      }
-
-      member
-    }.getOrElse {
-      val node = extendsBlock.getNode
-      node.addChild(createWhitespace.getNode)
-      node.addChild(createBodyFromMember(member.getText).getNode)
-      members.head
-    }
-  }
-
-  def deleteMember(member: ScMember) {
-    member.getParent.getNode.removeChild(member.getNode)
-  }
-
-  def allFunctionsByName(name: String): Iterator[PsiMethod] = {
-    TypeDefinitionMembers.getSignatures(this).forName(name)
-      .iterator
-      .collect {
-        case p: PhysicalMethodSignature => p.method
-      }
-  }
+  def allFunctionsByName(name: String): Iterator[PsiMethod]
 }
 
 object ScTemplateDefinition {
   object ExtendsBlock {
     def unapply(definition: ScTemplateDefinition): Some[ScExtendsBlock] = Some(definition.extendsBlock)
   }
-
-  private val originalElemKey: Key[ScTemplateDefinition] = Key.create("ScTemplateDefinition.originalElem")
 
   implicit class SyntheticMembersExt(private val td: ScTemplateDefinition) extends AnyVal {
     //this method is not in the ScTemplateDefinition trait to avoid binary incompatible change

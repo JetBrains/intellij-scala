@@ -25,7 +25,7 @@ trait Equivalence {
 
   private val cache = {
     val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
-    CacheTracker.alwaysTrack(equivInnerTraceId, equivInnerTraceId, this, EquivInnerCacheCapabilities)
+    CacheTracker.alwaysTrack(equivInnerTraceId, equivInnerTraceId)(this: Equivalence)
     cache
   }
 
@@ -87,8 +87,9 @@ trait Equivalence {
 object Equivalence {
   val equivInnerTraceId: String = "Equivalence.equivInner"
 
-  object EquivInnerCacheCapabilities extends CacheCapabilities[Equivalence] {
-    override def cachedEntitiesCount(cache: CacheType): Int = cache.cache.size()
-    override def clear(cache: CacheType): Unit = cache.clearCache()
-  }
+  implicit val EquivInnerCacheCapabilities: CacheCapabilities[Equivalence] =
+    new CacheCapabilities[Equivalence] {
+      override def cachedEntitiesCount(cache: CacheType): Int = cache.cache.size()
+      override def clear(cache: CacheType): Unit = cache.clearCache()
+    }
 }

@@ -3,7 +3,7 @@ package toplevel
 package typedef
 
 import com.intellij.psi.PsiAnnotation
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 
@@ -31,7 +31,7 @@ object MonocleInjector {
     case null => Seq.empty
     case _ =>
       val prefix = annotation.findAttributeValue("value") match {
-        case ScLiteral(value) => value
+        case ScStringLiteral(value) => value
         case _ => ""
       }
 

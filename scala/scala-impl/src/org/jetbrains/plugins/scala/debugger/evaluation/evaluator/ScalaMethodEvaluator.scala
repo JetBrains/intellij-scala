@@ -263,7 +263,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       }
     }
     catch {
-      case e: Exception => throw EvaluationException(e)
+      case e: Exception => throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName), e)
     }
   }
 

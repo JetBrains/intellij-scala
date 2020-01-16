@@ -3,24 +3,19 @@ package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
 import java.text.MessageFormat
 
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.lang.properties.parsing.PropertiesElementTypes
-import com.intellij.lang.properties.psi.impl.{PropertyImpl, PropertyStubImpl}
-import com.intellij.lang.properties.psi.{PropertiesFile, Property}
+import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.lang.properties.{IProperty, PropertiesImplUtil, PropertiesReferenceManager}
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Key, Ref, TextRange}
+import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
-import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall}
 
 import scala.collection.mutable
 
@@ -30,36 +25,13 @@ import scala.collection.mutable
  */
 
 object ScalaI18nUtil {
-  final val NULL: IProperty = new PropertyImpl(new PropertyStubImpl(null, null), PropertiesElementTypes.PROPERTY)
-  private val FOLD_MAX_LENGTH: Int = 50
-  private val CACHE: Key[IProperty] = Key.create("i18n.property.cache")
-
-  def isFoldingsOn: Boolean = {
-    ScalaCodeFoldingSettings.getInstance.isCollapseI18nMessages
-  }
-
-  def isI18nProperty(@NotNull project: Project, @NotNull literal: ScLiteral): Boolean = {
-    if (!mayBePropertyKey(literal)) return false
-    val property: IProperty = literal.getUserData(CACHE)
-    if (property == NULL) return false
-    if (property != null) return true
-
-    val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
-    annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
-
-    val isI18n: Boolean = mustBePropertyKey(literal, annotationAttributeValues)
-
-    if (!isI18n) literal.putUserData(CACHE, NULL)
-    isI18n
-  }
-
   def mustBePropertyKey(@NotNull literal: ScLiteral,
                         @NotNull annotationAttributeValues: mutable.HashMap[String, AnyRef]): Boolean = {
     mayBePropertyKey(literal) && isPassedToAnnotatedParam(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues, null)
   }
 
   private def mayBePropertyKey(literal: ScLiteral): Boolean = literal match {
-    case ScLiteral(string) => !string.exists {
+    case ScStringLiteral(string) => !string.exists {
       case '=' | ':' => true
       case character => Character.isWhitespace(character)
     }
@@ -82,11 +54,6 @@ object ScalaI18nUtil {
         }
       case _ => false
     }
-  }
-
-  @NotNull def getMaxExpression(@NotNull expression: ScExpression): ScExpression = {
-    val exprs = expression.withParentsInFile.takeWhile(_.isInstanceOf[ScExpression])
-    exprs.toSeq.last.asInstanceOf[ScExpression]
   }
 
   def isMethodParameterAnnotatedWith(method: PsiMethod, idx: Int, @Nullable myProcessed: mutable.HashSet[PsiMethod],
@@ -174,53 +141,6 @@ object ScalaI18nUtil {
     java.util.Collections.emptyList()
   }
 
-  def getI18nMessage(@NotNull project: Project, literal: ScLiteral): String = {
-    val property: IProperty = getI18nProperty(project, literal)
-    if (property == null) literal.getText else formatI18nProperty(literal, property)
-  }
-
-  @Nullable def getI18nProperty(project: Project, literal: ScLiteral): IProperty = {
-    val property: Property = literal.getUserData(CACHE).asInstanceOf[Property]
-    if (property eq NULL) return null
-    if (property != null && isValid(property, literal)) return property
-    if (isI18nProperty(project, literal)) {
-      val references: Array[PsiReference] = literal.getReferences
-      for (reference <- references) {
-        reference match {
-          case polyVarRef: PsiPolyVariantReference =>
-            val results: Array[ResolveResult] = polyVarRef.multiResolve(false)
-            for (result <- results) {
-              val element: PsiElement = result.getElement
-              element match {
-                case p: IProperty =>
-                  literal.putUserData(CACHE, p)
-                  return p
-                case _ =>
-              }
-            }
-          case _ =>
-            val element: PsiElement = reference.resolve
-            element match {
-              case p: IProperty =>
-                literal.putUserData(CACHE, p)
-                return p
-              case _ =>
-            }
-        }
-      }
-    }
-    null
-  }
-
-  def formatI18nProperty(literal: ScLiteral, property: IProperty): String = {
-    if (property == null) literal.getText else "\"" + property.getValue + "\""
-  }
-
-  private def isValid(property: Property, literal: ScLiteral): Boolean = {
-    if (literal == null || property == null || !property.isValid) return false
-    StringUtil.unquoteString(literal.getText) == property.getKey
-  }
-
   /**
    * Returns number of different parameters in i18n message. For example, for string
    * <i>Class {0} info: Class {0} extends class {1} and implements interface {2}</i>
@@ -255,42 +175,6 @@ object ScalaI18nUtil {
     maxCount
   }
 
-  def formatMethodCallExpression(project: Project, methodCallExpression: ScMethodCall): String = {
-    def argText(expr: ScExpression): String = {
-      val evaluator = new ScalaConstantExpressionEvaluator
-      Option(evaluator.computeConstantExpression(expr, throwExceptionOnOverflow = false)).getOrElse {
-        "{" + expr.getText + "}"
-      }.toString
-    }
-    def placeholder(idx: Int) = s"{${idx - 1}}"
-
-    val defaultText = methodCallExpression.getText
-
-    methodCallExpression.args.exprs match {
-      case args @ Seq(lit: ScLiteral, _*) if lit.isValid && isI18nProperty(project, lit) =>
-        val count: Int = getPropertyValueParamsMaxCount(lit)
-        if (args.size == 1 + count) {
-          var text: String = getI18nMessage(project, lit)
-          for {
-            (arg, idx) <- args.zipWithIndex.drop(1)
-            value = argText(arg)
-          } {
-            text = text.replace(placeholder(idx), value.toString)
-          }
-
-          if (text != defaultText) {
-            text = text.replace("''", "'")
-          }
-
-          if (text.length > FOLD_MAX_LENGTH)  text.substring(0, FOLD_MAX_LENGTH - 3) + "...\""
-          else text
-        }
-        else defaultText
-      case _ =>
-        defaultText
-    }
-  }
-
   def isValidPropertyReference(@NotNull project: Project, @NotNull expression: ScLiteral, @NotNull key: String, @NotNull outResourceBundle: Ref[String]): Boolean = {
     val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
     annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
@@ -307,27 +191,4 @@ object ScalaI18nUtil {
       }
     } else true
   }
-
-  def createProperty(project: Project, propertiesFiles: java.util.Collection[PropertiesFile], key: String, value: String) {
-    propertiesFiles.forEach { file =>
-      val documentManager: PsiDocumentManager = PsiDocumentManager.getInstance(project)
-      documentManager.commitDocument(documentManager.getDocument(file.getContainingFile))
-      val existingProperty: IProperty = file.findPropertyByKey(key)
-      if (existingProperty == null) {
-        file.addProperty(key, value)
-      }
-    }
-  }
-
-  @Nullable def getSelectedRange(editor: Editor, psiFile: PsiFile): TextRange = {
-    if (editor == null) return null
-    val selectedText: String = editor.getSelectionModel.getSelectedText
-    if (selectedText != null) {
-      return new TextRange(editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
-    }
-    val psiElement: PsiElement = psiFile.findElementAt(editor.getCaretModel.getOffset)
-    if (psiElement == null || psiElement.isInstanceOf[PsiWhiteSpace]) return null
-    psiElement.getTextRange
-  }
-
 }

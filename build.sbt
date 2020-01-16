@@ -123,6 +123,7 @@ lazy val scalaImpl: sbt.Project =
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
       buildInfoKeys := Seq(
         name, version, scalaVersion, sbtVersion,
+        BuildInfoKey.constant("bloopVersion", Versions.bloopVersion),
         BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
         BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion),
         BuildInfoKey.constant("sbtIdeaCompilerIndicesVersion", Versions.sbtIdeaCompilerIndicesVersion),
@@ -286,7 +287,7 @@ val localRepoArtifacts =
 val localRepoPaths = LocalRepoPackager.localPluginRepoPaths(localRepoArtifacts)
 
 lazy val runtimeDependencies =
-  (project in file("target/tools/sbt-runtime-dependencies"))
+  (project in file("target/tools/runtime-dependencies"))
     .settings(
       scalaVersion := Versions.scalaVersion,
       libraryDependencies := DependencyGroups.runtime,

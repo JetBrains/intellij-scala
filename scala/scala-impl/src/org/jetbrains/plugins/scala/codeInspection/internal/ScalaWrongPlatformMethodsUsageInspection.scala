@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiMethod}
+import com.intellij.psi.{PsiElementVisitor, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
@@ -33,15 +33,16 @@ class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
                 val containingClass = m.containingClass
                 val fondClass = classes.find { clazz =>
                   val instance = ScalaPsiManager.instance(holder.getProject)
-                  val cachedClass = instance.getCachedClass(m.resolveScope, clazz).orNull
-                  cachedClass != null && containingClass != null &&
-                    cachedClass.sameOrInheritor(containingClass)
+                  val baseClass = instance.getCachedClass(m.resolveScope, clazz).orNull
+                  baseClass != null && containingClass != null &&
+                    containingClass.sameOrInheritor(baseClass)
                 }
                 fondClass match {
                   case Some(_) =>
-                    val isForJavaOnly = ref.parents.find(_.isInstanceOf[ScDocCommentOwner])
-                      .flatMap(_.asInstanceOf[ScDocCommentOwner].docComment)
-                      .exists(_.getText.contains("for Java only"))
+                    val isForJavaOnly = ref.parents.exists {
+                      case docOwner: ScDocCommentOwner => docOwner.docComment.exists(_.getText.contains("for Java only"))
+                      case _                           => false
+                    }
 
                     if (!isForJavaOnly) {
                       val properMethodText = properMethod match {
@@ -77,7 +78,13 @@ private object ScalaWrongPlatformMethodsUsageInspection {
     ("getQualifiedName", (Seq("com.intellij.psi.PsiClass"),
       Some("org.jetbrains.plugins.scala.extensions.PsiClassExt.qualifiedName"))
     ),
-    ("getName", (Seq("com.intellij.navigation.NavigationItem", "com.intellij.psi.PsiNamedElement"),
+    ("getName", (
+      Seq(
+        "com.intellij.navigation.NavigationItem",
+        "com.intellij.psi.PsiNamedElement",
+        "org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction",
+        "org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement"
+      ),
       Some("org.jetbrains.plugins.scala.extensions.PsiNamedElementExt.name"))
     ),
     ("hasModifierProperty", (Seq("com.intellij.psi.PsiModifierListOwner"),

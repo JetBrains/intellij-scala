@@ -27,6 +27,7 @@ import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
+import org.jetbrains.plugins.scala.build.BuildTaskReporter
 
 import scala.concurrent.duration._
 import scala.io.Source
@@ -39,19 +40,20 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
-  private def acquireSessionAndRun(job: BspSessionJob[_,_]): Either[BspError, BspSession] = session.synchronized {
+  private def acquireSessionAndRun(job: BspSessionJob[_,_], reporter: BuildTaskReporter):
+  Either[BspError, BspSession] = session.synchronized {
     session.get() match {
       case Some(currentSession) =>
         if (currentSession.isAlive) Right(currentSession)
-        else openSession(job)
+        else openSession(job, reporter)
 
       case None =>
-        openSession(job)
+        openSession(job, reporter)
     }
   }
 
-  private def openSession(job: BspSessionJob[_,_]): Either[BspError, BspSession] = {
-    val sessionBuilder = prepareSession(base, executionSettings)
+  private def openSession(job: BspSessionJob[_,_], reporter: BuildTaskReporter): Either[BspError, BspSession] = {
+    val sessionBuilder = prepareSession(base, executionSettings, reporter)
 
     sessionBuilder match {
       case Left(error) =>
@@ -108,11 +110,12 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
   def run[T, A](task: BspSessionTask[T],
                 default: A,
                 aggregator: NotificationAggregator[A],
+                reporter: BuildTaskReporter,
                 processLogger: ProcessLogger
                ): BspJob[(T, A)] = {
     val job = jobs.create(task, default, aggregator, processLogger)
 
-    acquireSessionAndRun(job) match {
+    acquireSessionAndRun(job, reporter) match {
       case Left(error) => new FailedBspJob(error)
       case Right(currentSession) =>
         currentSession.run(job)
@@ -121,9 +124,10 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 
   def run[T](bspSessionTask: BspSessionTask[T],
              notifications: NotificationCallback,
+             reporter: BuildTaskReporter,
              processLogger: ProcessLogger): BspJob[T] = {
     val callback = (a: Unit, n: BspNotification) => notifications(n)
-    val job = run(bspSessionTask, (), callback, processLogger)
+    val job = run(bspSessionTask, (), callback, reporter, processLogger)
     new NonAggregatingBspJob(job)
   }
 
@@ -143,28 +147,14 @@ object BspCommunication {
   }
 
 
-  private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, Builder] = {
+  private[protocol] def prepareSession(base: File,
+                                       bspExecutionSettings: BspExecutionSettings,
+                                       reporter: BuildTaskReporter
+                                      ): Either[BspError, Builder] = {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
     val capabilities = BspCapabilities(supportedLanguages)
-
-    val id = java.lang.Long.toString(Random.nextLong(), Character.MAX_RADIX)
-
-    val tcpMethod = TcpBsp(new URI("localhost"), findFreePort(5001))
-
-    val platformMethod =
-      if (SystemInfo.isWindows) WindowsLocalBsp(id)
-      else if (SystemInfo.isUnix) {
-        val tempDir = Files.createTempDirectory("bsp-")
-        val socketFilePath = tempDir.resolve(s"$id.socket")
-        val socketFile = socketFilePath.toFile
-        socketFile.deleteOnExit()
-        UnixLocalBsp(socketFile)
-      }
-      else tcpMethod
-
     val connectionDetails = findBspConfigs(base)
-
     val configuredMethods = connectionDetails.map(ProcessBsp)
 
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
@@ -186,15 +176,14 @@ object BspCommunication {
       if (connectionDetails.nonEmpty)
         new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods)
       else if (bloopConfigDir.exists())
-        new BloopConnector(
-          bspExecutionSettings.bloopExecutable,
+        new BloopLauncherConnector(
           base,
           compilerOutputDir,
-          capabilities,
-          List(platformMethod, tcpMethod))
+          capabilities
+        )
       else new DummyConnector(base.toURI)
 
-    connector.connect
+    connector.connect(reporter)
   }
 
   private def findBspConfigs(projectBase: File): List[BspConnectionDetails] = {

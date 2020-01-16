@@ -6,13 +6,14 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ex.ScopeToolState
 import com.intellij.codeInspection.{LocalInspectionEP, LocalInspectionTool}
-import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
+import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert._
 
 import scala.collection.JavaConverters
@@ -26,18 +27,23 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
 
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
 
+  val START = EditorTestUtil.SELECTION_START_TAG
+  val END = EditorTestUtil.SELECTION_END_TAG
+
   protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 
   protected override def checkTextHasNoErrors(text: String): Unit = {
-    val ranges = findRanges(text)
-    assertTrue(if (shouldPass) s"Highlights found at: ${ranges.mkString(", ")}." else failingPassed,
-      !shouldPass ^ ranges.isEmpty)
+    val ranges = configureByText(text).actualHighlights.map(_._2)
+    assertTrue(
+      if (shouldPass) s"Highlights found at: ${ranges.mkString(", ")}." else failingPassed,
+      !shouldPass ^ ranges.isEmpty
+    )
   }
 
   protected def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit = {
-    val actualRanges = findRanges(text)
-    val expectedRange = selectedRange(getEditor.getSelectionModel)
-    checkTextHasError(Seq(expectedRange), actualRanges, allowAdditionalHighlights)
+    val TestPrepareResult(expectedRanges, actualHighlights) = configureByText(text)
+    val actualRanges = actualHighlights.map(_._2)
+    checkTextHasError(expectedRanges, actualRanges, allowAdditionalHighlights)
   }
 
   protected def checkTextHasError(expectedHighlightRanges: Seq[TextRange],
@@ -70,37 +76,45 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     }
   }
 
-  protected def findRanges(text: String): Seq[TextRange] = configureByText(text).map(_._2)
+  protected def configureByText(text: String): TestPrepareResult = {
+    val fileText = normalize(createTestText(text))
 
-  protected def configureByText(text: String): Seq[(HighlightInfo, TextRange)] = {
-    val fileText = createTestText(text)
+    val (_, expectedRanges) =
+      MarkersUtils.extractSequentialMarkers(fileText, START, END)
+
     val (normalizedText, offset) = findCaretOffset(fileText, stripTrailingSpaces = true)
 
     val fixture = getFixture
     fixture.configureByText(fileType, normalizedText)
 
     import JavaConverters._
-    val highlightInfos = fixture.doHighlighting().asScala
+    val highlights = fixture.doHighlighting().asScala
       .filter(it => descriptionMatches(it.getDescription))
-    highlightInfos
-      .map(info => (info, highlightedRange(info)))
+    val highlightsWithRanges = highlights
       .filter(checkOffset(_, offset))
+      .map(info => (info, highlightedRange(info)))
+
+    TestPrepareResult(expectedRanges, highlightsWithRanges)
   }
 
   protected def createTestText(text: String): String = text
-
-  protected def selectedRange(model: SelectionModel): TextRange =
-    new TextRange(model.getSelectionStart, model.getSelectionEnd)
 }
 
 object ScalaHighlightsTestBase {
+
+  case class TestPrepareResult(expectedRanges: Seq[TextRange],
+                               actualHighlights: Seq[(HighlightInfo, TextRange)])
+
   private def highlightedRange(info: HighlightInfo): TextRange =
     new TextRange(info.getStartOffset, info.getEndOffset)
 
-  private def checkOffset(pair: (HighlightInfo, TextRange), offset: Int): Boolean = pair match {
-    case _ if offset == -1 => true
-    case (_, range) => range.containsOffset(offset)
-  }
+  private def checkOffset(highlightInfo: HighlightInfo, offset: Int): Boolean =
+    if (offset == -1) {
+      true
+    } else {
+      val range = highlightedRange(highlightInfo)
+      range.containsOffset(offset)
+    }
 }
 
 abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase
@@ -132,11 +146,9 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
   }
 
   private def findQuickFix(text: String, hint: String): Option[IntentionAction] =
-    configureByText(text).map(_._1) match {
-      case Seq() =>
-        fail("Errors not found.")
-        null
-      case seq => seq.flatMap(quickFixes).find(_.getText == hint)
+    configureByText(text).actualHighlights.map(_._1) match {
+      case Seq() => fail("Errors not found.").asInstanceOf[Nothing]
+      case seq   => seq.flatMap(quickFixes).find(_.getText == hint)
     }
 }
 

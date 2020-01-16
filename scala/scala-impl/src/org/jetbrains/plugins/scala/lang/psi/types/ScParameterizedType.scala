@@ -7,8 +7,6 @@ package types
  * @author ilyas
  */
 
-import java.util.Objects
-
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
@@ -18,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 final class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
 
@@ -47,7 +46,7 @@ final class ScParameterizedType private(val designator: ScType, val typeArgument
   //noinspection HashCodeUsesVar
   override def hashCode: Int = {
     if (hash == -1)
-      hash = Objects.hash(designator, typeArguments)
+      hash = designator #+ typeArguments
 
     hash
   }

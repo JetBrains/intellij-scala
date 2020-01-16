@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, StdTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, TermSignature}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -26,14 +26,14 @@ import org.jetbrains.plugins.scala.settings.annotations.Implementation
 
 class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
-  def functionWithType(function: ScFunctionDefinition,
-                       typeElement: ScTypeElement): Boolean = true
+  override def functionWithType(function: ScFunctionDefinition,
+                                typeElement: ScTypeElement): Boolean = true
 
-  def valueWithType(value: ScPatternDefinition,
-                    typeElement: ScTypeElement): Boolean = true
+  override def valueWithType(value: ScPatternDefinition,
+                             typeElement: ScTypeElement): Boolean = true
 
-  def variableWithType(variable: ScVariableDefinition,
-                       typeElement: ScTypeElement): Boolean = true
+  override def variableWithType(variable: ScVariableDefinition,
+                                typeElement: ScTypeElement): Boolean = true
 
   override def patternWithType(pattern: ScTypedPattern): Boolean = true
 
@@ -193,13 +193,15 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
         // if both types are equivalent, use the super type, because it might be a type alias
         // except, of course, the computed type is a type alias then better let the user choose
         Seq(st)
+      case Seq() =>
+        implicit val projectContext: ProjectContext = element.getProject
+        Seq(TypeForAnnotation(StdTypes.instance.Any))
       case oneOrBoth => oneOrBoth
     }
   }
 }
 
 object AddOnlyStrategy {
-
   case class TypeForAnnotation(ty: ScType, addSuperTypes: Boolean = true) {
     def typeWithSuperTypes: Seq[ScTypeElement] =
       if (addSuperTypes) AddOnlyStrategy.annotationsFor(ty)

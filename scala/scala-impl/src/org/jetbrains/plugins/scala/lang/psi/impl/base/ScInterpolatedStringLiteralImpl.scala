@@ -16,7 +16,7 @@ import scala.meta.intellij.QuasiquoteInferUtil._
 
 final class ScInterpolatedStringLiteralImpl(node: ASTNode,
                                             override val toString: String)
-  extends ScLiteralImpl(node, toString)
+  extends ScStringLiteralImpl(node, toString)
     with ScInterpolatedStringLiteral {
 
   import ScInterpolatedStringLiteral._

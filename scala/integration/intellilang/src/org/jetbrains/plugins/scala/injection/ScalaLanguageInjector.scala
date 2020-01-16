@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPatternPrefix
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedMacroUtil, Measure, ModCount}
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
@@ -34,6 +34,10 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
 
   import ScalaLanguageInjector._
 
+  override def elementsToInjectIn: ju.List[_ <: Class[_ <: PsiElement]] = ElementsToInjectIn
+
+  // TODO: rethink, add caching
+  //  this adds significant typing performance overhead if file contains many injected literals
   @Measure
   override def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement): Unit =  {
     val support = LanguageInjectionSupport.EP_NAME.findExtension(classOf[ScalaLanguageInjectionSupport])

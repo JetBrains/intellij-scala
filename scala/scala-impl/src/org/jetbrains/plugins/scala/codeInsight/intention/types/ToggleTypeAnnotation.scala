@@ -28,8 +28,8 @@ class ToggleTypeAnnotation extends AbstractTypeAnnotationIntention {
       true
     }
 
-    def functionWithType(function: ScFunctionDefinition,
-                         typeElement: ScTypeElement): Boolean = {
+    override def functionWithType(function: ScFunctionDefinition,
+                                  typeElement: ScTypeElement): Boolean = {
       setText(message("intention.type.annotation.function.remove.text"))
 
       true
@@ -41,8 +41,8 @@ class ToggleTypeAnnotation extends AbstractTypeAnnotationIntention {
       true
     }
 
-    def valueWithType(value: ScPatternDefinition,
-                      typeElement: ScTypeElement): Boolean = {
+    override def valueWithType(value: ScPatternDefinition,
+                               typeElement: ScTypeElement): Boolean = {
       setText(message("intention.type.annotation.value.remove.text"))
 
       true
@@ -54,8 +54,8 @@ class ToggleTypeAnnotation extends AbstractTypeAnnotationIntention {
       true
     }
 
-    def variableWithType(variable: ScVariableDefinition,
-                         typeElement: ScTypeElement): Boolean = {
+    override def variableWithType(variable: ScVariableDefinition,
+                                  typeElement: ScTypeElement): Boolean = {
       setText(message("intention.type.annotation.variable.remove.text"))
 
       true

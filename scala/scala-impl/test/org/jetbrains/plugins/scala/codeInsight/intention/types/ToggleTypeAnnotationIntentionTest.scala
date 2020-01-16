@@ -180,4 +180,24 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |val ${caretTag}v: Lambda[F[_] => F[Int]] = foo
      """.stripMargin
   )
+
+  // see SCL-16739
+  def testParameterAtEnd(): Unit = doTest(
+    s"""
+       |class Seq[T] {
+       |  def foreach(f: T => Unit): Unit = ()
+       |}
+       |
+       |val strings: Seq[String] = new Seq
+       |strings.foreach(abc$caretTag => println(abc))
+       |""".stripMargin,
+    s"""
+       |class Seq[T] {
+       |  def foreach(f: T => Unit): Unit = ()
+       |}
+       |
+       |val strings: Seq[String] = new Seq
+       |strings.foreach((abc: String)$caretTag => println(abc))
+       |""".stripMargin
+  )
 }

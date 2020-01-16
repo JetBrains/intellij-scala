@@ -13,6 +13,7 @@ import com.intellij.psi.PsiModifier._
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard, ModCount}
 
 import scala.util.control.ControlThrowable
 
@@ -167,19 +168,17 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     getSupers.filter(_.isInterface)
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
-  private def cachedDesugared(tree: scala.meta.Defn.Object, isSynthetic: Boolean): ScTemplateDefinition = {
-    val text = tree.toString()
+  @CachedWithRecursionGuard(this, None, BlockModificationTracker(this))
+  override protected def desugaredInner: Option[ScTemplateDefinition] = {
+    def toPsi(tree: scala.meta.Defn.Object, isSynthetic: Boolean): ScTemplateDefinition = {
+      val text = tree.toString()
 
-    ScalaPsiElementFactory.createObjectWithContext(text, getContext, this).
-      setDesugared(actualElement = this)
-  }
+      ScalaPsiElementFactory.createObjectWithContext(text, getContext, this)
+        .setOriginal(actualElement = this)
+    }
 
-  override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.intellij.psi._
     import scala.meta.{Defn, Term}
-
-    if (!this.isValid || DumbService.isDumb(getProject) || isDesugared) return None
 
     val (expansion, isSynthetic) = this.metaExpand match {
       case Right(tree: Defn.Object) =>
@@ -194,7 +193,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
       }
     }
 
-    expansion.map(cachedDesugared(_, isSynthetic))
+    expansion.map(toPsi(_, isSynthetic))
   }
 }
 

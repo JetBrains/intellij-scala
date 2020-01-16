@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package caches
 package stats
 
-import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.containers.{ContainerUtil, WeakList}
 import org.jetbrains.plugins.scala.extensions._
 
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
-
 
 
 object CacheTracker {
@@ -16,10 +16,10 @@ object CacheTracker {
                                         override val alwaysTrack: Boolean) extends TrackedCacheType {
     override type Cache = C
 
-    private val trackedCaches: MyConcurrentWeakRefBuffer[Cache] = new MyConcurrentWeakRefBuffer[Cache]
+    private val trackedCaches: WeakList[Cache] = new WeakList[Cache]
     def add(cache: Cache): Unit = trackedCaches.add(cache)
 
-    override def tracked: List[Cache] = trackedCaches.values
+    override def tracked: Seq[Cache] = trackedCaches.toStrongList.asScala
     override def cachedEntityCount: Int = tracked.foldLeft(0)(_ + capabilities.cachedEntitiesCount(_))
     override def clear(): Unit = tracked.foreach(capabilities.clear)
   }
@@ -28,16 +28,20 @@ object CacheTracker {
 
   def isEnabled: Boolean = Tracer.isEnabled
 
-  def alwaysTrack[Cache: ClassTag](cacheTypeId: String, name: String, cache: Cache, capabilities: => CacheCapabilities[Cache]): Unit =
-    track(cacheTypeId, name, cache, capabilities, alwaysTrack = true)
+  def alwaysTrack[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String)(cache: Cache): Cache = {
+    track(cacheTypeId, name, cache, alwaysTrack = true)
+    cache
+  }
 
-  def track[Cache: ClassTag](cacheTypeId: String, name: String, cache: Cache, capabilities: => CacheCapabilities[Cache]): Unit =
-    if (isEnabled) track(cacheTypeId, name, cache, capabilities, alwaysTrack = false)
+  def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String)(cache: Cache): Cache = {
+    if (isEnabled) track(cacheTypeId, name, cache, alwaysTrack = false)
+    cache
+  }
 
-  private def track[Cache: ClassTag](cacheTypeId: String, name: String, cache: Cache, capabilities: => CacheCapabilities[Cache], alwaysTrack: Boolean): Unit = {
+  private def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String, cache: Cache, alwaysTrack: Boolean): Unit = {
     val cacheType =
       trackedCacheTypes
-        .computeIfAbsent(cacheTypeId, new TrackedCacheTypeImpl[Cache](_, name, capabilities, alwaysTrack))
+        .computeIfAbsent(cacheTypeId, new TrackedCacheTypeImpl[Cache](_, name, implicitly[CacheCapabilities[Cache]], alwaysTrack))
         .asInstanceOf[TrackedCacheTypeImpl[Cache]]
     cacheType.add(cache)
   }

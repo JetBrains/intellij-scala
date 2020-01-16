@@ -36,6 +36,7 @@ object CachedWithRecursionGuard {
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+        preventCacheModeParameter(c)(paramss)
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
@@ -52,7 +53,7 @@ object CachedWithRecursionGuard {
         val elementType = psiElementType
 
         //generated names
-        val keyId = c.freshName(name.toString + "cacheKey")
+        val keyId = c.freshName(name.toString + "$cacheKey")
         val tracerName = generateTermName(name.toString, "$tracer")
         val cacheName = withClassName(name)
         val guard = generateTermName(name.toString, "guard")

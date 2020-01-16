@@ -26,8 +26,8 @@ object SdkSelection {
 
     val allFiles = files.filter(_.isFile) ++ files.flatMap(_.allFiles)
 
-    val components = Component.discoverIn(allFiles)
+    val components = ScalaSdkComponent.discoverIn(allFiles)
 
-    if (files.nonEmpty) Some(ScalaSdkDescriptor.from(components)) else None
+    if (files.nonEmpty) Some(ScalaSdkDescriptor.buildFromComponents(components)) else None
   }
 }

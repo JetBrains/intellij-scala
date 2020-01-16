@@ -4,6 +4,7 @@ import com.intellij.codeInsight.runner.JavaMainMethodProvider
 import com.intellij.psi.{PsiClass, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
 /**
   * @author Nikolay.Tropin

@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.plugins.scala.statistics
 
 import java.util
@@ -49,10 +50,11 @@ class ScalaProjectSettingsCollector extends AbstractProjectsUsagesCollector {
     }
 
     addUsageIf(projectSettings.isProjectViewHighlighting, "scala.project.view.highlighting")
-    
+
 
     result
   }
 
   override def getGroupId: GroupDescriptor = GroupDescriptor.create("Scala Settings")
 }
+*/

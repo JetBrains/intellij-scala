@@ -308,11 +308,25 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
         case Success(_: VoidValue) => "undefined"
         case Success(v) =>
           DebuggerUtils.getValueAsString(ctx, v)
-        case Failure(e: EvaluateException) => e.getMessage
-        case Failure(e: Throwable) => "Other error: " + e.getMessage
+        case Failure(e: EvaluateException) => e.getMessage + stacktraces(e)
+        case Failure(e: Throwable) => "Other error: " + e.getMessage + stacktraces(e)
       }
     }
   }
+
+  private def stacktraces(e: Throwable): String = e match {
+    case e: EvaluateException =>
+      val cause = Option(e.getCause).map(cause => s"Caused by: ${stacktraces(cause)})").getOrElse("")
+      s"""
+         |${stacktrace(e)}
+         |
+         |$cause""".stripMargin
+    case e =>
+      s"""
+         |${stacktrace(e)}""".stripMargin
+  }
+
+  private def stacktrace(e: Throwable): String = e.getStackTrace.mkString("\n")
 
   private def waitScheduledAction[T](timeout: Duration, timeoutMsg: String, callback: => T)
                                     (schedule: (=> Unit) => Unit): T = {

@@ -1,17 +1,24 @@
-package org.jetbrains.plugins.scala.codeInspection.unusedInspections
+package org.jetbrains.plugins.scala
+package codeInspection
+package unusedInspections
 
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScReferencePattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPatternList}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createWildcardNode, createWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentionActionOnPsiElement(e) {
@@ -42,10 +49,35 @@ class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentio
             ref.replace(createWildcardPattern)
         }
         case typed: ScTypedPattern => typed.nameId.replace(wildcard)
-        case p: ScParameter => p.nameId.replace(wildcard)
+        case p: ScParameter =>
+          if (p.owner.is[ScFunctionExpr]) p.nameId.replace(wildcard)
+          else removeParameter(p)(project)
         case naming: ScNamingPattern => naming.replace(naming.named)
         case _ => startElement.delete()
       }
+    }
+  }
+
+  private def removeParameter(p: ScParameter)(implicit project: Project): Unit = {
+    val method = p.owner.asInstanceOf[ScMethodLike]
+    def withoutParam(params: Seq[ScalaParameterInfo]) = params.filterNot(_.oldIndex == p.index)
+    val filteredParameters = ScalaParameterInfo.allForMethod(method).map(withoutParam).filter(_.nonEmpty)
+    // if no parameter/clause is left still leave an empty parameter clause
+    val parameters = if (filteredParameters.isEmpty) Seq(Seq.empty) else filteredParameters
+    val methodDesc = new ScalaMethodDescriptor(method)
+    val retTy = method.asOptionOf[ScFunction].flatMap(_.returnType.toOption).getOrElse(Any)
+    val changeInfo = ScalaChangeInfo(
+      newVisibility = methodDesc.getVisibility,
+      function = method,
+      newName = method.name,
+      newType = retTy,
+      newParams = parameters,
+      isAddDefaultArgs = false
+    )
+    val processor = new ScalaChangeSignatureProcessor(changeInfo)
+
+    inWriteAction {
+      processor.run()
     }
   }
 }

@@ -3,6 +3,7 @@ package types
 package result
 
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 final class Failure(private[result] val cause: String)
                    (private[result] implicit val context: ProjectContext) {
@@ -14,8 +15,7 @@ final class Failure(private[result] val cause: String)
     case _ => false
   }
 
-  override def hashCode(): Int =
-    31 * cause.hashCode + context.hashCode()
+  override def hashCode(): Int = cause #+ context
 }
 
 object Failure {

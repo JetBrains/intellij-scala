@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
-import java.util.Objects
-
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturn
@@ -9,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScU
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{UExpression, UReturnExpression, UReturnExpressionAdapter}
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 /**
   * [[ScReturn]] adapter for the [[UReturnExpression]]
@@ -55,7 +54,7 @@ final class ScUImplicitReturnExpression(
   }
 
   override def hashCode(): Int =
-    31 * returnedElement.hashCode() + convertLambdas.##
+    returnedElement #+ convertLambdas
 }
 
 object ScUImplicitReturnExpression {

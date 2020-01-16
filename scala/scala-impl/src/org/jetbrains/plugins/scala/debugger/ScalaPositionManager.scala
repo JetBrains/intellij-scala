@@ -61,7 +61,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   @Nullable
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
-    if (debugProcess.getProject.isDisposedOrDisposeInProgress || shouldSkip(location)) return null
+    if (debugProcess.getProject.isDisposed || shouldSkip(location)) return null
 
     val position =
       for {
@@ -88,7 +88,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
       try {
-        val generated = generatedClassName != null && refType.name().contains(generatedClassName)
+        val generated = isGeneratedClass(generatedClassName, refType)
         lazy val sameFile = getPsiFileByReferenceType(file.getProject, refType) == file
 
         generated || sameFile && locationsOfLine(refType, position).size > 0
@@ -875,6 +875,21 @@ object ScalaPositionManager {
         manager.getCachedClass(obj.resolveScope, "scala.DelayedInit").orNull
       clazz != null && obj.isInheritor(clazz, true)
     case _ => false
+  }
+
+  private def isGeneratedClass(generatedClassName: String, refType: ReferenceType): Boolean = {
+    if (generatedClassName == null)
+      return false
+
+    val name = refType.name()
+    val index = name.lastIndexOf(generatedClassName)
+
+    index >= 0 && {
+      val suffix = name.substring(index + generatedClassName.length)
+      //we need exact class, not possible lambdas inside
+      //but local classes may have suffices like $1
+      !suffix.exists(_.isLetter)
+    }
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {

@@ -75,18 +75,15 @@ object ScalaLibraryType {
     override def getSuitableLibraryKinds = ju.Collections.singleton(Kind)
 
     override def createNewLibrary(parent: JComponent,
-                                  contextDirectory: VirtualFile) =
-      new SdkSelectionDialog(parent, sdksProvider(contextDirectory))
+                                  contextDirectory: VirtualFile) = {
+      val sdkSelectionDialog = new SdkSelectionDialog(parent, contextDirectory)
+      sdkSelectionDialog
         .open()
         .map(createNewScalaLibrary)
         .orNull
+    }
 
     override def getDefaultLevel = projectRoot.LibrariesContainer.LibraryLevel.GLOBAL
-
-    private def sdksProvider(contextDirectory: VirtualFile) = () => {
-      import scala.collection.JavaConverters._
-      SdkChoice.findSdks(contextDirectory).asJava
-    }
 
     private def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
       val ScalaSdkDescriptor(version, compilerClasspath, libraryFiles, sourceFiles, docFiles) = descriptor

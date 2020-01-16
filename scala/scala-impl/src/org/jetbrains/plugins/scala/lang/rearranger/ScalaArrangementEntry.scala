@@ -6,6 +6,7 @@ import java.util
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.arrangement._
 import com.intellij.psi.codeStyle.arrangement.std.ArrangementSettingsToken
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 class ScalaArrangementEntry(parent: ArrangementEntry,
                             startOffset: Int,
@@ -41,7 +42,7 @@ class ScalaArrangementEntry(parent: ArrangementEntry,
 
   override def toString = s"[$startOffset, $endOffset)" //text range represented by this entry
 
-  override def hashCode: Int = startOffset + endOffset
+  override def hashCode: Int = startOffset #+ endOffset
 
   override def equals(o: Any): Boolean = o match {
     case other: ScalaArrangementEntry => other.getStartOffset == startOffset && other.getEndOffset == endOffset &&

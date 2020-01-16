@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPa
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForImpl
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -55,6 +54,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
   }
 
+  @tailrec
   private def getContextInfo(ref: ScReferenceExpression, e: ScExpression): ContextInfo = {
     e.getContext match {
       case generic : ScGenericCall => getContextInfo(ref, generic)
@@ -81,6 +81,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
   }
 
+  @tailrec
   private def kinds(ref: ScReferenceExpression, e: ScExpression, incomplete: Boolean): scala.collection.Set[ResolveTargets.Value] = {
     e.getContext match {
       case gen: ScGenericCall => kinds(ref, gen, incomplete)
@@ -93,13 +94,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
   }
 
-  private def getTypeArgs(e : ScExpression) : Seq[ScTypeElement] = {
+  @tailrec
+  private def getTypeArgs(e: ScExpression): Seq[ScTypeElement] =
     e.getContext match {
-      case generic: ScGenericCall => generic.arguments
+      case generic: ScGenericCall       => generic.arguments
       case parents: ScParenthesisedExpr => getTypeArgs(parents)
-      case _ => Seq.empty
+      case _                            => Seq.empty
     }
-  }
 
   def resolve(reference: ScReferenceExpression, shapesOnly: Boolean, incomplete: Boolean): Array[ScalaResolveResult] = {
     val resolveWithName = this.resolveWithName(_: String, reference, shapesOnly, incomplete)

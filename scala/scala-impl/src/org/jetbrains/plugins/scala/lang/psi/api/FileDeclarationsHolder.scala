@@ -185,7 +185,6 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
 
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
-  val defaultImplicitlyImportedSymbols: Seq[String] = Seq("java.lang", "scala", "scala.Predef")
 
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)
@@ -213,9 +212,11 @@ object FileDeclarationsHolder {
         if (file == null) return false
 
         val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
-        !(index.isInSourceContent(file) ||
-          index.isInLibraryClasses(file) ||
-          index.isInLibrarySource(file))
+        val belongsToProject =
+          index.isInSourceContent(file) ||
+            index.isInLibraryClasses(file) ||
+            index.isInLibrarySource(file)
+        !belongsToProject
       case _ => false
     }
   }

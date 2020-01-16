@@ -24,11 +24,10 @@ trait Conformance {
 
   private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.conformance.guard")
 
-  private val cache = {
-    val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
-    CacheTracker.alwaysTrack(conformsInnerCache, conformsInnerCache, cache, ConformanceCacheCapabilities)
-    cache
-  }
+  private val cache =
+    CacheTracker.alwaysTrack(conformsInnerCache, conformsInnerCache) {
+      ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
+    }
 
   /**
     * Checks, whether the following assignment is correct:
@@ -77,8 +76,9 @@ trait Conformance {
 
 object Conformance {
   val conformsInnerCache: String = "Conformance.conformsInner"
-  object ConformanceCacheCapabilities extends CacheCapabilities[ConcurrentMap[_, ConstraintsResult]] {
-    override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
-    override def clear(cache: CacheType): Unit = cache.clear()
-  }
+  implicit def ConformanceCacheCapabilities[T]: CacheCapabilities[ConcurrentMap[T, ConstraintsResult]] =
+    new CacheCapabilities[ConcurrentMap[T, ConstraintsResult]] {
+      override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
+      override def clear(cache: CacheType): Unit = cache.clear()
+    }
 }

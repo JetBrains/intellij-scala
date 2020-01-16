@@ -4,6 +4,7 @@ package parser
 package parsing
 package statements
 
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -40,46 +41,19 @@ object Dcl {
       modifierMarker.done(ScalaElementType.MODIFIERS)
     }
     //Look for val,var,def or type
-    builder.getTokenType match {
-      case ScalaTokenTypes.kVAL =>
-        if (ValDcl parse builder) {
-          dclMarker.done(ScalaElementType.VALUE_DECLARATION)
-          true
-        }
-        else {
-          dclMarker.rollbackTo()
-          false
-        }
-      case ScalaTokenTypes.kVAR =>
-        if (VarDcl parse builder) {
-          dclMarker.done(ScalaElementType.VARIABLE_DECLARATION)
-          true
-        }
-        else {
-          dclMarker.drop()
-          false
-        }
-      case ScalaTokenTypes.kDEF =>
-        if (FunDcl parse builder) {
-          dclMarker.done(ScalaElementType.FUNCTION_DECLARATION)
-          true
-        }
-        else {
-          dclMarker.drop()
-          false
-        }
-      case ScalaTokenTypes.kTYPE =>
-        if (TypeDcl parse builder) {
-          dclMarker.done(ScalaElementType.TYPE_DECLARATION)
-          true
-        }
-        else {
-          dclMarker.drop()
-          false
-        }
-      case _ =>
-        dclMarker.rollbackTo()
-        false
+    val (successfullyParsed, elementType) = builder.getTokenType match {
+      case ScalaTokenTypes.kVAL  => (ValDcl.parse(builder),  ScalaElementType.VALUE_DECLARATION)
+      case ScalaTokenTypes.kVAR  => (VarDcl.parse(builder),  ScalaElementType.VARIABLE_DECLARATION)
+      case ScalaTokenTypes.kDEF  => (FunDcl.parse(builder),  ScalaElementType.FUNCTION_DECLARATION)
+      case ScalaTokenTypes.kTYPE => (TypeDcl.parse(builder), ScalaElementType.TYPE_DECLARATION)
+      case _                     => (false, null: IElementType)
     }
+
+    if (successfullyParsed)
+      dclMarker.done(elementType)
+    else
+      dclMarker.rollbackTo()
+
+    successfullyParsed
   }
 }

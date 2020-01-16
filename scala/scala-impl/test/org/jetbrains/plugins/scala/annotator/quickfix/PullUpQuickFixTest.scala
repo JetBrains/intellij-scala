@@ -11,7 +11,7 @@ abstract class PullUpQuickFixTest(keyword: String) extends ScalaAnnotatorQuickFi
       s"""
         |trait A
         |class B extends A {
-        |   override $keyword <selection>sample</selection>: Int = 1
+        |   override $keyword ${START}sample$END: Int = 1
         |}
       """
     checkTextHasError(code)
@@ -25,7 +25,7 @@ abstract class PullUpQuickFixTest(keyword: String) extends ScalaAnnotatorQuickFi
         |}
         |
         |class B extends A {
-        |  override $keyword <selection>sample</selection>: Int = 1
+        |  override $keyword ${START}sample$END: Int = 1
         |}
       """,
       s"Pull $memberType 'sample' to..."
@@ -36,7 +36,7 @@ abstract class PullUpQuickFixTest(keyword: String) extends ScalaAnnotatorQuickFi
     val code =
       s"""
         |class A extends scala.App {
-        |   override $keyword <selection>sample</selection>: Int = 1
+        |   override $keyword ${START}sample$END: Int = 1
         |}
       """
     checkTextHasError(code)
@@ -50,7 +50,7 @@ abstract class PullUpQuickFixTest(keyword: String) extends ScalaAnnotatorQuickFi
          |  $keyword sample: Int
          |}
          |class B extends A {
-         |   override $keyword <selection>sample</selection>: Int = 1
+         |   override $keyword ${START}sample$END: Int = 1
          |}
       """
     checkTextHasNoErrors(code)

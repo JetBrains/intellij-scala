@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
 import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -430,16 +431,14 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def startAutoPopupCompletionInInterpolatedString(file: PsiFile, editor: Editor)
-                                                          (document: Document, project: Project, element: PsiElement, offset: Int) {
+                                                          (document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
     if (CodeInsightSettings.getInstance().AUTO_POPUP_COMPLETION_LOOKUP) {
       element.getParent match {
         case _: ScLiteral =>
           element.getNode.getElementType match {
             case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
-              file.findElementAt(offset).getPrevSibling match {
-                case _: ScReferenceExpression =>
-                  scheduleAutoPopup(file, editor, project)
-                case _ =>
+              if (ScalaCompletionConfidence.isDotTypedAfterStringInjectedReference(file, offset)) {
+                scheduleAutoPopup(file, editor, project)
               }
             case _ =>
           }

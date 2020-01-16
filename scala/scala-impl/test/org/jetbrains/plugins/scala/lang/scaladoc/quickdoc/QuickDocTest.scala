@@ -413,7 +413,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
         .stripMargin.replaceAll("[\r\n]", "")
 
     configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
-    val element = getFileAdapter.getLastChild.asInstanceOf[ScObject].getMethods.head
+    val element = getFileAdapter.getLastChild.asInstanceOf[ScObject].functions.head
     val generated = QuickDocTest.quickDocGenerator.generateDoc(element, element)
     Assert.assertEquals(expected, generated)
   }

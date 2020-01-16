@@ -5,28 +5,12 @@ import java.util
 import com.intellij.psi.{PsiElement, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{
-  ScBlock,
-  ScExpression,
-  ScReturn,
-  ScUnderScoreSectionUtil
-}
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUElement,
-  ScUExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScReturn, ScUnderScoreSectionUtil}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.uast.{
-  UBlockExpression,
-  UBlockExpressionAdapter,
-  UElement,
-  UExpression,
-  ULambdaExpression,
-  UMethod,
-  UVariable
-}
+import org.jetbrains.plugins.scala.util.HashBuilder._
+import org.jetbrains.uast.{UBlockExpression, UBlockExpressionAdapter, UElement, UExpression, ULambdaExpression, UMethod, UVariable}
 
 import scala.collection.JavaConverters._
 
@@ -177,7 +161,7 @@ final class ScUImplicitBlockExpression(private val statement: PsiElement,
   }
 
   override def hashCode(): Int =
-    31 * super.hashCode + statement.hashCode
+    super.hashCode #+ statement
 }
 
 object ScUImplicitBlockExpression {

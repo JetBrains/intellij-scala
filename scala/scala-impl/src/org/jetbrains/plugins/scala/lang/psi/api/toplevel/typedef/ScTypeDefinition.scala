@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 
 import scala.collection.Seq
@@ -62,12 +61,6 @@ trait ScTypeDefinition extends ScTemplateDefinition
   def allInnerTypeDefinitions: Seq[ScTypeDefinition] = this.membersWithSynthetic.filterBy[ScTypeDefinition]
 
   def typeParameters: Seq[ScTypeParam]
-
-  override def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
-
-  override def syntheticMembersImpl: Seq[ScMember] = SyntheticMembersInjector.injectMembers(this)
-
-  override protected def syntheticMethodsImpl: Seq[ScFunction] = SyntheticMembersInjector.inject(this)
 
   def fakeCompanionModule: Option[ScObject]
 

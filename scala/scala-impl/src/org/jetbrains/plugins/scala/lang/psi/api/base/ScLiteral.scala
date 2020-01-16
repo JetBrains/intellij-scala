@@ -32,11 +32,6 @@ trait ScLiteral extends ScExpression
 
 object ScLiteral {
 
-  def unapply(literal: ScLiteral): Option[String] = literal.getValue match {
-    case string: String => Some(string)
-    case _ => None
-  }
-
   trait Numeric extends ScLiteral {
 
     override protected type V >: Null <: Number

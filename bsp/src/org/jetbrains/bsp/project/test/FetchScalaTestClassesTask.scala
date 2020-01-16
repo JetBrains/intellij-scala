@@ -10,8 +10,9 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.bsp.BspErrorMessage
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.BspMetadata
-import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
+import org.jetbrains.bsp.protocol.session.BspSession.BspServer
 import org.jetbrains.bsp.protocol.{BspCommunicationService, BspJob}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -20,15 +21,19 @@ import scala.concurrent.{Await, TimeoutException}
 import scala.util.{Failure, Success, Try}
 
 
-class FetchScalaTestClassesTask(proj: Project,
+class FetchScalaTestClassesTask(project: Project,
                                 onOK: ScalaTestClassesResult => Unit,
                                 onErr: Throwable => Unit
-                               ) extends Task.Modal(proj, "Loading", true) {
+                               ) extends Task.Modal(project, "Loading", true) {
 
   override def run(indicator: ProgressIndicator): Unit = {
-    indicator.setText("Fetching Scala test classes from BSP server");
-    val targets = ModuleManager.getInstance(proj).getModules.toList
-      .flatMap(BspMetadata.get(proj, _))
+    val text = "Fetching Scala test classes from BSP server"
+    indicator.setText(text)
+    val reporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, text)
+    reporter.start()
+
+    val targets = ModuleManager.getInstance(project).getModules.toList
+      .flatMap(BspMetadata.get(project, _))
       .flatMap(x => x.targetIds.asScala)
       .map(uri => new BuildTargetIdentifier(uri.toString))
     val testClassesParams = {
@@ -36,17 +41,23 @@ class FetchScalaTestClassesTask(proj: Project,
       p.setOriginId(UUID.randomUUID().toString)
       p
     }
+
     val task = BspCommunicationService.getInstance
-      .communicate(proj)
+      .communicate(project)
       .run(
         requestTestClasses(testClassesParams)(_,_),
         _ => {},
+        reporter,
         _ => {}
       )
     val result = waitForJobCancelable(task, indicator)
     result match {
-      case Success(value) => onOK(value)
-      case Failure(exception) => onErr(exception)
+      case Success(value) =>
+        reporter.finish(BuildMessages.empty.status(BuildMessages.OK))
+        onOK(value)
+      case Failure(exception) =>
+        reporter.finishWithFailure(exception)
+        onErr(exception)
     }
   }
 

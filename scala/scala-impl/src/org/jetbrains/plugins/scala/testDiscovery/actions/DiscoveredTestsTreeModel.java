@@ -34,13 +34,13 @@ class DiscoveredTestsTreeModel extends BaseTreeModel<Object> {
   public synchronized List<?> getChildren(Object parent) {
     if (parent == myRoot) return getTestClasses();
     if (parent instanceof Node.Clazz) {
-      return ContainerUtil.newArrayList(myTests.get((Node.Clazz)parent));
+      return new ArrayList<>(myTests.get((Node.Clazz)parent));
     }
     return Collections.emptyList();
   }
 
   synchronized List<Node<PsiClass>> getTestClasses() {
-    return ContainerUtil.newArrayList(myTestClasses);
+    return new ArrayList<>(myTestClasses);
   }
 
   @Override

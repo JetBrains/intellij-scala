@@ -86,7 +86,7 @@ object CachesUtil {
                                                                      cacheTypeId: String,
                                                                      cacheTypeName: String,
                                                                      dependencyItem: () => Object): ConcurrentMap[Data, Result] = {
-
+    import CacheCapabilties._
     val cachedValue = elem.getUserData(key) match {
       case null =>
         val manager = CachedValuesManager.getManager(elem.getProject)
@@ -94,11 +94,9 @@ object CachesUtil {
           override def compute(): CachedValueProvider.Result[ConcurrentMap[Data, Result]] =
             new CachedValueProvider.Result(ContainerUtil.newConcurrentMap(), dependencyItem())
         }
-        val newValue = manager.createCachedValue(provider, false)
-        CacheTracker.track(cacheTypeId, cacheTypeName, newValue, new CacheCapabilities[CachedValue[ConcurrentMap[Data, Result]]] {
-          override def cachedEntitiesCount(cache: CacheType): Int = cache.getValue.size()
-          override def clear(cache: CacheType): Unit = cache.getValue.clear()
-        })
+        val newValue = CacheTracker.track(cacheTypeId, cacheTypeName) {
+          manager.createCachedValue(provider, false)
+        }
         elem.putUserDataIfAbsent(key, newValue)
       case d => d
     }
@@ -111,6 +109,7 @@ object CachesUtil {
                                                                        cacheTypeId: String,
                                                                        cacheTypeName: String,
                                                                        dependencyItem: () => Object): AtomicReference[Result] = {
+    import CacheCapabilties._
     val cachedValue = elem.getUserData(key) match {
       case null =>
         val manager = CachedValuesManager.getManager(elem.getProject)
@@ -118,11 +117,9 @@ object CachesUtil {
           override def compute(): CachedValueProvider.Result[AtomicReference[Result]] =
             new CachedValueProvider.Result(new AtomicReference[Result](), dependencyItem())
         }
-        val newValue = manager.createCachedValue(provider, false)
-        CacheTracker.track(cacheTypeId, cacheTypeName, newValue, new CacheCapabilities[CachedValue[AtomicReference[Result]]] {
-          override def cachedEntitiesCount(cache: CacheType): Int = if(cache.getValue.get() == null) 0 else 1
-          override def clear(cache: CacheType): Unit = cache.getValue.set(null)
-        })
+        val newValue = CacheTracker.track(cacheTypeId, cacheTypeName) {
+          manager.createCachedValue(provider, false)
+        }
         elem.putUserDataIfAbsent(key, newValue)
       case d => d
     }
@@ -157,15 +154,37 @@ object CachesUtil {
     ScalaPsiManager.instance(project).TopLevelModificationTracker
 
 
-  def timestampedMapCacheCapabilities[M >: Null <: ConcurrentMap[_, _]]: CacheCapabilities[AtomicReference[Timestamped[M]]] =
-    new CacheCapabilities[AtomicReference[Timestamped[M]]] {
-      override def cachedEntitiesCount(cache: CacheType): Int = cache.get().data.nullSafe.fold(0)(_.size())
-      override def clear(cache: CacheType): Unit = cache.set(Timestamped(null.asInstanceOf[M], -1))
-    }
+  object CacheCapabilties {
+    implicit def concurrentMapCacheCapabilities[Data, Result]: CacheCapabilities[CachedValue[ConcurrentMap[Data, Result]]] =
+      new CacheCapabilities[CachedValue[ConcurrentMap[Data, Result]]] {
+        private def realCache(cache: CacheType) = cache.getUpToDateOrNull.nullSafe.map(_.get())
 
-  def timestampedSingleValueCacheCapabilities[T]: CacheCapabilities[AtomicReference[Timestamped[T]]] =
-    new CacheCapabilities[AtomicReference[Timestamped[T]]] {
-      override def cachedEntitiesCount(cache: CacheType): Int = if (cache.get().data == null) 0 else 1
-      override def clear(cache: CacheType): Unit = cache.set(Timestamped(null.asInstanceOf[T], -1))
-    }
+        override def cachedEntitiesCount(cache: CacheType): Int = realCache(cache).fold(0)(_.size())
+
+        override def clear(cache: CacheType): Unit = realCache(cache).foreach(_.clear())
+      }
+
+    implicit def atomicRefCacheCapabilities[Data, Result >: Null]: CacheCapabilities[CachedValue[AtomicReference[Result]]] =
+      new CacheCapabilities[CachedValue[AtomicReference[Result]]] {
+        private def realCache(cache: CacheType) = cache.getUpToDateOrNull.nullSafe.map(_.get())
+
+        override def cachedEntitiesCount(cache: CacheType): Int = realCache(cache).fold(0)(c => if (c.get() == null) 0 else 1)
+
+        override def clear(cache: CacheType): Unit = realCache(cache).foreach(_.set(null))
+      }
+
+    implicit def timestampedMapCacheCapabilities[M >: Null <: ConcurrentMap[_, _]]: CacheCapabilities[AtomicReference[Timestamped[M]]] =
+      new CacheCapabilities[AtomicReference[Timestamped[M]]] {
+        override def cachedEntitiesCount(cache: CacheType): Int = cache.get().data.nullSafe.fold(0)(_.size())
+
+        override def clear(cache: CacheType): Unit = cache.set(Timestamped(null.asInstanceOf[M], -1))
+      }
+
+    implicit def timestampedSingleValueCacheCapabilities[T]: CacheCapabilities[AtomicReference[Timestamped[T]]] =
+      new CacheCapabilities[AtomicReference[Timestamped[T]]] {
+        override def cachedEntitiesCount(cache: CacheType): Int = if (cache.get().data == null) 0 else 1
+
+        override def clear(cache: CacheType): Unit = cache.set(Timestamped(null.asInstanceOf[T], -1))
+      }
+  }
 }

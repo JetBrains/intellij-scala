@@ -104,15 +104,18 @@ object ScPattern {
               case _ =>
             }
 
-            tuple.expectedType.flatMap {
-              case TupleType(comps) =>
-                for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
-                  if (p == pattern) return Some(t)
-                }
-                None
-              case et0 if et0.isAnyRef || et0.isAny => Some(Any)
-              case _ => None
-            }
+            @tailrec
+            def handleTupleSubpatternExpectedType(tupleExpectedType: ScType): Option[ScType] =
+              tupleExpectedType match {
+                case TupleType(comps) =>
+                  val idx = patternList.patterns.indexWhere(_ == pattern)
+                  comps.lift(idx)
+                case et0 if et0.isAnyRef || et0.isAny => Some(Any)
+                case ex: ScExistentialType            => handleTupleSubpatternExpectedType(ex.simplify())
+                case _                                => None
+              }
+
+            tuple.expectedType.flatMap(handleTupleSubpatternExpectedType)
           case _: ScXmlPattern =>
             val nodeClass: Option[PsiClass] = psiManager.getCachedClass(elementScope.scope, "scala.xml.Node")
             nodeClass.flatMap { nodeClass =>
@@ -312,11 +315,6 @@ object ScPattern {
     }
   }
 
-  def isOneArgCaseClassMethod(fun: ScFunction): Boolean = fun.syntheticCaseClass match {
-    case null => false
-    case clazz => clazz.constructor.exists(_.effectiveFirstParameterSection.length == 1)
-  }
-
   private def findMember(name: String, tp: ScType, place: PsiElement, parameterless: Boolean = true): Option[ScType] = {
     val cp: CompletionProcessor = new CompletionProcessor(StdKinds.methodRef, place) {
       override protected val forName: Option[String] = Some(name)
@@ -411,6 +409,23 @@ object ScPattern {
     }
   }
 
+  /**
+   * Helps aboid flattening TupleTypes in cases such as:
+   * {{{
+   *  case class Foo(f: (String, String))
+   *
+   *  foo match {
+   *    case Foo(t) => ??? // One pattern expected, not two
+   *  }
+   * }}}
+   */
+  private[this] def isOneArgSyntheticUnapply(fun: ScFunction): Boolean =
+    fun.isSynthetic &&
+      (fun.syntheticCaseClass match {
+        case null  => false
+        case clazz => clazz.constructor.exists(_.effectiveFirstParameterSection.length == 1)
+      })
+
   private[this] def productElementTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] =
     if (returnTpe.isBoolean) Seq.empty
     else {
@@ -418,10 +433,10 @@ object ScPattern {
       val extracted            = extractedType(returnTpe, place)
 
       extracted.map {
-        case TupleType(comps)       => comps
-        case tpe if fun.isSynthetic => Seq(tpe)
-        case byNameExtractor(comps) => comps
-        case tpe                    => Seq(tpe)
+        case tpe if isOneArgSyntheticUnapply(fun) => Seq(tpe)
+        case TupleType(comps)                     => comps
+        case byNameExtractor(comps)               => comps
+        case tpe                                  => Seq(tpe)
       }.getOrElse(Seq.empty)
     }
 

@@ -16,6 +16,10 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
 
   import ScalaLightCodeInsightFixtureTestAdapter.findCaretOffsets
 
+  protected val q  : String = "\""
+  protected val qq : String = "\"\""
+  protected val qqq: String = "\"\"\""
+
   protected def fileType: FileType = ScalaFileType.INSTANCE
 
   protected def defaultFileName: String = s"aaa.${fileType.getDefaultExtension}"

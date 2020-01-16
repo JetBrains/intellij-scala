@@ -18,6 +18,7 @@ import org.jetbrains.bsp.project.resolver.BspProjectResolver
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspCommunicationService}
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspSystemSettings}
+import org.jetbrains.plugins.scala.build.{BuildTaskReporter, ConsoleReporter}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -32,6 +33,8 @@ import scala.language.postfixOps
  * compile and test are called against previously resolved build target URIs.
  */
 object BSPCli extends App {
+
+  private implicit val reporter: ConsoleReporter = new ConsoleReporter("BSPCli")
 
   class DummyListener extends ExternalSystemTaskNotificationListener {
     override def onStart(externalSystemTaskId: ExternalSystemTaskId): Unit = {}
@@ -51,7 +54,7 @@ object BSPCli extends App {
     override def onCancel(externalSystemTaskId: ExternalSystemTaskId): Unit = {}
   }
 
-  class Opts(val bloopExec: String, val projectPath: String, val tracePath: Option[String])
+  class Opts(val projectPath: String, val tracePath: Option[String])
 
   val opts = try {
     System.setProperty("java.awt.headless", "true")
@@ -61,7 +64,6 @@ object BSPCli extends App {
       val bspSettingsState: BspSystemSettings.State = {
         val st = new bsp.settings.BspSystemSettings.State()
         st.traceBsp = opts.tracePath.isDefined
-        st.bloopPath = opts.bloopExec
         st
       }
       override def isUnitTestMode: Boolean = false
@@ -93,7 +95,7 @@ object BSPCli extends App {
   }
 
   var running = true
-  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), new File(opts.bloopExec), true)
+  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), true)
   val bspComm = BspCommunication.forWorkspace(new File(opts.projectPath))
   val resolver = new BspProjectResolver()
   val targets = {
@@ -109,7 +111,7 @@ object BSPCli extends App {
     targets.getTargets.asScala.map { t => (t.getId, t)}.toMap
   private val targetIds =
     targetIdToTarget.keys.toList
-  repl()
+  repl
 
   type BuildIds = util.List[BuildTargetIdentifier]
 
@@ -132,7 +134,6 @@ object BSPCli extends App {
 
     val args = nextOpt(Map(), argsArr.toList)
     new Opts(
-      assertFile(args, "bloop"),
       assertFile(args, "project"),
       args.get("log")
     )
@@ -145,8 +146,9 @@ object BSPCli extends App {
 
   def logDto(not: Any): Unit = println(Console.YELLOW + not + Console.RESET)
 
-  def bspReq[T](bspSessionTask: BspSessionTask[T]): T = {
-    val result = Await.result(bspComm.run(bspSessionTask, logDto, logProcess).future, Int.MaxValue seconds)
+  def bspReq[T](bspSessionTask: BspSessionTask[T])(implicit reporter: BuildTaskReporter): T = {
+    val reporter = new ConsoleReporter("")
+    val result = Await.result(bspComm.run(bspSessionTask, logDto, reporter, logProcess).future, Int.MaxValue seconds)
     logDto(result)
     result
   }
@@ -190,11 +192,11 @@ object BSPCli extends App {
     server.buildTargetScalaTestClasses(params)
   }
 
-  private def repl(): Unit = {
+  private def repl(implicit reporter: BuildTaskReporter): Unit = {
     val exit = "exit[ \t]*".r
     val help = "help[ \t]*".r
     val compile = "compile[ \t]*".r
-    val getScalTestClasses = "getScalaTestClasses[ \t]*".r
+    val getScalaTestClasses = "getScalaTestClasses[ \t]*".r
     val runAllTests = "runAllTests[ \t]*".r
     val runTestClass = "runTestClass[ \t]+([^\\s\\\\]+)[ \t]+([^\\s\\\\]+)[ \t]*".r
     val helpText =
@@ -213,7 +215,7 @@ object BSPCli extends App {
           running = false
         case help() => println(helpText)
         case compile() => bspReq(compileRequest(targetIds.asJava))
-        case getScalTestClasses() => bspReq(testClasses(targetIds.asJava))
+        case getScalaTestClasses() => bspReq(testClasses(targetIds.asJava))
         case runAllTests() => bspReq(testAllRequest(targetIds.asJava))
         case runTestClass(className, targetUri) => bspReq(testSingleRequest(targetIds.asJava, className, targetUri))
         case _ => println("Illegal command, type help for more")

@@ -137,7 +137,7 @@ final class WorksheetFoldGroup(
 
     def numbers(reg: FoldRegionInfo, stored: Int): DiffMapping = {
       val leftEndOffset = reg.leftEndOffset - 1
-      val leftEndLine   = originalDocument.getLineNumber(leftEndOffset)
+      val leftEndLine   = originalDocument.safeLineNumber(leftEndOffset)
       val leftStartLine = leftEndLine - reg.leftContentLines + 1
 
       DiffMapping(leftStartLine, leftEndLine, leftEndLine + stored, reg.spaces)
@@ -162,7 +162,7 @@ final class WorksheetFoldGroup(
   }
 
   private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean) {
-    val line = originalDocument.getLineNumber(target.leftEndOffset - 1)
+    val line = originalDocument.safeLineNumber(target.leftEndOffset - 1)
     val key = unfolded floorKey line
 
     val spaces = target.spaces
@@ -240,16 +240,16 @@ object WorksheetFoldGroup {
     val regionsEffective = parsedTail :+ fakeEndFoldRegion(originalDocument, viewerDocument)
 
     regionsEffective.foldLeft(parsedHead) { case (prevFolding, currFolding) =>
-      val prevLeftEndLine = safeLineNumber(originalDocument, prevFolding.leftEndOffset - 1)
-      val prevRightStartLine = viewerDocument.getLineNumber(prevFolding.foldStartOffset)
+      val prevLeftEndLine = originalDocument.safeLineNumber(prevFolding.leftEndOffset - 1)
+      val prevRightStartLine = viewerDocument.safeLineNumber(prevFolding.foldStartOffset)
 
       result += ((prevLeftEndLine, prevRightStartLine))
 
-      val currLeftEndLine = safeLineNumber(originalDocument, currFolding.leftEndOffset - 1)
+      val currLeftEndLine = originalDocument.safeLineNumber(currFolding.leftEndOffset - 1)
       val currLeftStartLine = currLeftEndLine - currFolding.leftSideLength + 1
       val linesBetween = currLeftStartLine - prevLeftEndLine - 1
       if (linesBetween > 0) {
-        val prevRightEndLine  = viewerDocument.getLineNumber(prevFolding.foldEndOffset)
+        val prevRightEndLine  = viewerDocument.safeLineNumber(prevFolding.foldEndOffset)
         val mappingsBetween = (1 to linesBetween).map { idx =>
           (prevLeftEndLine + idx, prevRightEndLine + idx)
         }
@@ -275,8 +275,10 @@ object WorksheetFoldGroup {
     )
   }
 
-  private def safeLineNumber(document: Document, offset: Int): Int =
-    document.getLineNumber(offset.min(document.getTextLength))
+  implicit class DocumentExt(private val document: Document) extends AnyVal {
+    def safeLineNumber(offset: Int): Int =
+      document.getLineNumber(offset.min(document.getTextLength))
+  }
 
   def save(file: ScalaFile, group: WorksheetFoldGroup): Unit = {
     val virtualFile = file.getVirtualFile

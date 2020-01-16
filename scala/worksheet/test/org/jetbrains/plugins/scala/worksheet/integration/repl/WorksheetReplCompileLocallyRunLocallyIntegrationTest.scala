@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.PreconditionError
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{Precondition, PreconditionError}
 import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
@@ -18,7 +18,7 @@ class WorksheetReplCompileLocallyRunLocallyIntegrationTest extends WorksheetRepl
 
   def testSimpleDeclaration(): Unit = {
     val left = "val a = 1"
-    val compilerError = PreconditionError("Worksheet in REPL mode can only be executed in compile server process")
+    val compilerError = PreconditionError(Precondition.ReplRequiresCompileServerProcess)
     doFailingTest(left, RunWorksheetActionResult.WorksheetRunError(compilerError))
   }
 }

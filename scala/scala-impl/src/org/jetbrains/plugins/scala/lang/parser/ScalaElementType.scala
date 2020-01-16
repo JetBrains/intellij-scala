@@ -330,7 +330,7 @@ object ScalaElementType {
   }
 
   object StringLiteral extends ScExpressionElementType("StringLiteral") {
-    override def createElement(node: ASTNode) = new ScLiteralImpl(node, toString)
+    override def createElement(node: ASTNode) = new ScStringLiteralImpl(node, toString)
   }
 
   object InterpolatedString extends ScExpressionElementType("InterpolatedStringLiteral") {

@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase.TestPrepareResult
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
 class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
@@ -48,9 +49,10 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
   }
 
   private def checkTextHasErrors(text: String): Unit = {
-    val actualRanges  : Seq[TextRange] = findRanges(text)
-    val expectedRanges: Seq[TextRange] = {
-      val range = selectedRange(getEditor.getSelectionModel)
+    val TestPrepareResult(expectedRanges, actualHighlights) = configureByText(text)
+    val actualRanges : Seq[TextRange] = actualHighlights.map(_._2)
+    val expectedParenthesesRanges: Seq[TextRange] = {
+      val range = expectedRanges.head
       val left  = TextRange.from(range.getStartOffset, 1)
       val right = TextRange.from(range.getEndOffset - 1, 1)
       if (range.getLength >= 4) {
@@ -60,7 +62,7 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
         Seq(left, right)
       }
     }
-    super.checkTextHasError(expectedRanges, actualRanges, allowAdditionalHighlights = true)
+    super.checkTextHasError(expectedParenthesesRanges, actualRanges, allowAdditionalHighlights = true)
   }
 
   // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case

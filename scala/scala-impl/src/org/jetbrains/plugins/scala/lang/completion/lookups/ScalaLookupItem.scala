@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKe
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 import scala.annotation.tailrec
@@ -88,7 +89,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   }
 
   override def hashCode(): Int =
-    super.hashCode() + 31 * isNamedParameter.## + 31 * 31 * Option(containingClass).hashCode()
+    super.hashCode() #+ isNamedParameter #+ containingClass
 
   override def renderElement(presentation: LookupElementPresentation): Unit = {
     if (isNamedParameter) {

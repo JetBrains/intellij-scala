@@ -145,7 +145,7 @@ object ImplicitUtil {
     def unapply(e: PsiElement): Option[(ScTypeParam, ScTypeElement)] =
       (for {
         element <- NullSafe(e)
-        if ScalaPsiUtil.stub(e).isNull
+        if ScalaPsiUtil.stub(e).isNull && e.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
 
         node <- NullSafe(e.getNode)
         if node.getElementType == ScalaTokenTypes.tCOLON

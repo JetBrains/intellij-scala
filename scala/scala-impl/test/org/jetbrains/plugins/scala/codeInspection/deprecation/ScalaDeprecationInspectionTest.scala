@@ -3,7 +3,7 @@ package codeInspection
 package deprecation
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+import org.intellij.lang.annotations.Language
 
 abstract class ScalaDeprecationInspectionTestBase extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaDeprecationInspection]
@@ -12,6 +12,8 @@ abstract class ScalaDeprecationInspectionTestBase extends ScalaInspectionTestBas
 }
 
 class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase {
+
+  private def addJavaClass(@Language("JAVA") text: String): Unit = getFixture.addClass(text)
 
   def testDeprecatedImport(): Unit = {
     val code =
@@ -180,6 +182,106 @@ class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase 
       |x.test()
     """.stripMargin
   )
+
+  def test_overriding_deprecated_method(): Unit = checkTextHasError{
+    s"""class Base() {
+       |  @deprecated()
+       |  def foo(x: Int): String = ???
+       |  def foo(s: String): String = ???
+       |}
+       |class Child extends Base {
+       |  override def ${START}foo$END(x: Int): String = ???
+       |  override def foo(s: String): String = ???
+       |}
+       |""".stripMargin
+  }
+
+  def test_extending_deprecated_class(): Unit = checkTextHasError{
+    s"""@deprecated()
+       |class Base()
+       |class Child extends ${START}Base$END {}
+       |""".stripMargin
+  }
+
+  def test_extending_deprecated_trait(): Unit = checkTextHasError{
+    s"""@deprecated()
+       |trait Base()
+       |class Child extends ${START}Base$END {}
+       |""".stripMargin
+  }
+
+  def test_extending_deprecated_class_and_trait(): Unit = checkTextHasError{
+    s"""@deprecated()
+       |class BaseClass()
+       |@deprecated()
+       |trait BaseTrait()
+       |class Child extends ${START}BaseClass$END with ${START}BaseTrait$END {}
+       |""".stripMargin
+  }
+
+  def test_overriding_deprecated_method_from_java_class(): Unit = {
+    addJavaClass(
+      """import java.lang.Deprecated;
+        |class Base() {
+        |  @Deprecated
+        |  String foo(int x) { return null; }
+        |  String foo(String s) { return null; }
+        |}
+        |""".stripMargin
+    )
+    checkTextHasError{
+      s"""class Child extends Base {
+         |  override def ${START}foo$END(x: Int): String = ???
+         |  override def foo(s: String): String = ???
+         |}
+         |""".stripMargin
+    }
+  }
+
+  def test_extending_deprecated_java_class(): Unit = {
+    addJavaClass(
+      """import java.lang.Deprecated;
+        |@Deprecated
+        |class Base {}
+        |""".stripMargin
+    )
+    checkTextHasError{
+      s"""class Child extends ${START}Base$END {}""".stripMargin
+    }
+  }
+
+  def test_extending_deprecated_java_interface(): Unit = {
+    addJavaClass(
+      """import java.lang.Deprecated;
+        |@Deprecated
+        |interface Base {}
+        |""".stripMargin
+    )
+    checkTextHasError{
+      s"""@deprecated()
+         |trait Base()
+         |class Child extends ${START}Base$END {}
+         |""".stripMargin
+    }
+  }
+
+  def test_extending_deprecated_java_class_and_java_trait(): Unit = {
+    addJavaClass(
+      """import java.lang.Deprecated;
+        |@Deprecated
+        |class BaseClass {}
+        |""".stripMargin
+    )
+    addJavaClass(
+      """import java.lang.Deprecated;
+        |@Deprecated
+        |interface BaseInterface {}
+        |""".stripMargin
+    )
+    checkTextHasError{
+      s"""class Child extends ${START}BaseClass$END with ${START}BaseInterface$END {}""".stripMargin
+    }
+  }
 }
 
 class ScalaDeprecationInspectionTest_where_duprecatedName_is_deprecated extends ScalaDeprecationInspectionTestBase {

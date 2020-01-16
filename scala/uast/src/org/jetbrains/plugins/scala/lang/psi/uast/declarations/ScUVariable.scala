@@ -3,32 +3,16 @@ package org.jetbrains.plugins.scala.lang.psi.uast.declarations
 import _root_.java.util
 
 import com.intellij.psi.util.PsiTreeUtil._
-import com.intellij.psi.{
-  PsiElement,
-  PsiField,
-  PsiLocalVariable,
-  PsiModifier,
-  PsiType,
-  PsiVariable
-}
+import com.intellij.psi.{PsiAnnotation, PsiClass, PsiElement, PsiField, PsiLocalVariable, PsiModifier, PsiType, PsiVariable}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{
-  ScMethodLike,
-  ScModifierList
-}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{
-  ScBlockStatement,
-  ScExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{
-  ScPatternDefinition,
-  ScValueOrVariable,
-  ScVariableDefinition
-}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
@@ -116,10 +100,10 @@ object ScUVariable {
   private[uast] def createLightVariable(
     isField: Boolean,
     name: String,
-    psiType: PsiType,
     isVal: Boolean,
     containingTypeDef: ScTemplateDefinition,
-    modifiersList: Option[ScModifierList]
+    modifiersList: Option[ScModifierList],
+    typeable: Typeable with PsiElement
   ): PsiField with PsiLocalVariable = {
 
     val javaModifiers = mutable.ArrayBuffer.empty[String]
@@ -145,14 +129,14 @@ object ScUVariable {
     // process immutability modifier
     if (isVal) javaModifiers += PsiModifier.FINAL
 
-    new LightVariableWithGivenAnnotationsBuilder(
+    new LightVariableWithLazyType(
       name,
-      psiType,
       containingTypeDef,
       modifiersList
         .map(_.getAnnotations)
         .getOrElse(Array.empty),
-      javaModifiers.toArray
+      javaModifiers.toArray,
+      typeable
     )
   }
 
@@ -173,27 +157,17 @@ object ScUVariable {
     arg match {
       case namePattern: ScReferencePattern =>
         for {
-          declarationExpr <- Option(
-            getParentOfType(namePattern, classOf[ScValueOrVariable])
-          )
-          containingTypeDef <- Option(
-            getParentOfType(namePattern, classOf[ScTemplateDefinition])
-          )
-          variableType <- namePattern.`type`().toOption.map(_.toPsiType)
+          declarationExpr   <- Option(getParentOfType(namePattern, classOf[ScValueOrVariable]))
+          containingTypeDef <- Option(getParentOfType(namePattern, classOf[ScTemplateDefinition]))
         } yield {
-          val isField =
-            Option(getParentOfType(namePattern, classOf[ScMethodLike]))
-              .forall { containingMethod =>
-                findCommonParent(containingTypeDef, containingMethod) == containingMethod
-              }
-
+          val isField = !declarationExpr.isLocal
           val lightVariable = createLightVariable(
             isField,
             namePattern.name,
-            variableType,
             namePattern.isVal,
             containingTypeDef,
-            Some(declarationExpr.getModifierList)
+            Some(declarationExpr.getModifierList),
+            namePattern
           )
 
           val initializer = declarationExpr match {
@@ -213,15 +187,15 @@ object ScUVariable {
         }
 
       case classParam: ScClassParameter if classParam.isClassMember =>
-        for (fieldType <- classParam.`type`().toOption.map(_.toPsiType)) yield {
-          val lightField = createLightVariable(
-            isField = true,
-            classParam.name,
-            fieldType,
-            isVal = classParam.isVal,
-            classParam.containingClass,
-            Some(classParam.getModifierList)
-          )
+        val lightField = createLightVariable(
+          isField = true,
+          classParam.name,
+          isVal = classParam.isVal,
+          classParam.containingClass,
+          Some(classParam.getModifierList),
+          classParam
+        )
+        Some {
           buildUVariable(isField = true)(
             lightField,
             classParam,
@@ -231,9 +205,24 @@ object ScUVariable {
             _
           )
         }
-
       case _ => None
     }
+  }
+
+  private class LightVariableWithLazyType(name: String,
+                                          containingClass: PsiClass,
+                                          annotations: Array[PsiAnnotation],
+                                          modifiers: Array[String],
+                                          typeable: Typeable with PsiElement)
+    extends LightVariableWithGivenAnnotationsBuilder(name, UastErrorType.INSTANCE, containingClass, annotations, modifiers) {
+
+    override lazy val getType: PsiType = {
+      if (typeable.isValid)
+        typeable.`type`().toOption.map(_.toPsiType).getOrElse(super.getType)
+      else
+        super.getType
+    }
+
   }
 
   trait Parent2ScUVariable {

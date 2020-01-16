@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import java.util.Objects
-
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayFactory
@@ -26,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 class ScalaResolveResult(val element: PsiNamedElement,
                          val substitutor: ScSubstitutor = ScSubstitutor.empty,
@@ -126,7 +125,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
     case _ => false
   }
 
-  override def hashCode: Int = Objects.hash(element, innerResolveResult, renamed, implicitFunction)
+  override def hashCode: Int = element #+ innerResolveResult #+ renamed #+ implicitFunction
 
   override def toString: String =  {
     val name = element match {

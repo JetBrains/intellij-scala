@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package project
 
 import java.io.File
-import java.util.Objects
 
 import com.intellij.openapi.roots.libraries.LibraryProperties
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtilCore
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 /**
  * @author Pavel Fatin
@@ -47,7 +47,7 @@ final class ScalaLibraryProperties private(private[this] var _languageLevel: Sca
     case _ => false
   }
 
-  override def hashCode: Int = Objects.hash(languageLevel, compilerClasspath)
+  override def hashCode: Int = languageLevel #+ compilerClasspath
 
   override def toString = s"ScalaLibraryProperties($languageLevel, $compilerClasspath)"
 }

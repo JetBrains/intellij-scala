@@ -20,7 +20,7 @@ import org.jetbrains.bsp.project.BspTask.{BspTarget, TextCollector}
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter, IndicatorReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, BuildToolWindowReporter, IndicatorReporter}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -43,7 +43,7 @@ class BspTask[T](project: Project,
   private var diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
   import BspNotifications._
-  private def notifications(report: BuildToolWindowReporter): NotificationAggregator[BuildMessages] =
+  private def notifications(report: BuildTaskReporter): NotificationAggregator[BuildMessages] =
     (messages, notification) => notification match {
     case LogMessage(params) =>
       report.log(params.getMessage)
@@ -66,7 +66,7 @@ class BspTask[T](project: Project,
       messages
   }
 
-  private def processLog(report: BuildToolWindowReporter): ProcessLogger = { message =>
+  private def processLog(report: BuildTaskReporter): ProcessLogger = { message =>
     report.log(message)
   }
 
@@ -86,6 +86,7 @@ class BspTask[T](project: Project,
         buildRequests(targets, targetsToClean)(_,_),
         BuildMessages.empty,
         notifications(report),
+        report,
         processLog(report))
     }
 
@@ -129,7 +130,7 @@ class BspTask[T](project: Project,
     onComplete()
   }
 
-  private def messagesWithStatus(report: BuildToolWindowReporter,
+  private def messagesWithStatus(report: BuildTaskReporter,
                                reportIndicator: IndicatorReporter,
                                result: CompileResult,
                                messages: BuildMessages): BuildMessages = {

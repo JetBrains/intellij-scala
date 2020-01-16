@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ImplicitCollectorCacheCapabilities
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
@@ -68,13 +68,10 @@ class ScalaPsiManager(implicit val project: Project) {
   val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
     ContainerUtil.newConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]]()
 
-  val implicitCollectorCache: ImplicitCollectorCache = new ImplicitCollectorCache(project)
-  CacheTracker.alwaysTrack(
-    "ScalaPsiManager.implicitCollectorCache",
-    "ScalaPsiManager.implicitCollectorCache",
-    implicitCollectorCache,
-    ImplicitCollectorCacheCapabilities
-  )
+  val implicitCollectorCache: ImplicitCollectorCache =
+    CacheTracker.alwaysTrack("ScalaPsiManager.implicitCollectorCache", "ScalaPsiManager.implicitCollectorCache") {
+      new ImplicitCollectorCache(project)
+    }
 
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
@@ -296,8 +293,6 @@ class ScalaPsiManager(implicit val project: Project) {
   }
 
   private[impl] def projectOpened(): Unit = {
-    import ScalaPsiManager._
-
     project.subscribeToModuleRootChanged() { _ =>
       LOG.debug("Clear caches on root change")
       clearOnRootsChange()
@@ -409,7 +404,7 @@ class ScalaPsiManager(implicit val project: Project) {
     private def onPsiChange(event: PsiTreeChangeEvent, psiElement: PsiElement): Unit = {
       if (!shouldClear(event)) return
 
-      ScalaPsiManager.LOG.debug(s"Clear caches on psi change: $event")
+      LOG.debug(s"Clear caches on psi change: $event")
 
       if (psiElement != null && psiElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
         @tailrec
@@ -502,10 +497,11 @@ object ScalaPsiManager {
 
   object AnyScalaPsiModificationTracker extends SimpleModificationTracker
 
-  object ImplicitCollectorCacheCapabilities extends CacheCapabilities[ImplicitCollectorCache] {
-    override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
-    override def clear(cache: CacheType): Unit = cache.clear()
-  }
+  implicit val ImplicitCollectorCacheCapabilities: CacheCapabilities[ImplicitCollectorCache] =
+    new CacheCapabilities[ImplicitCollectorCache] {
+      override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
+      override def clear(cache: CacheType): Unit = cache.clear()
+    }
 }
 
 class ScalaPsiManagerComponent(project: Project) extends ProjectComponent {

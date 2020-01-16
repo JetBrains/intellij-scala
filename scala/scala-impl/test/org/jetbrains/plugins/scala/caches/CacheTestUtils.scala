@@ -50,21 +50,21 @@ trait CacheTestUtils { testFixtureProvider: TestFixtureProvider =>
     }
 
     @CachedWithRecursionGuard(psi, "#" + name, ModCount.getModificationCount)
-    private[this] def call(): String = {
+    private[this] def internal_cached_call(): String = {
       calcCounter += 1
       innerCalls.map(_.apply()).mkString(name + "(", "+", ")")
     }
 
     def apply(): String = {
       val oldCount = calcCounter
-      val result = call()
+      val result = internal_cached_call()
 
       val wasCached = oldCount == calcCounter && !result.startsWith("#")
 
       if (wasCached) {
-        val localResult = RecursionManager
-          .RecursionGuard[PsiElement, String]("callcacheKey$macro$1")
-          .getFromLocalCache(psi)
+        import RecursionManager.RecursionGuard
+        val Seq(id) = RecursionGuard.allGuardNames.filter(_.startsWith("internal_cached_call")).toSeq
+        val localResult = RecursionGuard[PsiElement, String](id).getFromLocalCache(psi)
         if (localResult == null) {
           "@" + result
         } else {

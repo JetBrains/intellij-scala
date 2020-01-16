@@ -198,8 +198,11 @@ object SbtUtil {
     s"{$uri}$id"
   }
 
-  def getLauncherDir: File =
-    getDirInPlugin("launcher")
+  def getLauncherDir: File = getDirInPlugin("launcher")
+
+  def getLibDir: File = getDirInPlugin("lib")
+
+  def getRepoDir: File = getDirInPlugin("repo")
 
   def getSbtStructureJar(sbtVersion: Version): Option[File] = {
     val binVersion = binaryVersion(sbtVersion)
@@ -214,8 +217,6 @@ object SbtUtil {
       getRepoDir / relativePath
     }
   }
-
-  def getRepoDir: File = getDirInPlugin("repo")
 
   def getDefaultLauncher: File = getLauncherDir / "sbt-launch.jar"
 

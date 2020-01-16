@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package project
-package template
+package org.jetbrains.plugins.scala.project.template
 
 import java.io.File
+
+import org.jetbrains.plugins.scala.project.Version
 
 /**
  * @author Pavel Fatin
@@ -24,7 +24,7 @@ object ScalaSdkDescriptor {
   import Artifact._
   import Kind._
 
-  def from(components: Seq[Component]): Either[String, ScalaSdkDescriptor] = {
+  def buildFromComponents(components: Seq[ScalaSdkComponent]): Either[String, ScalaSdkDescriptor] = {
     val componentsByKind = components.groupBy(_.kind)
       .withDefault(Function.const(Seq.empty))
 
@@ -38,7 +38,7 @@ object ScalaSdkDescriptor {
         Left("Not found: " + missingBinaryArtifacts.map(_.prefix + "*.jar").mkString(", "))
       case _ =>
         val libraryVersion = binaryComponents.collectFirst {
-          case Component(ScalaLibrary, _, Some(version), _) => version
+          case ScalaSdkComponent(ScalaLibrary, _, Some(version), _) => version
         }
 
         val descriptor = ScalaSdkDescriptor(
@@ -59,10 +59,10 @@ object ScalaSdkDescriptor {
     ScalaReflect
   )
 
-  private[this] def files(components: Seq[Component])
+  private[this] def files(components: Seq[ScalaSdkComponent])
                          (predicate: Artifact => Boolean = ScalaArtifacts - ScalaCompiler) =
     for {
-      Component(artifact, _, _, file) <- components
+      ScalaSdkComponent(artifact, _, _, file) <- components
       if predicate(artifact)
     } yield file
 }

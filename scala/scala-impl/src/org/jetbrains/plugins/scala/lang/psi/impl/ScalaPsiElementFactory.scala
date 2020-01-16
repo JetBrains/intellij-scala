@@ -140,6 +140,11 @@ object ScalaPsiElementFactory {
   import lexer.ScalaTokenTypes._
   import refactoring.util.ScalaNamesUtil._
 
+  def safe[T](createBody: ScalaPsiElementFactory.type => T): Option[T] =
+    try Some(createBody(ScalaPsiElementFactory)) catch {
+      case _: ScalaPsiElementCreationException => None
+    }
+
   def createExpressionFromText(text: String, context: PsiElement): ScExpression = {
     try {
       createExpressionWithContextFromText(text, context, context)
@@ -1053,11 +1058,20 @@ object ScalaPsiElementFactory {
 
   private[this] def elementCreationException(kind: String, text: String,
                                              context: PsiElement = null,
-                                             cause: Throwable = null) = {
-    val contextSuffix = context match {
-      case null => ""
-      case _ => "; with context: " + context.getText
+                                             cause: Throwable = null) =
+    ScalaPsiElementCreationException(kind, text, context, cause)
+
+  final class ScalaPsiElementCreationException(message: String, cause: Throwable)
+    extends IncorrectOperationException(message, cause)
+
+  private object ScalaPsiElementCreationException {
+
+    def apply(kind: String, text: String, context: PsiElement = null, cause: Throwable = null): ScalaPsiElementCreationException = {
+      val contextSuffix = context match {
+        case null => ""
+        case _ => "; with context: " + context.getText
+      }
+      new ScalaPsiElementCreationException(s"Cannot create $kind from text: $text$contextSuffix", cause)
     }
-    new IncorrectOperationException(s"Cannot create $kind from text: $text$contextSuffix", cause)
   }
 }

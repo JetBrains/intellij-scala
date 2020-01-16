@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 /**
   * @author Alefas
@@ -128,7 +129,7 @@ abstract class PsiMethodWrapper[T <: ScalaPsiElement with PsiNamedElement with N
   }
 
   override def hashCode(): Int =
-    getName.hashCode + 31 * delegate.hashCode() + 31 * 31 * getContainingClass.hashCode()
+    getName #+ delegate #+ getContainingClass
 }
 
 object PsiMethodWrapper {

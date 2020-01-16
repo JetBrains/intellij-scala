@@ -13,11 +13,10 @@ import com.intellij.codeInsight.template._
 final class ScalaExpressionTypeMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
-    case Array(head) =>
-      resultToScExpr(head.calculateResult(context))(context)
-        .map(ScalaTypeResult)
-        .orNull
-    case _ => null
+    case Array(param) =>
+      val maybeType = resultToScExpr(param.calculateResult(context))(context)
+      maybeType.map(ScalaTypeResult).orNull
+    case _            => null
   }
 
   override def getPresentableName: String = CodeInsightBundle.message("macro.expression.type")

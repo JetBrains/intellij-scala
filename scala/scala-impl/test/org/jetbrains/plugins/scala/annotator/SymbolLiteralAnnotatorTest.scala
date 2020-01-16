@@ -15,7 +15,7 @@ class SymbolLiteralAnnotatorTest extends ScalaAnnotatorQuickFixTestBase {
   def test_in_assignment(): Unit = {
     val code =
       s"""
-         |val test = <selection>'$symbolName</selection>
+         |val test = $START'$symbolName$END
       """
     checkTextHasError(code)
 

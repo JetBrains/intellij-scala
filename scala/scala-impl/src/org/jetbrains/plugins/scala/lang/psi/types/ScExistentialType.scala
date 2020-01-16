@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 /**
   * @author ilyas
@@ -115,7 +116,7 @@ final class ScExistentialType private (val quantified: ScType,
   }
 
   //to make it different from `quantified.hashCode`
-  override def hashCode(): Int = quantified.hashCode() + ScExistentialType.hashCode()
+  override def hashCode(): Int = quantified #+ ScExistentialType
 }
 
 object ScExistentialType {
