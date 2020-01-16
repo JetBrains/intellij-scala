@@ -5,15 +5,13 @@ package parentheses
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.InspectionProfileManager
-import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase.TestPrepareResult
+import org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase.{ExpectedHighlight, TestPrepareResult}
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
 class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaUnnecessaryParenthesesInspection]
@@ -49,20 +47,20 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
   }
 
   private def checkTextHasErrors(text: String): Unit = {
-    val TestPrepareResult(expectedRanges, actualHighlights) = configureByText(text)
-    val actualRanges : Seq[TextRange] = actualHighlights.map(_._2)
-    val expectedParenthesesRanges: Seq[TextRange] = {
-      val range = expectedRanges.head
+    val TestPrepareResult(expectedHighlights, actualHighlights) = configureByText(text)
+    val expectedParenthesesHighlights: Seq[ExpectedHighlight] = {
+      val ExpectedHighlight(range) = expectedHighlights.head
       val left  = TextRange.from(range.getStartOffset, 1)
       val right = TextRange.from(range.getEndOffset - 1, 1)
-      if (range.getLength >= 4) {
+      val ranges = if (range.getLength >= 4) {
         val middle = range.shrink(2)
         Seq(left, middle, right)
       } else {
         Seq(left, right)
       }
+      ranges.map(ExpectedHighlight)
     }
-    super.checkTextHasError(expectedParenthesesRanges, actualRanges, allowAdditionalHighlights = true)
+    super.checkTextHasError(expectedParenthesesHighlights, actualHighlights, allowAdditionalHighlights = true)
   }
 
   // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case

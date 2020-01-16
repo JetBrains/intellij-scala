@@ -167,17 +167,11 @@ object SimplePattern {
 
           def parseSeqWildcardAny(): Boolean = parseSeqWildcard() ||  parseSeqWildcardBindingScala3() || parseSeqWildcardBinding()
 
-          // FIXME: we do not allow wildcards in the beginning (e.g. case List(_*, 42) => ???, but allow them
-          //  in the middle (e.g. case List(1, _*, 2, _*) => ???) and do not highlight any error
-          //  (compiler says Error: bad simple pattern: bad use of _* (a sequence pattern must be the last pattern))
-          //  we should whether not parse wildcards in the middle OR (the best IMO) move the error to annotator
-          if (!parseSeqWildcardAny()) {
-            if (Pattern.parse(builder)) {
-              while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-                builder.advanceLexer() // eat comma
-                if (!parseSeqWildcardAny()) {
-                  Pattern.parse(builder)
-                }
+          if (parseSeqWildcardAny() || Pattern.parse(builder)) {
+            while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+              builder.advanceLexer() // eat comma
+              if (!parseSeqWildcardAny()) {
+                Pattern.parse(builder)
               }
             }
           }
