@@ -120,6 +120,7 @@ object Dependencies {
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M2" % zincVersion classifier "sources"
+  val dottySbtBridge_0_21 = "ch.epfl.lamp" % "dotty-sbt-bridge" % "0.21.0-RC1"
 
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
@@ -188,6 +189,7 @@ object DependencyGroups {
     sbtLaunch,
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
-    compilerBridgeSources_2_13
+    compilerBridgeSources_2_13,
+    dottySbtBridge_0_21
   )
 }

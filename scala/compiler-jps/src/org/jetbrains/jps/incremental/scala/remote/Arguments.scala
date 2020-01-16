@@ -29,9 +29,10 @@ case class Arguments(token: String, sbtData: SbtData, compilerData: CompilerData
       token,
       fileToPath(sbtData.sbtInterfaceJar),
       fileToPath(sbtData.compilerInterfaceJar),
-      fileToPath(sbtData.sourceJars._2_10),
-      fileToPath(sbtData.sourceJars._2_11),
-      fileToPath(sbtData.sourceJars._2_13),
+      fileToPath(sbtData.compilerBridges.scala._2_10),
+      fileToPath(sbtData.compilerBridges.scala._2_11),
+      fileToPath(sbtData.compilerBridges.scala._2_13),
+      fileToPath(sbtData.compilerBridges.dotty._0_21),
       fileToPath(sbtData.interfacesHome),
       sbtData.javaClassVersion,
       optionToString(compilerJarPaths),
@@ -64,9 +65,10 @@ object Arguments {
     case token +: Seq(
       PathToFile(sbtInterfaceJar),
       PathToFile(compilerInterfaceJar),
-      PathToFile(sourceJar_2_10),
-      PathToFile(sourceJar_2_11),
-      PathToFile(sourceJar_2_13),
+      PathToFile(scalaBridgeSourceJar_2_10),
+      PathToFile(scalaBridgeSourceJar_2_11),
+      PathToFile(scalaBridgeSourceJar_2_13),
+      PathToFile(dottyBridgeJar_0_21),
       PathToFile(interfacesHome),
       javaClassVersion,
       StringToOption(compilerJarPaths),
@@ -82,15 +84,23 @@ object Arguments {
       PathsToFiles(caches),
       incrementalTypeName,
       PathsToFiles(sourceRoots),
-      PathsToFiles(outputDirs),
-      StringToSequence(worksheetClass)
-    ) :+ PathsToFiles(allSources)
+      PathsToFiles(outputDirs)
+    ) :+ StringToSequence(worksheetClass)
+      :+ PathsToFiles(allSources)
       :+ startDate
       :+ StringToBoolean(isCompile)
      =>
 
-      val sourceJars = SbtData.SourceJars(sourceJar_2_10, sourceJar_2_11, sourceJar_2_13)
-      val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, sourceJars, interfacesHome, javaClassVersion)
+      val scalaBridgeSources = SbtData.ScalaSourceJars(
+        _2_10 = scalaBridgeSourceJar_2_10,
+        _2_11 = scalaBridgeSourceJar_2_11,
+        _2_13 = scalaBridgeSourceJar_2_13
+      )
+      val dottyBridges = SbtData.DottyJars(
+        _0_21 = dottyBridgeJar_0_21
+      )
+      val compilerBridges = SbtData.CompilerBridges(scalaBridgeSources, dottyBridges)
+      val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
 
       val compilerJars = compilerJarPaths.map {
         case PathsToFiles(Seq(libraryJar, compilerJar, extraJars @ _*)) =>

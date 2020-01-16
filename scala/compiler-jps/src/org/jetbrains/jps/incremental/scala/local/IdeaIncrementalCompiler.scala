@@ -33,7 +33,8 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
       if (compilationData.outputGroups.size <= 1) CompileOutput(compilationData.output)
       else CompileOutput(compilationData.outputGroups: _*)
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.classpathOptions)
-    val options = "IntellijIdea.simpleAnalysis" +: cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
+    val options = cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
+      .filterNot(_.startsWith("-g:")) // TODO SCL-16881
 
 
     try {

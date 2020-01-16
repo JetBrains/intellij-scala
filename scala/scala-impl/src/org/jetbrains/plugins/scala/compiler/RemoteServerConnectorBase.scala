@@ -71,9 +71,10 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
   def arguments: Seq[String] = Seq[String](
     sbtData.sbtInterfaceJar,
     sbtData.compilerInterfaceJar,
-    sbtData.sourceJars._2_10,
-    sbtData.sourceJars._2_11,
-    sbtData.sourceJars._2_13,
+    sbtData.compilerBridges.scala._2_10,
+    sbtData.compilerBridges.scala._2_11,
+    sbtData.compilerBridges.scala._2_13,
+    sbtData.compilerBridges.dotty._0_21,
     sbtData.interfacesHome,
     sbtData.javaClassVersion,
     compilerClasspath,

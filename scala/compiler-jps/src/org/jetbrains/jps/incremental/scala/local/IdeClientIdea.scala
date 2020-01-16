@@ -8,6 +8,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.builders.java.dependencyView.Callbacks
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
+import org.jetbrains.jps.incremental.scala.local.IdeClientIdea.CompilationResult
 import org.jetbrains.jps.incremental.scala.local.PackageObjectsData.packageObjectClassName
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.org.objectweb.asm.ClassReader
@@ -29,11 +30,26 @@ class IdeClientIdea(compilerName: String,
                     packageObjectsData: PackageObjectsData)
   extends IdeClient(compilerName, context, modules, consumer) {
 
-  private val tempSuccessfullyCompiled = mutable.Set[File]()
   private val packageObjectsBaseClasses = ArrayBuffer[PackageObjectBaseClass]()
+  private var compilationResults: Seq[CompilationResult] = List.empty
 
   //logic is taken from org.jetbrains.jps.incremental.java.OutputFilesSink.save
   def generated(source: File, outputFile: File, name: String): Unit = {
+    val compilationResult = CompilationResult(
+      source = source,
+      outputFile = outputFile,
+      name = name
+    )
+    compilationResults = compilationResult +: compilationResults
+  }
+
+  override def compilationEnd(): Unit = {
+    compilationResults.foreach(handleCompilationResult)
+    persistPackageObjectData()
+  }
+
+  private def handleCompilationResult(compilationResult: CompilationResult): Unit = {
+    val CompilationResult(source, outputFile, name) = compilationResult
     val compiledClass = new LazyCompiledClass(outputFile, source, name)
     val content = compiledClass.getContent
     var isTemp: Boolean = false
@@ -70,19 +86,7 @@ class IdeClientIdea(compilerName: String,
     }
 
     if (isClassFile && !isTemp && source != null)
-      tempSuccessfullyCompiled += source
-  }
-
-  //add source to successfullyCompiled only after the whole file is processed
-  def processed(source: File): Unit = {
-    if (tempSuccessfullyCompiled(source)) {
       successfullyCompiled += source
-      tempSuccessfullyCompiled -= source
-    }
-  }
-
-  override def compilationEnd(): Unit = {
-    persistPackageObjectData()
   }
 
   private def handlePackageObject(source: File, outputFile: File, reader: ClassReader): Any = {
@@ -125,5 +129,10 @@ class IdeClientIdea(compilerName: String,
 
   private case class PackageObjectBaseClass(packObjectSrc: File, packageName: String, baseClassName: String)
 
+}
+
+object IdeClientIdea {
+
+  private case class CompilationResult(source: File, outputFile: File, name: String)
 }
 

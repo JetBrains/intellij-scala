@@ -16,8 +16,8 @@ import sbt.util.Logger
 import xsbti.compile.{ScalaInstance => _, _}
 
 /**
-  * @author Pavel Fatin
-  */
+ * @author Pavel Fatin
+ */
 class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
   def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
@@ -45,8 +45,15 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
   def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
     getScalaInstance(compilerJars).map { scala =>
-      val compiledInterfaceJar = getOrCompileInterfaceJar(sbtData.interfacesHome, sbtData.sourceJars,
-        Seq(sbtData.sbtInterfaceJar, sbtData.compilerInterfaceJar), scala, sbtData.javaClassVersion, Option(client))
+      val compiledInterfaceJar = getOrCompileInterfaceJar(
+        home = sbtData.interfacesHome,
+        compilerBridges = sbtData.compilerBridges,
+        interfaceJars = Seq(sbtData.sbtInterfaceJar, sbtData.compilerInterfaceJar),
+        scalaInstance = scala,
+        javaClassVersion = sbtData.javaClassVersion,
+        client = Option(client),
+        isDotty = compilerJars.exists(_.hasDotty)
+      )
 
       new AnalyzingCompiler(scala,
         ZincCompilerUtil.constantBridgeProvider(scala, compiledInterfaceJar),
@@ -62,7 +69,7 @@ object CompilerFactoryImpl {
   private val Log: JpsLogger = JpsLogger.getInstance(CompilerFactoryImpl.getClass.getName)
   private val scalaInstanceCache = new Cache[CompilerJars, ScalaInstance](3)
 
-  var classLoadersMap = Map[Seq[File], ClassLoader]()
+  private var classLoadersMap = Map[Seq[File], ClassLoader]()
 
   def createScalaInstance(jars: CompilerJars): ScalaInstance = {
     scalaInstanceCache.getOrUpdate(jars) {
@@ -89,39 +96,45 @@ object CompilerFactoryImpl {
   def readScalaVersionIn(classLoader: ClassLoader): Option[String] =
     readProperty(classLoader, "compiler.properties", "version.number")
 
-  def getOrCompileInterfaceJar(home: File,
-                               sourceJars: SbtData.SourceJars,
-                               interfaceJars: Seq[File],
-                               scalaInstance: ScalaInstance,
-                               javaClassVersion: String,
-                               client: Option[Client]): File = {
+  private def getOrCompileInterfaceJar(home: File,
+                                       compilerBridges: SbtData.CompilerBridges,
+                                       interfaceJars: Seq[File],
+                                       scalaInstance: ScalaInstance,
+                                       javaClassVersion: String,
+                                       client: Option[Client],
+                                       isDotty: Boolean): File =
+    if (isDotty) {
+      compilerBridges.dotty._0_21
+    } else {
+      val scalaVersion = scalaInstance.actualVersion
 
-    val scalaVersion = scalaInstance.actualVersion
+      val sourceJar =
+        if (isBefore_2_11(scalaVersion)) compilerBridges.scala._2_10
+        else if (isBefore_2_13(scalaVersion)) compilerBridges.scala._2_11
+        else compilerBridges.scala._2_13
 
-    val sourceJar =
-      if (isBefore_2_11(scalaVersion)) sourceJars._2_10
-      else if (isBefore_2_13(scalaVersion)) sourceJars._2_11
-      else sourceJars._2_13
+      val interfaceId = "compiler-interface-" + scalaVersion + "-" + javaClassVersion
+      val targetJar = new File(home, interfaceId + ".jar")
 
-    val interfaceId = "compiler-interface-" + scalaVersion + "-" + javaClassVersion
-    val targetJar = new File(home, interfaceId + ".jar")
+      if (!targetJar.exists) {
+        client.foreach(_.progress("Compiling Scalac " + scalaVersion + " interface"))
+        home.mkdirs()
+        val raw = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto, NullLogger)
+        AnalyzingCompiler.compileSources(sourceJar :: Nil, targetJar, interfaceJars, interfaceId, raw, NullLogger)
+      }
 
-    if (!targetJar.exists) {
-      client.foreach(_.progress("Compiling Scalac " + scalaVersion + " interface"))
-      home.mkdirs()
-      val raw = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto, NullLogger)
-      AnalyzingCompiler.compileSources(sourceJar :: Nil, targetJar, interfaceJars, interfaceId, raw, NullLogger)
+      targetJar
     }
 
-    targetJar
-  }
-
   private def isBefore_2_11(version: String): Boolean = version.startsWith("2.10") || !version.startsWith("2.1")
+
   private def isBefore_2_13(version: String): Boolean = version.startsWith("2.11") || version.startsWith("2.12")
 }
 
 object NullLogger extends Logger {
-  override def log(level: sbt.util.Level.Value,message: => String): Unit = {}
+  override def log(level: sbt.util.Level.Value, message: => String): Unit = {}
+
   override def success(message: => String): Unit = {}
+
   override def trace(t: => Throwable): Unit = {}
 }

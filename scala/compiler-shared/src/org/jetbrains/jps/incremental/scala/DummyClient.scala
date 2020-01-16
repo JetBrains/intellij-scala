@@ -19,8 +19,6 @@ class DummyClient extends Client {
 
   override def debug(text: String) {}
 
-  override def processed(source: File) {}
-
   override def trace(exception: Throwable) {}
 
   override def generated(source: File, module: File, name: String) {}
