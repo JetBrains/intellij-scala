@@ -1,10 +1,10 @@
 package org.jetbrains.jps.incremental.scala.remote
 
 import java.io._
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
-import java.util.{Timer, TimerTask}
+import java.util.{Base64, Timer, TimerTask}
 
-import com.intellij.util.Base64Converter
 import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.local.LocalServer
@@ -47,7 +47,7 @@ object Main {
 
     val client: EventGeneratingClient = {
       val eventHandler = (event: Event) => {
-        val encoded = Base64Converter.encode(event.toBytes)
+        val encoded = Base64.getEncoder.encodeToString(event.toBytes)
         val encodedNormalized = if (standalone && !encoded.endsWith("=")) encoded + "=" else encoded
         val bytes = encodedNormalized.getBytes
         out.write(bytes)
@@ -107,8 +107,8 @@ object Main {
   }
 
   private def decodeArgument(argEncoded: String): String = {
-    val decoded = Base64Converter.decode(argEncoded.getBytes)
-    val str = new String(decoded, "UTF-8")
+    val decoded = Base64.getDecoder.decode(argEncoded.getBytes)
+    val str = new String(decoded, StandardCharsets.UTF_8)
     if (str == "#STUB#") "" else str
   }
 

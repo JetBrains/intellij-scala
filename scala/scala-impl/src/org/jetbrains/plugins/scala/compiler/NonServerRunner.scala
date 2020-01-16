@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{BufferedReader, File, InputStreamReader, Reader}
+import java.util.Base64
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.process._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.Base64Converter
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.BaseDataReader
 import org.jetbrains.jps.incremental.scala.Client
@@ -58,7 +58,8 @@ class NonServerRunner(project: Project) {
 
             val eventClient = new ClientEventProcessor(client)
             val listener: String => Unit = (text: String) => {
-              val event = Event.fromBytes(Base64Converter.decode(text.getBytes("UTF-8")))
+              val bytes = Base64.getDecoder.decode(text.getBytes("UTF-8"))
+              val event = Event.fromBytes(bytes)
               eventClient.process(event)
             }
             val bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream))

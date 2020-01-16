@@ -69,7 +69,7 @@ object ScalaPluginVersionVerifier {
     }
   }
 
-  def scalaPluginId: String = getPluginDescriptor.getPluginId.getIdString
+  def scalaPluginId: PluginId = getPluginDescriptor.getPluginId
 
   private[components] val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier")
 }
@@ -107,7 +107,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
 
                 showIncompatiblePluginNotification(plugin, message) {
                   case "Yes" =>
-                    disablePlugin(plugin.getPluginId.getIdString)
+                    disablePlugin(plugin.getPluginId)
                   case "No" => //do nothing it seems all is ok for the user
                   case _ => //do nothing it seems all is ok for the user
                 }
@@ -157,8 +157,8 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
   }
 
   private def checkHaskForcePlugin(): Unit = {
-    val haskforceId = "com.haskforce"
-    val plugin = PluginManagerCore.getPlugin(PluginId.findId(haskforceId))
+    val haskforceId = PluginId.findId("com.haskforce")
+    val plugin = PluginManagerCore.getPlugin(haskforceId)
     if (plugin == null || !plugin.isEnabled)
       return
 
@@ -199,7 +199,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
   private def hyperlink(description: String): String =
     s"""<p/><a href="$description">$description</a>"""
 
-  private def disablePlugin(id: String) = {
+  private def disablePlugin(id: PluginId) = {
     PluginManagerCore.disablePlugin(id)
     PluginManagerConfigurable.showRestartDialog()
   }

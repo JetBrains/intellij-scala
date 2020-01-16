@@ -2,16 +2,14 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
-import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, RunConfiguration}
+import com.intellij.execution.configurations.{ConfigurationType, RunConfiguration}
 import com.intellij.execution.junit.{InheritorChooser, JavaRuntimeConfigurationProducerBase}
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.actionSystem.PlatformDataKeys
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.TextEditor
-import com.intellij.openapi.module.{Module, ModuleManager, ModuleType, ModuleTypeManager, ModuleUtilCore}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.ui.popup.JBPopupFactory
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Condition, Ref}
 import com.intellij.psi._
@@ -19,12 +17,12 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import javax.swing.ListCellRenderer
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData, TestConfigurationData}
-import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 import scala.collection.JavaConverters._
 

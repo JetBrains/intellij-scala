@@ -109,7 +109,7 @@ class RuntimeRefRenderer extends NodeRendererImpl {
         labelListener.labelChanged()
       }
     })
-    XDebuggerUIConstants.COLLECTING_DATA_MESSAGE
+    XDebuggerUIConstants.getCollectingDataMessage
   }
 
 }

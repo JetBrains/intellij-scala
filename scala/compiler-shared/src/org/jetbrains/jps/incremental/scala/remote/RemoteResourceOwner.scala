@@ -2,8 +2,9 @@ package org.jetbrains.jps.incremental.scala.remote
 
 import java.io._
 import java.net.{InetAddress, Socket}
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 
-import com.intellij.util.Base64Converter
 import com.martiansoftware.nailgun.NGConstants
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
@@ -17,11 +18,12 @@ trait RemoteResourceOwner {
   protected val address: InetAddress
   protected val port: Int
   
-  protected val currentDirectory = System.getProperty("user.dir")
+  protected val currentDirectory: String = System.getProperty("user.dir")
   protected val serverAlias = "compile-server"
 
   def send(command: String, arguments: Seq[String], client: Client) {
-    val encodedArgs = arguments.map(s => Base64Converter.encode(s.getBytes("UTF-8")))
+    val encodedArgs = arguments.map(s =>
+      Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8)))
     using(new Socket(address, port)) { socket =>
       using(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
         createChunks(command, encodedArgs).foreach(_.writeTo(output))
@@ -44,7 +46,7 @@ trait RemoteResourceOwner {
           return
         case Chunk(NGConstants.CHUNKTYPE_STDOUT, data) =>
           try {
-            val event = Event.fromBytes(Base64Converter.decode(data))
+            val event = Event.fromBytes(Base64.getDecoder.decode(data))
             processor.process(event)
           } catch {
             case e: Exception =>

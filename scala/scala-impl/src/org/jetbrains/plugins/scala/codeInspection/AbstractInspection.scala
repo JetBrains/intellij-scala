@@ -33,6 +33,7 @@ object AbstractInspection {
   private[this] val CapitalLetterPattern = "(?<!=.)\\p{Lu}".r
   private[this] val InspectionSuffix = "Inspection"
 
+  //noinspection ScalaDeprecation
   private def byClassName(inspection: AbstractInspection): String = {
     val id = inspection.getClass.getSimpleName.stripSuffix(InspectionSuffix)
     CapitalLetterPattern.replaceAllIn(id, it => s" ${it.group(0).toLowerCase}")

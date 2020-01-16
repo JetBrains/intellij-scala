@@ -127,7 +127,7 @@ abstract class BaseCompilationData extends CompilationDataFactory {
   def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
     val compilerConfig = {
       val project = context.getProjectDescriptor.getProject
-      JpsJavaExtensionService.getInstance.getOrCreateCompilerConfiguration(project)
+      JpsJavaExtensionService.getInstance.getCompilerConfiguration(project)
     }
 
     val options = new util.ArrayList[String]()

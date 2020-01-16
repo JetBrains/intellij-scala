@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package worksheet.server
 
 import java.io._
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 
 import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory, CompilerPaths}
@@ -10,7 +12,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
-import com.intellij.util.Base64Converter
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
@@ -82,7 +83,7 @@ class RemoteServerConnector(
           val argumentsFinal = "NO_TOKEN" +: arguments
           val argumentsEncoded = argumentsFinal.map { arg =>
             val argFixed = if(arg.isEmpty) "#STUB#" else arg
-            Base64Converter.encode(argFixed.getBytes("UTF-8"))
+            Base64.getEncoder.encodeToString(argFixed.getBytes(StandardCharsets.UTF_8))
           }
           val runner = new NonServerRunner(project)
           runner.buildProcess(argumentsEncoded, client)

@@ -39,7 +39,7 @@ class AdditionalImportsResolver(javaFile: PsiJavaFile, scope: GlobalSearchScope)
 
     def handleReference(reference: PsiJavaCodeReferenceElement, allImports: PsiImportList): Unit = {
       def createImportStatement(clazz: PsiClass): PsiImportStatement = {
-        PsiElementFactory.SERVICE.getInstance(project).createImportStatement(clazz)
+        PsiElementFactory.getInstance(project).createImportStatement(clazz)
       }
 
       val refName = reference.getReferenceName

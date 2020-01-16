@@ -111,7 +111,7 @@ object BspSettings {
 
   class State extends AbstractExternalSystemSettings.State[BspProjectSettings] {
 
-    private val projectSettings = ContainerUtilRt.newTreeSet[BspProjectSettings]()
+    private val projectSettings = new util.TreeSet[BspProjectSettings]
 
     @XCollection(style = XCollection.Style.v1, elementTypes = Array(classOf[BspProjectSettings]))
     override def getLinkedExternalProjectsSettings: util.Set[BspProjectSettings] = projectSettings

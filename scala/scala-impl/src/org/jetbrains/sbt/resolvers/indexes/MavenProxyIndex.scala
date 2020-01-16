@@ -13,8 +13,6 @@ import scala.collection.JavaConverters._
   */
 class MavenProxyIndex(val root: String, val name: String, implicit val project: ProjectContext) extends ResolverIndex {
 
-  private val MAX_RESULTS = 1000
-
   override def doUpdate(progressIndicator: Option[ProgressIndicator] = None): Unit = {
     findPlatformMavenResolver
       .foreach(i =>

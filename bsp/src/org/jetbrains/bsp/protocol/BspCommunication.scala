@@ -84,7 +84,6 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
       for {
         project <- findProject
         settings <- bspSettings(project)
-        if settings.isUseAutoImport
       } {
         FileDocumentManager.getInstance.saveAllDocuments()
         ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, BSP.ProjectSystemId))

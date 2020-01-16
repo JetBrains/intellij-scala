@@ -4,7 +4,7 @@ import com.intellij.codeInspection.LocalQuickFixOnPsiElement
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
-import com.intellij.openapi.roots.libraries.LibraryTable
+import com.intellij.openapi.roots.libraries.{LibraryTable, LibraryTablesRegistrar}
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ModuleStructureConfigurable
 import com.intellij.openapi.roots.ui.configuration.projectRoot.daemon.ModuleProjectStructureElement
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -39,8 +39,9 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
         AmmoniteUtil.findJarRoot(stableExpr).foreach {
           jarRoot =>
             extensions.inWriteAction {
-              val tableModel = ProjectLibraryTable.getInstance(project).getModifiableModel
-              val lib = tableModel.createLibrary(selectLibName(stableExpr, ProjectLibraryTable.getInstance(project)))
+              val libTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project)
+              val tableModel = libTable.getModifiableModel
+              val lib = tableModel.createLibrary(selectLibName(stableExpr, libTable))
 
               val model = lib.getModifiableModel
               model.addRoot(jarRoot, OrderRootType.CLASSES)

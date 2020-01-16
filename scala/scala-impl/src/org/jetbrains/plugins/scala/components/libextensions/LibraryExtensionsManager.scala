@@ -14,7 +14,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
-import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
+import com.intellij.openapi.roots.libraries.{Library, LibraryTable, LibraryTablesRegistrar}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.util.lang.UrlClassLoader
@@ -83,7 +83,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
       .register(PopupHelper.GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
     if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions)
       loadCachedExtensions()
-    ProjectLibraryTable.getInstance(project).addListener(LibraryListener, project)
+    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(LibraryListener, project)
   }
 
   def setEnabled(value: Boolean): Unit = {

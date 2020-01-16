@@ -44,7 +44,6 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
   {
     val settings = getExternalProjectSettings
     settings.setResolveJavadocs(false)
-    settings.setUseAutoImport(false)
     settings.setCreateEmptyContentRootDirectories(false)
   }
 

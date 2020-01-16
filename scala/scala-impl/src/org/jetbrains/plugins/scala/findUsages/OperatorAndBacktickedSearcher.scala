@@ -4,16 +4,14 @@ package findUsages
 import java.{util => ju}
 
 import com.intellij.openapi.application.ReadActionProcessor
-import com.intellij.openapi.project.IndexNotReadyException
-import com.intellij.openapi.roots.FileIndexFacade
+import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.cache.impl.id.{IdIndex, IdIndexEntry}
 import com.intellij.psi.impl.search.PsiSearchHelperImpl
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, TextOccurenceProcessor, UsageSearchContext}
-import com.intellij.psi.{PsiElement, PsiManager, PsiReference}
+import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.util.{CommonProcessors, Processor, QueryExecutor}
@@ -50,7 +48,6 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
       }
     }
 
-    val manager = PsiManager.getInstance(queryParameters.getProject)
     val scope = inReadAction(ScalaFilterScope(queryParameters))
     namesToProcess.foreach { name =>
       val processor = new TextOccurenceProcessor {
@@ -70,7 +67,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
       }
 
       try {
-        new ScalaPsiSearchHelper(manager)
+        new ScalaPsiSearchHelper(queryParameters.getProject)
           .processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
       } catch {
         case _: IndexNotReadyException =>
@@ -80,8 +77,8 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     true
   }
 
-  private class ScalaPsiSearchHelper(private val manager: PsiManager)
-    extends PsiSearchHelperImpl(manager.asInstanceOf[PsiManagerEx]) {
+  private class ScalaPsiSearchHelper(project: Project)
+    extends PsiSearchHelperImpl(project) {
 
     override def processFilesWithText(scope: GlobalSearchScope,
                                       searchContext: Short,
@@ -100,9 +97,8 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
         FileBasedIndex.getInstance.processFilesContainingAllKeys(IdIndex.NAME, entries, scope, condition, collectProcessor)
       }
 
-      val index = FileIndexFacade.getInstance(manager.getProject)
       val readActionProcessor: ReadActionProcessor[VirtualFile] = { virtualFile: VirtualFile =>
-        !index.shouldBeFound(scope, virtualFile) || processor.process(virtualFile)
+        processor.process(virtualFile)
       }
       ContainerUtil.process(collectProcessor.getResults, readActionProcessor)
     }

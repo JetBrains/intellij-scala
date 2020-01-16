@@ -106,7 +106,7 @@ object CompilerIndicesReferencesSearcher {
         case (CompilerMode.JPS, _) =>
           val manager = ProjectTaskManager.getInstance(project)
           runSearchAfterIndexingFinishedAsync(modules, project, target)
-          manager.build(modules.toArray, null)
+          manager.build(modules.toArray: _*)
         case (CompilerMode.SBT, _) =>
           runSearchAfterIndexingFinishedAsync(modules, project, target)
           val shell = SbtShellCommunication.forProject(project)
@@ -126,7 +126,7 @@ object CompilerIndicesReferencesSearcher {
       if (modules.nonEmpty) {
         val manager = ProjectTaskManager.getInstance(project)
         runSearchAfterIndexingFinishedAsync(modules, project, target)
-        manager.build(modules.toArray, null)
+        manager.build(modules.toArray: _*)
         false
       } else true
   }

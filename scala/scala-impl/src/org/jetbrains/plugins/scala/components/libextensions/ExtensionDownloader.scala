@@ -8,6 +8,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
+import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.util.download.DownloadableFileService
@@ -33,7 +34,7 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
   }
 
   private def getPropsFromLocalIndex: Seq[ExtensionProps] = {
-    val table = ProjectLibraryTable.getInstance(project)
+    val table = LibraryTablesRegistrar.getInstance().getLibraryTable(project)
     val descriptions = table.getLibraries.flatMap { lib =>
       lib.getName.split(": ?") match {
         case Array("sbt", org, module, version, "jar") =>

@@ -23,7 +23,6 @@ class SbtLocalSettings(project: Project)
 
   override def getState: SbtLocalSettingsState = {
     val state = new SbtLocalSettingsState
-    fillState(state)
     state.setSbtSupportSuggested(sbtSupportSuggested)
     state
   }

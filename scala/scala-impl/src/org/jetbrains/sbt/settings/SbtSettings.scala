@@ -8,7 +8,6 @@ import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSetti
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.XCollection
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
@@ -120,7 +119,7 @@ object SbtSettings {
     @BeanProperty
     var customSbtStructurePath: String = ""
 
-    private val linkedProjectSettings: util.TreeSet[SbtProjectSettings] = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
+    private val linkedProjectSettings: util.TreeSet[SbtProjectSettings] = new util.TreeSet[SbtProjectSettings]
 
     @XCollection(style = XCollection.Style.v1, elementTypes = Array(classOf[SbtProjectSettings]))
     override def getLinkedExternalProjectsSettings: util.Set[SbtProjectSettings] =

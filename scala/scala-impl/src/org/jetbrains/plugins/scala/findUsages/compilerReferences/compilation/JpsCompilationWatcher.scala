@@ -79,6 +79,9 @@ private[compilerReferences] class JpsCompilationWatcher(
         compileContext: CompileContext
       ): Unit = {
         val timestamp   = System.currentTimeMillis()
+
+        // noinspection ScalaDeprecation
+        // this key is declared private in CompileDriver
         val key         = Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS")
         val wasUpToDate = compileContext.getUserData(key) == ExitStatus.UP_TO_DATE
 

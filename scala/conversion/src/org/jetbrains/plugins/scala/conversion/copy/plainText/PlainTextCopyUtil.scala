@@ -3,7 +3,7 @@ package conversion
 package copy
 package plainText
 
-import com.intellij.codeInsight.daemon.{JavaErrorBundle, JavaErrorMessages}
+import com.intellij.codeInsight.daemon.JavaErrorBundle
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
