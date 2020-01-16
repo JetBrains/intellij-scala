@@ -2,9 +2,7 @@ package org.jetbrains.sbt
 package project.settings
 
 import java.awt.{Component, FlowLayout}
-import javax.swing._
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalProjectSettingsControl, ExternalSystemSettingsControlCustomizer}
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
@@ -12,17 +10,15 @@ import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.Condition
+import javax.swing._
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.sbt.project.settings.SbtProjectSettingsControl._
 
 /**
  * @author Pavel Fatin
  */
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
-        extends AbstractExternalProjectSettingsControl[SbtProjectSettings](null, initialSettings, {
-          if (context == Context.Wizard) customizerInWizard else customizer
-        }) {
+        extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
 
   private val jdkComboBox: JdkComboBox = {
     val model = new ProjectSdksModel()
@@ -163,7 +159,3 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
 }
 
-object SbtProjectSettingsControl {
-  def customizer = new ExternalSystemSettingsControlCustomizer(false, true, true)
-  def customizerInWizard = new ExternalSystemSettingsControlCustomizer(true, true, true)
-}
