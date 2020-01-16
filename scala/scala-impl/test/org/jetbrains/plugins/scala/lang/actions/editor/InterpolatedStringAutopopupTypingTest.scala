@@ -34,14 +34,14 @@ class InterpolatedStringAutopopupTypingTest extends EditorActionTestBase {
     assertTrue("Autopopup completion list must contain some injected reference methods", lookupItems.contains("charAt"))
   }
 
-  private def doNegativeTest(text: String): Unit = {
+  private def doTestNoAutoCompletion(text: String): Unit = {
     myFixture.configureByText(defaultFileName, text)
     myFixture.`type`(Dot)
     val maybePhase = waitPhase(NegativeTestsTimeout) {
       case CompletionPhase.NoCompletion |
            _: CompletionPhase.CommittingDocuments |
            _: CompletionPhase.BgCalculation => false
-      case _                                                                  => true
+      case _ => true
     }
     maybePhase match {
       case Some(stage) =>
@@ -75,19 +75,19 @@ class InterpolatedStringAutopopupTypingTest extends EditorActionTestBase {
        |""".stripMargin
   }
 
-  def testAutoPopupInInterpolatedString_Middle_Negative_NotRightAfterReference(): Unit = doNegativeTest {
+  def testAutoPopupInInterpolatedString_Middle_Negative_NotRightAfterReference(): Unit = doTestNoAutoCompletion {
     s"""val s: String = ""
        |val s1 = s"$$s $CARET something"
        |""".stripMargin
   }
 
-  def testAutoPopupInInterpolatedString_End_Negative_NotRightAfterReference(): Unit = doNegativeTest {
+  def testAutoPopupInInterpolatedString_End_Negative_NotRightAfterReference(): Unit = doTestNoAutoCompletion {
     s"""val s: String = ""
        |val s1 = s"$$s $CARET"
        |""".stripMargin
   }
 
-  def testAutoPopupInInterpolatedString_End_Negative_BeforeReference(): Unit = doNegativeTest {
+  def testAutoPopupInInterpolatedString_End_Negative_BeforeReference(): Unit = doTestNoAutoCompletion {
     s"""val s: String = ""
        |val s1 = s"$CARET$$s"
        |""".stripMargin
@@ -133,7 +133,7 @@ class InterpolatedStringAutopopupTypingTest extends EditorActionTestBase {
        |""".stripMargin
   }
 
-  def testAutoPopupInMultilineInterpolatedString_MultipleLines_Negative_NotInsideString(): Unit = doNegativeTest {
+  def testAutoPopupInMultilineInterpolatedString_MultipleLines_Negative_NotInsideString(): Unit = doTestNoAutoCompletion {
     s"""val s: String = ""
        |val s1 = s$q$CARET${qq}something
        |             |$$s$qqq
@@ -148,14 +148,14 @@ class InterpolatedStringAutopopupTypingTest extends EditorActionTestBase {
 //       |""".stripMargin
 //  }
 
-  def testAutoPopupInMultilineInterpolatedString_MultipleLines_Negative_NotInsideString_2(): Unit = doNegativeTest {
+  def testAutoPopupInMultilineInterpolatedString_MultipleLines_Negative_NotInsideString_2(): Unit = doTestNoAutoCompletion {
     s"""val s: String = ""
        |val s1 = s${qqq}something
        |             |$$s$q$CARET$qq
        |""".stripMargin
   }
 
-  def testAutoPopupInMultilineInterpolatedString_MultipleLines_Negative_NotInsideString_3(): Unit = doNegativeTest {
+  def testAutoPopupInMultilineInterpolatedString_MultipleLines_Negative_NotInsideString_3(): Unit = doTestNoAutoCompletion {
     s"""val s: String = ""
        |val s1 = s${qqq}something
        |             |$$s$qq$CARET$q
