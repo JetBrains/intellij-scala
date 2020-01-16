@@ -13,10 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -29,7 +27,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   private val myInstructions = new ArrayBuffer[InstructionImpl]
   private val myPending = new ArrayBuffer[(InstructionImpl, ScalaPsiElement)]
   private val myTransitionInstructions = new ArrayBuffer[(InstructionImpl, HandleInfo)]
-  private val myCatchedExnStack = new mutable.Stack[HandleInfo]
+  private var myCatchedExnStack = List.empty[HandleInfo]
   private var myInstructionNum = 0
   private var myHead: InstructionImpl = _
 
@@ -41,7 +39,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     scope.accept(this)
     // final node
     emptyNode()
-    myInstructions.toSeq
+    myInstructions
   }
 
   def inc: Int = {
@@ -470,7 +468,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         case _ => Nil
       }
     }
-    myCatchedExnStack pushAll handledExnTypes
+    myCatchedExnStack = handledExnTypes.toList.reverse ++ myCatchedExnStack
     var catchedExnCount = handledExnTypes.size
 
     val fBlock = tryStmt.finallyBlock match {
@@ -478,7 +476,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       case Some(x) => x
     }
     if (fBlock != null) {
-      myCatchedExnStack push FinallyInfo(fBlock)
+      myCatchedExnStack = FinallyInfo(fBlock) :: myCatchedExnStack
       catchedExnCount += 1
     }
 
@@ -497,7 +495,9 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       }
 
       // remove exceptions
-      for (_ <- 1 to catchedExnCount) {myCatchedExnStack.pop()}
+      for (_ <- 1 to catchedExnCount) {
+        myCatchedExnStack = myCatchedExnStack.tail
+      }
 
       def processCatch(fin: InstructionImpl): Unit = tryStmt.catchBlock.foreach { cb =>
         cb.expression match {
