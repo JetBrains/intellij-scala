@@ -111,7 +111,10 @@ object ScPattern {
                   val idx = patternList.patterns.indexWhere(_ == pattern)
                   comps.lift(idx)
                 case et0 if et0.isAnyRef || et0.isAny => Some(Any)
-                case ex: ScExistentialType            => handleTupleSubpatternExpectedType(ex.simplify())
+                case ex: ScExistentialType =>
+                  val simplified = ex.simplify()
+                  if (simplified != ex) handleTupleSubpatternExpectedType(simplified)
+                  else                  None
                 case _                                => None
               }
 
