@@ -10,7 +10,6 @@ import com.intellij.openapi.externalSystem.settings._
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
 import com.intellij.openapi.project.Project
-import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.annotations.XCollection
 import javax.swing.JCheckBox
@@ -32,7 +31,7 @@ class BspProjectSettings extends ExternalProjectSettings {
 }
 
 class BspProjectSettingsControl(settings: BspProjectSettings)
-  extends AbstractExternalProjectSettingsControl[BspProjectSettings](null, settings, null) {
+  extends AbstractExternalProjectSettingsControl[BspProjectSettings](null, settings) {
 
   @BeanProperty
   var buildOnSave = false
