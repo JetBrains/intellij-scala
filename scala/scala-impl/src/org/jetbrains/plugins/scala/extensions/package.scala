@@ -1156,8 +1156,11 @@ package object extensions {
     promise.future
   }
 
-  def invokeLater[T](body: => T): Unit =
-    ApplicationManager.getApplication.invokeLater(() => body)
+  def invokeLater[T](body: => T, modalityState: ModalityState = ModalityState.defaultModalityState()): Unit =
+    ApplicationManager.getApplication.invokeLater(() => body, modalityState)
+
+  def invokeLater[T](modalityState: ModalityState)(body: => T): Unit =
+    ApplicationManager.getApplication.invokeLater(() => body, modalityState)
 
   def invokeAndWait[T](body: => T): T = {
     val result = new AtomicReference[T]()
