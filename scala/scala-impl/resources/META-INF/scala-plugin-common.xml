@@ -56,14 +56,14 @@
     <extensions defaultExtensionNs="com.intellij">
         <annotator language="JAVA"
                    implementationClass="org.jetbrains.plugins.scala.annotator.template.SealedJavaInheritance"/>
-      <statusBarWidgetProvider implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetProvider" />
+        <statusBarWidgetProvider implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetProvider"/>
 
-      <breadcrumbsInfoProvider
-              implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider" />
-      <breadcrumbsPresentationProvider
-              implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider" />
-      <project.converterProvider
-          implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
+        <breadcrumbsInfoProvider
+                implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider"/>
+        <breadcrumbsPresentationProvider
+                implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider"/>
+        <project.converterProvider
+                implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
         <codeStyle.ReferenceAdjuster language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.template.ScalaReferenceAdjuster"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <testFinder implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestFinder"/>
@@ -75,12 +75,12 @@
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
         <refactoring.moveMemberHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMemberHandler"/>
-        <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersHandler" order="first" id="scalaMoveMembersHandler" />
+        <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersHandler" order="first" id="scalaMoveMembersHandler"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first, after scalaMoveMembersHandler"/>
         <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
-      <moveLeftRightHandler language="Scala"
-                            implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"/>
+        <moveLeftRightHandler language="Scala"
+                              implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"/>
         <editorTabTitleProvider implementation="org.jetbrains.plugins.scala.editor.PackageObjectEditorTabTitleProvider"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
         <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
@@ -122,24 +122,24 @@
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
         <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
-      <fileType name="Scala" language="Scala" extensions="scala"
-                implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE"/>
-      <editorHighlighterProvider filetype="Scala"
-                                 implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighterProvider"/>
-      <lang.syntaxHighlighterFactory language="Scala"
-                                     implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
-      <lang.syntaxHighlighter language="ScalaDoc"
-                              implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
-      <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
+        <fileType name="Scala" language="Scala" extensions="scala"
+                  implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE"/>
+        <editorHighlighterProvider filetype="Scala"
+                                   implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighterProvider"/>
+        <lang.syntaxHighlighterFactory language="Scala"
+                                       implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
+        <lang.syntaxHighlighter language="ScalaDoc"
+                                implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
+        <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
-      <lang.fileViewProviderFactory language="Scala"
-                                    implementationClass="org.jetbrains.plugins.scala.lang.psi.ScFileViewProviderFactory"/>
+        <lang.fileViewProviderFactory language="Scala"
+                                      implementationClass="org.jetbrains.plugins.scala.lang.psi.ScFileViewProviderFactory"/>
         <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
         <lang.parserDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition"/>
-      <lang.parserDefinition language="ScalaDoc"
-                             implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
+        <lang.parserDefinition language="ScalaDoc"
+                               implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
         <lang.substitutor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor"/>
         <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
         <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
@@ -169,12 +169,12 @@
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
 
-      <toolWindow id="WorksheetResultsToolWindow" anchor="bottom" canCloseContents="false"
-                  factoryClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowFactory"
-                  conditionClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowCondition"/>
+        <toolWindow id="WorksheetResultsToolWindow" anchor="bottom" canCloseContents="false"
+                    factoryClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowFactory"
+                    conditionClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowCondition"/>
 
         <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false"
-                    factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory" />
+                    factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory"/>
 
         <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"
@@ -289,12 +289,12 @@
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaSyntheticParamProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaTypeAliasProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaBindingPatternProcessor" order="first"/>
-        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.XmlRenameHandler" />
-        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenameHandler" order="first" />
-        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaLocalInplaceRenameHandler" order="first" />
+        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.XmlRenameHandler"/>
+        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenameHandler" order="first"/>
+        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaLocalInplaceRenameHandler" order="first"/>
         <nameSuggestionProvider
-              implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider"
-              id="scalaNameSuggestionProvider" order="last"/>
+                implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider"
+                id="scalaNameSuggestionProvider" order="last"/>
         <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
         <overridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher" order="first"/>
         <overridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.JavaRawOverridingSearcher" order="last"/>
@@ -306,14 +306,14 @@
         <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
         <refactoring.inlineHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler"/>
         <refactoring.safeDeleteProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.delete.ScalaSafeDeleteProcessorDelegate" order="first"/>
-        <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureUsageProcessor" order = "first" id="scalaProcessor"/>
-        <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterUsageProcessor" order = "first" id="scalaIntroduceParamterProcessor"/>
+        <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureUsageProcessor" order="first" id="scalaProcessor"/>
+        <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterUsageProcessor" order="first" id="scalaIntroduceParamterProcessor"/>
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureRefactoringHelper"/>
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveRefactoringHelper"/>
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
-        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor" language="Scala" />
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor" language="Scala"/>
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.testingSupport.test.ScalaTestRunLineMarkerProvider" language="Scala"/>
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunMarkerContributor" language="Scala"/>
 
@@ -379,7 +379,7 @@
 
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework" order="first"/>
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework" order="first"/>
-	    <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework" order="first"/>
+        <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework" order="first"/>
 
         <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
@@ -423,9 +423,9 @@
 
         <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
 
-      <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementType$"/>
-      <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition$"/>
-      <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition$"/>
+        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementType$"/>
+        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition$"/>
+        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition$"/>
         <!--Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>
@@ -454,7 +454,7 @@
         <statusBarWidgetProvider implementation="org.jetbrains.bsp.BspServerWidgetProvider"/>
 
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
+                            serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
@@ -476,7 +476,7 @@
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
 
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler" dynamic="true"
-                             instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
+                             instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable"/>
 
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaAttributeValueSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner"/>
@@ -497,7 +497,7 @@
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
-        <nameSuggestionProvider id="ScalaDictionarySuggestionProvider" implementation="org.jetbrains.plugins.scala.spellchecker.ScalaDictionarySuggestionProvider" order="first, before DictionarySuggestionProvider"  />
+        <nameSuggestionProvider id="ScalaDictionarySuggestionProvider" implementation="org.jetbrains.plugins.scala.spellchecker.ScalaDictionarySuggestionProvider" order="first, before DictionarySuggestionProvider"/>
 
         <intentionAction>
             <category>Scala/Type</category>
@@ -540,8 +540,8 @@
         </intentionAction>
 
         <intentionAction>
-          <category>Scala/Type</category>
-          <className>org.jetbrains.plugins.scala.codeInsight.intention.types.AdjustTypesIntention</className>
+            <category>Scala/Type</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.types.AdjustTypesIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -569,10 +569,10 @@
             <className>org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention</className>
         </intentionAction>
 
-      <intentionAction>
-        <category>Scala</category>
-        <className>org.jetbrains.plugins.scala.codeInsight.intention.CreateCompanionObjectIntention</className>
-      </intentionAction>
+        <intentionAction>
+            <category>Scala</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.CreateCompanionObjectIntention</className>
+        </intentionAction>
 
         <intentionAction>
             <category>Scala/For Comprehension</category>
@@ -595,13 +595,13 @@
         </intentionAction>
 
         <intentionAction>
-          <category>Scala/Import</category>
-          <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention</className>
+            <category>Scala/Import</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention</className>
         </intentionAction>
 
         <intentionAction>
-          <category>Scala/Import</category>
-          <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention</className>
+            <category>Scala/Import</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -630,18 +630,18 @@
         </intentionAction>
 
         <intentionAction>
-          <category>Scala/Expressions</category>
-          <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.RemoveUnnecessaryParenthesesIntention</className>
+            <category>Scala/Expressions</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.RemoveUnnecessaryParenthesesIntention</className>
         </intentionAction>
 
         <intentionAction>
-          <category>Scala/Expressions</category>
-          <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ReplaceTypeCheckWithMatchIntention</className>
+            <category>Scala/Expressions</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ReplaceTypeCheckWithMatchIntention</className>
         </intentionAction>
 
         <intentionAction>
-          <category>Scala/Expressions</category>
-          <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.OptionWithLiteralToSomeIntention</className>
+            <category>Scala/Expressions</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.OptionWithLiteralToSomeIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -868,11 +868,11 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection"
                          displayName="Annotator based error inspection"
                          language="Scala" groupPath="Scala" groupName="Internal"
-                         isInternal="true" level="ERROR" enabledByDefault="false" />
+                         isInternal="true" level="ERROR" enabledByDefault="false"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.ScalaWrongPlatformMethodsUsageInspection"
                          displayName="Wrong platform method usage"
                          language="Scala" groupPath="Scala" groupName="Internal"
-                         isInternal="true" level="WARNING" enabledByDefault="true" />
+                         isInternal="true" level="WARNING" enabledByDefault="true"/>
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.bundled.BundledCompoundInspection"
                          displayName="Scala bundled inspections runner" groupPath="Scala" groupName="General"
@@ -924,22 +924,22 @@
                 enabledByDefault="true" language="Scala"/>
 
         <!--Method signature inspections-->
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodInspection$EmptyParentheses"
-              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.accessor.empty.parenthesis"
-              groupPath="Scala" groupName="Method signature"
-              shortName="AccessorLikeMethodIsEmptyParen"
-              language="Scala" level="WARNING"
-              enabledByDefault="true"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodInspection$UnitReturnType"
-              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.accessor.unit.return.type"
-              groupPath="Scala" groupName="Method signature"
-              shortName="AccessorLikeMethodIsUnit"
-              language="Scala" level="WARNING"
-              enabledByDefault="true"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodInspection$EmptyParentheses"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.accessor.empty.parenthesis"
+                groupPath="Scala" groupName="Method signature"
+                shortName="AccessorLikeMethodIsEmptyParen"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodInspection$UnitReturnType"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.accessor.unit.return.type"
+                groupPath="Scala" groupName="Method signature"
+                shortName="AccessorLikeMethodIsUnit"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
         <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessOverrideInspection$EmptyParenMethod"
                 bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
@@ -989,23 +989,23 @@
                 shortName="ParameterlessMemberOverriddenAsEmptyParen"
                 language="Scala" level="WARNING"
                 enabledByDefault="true"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection$JavaMutator"
-              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.parameterless.access.java.mutator"
-              groupPath="Scala" groupName="Method signature"
-              shortName="JavaMutatorMethodAccessedAsParameterless"
-              language="Scala" level="WARNING"
-              enabledByDefault="true"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection$EmptyParenMethod"
-              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.parameterless.access.empty.paren"
-              groupPath="Scala" groupName="Method signature"
-              shortName="EmptyParenMethodAccessedAsParameterless"
-              language="Scala" level="WARNING"
-              enabledByDefault="true"/>
-      <localInspection
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection$JavaMutator"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.parameterless.access.java.mutator"
+                groupPath="Scala" groupName="Method signature"
+                shortName="JavaMutatorMethodAccessedAsParameterless"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection$EmptyParenMethod"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.parameterless.access.empty.paren"
+                groupPath="Scala" groupName="Method signature"
+                shortName="EmptyParenMethodAccessedAsParameterless"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
+        <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ExplicitType"
                 bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
                 key="method.signature.unit.explicit.type"
@@ -1037,46 +1037,46 @@
                 shortName="UnitMethodIsParameterless"
                 language="Scala" level="WARNING"
                 enabledByDefault="true"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ProcedureDefinition"
-              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.procedure.definition"
-              groupPath="Scala" groupName="Method signature"
-              shortName="ProcedureDefinition"
-              level="WARNING"
-              enabledByDefault="false" language="Scala"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ProcedureDeclaration"
-              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.procedure.declaration"
-              groupPath="Scala" groupName="Method signature"
-              shortName="ProcedureDeclaration"
-              language="Scala" level="WARNING"
-              enabledByDefault="false"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorEmptyParenCallInspection"
-              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.java.accessor.empty.paren"
-              groupPath="Scala" groupName="Method signature"
-              shortName="JavaAccessorEmptyParenCall"
-              language="Scala" level="WARNING"
-              enabledByDefault="true"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentResultTypeRefinementInspection"
-              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.result.type.refinement"
-              groupPath="Scala" groupName="Method signature"
-              shortName="ApparentResultTypeRefinement"
-              language="Scala" level="WARNING"
-              enabledByDefault="true"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.TypedParameterWithoutParenthesisInspection"
-              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="typed.parameter.without.parenthesis.in.function.literal"
-              groupPath="Scala" groupName="Method signature"
-              shortName="TypedParameterWithoutParen"
-              language="Scala" level="INFORMATION"
-              enabledByDefault="true"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ProcedureDefinition"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.procedure.definition"
+                groupPath="Scala" groupName="Method signature"
+                shortName="ProcedureDefinition"
+                level="WARNING"
+                enabledByDefault="false" language="Scala"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ProcedureDeclaration"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.procedure.declaration"
+                groupPath="Scala" groupName="Method signature"
+                shortName="ProcedureDeclaration"
+                language="Scala" level="WARNING"
+                enabledByDefault="false"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorEmptyParenCallInspection"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.java.accessor.empty.paren"
+                groupPath="Scala" groupName="Method signature"
+                shortName="JavaAccessorEmptyParenCall"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentResultTypeRefinementInspection"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.result.type.refinement"
+                groupPath="Scala" groupName="Method signature"
+                shortName="ApparentResultTypeRefinement"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.TypedParameterWithoutParenthesisInspection"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="typed.parameter.without.parenthesis.in.function.literal"
+                groupPath="Scala" groupName="Method signature"
+                shortName="TypedParameterWithoutParen"
+                language="Scala" level="INFORMATION"
+                enabledByDefault="true"/>
 
         <!--Scalastyle inspection-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
@@ -1132,7 +1132,7 @@
                          displayName="Constructing range for seq indices" groupPath="Scala,Collections" groupName="Indices"
                          shortName="RangeToIndices" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-      <!--simplifications: filter and exists-->
+        <!--simplifications: filter and exists-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
                          displayName="Filter and headOption to find" groupPath="Scala,Collections" groupName="Simplifications: filter and exists"
                          shortName="FilterHeadOption" level="WARNING"
@@ -1169,10 +1169,10 @@
                          displayName="Redundant contains in filter" groupPath="Scala,Collections" groupName="Simplifications: filter and exists"
                          shortName="FilterSetContains" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsForallReplaceInspection"
-                       displayName="Double negation in forall and exists" groupPath="Scala,Collections" groupName="Simplifications: forall and exists"
-                       shortName="ExistsForallReplace" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsForallReplaceInspection"
+                         displayName="Double negation in forall and exists" groupPath="Scala,Collections" groupName="Simplifications: forall and exists"
+                         shortName="ExistsForallReplace" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--simplifications: other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
                          displayName="Simplifiable fold or reduce method" groupPath="Scala,Collections" groupName="Simplifications: other"
@@ -1316,7 +1316,7 @@
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
                          displayName="Tag Unclosed" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnclosedTagWithoutParser" level="WARNING"
-                         enabledByDefault="true" language="Scala" />
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocInlinedTagInspection"
                          displayName="Inlined Tag" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocInlinedTag" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
@@ -1331,10 +1331,10 @@
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection"
                          displayName="Missing tag parameter description" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocMissingParameterDescription"
-                         level="WARNING" enabledByDefault="true" language="Scala" />
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocParserErrorInspection"
                          displayName="Wrong scaladoc element" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocParserErrorInspection"
-                         level="WARNING" enabledByDefault="true" language="Scala" />
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <!-- end of scaladoc inspections -->
 
@@ -1346,22 +1346,22 @@
                          groupName="Resource leaks"
                          shortName="SourceNotClosed"
                          language="Scala" level="WARNING"
-                         enabledByDefault="true" />
+                         enabledByDefault="true"/>
         <!-- end of resource leak inspections -->
 
         <!-- Util ammonite inspection -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection"
-                        displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibrary"
-                        level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
+                         displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibrary"
+                         level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
         <!---->
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.specs2.BuiltinMatcherExistsInspection"
                          displayName="Specs2 Matchers" shortName="Specs2Matchers" groupName="Specs2" groupPath="Scala,Specs2"
-                         level="WARNING" enabledByDefault="true" language="Scala" />
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
         <!-- end of inspections -->
 
-    <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
-        <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider" />
+        <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType"/>
+        <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
@@ -1376,7 +1376,7 @@
             <implementation-class>org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses</implementation-class>
@@ -1392,17 +1392,17 @@
             <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaLocalVarCouldBeValPassFactory</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedLocalSymbolPassFactory</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedLocalSymbolPassFactory</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager</implementation-class>
             <loadForDefaultProject/>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>
@@ -1411,75 +1411,75 @@
             <implementation-class>org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager</implementation-class>
             <loadForDefaultProject/>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent</implementation-class>
         </component>
         <component>
-          <implementation-class>scala.meta.intellij.MetaExpansionsManager</implementation-class>
+            <implementation-class>scala.meta.intellij.MetaExpansionsManager</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes</implementation-class>
         </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder</implementation-class>
-      </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderComponent</implementation-class>
-      </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask</implementation-class>
-      </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ReformatOnFileSaveTask</implementation-class>
-      </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent</implementation-class>
-      </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationComponent</implementation-class>
-      </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager</implementation-class>
-      </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent</implementation-class>
-      </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter</implementation-class>
-      </component>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService</implementation-class>
-      </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ReformatOnFileSaveTask</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService</implementation-class>
+        </component>
     </project-components>
 
     <application-components>
-      <component>
-        <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor</implementation-class>
-      </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor</implementation-class>
+        </component>
     </application-components>
 
     <actions>
@@ -1551,12 +1551,12 @@
             <keyboard-shortcut first-keystroke="control alt D" keymap="$default"/>
         </action>
         <action id="Scala.TypeInfo" class="org.jetbrains.plugins.scala.actions.ShowTypeInfoAction">
-          <keyboard-shortcut first-keystroke="alt EQUALS" keymap="$default"/>
-          <keyboard-shortcut first-keystroke="control shift P" keymap="Mac OS X"/>
-          <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X" remove="true"/>
-          <keyboard-shortcut first-keystroke="control shift P" keymap="Mac OS X 10.5+"/>
-          <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X 10.5+" remove="true"/>
-          <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicits"/>
+            <keyboard-shortcut first-keystroke="alt EQUALS" keymap="$default"/>
+            <keyboard-shortcut first-keystroke="control shift P" keymap="Mac OS X"/>
+            <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X" remove="true"/>
+            <keyboard-shortcut first-keystroke="control shift P" keymap="Mac OS X 10.5+"/>
+            <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X 10.5+" remove="true"/>
+            <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicits"/>
         </action>
         <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
                 text="Generate Scaladoc" description="Generate Scaladoc">
@@ -1584,21 +1584,21 @@
         <action id="Scala.ExtractTrait"
                 class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction" text="_Trait..."
                 description="Extract trait from the selected class">
-          <add-to-group group-id="IntroduceActionsGroup"/>
+            <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
-      <action id="Scala.ShowDiscoveredTests"
-              class="org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsAction"
-              text="Show Affected Tests (Scala)">
-        <add-to-group group-id="RunMenu" anchor="before" relative-to-action="DebugMainMenu"/>
-        <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
-      </action>
-      <action id="Scala.CollectShortTroubleshootingInfo"
-              internal="true"
-              description="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack"
-              class="org.jetbrains.plugins.scala.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
-        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
-        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
-      </action>
+        <action id="Scala.ShowDiscoveredTests"
+                class="org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsAction"
+                text="Show Affected Tests (Scala)">
+            <add-to-group group-id="RunMenu" anchor="before" relative-to-action="DebugMainMenu"/>
+            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
+        </action>
+        <action id="Scala.CollectShortTroubleshootingInfo"
+                internal="true"
+                description="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack"
+                class="org.jetbrains.plugins.scala.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
+        </action>
     </actions>
 
 </idea-plugin>
