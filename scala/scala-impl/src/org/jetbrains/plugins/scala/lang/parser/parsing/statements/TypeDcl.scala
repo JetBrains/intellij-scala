@@ -7,19 +7,14 @@ package statements
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
-
-/**
-* @author Alexander Podkhalyuzin
-* Date: 11.02.2008
-*/
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, Type}
 
 /*
  * TypeDcl ::= id [TypeParamClause] ['>:' Type] ['<:' Type]
  */
 object TypeDcl {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE =>
@@ -37,22 +32,7 @@ object TypeDcl {
         return false
     }
     TypeParamClause parse builder
-    builder.getTokenText match {
-      case ">:" =>
-        builder.advanceLexer()
-        if (!Type.parse(builder)) {
-          builder error ScalaBundle.message("wrong.type")
-        }
-      case _ => //nothing
-    }
-    builder.getTokenText match {
-      case "<:" =>
-        builder.advanceLexer()
-        if (!Type.parse(builder)) {
-          builder error ScalaBundle.message("wrong.type")
-        }
-      case _ => //nothing
-    }
+    Bounds.parseSubtypeBounds()
     returnMarker.drop()
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>

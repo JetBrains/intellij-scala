@@ -41,7 +41,7 @@ trait InfixType {
         builder.advanceLexer()
         typeMarker.done(ScalaElementType.WILDCARD_TYPE)
         builder.getTokenText match {
-          case "<:" | ">:" =>
+          case Bounds.UPPER | Bounds.LOWER =>
             infixTypeMarker.rollbackTo()
             return false
           case _ =>

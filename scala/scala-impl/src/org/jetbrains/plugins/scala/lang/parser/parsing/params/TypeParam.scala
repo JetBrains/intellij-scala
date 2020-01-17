@@ -7,12 +7,7 @@ package params
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
-
-/**
- * @author Alexander Podkhalyuzin
- * Date: 06.03.2008
- */
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, Type}
 
 /*
  * TypeParam ::= {Annotation} (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
@@ -20,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 object TypeParam {
 
   def parse(builder: ScalaPsiBuilder, mayHaveVariance: Boolean = true): Boolean = {
+    implicit val b: ScalaPsiBuilder = builder
+
     val paramMarker = builder.mark
     val annotationMarker = builder.mark
     var exist = false
@@ -48,23 +45,12 @@ object TypeParam {
       case _ =>
     }
 
-    val boundParser = parseBound(builder) _
-    boundParser(">:")
-    boundParser("<:")
-    while (boundParser("<%")) {}
-    while (boundParser(":")) {}
+    Bounds.parse(Bounds.LOWER)
+    Bounds.parse(Bounds.UPPER)
+    while (Bounds.parse(Bounds.VIEW)) {}
+    while (Bounds.parse(Bounds.CONTEXT)) {}
 
     paramMarker.done(ScalaElementType.TYPE_PARAM)
     true
-  }
-
-  def parseBound(builder: ScalaPsiBuilder)(bound: String): Boolean = {
-    builder.getTokenText match {
-      case x if x == bound =>
-        builder.advanceLexer()
-        if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
-        true
-      case _ => false
-    }
   }
 }
