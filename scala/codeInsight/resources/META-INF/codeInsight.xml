@@ -11,6 +11,8 @@
                 implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaAnnotatorHighlightVisitor"/>
         <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
 
+        <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPassFactory"/>
+
         <highlightErrorFilter
                 implementation="org.jetbrains.plugins.scala.codeInsight.highlighting.ScalaDocHighlightErrorFilter"/>
         <highlightErrorFilter
@@ -242,9 +244,6 @@
     <project-components>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPassFactory</implementation-class>
         </component>
     </project-components>
 
