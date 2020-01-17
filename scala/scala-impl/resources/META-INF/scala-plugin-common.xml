@@ -1378,10 +1378,12 @@
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
     </extensions>
 
+    <applicationListeners>
+        <listener class="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </applicationListeners>
+
     <project-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler</implementation-class>
-        </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler</implementation-class>
         </component>
