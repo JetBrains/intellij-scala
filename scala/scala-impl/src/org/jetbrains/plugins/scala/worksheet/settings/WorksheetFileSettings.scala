@@ -78,8 +78,7 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
     setSetting(CP_MODULE_NAME, value)
     for {
       module <- Option(getModuleFor)
-      vFile <- Option(file.getVirtualFile)
-    } vFile.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
+    } file.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
     DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
   }
 

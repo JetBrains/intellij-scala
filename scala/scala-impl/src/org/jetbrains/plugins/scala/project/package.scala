@@ -263,16 +263,18 @@ package object project {
         file,
         project
       ) != ScalaLanguage.INSTANCE
-
-    def scratchFileModule: Option[Module] =
-      Option(file.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE))
-        .flatMap(_.get)
   }
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
 
     @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
-    def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(file))
+    def module: Option[Module] = {
+      val m = Option(ModuleUtilCore.findModuleForPsiElement(file))
+      m.orElse(file.scratchFileModule)
+    }
+
+    def scratchFileModule: Option[Module] =
+      Option(file.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE)).flatMap(_.get)
 
     def isMetaEnabled: Boolean =
       !ScStubElementType.Processing &&
@@ -296,9 +298,7 @@ package object project {
   }
 
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
-    def module: Option[Module] = Option(element.getContainingFile).flatMap { f =>
-      f.module.orElse(f.getVirtualFile.toOption.flatMap(_.scratchFileModule))
-    }
+    def module: Option[Module] = Option(element.getContainingFile).flatMap(_.module)
 
     def isInScalaModule: Boolean = module.exists(_.hasScala)
 
