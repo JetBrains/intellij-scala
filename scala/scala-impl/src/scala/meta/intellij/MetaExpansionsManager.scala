@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException
 import java.net.URL
 
 import com.intellij.openapi.compiler._
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -31,35 +30,12 @@ import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
   * @author Mikhail Mutcianko
   * @since 20.09.16
   */
-class MetaExpansionsManager(project: Project) extends ProjectComponent  {
+class MetaExpansionsManager {
   import org.jetbrains.plugins.scala.project._
 
   import MetaExpansionsManager.META_MAJOR_VERSION
 
-  override def getComponentName = "MetaExpansionsManager"
-
-  override def projectOpened(): Unit = installCompilationListener()
-
-  override def projectClosed(): Unit = {
-    annotationClassLoaders.clear()
-  }
-
   private val annotationClassLoaders = new java.util.concurrent.ConcurrentHashMap[String, URLClassLoader]().asScala
-
-  private val compilationStatusListener = new CompilationStatusListener {
-    override def compilationFinished(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext): Unit = {
-      for {
-        scope <- Option(context.getCompileScope)
-        module <- scope.getAffectedModules
-      } {
-        invalidateModuleClassloader(module)
-      }
-    }
-  }
-
-  private def installCompilationListener(): Unit = {
-    project.getMessageBus.connect.subscribe(CompilerTopics.COMPILATION_STATUS, compilationStatusListener)
-  }
 
   def invalidateModuleClassloader(module: Module): Option[URLClassLoader] = annotationClassLoaders.remove(module.getName)
 
@@ -117,6 +93,17 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent  {
   }
 }
 
+class ClearMetaExpansionManagerListener extends CompilationStatusListener {
+  override def compilationFinished(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext): Unit = {
+    for {
+      scope <- Option(context.getCompileScope)
+      module <- scope.getAffectedModules
+    } {
+      MetaExpansionsManager.getInstance(module.getProject).invalidateModuleClassloader(module)
+    }
+  }
+}
+
 object MetaExpansionsManager {
 
   val META_MAJOR_VERSION  = "1.8"
@@ -125,7 +112,7 @@ object MetaExpansionsManager {
 
   class MetaWrappedException(val target: Throwable) extends Exception
 
-  def getInstance(project: Project): MetaExpansionsManager = project.getComponent(classOf[MetaExpansionsManager])
+  def getInstance(project: Project): MetaExpansionsManager = project.getService(classOf[MetaExpansionsManager])
 
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = getInstance(annot.getProject).getCompiledMetaAnnotClass(annot)
 

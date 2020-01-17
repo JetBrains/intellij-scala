@@ -475,6 +475,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
+        <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
@@ -1387,6 +1388,11 @@
 
     </applicationListeners>
 
+    <projectListeners>
+        <listener class="scala.meta.intellij.ClearMetaExpansionManagerListener"
+                  topic="com.intellij.openapi.compiler.CompilationStatusListener"/>
+    </projectListeners>
+
     <project-components>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
@@ -1415,9 +1421,6 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>scala.meta.intellij.MetaExpansionsManager</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
