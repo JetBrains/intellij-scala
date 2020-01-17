@@ -450,6 +450,9 @@
 
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer"/>
 
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.ServerMediatorTask"/>
+
         <statusBarWidgetProvider implementation="org.jetbrains.bsp.BspServerWidgetProvider"/>
 
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
@@ -1401,9 +1404,6 @@
             <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>
         </component>
         <component>
@@ -1448,9 +1448,6 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ReformatOnFileSaveTask</implementation-class>

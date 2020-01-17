@@ -4,7 +4,6 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.application.ApplicationManager.{getApplication => Application}
 import com.intellij.openapi.command.CommandProcessor.{getInstance => CommandProcessor}
 import com.intellij.openapi.compiler._
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiFile, PsiManager}
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfi
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-class ReformatOnCompileTask(project: Project) extends ProjectComponent with CompileTask {
+class ReformatOnCompileTask(project: Project) extends CompileTask {
   override def execute(context: CompileContext): Boolean = {
     val scalaSettings: ScalaCodeStyleSettings = CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (scalaSettings.REFORMAT_ON_COMPILE) {
@@ -24,10 +23,6 @@ class ReformatOnCompileTask(project: Project) extends ProjectComponent with Comp
       }
     }
     true
-  }
-
-  override def projectOpened(): Unit = {
-    CompilerManager.getInstance(project).addBeforeTask(this)
   }
 
   private def reformatScopeFiles(compileScope: CompileScope, scalaSettings: ScalaCodeStyleSettings): Unit = for {

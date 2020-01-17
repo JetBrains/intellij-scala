@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.compiler.{CompileTask, CompilerManager}
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.compiler.{CompileContext, CompileTask}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
@@ -16,25 +15,22 @@ import org.jetbrains.plugins.scala.project._
  * Pavel Fatin
  */
 
-class ServerMediator(project: Project) extends ProjectComponent {
+class ServerMediatorTask extends CompileTask {
 
-  private def isScalaProject = project.hasScala
-  private val settings = ScalaCompileServerSettings.getInstance
+  override def execute(context: CompileContext): Boolean = {
+    val project = context.getProject
 
-  override def projectOpened(): Unit = {
-    addBeforeTask(_ => checkSettings())
-    addBeforeTask(_ => startCompileServer())
+    if (!project.hasScala) {
+      return true
+    }
+
+    checkCompilationSettings(project) && startCompileServer(project)
   }
 
-  private def checkSettings(): Boolean =
-    if (isScalaProject) {
-      if (!checkCompilationSettings()) false
-      else true
-    }
-    else true
+  private def startCompileServer(project: Project): Boolean = {
+    val settings = ScalaCompileServerSettings.getInstance
 
-  private def startCompileServer(): Boolean = {
-    if (settings.COMPILE_SERVER_ENABLED && isScalaProject) {
+    if (settings.COMPILE_SERVER_ENABLED) {
       invokeAndWait {
         CompileServerManager.configureWidget(project)
       }
@@ -53,10 +49,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
     true
   }
 
-  private def addBeforeTask(compileTask: CompileTask): Unit =
-    CompilerManager.getInstance(project).addBeforeTask(compileTask)
-
-  private def checkCompilationSettings(): Boolean = {
+  private def checkCompilationSettings(project: Project): Boolean = {
     def hasClashes(module: Module) = module.hasScala && {
       val extension = CompilerModuleExtension.getInstance(module)
       val production = extension.getCompilerOutputUrl
@@ -118,6 +111,4 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
     mayProceedWithCompilation
   }
-
-  override def getComponentName: String = getClass.getSimpleName
 }
