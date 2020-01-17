@@ -1,12 +1,16 @@
 package org.jetbrains.plugins.scala.codeInspection.bundled;
 
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: Dmitry.Naydanov
@@ -32,7 +36,7 @@ public class BundledInspectionsPersistentState implements PersistentStateCompone
   }
   
   public static BundledInspectionsPersistentState getInstance(Project project) {
-    return ServiceManager.getService(project, BundledInspectionsPersistentState.class);
+    return project.getService(BundledInspectionsPersistentState.class);
   }
 
   public Map<String, ArrayList<String>> getLibToInspectionsNames() {

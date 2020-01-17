@@ -39,5 +39,5 @@ class SbtLocalSettingsState extends AbstractExternalSystemLocalSettings.State {
 }
 
 object SbtLocalSettings {
-  def getInstance(project: Project): SbtLocalSettings = ServiceManager.getService(project, classOf[SbtLocalSettings])
+  def getInstance(project: Project): SbtLocalSettings = project.getService(classOf[SbtLocalSettings])
 }

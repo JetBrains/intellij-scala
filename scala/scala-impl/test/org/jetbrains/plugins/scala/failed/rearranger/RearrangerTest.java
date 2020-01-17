@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.failed.rearranger;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
@@ -51,7 +50,7 @@ public abstract class RearrangerTest extends ScalaFileSetTestCase {
   }
 
   private void rearrange(@NotNull PsiFile file, @NotNull Project project) {
-    ServiceManager.getService(project, ArrangementEngine.class)
+    project.getService(ArrangementEngine.class)
             .arrange(file, Collections.singletonList(file.getTextRange()));
 
     PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());

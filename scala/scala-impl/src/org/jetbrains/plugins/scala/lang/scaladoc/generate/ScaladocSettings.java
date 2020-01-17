@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.generate;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 
@@ -31,7 +29,7 @@ public class ScaladocSettings implements PersistentStateComponent<ScaladocSettin
   }
 
   public static ScaladocSettings getInstance(Project project) {
-    return ServiceManager.getService(project, ScaladocSettings.class);
+    return project.getService(ScaladocSettings.class);
   }
 
 }

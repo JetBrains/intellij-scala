@@ -91,7 +91,7 @@ class SbtSettings(project: Project)
 }
 
 object SbtSettings {
-  def getInstance(@NotNull project: Project): SbtSettings = ServiceManager.getService(project, classOf[SbtSettings])
+  def getInstance(@NotNull project: Project): SbtSettings = project.getService(classOf[SbtSettings])
 
   val defaultMaxHeapSize: String = ""
   val hiddenDefaultMaxHeapSize: JvmMemorySize = JvmMemorySize.Megabytes(1536)

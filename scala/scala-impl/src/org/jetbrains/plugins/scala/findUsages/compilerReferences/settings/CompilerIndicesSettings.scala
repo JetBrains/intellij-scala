@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.settings
 
-import com.intellij.openapi.components.{PersistentStateComponent, ServiceManager, State, Storage}
+import com.intellij.openapi.components.{PersistentStateComponent, State, Storage}
 import com.intellij.openapi.project.Project
 import com.intellij.task.impl.{JpsProjectTaskRunner, ProjectTaskList}
 import com.intellij.task.{ProjectTaskManager, ProjectTaskRunner}
@@ -73,5 +73,5 @@ object CompilerIndicesSettings {
   }
 
   def apply(project: Project): CompilerIndicesSettings =
-    ServiceManager.getService(project, classOf[CompilerIndicesSettings])
+    project.getService(classOf[CompilerIndicesSettings])
 }

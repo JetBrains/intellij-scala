@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
@@ -32,7 +31,7 @@ class BetterMonadicForSupport(project: Project) {
 
 object BetterMonadicForSupport {
   def apply(project: Project): BetterMonadicForSupport =
-    ServiceManager.getService(project, classOf[BetterMonadicForSupport])
+    project.getService(classOf[BetterMonadicForSupport])
 
   object Implicit0Pattern {
     private[this] def resolvesToImplicit0Unapply(ref: ScStableCodeReference): Boolean =

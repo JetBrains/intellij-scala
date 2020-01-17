@@ -118,7 +118,7 @@ object BspSettings {
       projectSettings.addAll(settings)
   }
 
-  def getInstance(project: Project): BspSettings = ServiceManager.getService(project, classOf[BspSettings])
+  def getInstance(project: Project): BspSettings = project.getService(classOf[BspSettings])
 }
 
 
@@ -158,7 +158,7 @@ class BspLocalSettings(project: Project)
 }
 
 object BspLocalSettings {
-  def getInstance(project: Project): BspLocalSettings = ServiceManager.getService(project, classOf[BspLocalSettings])
+  def getInstance(project: Project): BspLocalSettings = project.getService(classOf[BspLocalSettings])
 }
 
 class BspLocalSettingsState extends AbstractExternalSystemLocalSettings.State

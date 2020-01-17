@@ -4,7 +4,6 @@ import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, EventResult, MessageEvent}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition}
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import javax.swing.JComponent
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -16,7 +15,7 @@ class BuildToolWindowReporter(project: Project, buildId: EventId, title: String,
   def this(project: Project, buildId: EventId, title: String) =
     this(
       project, buildId, title,
-      ServiceManager.getService(project, classOf[BuildViewManager])
+      project.getService(classOf[BuildViewManager])
     )
 
   override def start(): Unit = {

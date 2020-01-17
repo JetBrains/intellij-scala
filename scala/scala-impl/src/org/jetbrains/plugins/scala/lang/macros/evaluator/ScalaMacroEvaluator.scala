@@ -81,7 +81,7 @@ class ScalaMacroEvaluator(project: Project) extends ProjectComponent {
 }
 
 object ScalaMacroEvaluator {
-  def getInstance(project: Project): ScalaMacroEvaluator = ServiceManager.getService(project, classOf[ScalaMacroEvaluator])
+  def getInstance(project: Project): ScalaMacroEvaluator = project.getService(classOf[ScalaMacroEvaluator])
 
   private val isMacroExpansionKey: Key[AnyRef] = Key.create("macro.original.expression")
 

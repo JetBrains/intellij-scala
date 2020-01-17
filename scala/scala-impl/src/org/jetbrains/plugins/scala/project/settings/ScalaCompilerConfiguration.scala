@@ -141,7 +141,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
 object ScalaCompilerConfiguration extends SimpleModificationTracker {
   def instanceIn(project: Project): ScalaCompilerConfiguration =
-    ServiceManager.getService(project, classOf[ScalaCompilerConfiguration])
+    project.getService(classOf[ScalaCompilerConfiguration])
 
   def modTracker(project: Project): ModificationTracker = instanceIn(project)
 

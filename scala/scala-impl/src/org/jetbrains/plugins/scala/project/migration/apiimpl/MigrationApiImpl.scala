@@ -5,7 +5,7 @@ import java.awt.{Component, Dimension}
 import com.intellij.compiler.impl.CompilerErrorTreeView
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
 import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
@@ -155,7 +155,7 @@ object MigrationApiImpl {
   def openMessageView(project: Project, content: Content, treeView: CompilerErrorTreeView) {
     val commandProcessor = CommandProcessor.getInstance()
     commandProcessor.executeCommand(project, () => {
-      val messageView = ServiceManager.getService(project, classOf[MessageView])
+      val messageView = project.getService(classOf[MessageView])
       messageView.getContentManager setSelectedContent content
 
       val toolWindow = ToolWindowManager getInstance project getToolWindow ToolWindowId.MESSAGES_WINDOW

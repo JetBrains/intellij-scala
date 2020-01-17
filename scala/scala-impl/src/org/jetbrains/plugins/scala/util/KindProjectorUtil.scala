@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.ModificationTracker
@@ -54,7 +53,7 @@ object KindProjectorUtil {
   val LambdaSymbolic: String       = "λ"
   val inlineSyntaxIds: Seq[String] = Seq("?", "+?", "-?", "*", "+*", "-*")
 
-  def apply(project: Project): KindProjectorUtil = ServiceManager.getService(project, classOf[KindProjectorUtil])
+  def apply(project: Project): KindProjectorUtil = project.getService(classOf[KindProjectorUtil])
 
   private[this] val newSyntaxVersion = new ComparableVersion("0.10.0")
   private[this] val VersionPattern = "(?:.+?)(?:-(\\d.*?))?\\.jar".r
