@@ -171,9 +171,9 @@ lazy val runners =
   newProject("runners", file("scala/runners"))
     .settings(
       packageMethod := PackagingMethod.Standalone(static = true),
-      libraryDependencies ++= DependencyGroups.runners,
+      libraryDependencies ++= DependencyGroups.runners
       // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
-      ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
+//      ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
     )
 
 lazy val nailgunRunners =
