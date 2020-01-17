@@ -7,6 +7,7 @@ package synthetic
 
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
@@ -193,24 +194,12 @@ class ScSyntheticValue(val name: String, val tp: ScType)
   override def toString = "Synthetic value"
 }
 
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 
-class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectComponent {
+class SyntheticClasses(project: Project) extends PsiElementFinder {
   implicit def ctx: ProjectContext = project
 
-  override def projectOpened(): Unit = {
-    StartupManager.getInstance(project).registerPostStartupActivity {
-      registerClasses()
-    }
-  }
-  override def disposeComponent(): Unit = {}
-
-  override def getComponentName = "SyntheticClasses"
-
-  override def initComponent(): Unit = {}
-
-  override def projectClosed(): Unit = {
+  private[synthetic] def clear(): Unit = {
     if (classesInitialized) {
       all.clear()
       numeric.clear()
@@ -511,7 +500,7 @@ object Unit
 }
 
 object SyntheticClasses {
-  def get(project: Project): SyntheticClasses = project.getComponent(classOf[SyntheticClasses])
+  def get(project: Project): SyntheticClasses = project.getService(classOf[SyntheticClasses])
 
   val TypeParameter = "TypeParameterForSyntheticFunction"
 
@@ -522,5 +511,17 @@ object SyntheticClasses {
   val bitwise_bin_ops = "&" :: "|" :: "^" :: Nil
   val bitwise_shift_ops = "<<" :: ">>" :: ">>>" :: Nil
 
+}
+
+class SyntheticClassesListener extends ProjectManagerListener {
+  override def projectOpened(project: Project): Unit = {
+    StartupManager.getInstance(project).registerPostStartupActivity { () =>
+      SyntheticClasses.get(project).registerClasses()
+    }
+  }
+
+  override def projectClosed(project: Project): Unit = {
+    SyntheticClasses.get(project).clear()
+  }
 }
 

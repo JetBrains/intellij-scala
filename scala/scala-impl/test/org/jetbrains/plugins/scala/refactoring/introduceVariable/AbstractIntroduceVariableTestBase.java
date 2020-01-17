@@ -84,7 +84,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
     TypeAnnotationSettings.set(project, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(project)));
 
-    final SyntheticClasses syntheticClasses = project.getComponent(SyntheticClasses.class);
+    final SyntheticClasses syntheticClasses = SyntheticClasses.get(project);
     if (!syntheticClasses.isClassesRegistered()) {
       syntheticClasses.registerClasses();
     }
