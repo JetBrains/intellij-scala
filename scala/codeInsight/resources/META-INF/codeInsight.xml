@@ -241,11 +241,9 @@
                          implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
     </extensions>
 
-    <project-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler</implementation-class>
-        </component>
-    </project-components>
+    <applicationListeners>
+        <listener class="org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler" topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </applicationListeners>
 
     <actions>
 
@@ -262,10 +260,6 @@
                 description="Expand implicit conversions / arguments inlay hints in editor">
             <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
         </action>
-
-
-
-
 
         <group id="ScalaGenerateGroup">
             <separator/>

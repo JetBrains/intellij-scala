@@ -5,16 +5,14 @@ import java.awt.{Cursor, Point}
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.event._
 import com.intellij.openapi.editor.{Editor, EditorFactory}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupManager
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.util.{Key, SystemInfo}
 import com.intellij.ui.{AncestorListenerAdapter, LightweightHint}
 import com.intellij.util.ui.{JBUI, UIUtil}
-import javax.swing.{JLabel, SwingUtilities}
 import javax.swing.event.AncestorEvent
+import javax.swing.{JLabel, SwingUtilities}
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -22,9 +20,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.JavaConverters._
 
-class MouseHandler(project: Project,
-                   startupManager: StartupManager,
-                   editorFactory: EditorFactory) extends ProjectComponent {
+class MouseHandler extends ProjectManagerListener {
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
   private var highlightedMatches = Set.empty[(Inlay, Text)]
@@ -34,13 +30,13 @@ class MouseHandler(project: Project,
 
   private val mousePressListener = new EditorMouseListener {
     override def mousePressed(e: EditorMouseEvent): Unit = {
-      if (handlingRequired) {
+      if (handlingRequired(e)) {
         MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
       }
     }
 
     override def mouseClicked(e: EditorMouseEvent): Unit = {
-      if (handlingRequired && !e.isConsumed && project.isInitialized && !project.isDisposed) {
+      if (handlingRequired(e) && !e.isConsumed) {
         val editor = e.getEditor
         val event = e.getMouseEvent
 
@@ -49,7 +45,7 @@ class MouseHandler(project: Project,
             hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
               e.consume()
               deactivateActiveHyperlink(editor)
-              navigateTo(text)
+              navigateTo(text, editor.getProject)
             }
           } else {
             expandableAt(editor, event.getPoint).foreach { case (inlay, text) =>
@@ -65,7 +61,7 @@ class MouseHandler(project: Project,
         } else if (SwingUtilities.isMiddleMouseButton(event) && activeHyperlink.isEmpty) {
           hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
             e.consume()
-            navigateTo(text)
+            navigateTo(text, editor.getProject)
           }
         } else {
           deactivateActiveHyperlink(editor)
@@ -77,7 +73,7 @@ class MouseHandler(project: Project,
 
   private val mouseMovedListener = new EditorMouseMotionListener {
     override def mouseMoved(e: EditorMouseEvent): Unit = {
-      if (handlingRequired && !e.isConsumed && project.isInitialized && !project.isDisposed) {
+      if (handlingRequired(e) && !e.isConsumed) {
         val textAtPoint = textAt(e.getEditor, e.getMouseEvent.getPoint)
 
         if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
@@ -113,14 +109,14 @@ class MouseHandler(project: Project,
     }
   }
 
-  override def projectOpened(): Unit = {
-    val multicaster = editorFactory.getEventMulticaster
+  override def projectOpened(project: Project): Unit = {
+    val multicaster = EditorFactory.getInstance().getEventMulticaster
     multicaster.addEditorMouseListener(mousePressListener, project)
     multicaster.addEditorMouseMotionListener(mouseMovedListener, project)
   }
 
-  override def projectClosed(): Unit = {
-    val multicaster = editorFactory.getEventMulticaster
+  override def projectClosed(project: Project): Unit = {
+    val multicaster = EditorFactory.getInstance().getEventMulticaster
     multicaster.removeEditorMouseListener(mousePressListener)
     multicaster.removeEditorMouseMotionListener(mouseMovedListener)
 
@@ -130,10 +126,16 @@ class MouseHandler(project: Project,
     errorTooltip = None
   }
 
-  private def handlingRequired = {
-    val settings = ScalaProjectSettings.getInstance(project)
-    ImplicitHints.enabled ||
-      (settings.isTypeAwareHighlightingEnabled && settings.isShowNotFoundImplicitArguments)
+  private def handlingRequired(e: EditorMouseEvent) = {
+    val project = e.getEditor.getProject
+    val isFromValidProject = project != null && project.isInitialized && !project.isDisposed
+
+    def checkSettings = {
+      val settings = ScalaProjectSettings.getInstance(project)
+      ImplicitHints.enabled ||
+        (settings.isTypeAwareHighlightingEnabled && settings.isShowNotFoundImplicitArguments)
+    }
+    isFromValidProject && checkSettings
   }
 
   private def activateHyperlink(editor: Editor, inlay: Inlay, text: Text, event: MouseEvent): Unit = {
@@ -175,7 +177,7 @@ class MouseHandler(project: Project,
     hyperlinkTooltip = None
   }
 
-  private def navigateTo(text: Text): Unit = {
+  private def navigateTo(text: Text, project: Project): Unit = {
     CommandProcessor.getInstance.executeCommand(project,
       () => text.navigatable.filter(_.canNavigate).foreach(_.navigate(true)), null, null)
   }
