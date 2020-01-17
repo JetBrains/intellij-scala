@@ -1,34 +1,36 @@
 package org.jetbrains.sbt.shell
 
-import com.intellij.task.ProjectTaskResult
+import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
+import org.jetbrains.plugins.scala.build.TaskManagerResult
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingEntry
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import org.jetbrains.sbt.shell.SbtShellCommunication.{EventAggregator, ShellEvent, TaskComplete}
+import org.jetbrains.sbt.shell.SettingQueryHandler._
 
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+// TODO replace this when we have sbt server support
 class SettingQueryHandler private (settingName: String, taskName: Option[String], sbtProjectUri: Option[String],
                                    sbtProjectName: Option[String], comm: SbtShellCommunication) {
-  val defaultResult = new ProjectTaskResult(false, 0, 0)
 
-  def getSettingValue(): Future[String] = {
-    val listener = SettingQueryHandler.bufferedListener(this)
-    comm.command("show " + settingColon, defaultResult, listener, showShell = false).map {
-      _: ProjectTaskResult => filterSettingValue(listener.getBufferedOutput)
+  def getSettingValue: Future[String] = {
+    //noinspection TypeAnnotation
+    val listener = new BufferedListener(this)
+    comm.command("show " + settingColon, DefaultResult, listener, showShell = false).map {
+      _: Result => filterSettingValue(listener.getBufferedOutput)
     }
   }
 
   def addToSettingValue(add: String): Future[Boolean] = {
-    comm.command("set " + settingIn + "+=" + add, defaultResult, SettingQueryHandler.emptyListener, showShell = false).map {
-      p: ProjectTaskResult => !p.isAborted && p.getErrors == 0
+    comm.command("set " + settingIn + "+=" + add, DefaultResult, EmptyListener, showShell = false).map {
+      p: Result => !p.isAborted && !p.hasErrors
     }
   }
 
   def setSettingValue(value: String): Future[Boolean] = {
-    comm.command("set " + settingIn + ":=" + value, defaultResult, SettingQueryHandler.emptyListener, showShell = false).map {
-      p: ProjectTaskResult => !p.isAborted && p.getErrors == 0
+    comm.command("set " + settingIn + ":=" + value, DefaultResult, EmptyListener, showShell = false).map {
+      p: Result => !p.isAborted && !p.hasErrors
     }
   }
 
@@ -50,7 +52,7 @@ class SettingQueryHandler private (settingName: String, taskName: Option[String]
 
   def filterSettingValue(in: String): String = {
     settingName match {
-      case ("testOptions" | "javaOptions") if in.trim.startsWith("*") => //13.13 notation
+      case "testOptions" | "javaOptions" if in.trim.startsWith("*") => // 13.13 notation
         s"List(${in.split("\n").map(_.trim.stripPrefix("* ")).mkString(", ")})"
       case _ => in
     }
@@ -58,6 +60,10 @@ class SettingQueryHandler private (settingName: String, taskName: Option[String]
 }
 
 object SettingQueryHandler {
+
+  private type Result = ProjectTaskManager.Result
+  val DefaultResult: TaskManagerResult = TaskManagerResult(new ProjectTaskContext(), isAborted = false, hasErrors = false)
+
   def apply(settingName: String, taskName: Option[String], sbtProjectUri: Option[String],
             sbtProjectName: Option[String], comm: SbtShellCommunication) =
     new SettingQueryHandler(settingName, taskName, sbtProjectUri, sbtProjectName, comm)
@@ -66,11 +72,9 @@ object SettingQueryHandler {
     new SettingQueryHandler(settingsEntry.settingName, settingsEntry.task, settingsEntry. sbtProjectUri,
       settingsEntry.sbtProjectId, comm)
 
-  val emptyListener = new EventAggregator[ProjectTaskResult]() {
-    override def apply(v1: ProjectTaskResult, v2: ShellEvent): ProjectTaskResult = v1
-  }
+  private val EmptyListener: EventAggregator[Result] = (v1: Result, v2: ShellEvent) => v1
 
-  def bufferedListener(handler: SettingQueryHandler) = new EventAggregator[ProjectTaskResult]() {
+  private class BufferedListener(handler: SettingQueryHandler) extends EventAggregator[Result]() {
     private val filterPrefix = "[info] "
     private val successPrefix = "[success] "
     private var strings = ListBuffer[String]()
@@ -91,7 +95,7 @@ object SettingQueryHandler {
       }
     }
 
-    override def apply(res: ProjectTaskResult, se: ShellEvent): ProjectTaskResult = {
+    override def apply(res: Result, se: ShellEvent): Result = {
       se match {
         case TaskComplete =>
           collectInfo = false
