@@ -103,7 +103,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
       if (isOverride) Seq("@" + CommonClassNames.JAVA_LANG_OVERRIDE)
       else Seq.empty
 
-    val factory = PsiElementFactory.SERVICE.getInstance(annotationHolder.getProject)
+    val factory = PsiElementFactory.getInstance(annotationHolder.getProject)
     (annotationTexts ++ overrideAnnotation).map(factory.createAnnotationFromText(_, this)).toArray
   }
 

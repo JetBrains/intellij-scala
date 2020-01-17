@@ -264,7 +264,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   def getThrowsList: FakePsiReferenceList = new FakePsiReferenceList(getManager, getLanguage, Role.THROWS_LIST) {
     override def getReferenceElements: Array[PsiJavaCodeReferenceElement] = {
       getReferencedTypes.map {
-        tp => PsiElementFactory.SERVICE.getInstance(getProject).createReferenceElementByType(tp)
+        tp => PsiElementFactory.getInstance(getProject).createReferenceElementByType(tp)
       }
     }
 
