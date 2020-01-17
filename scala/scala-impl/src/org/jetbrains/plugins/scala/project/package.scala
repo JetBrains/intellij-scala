@@ -365,7 +365,7 @@ package object project {
   }
 
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
-    def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element))
+    def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element)).orElse(scratchFileModule)
 
     def fileIndex: ProjectFileIndex = ProjectFileIndex.getInstance(element.getProject)
 
@@ -403,7 +403,6 @@ package object project {
 
     private def inThisModuleOrProject[T](predicate: Module => T): Option[T] =
       module
-        .orElse(scratchFileModule)
         .orElse(element.getProject.anyScalaModule)
         .map(predicate)
 

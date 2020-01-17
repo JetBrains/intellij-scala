@@ -105,8 +105,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
     private def ensureWorksheetModuleIsSet(file: ScalaFile): Unit =
       for {
         module <- Option(WorksheetFileSettings(file).getModuleFor)
-        vFile <- file.getVirtualFile.toOption
-      } vFile.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
+      } file.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
 
     private def loadEvaluationResult(source: FileEditorManager, vFile: VirtualFile): Unit =
       for {
