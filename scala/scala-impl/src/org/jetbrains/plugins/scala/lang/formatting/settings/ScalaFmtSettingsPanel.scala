@@ -419,7 +419,7 @@ object ScalaFmtSettingsPanel {
 
   private[this] def fillEditorSettings(settings: EditorSettings,
                                        language: Language): Unit = {
-    settings.setLanguage(language)
+    settings.setLanguageSupplier(() => language)
     settings.setWhitespacesShown(true)
     settings.setLineMarkerAreaShown(false)
     settings.setIndentGuidesShown(false)

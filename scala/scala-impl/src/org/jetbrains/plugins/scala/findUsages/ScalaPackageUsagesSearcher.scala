@@ -29,8 +29,7 @@ class ScalaPackageUsagesSearcher extends QueryExecutorBase[PsiReference, Referen
     data match {
       case Some((scPack, name, scope)) =>
         val collector: SearchRequestCollector = parameters.getOptimizer
-        val session: SearchSession = collector.getSearchSession
-        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(scPack, null, session))
+        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, scPack)
       case _ =>
     }
   }

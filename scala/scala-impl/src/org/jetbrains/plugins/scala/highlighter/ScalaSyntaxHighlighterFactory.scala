@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package highlighter
 
+import com.intellij.lang.html.HTMLLanguage
 import com.intellij.lang.{LanguageParserDefinitions, StdLanguages}
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import com.intellij.openapi.project.Project
@@ -27,7 +28,7 @@ final class ScalaSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
     new ScalaSyntaxHighlighter(
       new ScalaSyntaxHighlighter.CustomScalaLexer(scalaLexer),
       findByLanguage(ScalaDocLanguage.INSTANCE, project, file),
-      findByLanguage(StdLanguages.HTML, project, file)
+      findByLanguage(HTMLLanguage.INSTANCE, project, file)
     )
   }
 }

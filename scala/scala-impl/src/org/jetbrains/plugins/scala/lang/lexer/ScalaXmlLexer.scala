@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package lexer
 
+import java.util
+
 import com.intellij.lexer.{MergingLexerAdapter, _XmlLexer, __XmlLexer}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
-import com.intellij.util.containers.ContainerUtil
 
 final class ScalaXmlLexer extends MergingLexerAdapter(
   new _XmlLexer(new __XmlLexer(null), false),
@@ -20,7 +21,7 @@ object ScalaXmlLexer {
 
   object ScalaXmlTokenType {
 
-    private val typesByName = ContainerUtil.newHashMap[String, ScalaXmlTokenType]
+    private val typesByName = new util.HashMap[String, ScalaXmlTokenType]
 
     def apply(debugName: String): ScalaXmlTokenType = {
       val tokenType = new ScalaXmlTokenType(debugName)

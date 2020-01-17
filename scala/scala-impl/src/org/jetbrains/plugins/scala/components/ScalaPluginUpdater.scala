@@ -250,7 +250,7 @@ object ScalaPluginUpdater {
 
   private def scheduleUpdate(): Unit = {
     val key = "scala.last.updated"
-    val lastUpdateTime = PropertiesComponent.getInstance().getOrInitLong(key , 0)
+    val lastUpdateTime = PropertiesComponent.getInstance().getLong(key , 0)
     EditorFactory.getInstance().getEventMulticaster.removeDocumentListener(updateListener)
     if (lastUpdateTime == 0L || System.currentTimeMillis() - lastUpdateTime > TimeUnit.DAYS.toMillis(1)) {
       ApplicationManager.getApplication.executeOnPooledThread(new Runnable {

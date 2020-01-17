@@ -46,9 +46,7 @@ class TechHubModuleBuilder extends
 
     val settings = getExternalProjectSettings
     settings.setExternalProjectPath(path)
-    settings.setUseAutoImport(false)
     settings.setResolveJavadocs(false)
-    settings.setCreateEmptyContentRootDirectories(false)
 
     ModuleBuilder.deleteModuleFile(oldPath)
 

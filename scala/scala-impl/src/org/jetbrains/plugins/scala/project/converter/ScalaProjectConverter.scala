@@ -71,7 +71,7 @@ private object ScalaProjectConverter {
     modulesIn(context).flatMap(module => ScalaFacetData.findIn(module).toSeq)
 
   private def modulesIn(context: ConversionContext): Seq[ModuleSettings] =
-    context.getModuleFiles.map(context.getModuleSettings).toSeq
+    context.getModulePaths.asScala.map(context.getModuleSettings)
 
   private def obsoleteLibrariesIn(context: ConversionContext): Set[LibraryReference] = {
     val modules = modulesIn(context)

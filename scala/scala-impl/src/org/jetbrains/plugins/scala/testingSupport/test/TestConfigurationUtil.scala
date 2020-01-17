@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.execution.configurations.{ConfigurationFactory, RunConfiguration}
-import com.intellij.execution.junit.JavaRuntimeConfigurationProducerBase
-import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
+import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}

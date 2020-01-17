@@ -9,7 +9,7 @@ import com.intellij.openapi.options.{Configurable, ConfigurableGroup, ShowSettin
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.ui.HyperlinkLabel
-import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
+import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrategy
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaTabbedCodeStylePanel
@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel.{ADD, BY_CODE_STYLE, REMOVE}
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.settings.annotations._
+
+import scala.collection.JavaConverters._
 
 /**
   * Created by kate on 7/14/16.
@@ -72,8 +74,7 @@ object TypeAnnotationUtil {
   private def showWindowInvokeLater(project: Project): Unit = {
     extensions.invokeLater {
       val groups: Array[ConfigurableGroup] = ShowSettingsUtilImpl.getConfigurableGroups(project, true)
-      val visitor = new ConfigurableVisitor.ByID("preferences.sourceCode.Scala")
-      val configurable: Configurable = visitor.find(groups: _*)
+      val configurable: Configurable = ConfigurableVisitor.findById("preferences.sourceCode.Scala", groups.toList.asJava)
 
       assert(configurable != null, "Cannot find configurable: " + classOf[CodeStyleSchemesConfigurable].getName)
 
@@ -102,11 +103,9 @@ object TypeAnnotationUtil {
 
   def createTypeAnnotationsHLink(project: Project, msg: String): HyperlinkLabel = {
     val typeAnnotationsSettings: HyperlinkLabel = new HyperlinkLabel(msg)
-    typeAnnotationsSettings.addHyperlinkListener(new HyperlinkListener() {
-      def hyperlinkUpdate(e: HyperlinkEvent) {
-        if (e.getEventType eq HyperlinkEvent.EventType.ACTIVATED) {
-          showTypeAnnotationsSettings(project)
-        }
+    typeAnnotationsSettings.addHyperlinkListener((e: HyperlinkEvent) => {
+      if (e.getEventType eq HyperlinkEvent.EventType.ACTIVATED) {
+        showTypeAnnotationsSettings(project)
       }
     })
 

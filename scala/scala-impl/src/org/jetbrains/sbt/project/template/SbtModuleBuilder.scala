@@ -44,7 +44,6 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
   {
     val settings = getExternalProjectSettings
     settings.setResolveJavadocs(false)
-    settings.setCreateEmptyContentRootDirectories(false)
   }
 
   def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType

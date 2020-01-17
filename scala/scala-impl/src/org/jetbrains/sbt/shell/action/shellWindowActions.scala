@@ -171,8 +171,8 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
         }
 
     val settings = runConfig.getConfiguration.asInstanceOf[RemoteConfiguration]
-    settings.PORT = remote.getAddress
-    settings.HOST = remote.getHostName
+    settings.PORT = remote.getDebuggerAddress
+    settings.HOST = remote.getDebuggerHostName
     settings.SERVER_MODE = remote.isServerMode
     settings.USE_SOCKET_TRANSPORT = remote.isUseSockets
 

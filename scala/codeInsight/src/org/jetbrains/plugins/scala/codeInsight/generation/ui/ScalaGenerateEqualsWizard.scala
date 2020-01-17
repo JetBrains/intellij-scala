@@ -3,7 +3,7 @@ package codeInsight
 package generation
 package ui
 
-import java.{util => ju}
+import java.util
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.generation.ui.AbstractGenerateEqualsWizard
@@ -40,7 +40,7 @@ object ScalaGenerateEqualsWizard {
 
     import Builder._
 
-    override protected val getClassFields: ju.List[ScalaMemberInfo] = {
+    override protected val getClassFields: util.List[ScalaMemberInfo] = {
       import JavaConverters._
       extractFields(!isVar(_)).map(_._1).asJava
     }
@@ -68,7 +68,7 @@ object ScalaGenerateEqualsWizard {
       }
       else null
 
-    override protected def updateHashCodeMemberInfos(equalsMemberInfos: ju.Collection[_ <: ScalaMemberInfo]): Unit =
+    override protected def updateHashCodeMemberInfos(equalsMemberInfos: util.Collection[_ <: ScalaMemberInfo]): Unit =
       getHashCodePanel match {
         case null =>
         case panel => panel.getTable.setMemberInfos(updateInfos(equalsMemberInfos))
@@ -78,7 +78,7 @@ object ScalaGenerateEqualsWizard {
 
     override protected def getNonNullPanel: AbstractMemberSelectionPanel[ScNamedElement, ScalaMemberInfo] = null
 
-    override protected def updateNonNullMemberInfos(equalsMemberInfos: ju.Collection[_ <: ScalaMemberInfo]): Unit = {}
+    override protected def updateNonNullMemberInfos(equalsMemberInfos: util.Collection[_ <: ScalaMemberInfo]): Unit = {}
 
     private def extractFields(visibility: ScNamedElement => Boolean) =
       for {
@@ -90,7 +90,7 @@ object ScalaGenerateEqualsWizard {
         (info, member)
       }
 
-    private def updateInfos(infos: ju.Collection[_ <: ScalaMemberInfo]) = {
+    private def updateInfos(infos: util.Collection[_ <: ScalaMemberInfo]) = {
       import JavaConverters._
       infos.asScala.toList.map { info =>
         getFieldsToHashCode.get(info.getMember)

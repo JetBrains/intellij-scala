@@ -3,7 +3,7 @@ package project.settings
 
 import java.awt.{Component, FlowLayout}
 
-import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalProjectSettingsControl, ExternalSystemSettingsControlCustomizer}
+import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}

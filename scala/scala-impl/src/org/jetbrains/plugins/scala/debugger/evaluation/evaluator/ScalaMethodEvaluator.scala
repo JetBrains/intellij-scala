@@ -50,7 +50,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
     }
     val requiresSuperObject: Boolean = objectEvaluator.isInstanceOf[ScSuperEvaluator] ||
       (objectEvaluator.isInstanceOf[DisableGC] &&
-        objectEvaluator.asInstanceOf[DisableGC].getDelegate.isInstanceOf[ScSuperEvaluator])
+        DisableGC.unwrap(objectEvaluator).isInstanceOf[ScSuperEvaluator])
     val evaluated: AnyRef = {
       val res = objectEvaluator.evaluate(context)
       DebuggerUtil.unwrapScalaRuntimeRef(res)

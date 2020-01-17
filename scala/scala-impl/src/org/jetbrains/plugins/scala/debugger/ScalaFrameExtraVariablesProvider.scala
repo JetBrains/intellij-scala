@@ -6,7 +6,6 @@ import java.util.Collections
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.{EvaluationContext, TextWithImports, TextWithImportsImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, FrameExtraVariablesProvider}
-import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.search.PsiSearchHelperImpl
 import com.intellij.psi.search.{LocalSearchScope, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.psi.util.PsiTreeUtil
@@ -156,7 +155,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
       if (placesToSearch.isEmpty) true
       else {
         val scopes = placesToSearch.map(new LocalSearchScope(_))
-        val helper = new PsiSearchHelperImpl(place.getManager.asInstanceOf[PsiManagerEx])
+        val helper = new PsiSearchHelperImpl(place.getProject)
         var used = false
         val processor = new TextOccurenceProcessor {
           override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
@@ -187,10 +186,10 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 private class CollectingProcessor(element: PsiElement)
   extends VariablesCompletionProcessor(StdKinds.valuesRef)(element) {
 
-  val containingFile = element.getContainingFile
-  val startOffset = element.getTextRange.getStartOffset
-  val containingBlock = PsiTreeUtil.getParentOfType(element, classOf[ScBlock], classOf[ScTemplateDefinition], classOf[PsiFile])
-  val usedNames: Set[String] =
+  private val containingFile = element.getContainingFile
+  private val startOffset = element.getTextRange.getStartOffset
+  private val containingBlock = PsiTreeUtil.getParentOfType(element, classOf[ScBlock], classOf[ScTemplateDefinition], classOf[PsiFile])
+  private val usedNames: Set[String] =
     if (containingBlock != null) {
       containingBlock.depthFirst().collect {
         case ref: ScReferenceExpression if ref.qualifier.isEmpty => ref.refName
