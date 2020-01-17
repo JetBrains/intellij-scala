@@ -479,6 +479,8 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.util.KindProjectorUtil"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.util.BetterMonadicForSupport"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
+
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
@@ -1386,14 +1388,12 @@
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
         <listener class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassesListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        <listener class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
 
     </applicationListeners>
 
     <project-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerComponent</implementation-class>
-            <loadForDefaultProject/>
-        </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager</implementation-class>
             <loadForDefaultProject/>

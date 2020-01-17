@@ -7,9 +7,8 @@ import java.util
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
+import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
@@ -485,7 +484,7 @@ object ScalaPsiManager {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
 
   def instance(implicit ctx: ProjectContext): ScalaPsiManager =
-    ctx.project.getComponent(classOf[ScalaPsiManagerComponent]).instance
+    ctx.getService(classOf[ScalaPsiManagerHolder]).get
 
   private def registerLowMemoryWatcher(project: Project): Unit = {
     LowMemoryWatcher.register(() => {
@@ -504,22 +503,32 @@ object ScalaPsiManager {
     }
 }
 
-class ScalaPsiManagerComponent(project: Project) extends ProjectComponent {
-  private var manager = new ScalaPsiManager()(project)
+private class ScalaPsiManagerHolder {
+  private var scalaPsiManager: ScalaPsiManager = _
 
-  def instance: ScalaPsiManager =
-    if (manager != null) manager
-    else throw new IllegalStateException("ScalaPsiManager cannot be used after disposing.")
+  def get: ScalaPsiManager = scalaPsiManager
 
-  override def projectOpened(): Unit = {
-    manager.projectOpened()
+  def init(implicit project: Project): Unit =
+    scalaPsiManager = new ScalaPsiManager
+
+  def dispose(): Unit =
+    scalaPsiManager = null
+}
+
+private class ScalaPsiManagerListener extends ProjectManagerListener {
+
+  override def projectOpened(project: Project): Unit = {
+    val holder = managerHolder(project)
+    holder.init(project)
+    holder.get.projectOpened()
   }
 
-  override def projectClosed(): Unit = {
-    manager.clearAllCaches()
+  override def projectClosed(project: Project): Unit = {
+    val holder = managerHolder(project)
+    holder.get.clearAllCaches()
+    holder.dispose()
   }
 
-  override def disposeComponent(): Unit = {
-    manager = null
-  }
+  private def managerHolder(project: Project): ScalaPsiManagerHolder =
+    project.getService(classOf[ScalaPsiManagerHolder])
 }
