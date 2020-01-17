@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.caches
 
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
@@ -12,18 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueO
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
 import scala.util.Try
 
-
-final class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComponent {
-
-  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager")
-
-  import ScalaIndexKeys._
-  import ScalaNamesUtil._
+final class ScalaShortNamesCacheManager(implicit project: Project) {
 
   def getClassByFQName(fqn: String, scope: GlobalSearchScope): PsiClass = {
     if (DumbService.getInstance(project).isDumb) {
@@ -164,8 +156,6 @@ final class ScalaShortNamesCacheManager(implicit project: Project) extends Proje
 
   private def psiNamesCache = PsiShortNamesCache.getInstance(project)
 
-  override val getComponentName: String = "ScalaShortNamesCacheManager"
-
   private def classesFromIndex(name: String, scope: GlobalSearchScope,
                               indexKey: StubIndexKey[java.lang.Integer, PsiClass] = FQN_KEY): Iterable[PsiClass] =
     indexKey.integerElements(name, scope, classOf[PsiClass])
@@ -174,5 +164,5 @@ final class ScalaShortNamesCacheManager(implicit project: Project) extends Proje
 object ScalaShortNamesCacheManager {
 
   def getInstance(implicit project: Project): ScalaShortNamesCacheManager =
-    project.getComponent(classOf[ScalaShortNamesCacheManager])
+    project.getService(classOf[ScalaShortNamesCacheManager])
 }

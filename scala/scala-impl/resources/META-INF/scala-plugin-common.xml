@@ -465,22 +465,16 @@
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
-        <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
-
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"
-                        serviceInterface="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
-
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
-
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
-
         <projectService serviceImplementation="org.jetbrains.plugins.scala.util.KindProjectorUtil"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.util.BetterMonadicForSupport"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
-
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
@@ -1394,10 +1388,6 @@
     </applicationListeners>
 
     <project-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager</implementation-class>
-            <loadForDefaultProject/>
-        </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
         </component>
