@@ -48,7 +48,7 @@ case class Arguments(token: String, sbtData: SbtData, compilerData: CompilerData
       filesToPaths(caches),
       incrementalType.name,
       filesToPaths(sourceRoots),
-      filesToPaths(outputDirs), 
+      filesToPaths(outputDirs),
       sequenceToString(worksheetFiles),
       //sbtIncOptions
       filesToPaths(compilationData.zincData.allSources),
