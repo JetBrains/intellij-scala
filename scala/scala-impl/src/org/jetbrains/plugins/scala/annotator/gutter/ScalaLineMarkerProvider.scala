@@ -4,7 +4,6 @@ package gutter
 
 import java.{util => ju}
 
-import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon._
 import com.intellij.icons.AllIcons.Gutter
 import com.intellij.openapi.application.ApplicationManager
@@ -62,9 +61,9 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
     new LineMarkerInfo[PsiElement](
       leaf,
       leaf.getTextRange,
-      null,
+      null: Icon,
       Function.const(null)(_),
-      null,
+      null: GutterIconNavigationHandler[PsiElement],
       Alignment.RIGHT
     )
   }
@@ -86,7 +85,6 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
       element,
       icon,
       markerType,
-      Pass.UPDATE_ALL,
       Alignment.LEFT,
       presentationParent
     )
@@ -196,14 +194,12 @@ private object GutterUtil {
                                                                 element:            PsiElement,
                                                                 icon:               Icon,
                                                                 markerType:         ScalaMarkerType,
-                                                                passId:             Int,
                                                                 alignment: Alignment,
                                                                 presentationParent: Option[PsiElement] = None
   ) extends MergeableLineMarkerInfo[PsiElement](
         element,
         element.getTextRange,
         icon,
-        passId,
         markerType.tooltipProvider,
         markerType.navigationHandler,
         alignment
@@ -265,7 +261,6 @@ private object GutterUtil {
             anchor,
             if (isAbstract(member)) ImplementedMethod else OverridenMethod,
             overriddenMember,
-            Pass.LINE_MARKERS,
             Alignment.RIGHT
           )
         }
