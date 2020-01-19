@@ -5,6 +5,8 @@ import sbtide.Keys.ideSkipProject
 
 // Global build settings
 
+useCoursier in Global := false
+
 intellijPluginName in ThisBuild := "Scala"
 
 intellijBuild in ThisBuild := Versions.intellijVersion
