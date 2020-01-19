@@ -7,7 +7,7 @@ import java.util
 import java.util.Optional
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.data.CompilationData
+import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerJars}
 import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, CompilerArguments}
 import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
@@ -33,9 +33,9 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
       if (compilationData.outputGroups.size <= 1) CompileOutput(compilationData.output)
       else CompileOutput(compilationData.outputGroups: _*)
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.classpathOptions)
+    val hasDotty = CompilerJars.hasDotty(scalac.scalaInstance.allJars.toSeq)
     val options = cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
-      .filterNot(_.startsWith("-g:")) // TODO SCL-16881
-
+      .filterNot(_.startsWith("-g:") && hasDotty) // TODO SCL-16881
 
     try {
       scalac.compile(compilationData.sources.toArray, emptyChanges, options.toArray, out, clientCallback, reporter, CompilerCache.fresh, logger, Optional.of(progress))
