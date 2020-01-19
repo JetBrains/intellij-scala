@@ -194,7 +194,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
     val showHandler = SettingQueryHandler(setting, Some(showTaskName), projectUri, projectId, comm)
     val setHandler = if (showTaskName == setTaskName) showHandler else
       SettingQueryHandler(setting, Some(setTaskName), projectUri, projectId, comm)
-    showHandler.getSettingValue().flatMap {
+    showHandler.getSettingValue.flatMap {
       opts =>
         (if (modificationCondition(opts))
           if (shouldSet) setHandler.setSettingValue(value) else setHandler.addToSettingValue(value)

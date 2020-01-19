@@ -117,7 +117,7 @@ private object AlignedInlayGroup {
       if (cached.margin != margin) {
         cached = Cached(lineEndX, margin)
 
-        inlay.updateSize()
+        inlay.update()
       }
     }
 

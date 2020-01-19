@@ -9,6 +9,7 @@ import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
+import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.PsiFile
@@ -81,7 +82,7 @@ object ImportAmmoniteDependenciesFix {
             ScalaUtil.getModuleForFile(file.getVirtualFile).foreach { module =>
               invokeLater {
                 inWriteAction {
-                  val tableModel = ProjectLibraryTable.getInstance(project).getModifiableModel
+                  val tableModel = LibraryTablesRegistrar.getInstance().getLibraryTable(project).getModifiableModel
                   val moduleModel = ModuleRootManager.getInstance(module).getModifiableModel
                   val jarFileSystem = JarFileSystem.getInstance
 
@@ -120,7 +121,10 @@ object ImportAmmoniteDependenciesFix {
   case class ExactVersion(m: Char, v: Version) extends MyScalaVersion
 
   private def hasAmmonite(file: PsiFile): Boolean =
-    ProjectLibraryTable.getInstance(file.getProject).getLibraries.exists(_.getName.startsWith("ammonite-"))
+    LibraryTablesRegistrar.getInstance()
+      .getLibraryTable(file.getProject)
+      .getLibraries
+      .exists(_.getName.startsWith("ammonite-"))
 
   private def createBgIndicator(implicit project: Project) =
     ProgressIndicatorProvider.getGlobalProgressIndicator match {

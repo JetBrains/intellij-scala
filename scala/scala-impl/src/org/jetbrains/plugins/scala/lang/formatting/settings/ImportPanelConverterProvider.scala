@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.formatting.settings
 
 import java.io.File
+import java.nio.file.Paths
 import java.util
 import java.util.Collections
 
@@ -10,6 +11,7 @@ import com.intellij.conversion.impl.{ComponentManagerSettingsImpl, ConversionCon
 import com.intellij.openapi.util.JDOMUtil
 import com.intellij.util.SystemProperties
 import org.jdom.Document
+
 import scala.collection.JavaConverters._
 
 /**
@@ -40,7 +42,7 @@ class ImportPanelConverterProvider extends ConverterProvider("ImportPanelConvert
           import com.intellij.conversion.impl.ConversionContextImpl
           context match {
             case context: ConversionContextImpl =>
-              val settings = new ComponentManagerSettingsImpl(file, context) {}
+              val settings = new ComponentManagerSettingsImpl(file.toPath, context) {}
               val children = settings.getRootElement.getChildren.asScala
               children.find(_.getName == "component") match {
                 case Some(componentChild) =>
@@ -75,7 +77,7 @@ class ImportPanelConverterProvider extends ConverterProvider("ImportPanelConvert
           case Some(file) =>
             context match {
               case context: ConversionContextImpl =>
-                val settings = new ComponentManagerSettingsImpl(file, context) {}                
+                val settings = new ComponentManagerSettingsImpl(file.toPath, context) {}
                 val root = settings.getRootElement
                 for {
                   component <- Option(root.getChild("component"))
