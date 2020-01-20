@@ -61,7 +61,7 @@ class InterpolatedStringsAnnotatorTest extends ScalaLightPlatformCodeInsightTest
   }
   
   def testMultiResolve() {
-    messageExists(header + "d\"blah $s1 blah $s2 blah\"", "Error(d,Value 'd' is not a member of StringContext)")
+    messageExists(header + "_\"blah $s1 blah $s2 blah\"", "Error(_,Value '_' is not a member of StringContext)")
   }
   
   def testMultipleResolve() {
