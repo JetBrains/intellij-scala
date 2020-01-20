@@ -41,16 +41,28 @@ object TypeMismatchHints {
 
     val margin = if (format == InnerParentheses) None else Hint.leftInsetLikeChar(' ')
 
-    val beforeElseKeyword = element.nextSiblings
-      .dropWhile(_.is[PsiWhiteSpace])
-      .exists(_.getNode.getElementType == ScalaTokenTypes.kELSE)
+    def isWhitespaceRequiredBeforeNextElement = {
+      def isWhitespaceRequiredAfter(e: PsiElement) = e.nextSiblings
+        .dropWhile(e => e.is[PsiWhiteSpace] && !e.getText.contains("\n"))
+        .headOption
+        .map(_.getNode.getElementType)
+        .exists(elementType =>
+          elementType == ScalaTokenTypes.kELSE ||
+          elementType == ScalaTokenTypes.kMATCH ||
+          elementType == ScalaTokenTypes.tRBRACE)
+
+      isWhitespaceRequiredAfter(element) || (element match {
+        case Parent(parent) if parent.getLastChild == element => isWhitespaceRequiredAfter(parent)
+        case _ => false
+      })
+    }
 
     val offsetDelta =
-      if (format == OuterParentheses || beforeElseKeyword) 0
+      if (format == OuterParentheses) 0
       else Option(element.getContainingFile)
         .flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
         .filter(_.is[PsiWhiteSpace])
-        .map(_.getText.takeWhile(_ != '\n').length)
+        .map(e => 0.max(e.getText.takeWhile(_ != '\n').length - (if (isWhitespaceRequiredBeforeNextElement) 1 else 0)))
         .getOrElse(0)
 
     val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta, menu = Some("TypeHintsMenu"))
