@@ -230,7 +230,7 @@ final class ShowImplicitConversionsAction extends AnAction("Show implicit conver
       list.getSelectedValue match {
         case Parameters(newExpression, _, _, _, _) if newExpression != null =>
           setSize(getPreferredSize)
-          setLocation(сurrentItemPoint(list, getWidth + INDENT))
+          setLocation(currentItemPoint(list, getWidth + INDENT))
         case _ =>
       }
     }

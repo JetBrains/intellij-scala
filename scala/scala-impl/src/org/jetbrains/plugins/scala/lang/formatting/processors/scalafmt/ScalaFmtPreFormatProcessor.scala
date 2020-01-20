@@ -107,13 +107,13 @@ object ScalaFmtPreFormatProcessor {
   private def formatIfRequired(file: PsiFile, range: TextRange): Unit = {
     val (cachedRange, cachedFileTimeStamp, cachedConfigTimestamp) = file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp, None))
 
-    val (config, сonfigTimestamp) = ScalafmtDynamicConfigManager.instanceIn(file).configForFileWithTimestamp(file) match {
+    val (config, configTimestamp) = ScalafmtDynamicConfigManager.instanceIn(file).configForFileWithTimestamp(file) match {
       case Some(result) => result
       case None => return
     }
     if (cachedFileTimeStamp == file.getModificationStamp &&
       cachedRange.contains(range) &&
-      cachedConfigTimestamp == сonfigTimestamp
+      cachedConfigTimestamp == configTimestamp
     ) return
 
     val rangeUpdated = fixRangeStartingOnPsiElement(file, range)
@@ -133,7 +133,7 @@ object ScalaFmtPreFormatProcessor {
 
       if (rangeUpdated.getLength + delta > 0)
         file.putUserData(
-          FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp, сonfigTimestamp))
+          FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp, configTimestamp))
     }
   }
 

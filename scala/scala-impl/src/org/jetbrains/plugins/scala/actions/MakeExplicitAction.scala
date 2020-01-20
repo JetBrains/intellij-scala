@@ -70,10 +70,10 @@ object MakeExplicitAction {
     val list = GoToImplicitConversionAction.getList
 
     PopupFactory.createListPopup(step)
-      .show(new RelativePoint(list, сurrentItemPoint(list)))
+      .show(new RelativePoint(list, currentItemPoint(list)))
   }
 
-  def сurrentItemPoint(list: JList[_], moveLeft: Int = 20): Point = list.getSelectedIndex match {
+  def currentItemPoint(list: JList[_], moveLeft: Int = 20): Point = list.getSelectedIndex match {
     case -1 => throw new RuntimeException("Index = -1 is less than zero.")
     case index =>
       list.getCellBounds(index, index) match {

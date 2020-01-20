@@ -515,8 +515,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
         val closingType =
           if (lParen.getElementType == tLPARENTHESIS) tRPARENTHESIS
           else tRBRACE
-        val afterСlosingParent = tail.dropWhile(_.getElementType != closingType)
-        afterСlosingParent match {
+        val afterClosingParent = tail.dropWhile(_.getElementType != closingType)
+        afterClosingParent match {
           case Nil =>
             addTail(children)
           case rParent :: yieldNodes =>
