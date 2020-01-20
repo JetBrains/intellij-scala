@@ -6,6 +6,7 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.shouldIgnoreTypeMismatchIn
 import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
@@ -122,7 +123,7 @@ trait FunctionAnnotator {
         if (typeAware) {
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturn].expr else None
           val expression = returnExpression.getOrElse(usage)
-          if (!ScMethodType.hasMethodType(expression)) {
+          if (!ScMethodType.hasMethodType(expression) && !shouldIgnoreTypeMismatchIn(expression)) {
             TypeMismatchError.register(expression, functionType, usageType, blockLevel = 1) { (expected, actual) =>
               ScalaBundle.message("type.mismatch.found.required", actual, expected)
             }
