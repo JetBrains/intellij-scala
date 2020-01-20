@@ -296,4 +296,9 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchExpandedFunctionUnresolvedReference(): Unit = {
     assertMessages(errorsFromScalaCode("def f(x: Int): Int = x; f(_.foo)"))(Error("foo", "Cannot resolve symbol foo"))
   }
+
+  // Don't show type mismatch when there's a parser error (inside the expression, or an adjacent one)
+  def testTypeMismatchExpandedParserError(): Unit = {
+    assertNothing(errorsFromScalaCode("val v: String = 123`"))
+  }
 }

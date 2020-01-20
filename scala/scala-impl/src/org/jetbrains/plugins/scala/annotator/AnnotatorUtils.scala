@@ -4,7 +4,7 @@ package annotator
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.template.kindOf
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
@@ -50,6 +50,15 @@ object AnnotatorUtils {
 
   // TODO This is a workaround for SCL-16898 (Function literals: don't infer type when parameter type is not known)
   def shouldIgnoreTypeMismatchIn(e: PsiElement): Boolean = {
+    // Don't show type a mismatch error when there's a parser error, SCL-16899
+    def hasParserErrors = e.elements.exists(_.isInstanceOf[PsiErrorElement]) ||
+      e.getPrevSibling.isInstanceOf[PsiErrorElement] ||
+      e.getNextSibling.isInstanceOf[PsiErrorElement] ||
+      e.parent.exists { parent =>
+        e == parent.getFirstChild && parent.getPrevSibling.isInstanceOf[PsiErrorElement] ||
+          e == parent.getLastChild && parent.getNextSibling.isInstanceOf[PsiErrorElement]
+      }
+
     def hasUnresolvedReferences = e.elements.exists(_.asOptionOf[ScReference].exists(_.resolve() == null))
 
     // This might result in false positives (when parameter type is wrongly inferred as Nothing), but it's a lesser evil.
@@ -58,7 +67,7 @@ object AnnotatorUtils {
       case _ => false
     }
 
-    hasUnresolvedReferences || isFunctionLiteralWithMissingParameterType
+    hasParserErrors || hasUnresolvedReferences || isFunctionLiteralWithMissingParameterType
   }
 
   //fix for SCL-7176
