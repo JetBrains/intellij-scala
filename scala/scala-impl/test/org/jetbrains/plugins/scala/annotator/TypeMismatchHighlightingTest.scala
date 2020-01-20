@@ -276,4 +276,19 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode("def f[T](t: T): Int = 1; val v: Int = f[Int]"))
     // TODO missing arguments?
   }
+
+  // TODO The following is a workaround for SCL-16898 (Function literals: don't infer type when parameter type is not known)
+
+  def testTypeMismatchFunctionLiteralMissingParameterType(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(x: Int): Int = x; f(p => p)"))(Error("p", "Missing parameter type: p"))
+  }
+
+  def testTypeMismatchFunctionLiteralUnresolvedReference(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(x: Int): Int = x; f(p => p.foo)"))(Error("p", "Missing parameter type: p"),
+      Error("foo", "Cannot resolve symbol foo")) // TODO The second error is redundant
+  }
+
+  def testTypeMismatchExpandedFunctionUnresolvedReference(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(x: Int): Int = x; f(_.foo)"))(Error("foo", "Cannot resolve symbol foo"))
+  }
 }

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{annotationWithoutHighlighting, smartCheckConformance}
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{annotationWithoutHighlighting, shouldIgnoreTypeMismatchIn, smartCheckConformance}
 import org.jetbrains.plugins.scala.annotator.quickfix.{AddBreakoutQuickFix, ChangeTypeFix, WrapInOptionQuickFix}
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.extensions.{&&, _}
@@ -113,6 +113,9 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                 case _ =>
               }
               if (ScMethodType.hasMethodType(element)) {
+                return
+              }
+              if (shouldIgnoreTypeMismatchIn(element)) {
                 return
               }
               val annotation = {
