@@ -13,6 +13,8 @@ trait ScEnumeratorImpl extends ScEnumerator {
 
   override def forStatement: Option[ScForImpl] = this.parentOfType(classOf[ScForImpl])
 
+  override def expr: Option[ScExpression] = findChild(classOf[ScExpression])
+
   override def desugared: Option[ScEnumerator.DesugaredEnumerator] = forStatement flatMap {
     _.desugarEnumerator(this)
   }

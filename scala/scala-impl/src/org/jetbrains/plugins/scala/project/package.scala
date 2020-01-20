@@ -156,6 +156,12 @@ package object project {
     def scalaLanguageLevel: Option[ScalaLanguageLevel] =
       scalaModuleSettings.map(_.scalaLanguageLevel)
 
+    def isScala2CompatibilityEnabled: Boolean =
+      scalaModuleSettings.exists(_.isScala2CompatibilityEnabled)
+
+    def isCompilerStrictMode: Boolean =
+      scalaModuleSettings.exists(_.isCompilerStrictMode)
+
     def scalaCompilerClasspath: Seq[File] = module.scalaSdk
       .fold(throw new ScalaSdkNotConfiguredException(module)) {
         _.properties.compilerClasspath
@@ -303,6 +309,10 @@ package object project {
     def isInScalaModule: Boolean = module.exists(_.hasScala)
 
     def isInScala3Module: Boolean = module.exists(_.hasScala3)
+
+    def isScala2CompatibilityEnabled: Boolean = module.exists(_.isScala2CompatibilityEnabled)
+
+    def isCompilerStrictMode: Boolean = module.exists(_.isCompilerStrictMode)
 
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaLanguageLevel)
 

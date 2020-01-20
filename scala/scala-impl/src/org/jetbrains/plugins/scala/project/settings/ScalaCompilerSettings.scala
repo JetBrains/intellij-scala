@@ -28,11 +28,13 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   var existentials: Boolean = _
   var macros: Boolean = _
   var experimental: Boolean = _
+  var scala2Compat: Boolean = _
 
   var warnings: Boolean = _
   var deprecationWarnings: Boolean = _
   var uncheckedWarnings: Boolean = _
   var featureWarnings: Boolean = _
+  var strict: Boolean = _ // Scala 3 flag to enforce 3.1 features in 3.0
   var optimiseBytecode: Boolean = _
   var explainTypeErrors: Boolean = _
   var specialization: Boolean = _
@@ -50,11 +52,13 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     ("-language:higherKinds", () => higherKinds, higherKinds = _),
     ("-language:existentials", () => existentials, existentials = _),
     ("-language:experimental.macros", () => macros, macros = _),
+    ("-language:Scala2Compat", () => scala2Compat, scala2Compat = _),
     ("-Xexperimental", () => experimental, experimental = _),
     ("-nowarn", () => !warnings, (b: Boolean) => warnings = !b),
     ("-deprecation", () => deprecationWarnings, deprecationWarnings = _),
     ("-unchecked", () => uncheckedWarnings, uncheckedWarnings = _),
     ("-feature", () => featureWarnings, featureWarnings = _),
+    ("-strict", () => strict, strict = _),
     ("-optimise", () => optimiseBytecode, optimiseBytecode = _),
     ("-explaintypes", () => explainTypeErrors, explainTypeErrors = _),
     ("-no-specialization", () => !specialization, (b: Boolean) => specialization = !b),

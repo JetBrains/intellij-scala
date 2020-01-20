@@ -8,6 +8,7 @@ import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap 
 import java.util.regex.Pattern
 import java.util.{Arrays, Set => JSet}
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
@@ -1358,5 +1359,9 @@ package object extensions {
       if (logger.isDebugEnabled) {
         logger.debug(message)
       }
+  }
+
+  implicit class HighlightInfoExt(private val info: HighlightInfo) extends AnyVal {
+    def range: TextRange = TextRange.create(info.startOffset, info.endOffset)
   }
 }

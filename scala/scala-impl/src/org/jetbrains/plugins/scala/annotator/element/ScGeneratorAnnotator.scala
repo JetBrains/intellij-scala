@@ -7,9 +7,11 @@ import com.intellij.lang.annotation.AnnotationSession
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotationHolder, ErrorIndication}
+import org.jetbrains.plugins.scala.annotator.element.ScForBindingAnnotator.RemoveCaseFromPatternedEnumeratorFix
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromGeneratorIntentionAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
 
@@ -17,12 +19,18 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     checkGenerator(element, typeAware)
 
-    element.valKeyword match {
-      case Some(valKeyword) =>
-        val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("generator.val.keyword.removed"))
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-        annotation.registerFix(new RemoveValFromGeneratorIntentionAction(element))
-      case _ =>
+    element.valKeyword.foreach { valKeyword =>
+      val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerators.generator.val.keyword.found"))
+      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+      annotation.registerFix(new RemoveValFromGeneratorIntentionAction(element))
+    }
+
+    if (!element.isInScala3Module) {
+      element.caseKeyword.foreach { caseKeyword =>
+        val annotation = holder.createWarningAnnotation(caseKeyword, ScalaBundle.message("for.pattern.bindings.require.scala3"))
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+        annotation.registerFix(new RemoveCaseFromPatternedEnumeratorFix(element))
+      }
     }
   }
 

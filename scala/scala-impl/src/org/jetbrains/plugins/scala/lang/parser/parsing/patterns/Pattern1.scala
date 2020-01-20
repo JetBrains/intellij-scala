@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object Pattern1 {
 
+  //TODO: refactor!
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val pattern1Marker = builder.mark
     val backupMarker = builder.mark

@@ -6,7 +6,7 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -27,25 +27,31 @@ final class ScVariableDefinitionImpl private[psi](stub: ScPropertyStub[ScVariabl
                                                   node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDefinition {
 
-  def assignment: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
+  override def assignment: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
 
-  def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  override def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
-  def bindings: Seq[ScBindingPattern] = pList match {
+  override def bindings: Seq[ScBindingPattern] = pList match {
     case null => Seq.empty
     case ScPatternList(Seq(pattern)) => pattern.bindings
     case ScPatternList(patterns) => patterns.flatMap(_.bindings)
   }
 
-  def `type`(): TypeResult = typeElement match {
+  override def `type`(): TypeResult = typeElement match {
     case Some(te) => te.`type`()
     case None => expr.map(_.`type`().map(ScLiteralType.widenRecursive)).
       getOrElse(Failure("Cannot infer type without an expression"))
   }
 
-  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def pList: ScPatternList = getStubOrPsiChild(ScalaElementType.PATTERN_LIST)
+  override def annotationAscription: Option[ScAnnotations] =
+    assignment.flatMap(_.getPrevSiblingNotWhitespaceComment match {
+      case prev: ScAnnotations => Some(prev)
+      case _                   => None
+    })
+
+  override def pList: ScPatternList = getStubOrPsiChild(ScalaElementType.PATTERN_LIST)
 
   override def toString: String = "ScVariableDefinition: " + ifReadAllowed(declaredNames.mkString(", "))("")
 }

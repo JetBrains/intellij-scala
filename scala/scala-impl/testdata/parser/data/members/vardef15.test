@@ -47,7 +47,7 @@ ScalaFile
               PsiElement(identifier)('Type')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
-          PsiErrorElement:expression expected
+          PsiErrorElement:Expression expected
             <empty list>
         PsiWhiteSpace('\n')
         PsiElement(})('}')

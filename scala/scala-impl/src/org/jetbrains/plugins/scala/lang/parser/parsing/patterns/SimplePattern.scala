@@ -11,12 +11,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern.XmlPattern
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 29.02.2008
-*/
-
 /*
+ * Scala 2.x
  * SimplePattern ::= '_'
  *                 | varid
  *                 | Literal
@@ -25,11 +21,27 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *                 | StableId '(' [Patterns ','] [(varid | '_' ) '@'] '_' '*'')'
  *                 |'(' [Patterns [',']] ')'
  *                 | XmlPattern
+ *
+ * Scala 3
+ * SimplePattern ::=  PatVar
+ *                 |  Literal
+ *                 |  ‘(’ [Patterns] ‘)’
+ *                 |  Quoted
+ *                 |  XmlPattern
+ *                 |  SimplePattern1 [TypeArgs] [ArgumentPatterns]
+ *
+ * PatVar           ::=  varid
+ *                    |  ‘_’
+ * SimplePattern1   ::=  Path
+ *                    |  SimplePattern1 ‘.’ id
+ * ArgumentPatterns ::=  ‘(’ [Patterns] ‘)’
+ *                    |  ‘(’ [Patterns ‘,’] Pattern2 ‘:’ ‘_’ ‘*’ ‘)’
  */
 object SimplePattern {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val simplePatternMarker = builder.mark
+
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER =>
         builder.advanceLexer() //Ate _
@@ -79,6 +91,7 @@ object SimplePattern {
         }
       case _ =>
     }
+
     if (InterpolationPattern parse builder) {
       simplePatternMarker.done(ScalaElementType.INTERPOLATION_PATTERN)
       return true
@@ -93,10 +106,12 @@ object SimplePattern {
       simplePatternMarker.drop()
       return true
     }
+
     if (builder.lookAhead(ScalaTokenTypes.tIDENTIFIER) &&
-            !builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tDOT) &&
-            !builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tLPARENTHESIS) &&
-      builder.invalidVarId) {
+      !builder.lookAhead(1, ScalaTokenTypes.tDOT) &&
+      !builder.lookAhead(1, ScalaTokenTypes.tLPARENTHESIS) &&
+      builder.invalidVarId
+    ) {
       val rpm = builder.mark
       builder.getTokenText
       builder.advanceLexer()
@@ -110,49 +125,57 @@ object SimplePattern {
       builder.getTokenType match {
         case ScalaTokenTypes.tLPARENTHESIS =>
           rb1.rollbackTo()
-          StableId parse(builder, ScalaElementType.REFERENCE)
+          StableId.parse(builder, ScalaElementType.REFERENCE)
           val args = builder.mark
           builder.advanceLexer() //Ate (
           builder.disableNewlines()
 
-          def parseSeqWildcard(withComma: Boolean): Boolean = {
-            if (if (withComma)
-              builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
-            else builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
-              val wild = builder.mark
-              if (withComma) builder.advanceLexer()
-              builder.getTokenType
-              builder.advanceLexer()
-              if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && "*".equals(builder.getTokenText)) {
-                builder.advanceLexer()
-                wild.done(ScalaElementType.SEQ_WILDCARD)
-                true
-              } else {
-                wild.rollbackTo()
-                false
-              }
+          // _* (Scala 2)
+          def parseSeqWildcard(): Boolean = {
+            if (builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
+              ParserUtils.eatShortSeqWildcardNext(builder)
             } else {
               false
             }
           }
 
-          def parseSeqWildcardBinding(withComma: Boolean): Boolean = {
-            if (if (withComma) builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
-            ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) || builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tAT,
-              ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
-            else builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
-            ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) || builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tAT,
-              ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
-              ParserUtils.parseVarIdWithWildcardBinding(builder, withComma)
-            } else false
-          }
+          // xs @ _* (Scala 2)
+          def parseSeqWildcardBinding(): Boolean = {
+            val condition =
+              builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) ||
+                builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tAT, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
 
-          if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false) && Pattern.parse(builder)) {
-            while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-              builder.advanceLexer() // eat comma
-              if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false)) Pattern.parse(builder)
+            if (condition) {
+              ParserUtils.parseVarIdWithWildcardBinding(builder, withComma = false)
+            } else {
+              false
             }
           }
+
+          // xs : _* (Scala 3)
+          def parseSeqWildcardBindingScala3(): Boolean = {
+            val condition =
+              builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tCOLON, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) ||
+                builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tCOLON, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
+
+            if (condition) {
+              ParserUtils.parseVarIdWithWildcardBinding(builder, withComma = false)
+            } else {
+              false
+            }
+          }
+
+          def parseSeqWildcardAny(): Boolean = parseSeqWildcard() ||  parseSeqWildcardBindingScala3() || parseSeqWildcardBinding()
+
+          if (parseSeqWildcardAny() || Pattern.parse(builder)) {
+            while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+              builder.advanceLexer() // eat comma
+              if (!parseSeqWildcardAny()) {
+                Pattern.parse(builder)
+              }
+            }
+          }
+
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
@@ -161,15 +184,17 @@ object SimplePattern {
           }
           builder.restoreNewlinesState()
           args.done(ScalaElementType.PATTERN_ARGS)
+
           simplePatternMarker.done(ScalaElementType.CONSTRUCTOR_PATTERN)
-          return true
+          true
         case _ =>
           rb1.drop()
           simplePatternMarker.done(ScalaElementType.StableReferencePattern)
-          return true
+          true
       }
+    } else {
+      simplePatternMarker.rollbackTo()
+      false
     }
-    simplePatternMarker.rollbackTo()
-    false
   }
 }

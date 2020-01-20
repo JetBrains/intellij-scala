@@ -41,8 +41,10 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScParameterAnnotator ::
       ScParameterizedTypeElementAnnotator ::
       ScParametersAnnotator ::
+      ScPatternArgumentListAnnotator ::
       ScPatternAnnotator ::
-      ScPatternDefinitionAnnotator ::
+      ScPatternTypeUnawareAnnotator ::
+      ScValueOrVariableAnnotator ::
       ScReferenceAnnotator ::
       ScReturnAnnotator ::
       ScSelfInvocationAnnotator ::

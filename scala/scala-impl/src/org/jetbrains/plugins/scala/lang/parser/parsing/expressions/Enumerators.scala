@@ -8,13 +8,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Guard
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
 /*
- * Enumerators ::= Generator {semi ForBinding}
+ * Enumerators ::= Generator {semi Enumerator | Guard}
  */
 object Enumerators {
 
@@ -28,19 +23,20 @@ object Enumerators {
       enumsMarker.drop()
       return false
     }
-    var exit = true
-    while (exit) {
+    var continue = true
+    while (continue) {
       val guard = builder.getTokenType match {
         case ScalaTokenTypes.tSEMICOLON =>
           builder.advanceLexer()
           // eat all semicolons (which is not correct), show error in ScForAnnotator
           CommonUtils.eatAllSemicolons(builder)
           false
+        case ScalaTokenTypes.kCASE => false
         case _ if builder.newlineBeforeCurrentToken => false
         case _ if Guard.parse(builder) => true
-        case _ => exit = false; true
+        case _ => continue = false; true
       }
-      if (!guard && !ForBinding.parse(builder)) exit = false
+      continue &&= (guard || Enumerator.parse(builder))
     }
     enumsMarker.done(ScalaElementType.ENUMERATORS)
     true

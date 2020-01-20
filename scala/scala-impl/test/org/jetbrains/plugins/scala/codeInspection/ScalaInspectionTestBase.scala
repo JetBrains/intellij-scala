@@ -12,7 +12,7 @@ import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
+import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert._
 
@@ -33,47 +33,72 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 
   protected override def checkTextHasNoErrors(text: String): Unit = {
-    val ranges = configureByText(text).actualHighlights.map(_._2)
+    val highlights = configureByText(text).actualHighlights
+    val ranges = highlights.map(_.range)
     assertTrue(
-      if (shouldPass) s"Highlights found at: ${ranges.mkString(", ")}." else failingPassed,
+      if (shouldPass) s"Highlights found at: ${ranges.mkString(", ")}:\n${highlightsDebugText(highlights)}" else failingPassed,
       !shouldPass ^ ranges.isEmpty
     )
   }
 
+  private def highlightsDebugText(highlights: Seq[HighlightInfo]): String = {
+    val strings = highlights.map(highlightsDebugText)
+    val indent = "  "
+    strings.mkString(indent, indent + "\n", "")
+  }
+
+  private def highlightsDebugText(info: HighlightInfo): String =
+    s"${info.range}: ${info.getToolTip.replaceAll("\n", " ")}"
+
   protected def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit = {
     val TestPrepareResult(expectedRanges, actualHighlights) = configureByText(text)
-    val actualRanges = actualHighlights.map(_._2)
+    val actualRanges = actualHighlights
     checkTextHasError(expectedRanges, actualRanges, allowAdditionalHighlights)
   }
 
-  protected def checkTextHasError(expectedHighlightRanges: Seq[TextRange],
-                                  actualHighlightRanges: Seq[TextRange],
+  protected def checkTextHasError(expectedHighlights: Seq[ExpectedHighlight],
+                                  actualHighlights: Seq[HighlightInfo],
                                   allowAdditionalHighlights: Boolean): Unit = {
+    val expectedHighlightRanges = expectedHighlights.map(_.range)
+    val actualHighlightRanges = actualHighlights.map(_.range)
+
     val expectedRangesNotFound = expectedHighlightRanges.filterNot(actualHighlightRanges.contains)
     if (shouldPass) {
-      assertTrue(s"Highlights not found: $description", actualHighlightRanges.nonEmpty)
       assertTrue(
-        s"Highlights found at: ${actualHighlightRanges.mkString(", ")}, " +
-          s"not found: ${expectedRangesNotFound.mkString(", ")}",
-        expectedRangesNotFound.isEmpty)
-      val duplicatedHighlights = actualHighlightRanges
-        .groupBy(identity)
-        .mapValues(_.length)
-        .toSeq
-        .collect { case (highlight, count) if count > 1 => highlight }
+        s"Highlights not found: $description",
+        actualHighlightRanges.nonEmpty
+      )
+      assertTrue(
+        s"""Highlights found at: ${actualHighlightRanges.mkString(", ")}
+           |not found: ${expectedRangesNotFound.mkString(", ")}""".stripMargin,
+        expectedRangesNotFound.isEmpty
+      )
 
-      assertTrue(s"Some highlights were duplicated: ${duplicatedHighlights.mkString(", ")}", duplicatedHighlights.isEmpty)
+      assertNoDuplicates(actualHighlights)
+
       if (!allowAdditionalHighlights) {
         assertTrue(
-          s"Found too many highlights: ${actualHighlightRanges.mkString(", ")}, " +
-            s"expected: ${expectedHighlightRanges.mkString(", ")}",
+          s"""Found too many highlights:
+             |${highlightsDebugText(actualHighlights)}
+             |expected: ${expectedHighlightRanges.mkString(", ")}""".stripMargin,
           actualHighlightRanges.length == expectedHighlightRanges.length
         )
       }
     } else {
       assertTrue(failingPassed, actualHighlightRanges.isEmpty)
-      assertFalse(failingPassed, expectedRangesNotFound.isEmpty)
+      assertTrue(failingPassed, expectedRangesNotFound.nonEmpty)
     }
+  }
+
+  private def assertNoDuplicates(highlights: Seq[HighlightInfo]): Unit = {
+    val duplicatedHighlights = highlights
+      .groupBy(_.range).toSeq
+      .collect { case (_, highlights) if highlights.size > 1 => highlights }
+      .flatten
+    assertTrue(
+      s"Some highlights were duplicated:\n${highlightsDebugText(duplicatedHighlights)}",
+      duplicatedHighlights.isEmpty
+    )
   }
 
   protected def configureByText(text: String): TestPrepareResult = {
@@ -82,19 +107,22 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     val (_, expectedRanges) =
       MarkersUtils.extractSequentialMarkers(fileText, START, END)
 
-    val (normalizedText, offset) = findCaretOffset(fileText, stripTrailingSpaces = true)
+    val expectedHighlights =
+      expectedRanges.map(ExpectedHighlight)
+
+    val (normalizedText, offset) =
+      findCaretOffset(fileText, stripTrailingSpaces = true)
 
     val fixture = getFixture
     fixture.configureByText(fileType, normalizedText)
 
     import JavaConverters._
-    val highlights = fixture.doHighlighting().asScala
-      .filter(it => descriptionMatches(it.getDescription))
-    val highlightsWithRanges = highlights
-      .filter(checkOffset(_, offset))
-      .map(info => (info, highlightedRange(info)))
+    val actualHighlights =
+      fixture.doHighlighting().asScala
+        .filter(it => descriptionMatches(it.getDescription))
+        .filter(checkOffset(_, offset))
 
-    TestPrepareResult(expectedRanges, highlightsWithRanges)
+    TestPrepareResult(expectedHighlights, actualHighlights)
   }
 
   protected def createTestText(text: String): String = text
@@ -102,8 +130,8 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
 
 object ScalaHighlightsTestBase {
 
-  case class TestPrepareResult(expectedRanges: Seq[TextRange],
-                               actualHighlights: Seq[(HighlightInfo, TextRange)])
+  case class ExpectedHighlight(range: TextRange)
+  case class TestPrepareResult(expectedHighlights: Seq[ExpectedHighlight], actualHighlights: Seq[HighlightInfo])
 
   private def highlightedRange(info: HighlightInfo): TextRange =
     new TextRange(info.getStartOffset, info.getEndOffset)
@@ -139,6 +167,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
     assertTrue("Quick fix found.", maybeAction.isEmpty)
   }
 
+  //noinspection SameParameterValue
   protected def checkIsNotAvailable(text: String, hint: String): Unit = {
     val maybeAction = findQuickFix(text, hint)
     assertTrue("Quick fix not found.", maybeAction.nonEmpty)
@@ -146,7 +175,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
   }
 
   private def findQuickFix(text: String, hint: String): Option[IntentionAction] =
-    configureByText(text).actualHighlights.map(_._1) match {
+    configureByText(text).actualHighlights match {
       case Seq() => fail("Errors not found.").asInstanceOf[Nothing]
       case seq   => seq.flatMap(quickFixes).find(_.getText == hint)
     }

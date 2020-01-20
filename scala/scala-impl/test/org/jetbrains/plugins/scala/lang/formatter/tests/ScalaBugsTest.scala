@@ -3960,4 +3960,15 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |""".stripMargin
     )
   }
+
+  def testSCL16868(): Unit = doTextTest(
+    """class A {
+      |  "a" >> {
+      |    // foo
+      |    // bar
+      |    1 !== 1
+      |  }.ref
+      |}
+      |""".stripMargin
+  )
 }

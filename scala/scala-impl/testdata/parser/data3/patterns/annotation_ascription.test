@@ -1,0 +1,40 @@
+val (a, b, c): @unchecked = "string value"
+------
+ScalaFile
+  ScPatternDefinition: a, b, c
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      TuplePattern
+        PsiElement(()('(')
+        ArgumentPatterns
+          ReferencePattern: a
+            PsiElement(identifier)('a')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ReferencePattern: b
+            PsiElement(identifier)('b')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ReferencePattern: c
+            PsiElement(identifier)('c')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: unchecked
+              CodeReferenceElement: unchecked
+                PsiElement(identifier)('unchecked')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    StringLiteral
+      PsiElement(string content)('"string value"')
