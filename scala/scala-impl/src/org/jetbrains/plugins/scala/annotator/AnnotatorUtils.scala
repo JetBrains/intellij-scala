@@ -8,6 +8,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.template.kindOf
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
@@ -39,12 +40,25 @@ object AnnotatorUtils {
 
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
-      if (!actual.conforms(expected)) {
+      if (!actual.conforms(expected) && !shouldIgnoreTypeMismatchIn(expression)) {
         TypeMismatchError.register(expression, expected, actual, blockLevel = 1) { (expected, actual) =>
           ScalaBundle.message("type.mismatch.found.required", actual, expected)
         }
       }
     }
+  }
+
+  // TODO This is a workaround for SCL-16898 (Function literals: don't infer type when parameter type is not known)
+  def shouldIgnoreTypeMismatchIn(e: PsiElement): Boolean = {
+    def hasUnresolvedReferences = e.elements.exists(_.asOptionOf[ScReference].exists(_.resolve() == null))
+
+    // This might result in false positives (when parameter type is wrongly inferred as Nothing), but it's a lesser evil.
+    def isFunctionLiteralWithMissingParameterType = e match {
+      case f: ScFunctionExpr => f.parameters.exists(_.`type`().exists(_.isNothing))
+      case _ => false
+    }
+
+    hasUnresolvedReferences || isFunctionLiteralWithMissingParameterType
   }
 
   //fix for SCL-7176
@@ -74,7 +88,7 @@ object AnnotatorUtils {
     }
 
     //TODO show parameter name
-    if (!actualType.conforms(expectedType)) {
+    if (!actualType.conforms(expectedType) && !shouldIgnoreTypeMismatchIn(expression)) {
       TypeMismatchError.register(expression, expectedType, actualType) { (expected, actual) =>
         ScalaBundle.message("type.mismatch.expected.actual", expected, actual)
       }
