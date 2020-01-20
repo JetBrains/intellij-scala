@@ -246,6 +246,11 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
       Error("1", "Type mismatch, expected: String, actual: Int"))
   }
 
+  def testTypeMismatchWhitespaceIf(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = if (true) 1 else \"\""))(Hint("1", ": Int", offsetDelta = 0),
+      Error("1", "Expression of type Int doesn't conform to expected type String"))
+  }
+
   // Don't show type mismatch on a term followed by a dot ("= Math."), SCL-15754
 
   def testTypeMismatchDot1(): Unit = {
