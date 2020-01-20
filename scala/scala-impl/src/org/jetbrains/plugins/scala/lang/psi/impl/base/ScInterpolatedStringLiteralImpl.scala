@@ -4,7 +4,7 @@ package psi
 package impl
 package base
 
-import com.intellij.lang.ASTNode
+import com.intellij.lang.{ASTNode, LanguageNamesValidation}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
@@ -61,10 +61,10 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
   override protected def endQuote: String = super.startQuote
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
-  override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = getContext match {
-    case null => None
-    case _ if !isString => None
-    case context =>
+  override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = (referenceText, getContext) match {
+    case (methodName, context) if context != null &&
+      isString &&
+      isValidMethodName(methodName) =>
       val quote = endQuote
 
       val constructorParameters = getStringParts.map(quote + _ + quote)
@@ -73,13 +73,21 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
         .commaSeparated(Model.Parentheses)
 
       val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(
-        s"$StringContextCanonical$constructorParameters.$referenceText$methodParameters",
+        s"$StringContextCanonical$constructorParameters.$methodName$methodParameters",
         context,
         this
       ).asInstanceOf[ScMethodCall]
       Some(expression.getInvokedExpr.asInstanceOf[ScReferenceExpression], expression)
+    case _ => None
   }
 
   private def referenceText: String = firstNode.getText
 
+  private def isValidMethodName(name: String) = {
+    val validation = LanguageNamesValidation.INSTANCE.forLanguage(getLanguage)
+    val project = getProject
+
+    validation.isIdentifier(name, project) &&
+      !validation.isKeyword(name, project)
+  }
 }
