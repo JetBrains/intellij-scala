@@ -20,10 +20,10 @@ class BlockParseTest extends SimpleTestCase {
     val fileFactory = PsiFileFactory.getInstance(fixture.getProject)
     val context = parseText("")
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl = new ScalaPsiBuilderImpl(
-      PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder, new ScalaLexer,
-        ScalaLanguage.INSTANCE, s)
-    )
+    val builder: ScalaPsiBuilderImpl = {
+      val delegate = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder, new ScalaLexer, ScalaLanguage.INSTANCE, s)
+      new ScalaPsiBuilderImpl(delegate, isScala3 = false)
+    }
     BlockExpr.parse(builder)
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])

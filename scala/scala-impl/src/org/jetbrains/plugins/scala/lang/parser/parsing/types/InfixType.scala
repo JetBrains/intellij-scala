@@ -9,11 +9,6 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
-
 /*
  * InfixType ::= CompoundType {id [nl] CompoundType}
  */
@@ -29,30 +24,29 @@ trait InfixType {
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, star = false)
   def parse(builder: ScalaPsiBuilder, star: Boolean): Boolean = parse(builder,star,isPattern = false)
   def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
-    var couldBeVarArg = false
-    
+    implicit val b: ScalaPsiBuilder = builder
+
+    var markerList = List.empty[PsiBuilder.Marker] //This list consist of markers for right-associated op
+
     var infixTypeMarker = builder.mark
-    var markerList = List[PsiBuilder.Marker]() //This list consist of markers for right-associated op
-    var count = 0
-    markerList = infixTypeMarker :: markerList
-    builder.getTokenType match {
-      case ScalaTokenTypes.tUNDER => //wildcard is possible for infix types, like for parameterized. No bounds possible
-        val typeMarker = builder.mark()
-        builder.advanceLexer()
-        typeMarker.done(ScalaElementType.WILDCARD_TYPE)
-        builder.getTokenText match {
-          case Bounds.UPPER | Bounds.LOWER =>
-            infixTypeMarker.rollbackTo()
-            return false
-          case _ =>
-        }
-      case _ =>
-        if (!componentType.parse(builder, star, isPattern)) {
+    markerList ::= infixTypeMarker
+
+    if (parseInfixWildcardType()) {
+      builder.getTokenText match {
+        case Bounds.UPPER | Bounds.LOWER =>
           infixTypeMarker.rollbackTo()
           return false
-        }
+        case _ =>
+      }
+    } else if (!componentType.parse(builder, star, isPattern)) {
+      infixTypeMarker.rollbackTo()
+      return false
     }
+
+    var couldBeVarArg = false
+    var count = 0
     var assoc: Int = 0  //this mark associativity: left - 1, right - -1
+
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && (!builder.newlineBeforeCurrentToken) &&
       (!star || builder.getTokenText != "*") && (!isPattern || builder.getTokenText != "|")) {
       count = count+1
@@ -77,19 +71,19 @@ trait InfixType {
       parseId(builder)
       if (assoc == -1) {
         val newMarker = builder.mark
-        markerList = newMarker :: markerList
+        markerList ::= newMarker
       }
       if (builder.twoNewlinesBeforeCurrentToken) {
         builder.error(errorMessage)
       }
-      builder.getTokenType match {
-        case ScalaTokenTypes.tUNDER => //wildcard is possible for infix types, like for parameterized. No bounds possible
-          val typeMarker = builder.mark()
-          builder.advanceLexer()
-          typeMarker.done(ScalaElementType.WILDCARD_TYPE)
-        case _ =>
-          if (!componentType.parse(builder, star, isPattern)) builder error errorMessage else couldBeVarArg = false
+      if (parseInfixWildcardType()) {
+        // ok continue
+      } else if (componentType.parse(builder, star, isPattern)) {
+        couldBeVarArg = false
+      } else {
+        builder.error(errorMessage)
       }
+
       if (assoc == 1) {
         val newMarker = infixTypeMarker.precede
         infixTypeMarker.done(ScalaElementType.INFIX_TYPE)
@@ -126,4 +120,15 @@ trait InfixType {
     builder.advanceLexer() //Ate id
     idMarker.done(elementType)
   }
+
+  //wildcard is possible for infix types, like for parameterized. No bounds possible
+  private def parseInfixWildcardType()(implicit builder: ScalaPsiBuilder): Boolean =
+    if (Type.isWildcardStartToken(builder.getTokenType)) {
+      val typeMarker = builder.mark()
+      builder.advanceLexer()
+      typeMarker.done(ScalaElementType.WILDCARD_TYPE)
+      true
+    } else {
+      false
+    }
 }

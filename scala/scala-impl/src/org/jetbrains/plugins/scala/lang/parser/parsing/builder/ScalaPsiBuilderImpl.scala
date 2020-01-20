@@ -7,12 +7,10 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 
-/**
- * @author Alexander Podkhalyuzin
- */
-class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delegate)
+// TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
+//  update all ScalaPsiBuilderImpl instantiations passing propper isScala3 value
+class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) extends PsiBuilderAdapter(delegate)
   with ScalaPsiBuilder {
 
   import lexer.ScalaTokenType._
@@ -29,6 +27,9 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
 
   override final lazy val isMetaEnabled: Boolean =
     containingFile.exists(_.isMetaEnabled)
+
+  override final lazy val isStrictMode: Boolean =
+    containingFile.exists(_.isCompilerStrictMode)
 
   private lazy val _isTrailingCommasEnabled =
     containingFile.exists(_.isTrailingCommasEnabled)

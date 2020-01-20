@@ -865,7 +865,7 @@ object ScalaPsiElementFactory {
       seq
     )
 
-    val psiBuilder = new builder.ScalaPsiBuilderImpl(delegate)
+    val psiBuilder = new builder.ScalaPsiBuilderImpl(delegate, isScala3 = false)
     psiBuilder.mark() match {
       case marker =>
         parse(psiBuilder)

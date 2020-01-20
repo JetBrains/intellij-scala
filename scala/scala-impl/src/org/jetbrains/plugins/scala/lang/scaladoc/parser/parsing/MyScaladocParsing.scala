@@ -118,7 +118,8 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
         marker.drop()
         return false
       case DOC_LINK_TAG if builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !isEndOfComment =>
-        StableId.parse(new ScalaPsiBuilderImpl(builder), forImport = true, DOC_CODE_LINK_VALUE)
+        val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
+        StableId.parse(psiBuilder, forImport = true, DOC_CODE_LINK_VALUE)
       case DOC_MONOSPACE_TAG => 
         parseUntilAndConvertToData(TokenSet.create(DOC_MONOSPACE_TAG))
         marker.done(tokenType)
@@ -258,7 +259,8 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
           if (!isEndOfComment) {
             builder.advanceLexer()
           }
-          StableId.parse(new ScalaPsiBuilderImpl(builder), forImport = true, DOC_TAG_VALUE_TOKEN)
+          val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
+          StableId.parse(psiBuilder, forImport = true, DOC_TAG_VALUE_TOKEN)
         case PARAM_TAG | TYPE_PARAM_TAG | DEFINE_TAG =>
           if (!builder.lookAhead(builder.getTokenType, DOC_TAG_VALUE_TOKEN)) scaladocError(builder, "Missing tag param")
         case tag if allTags.contains(tag) =>

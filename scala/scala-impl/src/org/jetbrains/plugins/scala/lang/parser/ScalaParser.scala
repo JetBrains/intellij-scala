@@ -11,7 +11,8 @@ final class ScalaParser extends PsiParser {
   import builder._
 
   override def parse(rootElementType: IElementType, delegate: PsiBuilder): ASTNode = {
-    implicit val builder: ScalaPsiBuilder = new ScalaPsiBuilderImpl(delegate)
+    val isScala3 = rootElementType == Scala3ParserDefinition.FileNodeType
+    implicit val builder: ScalaPsiBuilder = new ScalaPsiBuilderImpl(delegate, isScala3)
 
     rootElementType match {
       case ScCodeBlockElementType.BlockExpression =>

@@ -27,4 +27,8 @@ trait ScalaPsiBuilder extends PsiBuilder {
   def isMetaEnabled: Boolean
 
   def skipExternalToken(): Boolean
+
+  def isScala3: Boolean
+
+  def isStrictMode: Boolean
 }

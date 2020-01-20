@@ -1,0 +1,29 @@
+val x: Class[?] = ???
+-----
+ScalaFile
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Class[?]
+      SimpleType: Class
+        CodeReferenceElement: Class
+          PsiElement(identifier)('Class')
+      TypeArgumentsList
+        PsiElement([)('[')
+        WildcardType: ?
+          PsiElement(?)('?')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
