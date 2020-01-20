@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
+import java.net.URL
 
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
@@ -53,6 +54,13 @@ package object project {
     def hasRuntimeLibrary: Boolean = name.exists(isRuntimeLibrary)
 
     private def name: Option[String] = Option(library.getName)
+
+    def classpathUrls: Set[URL] =
+      library
+        .getFiles(OrderRootType.CLASSES)
+        .map(_.getPath)
+        .map(path => new URL(s"jar:file://$path"))
+        .toSet
   }
 
   object LibraryExt {

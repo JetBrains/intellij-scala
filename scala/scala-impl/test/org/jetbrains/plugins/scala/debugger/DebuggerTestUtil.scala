@@ -21,8 +21,11 @@ object DebuggerTestUtil {
     compileServerSettings.COMPILE_SERVER_ENABLED = enable
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_IDLE = true
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
-    val application = ApplicationManager.getApplication.asInstanceOf[ApplicationEx]
-    application.setSaveAllowed(true)
+    val application = ApplicationManager.getApplication
+    application match {
+      case applicationEx: ApplicationEx => applicationEx.setSaveAllowed(true)
+      case _ =>
+    }
     application.saveSettings()
   }
 
