@@ -49,6 +49,7 @@ object TypeMismatchHints {
         .exists(elementType =>
           elementType == ScalaTokenTypes.kELSE ||
           elementType == ScalaTokenTypes.kMATCH ||
+          elementType == ScalaTokenTypes.kCATCH ||
           elementType == ScalaTokenTypes.tRBRACE)
 
       isWhitespaceRequiredAfter(element) || (element match {
