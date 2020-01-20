@@ -207,7 +207,8 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   override def getSubBlocks: util.List[Block] = {
     if (subBlocks == null) {
-      subBlocks = getDummyBlocks(this)(node, lastNode)
+      val blocks = getDummyBlocks(this)(node, lastNode)
+      subBlocks = blocks
         .asScala
         .filterNot(_.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
         .asJava

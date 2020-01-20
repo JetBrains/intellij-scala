@@ -695,12 +695,14 @@ class getDummyBlocks(private val block: ScalaBlock) {
       delegatedChildren: List[ASTNode] = List(),
       delegatedContext: Map[ASTNode, SubBlocksContext] = Map(),
     ): Unit = {
-      if (node.getPsi.isInstanceOf[ScLiteral]) {
-        result.add(subBlock(node, null))
-        for (child <- delegatedChildren.filter(isCorrectBlock)) {
-          result.add(subBlock(child, null))
-        }
-        return
+      node.getPsi match {
+        case _: ScLiteral | _: ScBlockExpr=>
+          result.add(subBlock(node, null))
+          for (child <- delegatedChildren.filter(isCorrectBlock)) {
+            result.add(subBlock(child, null))
+          }
+          return
+        case _ =>
       }
 
       val alignment = createAlignment(node)
