@@ -251,6 +251,31 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
       Error("1", "Expression of type Int doesn't conform to expected type String"))
   }
 
+  def testTypeMismatchWhitespaceIfNewline(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = if (true) 1 \nelse \"\""))(Hint("1", ": Int", offsetDelta = 1),
+      Error("1", "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  def testTypeMismatchMultipleWhitespacesIf(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = if (true) 1  else \"\""))(Hint("1", ": Int", offsetDelta = 1),
+      Error("1", "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  def testTypeMismatchWhitespaceRightBrace(): Unit = {
+    assertMessages(errorsFromScalaCode("object O { def ++(s: String): Int = 1 }; { O ++ 1 }"))(Hint("1", ": Int", offsetDelta = 0),
+      Error("1", "Type mismatch, expected: String, actual: Int"))
+  }
+
+  def testTypeMismatchWhitespaceRightBraceNewline(): Unit = {
+    assertMessages(errorsFromScalaCode("object O { def ++(s: String): Int = 1 }; { O ++ 1 \n}"))(Hint("1", ": Int", offsetDelta = 1),
+      Error("1", "Type mismatch, expected: String, actual: Int"))
+  }
+
+  def testTypeMismatchMultipleWhitespacesRightBrace(): Unit = {
+    assertMessages(errorsFromScalaCode("object O { def ++(s: String): Int = 1 }; { O ++ 1  }"))(Hint("1", ": Int", offsetDelta = 1),
+      Error("1", "Type mismatch, expected: String, actual: Int"))
+  }
+
   // Don't show type mismatch on a term followed by a dot ("= Math."), SCL-15754
 
   def testTypeMismatchDot1(): Unit = {
