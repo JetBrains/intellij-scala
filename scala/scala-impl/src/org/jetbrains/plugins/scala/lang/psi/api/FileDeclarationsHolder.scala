@@ -155,7 +155,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
       ProgressManager.checkCanceled()
 
 
-      val classes = psiManager.getCachedClasses(scope, fqn)
+      val classes = psiManager.getCachedClass(scope, fqn)
 
       updateProcessor(processor, precedence) {
         classes.collect { case obj: ScObject =>
