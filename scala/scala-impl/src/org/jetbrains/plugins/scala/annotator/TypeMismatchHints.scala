@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.annotator.hints.{Text, _}
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -40,8 +41,12 @@ object TypeMismatchHints {
 
     val margin = if (format == InnerParentheses) None else Hint.leftInsetLikeChar(' ')
 
+    val beforeElseKeyword = element.nextSiblings
+      .dropWhile(_.is[PsiWhiteSpace])
+      .exists(_.getNode.getElementType == ScalaTokenTypes.kELSE)
+
     val offsetDelta =
-      if (format == OuterParentheses) 0
+      if (format == OuterParentheses || beforeElseKeyword) 0
       else Option(element.getContainingFile)
         .flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
         .filter(_.is[PsiWhiteSpace])
