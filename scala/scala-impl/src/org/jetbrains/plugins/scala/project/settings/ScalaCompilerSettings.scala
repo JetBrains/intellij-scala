@@ -28,7 +28,6 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   var existentials: Boolean = _
   var macros: Boolean = _
   var experimental: Boolean = _
-  var scala2Compat: Boolean = _
 
   var warnings: Boolean = _
   var deprecationWarnings: Boolean = _
@@ -52,7 +51,6 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     ("-language:higherKinds", () => higherKinds, higherKinds = _),
     ("-language:existentials", () => existentials, existentials = _),
     ("-language:experimental.macros", () => macros, macros = _),
-    ("-language:Scala2Compat", () => scala2Compat, scala2Compat = _),
     ("-Xexperimental", () => experimental, experimental = _),
     ("-nowarn", () => !warnings, (b: Boolean) => warnings = !b),
     ("-deprecation", () => deprecationWarnings, deprecationWarnings = _),

@@ -86,9 +86,6 @@ private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
   val isPartialUnificationEnabled: Boolean =
     scalaLanguageLevel >= Scala_2_13 || additionalCompilerOptions.contains("-Ypartial-unification")
 
-  val isScala2CompatibilityEnabled: Boolean =
-    settingsForHighlighting.exists(_.scala2Compat)
-
   val isCompilerStrictMode: Boolean =
     settingsForHighlighting.exists(_.strict)
 
