@@ -103,9 +103,9 @@ class FunctionAnnotatorTest extends AnnotatorSimpleTestCase {
         |def myFunc(): Int = {
         |  try {
         |    val something = "some string"
-        |    val someOtherValue = List()
+        |    val someOtherValue = 123
         |  } catch {
-        |    case e: Exception => throw e
+        |    case e => throw e
         |  }
         |}
       """.stripMargin
