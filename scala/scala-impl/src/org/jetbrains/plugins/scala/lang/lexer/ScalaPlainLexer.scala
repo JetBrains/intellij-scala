@@ -89,7 +89,7 @@ object ScalaPlainLexer {
   }
 
   private[this] final class ScalaSplittingFlexLexer(treatDocCommentAsBlockComment: Boolean)
-    extends FlexAdapter(new ScalaSplittingLexer(null)) {
+    extends FlexAdapter(new ScalaSplittingLexer(null: java.io.Reader)) {
 
     override def getTokenType: IElementType = super.getTokenType match {
       case SCALA_DOC_COMMENT if treatDocCommentAsBlockComment => tBLOCK_COMMENT

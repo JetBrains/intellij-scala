@@ -500,7 +500,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ///////////////////// Reserved shorthands //////////////////////////////////////////
 
 "*"                                     {   return process(tIDENTIFIER);  }
-"?"                                     {   return process(tIDENTIFIER);  }
+"?"                                     {   return processScala3(tQUESTION);  }
 
 "_"                                     {   return process(tUNDER);  }
 ":"                                     {   return process(tCOLON);  }
