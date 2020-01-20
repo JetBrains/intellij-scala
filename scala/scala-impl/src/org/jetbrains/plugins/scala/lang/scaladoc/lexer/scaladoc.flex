@@ -100,20 +100,20 @@ special = \u0021 | \u0023 | [\u0025-\u0026] | [\u002A-\u002B] | \u002D | \u005E 
 LineTerminator = \r | \n | \r\n | \u0085 |  \u2028 | \u2029 | \u000A | \u000a
 
 op = \u007C ({special} | \u007C)+ | {special} ({special} | \u007C)*
-octalDigit = [0-7]
+//octalDigit = [0-7]
 idrest1 = [:jletter:]? [:jletterdigit:]* ("_" {op})?
 idrest = [:jletter:]? [:jletterdigit:]* ("_" {op} | "_" {idrest1} )?
 varid = [:jletter:] {idrest}
 charEscapeSeq = \\[^\r\n]
-charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
-stringElement = {charNoDoubleQuote} | {charEscapeSeq}
-stringLiteral = {stringElement}*
+//charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
+//stringElement = {charNoDoubleQuote} | {charEscapeSeq}
+//stringLiteral = {stringElement}*
 charExtra = !( ![^"\""`] | {LineTerminator})             //This is for `type` identifiers
 stringElementExtra = {charExtra} | {charEscapeSeq}
 stringLiteralExtra = {stringElementExtra}*
-symbolLiteral = "\'" {plainid}
+//symbolLiteral = "\'" {plainid}
 plainid = {varid} | {op}
-scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
+//scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %%

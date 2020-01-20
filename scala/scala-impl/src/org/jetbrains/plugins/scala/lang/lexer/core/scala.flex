@@ -219,7 +219,7 @@ INTERPOLATED_MULTI_LINE_STRING_BEGIN = \"\"\" ( (\"(\")?)? [^\"\$] )*
 INTERPOLATED_MULTI_LINE_STRING_PART = ( (\"(\")?)? [^\"\$] )+
 
 INTERPOLATED_STRING_ESCAPE = "$$"
-INTERPOLATED_STRING_VARIABLE = "$"({identifier})
+//INTERPOLATED_STRING_VARIABLE = "$"({identifier})
 //INTERPOLATED_STRING_EXPRESSION_START = "${"
 ////////////////////////////////////
 
@@ -227,9 +227,9 @@ INTERPOLATED_STRING_VARIABLE = "$"({identifier})
 WRONG_STRING = {STRING_BEGIN}
 
 charEscapeSeq = \\[^\r\n]
-charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
-stringElement = {charNoDoubleQuote} | {charEscapeSeq}  
-stringLiteral = {stringElement}*
+//charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
+//stringElement = {charNoDoubleQuote} | {charEscapeSeq}
+//stringLiteral = {stringElement}*
 charExtra = !( ![^`] | {LineTerminator})             //This is for `type` identifiers
 stringElementExtra = {charExtra} | {charEscapeSeq}
 stringLiteralExtra = {stringElementExtra}*
