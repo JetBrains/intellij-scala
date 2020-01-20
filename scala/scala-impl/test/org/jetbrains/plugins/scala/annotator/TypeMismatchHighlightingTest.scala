@@ -301,4 +301,31 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchExpandedParserError(): Unit = {
     assertNothing(errorsFromScalaCode("val v: String = 123`"))
   }
+
+  // Don't show type mismatch for a whole function literal when result type doesn't match, SCL-16901
+
+  def testTypeMismatchFunctionLiteralResultTypeMismatch(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f(i => 2)"))(Hint("2", ": Int"),
+      Error("2" , "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  def testTypeMismatchFunctionLiteralResultTypeMismatchExplicitParameterType(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f((i: Int) => 2)"))(Hint("2", ": Int"),
+      Error("2" , "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  def testTypeMismatchFunctionLiteralResultAndParameterTypeMismatches(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f((s: String) => 2)"))(Hint("2", ": Int"),
+      Error("2" , "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  def testTypeMismatchFunctionLiteralParameterTypeMismatch(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f((s: String) => s)"))(Hint("(s: String) => s", ": String => String"),
+      Error("(s: String) => s" , "Type mismatch, expected: Int => String, actual: String => String"))
+  }
+
+  def testTypeMismatchFunctionLiteralInBlockExpressionResultTypeMismatch(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f { i => 2 }"))(Hint("{ i => 2 }", ": Int => Int"),
+      Error("{ i => 2 }" , "Type mismatch, expected: Int => String, actual: Int => Int"))
+  }
 }

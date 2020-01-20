@@ -48,7 +48,6 @@ object AnnotatorUtils {
     }
   }
 
-  // TODO This is a workaround for SCL-16898 (Function literals: don't infer type when parameter type is not known)
   def shouldIgnoreTypeMismatchIn(e: PsiElement): Boolean = {
     // Don't show type a mismatch error when there's a parser error, SCL-16899
     def hasParserErrors = e.elements.exists(_.isInstanceOf[PsiErrorElement]) ||
@@ -59,6 +58,22 @@ object AnnotatorUtils {
           e == parent.getLastChild && parent.getNextSibling.isInstanceOf[PsiErrorElement]
       }
 
+    // Don't show type mismatch for a whole function literal when result type doesn't match, SCL-16901
+
+    def isFunctionLiteralWithResultTypeMismatch = e match {
+      case f: ScFunctionExpr => f.result.exists { result =>
+        result.`type`().exists(t => result.expectedType().exists(!t.conforms(_)))
+      }
+      case _ => false
+    }
+
+    def isResultOfFunctionLiteralInBlock = e match {
+      case Parent(Parent((f: ScFunctionExpr) && Parent(_: ScBlockExpr))) => f.result.contains(e.getParent)
+      case _ => false
+    }
+
+    // TODO This part is a workaround for SCL-16898 (Function literals: don't infer type when parameter type is not known)
+
     def hasUnresolvedReferences = e.elements.exists(_.asOptionOf[ScReference].exists(_.resolve() == null))
 
     // This might result in false positives (when parameter type is wrongly inferred as Nothing), but it's a lesser evil.
@@ -67,7 +82,11 @@ object AnnotatorUtils {
       case _ => false
     }
 
-    hasParserErrors || hasUnresolvedReferences || isFunctionLiteralWithMissingParameterType
+    hasParserErrors ||
+      isFunctionLiteralWithResultTypeMismatch ||
+      isResultOfFunctionLiteralInBlock ||
+      hasUnresolvedReferences ||
+      isFunctionLiteralWithMissingParameterType
   }
 
   //fix for SCL-7176
