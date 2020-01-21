@@ -19,6 +19,11 @@ object SbtModule {
   // and warn the user of "undefined path variables" (SCL-10691)
   private val SubstitutePrefix = "SUB:"
   private val SubstituteDollar = "DOLLAR"
+
+  @Deprecated
+  private val ImportsKey = "sbt.imports"
+
+  @Deprecated
   private val Delimiter = ", "
 
   @Deprecated
@@ -42,6 +47,8 @@ object SbtModule {
     def apply(module: Module): Seq[String] =
       Option(getState(module).imports)
         .filter(_.nonEmpty)
+        .orElse(Option(module.getOptionValue(ImportsKey))) // TODO remove in 2018.3+
+        .filter(_.nonEmpty)
         .fold(Sbt.DefaultImplicitImports) { implicitImports =>
           implicitImports
             .replace(SubstitutePrefix + SubstitutePrefix, SubstitutePrefix)
@@ -55,6 +62,8 @@ object SbtModule {
         .replace(SubstitutePrefix, SubstitutePrefix + SubstitutePrefix)
         .replace("$", SubstitutePrefix + SubstituteDollar)
 
+      module.setOption(ImportsKey, newImports) // TODO remove in 2018.3+
+
       getState(module).imports = newImports
     }
   }
@@ -64,6 +73,7 @@ object SbtModule {
     def apply(module: Module): Set[SbtResolver] =
       Option(getState(module).resolvers)
         .filter(_.nonEmpty)
+        .orElse(Option(module.getOptionValue(ResolversKey))) // TODO remove in 2018.3+
         .fold(Set.empty[SbtResolver]) { str =>
         str.split(Delimiter)
           .flatMap(SbtResolver.fromString)
@@ -71,6 +81,11 @@ object SbtModule {
       }
 
     def update(module: Module, resolvers: collection.Set[SbtResolver]): Unit = {
+      val newResolvers = resolvers.map(_.toString)
+        .mkString(Delimiter)
+
+      module.setOption(ResolversKey, newResolvers) // TODO remove in 2018.3
+
       getState(module).resolvers
     }
   }
