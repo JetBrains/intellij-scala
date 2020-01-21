@@ -530,7 +530,7 @@ object MethodResolveProcessor {
     }
   }
 
-//  @scala.annotation.tailrec
+  @scala.annotation.tailrec
   def candidates(
     proc:            MethodResolveProcessor,
     _input:          Set[ScalaResolveResult],
