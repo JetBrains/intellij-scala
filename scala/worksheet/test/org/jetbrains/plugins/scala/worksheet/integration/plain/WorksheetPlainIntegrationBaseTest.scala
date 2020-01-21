@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
@@ -11,9 +11,10 @@ import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUi
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetExternalRunType, WorksheetFileSettings}
-import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinterPlain, WorksheetEditorPrinterRepl}
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.ViewerEditorState
+import org.jetbrains.plugins.scala.{ScalaVersion, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -329,5 +330,33 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
       }
 
     viewerStates
+  }
+
+  // -Ypartial-unification is enabled in 2.13 by default, so testing on 2.12
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
+  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile(): Unit = {
+    val compilerOption = "-Ypartial-unification"
+    val editor = prepareWorksheetEditor(
+      """def foo[F[_], A](fa: F[A]): String = "123"
+        |foo { x: Int => x * 2 }
+        |""".stripMargin
+    )
+    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq(compilerOption)
+    doRenderTest(editor,
+      """foo: foo[F[_],A](val fa: F[A]) => String
+        |res0: String = 123
+        |""".stripMargin
+    )
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
+  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting(): Unit = {
+    val editor = prepareWorksheetEditor(
+      """def foo[F[_], A](fa: F[A]): String = "123"
+        |foo { x: Int => x * 2 }
+        |""".stripMargin
+    )
+    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq()
+    doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 }

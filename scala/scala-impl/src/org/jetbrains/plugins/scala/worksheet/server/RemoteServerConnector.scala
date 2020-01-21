@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 
-// TODO: remove all deprecated Base64Converter usages
 private[worksheet]
 class RemoteServerConnector(
   module: Module,

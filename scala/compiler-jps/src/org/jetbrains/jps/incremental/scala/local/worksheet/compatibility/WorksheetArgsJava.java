@@ -1,5 +1,7 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet.compatibility;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,7 +23,8 @@ public class WorksheetArgsJava {
   private final File compiler;
   private final File compLibrary;
   private final List<File> compExtra; 
-  
+  private final List<String> scalaOptions;
+
   private final ReplArgsJava replArgs;
 
   private WorksheetArgsJava(String worksheetClassName,
@@ -33,7 +36,8 @@ public class WorksheetArgsJava {
                             File compLibrary,
                             File compiler,
                             List<File> compExtra,
-                            ReplArgsJava replArgs) {
+                            ReplArgsJava replArgs,
+                            List<String> scalaOptions) {
     this.worksheetClassName = worksheetClassName;
     this.pathToRunners = pathToRunners;
     this.worksheetTempFile = worksheetTempFile;
@@ -44,10 +48,13 @@ public class WorksheetArgsJava {
     this.compExtra = compExtra;
     this.compLibrary = compLibrary;
     this.replArgs = replArgs;
+    this.scalaOptions = scalaOptions;
   }
 
 
+  @Nullable
   public static WorksheetArgsJava constructArgsFrom(List<String> argsString,
+                                                    List<String> scalaOptions,
                                                     String nameForST,
                                                     File compLibrary,
                                                     File compiler,
@@ -90,7 +97,8 @@ public class WorksheetArgsJava {
         compLibrary,
         compiler,
         compExtra,
-        replArgs
+        replArgs,
+        scalaOptions
     );
   }
 
@@ -150,5 +158,9 @@ public class WorksheetArgsJava {
 
   public ReplArgsJava getReplArgs() {
     return replArgs;
+  }
+
+  public List<String> getScalaOptions() {
+    return scalaOptions;
   }
 }

@@ -13,6 +13,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.buildinfo.BuildInfo;
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService$;
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.ScalaCompilerIndices;
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.package$;
@@ -89,7 +90,7 @@ public class CompilerIndicesSettingsForm {
         pluginSettignsTextArea.setText(
                 ScalaBundle.message(
                         "scala.compiler.indices.sbt.plugin.text",
-                        org.jetbrains.plugins.scala.buildinfo.BuildInfo.sbtIdeaCompilerIndicesVersion()
+                        BuildInfo.sbtIdeaCompilerIndicesVersion()
                 )
         );
     }

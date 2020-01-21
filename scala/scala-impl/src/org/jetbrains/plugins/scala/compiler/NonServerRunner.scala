@@ -48,7 +48,7 @@ class NonServerRunner(project: Project) {
         new CompilationProcess {
           var myProcess: Option[Process] = None
           var myCallbacks: Seq[Option[Throwable] => Unit] = Seq.empty
-          var myCallbacksHandled: AtomicBoolean = new AtomicBoolean(false)
+          val myCallbacksHandled: AtomicBoolean = new AtomicBoolean(false)
 
           override def addTerminationCallback(callback: Option[Throwable] => Unit): Unit = this.myCallbacks :+= callback
 

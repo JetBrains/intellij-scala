@@ -36,16 +36,17 @@ public class JavaILoopWrapperFactory {
 
   private static final String FALLBACK_CLASSNAME = "ILoopWrapperImpl";
 
-  //maximum count of repl sessions handled at any time 
-  private final static int REPL_SESSION_LIMIT = 5;
   private final static Map<String, Consumer<ILoopWrapper>> commands =
       Collections.singletonMap(":reset", ILoopWrapper::reset);
 
+  //maximum count of repl sessions handled at any time
+  private final static int REPL_SESSION_LIMIT = 5;
   private final MySimpleCache cache = new MySimpleCache(REPL_SESSION_LIMIT);
 
   //used in ILoopWrapperFactoryHandler
   public void loadReplWrapperAndRun(
       final List<String> worksheetArgs,
+      final List<String> scalaOptions,
       final String nameForSt,
       final File library,
       final File compiler,
@@ -56,15 +57,18 @@ public class JavaILoopWrapperFactory {
       final JavaClientProvider clientProvider,
       final ClassLoader classLoader
   ) {
-    final WorksheetArgsJava argsJava = WorksheetArgsJava.constructArgsFrom(worksheetArgs, nameForSt, library, compiler, extra, classpath);
-    final JavaClientProvider clientProviderNotNull = clientProvider != null ? clientProvider : JavaClientProvider.NO_OP_PROVIDER;
-    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, clientProviderNotNull, classLoader);
+    final WorksheetArgsJava argsJava = WorksheetArgsJava.constructArgsFrom(worksheetArgs, scalaOptions, nameForSt, library, compiler, extra, classpath);
+    if (argsJava == null) {
+      clientProvider.onProgress("Error: couldn't parse arguments");
+      return;
+    }
+    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, clientProvider, classLoader);
   }
 
   private void loadReplWrapperAndRun(final WorksheetArgsJava worksheetArgs,
                                      final OutputStream outStream,
                                      final File iLoopFile,
-                                     @NotNull final JavaClientProvider clientProvider,
+                                     final JavaClientProvider clientProvider,
                                      final ClassLoader classLoader) {
     ReplArgsJava replArgs = worksheetArgs.getReplArgs();
     if (replArgs == null) return;
@@ -153,16 +157,18 @@ public class JavaILoopWrapperFactory {
     classpath.addAll(worksheetArgs.getOutputDirs());
     classpath.addAll(worksheetArgs.getClasspathURLs().stream().map(toURI()).filter(Objects::nonNull).map(File::new).collect(Collectors.toList()));
 
-    List<String> stringCp = classpath.stream()
+    List<String> classpathStrings = classpath.stream()
             .filter(File::exists)
             .map(File::getAbsolutePath)
             .distinct()
             .sorted()
             .collect(Collectors.toList());
 
+    List<String> scalaOptions = worksheetArgs.getScalaOptions();
+
     try {
-      Constructor<?> constructor = clazz.getConstructor(PrintWriter.class, ILoopWrapperReporter.class, List.class);
-      ILoopWrapper inst = (ILoopWrapper) constructor.newInstance(out, reporter, stringCp);
+      Constructor<?> constructor = clazz.getConstructor(PrintWriter.class, ILoopWrapperReporter.class, List.class, List.class);
+      ILoopWrapper inst = (ILoopWrapper) constructor.newInstance(out, reporter, classpathStrings, scalaOptions);
       inst.init();
       return inst;
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

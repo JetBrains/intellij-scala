@@ -9,7 +9,6 @@ import scala.reflect.internal.util.Position
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.StdReplTags.tagOfIMain
 import scala.tools.nsc.interpreter.{ILoop, IMain, NamedParam, ReplReporter, Results}
-
 import scala.collection.JavaConverters._
 
 /**
@@ -18,16 +17,19 @@ import scala.collection.JavaConverters._
 class ILoopWrapperImpl(
   out: PrintWriter,
   wrapperReporter: ILoopWrapperReporter,
-  projectFullCp: java.util.List[String]
+  projectFullCp: java.util.List[String],
+  scalaOptions: java.util.List[String]
 ) extends ILoop(None, out)
   with ILoopWrapper {
 
   override def init(): Unit = {
     val mySettings = new Settings
+    mySettings.processArguments(scalaOptions.asScala.toList, processAll = true)
     mySettings.classpath.value = projectFullCp.asScala.mkString(File.pathSeparator)
     // do not use java class path because it contains scala library jars with version
     // different from one that is used during compilation (it is passed from the plugin classpath)
     mySettings.usejavacp.value = false
+    mySettings
 
     this.settings = mySettings
 

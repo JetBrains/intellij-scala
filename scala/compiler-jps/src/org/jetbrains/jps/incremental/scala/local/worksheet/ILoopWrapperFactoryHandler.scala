@@ -4,7 +4,6 @@ import java.io.{File, OutputStream}
 import java.lang.reflect.InvocationTargetException
 import java.net.{URLClassLoader, URLDecoder}
 
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.{JavaClientProvider, JavaILoopWrapperFactory}
@@ -20,8 +19,11 @@ class ILoopWrapperFactoryHandler {
 
   private var replFactory: (ClassLoader, JavaILoopWrapperFactory, String) = _
 
-  def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream,
-                            @NotNull client: Client): Unit =  try {
+  def loadReplWrapperAndRun(
+    commonArguments: Arguments,
+    out: OutputStream,
+    client: Client
+  ): Unit = try {
     val compilerJars = commonArguments.compilerData.compilerJars.orNull
     val scalaInstance = CompilerFactoryImpl.createScalaInstance(compilerJars)
     val scalaVersion = findScalaVersionIn(scalaInstance)
@@ -45,6 +47,7 @@ class ILoopWrapperFactoryHandler {
     val clientProvider: JavaClientProvider = message => client.progress(message)
     iLoopWrapper.loadReplWrapperAndRun(
       scalaToJava(commonArguments.worksheetFiles),
+      scalaToJava(commonArguments.compilationData.scalaOptions),
       commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
       compilerJars.library,
       compilerJars.compiler,
@@ -124,7 +127,7 @@ class ILoopWrapperFactoryHandler {
 
 object ILoopWrapperFactoryHandler {
   // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to increase the version
-  private val WRAPPER_VERSION = 3
+  private val WRAPPER_VERSION = 4
 
   private val ILoopWrapperImpl      = "ILoopWrapperImpl"
   private val ILoopWrapper213_0Impl = "ILoopWrapper213_0Impl"

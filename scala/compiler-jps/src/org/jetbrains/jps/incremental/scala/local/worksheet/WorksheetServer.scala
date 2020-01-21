@@ -6,33 +6,31 @@ import java.nio.{Buffer, ByteBuffer}
 import java.util.Base64
 
 import com.martiansoftware.nailgun.ThreadLocalPrintStream
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.incremental.scala.data.CompilerJars
-import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.WorksheetArgsJava
+import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.{ReplArgsJava, WorksheetArgsJava}
 import org.jetbrains.jps.incremental.scala.remote.{Arguments, EventGeneratingClient, WorksheetOutputEvent}
 
 import scala.collection.JavaConverters._
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 01.02.17.
-  */
 class WorksheetServer {
   import WorksheetServer._
 
   private val plainFactory = new WorksheetInProcessRunnerFactory
   private val replFactory = new ILoopWrapperFactoryHandler
 
-
-  def loadAndRun(commonArguments: Arguments, out: PrintStream,
-                 @NotNull client: EventGeneratingClient,
-                 standalone: Boolean) {
+  def loadAndRun(
+    commonArguments: Arguments,
+    out: PrintStream,
+    client: EventGeneratingClient,
+    standalone: Boolean
+  ) {
     val printStream = new MyEncodingOutputStream(out, standalone)
     
     if (isRepl(commonArguments)) {
       replFactory.loadReplWrapperAndRun(commonArguments, printStream, client)
     } else {
-      WorksheetServer.parseWorksheetArgsFrom(commonArguments).foreach { args =>
+      val argsParsed = WorksheetServer.parseWorksheetArgsFrom(commonArguments)
+      argsParsed.foreach { args =>
         plainFactory.getRunner(printStream, standalone).loadAndRun(args, client)
       }
     }
@@ -53,12 +51,22 @@ object WorksheetServer {
   }
 
   def convertWorksheetArgsFromJava(javaArgs: WorksheetArgsJava): WorksheetArgs = {
-    val replArgs = Option(javaArgs.getReplArgs) map (ra => ReplArgs(ra.getSessionId, ra.getCodeChunk))
-    
+    val replArgs = Option(javaArgs.getReplArgs).map(ReplArgs.fromJava)
+
+    val compilerJars = CompilerJars(
+      javaArgs.getCompLibrary,
+      javaArgs.getCompiler,
+      javaArgs.getCompExtra.asScala
+    )
     WorksheetArgs(
-      javaArgs.getWorksheetClassName, javaArgs.getPathToRunners, javaArgs.getWorksheetTempFile, 
-      javaArgs.getOutputDirs.asScala, replArgs, javaArgs.getNameForST, 
-      CompilerJars(javaArgs.getCompLibrary, javaArgs.getCompiler, javaArgs.getCompExtra.asScala), javaArgs.getClasspathURLs.asScala
+      javaArgs.getWorksheetClassName,
+      javaArgs.getPathToRunners,
+      javaArgs.getWorksheetTempFile,
+      javaArgs.getOutputDirs.asScala,
+      replArgs,
+      javaArgs.getNameForST,
+      compilerJars,
+      javaArgs.getClasspathURLs.asScala
     )
   }
   
@@ -68,7 +76,8 @@ object WorksheetServer {
     if (compilerJars == null) return None
     
     val javaArgs = WorksheetArgsJava.constructArgsFrom(
-      commonArgs.worksheetFiles.asJava, 
+      commonArgs.worksheetFiles.asJava,
+      commonArgs.compilationData.scalaOptions.asJava,
       commonArgs.compilationData.sources.headOption.map(_.getName).orNull, 
       compilerJars.library,
       compilerJars.compiler,
@@ -76,15 +85,25 @@ object WorksheetServer {
       commonArgs.compilationData.classpath.asJava
     )
     
-    Option(javaArgs) map convertWorksheetArgsFromJava
+    Option(javaArgs).map(convertWorksheetArgsFromJava)
   }
   
-  case class WorksheetArgs(compiledClassName: String, pathToRunners: File, worksheetTemp: File, outputDirs: Seq[File], 
-                           replArgs: Option[ReplArgs], nameForST: String, compilerJars: CompilerJars, classpathUrls: Seq[URL])
+  case class WorksheetArgs(compiledClassName: String,
+                           pathToRunners: File,
+                           worksheetTemp: File,
+                           outputDirs: Seq[File],
+                           replArgs: Option[ReplArgs],
+                           nameForST: String,
+                           compilerJars: CompilerJars,
+                           classpathUrls: Seq[URL])
 
   case class ReplArgs(sessionId: String, codeChunk: String)
-  
-  class MyEncodingOutputStream(delegateOut: PrintStream, standalone: Boolean) extends OutputStream {
+
+  object ReplArgs {
+    def fromJava(args: ReplArgsJava): ReplArgs = ReplArgs(args.getSessionId, args.getCodeChunk)
+  }
+
+  private class MyEncodingOutputStream(delegateOut: PrintStream, standalone: Boolean) extends OutputStream {
     private var capacity = 1200
     private var buffer = ByteBuffer.allocate(capacity)
 

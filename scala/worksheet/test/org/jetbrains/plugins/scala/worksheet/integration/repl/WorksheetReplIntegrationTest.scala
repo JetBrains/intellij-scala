@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
-import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.runners._
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, WorksheetEvaluationTests}
 import org.junit.Assert._
@@ -241,8 +241,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """42""",
       """res0: Int = 42"""
     )
-    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    WorksheetFileSettings(file).setInteractive(true)
+    worksheetSettings(editor).setInteractive(true)
 
     val robot = new EditorRobot(editor)
     robot.moveToEnd()
@@ -267,8 +266,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """42""",
       """res0: Int = 42"""
     )
-    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    WorksheetFileSettings(file).setInteractive(true)
+    worksheetSettings(editor).setInteractive(true)
 
     val robot = new EditorRobot(editor)
     robot.moveToEnd()
@@ -285,5 +283,32 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """Error:(2, 5) not found: value unknownRef
         |2 + unknownRef + 4""".stripMargin
     )
+  }
+
+  // -Ypartial-unification is enabled in 2.13 by default, so testing on 2.12
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
+  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile(): Unit = {
+    val compilerOption = "-Ypartial-unification"
+    val editor = prepareWorksheetEditor(
+      """def foo[F[_], A](fa: F[A]): String = "123"
+        |foo { x: Int => x * 2 }
+        |""".stripMargin
+    )
+    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq(compilerOption)
+    doRenderTest(editor,
+      """foo: [F[_], A](fa: F[A])String
+        |res0: String = 123""".stripMargin
+    )
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
+  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting(): Unit = {
+    val editor = prepareWorksheetEditor(
+      """def foo[F[_], A](fa: F[A]): String = "123"
+        |foo { x: Int => x * 2 }
+        |""".stripMargin
+    )
+    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq()
+    doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 }
