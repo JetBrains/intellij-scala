@@ -30,7 +30,7 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
     myFixture.configureByText("dummy.scala", fileText)
     val valElement = myFixture.getElementAtCaret
     val usages = myFixture.findUsages(valElement)
-    Assert.assertEquals(usages.size(), 3)
+    Assert.assertEquals(3, usages.size())
     myFixture.renameElementAtCaret("newValueName")
 
     val resultText =
@@ -69,7 +69,7 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
     myFixture.configureByText("dummy.scala", fileText)
     val defElement = myFixture.getElementAtCaret
     val usages = myFixture.findUsages(defElement)
-    Assert.assertEquals(usages.size(), 3)
+    Assert.assertEquals(3, usages.size())
     myFixture.renameElementAtCaret("newDefName")
 
     val resultText =
@@ -111,7 +111,7 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
     myFixture.configureByText("dummy.scala", fileText)
     val objectElement = myFixture.getElementAtCaret
     val usages = myFixture.findUsages(objectElement).toArray.distinct
-    Assert.assertEquals(usages.length, 3)
+    Assert.assertEquals(3, usages.length)
     myFixture.renameElementAtCaret("newObjectName")
 
     val resultText =
@@ -199,7 +199,7 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
     myFixture.configureByText("dummy.scala", fileText)
     val objectElement = myFixture.getElementAtCaret
     val usages = myFixture.findUsages(objectElement)
-    Assert.assertEquals(usages.size(), 5)
+    Assert.assertEquals(5, usages.size())
     myFixture.renameElementAtCaret("newAliasName")
 
     val resultText =
@@ -239,7 +239,7 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
     myFixture.configureByText("dummy.scala", fileText)
     val objectElement = myFixture.getElementAtCaret
     val usages = myFixture.findUsages(objectElement)
-    Assert.assertEquals(usages.size(), 2)
+    Assert.assertEquals(2, usages.size())
     myFixture.renameElementAtCaret("newAliasName")
 
     val resultText =
@@ -275,7 +275,7 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
     myFixture.configureByText("dummy.scala", fileText)
     val objectElement = myFixture.getElementAtCaret
     val usages = myFixture.findUsages(objectElement)
-    Assert.assertEquals(usages.size(), 5)
+    Assert.assertEquals(5, usages.size())
     myFixture.renameElementAtCaret("newName")
 
     val resultText =
@@ -296,4 +296,3 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
   }
   // TODO packages.
 }
-
