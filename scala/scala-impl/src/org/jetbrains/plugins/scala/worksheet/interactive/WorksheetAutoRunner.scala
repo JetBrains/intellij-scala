@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package worksheet.interactive
 
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -17,21 +16,19 @@ import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 object WorksheetAutoRunner extends WorksheetPerFileConfig {
   val RUN_DELAY_MS_MAXIMUM = 3000
   val RUN_DELAY_MS_MINIMUM = 700
   
-  def getInstance(project: Project): WorksheetAutoRunner = project.getComponent(classOf[WorksheetAutoRunner])
+  def getInstance(project: Project): WorksheetAutoRunner = project.getService(classOf[WorksheetAutoRunner])
 }
 
-class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends ProjectComponent {
+class WorksheetAutoRunner(project: Project) {
 
   private val listeners = ContainerUtil.createConcurrentWeakMap[Document, DocumentListener]()
   private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project)
-
-  override def getComponentName: String = "WorksheetAutoRunner"
 
   private def getAutoRunDelay: Int = ScalaProjectSettings.getInstance(project).getAutoRunDelay
   
@@ -112,7 +109,8 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       }
 
       def isValid(vFile: VirtualFile): Boolean =
-        !woof.hasSyntaxErrors(vFile) && !WorksheetFileHook.isRunning(vFile)
+        !WolfTheProblemSolver.getInstance(project).hasSyntaxErrors(vFile) &&
+          !WorksheetFileHook.isRunning(vFile)
 
       if (!isValid(virtualFile) || isReplWrongChar)
         return
