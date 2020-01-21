@@ -148,28 +148,30 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     place:     PsiElement
   ): Boolean = {
     val precedenceTypes = PrecedenceTypes.forElement(this)
-    val importedSymbols = precedenceTypes.defaultImportsWithPrecedence
+    val importedFqns    = precedenceTypes.defaultImportsWithPrecedence
     val psiManager      = ScalaPsiManager.instance(getProject)
 
-    importedSymbols.foreach { case (fqn, precedence) =>
+    importedFqns.foreach { case (fqn, precedence) =>
       ProgressManager.checkCanceled()
+      if (!shouldNotProcessDefaultImport(fqn)) {
 
+        val objects =
+          psiManager
+            .getCachedClasses(scope, fqn)
+            .collectFirst { case obj: ScObject => obj }
 
-      val classes = psiManager.getCachedClass(scope, fqn)
-
-      updateProcessor(processor, precedence) {
-        classes.collect { case obj: ScObject =>
-          if (!shouldNotProcessDefaultImport(fqn)) {
+        updateProcessor(processor, precedence) {
+          objects.foreach { obj =>
             val newState = state.withFromType(obj.`type`().toOption)
             if (!obj.processDeclarations(processor, newState, null, place)) return false
           }
-        }
 
-        val maybePackage = psiManager.getCachedPackage(fqn)
-        maybePackage.foreach(pkg =>
-          if (!ResolveUtils.packageProcessDeclarations(pkg, processor, state, null, place))
-            return false
-        )
+          val maybePackage = psiManager.getCachedPackage(fqn)
+          maybePackage.foreach(pkg =>
+            if (!ResolveUtils.packageProcessDeclarations(pkg, processor, state, null, place))
+              return false
+          )
+        }
       }
 
       /* scala package requires special treatment to process synthetic classes/objects */
