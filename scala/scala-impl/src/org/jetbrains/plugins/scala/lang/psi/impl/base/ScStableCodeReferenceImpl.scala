@@ -488,17 +488,19 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case s: ScalaFile if s.isCompiled =>
         x = true
         //todo: improve checking for this and super
-        val refText: String = getText
-        if (!refText.contains("this") && !refText.contains("super") && (
-          refText.contains(".") || getContext.isInstanceOf[ScStableCodeReference]
-          )) {
+        val refText = getText
+
+        if (!refText.contains("this") &&
+          !refText.contains("super") &&
+          (refText.contains(".") || getContext.isInstanceOf[ScStableCodeReference])) {
           //so this is full qualified reference => findClass, or findPackage
-          val facade = JavaPsiFacade.getInstance(getProject)
           val manager = ScalaPsiManager.instance(getProject)
           val classes = manager.getCachedClasses(getResolveScope, refText)
-          val pack = facade.findPackage(refText)
-          if (pack != null) processor.execute(pack, ScalaResolveState.empty)
-          for (clazz <- classes) processor.execute(clazz, ScalaResolveState.empty)
+          val pack    = manager.getCachedPackage(refText)
+
+          pack.foreach(processor.execute(_, ScalaResolveState.empty))
+          classes.foreach(processor.execute(_, ScalaResolveState.empty))
+
           val candidates = processor.candidatesS
           val filtered = candidates.filter(candidatesFilter)
 
