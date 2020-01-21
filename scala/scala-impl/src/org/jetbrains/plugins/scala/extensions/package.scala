@@ -646,12 +646,12 @@ package object extensions {
       @tailrec
       def inner(el: PsiElement): Boolean = el match {
         case null => true
-        case Whitespace(ws) =>
-          if (ws.contains("\n")) true
+        case ws: PsiWhiteSpace =>
+          if (ws.textContains('\n')) true
           else inner(PsiTreeUtil.prevLeaf(el))
         case _: PsiComment if ignoreComments =>
           inner(PsiTreeUtil.prevLeaf(el))
-        case _ if el.getTextRange.isEmpty => // empty annotatins, modifiers, etc...
+        case _ if el.getTextRange.isEmpty => // empty annotations, modifiers, etc...
           inner(PsiTreeUtil.prevLeaf(el))
         case _ => false
       }
