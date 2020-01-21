@@ -21,87 +21,87 @@ import com.intellij.openapi.util.Key
  */
 
 class EditorStub extends Editor {
-  def putUserData[T](key: Key[T], value: T): Unit = {}
+  override def putUserData[T](key: Key[T], value: T): Unit = {}
 
-  def getUserData[T](key: Key[T]): T = null.asInstanceOf[T]
+  override def getUserData[T](key: Key[T]): T = null.asInstanceOf[T]
 
-  def getIndentsModel: IndentsModel = null
+  override def getIndentsModel: IndentsModel = null
 
-  def getHeaderComponent: JComponent = null
+  override def getHeaderComponent: JComponent = null
 
-  def hasHeaderComponent: Boolean = false
+  override def hasHeaderComponent: Boolean = false
 
-  def setHeaderComponent(header: JComponent): Unit = {}
+  override def setHeaderComponent(header: JComponent): Unit = {}
 
-  def getMouseEventArea(e: MouseEvent): EditorMouseEventArea = null
+  override def getMouseEventArea(e: MouseEvent): EditorMouseEventArea = null
 
-  def getGutter: EditorGutter = null
+  override def getGutter: EditorGutter = null
 
-  def isOneLineMode: Boolean = false
+  override def isOneLineMode: Boolean = false
 
-  def isColumnMode: Boolean = false
+  override def isColumnMode: Boolean = false
 
-  def isInsertMode: Boolean = false
+  override def isInsertMode: Boolean = false
 
-  def getProject: Project = null
+  override def getProject: Project = null
 
-  def isDisposed: Boolean = false
+  override def isDisposed: Boolean = false
 
-  def removeEditorMouseMotionListener(listener: EditorMouseMotionListener): Unit = {}
+  override def removeEditorMouseMotionListener(listener: EditorMouseMotionListener): Unit = {}
 
-  def addEditorMouseMotionListener(listener: EditorMouseMotionListener): Unit = {}
+  override def addEditorMouseMotionListener(listener: EditorMouseMotionListener): Unit = {}
 
-  def removeEditorMouseListener(listener: EditorMouseListener): Unit = {}
+  override def removeEditorMouseListener(listener: EditorMouseListener): Unit = {}
 
-  def addEditorMouseListener(listener: EditorMouseListener): Unit = {}
+  override def addEditorMouseListener(listener: EditorMouseListener): Unit = {}
 
-  def xyToVisualPosition(p: Point): VisualPosition = null
+  override def xyToVisualPosition(p: Point): VisualPosition = null
 
-  def xyToLogicalPosition(p: Point): LogicalPosition = null
+  override def xyToLogicalPosition(p: Point): LogicalPosition = null
 
-  def offsetToVisualPosition(offset: Int): VisualPosition = null
+  override def offsetToVisualPosition(offset: Int): VisualPosition = null
 
-  def offsetToLogicalPosition(offset: Int): LogicalPosition = null
+  override def offsetToLogicalPosition(offset: Int): LogicalPosition = null
 
-  def visualToLogicalPosition(visiblePos: VisualPosition): LogicalPosition = null
+  override def visualToLogicalPosition(visiblePos: VisualPosition): LogicalPosition = null
 
-  def visualPositionToXY(visible: VisualPosition): Point = null
+  override def visualPositionToXY(visible: VisualPosition): Point = null
 
-  def logicalToVisualPosition(logicalPos: LogicalPosition): VisualPosition = null
+  override def logicalToVisualPosition(logicalPos: LogicalPosition): VisualPosition = null
 
-  def logicalPositionToOffset(pos: LogicalPosition): Int = 0
+  override def logicalPositionToOffset(pos: LogicalPosition): Int = 0
 
-  def logicalPositionToXY(pos: LogicalPosition): Point = null
+  override def logicalPositionToXY(pos: LogicalPosition): Point = null
 
-  def getLineHeight: Int = 0
+  override def getLineHeight: Int = 0
 
-  def getColorsScheme: EditorColorsScheme = null
+  override def getColorsScheme: EditorColorsScheme = null
 
-  def getSettings: EditorSettings = null
+  override def getSettings: EditorSettings = null
 
-  def getSoftWrapModel: SoftWrapModel = null
+  override def getSoftWrapModel: SoftWrapModel = null
 
-  def getCaretModel: CaretModel = null
+  override def getCaretModel: CaretModel = null
 
-  def getScrollingModel: ScrollingModel = null
+  override def getScrollingModel: ScrollingModel = null
 
-  def getFoldingModel: FoldingModel = null
+  override def getFoldingModel: FoldingModel = null
 
-  def getMarkupModel: MarkupModel = null
+  override def getMarkupModel: MarkupModel = null
 
-  def getSelectionModel: SelectionModel = null
+  override def getSelectionModel: SelectionModel = null
 
-  def setBorder(border: Border): Unit = {}
+  override def setBorder(border: Border): Unit = {}
 
-  def getContentComponent: JComponent = null
+  override def getContentComponent: JComponent = null
 
-  def getComponent: JComponent = null
+  override def getComponent: JComponent = null
 
-  def isViewer: Boolean = false
+  override def isViewer: Boolean = false
 
-  def getDocument: Document = null
+  override def getDocument: Document = null
 
-  def getInsets: Insets = null
+  override def getInsets: Insets = null
 
   override def offsetToVisualPosition(i: Int, b: Boolean, b1: Boolean): VisualPosition = null
 
@@ -128,12 +128,15 @@ class EditorStub extends Editor {
 
     override def setConsiderCaretPositionOnDocumentUpdates(enabled: Boolean): Unit = {}
 
-    def addAfterLineEndElement[T <: EditorCustomElementRenderer](offset: Int, relatesToPrecedingText: Boolean, renderer: T): Inlay[T] = null
+    override def addAfterLineEndElement[T <: EditorCustomElementRenderer](offset: Int, relatesToPrecedingText: Boolean, renderer: T): Inlay[T] = null
 
-    def getAfterLineEndElementsInRange(startOffset: Int, endOffset: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
+    override def getAfterLineEndElementsInRange(startOffset: Int, endOffset: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
 
-    def getAfterLineEndElementsForLogicalLine(logicalLine: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
+    override def getAfterLineEndElementsForLogicalLine(logicalLine: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
 
+    override def execute(batchMode: Boolean, operation: Runnable): Unit = {}
+
+    override def isInBatchMode: Boolean = false
   }
 
   override def xyToVisualPosition(p: Point2D): VisualPosition = null

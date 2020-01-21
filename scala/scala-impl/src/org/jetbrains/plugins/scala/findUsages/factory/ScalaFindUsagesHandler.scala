@@ -98,7 +98,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
     }
   }
 
-  override def processUsagesInText(element: PsiElement, processor: Processor[UsageInfo], searchScope: GlobalSearchScope): Boolean = {
+  override def processUsagesInText(element: PsiElement, processor: Processor[_ >: UsageInfo], searchScope: GlobalSearchScope): Boolean = {
     val nonScalaTextProcessor = new Processor[UsageInfo] {
       override def process(t: UsageInfo): Boolean = {
         if (t.getFile.getFileType == ScalaFileType.INSTANCE) true
@@ -110,7 +110,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
 
   override def processElementUsages(
     element:   PsiElement,
-    processor: Processor[UsageInfo],
+    processor: Processor[_ >: UsageInfo],
     options:   FindUsagesOptions
   ): Boolean = {
     def addElementUsages(e: PsiElement): Boolean =

@@ -33,7 +33,7 @@ class CompilerIndicesFindUsagesHandler(
 
   private[this] def searchInCompilerIndices(
     e:         PsiNamedElement,
-    processor: Processor[UsageInfo]
+    processor: Processor[_ >: UsageInfo]
   ): Boolean =
     CompilerIndicesReferencesSearch
       .search(e)
@@ -41,7 +41,7 @@ class CompilerIndicesFindUsagesHandler(
 
   override def processElementUsages(
     element:   PsiElement,
-    processor: Processor[UsageInfo],
+    processor: Processor[_ >: UsageInfo],
     options:   FindUsagesOptions
   ): Boolean = element match {
     case (named: PsiNamedElement) && ContainingClass(cls: ScTypeDefinition) if isInLibrary(element) =>
@@ -64,7 +64,7 @@ class CompilerIndicesFindUsagesHandler(
 
   override def processUsagesInText(
     element:     PsiElement,
-    processor:   Processor[UsageInfo],
+    processor:   Processor[_ >: UsageInfo],
     searchScope: GlobalSearchScope
   ): Boolean = true
 

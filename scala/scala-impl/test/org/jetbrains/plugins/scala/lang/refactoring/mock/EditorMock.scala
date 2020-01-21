@@ -14,7 +14,7 @@ import com.intellij.openapi.editor.impl.DocumentImpl
  */
 
 class EditorMock(text: String, offset: Int) extends EditorStub {
-  private val selection = new SelectionModelStub()
+  private val selection = new SelectionModelStub(this)
 
   override def getInlayModel: InlayModel = new InlayModel {
     override def hasInlineElementAt(i: Int): Boolean = false
@@ -39,11 +39,15 @@ class EditorMock(text: String, offset: Int) extends EditorStub {
 
     override def setConsiderCaretPositionOnDocumentUpdates(enabled: Boolean): Unit = {}
 
-    def addAfterLineEndElement[T <: EditorCustomElementRenderer](offset: Int, relatesToPrecedingText: Boolean, renderer: T): Inlay[T] = null
+    override def addAfterLineEndElement[T <: EditorCustomElementRenderer](offset: Int, relatesToPrecedingText: Boolean, renderer: T): Inlay[T] = null
 
-    def getAfterLineEndElementsInRange(startOffset: Int, endOffset: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
+    override def getAfterLineEndElementsInRange(startOffset: Int, endOffset: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
 
-    def getAfterLineEndElementsForLogicalLine(logicalLine: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
+    override def getAfterLineEndElementsForLogicalLine(logicalLine: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
+
+    override def execute(batchMode: Boolean, operation: Runnable): Unit = {}
+
+    override def isInBatchMode: Boolean = false
   }
 
   override def offsetToLogicalPosition(offset: Int): LogicalPosition = {

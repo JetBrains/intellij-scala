@@ -15,7 +15,7 @@ import scala.collection.mutable.ArrayBuffer
  * @author ilyas
  */
 class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache {
-  def getClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
+  override def getClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
     def isOkForJava(elem: ScalaPsiElement): Boolean = {
       var res = true
       var element = elem.getParent
@@ -63,37 +63,37 @@ class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache
     res.toArray
   }
 
-  def processMethodsWithName(name: String, scope: GlobalSearchScope, processor: Processor[PsiMethod]): Boolean = {
+  override def processMethodsWithName(name: String, scope: GlobalSearchScope, processor: Processor[_ >: PsiMethod]): Boolean = {
     //todo:
     true
   }
 
-  def getAllClassNames: Array[String] = {
+  override def getAllClassNames: Array[String] = {
     import ScalaIndexKeys._
     ALL_CLASS_NAMES.allKeys.toArray
   }
 
-  def getMethodsByName(name: String, scope: GlobalSearchScope): Array[PsiMethod] = {
+  override def getMethodsByName(name: String, scope: GlobalSearchScope): Array[PsiMethod] = {
     PsiMethod.EMPTY_ARRAY //todo:
   }
 
-  def getMethodsByNameIfNotMoreThan(name: String, scope: GlobalSearchScope, maxCount: Int): Array[PsiMethod] = {
+  override def getMethodsByNameIfNotMoreThan(name: String, scope: GlobalSearchScope, maxCount: Int): Array[PsiMethod] = {
     getMethodsByName(name, scope) //todo:
   }
 
-  def getAllMethodNames: Array[String] = {
+  override def getAllMethodNames: Array[String] = {
     ArrayUtil.EMPTY_STRING_ARRAY //todo:
   }
 
-  def getFieldsByName(name: String, scope: GlobalSearchScope): Array[PsiField] = {
+  override def getFieldsByName(name: String, scope: GlobalSearchScope): Array[PsiField] = {
     PsiField.EMPTY_ARRAY //todo:
   }
 
-  def getAllFieldNames: Array[String] = {
+  override def getAllFieldNames: Array[String] = {
     ArrayUtil.EMPTY_STRING_ARRAY //todo:
   }
 
-  def getFieldsByNameIfNotMoreThan(name: String, scope: GlobalSearchScope, maxCount: Int): Array[PsiField] = {
+  override def getFieldsByNameIfNotMoreThan(name: String, scope: GlobalSearchScope, maxCount: Int): Array[PsiField] = {
     Array.empty //todo:
   }
 

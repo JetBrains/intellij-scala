@@ -35,7 +35,8 @@ public class ScalaWordsScanner extends DefaultWordsScanner {
     mySkipCodeContextTokenSet = skipCodeContextTokenSet;
   }
 
-  public void processWords(CharSequence fileText, Processor<WordOccurrence> processor) {
+  public void processWords(@NotNull CharSequence fileText,
+                           @NotNull Processor<? super WordOccurrence> processor) {
     myLexer.start(fileText);
     WordOccurrence occurrence = new WordOccurrence(fileText, 0, 0, null); // shared occurrence
 

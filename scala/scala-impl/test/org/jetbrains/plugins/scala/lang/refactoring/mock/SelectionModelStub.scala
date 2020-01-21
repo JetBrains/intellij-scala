@@ -2,70 +2,60 @@ package org.jetbrains.plugins.scala.lang.refactoring.mock
 
 import com.intellij.openapi.editor.event.SelectionListener
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.editor.{LogicalPosition, RangeMarker, SelectionModel, VisualPosition}
+import com.intellij.openapi.editor.{Editor, LogicalPosition, RangeMarker, SelectionModel, VisualPosition}
 
 /**
  * Pavel Fatin
  */
 
-class SelectionModelStub extends SelectionModel {
-  def getTextAttributes: TextAttributes = null
+class SelectionModelStub(editor: Editor) extends SelectionModel {
+  override def getTextAttributes: TextAttributes = null
 
-  def getBlockSelectionGuard: RangeMarker = null
+  override def getBlockSelectionEnds: Array[Int] = null
 
-  def isBlockSelectionGuarded: Boolean = false
+  override def getBlockSelectionStarts: Array[Int] = null
 
-  def getBlockEnd: LogicalPosition = null
+  override def setBlockSelection(blockStart: LogicalPosition, blockEnd: LogicalPosition): Unit = {}
 
-  def getBlockStart: LogicalPosition = null
+  override def copySelectionToClipboard(): Unit = {}
 
-  def getBlockSelectionEnds: Array[Int] = null
+  override def selectWordAtCaret(honorCamelWordsSettings: Boolean): Unit = {}
 
-  def getBlockSelectionStarts: Array[Int] = null
+  override def selectLineAtCaret(): Unit = {}
 
-  def hasBlockSelection: Boolean = false
+  override def removeSelectionListener(listener: SelectionListener): Unit = {}
 
-  def removeBlockSelection(): Unit = {}
+  override def addSelectionListener(listener: SelectionListener): Unit = {}
 
-  def setBlockSelection(blockStart: LogicalPosition, blockEnd: LogicalPosition): Unit = {}
+  override def removeSelection(): Unit = {}
 
-  def copySelectionToClipboard(): Unit = {}
+  override def setSelection(startOffset: Int, endOffset: Int): Unit = {}
 
-  def selectWordAtCaret(honorCamelWordsSettings: Boolean): Unit = {}
+  override def setSelection(startOffset: Int, endPosition: VisualPosition, endOffset: Int): Unit = {}
 
-  def selectLineAtCaret(): Unit = {}
+  override def setSelection(startPosition: VisualPosition, startOffset: Int, endPosition: VisualPosition, endOffset: Int): Unit = {}
 
-  def removeSelectionListener(listener: SelectionListener): Unit = {}
+  override def hasSelection: Boolean = false
 
-  def addSelectionListener(listener: SelectionListener): Unit = {}
+  override def getLeadSelectionOffset: Int = 0
 
-  def removeSelection(): Unit = {}
+  override def getLeadSelectionPosition: VisualPosition = null
 
-  def setSelection(startOffset: Int, endOffset: Int): Unit = {}
+  override def getSelectionStartPosition: VisualPosition = null
 
-  def setSelection(startOffset: Int, endPosition: VisualPosition, endOffset: Int): Unit = {}
+  override def getSelectionEndPosition: VisualPosition = null
 
-  def setSelection(startPosition: VisualPosition, startOffset: Int, endPosition: VisualPosition, endOffset: Int): Unit = {}
+  override def getSelectedText: String = ""
 
-  def hasSelection: Boolean = false
+  override def getSelectionEnd: Int = 0
 
-  def getLeadSelectionOffset: Int = 0
+  override def getSelectionStart: Int = 0
 
-  def getLeadSelectionPosition: VisualPosition = null
+  override def removeSelection(allCarets: Boolean): Unit = {}
 
-  def getSelectionStartPosition: VisualPosition = null
+  override def hasSelection(anyCaret: Boolean): Boolean = false
 
-  def getSelectionEndPosition: VisualPosition = null
+  override def getSelectedText(allCarets: Boolean): String = null
 
-  def getSelectedText: String = ""
-
-  def getSelectionEnd: Int = 0
-
-  def getSelectionStart: Int = 0
-
-  override def removeSelection(allCarets: Boolean): Unit = ???
-
-  override def hasSelection(anyCaret: Boolean): Boolean = ???
-
-  override def getSelectedText(allCarets: Boolean): String = ???
+  override def getEditor: Editor = editor
 }
