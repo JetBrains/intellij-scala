@@ -21,6 +21,7 @@ import com.intellij.util.ui.EditableTreeModel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -39,8 +40,8 @@ import java.util.*;
  *  OR
  *  rewrite this class in Scala (to improve the code quality and the UX).
  */
-@SuppressWarnings({"UseOfObsoleteCollectionType"})
 public class ScalaCompilerProfilesPanel extends JPanel {
+
   private final ScalaCompilerSettingsProfile myDefaultProfile = new ScalaCompilerSettingsProfile("");
   private final List<ScalaCompilerSettingsProfile> myModuleProfiles = new ArrayList<>();
   private final Map<String, Module> myAllModulesMap = new HashMap<>();
@@ -59,70 +60,15 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     }
     myTree = new Tree(new MyTreeModel());
     myTree.setRootVisible(false);
-    final JPanel treePanel =
-        ToolbarDecorator.createDecorator(myTree).addExtraAction(new AnActionButton("Move to", AllIcons.Actions.Forward) {
-          @Override
-          public void actionPerformed(@NotNull AnActionEvent e) {
-            TreePath selectionPath = myTree.getSelectionPath();
-            if (selectionPath == null) return;
-            final MyModuleNode node = (MyModuleNode) selectionPath.getLastPathComponent();
-            final TreePath[] selectedNodes = myTree.getSelectionPaths();
-            final ScalaCompilerSettingsProfile nodeProfile = ((ProfileNode)node.getParent()).myProfile;
-            final List<ScalaCompilerSettingsProfile> profiles = new ArrayList<>();
-            profiles.add(myDefaultProfile);
-            profiles.addAll(myModuleProfiles);
-            profiles.remove(nodeProfile);
-            final JBPopup popup = JBPopupFactory.getInstance().createPopupChooserBuilder(new ArrayList<>(profiles))
-                .setTitle("Move to")
-                .setItemChosenCallback(selectedProfile -> {
-                  if (selectedProfile == null) return;
-
-                  final Module toSelect = (Module)node.getUserObject();
-                  if (selectedNodes != null) {
-                    for (TreePath selectedNode : selectedNodes) {
-                      final Object node1 = selectedNode.getLastPathComponent();
-                      if (node1 instanceof MyModuleNode) {
-                        final Module module = (Module)((MyModuleNode) node1).getUserObject();
-                        if (nodeProfile != myDefaultProfile) {
-                          nodeProfile.removeModuleName(module.getName());
-                        }
-                        if (selectedProfile != myDefaultProfile) {
-                          selectedProfile.addModuleName(module.getName());
-                        }
-                      }
-                    }
-                  }
-
-                  final RootNode root = (RootNode)myTree.getModel().getRoot();
-                  root.sync();
-                  final DefaultMutableTreeNode node1 = TreeUtil.findNodeWithObject(root, toSelect);
-                  if (node1 != null) {
-                    TreeUtil.selectNode(myTree, node1);
-                  }
-                })
-                .createPopup();
-            RelativePoint point = e.getInputEvent() instanceof MouseEvent
-                    ? getPreferredPopupPoint()
-                    : TreeUtil.getPointForSelection(myTree);
-            if (point == null)
-              point = TreeUtil.getPointForSelection(myTree);
-            popup.show(point);
-          }
-
-          @Override
-          public ShortcutSet getShortcut() {
-            return ActionManager.getInstance().getAction("Move").getShortcutSet();
-          }
-
-          @Override
-          public boolean isEnabled() {
-            return myTree.getSelectionPath() != null
-                && myTree.getSelectionPath().getLastPathComponent() instanceof MyModuleNode
-                && !myModuleProfiles.isEmpty();
-          }
-        }).createPanel();
+    final JPanel treePanel = ToolbarDecorator
+            .createDecorator(myTree)
+            .addExtraAction(new MoveToAction(myTree, myDefaultProfile, myModuleProfiles))
+            .createPanel();
     splitter.setFirstComponent(treePanel);
+
     myTree.setCellRenderer(new MyCellRenderer());
+
+    mySettingsPanel = new ScalaCompilerSettingsPanel();
 
     myTree.addTreeSelectionListener(new TreeSelectionListener() {
       @Override
@@ -147,13 +93,96 @@ public class ScalaCompilerProfilesPanel extends JPanel {
         }
       }
     });
-    mySettingsPanel = new ScalaCompilerSettingsPanel();
+
     JPanel settingsComponent = mySettingsPanel.getComponent();
     settingsComponent.setBorder(JBUI.Borders.emptyLeft(6));
     splitter.setSecondComponent(settingsComponent);
 
     final TreeSpeedSearch search = new TreeSpeedSearch(myTree);
     search.setComparator(new SpeedSearchComparator(false));
+  }
+
+  private static class MoveToAction extends AnActionButton {
+
+    private final Tree tree;
+    private final ScalaCompilerSettingsProfile defaultProfile;
+    private final List<ScalaCompilerSettingsProfile> moduleProfiles;
+
+    public MoveToAction(Tree tree, ScalaCompilerSettingsProfile defaultProfile, List<ScalaCompilerSettingsProfile> moduleProfiles) {
+      super("Move to", AllIcons.Actions.Forward);
+      this.tree = tree;
+      this.defaultProfile = defaultProfile;
+      this.moduleProfiles = moduleProfiles;
+    }
+
+    @Override
+    public void actionPerformed(@NotNull AnActionEvent e) {
+      TreePath selectionPath = tree.getSelectionPath();
+      if (selectionPath == null) return;
+      final MyModuleNode node = (MyModuleNode) selectionPath.getLastPathComponent();
+      final TreePath[] selectedNodes = tree.getSelectionPaths();
+      final ScalaCompilerSettingsProfile nodeProfile = ((ProfileNode)node.getParent()).myProfile;
+
+      final List<ScalaCompilerSettingsProfile> profiles = new ArrayList<>();
+      profiles.add(defaultProfile);
+      profiles.addAll(moduleProfiles);
+      profiles.remove(nodeProfile);
+
+      final JBPopup popup = JBPopupFactory.getInstance().createPopupChooserBuilder(new ArrayList<>(profiles))
+              .setTitle("Move to")
+              .setItemChosenCallback(selectedProfile -> {
+                if (selectedProfile == null) return;
+
+                final Module toSelect = (Module) node.getUserObject();
+                if (selectedNodes != null) {
+                  for (TreePath selectedNode : selectedNodes) {
+                    final Object node1 = selectedNode.getLastPathComponent();
+                    if (node1 instanceof MyModuleNode) {
+                      final Module module = (Module) ((MyModuleNode) node1).getUserObject();
+                      if (nodeProfile != defaultProfile) {
+                        nodeProfile.removeModuleName(module.getName());
+                      }
+                      if (selectedProfile != defaultProfile) {
+                        selectedProfile.addModuleName(module.getName());
+                      }
+                    }
+                  }
+                }
+
+                final RootNode root = (RootNode) tree.getModel().getRoot();
+                root.sync();
+                final DefaultMutableTreeNode node1 = TreeUtil.findNodeWithObject(root, toSelect);
+                if (node1 != null) {
+                  TreeUtil.selectNode(tree, node1);
+                }
+              })
+              .createPopup();
+
+      RelativePoint point = getRelativePoint(e);
+      popup.show(point);
+    }
+
+    @NotNull
+    private RelativePoint getRelativePoint(@NotNull AnActionEvent e) {
+      RelativePoint point = e.getInputEvent() instanceof MouseEvent
+              ? getPreferredPopupPoint()
+              : TreeUtil.getPointForSelection(tree);
+      if (point == null)
+        point = TreeUtil.getPointForSelection(tree);
+      return point;
+    }
+
+    @Override
+    public ShortcutSet getShortcut() {
+      return ActionManager.getInstance().getAction("Move").getShortcutSet();
+    }
+
+    @Override
+    public boolean isEnabled() {
+      return tree.getSelectionPath() != null
+              && tree.getSelectionPath().getLastPathComponent() instanceof MyModuleNode
+              && !moduleProfiles.isEmpty();
+    }
   }
 
   public void initProfiles(ScalaCompilerSettingsProfile defaultProfile, Collection<ScalaCompilerSettingsProfile> moduleProfiles) {
@@ -170,7 +199,6 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     if (node != null) {
       TreeUtil.selectNode(myTree, node);
     }
-
   }
 
   public ScalaCompilerSettingsProfile getDefaultProfile() {
@@ -210,37 +238,37 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     @Override
     public TreePath addNode(TreePath parentOrNeighbour) {
       final String newProfileName = Messages.showInputDialog(
-          myProject, "Profile name", "Create New Profile", null, "",
-          new InputValidatorEx() {
-            @Override
-            public boolean checkInput(String inputString) {
-              if (StringUtil.isEmpty(inputString) ||
-                  Comparing.equal(inputString, myDefaultProfile.getName())) {
-                return false;
-              }
-              for (ScalaCompilerSettingsProfile profile : myModuleProfiles) {
-                if (Comparing.equal(inputString, profile.getName())) {
-                  return false;
+              myProject, "Profile name", "Create New Profile", null, "",
+              new InputValidatorEx() {
+                @Override
+                public boolean checkInput(String inputString) {
+                  if (StringUtil.isEmpty(inputString) ||
+                          Comparing.equal(inputString, myDefaultProfile.getName())) {
+                    return false;
+                  }
+                  for (ScalaCompilerSettingsProfile profile : myModuleProfiles) {
+                    if (Comparing.equal(inputString, profile.getName())) {
+                      return false;
+                    }
+                  }
+                  return true;
                 }
-              }
-              return true;
-            }
 
-            @Override
-            public boolean canClose(String inputString) {
-              return checkInput(inputString);
-            }
+                @Override
+                public boolean canClose(String inputString) {
+                  return checkInput(inputString);
+                }
 
-            @Override
-            public String getErrorText(String inputString) {
-              if (checkInput(inputString)) {
-                return null;
-              }
-              return StringUtil.isEmpty(inputString)
-                  ? "Profile name shouldn't be empty"
-                  : "Profile " + inputString + " already exists";
-            }
-          });
+                @Override
+                public String getErrorText(String inputString) {
+                  if (checkInput(inputString)) {
+                    return null;
+                  }
+                  return StringUtil.isEmpty(inputString)
+                          ? "Profile name shouldn't be empty"
+                          : "Profile " + inputString + " already exists";
+                }
+              });
       if (newProfileName != null) {
         final ScalaCompilerSettingsProfile profile = new ScalaCompilerSettingsProfile(newProfileName);
         myModuleProfiles.add(profile);
@@ -282,7 +310,6 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     }
 
   }
-
 
   private class RootNode extends DefaultMutableTreeNode implements DataSynchronizable {
     @Override
