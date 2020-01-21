@@ -115,7 +115,7 @@ class SbtShellCommunication(project: Project) {
 }
 
 object SbtShellCommunication {
-  def forProject(project: Project): SbtShellCommunication = project.getComponent(classOf[SbtShellCommunication])
+  def forProject(project: Project): SbtShellCommunication = project.getService(classOf[SbtShellCommunication])
 
   sealed trait ShellEvent
   case object TaskStart extends ShellEvent

@@ -20,9 +20,6 @@
         <component>
             <implementation-class>org.jetbrains.sbt.shell.SbtProcessManager</implementation-class>
         </component>
-        <component>
-            <implementation-class>org.jetbrains.sbt.shell.SbtShellCommunication</implementation-class>
-        </component>
     </project-components>
 
     <extensionPoints>
@@ -77,6 +74,7 @@
 
         <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory" order="first"/>
 
+        <!--suppress PluginXmlCapitalization -->
         <projectConfigurable groupId="build.tools" displayName="sbt" instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable" />
 
         <toolWindow id="sbt" anchor="right"
@@ -107,6 +105,7 @@
         <defaultLiveTemplates file="liveTemplates/sbt"/>
         <liveTemplateContext implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
 
+        <!--suppress PluginXmlCapitalization -->
         <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtReplaceProjectWithProjectInInspection"
                         displayName="Replace Project() with project.in()" groupName="sbt"
                         shortName="SbtReplaceProjectWithProjectIn"
@@ -136,7 +135,7 @@
         />
         <action id="Scala.Sbt.ShowTask"
                 class="org.jetbrains.sbt.shell.action.ShowTaskAction"
-                text="Show result"
+                text="Show Result"
                 description="Show task result in sbt shell"
         />
         <action id="Scala.Sbt.InspectTask"
@@ -146,7 +145,7 @@
         />
         <action id="Scala.Sbt.ShowSetting"
                 class="org.jetbrains.sbt.shell.action.ShowSettingAction"
-                text="Show value"
+                text="Show Value"
                 description="Show setting in sbt shell"
         />
         <action id="Scala.Sbt.InspectSetting"
