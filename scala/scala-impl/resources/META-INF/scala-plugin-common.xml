@@ -116,8 +116,9 @@
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtSettings"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ApplicationCodeStyleSettingsMigrationService"/>
-        <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
-                            serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor"/>
+
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
         <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
@@ -1373,13 +1374,14 @@
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ImplicitHintsAdviser"/>
+        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
     </extensions>
 
     <applicationListeners>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"/>
+        <listener topic="com.intellij.ide.AppLifecycleListener"
+                  class="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
@@ -1460,12 +1462,6 @@
             <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService</implementation-class>
         </component>
     </project-components>
-
-    <application-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor</implementation-class>
-        </component>
-    </application-components>
 
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction"

@@ -6,10 +6,10 @@ import java.nio.file.Paths
 import java.util.UUID
 import java.util.concurrent.{ExecutorService, Executors, Future => JFuture}
 
+import com.intellij.ide.{AppLifecycleListener, ApplicationInitializedListener}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.BaseComponent
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.Disposer
 import com.intellij.util.messages.MessageBus
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier
@@ -34,7 +34,7 @@ import scala.util.control.NonFatal
   * Explicit waiting for acknowledgement on the sbt side is done in order to ensure that
   * dependent compilations are processed in their respective order.
  */
-class SbtCompilationSupervisor() extends BaseComponent {
+class SbtCompilationSupervisor {
   import SbtCompilationSupervisor._
 
   private[this] val executor: ExecutorService = Executors.newCachedThreadPool()
@@ -45,15 +45,10 @@ class SbtCompilationSupervisor() extends BaseComponent {
   /* Either the predefined port, specified in settings, or random one. */
   @volatile var actualPort: Option[Int] = None
 
-  Disposer.register(ApplicationManager.getApplication, () => {
-    executor.shutdown()
-    if (server != null) server.close()
-  })
-
   private[this] def executeOnPooledThread[T](body: =>T): JFuture[T] =
     executor.submit[T](() => body)
 
-  override def initComponent(): Unit =
+  private def init(): Unit =
     try {
       server = new ServerSocket(port)
       actualPort = Option(server.getLocalPort)
@@ -77,6 +72,12 @@ class SbtCompilationSupervisor() extends BaseComponent {
         logger.error(s"Failed to open a socket to listen for SBT compilations on port: $port.", e)
         if (server != null) server.close()
     }
+
+  private def dispose(): Unit = {
+    executor.shutdown()
+    if (server != null)
+      server.close()
+  }
 
   private[this] def handleConnection(client: Socket): Unit = {
     var base: ProjectIdentifier = Unidentified
@@ -127,5 +128,17 @@ object SbtCompilationSupervisor {
   private val logger = Logger.getInstance(classOf[SbtCompilationSupervisor])
 
   def apply(): SbtCompilationSupervisor =
-    ApplicationManager.getApplication.getComponent(classOf[SbtCompilationSupervisor])
+    ServiceManager.getService(classOf[SbtCompilationSupervisor])
+
+  private class Listener
+    extends ApplicationInitializedListener with AppLifecycleListener {
+
+    override def componentsInitialized(): Unit = {
+      SbtCompilationSupervisor().init()
+    }
+
+    override def appWillBeClosed(isRestart: Boolean): Unit = {
+      SbtCompilationSupervisor().dispose()
+    }
+  }
 }
