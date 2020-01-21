@@ -2,21 +2,6 @@
 
 <idea-plugin>
 
-    <project-components>
-        <component>
-            <implementation-class>org.jetbrains.bsp.protocol.BspCommunicationService</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.bsp.BspBuildLoopService</implementation-class>
-        </component>
-    </project-components>
-
-    <application-components>
-        <component>
-            <implementation-class>org.jetbrains.bsp.StartupRoutine</implementation-class>
-        </component>
-    </application-components>
-
     <extensions defaultExtensionNs="com.intellij">
         <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
@@ -26,7 +11,7 @@
         <externalProjectDataService implementation="org.jetbrains.bsp.data.ScalaSdkService"/>
         <externalProjectDataService implementation="org.jetbrains.bsp.data.BspMetadataService"/>
 
-        <externalIconProvider key="BSP" implementationClass="???" />
+        <externalIconProvider key="BSP" implementationClass="org.jetbrains.bsp.BspIconProvider" />
 
         <applicationService serviceImplementation="org.jetbrains.bsp.settings.BspSystemSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspSettings"/>
@@ -44,11 +29,9 @@
 
         <toolWindow id="bsp" anchor="right"
                     icon="/org/jetbrains/plugins/scala/bsp/images/toolWindowBuildServerProtocol.svg"
-                    factoryClass="org.jetbrains.bsp.BspToolWindowFactory"
-                    conditionClass="org.jetbrains.bsp.BspToolWindowFactoryCondition"/>
+                    factoryClass="org.jetbrains.bsp.BspToolWindowFactory" />
 
         <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
-        <!--<postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>-->
         <applicationInitializedListener implementation="org.jetbrains.bsp.StartupRoutine"/>
 
         <configurationType implementation="org.jetbrains.bsp.project.test.BspTestRunType"/>

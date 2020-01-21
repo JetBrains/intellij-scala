@@ -1,7 +1,5 @@
 package org.jetbrains.bsp
 
-import java.util.MissingResourceException
-
 import com.intellij.ide.ApplicationInitializedListener
 import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.util.registry.Registry
