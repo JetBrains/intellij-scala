@@ -211,13 +211,6 @@ trait IntegrationTest {
                        checkOutputs: Boolean = false): Unit = {
     val (res, testTreeRoot) = runTestFromConfig(configurationAssert, runConfig, checkOutputs, duration, debug)
 
-    val semaphore = new Semaphore
-    semaphore.down()
-
-    invokeLater(semaphore.up())
-
-    semaphore.waitFor()
-
     assertTrue(s"testTreeRoot not defined", testTreeRoot.isDefined)
     testTreeAssert(testTreeRoot.get)
 
