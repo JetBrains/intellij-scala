@@ -24,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -46,8 +44,9 @@ public class ScalaCompilerProfilesPanel extends JPanel {
   private final List<ScalaCompilerSettingsProfile> myModuleProfiles = new ArrayList<>();
   private final Map<String, Module> myAllModulesMap = new HashMap<>();
   private final Project myProject;
-  private final Tree myTree;
-  private final ScalaCompilerSettingsPanel mySettingsPanel;
+  private final Tree myTree; // left panel
+  private final ScalaCompilerSettingsPanel mySettingsPanel; // right panel
+
   private ScalaCompilerSettingsProfile mySelectedProfile = null;
 
   public ScalaCompilerProfilesPanel(Project project) {
@@ -70,27 +69,17 @@ public class ScalaCompilerProfilesPanel extends JPanel {
 
     mySettingsPanel = new ScalaCompilerSettingsPanel();
 
-    myTree.addTreeSelectionListener(new TreeSelectionListener() {
-      @Override
-      public void valueChanged(TreeSelectionEvent e) {
-        final TreePath path = myTree.getSelectionPath();
-        if (path != null) {
-          Object node = path.getLastPathComponent();
-          if (node instanceof MyModuleNode) {
-            node = ((MyModuleNode)node).getParent();
-          }
-          if (node instanceof ProfileNode) {
-            final ScalaCompilerSettingsProfile nodeProfile = ((ProfileNode)node).myProfile;
-            final ScalaCompilerSettingsProfile selectedProfile = mySelectedProfile;
-            if (nodeProfile != selectedProfile) {
-              if (selectedProfile != null) {
-                mySettingsPanel.saveTo(selectedProfile);
-              }
-              mySelectedProfile = nodeProfile;
-              mySettingsPanel.setProfile(nodeProfile);
-            }
-          }
+    myTree.addTreeSelectionListener(e -> {
+      ProfileNode selectedNode = getSelectedNode(myTree);
+      if (selectedNode == null) return;
+      final ScalaCompilerSettingsProfile nodeProfile = selectedNode.myProfile;
+      final ScalaCompilerSettingsProfile selectedProfile = mySelectedProfile;
+      if (nodeProfile != selectedProfile) {
+        if (selectedProfile != null) {
+          mySettingsPanel.saveTo(selectedProfile);
         }
+        mySelectedProfile = nodeProfile;
+        mySettingsPanel.setProfile(nodeProfile);
       }
     });
 
@@ -100,6 +89,23 @@ public class ScalaCompilerProfilesPanel extends JPanel {
 
     final TreeSpeedSearch search = new TreeSpeedSearch(myTree);
     search.setComparator(new SpeedSearchComparator(false));
+  }
+
+
+  @Nullable
+  private ProfileNode getSelectedNode(Tree tree) {
+    final TreePath path = tree.getSelectionPath();
+    if (path == null) return null;
+
+    Object node = path.getLastPathComponent();
+    if (node instanceof MyModuleNode) {
+      node = ((MyModuleNode)node).getParent();
+    }
+    if (node instanceof ProfileNode) {
+      return ((ProfileNode) node);
+    } else {
+      return null;
+    }
   }
 
   private static class MoveToAction extends AnActionButton {
