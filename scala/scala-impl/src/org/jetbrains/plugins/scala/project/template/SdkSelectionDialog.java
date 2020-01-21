@@ -64,7 +64,7 @@ public class SdkSelectionDialog extends JDialog {
 
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        new Task.Backgroundable(null, ScalaBundle.message("sdk.scan.title", ""), true, PerformInBackgroundOption.DEAF) {
+        new Task.Backgroundable(null, ScalaBundle.message("sdk.scan.title", ""), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
             private void updateTable(SdkChoice sdkChoice) {
                 ApplicationManager.getApplication().invokeLater(() -> {
