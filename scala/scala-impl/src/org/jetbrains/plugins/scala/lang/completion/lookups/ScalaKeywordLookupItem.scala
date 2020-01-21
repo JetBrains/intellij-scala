@@ -6,9 +6,11 @@ package lookups
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.{CompletionResultSet, InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.codeStyle.{CodeStyleManager, CommonCodeStyleSettings}
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.ui.EmptyIcon
 
 /**
@@ -29,74 +31,101 @@ object ScalaKeywordLookupItem {
     element = ScalaKeywordLookupItem(keyword)
   } resultSet.addElement(element)
 
-  import ScalaKeyword._
-
   final class KeywordInsertHandler(keyword: String) extends InsertHandler[LookupElement] {
 
-    override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-      val parentheses = Set(IF, FOR, WHILE)
-      val braces = Set(CATCH, ELSE, EXTENDS, FINALLY, FOR, FOR_SOME, NEW, TRY, DO, YIELD)
-      val editor = context.getEditor
-      val document = editor.getDocument
-      val offset = context.getStartOffset + keyword.length
-      keyword match {
-        case THIS | FALSE | TRUE | NULL | SUPER => // do nothing
+    import KeywordInsertHandler._
+    import ScalaKeyword._
+
+    override def handleInsert(context: InsertionContext,
+                              lookupElement: LookupElement): Unit = keyword match {
+      case THIS | FALSE | TRUE | NULL | SUPER => // do nothing
+      case _ =>
+        implicit val InsertionContextExt(editor, document, file, project) = context
+
+        val (isLeftParen, isLeftCurly, isLeftSquare) = bracketKind(context.getCompletionChar)
+        val maybeAddCompletionChar = keyword match {
+          case IF if isLeftParen => bySetting(_.SPACE_BEFORE_IF_PARENTHESES)
+          case FOR if isLeftParen => bySetting(_.SPACE_BEFORE_FOR_PARENTHESES)
+          case WHILE if isLeftParen => bySetting(_.SPACE_BEFORE_WHILE_PARENTHESES)
+          case EXTENDS |
+               FOR_SOME |
+               NEW if isLeftCurly => Some(true)
+          case CATCH if isLeftCurly => bySetting(_.SPACE_BEFORE_CATCH_LBRACE)
+          case ELSE if isLeftCurly => bySetting(_.SPACE_BEFORE_ELSE_LBRACE)
+          case FINALLY if isLeftCurly => bySetting(_.SPACE_BEFORE_FINALLY_LBRACE)
+          case FOR if isLeftCurly => bySetting(_.SPACE_BEFORE_FOR_LBRACE)
+          case TRY if isLeftCurly => bySetting(_.SPACE_BEFORE_TRY_LBRACE)
+          case DO if isLeftCurly => bySetting(_.SPACE_BEFORE_DO_LBRACE)
+          case YIELD if isLeftCurly => bySetting(_.SPACE_BEFORE_FOR_LBRACE)
+          case PRIVATE |
+               PROTECTED if isLeftSquare => None
+          case _ => Some(false)
+        }
+
+        val targetRange = TextRange.from(context.getStartOffset, keyword.length)
+
+        for {
+          addCompletionChar <- maybeAddCompletionChar
+          if isValidScalaPrefixAt(targetRange.getStartOffset)
+        } {
+          context.setAddCompletionChar(addCompletionChar)
+
+          val endOffset = targetRange.getEndOffset
+          if (!(endOffset < document.getTextLength &&
+            document.getImmutableCharSequence.charAt(endOffset) == ' ')) {
+            document.insertString(endOffset, " ")
+          }
+          editor.getCaretModel.moveToOffset(endOffset + 1)
+        }
+
+        if (keyword == CASE) {
+          adjustLineIndent(targetRange)
+        }
+    }
+  }
+
+  private object KeywordInsertHandler {
+
+    private def bracketKind(completionChar: Char) = completionChar match {
+      case '(' => (true, false, false)
+      case '{' => (false, true, false)
+      case '[' => (false, false, true)
+      case _ => (false, false, false)
+    }
+
+    private def isValidScalaPrefixAt(startOffset: Int)
+                                    (implicit file: PsiFile,
+                                     document: Document) =
+      file.getViewProvider.getFileType match {
+        case ScalaFileType.INSTANCE => true
         case _ =>
-          def addSpace(addCompletionChar: Boolean = false) {
-            if (context.getFile.getViewProvider.getFileType != ScalaFileType.INSTANCE) {
-              // for play2 - we shouldn't add space in templates (like @if, @while etc)
-              val offset = context.getStartOffset
-              val docStart = Math.max(0, context.getStartOffset - 1)
+          val subSequence = document.getCharsSequence.subSequence(
+            0 max (startOffset - 1),
+            startOffset
+          )
 
-              val seq = context.getDocument.getCharsSequence.subSequence(docStart, offset)
+          // for play2 - we shouldn't add space in templates (like @if, @while etc)
+          subSequence.length != 1 ||
+            subSequence.charAt(0) != '@'
+      }
 
-              if (seq.length() == 1 && seq.charAt(0) == '@') return
-            }
+    private def bySetting(value: CommonCodeStyleSettings => Boolean)
+                         (implicit project: Project) = {
+      val settings = CodeStyle.getSettings(project)
+        .getCommonSettings(ScalaLanguage.INSTANCE)
+      if (value(settings)) Some(true)
+      else None
+    }
 
-            context.setAddCompletionChar(addCompletionChar)
-            if (document.getTextLength <= offset || document.getImmutableCharSequence.charAt(offset) != ' ')
-              document.insertString(offset, " ")
-            editor.getCaretModel.moveToOffset(offset + 1)
-          }
+    private def adjustLineIndent(rangeToAdjust: TextRange)
+                                (implicit project: Project,
+                                 document: Document): Unit = {
+      val manager = PsiDocumentManager.getInstance(project)
+      manager.commitDocument(document)
 
-          val settings = CodeStyle.getSettings(context.getProject).getCommonSettings(ScalaLanguage.INSTANCE)
-          context.getCompletionChar match {
-            case '(' if parentheses.contains(keyword) =>
-              val add = keyword match {
-                case IF => settings.SPACE_BEFORE_IF_PARENTHESES
-                case FOR => settings.SPACE_BEFORE_FOR_PARENTHESES
-                case WHILE => settings.SPACE_BEFORE_WHILE_PARENTHESES
-              }
-              if (add) addSpace(addCompletionChar = true)
-            case '{' if braces.contains(keyword) =>
-              val add = keyword match {
-                case CATCH => settings.SPACE_BEFORE_CATCH_LBRACE
-                case ELSE => settings.SPACE_BEFORE_ELSE_LBRACE
-                case EXTENDS => true
-                case FINALLY => settings.SPACE_BEFORE_FINALLY_LBRACE
-                case FOR => settings.SPACE_BEFORE_FOR_LBRACE
-                case FOR_SOME => true
-                case NEW => true
-                case TRY => settings.SPACE_BEFORE_TRY_LBRACE
-                case DO => settings.SPACE_BEFORE_DO_LBRACE
-                case YIELD => settings.SPACE_BEFORE_FOR_LBRACE
-              }
-              if (add) addSpace(addCompletionChar = true)
-            case '[' =>
-              keyword match {
-                case PRIVATE | PROTECTED => //do nothing
-                case _ => addSpace(addCompletionChar = false)
-              }
-            case _ => addSpace()
-          }
-          if (keyword == CASE) {
-            val manager = PsiDocumentManager.getInstance(context.getProject)
-            manager.commitDocument(document)
-            val file = manager.getPsiFile(document)
-            if (file == null) return
-            CodeStyleManager.getInstance(context.getProject).
-              adjustLineIndent(file, new TextRange(context.getStartOffset, offset))
-          }
+      manager.getPsiFile(document) match {
+        case null =>
+        case file => CodeStyleManager.getInstance(project).adjustLineIndent(file, rangeToAdjust)
       }
     }
   }
