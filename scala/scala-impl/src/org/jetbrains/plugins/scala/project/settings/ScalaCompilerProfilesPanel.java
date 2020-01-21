@@ -16,11 +16,11 @@ import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.*;
 import com.intellij.ui.awt.RelativePoint;
-import com.intellij.ui.components.JBList;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.EditableTreeModel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.tree.TreeUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -30,21 +30,20 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.*;
 import java.util.List;
-
-// TODO This is an almost exact clone of com.intellij.compiler.options.AnnotationProcessorsPanel
-// TODO We may want either to extract a common "profile editor" class in IDEA platform,
-// TODO or to rewrite this class in Scala (to improve the code quality and the UX).
+import java.util.*;
 
 /**
- * @author Konstantin Bulenkov
+ * TODO This is an almost exact clone of {@link com.intellij.compiler.options.AnnotationProcessorsPanel}
+ *  We may want either to extract a common "profile editor" class in IDEA platform,
+ *  OR
+ *  rewrite this class in Scala (to improve the code quality and the UX).
  */
-@SuppressWarnings({"unchecked", "UseOfObsoleteCollectionType"})
+@SuppressWarnings({"UseOfObsoleteCollectionType"})
 public class ScalaCompilerProfilesPanel extends JPanel {
   private final ScalaCompilerSettingsProfile myDefaultProfile = new ScalaCompilerSettingsProfile("");
-  private final List<ScalaCompilerSettingsProfile> myModuleProfiles = new ArrayList<ScalaCompilerSettingsProfile>();
-  private final Map<String, Module> myAllModulesMap = new HashMap<String, Module>();
+  private final List<ScalaCompilerSettingsProfile> myModuleProfiles = new ArrayList<>();
+  private final Map<String, Module> myAllModulesMap = new HashMap<>();
   private final Project myProject;
   private final Tree myTree;
   private final ScalaCompilerSettingsPanel mySettingsPanel;
@@ -63,53 +62,50 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     final JPanel treePanel =
         ToolbarDecorator.createDecorator(myTree).addExtraAction(new AnActionButton("Move to", AllIcons.Actions.Forward) {
           @Override
-          public void actionPerformed(AnActionEvent e) {
-            final MyModuleNode node = (MyModuleNode)myTree.getSelectionPath().getLastPathComponent();
+          public void actionPerformed(@NotNull AnActionEvent e) {
+            TreePath selectionPath = myTree.getSelectionPath();
+            if (selectionPath == null) return;
+            final MyModuleNode node = (MyModuleNode) selectionPath.getLastPathComponent();
             final TreePath[] selectedNodes = myTree.getSelectionPaths();
             final ScalaCompilerSettingsProfile nodeProfile = ((ProfileNode)node.getParent()).myProfile;
-            final List<ScalaCompilerSettingsProfile> profiles = new ArrayList<ScalaCompilerSettingsProfile>();
+            final List<ScalaCompilerSettingsProfile> profiles = new ArrayList<>();
             profiles.add(myDefaultProfile);
-            for (ScalaCompilerSettingsProfile profile : myModuleProfiles) {
-              profiles.add(profile);
-            }
+            profiles.addAll(myModuleProfiles);
             profiles.remove(nodeProfile);
-            final JBList list = new JBList(profiles);
-            final JBPopup popup = JBPopupFactory.getInstance().createListPopupBuilder(list)
+            final JBPopup popup = JBPopupFactory.getInstance().createPopupChooserBuilder(new ArrayList<>(profiles))
                 .setTitle("Move to")
-                .setItemChoosenCallback(new Runnable() {
-                  @Override
-                  public void run() {
-                    final Object value = list.getSelectedValue();
-                    if (value instanceof ScalaCompilerSettingsProfile) {
-                      final ScalaCompilerSettingsProfile chosenProfile = (ScalaCompilerSettingsProfile)value;
-                      final Module toSelect = (Module)node.getUserObject();
-                      if (selectedNodes != null) {
-                        for (TreePath selectedNode : selectedNodes) {
-                          final Object node = selectedNode.getLastPathComponent();
-                          if (node instanceof MyModuleNode) {
-                            final Module module = (Module)((MyModuleNode)node).getUserObject();
-                            if (nodeProfile != myDefaultProfile) {
-                              nodeProfile.removeModuleName(module.getName());
-                            }
-                            if (chosenProfile != myDefaultProfile) {
-                              chosenProfile.addModuleName(module.getName());
-                            }
-                          }
-                        }
-                      }
+                .setItemChosenCallback(selectedProfile -> {
+                  if (selectedProfile == null) return;
 
-                      final RootNode root = (RootNode)myTree.getModel().getRoot();
-                      root.sync();
-                      final DefaultMutableTreeNode node = TreeUtil.findNodeWithObject(root, toSelect);
-                      if (node != null) {
-                        TreeUtil.selectNode(myTree, node);
+                  final Module toSelect = (Module)node.getUserObject();
+                  if (selectedNodes != null) {
+                    for (TreePath selectedNode : selectedNodes) {
+                      final Object node1 = selectedNode.getLastPathComponent();
+                      if (node1 instanceof MyModuleNode) {
+                        final Module module = (Module)((MyModuleNode) node1).getUserObject();
+                        if (nodeProfile != myDefaultProfile) {
+                          nodeProfile.removeModuleName(module.getName());
+                        }
+                        if (selectedProfile != myDefaultProfile) {
+                          selectedProfile.addModuleName(module.getName());
+                        }
                       }
                     }
                   }
+
+                  final RootNode root = (RootNode)myTree.getModel().getRoot();
+                  root.sync();
+                  final DefaultMutableTreeNode node1 = TreeUtil.findNodeWithObject(root, toSelect);
+                  if (node1 != null) {
+                    TreeUtil.selectNode(myTree, node1);
+                  }
                 })
                 .createPopup();
-            RelativePoint point =
-                e.getInputEvent() instanceof MouseEvent ? getPreferredPopupPoint() : TreeUtil.getPointForSelection(myTree);
+            RelativePoint point = e.getInputEvent() instanceof MouseEvent
+                    ? getPreferredPopupPoint()
+                    : TreeUtil.getPointForSelection(myTree);
+            if (point == null)
+              point = TreeUtil.getPointForSelection(myTree);
             popup.show(point);
           }
 
@@ -214,7 +210,7 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     @Override
     public TreePath addNode(TreePath parentOrNeighbour) {
       final String newProfileName = Messages.showInputDialog(
-          myProject, "Profile name", "Create new profile", null, "",
+          myProject, "Profile name", "Create New Profile", null, "",
           new InputValidatorEx() {
             @Override
             public boolean checkInput(String inputString) {
@@ -291,7 +287,7 @@ public class ScalaCompilerProfilesPanel extends JPanel {
   private class RootNode extends DefaultMutableTreeNode implements DataSynchronizable {
     @Override
     public DataSynchronizable sync() {
-      final Vector newKids =  new Vector();
+      final Vector<DataSynchronizable> newKids =  new Vector<>();
       newKids.add(new ProfileNode(myDefaultProfile, this, true).sync());
       for (ScalaCompilerSettingsProfile profile : myModuleProfiles) {
         newKids.add(new ProfileNode(profile, this, false).sync());
@@ -320,9 +316,9 @@ public class ScalaCompilerProfilesPanel extends JPanel {
 
     @Override
     public DataSynchronizable sync() {
-      final List<Module> nodeModules = new ArrayList<Module>();
+      final List<Module> nodeModules = new ArrayList<>();
       if (myIsDefault) {
-        final Set<String> nonDefaultProfileModules = new HashSet<String>();
+        final Set<String> nonDefaultProfileModules = new HashSet<>();
         for (ScalaCompilerSettingsProfile profile : myModuleProfiles) {
           nonDefaultProfileModules.addAll(profile.getModuleNames());
         }
@@ -340,8 +336,8 @@ public class ScalaCompilerProfilesPanel extends JPanel {
           }
         }
       }
-      Collections.sort(nodeModules, ModuleComparator.INSTANCE);
-      final Vector vector = new Vector();
+      nodeModules.sort(ModuleComparator.INSTANCE);
+      final Vector<MyModuleNode> vector = new Vector<>();
       for (Module module : nodeModules) {
         vector.add(new MyModuleNode(module, this));
       }
@@ -361,7 +357,7 @@ public class ScalaCompilerProfilesPanel extends JPanel {
 
   private static class MyCellRenderer extends ColoredTreeCellRenderer {
     @Override
-    public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+    public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
       if (value instanceof ProfileNode) {
         append(((ProfileNode)value).myProfile.getName());
       }
