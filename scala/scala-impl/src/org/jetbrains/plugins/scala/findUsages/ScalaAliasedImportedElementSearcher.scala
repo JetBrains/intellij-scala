@@ -33,7 +33,8 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
     data match {
       case Some((named, name, scope)) =>
         val collector: SearchRequestCollector = parameters.getOptimizer
-        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, named)
+        val session: SearchSession = collector.getSearchSession
+        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(named, null, session))
       case _ =>
     }
   }
