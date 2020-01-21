@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.data.service
 
 import java.io.File
+import java.net.URI
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
@@ -103,7 +104,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
       linkedProjectPath := getProject.getBasePath
 
       modules += new module {
-        val uri = new File(getProject.getBasePath).toURI
+        val uri: URI = new File(getProject.getBasePath).toURI
         val moduleName = "Module 1"
         val typeId: String = SharedSourcesModuleType.instance.getId
         projectId := ModuleNode.combinedId(moduleName, Option(uri))

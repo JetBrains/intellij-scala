@@ -44,14 +44,15 @@ object SdkUtils {
     import scala.math.Ordering.comparatorToOrdering
     val sdkType = JavaSdk.getInstance()
 
-    implicit def asCondition[A](f: A => Boolean): Condition[A] = (a: A) => f(a)
-    Option(inReadAction(
-      ProjectJdkTable.getInstance()
+    inReadAction {
+      val jdks = ProjectJdkTable.getInstance()
         .getSdksOfType(JavaSdk.getInstance())
         .asScala
         .filter(condition)
-        .max(comparatorToOrdering(sdkType.versionComparator()))
-    ))
+
+      if (jdks.isEmpty) None
+      else Option(jdks.max(comparatorToOrdering(sdkType.versionComparator())))
+    }
   }
 
   def mostRecentJdk: Option[Sdk] =
