@@ -17,9 +17,10 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetProjectSettings;
 import javax.swing.*;
 import java.awt.*;
 
+@SuppressWarnings({"unchecked"})
 public class WorksheetSettingsSetForm {
-    private PsiFile myFile;
-    private Project myProject;
+    private final PsiFile myFile;
+    private final Project myProject;
 
     private JCheckBox interactiveModeCheckBox;
     private JCheckBox makeProjectBeforeRunCheckBox;
@@ -80,6 +81,11 @@ public class WorksheetSettingsSetForm {
                 (ScalaCompilerSettingsProfile) compilerProfileComboBox.getSelectedItem(),
                 null
         );
+    }
+
+    public String getSelectedProfileName() {
+        ScalaCompilerSettingsProfile selectedProfile = (ScalaCompilerSettingsProfile) compilerProfileComboBox.getSelectedItem();
+        return selectedProfile == null ? null : selectedProfile.getName();
     }
 
     private void createUIComponents() {

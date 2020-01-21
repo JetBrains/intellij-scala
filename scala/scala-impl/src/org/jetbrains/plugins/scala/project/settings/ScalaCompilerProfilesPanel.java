@@ -13,6 +13,7 @@ import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.*;
 import com.intellij.ui.awt.RelativePoint;
@@ -46,6 +47,10 @@ public class ScalaCompilerProfilesPanel extends JPanel {
   private final Project myProject;
   private final Tree myTree; // left panel
   private final ScalaCompilerSettingsPanel mySettingsPanel; // right panel
+
+  // used like a global variable within a project to pass context about which profile should we select on settings panel open
+  // not intended to be persisted (for now) so should be reset once read
+  public static final Key<String> SELECTED_PROFILE_NAME = new Key<>("SelectedScalaCompilerProfileName");
 
   private ScalaCompilerSettingsProfile mySelectedProfile = null;
 
@@ -201,10 +206,27 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     }
     final RootNode root = (RootNode)myTree.getModel().getRoot();
     root.sync();
-    final DefaultMutableTreeNode node = TreeUtil.findNodeWithObject(root, myDefaultProfile);
-    if (node != null) {
-      TreeUtil.selectNode(myTree, node);
+    preselectProfile(root);
+  }
+
+  private void preselectProfile(ScalaCompilerProfilesPanel.RootNode root) {
+    String profileNameToSelect = myProject.getUserData(SELECTED_PROFILE_NAME);
+    final DefaultMutableTreeNode nodeToSelect = profileNameToSelect != null
+            ? findProfileNodeWithName(root, profileNameToSelect)
+            : TreeUtil.findNodeWithObject(root, myDefaultProfile);
+    if (nodeToSelect != null) {
+      TreeUtil.selectNode(myTree, nodeToSelect);
+      myProject.putUserData(SELECTED_PROFILE_NAME, null);
     }
+  }
+
+  private DefaultMutableTreeNode findProfileNodeWithName(ScalaCompilerProfilesPanel.RootNode root, String profileName) {
+    return TreeUtil.findNode(root, n -> {
+      if (n instanceof ProfileNode) {
+        return ((ProfileNode) n).myProfile.getName().equals(profileName);
+      }
+      return false;
+    });
   }
 
   public ScalaCompilerSettingsProfile getDefaultProfile() {
