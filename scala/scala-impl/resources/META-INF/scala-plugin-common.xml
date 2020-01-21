@@ -1377,28 +1377,28 @@
     </extensions>
 
     <applicationListeners>
-        <listener class="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-        <listener class="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-        <listener class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassesListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-        <listener class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassesListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
     </applicationListeners>
 
     <projectListeners>
-        <listener class="scala.meta.intellij.ClearMetaExpansionManagerListener"
-                  topic="com.intellij.openapi.compiler.CompilationStatusListener"/>
+        <listener topic="com.intellij.openapi.compiler.CompilationStatusListener"
+                  class="scala.meta.intellij.ClearMetaExpansionManagerListener"/>
+        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
+                  class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetEditorListener"/>
+        <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
+                  class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetDumbModeListener"/>
     </projectListeners>
 
     <project-components>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner</implementation-class>

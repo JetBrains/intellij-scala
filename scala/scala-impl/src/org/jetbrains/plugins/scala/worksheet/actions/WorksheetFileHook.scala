@@ -6,12 +6,11 @@ import java.{util => ju}
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.DumbService.DumbModeListener
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.containers.ContainerUtil
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{UserDataHolderExt, UserDataKeys}
-import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook.file2panel
 import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
@@ -31,55 +29,49 @@ import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, Workshee
 import scala.ref.WeakReference
 import scala.util.control.NonFatal
 
-class WorksheetFileHook(private val project: Project) extends ProjectComponent  {
+object WorksheetFileHook {
 
-  override def getComponentName: String = "Clean worksheet on editor close"
+  private val file2panel = ContainerUtil.createWeakValueMap[VirtualFile, WorksheetControlPanel]
 
-  override def projectOpened(): Unit = {
-    project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, WorksheetEditorListener)
-    project.getMessageBus.connect(project).subscribe(DumbService.DUMB_MODE, new DumbModeListener {
-      override def enteredDumbMode(): Unit = {}
-      override def exitDumbMode(): Unit = initializeButtons()
-    })
-  }
+  private def getAndRemovePanel(file: VirtualFile): Option[WorksheetControlPanel] =
+    Option(file2panel.remove(file))
 
-  private def initializeButtons(): Unit =
-    for {
-      editor <- Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
-      file   <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
-      vFile  <- Option(file.getVirtualFile)
-      panel  <- WorksheetFileHook.getPanel(vFile)
-    } notifyButtons(panel)
+  private def getPanel(file: VirtualFile): Option[WorksheetControlPanel] =
+    Option(file2panel.get(file))
 
-  private def notifyButtons(panel: WorksheetControlPanel): Unit =
-    panel.getComponents.foreach {
-      case button: ActionButton =>
-        button.addNotify()
-      case _ =>
-    }
-
-  private def initWorksheetComponents(file: VirtualFile): Unit = {
-    if (project.isDisposed) return
-
-    val myFileEditorManager = FileEditorManager.getInstance(project)
-    val editors = myFileEditorManager.getAllEditors(file)
-
-    for (editor <- editors) {
-      WorksheetFileHook.getAndRemovePanel(file).foreach { panel =>
-        invokeLater {
-          myFileEditorManager.removeTopComponent(editor, panel)
-        }
+  def handleEditor(source: FileEditorManager, file: VirtualFile)(callback: Editor => Unit): Unit =
+    invokeLater {
+      source.getSelectedEditor(file) match {
+        case txtEditor: TextEditor if txtEditor.getEditor != null =>
+          callback(txtEditor.getEditor)
+        case _ =>
       }
+    }
 
-      val controlPanel = new WorksheetControlPanel(file)
-      val actions: ju.List[AnAction] = ContainerUtil.immutableSingletonList(new WorksheetReplRunAction)
-      UIUtil.putClientProperty(editor.getComponent, AnAction.ACTIONS_KEY, actions)
-      file2panel.put(file, controlPanel)
-      myFileEditorManager.addTopComponent(editor, controlPanel)
+  def getDocumentFrom(project: Project,  file: VirtualFile): Option[Document] = {
+    val fileOpt = Option(PsiManager.getInstance(project).findFile(file))
+    fileOpt.map { file =>
+      PsiDocumentManager.getInstance(project).getCachedDocument(file)
     }
   }
 
-  private object WorksheetEditorListener extends FileEditorManagerListener {
+  @CalledInAwt()
+  def disableRun(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
+    WorksheetFileHook.getPanel(file).foreach(_.disableRun(exec))
+
+  @CalledInAwt()
+  def enableRun(file: VirtualFile, hasErrors: Boolean): Unit =
+    WorksheetFileHook.getPanel(file).foreach(_.enableRun(hasErrors))
+
+  def updateStoppableProcess(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
+    invokeLater {
+      WorksheetFileHook.getPanel(file).foreach(_.updateStoppableProcess(exec))
+    }
+
+  def isRunning(file: VirtualFile): Boolean =
+    WorksheetFileHook.getPanel(file).exists(!_.isRunEnabled)
+
+  private class WorksheetEditorListener(project: Project) extends FileEditorManagerListener {
 
     private def isPluggable(file: VirtualFile): Boolean = file.isValid &&
       WorksheetFileType.isWorksheetFile(file)(project)
@@ -96,7 +88,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
     override def fileOpened(source: FileEditorManager, file: VirtualFile): Unit = {
       if (!isPluggable(file)) return
 
-      WorksheetFileHook.this.initWorksheetComponents(file)
+      initWorksheetComponents(file)
       loadEvaluationResult(source, file)
       val document = WorksheetFileHook.getDocumentFrom(source.getProject, file)
       document.foreach(WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
@@ -147,50 +139,47 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
         case _ =>
       }
     }
-  }
-}
 
-object WorksheetFileHook {
+    private def initWorksheetComponents(file: VirtualFile): Unit = {
+      if (project.isDisposed) return
 
-  private val file2panel = ContainerUtil.createWeakValueMap[VirtualFile, WorksheetControlPanel]
+      val myFileEditorManager = FileEditorManager.getInstance(project)
+      val editors = myFileEditorManager.getAllEditors(file)
 
-  private def getAndRemovePanel(file: VirtualFile): Option[WorksheetControlPanel] =
-    Option(file2panel.remove(file))
+      for (editor <- editors) {
+        WorksheetFileHook.getAndRemovePanel(file).foreach { panel =>
+          invokeLater {
+            myFileEditorManager.removeTopComponent(editor, panel)
+          }
+        }
 
-  private def getPanel(file: VirtualFile): Option[WorksheetControlPanel] =
-    Option(file2panel.get(file))
-
-  def instance(project: Project): WorksheetFileHook = project.getComponent(classOf[WorksheetFileHook])
-
-  def handleEditor(source: FileEditorManager, file: VirtualFile)(callback: Editor => Unit): Unit =
-    invokeLater {
-      source.getSelectedEditor(file) match {
-        case txtEditor: TextEditor if txtEditor.getEditor != null =>
-          callback(txtEditor.getEditor)
-        case _ =>
+        val controlPanel = new WorksheetControlPanel(file)
+        val actions: ju.List[AnAction] = ContainerUtil.immutableSingletonList(new WorksheetReplRunAction)
+        UIUtil.putClientProperty(editor.getComponent, AnAction.ACTIONS_KEY, actions)
+        file2panel.put(file, controlPanel)
+        myFileEditorManager.addTopComponent(editor, controlPanel)
       }
     }
 
-  def getDocumentFrom(project: Project,  file: VirtualFile): Option[Document] = {
-    val fileOpt = Option(PsiManager.getInstance(project).findFile(file))
-    fileOpt.map { file =>
-      PsiDocumentManager.getInstance(project).getCachedDocument(file)
-    }
   }
 
-  @CalledInAwt()
-  def disableRun(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
-    WorksheetFileHook.getPanel(file).foreach(_.disableRun(exec))
+  private class WorksheetDumbModeListener(project: Project) extends DumbModeListener {
+    override def enteredDumbMode(): Unit = {}
+    override def exitDumbMode(): Unit = initializeButtons()
 
-  @CalledInAwt()
-  def enableRun(file: VirtualFile, hasErrors: Boolean): Unit =
-    WorksheetFileHook.getPanel(file).foreach(_.enableRun(hasErrors))
+    private def initializeButtons(): Unit =
+      for {
+        editor <- Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
+        file   <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
+        vFile  <- Option(file.getVirtualFile)
+        panel  <- WorksheetFileHook.getPanel(vFile)
+      } notifyButtons(panel)
 
-  def updateStoppableProcess(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
-    invokeLater {
-      WorksheetFileHook.getPanel(file).foreach(_.updateStoppableProcess(exec))
-    }
-
-  def isRunning(file: VirtualFile): Boolean =
-    WorksheetFileHook.getPanel(file).exists(!_.isRunEnabled)
+    private def notifyButtons(panel: WorksheetControlPanel): Unit =
+      panel.getComponents.foreach {
+        case button: ActionButton =>
+          button.addNotify()
+        case _ =>
+      }
+  }
 }
