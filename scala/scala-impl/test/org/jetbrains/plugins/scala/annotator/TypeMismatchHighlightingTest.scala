@@ -344,13 +344,34 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
       Error("2" , "Expression of type Int doesn't conform to expected type String"))
   }
 
+  // TODO Highlight parameter types / count, not the whole function literal type, SCL-16904
+  // TODO The range should be `}`?
   def testTypeMismatchFunctionLiteralParameterTypeMismatch(): Unit = {
     assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f((s: String) => s)"))(Hint("(s: String) => s", ": String => String"),
       Error("(s: String) => s" , "Type mismatch, expected: Int => String, actual: String => String"))
   }
 
   def testTypeMismatchFunctionLiteralInBlockExpressionResultTypeMismatch(): Unit = {
-    assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f { i => 2 }"))(Hint("{ i => 2 }", ": Int => Int"),
-      Error("{ i => 2 }" , "Type mismatch, expected: Int => String, actual: Int => Int"))
+    assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f { i => 2 }"))(Hint("2", ": Int"),
+      Error("2" , "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  // TODO The range should be `}`?
+  def testTypeMismatchFunctionLiteralInBlockExpressionResultTypeMismatchNewLine(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f { i => 2\n}"))(Hint("{ i => 2\n}", ": Int => Int"),
+      Error("{ i => 2\n}" , "Type mismatch, expected: Int => String, actual: Int => Int"))
+  }
+
+  // Plain block expression
+
+  // Should it be similar to function single-line literals? There's also the {} case.
+  def testTypeMismatchSingleLineBlockExpression(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: Int = { \"foo\" }"))(Hint("}", ": String"),
+      Error("}", "Expression of type String doesn't conform to expected type Int"))
+  }
+
+  def testTypeMismatchSingleMultilineBlockExpression(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: Int = { \"foo\"\n}"))(Hint("}", ": String"),
+      Error("}", "Expression of type String doesn't conform to expected type Int"))
   }
 }
