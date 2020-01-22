@@ -23,6 +23,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -119,8 +120,12 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     private final ScalaCompilerSettingsProfile defaultProfile;
     private final List<ScalaCompilerSettingsProfile> moduleProfiles;
 
+    private static String moveToMessage() {
+      return ScalaBundle.message("scala.compiler.profiles.panel.move.to");
+    }
+
     public MoveToAction(Tree tree, ScalaCompilerSettingsProfile defaultProfile, List<ScalaCompilerSettingsProfile> moduleProfiles) {
-      super("Move to", AllIcons.Actions.Forward);
+      super(moveToMessage(), AllIcons.Actions.Forward);
       this.tree = tree;
       this.defaultProfile = defaultProfile;
       this.moduleProfiles = moduleProfiles;
@@ -140,7 +145,7 @@ public class ScalaCompilerProfilesPanel extends JPanel {
       profiles.remove(nodeProfile);
 
       final JBPopup popup = JBPopupFactory.getInstance().createPopupChooserBuilder(new ArrayList<>(profiles))
-              .setTitle("Move to")
+              .setTitle(moveToMessage())
               .setItemChosenCallback(selectedProfile -> {
                 if (selectedProfile == null) return;
 
@@ -265,48 +270,57 @@ public class ScalaCompilerProfilesPanel extends JPanel {
 
     @Override
     public TreePath addNode(TreePath parentOrNeighbour) {
-      final String newProfileName = Messages.showInputDialog(
-              myProject, "Profile name", "Create New Profile", null, "",
-              new InputValidatorEx() {
-                @Override
-                public boolean checkInput(String inputString) {
-                  if (StringUtil.isEmpty(inputString) ||
-                          Comparing.equal(inputString, myDefaultProfile.getName())) {
-                    return false;
-                  }
-                  for (ScalaCompilerSettingsProfile profile : myModuleProfiles) {
-                    if (Comparing.equal(inputString, profile.getName())) {
-                      return false;
-                    }
-                  }
-                  return true;
-                }
-
-                @Override
-                public boolean canClose(String inputString) {
-                  return checkInput(inputString);
-                }
-
-                @Override
-                public String getErrorText(String inputString) {
-                  if (checkInput(inputString)) {
-                    return null;
-                  }
-                  return StringUtil.isEmpty(inputString)
-                          ? "Profile name shouldn't be empty"
-                          : "Profile " + inputString + " already exists";
-                }
-              });
+      final String newProfileName = readProfileNameInDialog();
       if (newProfileName != null) {
-        final ScalaCompilerSettingsProfile profile = new ScalaCompilerSettingsProfile(newProfileName);
-        myModuleProfiles.add(profile);
-        ((DataSynchronizable)getRoot()).sync();
-        final DefaultMutableTreeNode object = TreeUtil.findNodeWithObject((DefaultMutableTreeNode)getRoot(), profile);
-        if (object != null) {
-          TreeUtil.selectNode(myTree, object);
-        }
+        createNewProfile(newProfileName);
       }
       return null;
+    }
+
+    private void createNewProfile(@NotNull String newProfileName) {
+      final ScalaCompilerSettingsProfile profile = new ScalaCompilerSettingsProfile(newProfileName);
+      myModuleProfiles.add(profile);
+      ((DataSynchronizable)getRoot()).sync();
+      final DefaultMutableTreeNode object = TreeUtil.findNodeWithObject((DefaultMutableTreeNode)getRoot(), profile);
+      if (object != null) {
+        TreeUtil.selectNode(myTree, object);
+      }
+    }
+
+    private String readProfileNameInDialog() {
+      return Messages.showInputDialog(
+              myProject,
+              ScalaBundle.message("scala.compiler.profiles.panel.profile.name"),
+              ScalaBundle.message("scala.compiler.profiles.panel.create.new.profile"),
+              null, "",
+              new ScalaCompilerProfilesPanel.MyTreeModel.ProfileNameValidator()
+      );
+    }
+
+    private class ProfileNameValidator implements InputValidatorEx {
+      @Override
+      public boolean checkInput(String inputString) {
+        if (StringUtil.isEmpty(inputString))
+          return false;
+        if (Comparing.equal(inputString, myDefaultProfile.getName()))
+          return false;
+        return myModuleProfiles.stream().noneMatch(p -> Comparing.equal(inputString, p.getName()));
+      }
+
+      @Override
+      public boolean canClose(String inputString) {
+        return checkInput(inputString);
+      }
+
+      @Override
+      public String getErrorText(String inputString) {
+        if (checkInput(inputString)) {
+          return null;
+        }
+        return StringUtil.isEmpty(inputString)
+                ? ScalaBundle.message("scala.compiler.profiles.panel.profile.should.not.be.empty")
+                : ScalaBundle.message("scala.compiler.profiles.panel.profile.already.exists", inputString);
+      }
     }
 
     @Override
