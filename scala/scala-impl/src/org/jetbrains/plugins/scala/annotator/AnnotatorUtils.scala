@@ -67,8 +67,13 @@ object AnnotatorUtils {
       case _ => false
     }
 
-    def isResultOfFunctionLiteralInBlock = e match {
-      case Parent(Parent((f: ScFunctionExpr) && Parent(_: ScBlockExpr))) => f.result.contains(e.getParent)
+    def isResultOfFunctionLiteralInMultilineBlock = e match {
+      case Parent(Parent((f: ScFunctionExpr) && Parent(b: ScBlockExpr))) => f.result.contains(e.getParent) && b.textContains('\n')
+      case _ => false
+    }
+
+    def isNonEmptyFunctionLiteralInOneLineBlock = e match {
+      case b: ScBlockExpr => !b.textContains('\n')
       case _ => false
     }
 
@@ -84,7 +89,8 @@ object AnnotatorUtils {
 
     hasParserErrors ||
       isFunctionLiteralWithResultTypeMismatch ||
-      isResultOfFunctionLiteralInBlock ||
+      isResultOfFunctionLiteralInMultilineBlock ||
+      isNonEmptyFunctionLiteralInOneLineBlock ||
       hasUnresolvedReferences ||
       isFunctionLiteralWithMissingParameterType
   }
