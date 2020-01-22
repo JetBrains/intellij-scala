@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScRefinement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
@@ -18,11 +19,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 /**
  * @author Pavel Fatin
  */
 class LanguageFeatureInspection extends AbstractInspection("Advanced language features") {
+
   private val Features = Seq(
     Feature("postfix operator notation", "scala.language", "postfixOps", _.postfixOps, _.postfixOps = true) {
       case e: ScPostfixExpr => e.operation
@@ -55,8 +58,8 @@ class LanguageFeatureInspection extends AbstractInspection("Advanced language fe
   )
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = { case e: PsiElement =>
-    val module = e.module.orNull
-    if (module != null && module.hasScala) {
+    val hasScala = e.module.exists(_.hasScala)
+    if (hasScala) {
       Features.foreach(_.process(e, holder))
     }
   }
@@ -69,24 +72,33 @@ private case class Feature(name: String,
                            enable: ScalaCompilerSettings => Unit)
                           (findIn: PartialFunction[PsiElement, PsiElement]) {
 
-  def process(e: PsiElement, holder: ProblemsHolder) {
-    e.module.foreach { module =>
-      if (!isEnabled(module.scalaCompilerSettings)) {
+  def process(e: PsiElement, holder: ProblemsHolder): Unit = {
+    val compilerSettingsOpt = compilerSettings(e)
+    compilerSettingsOpt.foreach { settings =>
+      if (!isEnabled(settings)) {
         findIn.lift(e).foreach { it =>
           if (!isFlagImportedFor(it)) {
-            holder.registerProblem(it, "Advanced language feature: " + name,
-              new ImportFeatureFlagFix(it, name, flagQualifier + "." + flagName),
-              new EnableFeatureFix(module.scalaCompilerSettings, it, name, enable))
+            holder.registerProblem(it, s"Advanced language feature: $name",
+              new ImportFeatureFlagFix(it, name, s"$flagQualifier.$flagName"),
+              new EnableFeatureFix(settings, it, name, enable))
           }
         }
       }
     }
   }
-  
+
+  private def compilerSettings(e: PsiElement): Option[ScalaCompilerSettings] =
+    e.getContainingFile match {
+      case null                                    => None
+      case file: ScalaFile if file.isWorksheetFile => Option(WorksheetFileSettings(file).getCompilerProfile.getSettings)
+      case file                                    => file.module.map(_.scalaCompilerSettings)
+    }
+
   private def isFlagImportedFor(e: PsiElement): Boolean = {
-    ScalaPsiElementFactory.createReferenceFromText(flagName, e, e).resolve() match {
+    val reference = ScalaPsiElementFactory.createReferenceFromText(flagName, e, e)
+    reference.resolve() match {
       case e: ScReferencePattern => Option(e.containingClass).exists(_.qualifiedName == flagQualifier)
-      case _ => false
+      case _                     => false
     }
   }
 }

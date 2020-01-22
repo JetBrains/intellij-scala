@@ -6,9 +6,11 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ex.ScopeToolState
 import com.intellij.codeInspection.{LocalInspectionEP, LocalInspectionTool}
+import com.intellij.ide.scratch.ScratchRootType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
+import com.intellij.psi.PsiFile
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
@@ -26,6 +28,7 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   protected val description: String
 
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
+  protected val isScratchFile: Boolean = false
 
   val START = EditorTestUtil.SELECTION_START_TAG
   val END = EditorTestUtil.SELECTION_END_TAG
@@ -114,7 +117,13 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
       findCaretOffset(fileText, stripTrailingSpaces = true)
 
     val fixture = getFixture
-    fixture.configureByText(fileType, normalizedText)
+    if (isScratchFile) {
+      val vFile = createScratchFile(normalizedText)
+      fixture.configureFromExistingVirtualFile(vFile)
+    } else {
+      fixture.configureByText(fileType, normalizedText)
+    }
+    onFileCreated(fixture.getFile)
 
     import JavaConverters._
     val actualHighlights =
@@ -124,6 +133,14 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
 
     TestPrepareResult(expectedHighlights, actualHighlights)
   }
+
+  private def createScratchFile(normalizedText: String) = {
+    val fileName = s"aaa.${fileType.getDefaultExtension}"
+    val language = fileType.getLanguage
+    ScratchRootType.getInstance.createScratchFile(getProject, fileName, language, normalizedText)
+  }
+
+  protected def onFileCreated(file: PsiFile): Unit = ()
 
   protected def createTestText(text: String): String = text
 }
