@@ -17,7 +17,6 @@ package org.jetbrains.plugins.scala.lang.scaladoc.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.*;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 %%
@@ -216,7 +215,7 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 <DOC_TAG_VALUE, DOC_TAG_VALUE_IN_PAREN> [,] { return DOC_TAG_VALUE_COMMA; }
 <DOC_TAG_VALUE_IN_PAREN> {WHITE_DOC_SPACE_CHAR}+ { return DOC_WHITESPACE; }
 
-<COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{TAG_IDENTIFIER} {
+<COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{INLINE_TAG_IDENTIFIER} {
   yybegin(INLINE_TAG_NAME);
   return DOC_INLINE_TAG_START;
 }
