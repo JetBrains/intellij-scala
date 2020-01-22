@@ -1,5 +1,5 @@
 resolvers += Resolver.url("jetbrains-sbt", url(s"https://dl.bintray.com/jetbrains/sbt-plugins"))(Resolver.ivyStylePatterns)
 
 addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.0.0")
-addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.3.4+7-cd8e9ef9+20200121-1756")
+addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.4.0")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.7.0")
