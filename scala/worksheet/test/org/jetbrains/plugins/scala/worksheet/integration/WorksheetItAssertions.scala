@@ -18,9 +18,23 @@ trait WorksheetItAssertions {
 
   def assertViewerOutput(editor: Editor)(expectedText: String, expectedFoldings: Seq[Folding]): Unit = {
     val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(editor)
-    assertEquals(expectedText.withNormalizedSeparator, actualText)
+    try {
+      assertEquals(expectedText.withNormalizedSeparator, actualText)
+    } catch {
+      case ex: AssertionError =>
+        printCollectedCompilerMessages(editor)
+        throw ex
+    }
     assertFoldings(expectedFoldings, actualFoldings)
   }
+
+  private def printCollectedCompilerMessages(editor: Editor): Unit =
+    collectedCompilerMessages(editor).foreach { message =>
+      System.err.println(messageText(message))
+    }
+
+  private def messageText(message: CompilerMessageImpl): String =
+    s"(${message.getLine}:${message.getColumn}) ${message.getCategory} ${message.toString}"
 
   def assertFoldings(expectedFoldings: Seq[Folding], actualFoldings: Seq[Folding]): Unit =
     expectedFoldings.zipAll(actualFoldings, null, null).toList.foreach { case (expected, actual) =>

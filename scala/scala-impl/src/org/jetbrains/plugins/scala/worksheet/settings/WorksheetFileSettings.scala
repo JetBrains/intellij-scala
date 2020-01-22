@@ -59,18 +59,17 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
     implicit val fileProject: Project = file.getProject
     val configuration = ScalaCompilerConfiguration.instanceIn(project)
 
-    val maybeCustomProfile = configuration.customProfiles match {
-      case profiles if isScratchWorksheet(file.getVirtualFile) =>
-        val name = getCompilerProfileName
-        profiles.find(_.getName == name)
-      case profiles =>
-        for {
-          ScFile.VirtualFile(virtualFile) <- Some(file)
-          module <- ScalaUtil.getModuleForFile(virtualFile)
-          profile <- profiles.find(_.moduleNames.contains(module.getName))
-        } yield profile
+    val customProfiles = configuration.customProfiles
+    val maybeCustomProfile = if (isScratchWorksheet(file.getVirtualFile)) {
+      val name = getCompilerProfileName
+      customProfiles.find(_.getName == name)
+    } else {
+      for {
+        ScFile.VirtualFile(virtualFile) <- Some(file)
+        module <- ScalaUtil.getModuleForFile(virtualFile)
+        profile <- customProfiles.find(_.moduleNames.contains(module.getName))
+      } yield profile
     }
-
     maybeCustomProfile.getOrElse(configuration.defaultProfile)
   }
 

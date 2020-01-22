@@ -3,9 +3,11 @@ package org.jetbrains.plugins.scala.worksheet.integration
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.AssertionMatchers._
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
+import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
@@ -14,7 +16,6 @@ import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBas
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_9, WorksheetEvaluationTests}
-import org.jetbrains.plugins.scala.AssertionMatchers._
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -66,6 +67,9 @@ abstract class WorksheetIntegrationBaseTest
     val file = PsiDocumentManager.getInstance(project).getPsiFile(worksheetEditor.getDocument)
     WorksheetFileSettings(file)
   }
+
+  protected def createCompilerProfileForCurrentModule(profileName: String): ScalaCompilerSettingsProfile =
+    ScalaCompilerConfiguration.instanceIn(project).createCustomProfileForModule(profileName, myModule)
 
   override def setUp(): Unit = {
     super.setUp()

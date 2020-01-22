@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module;
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType;
 
-class WorksheetSettingsData {
+public class WorksheetSettingsData {
   final boolean isInteractive;
   final boolean isMakeBeforeRun;
   final WorksheetExternalRunType runType;

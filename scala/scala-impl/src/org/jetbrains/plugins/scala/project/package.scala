@@ -270,11 +270,11 @@ package object project {
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
 
+    def module: Option[Module] = projectModule.orElse(file.scratchFileModule)
+
     @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
-    def module: Option[Module] = {
-      val m = Option(ModuleUtilCore.findModuleForPsiElement(file))
-      m.orElse(file.scratchFileModule)
-    }
+    private def projectModule: Option[Module] =
+      Option(ModuleUtilCore.findModuleForPsiElement(file))
 
     def scratchFileModule: Option[Module] =
       Option(file.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE)).flatMap(_.get)

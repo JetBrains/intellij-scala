@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{ModificationTracker, SimpleModificationTracker}
 import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
 import org.jdom.Element
+import org.jetbrains.annotations.TestOnly
 
 import scala.annotation.tailrec
 
@@ -29,12 +30,26 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
+  @TestOnly
+  def createCustomProfileForModule(profileName: String, module: Module): ScalaCompilerSettingsProfile = {
+    assert(!allProfiles.exists(_.getName == profileName))
+    val profile = new ScalaCompilerSettingsProfile(profileName)
+    val moduleName = module.getName
+    profile.addModuleName(moduleName)
+    customProfiles = customProfiles :+ profile
+    allProfiles.foreach(_.removeModuleName(moduleName))
+    ScalaCompilerConfiguration.incModificationCount()
+    profile
+  }
+
   def getSettingsForModule(module: Module): ScalaCompilerSettings = {
     val profile = customProfiles.find(_.moduleNames.contains(module.getName)).getOrElse(defaultProfile)
     profile.getSettings
   }
 
-  def allCompilerPlugins: Seq[String] = (defaultProfile +: customProfiles).map(_.getSettings).flatMap(_.plugins)
+  def allCompilerPlugins: Seq[String] = (allProfiles).map(_.getSettings).flatMap(_.plugins)
+
+  private def allProfiles: Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
 
   def hasSettingForHighlighting(module: Module)
                                (hasSetting: ScalaCompilerSettings => Boolean): Boolean =

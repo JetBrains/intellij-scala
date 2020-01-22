@@ -332,16 +332,18 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     viewerStates
   }
 
+  private val TestProfileName = "TestProfileName"
+  private val PartialUnificationCompilerOptions = Seq("-Ypartial-unification", "-language:higherKinds")
+  private val PartialUnificationTestText =
+    """def foo[F[_], A](fa: F[A]): String = "123"
+      |foo { x: Int => x * 2 }
+      |""".stripMargin
+
   // -Ypartial-unification is enabled in 2.13 by default, so testing on 2.12
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile(): Unit = {
-    val compilerOption = "-Ypartial-unification"
-    val editor = prepareWorksheetEditor(
-      """def foo[F[_], A](fa: F[A]): String = "123"
-        |foo { x: Int => x * 2 }
-        |""".stripMargin
-    )
-    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq(compilerOption)
+    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    getModule.scalaCompilerSettings.additionalCompilerOptions = PartialUnificationCompilerOptions
     doRenderTest(editor,
       """foo: foo[F[_],A](val fa: F[A]) => String
         |res0: String = 123
@@ -351,12 +353,28 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting(): Unit = {
-    val editor = prepareWorksheetEditor(
-      """def foo[F[_], A](fa: F[A]): String = "123"
-        |foo { x: Int => x * 2 }
+    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq()
+    doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
+  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_NonDefaultProfile(): Unit = {
+    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    worksheetSettings(editor).setCompilerProfileName(TestProfileName)
+    createCompilerProfileForCurrentModule(TestProfileName).getSettings.additionalCompilerOptions = PartialUnificationCompilerOptions
+    doRenderTest(editor,
+      """foo: foo[F[_],A](val fa: F[A]) => String
+        |res0: String = 123
         |""".stripMargin
     )
-    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq()
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
+  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting_NonDefaultProfile(): Unit = {
+    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    worksheetSettings(editor).setCompilerProfileName(TestProfileName)
+    createCompilerProfileForCurrentModule(TestProfileName).getSettings.additionalCompilerOptions = Seq()
     doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 }

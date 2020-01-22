@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference
 // TODO This class is needed for the "imported" ScalaCompilerConfigurationPanel.
 // TODO It's better to replace it with immutable case classes later.
 class ScalaCompilerSettingsProfile(name: String) {
+
   private var myName: String = name
   private val myModuleNames: AtomicReference[List[String]] = new AtomicReference(Nil)
   private var mySettings = new ScalaCompilerSettings
@@ -16,6 +17,16 @@ class ScalaCompilerSettingsProfile(name: String) {
 
   def initFrom(profile: ScalaCompilerSettingsProfile): Unit = {
     ScalaCompilerConfiguration.incModificationCount()
+    copyFrom(profile)
+  }
+
+  def copy: ScalaCompilerSettingsProfile = {
+    val profile = new ScalaCompilerSettingsProfile(name)
+    profile.copyFrom(this)
+    profile
+  }
+
+  private def copyFrom(profile: ScalaCompilerSettingsProfile): Unit = {
     myName = profile.getName
     mySettings = profile.getSettings
     myModuleNames.set(profile.moduleNames)

@@ -15,19 +15,24 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
 
   private val form = new ScalaCompilerConfigurationPanel(project)
   
-  private val profiles = form.getProfilesPanel
+  private val profilesPanel: ScalaCompilerProfilesPanel = form.getProfilesPanel
 
   override def createComponent(): JPanel = form.getContentPanel
 
   override def isModified: Boolean = {
-    form.getIncrementalityType != configuration.incrementalityType ||
-      profiles.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState ||
-      !profiles.getModuleProfiles.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState)
+    if (form.getIncrementalityType != configuration.incrementalityType)
+      return true
+    if (profilesPanel.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState)
+      return true
+    if (!profilesPanel.getModuleProfiles.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState))
+      return true
+
+    false
   }
 
   override def reset(): Unit = {
     form.setIncrementalityType(configuration.incrementalityType)
-    profiles.initProfiles(configuration.defaultProfile, configuration.customProfiles)
+    profilesPanel.initProfiles(configuration.defaultProfile, configuration.customProfiles)
   }
 
   override def apply(): Unit = {
@@ -37,8 +42,8 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
     }
 
     configuration.incrementalityType = newIncType
-    configuration.defaultProfile = profiles.getDefaultProfile
-    configuration.customProfiles = profiles.getModuleProfiles
+    configuration.defaultProfile = profilesPanel.getDefaultProfile.copy
+    configuration.customProfiles = profilesPanel.getModuleProfiles.map(_.copy)
     DaemonCodeAnalyzer.getInstance(project).restart()
     BuildManager.getInstance().clearState(project)
   }
