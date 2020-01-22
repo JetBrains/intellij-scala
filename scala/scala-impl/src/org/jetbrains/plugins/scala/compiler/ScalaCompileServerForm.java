@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox;
 import com.intellij.openapi.ui.ex.MultiLineLabel;
@@ -15,8 +14,6 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 
 /**
@@ -28,15 +25,15 @@ public class ScalaCompileServerForm implements Configurable {
     private JTextField myCompilationServerMaximumHeapSize;
     private JCheckBox myEnableCompileServer;
     private JPanel myContentPanel;
-    private JdkComboBox myCompilationServerSdk;
+    private final JdkComboBox myCompilationServerSdk;
     private MultiLineLabel myNote;
     private JPanel mySdkPanel;
     private JCheckBox myProjectHomeChb;
     private MultiLineLabel myProjectHomeNote;
     private JCheckBox myShutdownServerCheckBox;
     private JSpinner myShutdownDelay;
-    private ScalaCompileServerSettings mySettings;
-    private ProjectSdksModelWithDefault sdkModel;
+    private final ScalaCompileServerSettings mySettings;
+    private final ProjectSdksModelWithDefault sdkModel;
 
     public static final class SearchFilter {
         public static String USE_COMPILE_SERVER_FOR_SCALA = "use scala compile server";
@@ -45,17 +42,13 @@ public class ScalaCompileServerForm implements Configurable {
     public ScalaCompileServerForm(ScalaCompileServerSettings settings) {
         mySettings = settings;
 
-        myEnableCompileServer.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                updateCompilationServerSettingsPanel();
-            }
-        });
+        myEnableCompileServer.addChangeListener(e -> updateCompilationServerSettingsPanel());
 
         sdkModel = new ProjectSdksModelWithDefault();
         sdkModel.reset(null);
 
-        myCompilationServerSdk = new JdkComboBox(sdkModel);
-        myCompilationServerSdk.insertItemAt(new JdkComboBox.NoneJdkComboBoxItem(), 0);
+        myCompilationServerSdk = new JdkComboBox(null, sdkModel, null, null, null, null);
+        myCompilationServerSdk.showNoneSdkItem();
 
         mySdkPanel.add(myCompilationServerSdk, BorderLayout.CENTER);
 
@@ -81,21 +74,25 @@ public class ScalaCompileServerForm implements Configurable {
         }
     }
 
+    @Override
     @Nls
     public String getDisplayName() {
         return "Scala Compile Server";
     }
 
+    @Override
     @Nullable
     public String getHelpTopic() {
         return null;
     }
 
+    @Override
     @Nullable
     public JComponent createComponent() {
         return myContentPanel;
     }
 
+    @Override
     public boolean isModified() {
         Sdk sdk = myCompilationServerSdk.getSelectedJdk();
         String sdkName = sdk == null ? null : sdk.getName();
@@ -111,7 +108,8 @@ public class ScalaCompileServerForm implements Configurable {
         );
     }
 
-    public void apply() throws ConfigurationException {
+    @Override
+    public void apply() {
         mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
 
         Sdk sdk = myCompilationServerSdk.getSelectedJdk();
@@ -135,6 +133,7 @@ public class ScalaCompileServerForm implements Configurable {
 //    myProject.getComponent(CompileServerManager.class).configureWidget();
     }
 
+    @Override
     public void reset() {
         myEnableCompileServer.setSelected(mySettings.COMPILE_SERVER_ENABLED);
 
@@ -150,6 +149,7 @@ public class ScalaCompileServerForm implements Configurable {
         myProjectHomeChb.setSelected(mySettings.USE_PROJECT_HOME_AS_WORKING_DIR);
     }
 
+    @Override
     public void disposeUIResources() {
     }
 

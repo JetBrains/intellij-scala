@@ -13,14 +13,16 @@ import java.awt.*;
  */
 @SuppressWarnings(value = "unchecked")
 public class ScalaCompilerConfigurationPanel {
-  private final ScalaCompilerProfilesPanel myProfilesPanel;
-  private JComboBox myIncrementalityType;
-  private JPanel myProfilesPanelHolder;
+
   private JPanel myContentPanel;
+
+  private final ScalaCompilerProfilesPanel myProfilesPanel;
+  private JComboBox<IncrementalityType> myIncrementalityType;
+  private JPanel myProfilesPanelHolder;
 
   public ScalaCompilerConfigurationPanel(Project project) {
     myIncrementalityType.setRenderer(new IncrementalityTypeRenderer());
-    myIncrementalityType.setModel(new DefaultComboBoxModel(IncrementalityType.values()));
+    myIncrementalityType.setModel(new DefaultComboBoxModel<>(IncrementalityType.values()));
 
     myProfilesPanel = new ScalaCompilerProfilesPanel(project);
     myProfilesPanelHolder.add(myProfilesPanel, BorderLayout.CENTER);

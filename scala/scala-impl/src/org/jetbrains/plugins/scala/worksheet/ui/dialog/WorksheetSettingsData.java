@@ -4,10 +4,6 @@ import com.intellij.openapi.module.Module;
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType;
 
-/**
- * User: Dmitry.Naydanov
- * Date: 07.02.18.
- */
 class WorksheetSettingsData {
   final boolean isInteractive;
   final boolean isMakeBeforeRun;
@@ -18,8 +14,12 @@ class WorksheetSettingsData {
   
   final ScalaCompilerSettingsProfile[] profiles;
 
-  WorksheetSettingsData(boolean isInteractive, boolean isMakeBeforeRun, WorksheetExternalRunType runType, Module selectedCpModule,
-                        ScalaCompilerSettingsProfile selectedCompilerProfile, ScalaCompilerSettingsProfile[] profiles) {
+  WorksheetSettingsData(boolean isInteractive,
+                        boolean isMakeBeforeRun,
+                        WorksheetExternalRunType runType,
+                        Module selectedCpModule,
+                        ScalaCompilerSettingsProfile selectedCompilerProfile,
+                        ScalaCompilerSettingsProfile[] profiles) {
     this.isInteractive = isInteractive;
     this.isMakeBeforeRun = isMakeBeforeRun;
     this.runType = runType;
