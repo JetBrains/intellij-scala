@@ -9,8 +9,6 @@ import javax.swing.JPanel
 import org.jetbrains.plugins.scala.project.AbstractConfigurable
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.collection.JavaConverters._
-
 class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerConfiguration)
   extends AbstractConfigurable(ScalaCompilerConfigurable.Name)
     with Composite {
@@ -24,12 +22,12 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
   override def isModified: Boolean = {
     form.getIncrementalityType != configuration.incrementalityType ||
       profiles.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState ||
-      !profiles.getModuleProfiles.asScala.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState)
+      !profiles.getModuleProfiles.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState)
   }
 
   override def reset(): Unit = {
     form.setIncrementalityType(configuration.incrementalityType)
-    profiles.initProfiles(configuration.defaultProfile, configuration.customProfiles.asJava)
+    profiles.initProfiles(configuration.defaultProfile, configuration.customProfiles)
   }
 
   override def apply(): Unit = {
@@ -40,7 +38,7 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
 
     configuration.incrementalityType = newIncType
     configuration.defaultProfile = profiles.getDefaultProfile
-    configuration.customProfiles = profiles.getModuleProfiles.asScala
+    configuration.customProfiles = profiles.getModuleProfiles
     DaemonCodeAnalyzer.getInstance(project).restart()
     BuildManager.getInstance().clearState(project)
   }

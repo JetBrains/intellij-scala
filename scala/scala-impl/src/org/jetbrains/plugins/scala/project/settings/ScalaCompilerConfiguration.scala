@@ -30,7 +30,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
   def getSettingsForModule(module: Module): ScalaCompilerSettings = {
-    val profile = customProfiles.find(_.getModuleNames.contains(module.getName)).getOrElse(defaultProfile)
+    val profile = customProfiles.find(_.moduleNames.contains(module.getName)).getOrElse(defaultProfile)
     profile.getSettings
   }
 
@@ -54,7 +54,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   def configureSettingsForModule(module: Module, source: String, options: Seq[String]) {
     customProfiles.foreach { profile =>
       profile.removeModuleName(module.getName)
-      if (profile.getName.startsWith(source) && profile.getModuleNames.isEmpty) {
+      if (profile.getName.startsWith(source) && profile.moduleNames.isEmpty) {
         customProfiles = customProfiles.filterNot(_ == profile)
       }
     }

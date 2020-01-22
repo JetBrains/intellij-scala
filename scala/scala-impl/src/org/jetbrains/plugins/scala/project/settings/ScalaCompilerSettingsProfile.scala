@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.project.settings
 
-import java.util
 import java.util.concurrent.atomic.AtomicReference
-
-import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -25,8 +22,6 @@ class ScalaCompilerSettingsProfile(name: String) {
   }
 
   def moduleNames: List[String] = myModuleNames.get()
-
-  def getModuleNames: util.List[String] = moduleNames.asJava
 
   def addModuleName(name: String): Unit = {
     ScalaCompilerConfiguration.incModificationCount()

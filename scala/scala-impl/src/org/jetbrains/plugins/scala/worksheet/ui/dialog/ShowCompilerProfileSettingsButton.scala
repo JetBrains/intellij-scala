@@ -29,11 +29,9 @@ class ShowCompilerProfileSettingsButton(form: WorksheetSettingsSetForm)
     new ActionButton(this, getTemplatePresentation, ActionPlaces.UNKNOWN, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE)
 
   private def showScalaCompilerSettingsDialog(project: Project, selectedProfile: String): Boolean = {
-    val key = ScalaCompilerProfilesPanel.SELECTED_PROFILE_NAME
-    try {
-      project.putUserData(key, selectedProfile)
+    ScalaCompilerProfilesPanel.withTemporarySelectedProfile(project, selectedProfile) {
       val dialog: Option[DialogWrapper] = {
-        val groups       = ShowSettingsUtilImpl.getConfigurableGroups(project, true)
+        val groups = ShowSettingsUtilImpl.getConfigurableGroups(project, true)
         val compilerConf = SearchUtil.expand(groups).asScala.find(_.getDisplayName == ScalaCompilerConfigurable.Name)
         compilerConf.map { conf => ShowSettingsUtilImpl.getDialog(project, groups.toList.asJava, conf) }
       }
@@ -41,8 +39,6 @@ class ShowCompilerProfileSettingsButton(form: WorksheetSettingsSetForm)
         case Some(value) => value.showAndGet()
         case None        => false
       }
-    } finally {
-      project.putUserData(key, null)
     }
   }
 
