@@ -27,7 +27,7 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
         val description = inspectionWrapper.loadDescription()
         description == null ||
           description.length <= 5
-      }.sortBy(_.shortName)
+      }.sortBy(_.getShortName)
         .map(insp => s"${insp.getShortName} (${insp.getDisplayName})")
 
     assert(inspectionsWithoutProperDescription.isEmpty,
@@ -35,8 +35,8 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
   }
 
   def test_all_shortNames_are_unique(): Unit = {
-    val allShortNames = acquireAllInspectionEPs().map(_.shortName).groupBy(identity).mapValues(_.length)
-    val scalaShortNames = acquireAllScalaInspectionEPs().map(_.shortName)
+    val allShortNames = acquireAllInspectionEPs().map(_.getShortName).groupBy(identity).mapValues(_.length)
+    val scalaShortNames = acquireAllScalaInspectionEPs().map(_.getShortName)
 
     scalaShortNames.foreach { scalaShortName =>
       assert(allShortNames(scalaShortName) == 1, s"shortName $scalaShortName exists multiple times!")
