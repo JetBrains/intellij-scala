@@ -364,7 +364,9 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   // Plain block expression
 
-  // Should it be similar to function single-line literals? There's also the {} case.
+  // While this differs from function literals, an outer type asciption is not longer than inner one
+  // (as in the case of function literals), yet it doesn't interfere with potential editing
+  // (in contrast to an inner one). Besides, there's the {} case.
   def testTypeMismatchSingleLineBlockExpression(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int = { \"foo\" }"))(Hint("}", ": String"),
       Error("}", "Expression of type String doesn't conform to expected type Int"))
