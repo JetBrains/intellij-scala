@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsScheme}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.util.ui.StartupUiUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
@@ -19,6 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 object TypeMismatchHints {
+  private val ElementsPreceededByWhitespace = TokenSet.create(
+    ScalaTokenTypes.kELSE, ScalaTokenTypes.kMACRO, ScalaTokenTypes.kCATCH, ScalaTokenTypes.tRBRACE)
+
   private[annotator] def createFor(element: PsiElement, expectedType: ScType, actualType: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): AnnotatorHints = {
     val format = element match {
       case Parent(infix: ScInfixExpr) if infix.isRightAssoc && infix.argsElement == element => OuterParentheses
@@ -41,22 +45,13 @@ object TypeMismatchHints {
 
     val margin = if (format == InnerParentheses) None else Hint.leftInsetLikeChar(' ')
 
-    def isWhitespaceRequiredBeforeNextElement = {
-      def isWhitespaceRequiredAfter(e: PsiElement) = e.nextSiblings
-        .dropWhile(e => e.is[PsiWhiteSpace] && !e.getText.contains("\n"))
+    def isWhitespaceRequiredBeforeNextElement =
+      Option(element.getContainingFile)
+        .flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
+        .fold(Iterator.empty: Iterator[PsiElement])(_.withNextSiblings)
+        .dropWhile(e => e.is[PsiWhiteSpace] && !e.textContains('\n'))
         .headOption
-        .map(_.getNode.getElementType)
-        .exists(elementType =>
-          elementType == ScalaTokenTypes.kELSE ||
-          elementType == ScalaTokenTypes.kMATCH ||
-          elementType == ScalaTokenTypes.kCATCH ||
-          elementType == ScalaTokenTypes.tRBRACE)
-
-      isWhitespaceRequiredAfter(element) || (element match {
-        case Parent(parent) if parent.getLastChild == element => isWhitespaceRequiredAfter(parent)
-        case _ => false
-      })
-    }
+        .exists(e => ElementsPreceededByWhitespace.contains(e.getNode.getElementType))
 
     val offsetDelta =
       if (format == OuterParentheses) 0
