@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.Whitespace
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, Whitespace}
 
 object IndentUtil {
   private def calcIndent(text: CharSequence, offset: Int, tabSize: Int): Int = {
@@ -33,15 +31,13 @@ object IndentUtil {
     calcIndent(text, idx + 1, tabSize)
   }
 
-  def calcIndent(element: PsiElement, tabSize: Int): Int = {
-    PsiTreeUtil.prevLeaf(element) match {
+  def calcIndent(element: PsiElement, tabSize: Int): Int =
+    element.getPrevNonEmptyLeaf match {
       case Whitespace(ws) => calcLastLineIndent(ws, tabSize)
       case _ => 0
     }
-  }
 
   @inline
-  def compare(first: PsiElement, second: PsiElement, tabSize: Int): Int = {
+  def compare(first: PsiElement, second: PsiElement, tabSize: Int): Int =
     calcIndent(first, tabSize) - calcIndent(second, tabSize)
-  }
 }

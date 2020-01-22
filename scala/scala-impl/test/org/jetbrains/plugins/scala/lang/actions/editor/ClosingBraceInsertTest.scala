@@ -619,6 +619,22 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
     doTest(before, after)
   }
 
+  def testNotInsert_IfElse_NonIndented_WithAssigment(): Unit =
+    doTest(
+      s"""class A {
+         |  val x = if (false) {
+         |    42
+         |  } else $CARET
+         |  42
+         |}""".stripMargin,
+      s"""class A {
+         |  val x = if (false) {
+         |    42
+         |  } else {$CARET}
+         |  42
+         |}""".stripMargin
+    )
+
   def testWrapInsert_TryBlock(): Unit = {
     val before =
       s"""try $CARET
@@ -1014,5 +1030,4 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
       settings.WRAP_SINGLE_EXPRESSION_BODY = settingBefore
     }
   }
-
 }

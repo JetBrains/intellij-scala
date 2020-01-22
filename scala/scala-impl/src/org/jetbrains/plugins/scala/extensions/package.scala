@@ -651,7 +651,7 @@ package object extensions {
           else inner(PsiTreeUtil.prevLeaf(el))
         case _: PsiComment if ignoreComments =>
           inner(PsiTreeUtil.prevLeaf(el))
-        case _ if el.getTextRange.isEmpty => // empty annotations, modifiers, etc...
+        case _ if el.getTextLength == 0 => // empty annotations, modifiers, etc...
           inner(PsiTreeUtil.prevLeaf(el))
         case _ => false
       }
@@ -707,6 +707,15 @@ package object extensions {
         next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || next.isInstanceOf[PsiComment]))
         next = next.getNextSibling
       next
+    }
+
+    /** skips empty annotations, modifiers, etc.. */
+    def getPrevNonEmptyLeaf: PsiElement = {
+      var prev = PsiTreeUtil.prevLeaf(element)
+      while (prev != null && prev.getTextLength == 0) {
+        prev = PsiTreeUtil.prevLeaf(prev)
+      }
+      prev
     }
 
     def resolveScope: GlobalSearchScope =
