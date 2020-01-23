@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBList;
@@ -19,11 +18,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-/**
- * @author Alefas
- * @since 21/05/14.
- */
-@SuppressWarnings(value = "unchecked")
 public final class ImportsPanel extends ScalaCodeStylePanelBase {
 
     private JPanel contentPanel;
@@ -39,19 +33,16 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     private JPanel importLayoutPanel;
     private JCheckBox doNotChangePathCheckBox;
     private JPanel myAlwaysUsedImportsPanel;
-    private JBList referencesWithPrefixList;
-    private DefaultListModel myReferencesWithPrefixModel;
-    private JBList alwaysUsedImportsList;
-    private DefaultListModel alwaysUsedImportsModel;
-    private JBList importLayoutTable;
-    private DefaultListModel myImportLayoutModel;
+    private final DefaultListModel<String> myReferencesWithPrefixModel;
+    private final DefaultListModel<String> alwaysUsedImportsModel;
+    private final DefaultListModel<String> myImportLayoutModel;
 
     public ImportsPanel(@NotNull CodeStyleSettings settings) {
         super(settings, "Imports");
         classCountSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
 
-        referencesWithPrefixList = new JBList();
-        myReferencesWithPrefixModel = new DefaultListModel();
+        JBList<String> referencesWithPrefixList = new JBList<>();
+        myReferencesWithPrefixModel = new DefaultListModel<>();
         referencesWithPrefixList.setModel(myReferencesWithPrefixModel);
         JPanel panel = ScalaProjectSettingsUtil.getPatternListPanel(contentPanel,
                 new JListCompatibility.JListContainer(referencesWithPrefixList),
@@ -59,14 +50,14 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         myImportsWithPrefixPanel.add(panel, BorderLayout.CENTER);
         referencesWithPrefixList.getEmptyText().setText("No imports with prefix");
 
-        myImportLayoutModel = new DefaultListModel();
-        importLayoutTable = new JBList(myImportLayoutModel);
+        myImportLayoutModel = new DefaultListModel<>();
+        JBList<String> importLayoutTable = new JBList<>(myImportLayoutModel);
         panel = ScalaProjectSettingsUtil.getUnsortedPatternListPanel(contentPanel,
                 new JListCompatibility.JListContainer(importLayoutTable), "Add package name", "Import Layout Manager");
         importLayoutPanel.add(panel, BorderLayout.CENTER);
 
-        alwaysUsedImportsList = new JBList();
-        alwaysUsedImportsModel = new DefaultListModel();
+        JBList<String> alwaysUsedImportsList = new JBList<>();
+        alwaysUsedImportsModel = new DefaultListModel<>();
         alwaysUsedImportsList.setModel(alwaysUsedImportsModel);
         panel = ScalaProjectSettingsUtil.getPatternListPanel(contentPanel,
                 new JListCompatibility.JListContainer(alwaysUsedImportsList),
@@ -81,7 +72,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     public String[] getPrefixPackages() {
         String[] prefixPackages = new String[myReferencesWithPrefixModel.size()];
         for (int i = 0; i < myReferencesWithPrefixModel.size(); i++) {
-            prefixPackages[i] = (String) myReferencesWithPrefixModel.elementAt(i);
+            prefixPackages[i] = myReferencesWithPrefixModel.elementAt(i);
         }
         Arrays.sort(prefixPackages);
         return prefixPackages;
@@ -90,7 +81,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     public String[] getAlwaysUsedImports() {
         String[] alwaysUsedImports = new String[alwaysUsedImportsModel.size()];
         for (int i = 0; i < alwaysUsedImportsModel.size(); i++) {
-            alwaysUsedImports[i] = (String) alwaysUsedImportsModel.elementAt(i);
+            alwaysUsedImports[i] = alwaysUsedImportsModel.elementAt(i);
         }
         Arrays.sort(alwaysUsedImports);
         return alwaysUsedImports;
@@ -99,13 +90,13 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     public String[] getImportLayout() {
         String[] importLayout = new String[myImportLayoutModel.size()];
         for (int i = 0; i < myImportLayoutModel.size(); i++) {
-            importLayout[i] = (String) myImportLayoutModel.elementAt(i);
+            importLayout[i] = myImportLayoutModel.elementAt(i);
         }
         return importLayout;
     }
 
     @Override
-    public void apply(CodeStyleSettings settings) throws ConfigurationException {
+    public void apply(CodeStyleSettings settings) {
         if (!isModified(settings)) return;
 
         ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
@@ -145,8 +136,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
                 sortScalastyleRb.isSelected()) return true;
         if (!Arrays.deepEquals(scalaCodeStyleSettings.getImportsWithPrefix(), getPrefixPackages())) return true;
         if (!Arrays.deepEquals(scalaCodeStyleSettings.getAlwaysUsedImports(), getAlwaysUsedImports())) return true;
-        if (!Arrays.deepEquals(scalaCodeStyleSettings.getImportLayout(), getImportLayout())) return true;
-        return false;
+        return !Arrays.deepEquals(scalaCodeStyleSettings.getImportLayout(), getImportLayout());
     }
 
     @Nullable
