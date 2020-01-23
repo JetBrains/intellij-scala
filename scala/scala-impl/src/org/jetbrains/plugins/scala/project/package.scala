@@ -55,7 +55,7 @@ package object project {
 
     private def name: Option[String] = Option(library.getName)
 
-    def classpathUrls: Set[URL] =
+    def jarUrls: Set[URL] =
       library
         .getFiles(OrderRootType.CLASSES)
         .map(_.getPath)

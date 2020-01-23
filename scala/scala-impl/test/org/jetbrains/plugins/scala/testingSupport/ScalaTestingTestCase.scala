@@ -172,7 +172,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     var testTreeRoot: Option[AbstractTestProxy] = None
     EdtTestUtil.runInEdtAndWait(() => {
       if (needMake) {
-        make()
+        compiler.rebuild().assertNoErrors()
         saveChecksums()
       }
       val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {

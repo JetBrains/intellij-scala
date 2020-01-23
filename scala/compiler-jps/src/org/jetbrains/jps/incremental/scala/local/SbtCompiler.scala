@@ -98,7 +98,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
         intellijClassfileManager.generatedDuringCompilation().flatten.foreach(processGeneratedFile)
 
         if (cacheDetails.isCached)
-          previousAnalysis.asInstanceOf[Analysis].stamps.allProducts.foreach(processGeneratedFile)
+          previousAnalysis.stamps.allProducts.foreach(processGeneratedFile)
       }
       result
     }

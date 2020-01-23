@@ -72,14 +72,6 @@ abstract class AbstractCompiler extends Compiler {
         !client.isCanceled
       } else true
     }
-
-    def generated(source: File, module: File, name: String): Unit = {
-      client.generated(source, module, name)
-    }
-
-    def deleted(module: File) {
-      client.deleted(module)
-    }
   }
 
   private class ClientReporter(client: Client) extends Reporter {

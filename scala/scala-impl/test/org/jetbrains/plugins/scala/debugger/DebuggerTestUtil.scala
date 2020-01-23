@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger
 
+import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, Sdk}
 import com.intellij.openapi.application.ex.ApplicationEx
@@ -21,12 +22,9 @@ object DebuggerTestUtil {
     compileServerSettings.COMPILE_SERVER_ENABLED = enable
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_IDLE = true
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
-    val application = ApplicationManager.getApplication
-    application match {
-      case applicationEx: ApplicationEx => applicationEx.setSaveAllowed(true)
-      case _ =>
-    }
-    application.saveSettings()
+    val applicationEx = ApplicationManagerEx.getApplicationEx
+    applicationEx.setSaveAllowed(true)
+    applicationEx.saveSettings()
   }
 
   def forceLanguageLevelForBuildProcess(jdk: Sdk): Unit =

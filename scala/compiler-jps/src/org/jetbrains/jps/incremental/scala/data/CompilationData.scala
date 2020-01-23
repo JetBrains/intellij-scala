@@ -115,9 +115,12 @@ abstract class BaseCompilationData extends CompilationDataFactory {
   }
 
   def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Array[String] = {
-    val bootCpArgs = CompilerData.bootCpArgs(chunk.getModules.asScala.toSet)
-    val scalaOptions = bootCpArgs ++: compilerSettings.getCompilerOptions
-    scalaOptions
+    val modules = chunk.getModules.asScala.toSet
+    val hasDotty = CompilerData.hasDotty(modules)
+
+    val bootCpArgs = CompilerData.bootCpArgs(modules)
+    val otherArgs = compilerSettings.getCompilerOptions.filterNot(_.startsWith("-g:") && hasDotty)
+    bootCpArgs ++: otherArgs
   }
 
   def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
