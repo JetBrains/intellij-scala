@@ -32,19 +32,25 @@ final class ScalaElementFeatureProvider extends ElementFeatureProvider {
       Position.set(location, position)
     }
 
+    val keyword = element.getObject match {
+      case string: String if isKeyword(string) => string
+      case _ => null
+    }
+
     val psiElement = element.getPsiElement
     val lookupString = element.getLookupString
 
-    val kind = MLFeatureValue.categorical {
-      element.getObject match {
-        case psiElement: PsiElement => elementKind(psiElement)
-        case string: String if isKeyword(string) => CompletionItem.KEYWORD
-        case _ => CompletionItem.UNKNOWN
-      }
-    }
+    val kind = if (keyword == null)
+      if (psiElement == null)
+        CompletionItem.UNKNOWN
+      else
+        elementKind(psiElement)
+    else
+      CompletionItem.KEYWORD
 
     val features = new util.HashMap[String, MLFeatureValue](Context.getValue(location))
-    features.put("kind", kind)
+    features.put("kind", MLFeatureValue.categorical(kind))
+    features.put("keyword", MLFeatureValue.categorical(KeywordsByName(keyword)))
 
     def putBinary(kind: String, value: Boolean): Unit =
       features.put(kind, MLFeatureValue.binary(value))
@@ -60,13 +66,18 @@ final class ScalaElementFeatureProvider extends ElementFeatureProvider {
       if (expectedTypeWords.isEmpty && expectedNameWords.isEmpty) {
         (EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY)
       } else {
-        val maybeTypeWords = element match {
+        val typeWords = element match {
           case ScalaLookupItem(item, psiElement) =>
-            computeType(psiElement, item.substitutor).map(extractWords)
-          case _ => None
+            computeType(psiElement, item.substitutor).fold(EMPTY_STRING_ARRAY)(extractWords)
+          case _ =>
+            keyword match {
+              case ScalaKeyword.TRUE |
+                   ScalaKeyword.FALSE => Array("boolean")
+              case _ => EMPTY_STRING_ARRAY
+            }
         }
 
-        (maybeTypeWords.getOrElse(EMPTY_STRING_ARRAY), extractWords(lookupString))
+        (typeWords, extractWords(lookupString))
       }
 
     def putFloat(kind: String, value: Double): Unit =

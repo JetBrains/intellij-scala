@@ -16,7 +16,6 @@ import scala.collection.mutable
 
 class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import CompletionItem._
   import MLFeatureValue._
 
   def testPostfix(): Unit = {
@@ -100,6 +99,13 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
          |""".stripMargin
     )
 
+    assertContext("type_expected", binary(true))(
+      s"""object X {
+        |  def f(): $CARET
+        |}
+        |""".stripMargin
+    )
+
     assertContext("type_expected", binary(false))(
       s"""object X {
          |  $CARET
@@ -139,6 +145,7 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   }
 
   def testKind(): Unit = {
+    import CompletionItem._
 
     assertElement("kind", "type", categorical(KEYWORD))(
       s"""object X {
@@ -217,6 +224,103 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
          |  $CARET
          |}
          |""".stripMargin
+    )
+  }
+
+  def testKeyword(): Unit = {
+    import Keyword._
+
+    assertElement("keyword", "import", categorical(IMPORT))(
+      s"""$CARET
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "import", categorical(IMPORT))(
+      s"""object X {
+        |  $CARET
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "val", categorical(VAL))(
+      s"""object X {
+        |  $CARET
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "var", categorical(VAR))(
+      s"""object X {
+        |  $CARET
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "class", categorical(CLASS))(
+      s"""object X {
+        |  $CARET
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "if", categorical(IF))(
+      s"""object X {
+        |  $CARET
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "if", categorical(IF))(
+      s"""object X {
+        |  if (true) {
+        |  }
+        |  else $CARET
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "else", categorical(ELSE))(
+      s"""object X {
+        |  if (true) {
+        |  }
+        |  $CARET
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "yield", categorical(YIELD))(
+      s"""object X {
+        |  for {
+        |    _ <- List.empty
+        |  }
+        |  $CARET
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "else", categorical(ELSE))(
+      s"""object X {
+        |  if (true) {
+        |  }
+        |  $CARET
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "try", categorical(TRY))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("keyword", "catch", categorical(CATCH))(
+      s"""object X {
+        |  try {
+        |  }
+        |  $CARET
+        |}
+        |""".stripMargin
     )
   }
 
@@ -514,6 +618,14 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
          |}
          |""".stripMargin
     )
+
+    assertElement("type_type_sim", "true", float(1.0))(
+      s"""object X {
+        |  def f(x: Boolean): Unit = ???
+        |  f($CARET)
+        |}
+        |""".stripMargin
+    )
   }
 
   private def assertContext(name: String, expected: MLFeatureValue)(fileText: String): Unit = {
@@ -533,7 +645,7 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
 
       val elements = mutable.Map.empty[String, util.Map[String, MLFeatureValue]]
 
-      override def getName: String = ScalaLowerCase
+      override def getName: String = original.getName
 
       override def calculateFeatures(element: LookupElement, location: CompletionLocation, contextFeatures: ContextFeatures): util.Map[String, MLFeatureValue] = {
         val result = original.calculateFeatures(element, location, contextFeatures)

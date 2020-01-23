@@ -84,6 +84,10 @@ package object ml {
     )
   }
 
+  private[ml] val KeywordsByName = KeywordsByElementType.map {
+    case (elementType, keyword) => elementType.toString -> keyword
+  }.withDefaultValue(Keyword.UNKNOWN)
+
   private[ml] val Position = NotNullLazyKey.create[PsiElement, CompletionEnvironment]("scala.feature.element.position", environment => {
     positionFromParameters(environment.getParameters)
   })
