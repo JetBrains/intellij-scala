@@ -63,6 +63,7 @@ object ScalaKeywordLookupItem {
         }
 
         val targetRange = TextRange.from(context.getStartOffset, keyword.length)
+        val caretModel = editor.getCaretModel
 
         for {
           addCompletionChar <- maybeAddCompletionChar
@@ -75,11 +76,23 @@ object ScalaKeywordLookupItem {
             document.getImmutableCharSequence.charAt(endOffset) == ' ')) {
             document.insertString(endOffset, " ")
           }
-          editor.getCaretModel.moveToOffset(endOffset + 1)
+          caretModel.moveToOffset(endOffset + 1)
         }
 
-        if (keyword == CASE) {
-          adjustLineIndent(targetRange)
+        keyword match {
+          case CASE =>
+            adjustLineIndent(targetRange)
+          case MATCH =>
+            val caretOffset = caretModel.getOffset
+
+            val text = s"{\n$CASE\n}"
+            document.insertString(caretOffset, text)
+            adjustLineIndent(TextRange.from(caretOffset, text.length))
+
+            val endOffset = document.getLineEndOffset(document.getLineNumber(caretOffset) + 1)
+            document.insertString(endOffset, " ")
+            caretModel.moveToOffset(endOffset + 1)
+          case _ =>
         }
     }
   }
