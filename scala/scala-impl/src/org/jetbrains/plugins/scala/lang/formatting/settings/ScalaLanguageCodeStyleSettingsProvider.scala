@@ -28,7 +28,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   override def createConfigurable(baseSettings: CodeStyleSettings, modelSettings: CodeStyleSettings): CodeStyleConfigurable =
     new ScalaCodeStyleAbstractConfigurable(baseSettings, modelSettings)
 
-  override def getConfigurableDisplayName: String = ScalaBundle.message("title.scala.settings")
+  override def getConfigurableDisplayName: String = ScalaBundle.message("code.style.settings.scala.title")
 
   override def getDisplayPriority = DisplayPriority.COMMON_SETTINGS
 
