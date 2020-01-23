@@ -239,6 +239,8 @@
                  id="ScopeWeigher" order="after scalaKindWeigher, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaExplicitlyImportedWeigher"
                  id="scalaExplicitlyImportedWeigher" order="before explicitlyImported"/>
+        <completion.ml.contextFeatures language="Scala"
+                                       implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaContextFeatureProvider"/>
         <completion.ml.elementFeatures language="Scala"
                                        implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider"/>
         <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
