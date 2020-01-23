@@ -168,4 +168,24 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "while",
     char = '('
   )
+
+  def testMatch(): Unit = doCompletionTest(
+    fileText =
+      s"42 m$CARET",
+    resultText =
+      s"""42 match {
+         |  case $CARET
+         |}""".stripMargin,
+    item = "match"
+  )
+
+  def testInfixMatch(): Unit = doCompletionTest(
+    fileText =
+      s"42 m$CARET ",
+    resultText =
+      s"""42 match {
+         |  case $CARET
+         |}""".stripMargin,
+    item = "match"
+  )
 }
