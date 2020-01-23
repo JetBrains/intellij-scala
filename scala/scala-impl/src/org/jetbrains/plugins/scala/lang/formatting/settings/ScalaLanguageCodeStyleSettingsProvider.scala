@@ -8,6 +8,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.OptionAnchor
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.psi.codeStyle._
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider._
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
@@ -217,7 +218,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
     consumer.showStandardOptions(buffer.toArray: _*)
 
-    def opt(fieldName: String, title: String, groupName: String,
+    def opt(@NonNls fieldName: String, title: String, groupName: String,
             keysAndValues: (Array[String], Array[Int]) = null): Unit = {
       val options = if (keysAndValues != null) Array(keysAndValues._1, keysAndValues._2) else Array()
       consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, options: _*)
@@ -230,15 +231,15 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, anchor, anchorField, options: _*)
     }
 
-    import ApplicationBundle.message
+    import ApplicationBundle.{message => appMessage}
     import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable => GroupNames}
 
     //Custom options
     if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
-      opt("ALIGN_EXTENDS_WITH", message("wrapping.align.when.multiline"), message("wrapping.extends.implements.list"),
+      opt("ALIGN_EXTENDS_WITH", appMessage("wrapping.align.when.multiline"), appMessage("wrapping.extends.implements.list"),
         (ScalaCodeStyleSettings.EXTENDS_ALIGN_STRING, ScalaCodeStyleSettings.EXTENDS_ALIGN_VALUES))
-      opt("WRAP_BEFORE_WITH_KEYWORD", "Wrap before 'with' keyword", message("wrapping.extends.implements.list"))
-      opt("ALIGN_IF_ELSE", "Align if-else statements", message("wrapping.if.statement"))
+      opt("WRAP_BEFORE_WITH_KEYWORD", "Wrap before 'with' keyword", appMessage("wrapping.extends.implements.list"))
+      opt("ALIGN_IF_ELSE", "Align if-else statements", appMessage("wrapping.if.statement"))
       opt("METHOD_BRACE_FORCE", "Force braces", METHOD_DEFINITION, BRACE_OPTION_AND_VALUES)
       opt("TRY_BRACE_FORCE", "Force 'try' braces", GroupNames.WRAPPING_TRY_STATEMENT, BRACE_OPTION_AND_VALUES)
       opt("FINALLY_BRACE_FORCE", "Force 'finally' braces", GroupNames.WRAPPING_TRY_STATEMENT, BRACE_OPTION_AND_VALUES)
@@ -263,7 +264,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
       opt("INDENT_BRACED_FUNCTION_ARGS", "Indent braced arguments", GroupNames.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
       opt("DO_NOT_ALIGN_BLOCK_EXPR_PARAMS", "Do not align block expression parameters", GroupNames.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
-      opta("CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN", message("wrapping.new.line.after.lpar"), GroupNames.WRAPPING_METHOD_ARGUMENTS_WRAPPING,
+      opta("CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN", appMessage("wrapping.new.line.after.lpar"), GroupNames.WRAPPING_METHOD_ARGUMENTS_WRAPPING,
         OptionAnchor.BEFORE, "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE",
         (Array("No new line", "New line always", "New line for multiple arguments"),
           Array(ScalaCodeStyleSettings.NO_NEW_LINE, ScalaCodeStyleSettings.NEW_LINE_ALWAYS, ScalaCodeStyleSettings.NEW_LINE_FOR_MULTIPLE_ARGUMENTS))
@@ -309,19 +310,19 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
 
     if (settingsType == SettingsType.LANGUAGE_SPECIFIC) {
-      opt("SD_ALIGN_PARAMETERS_COMMENTS", "Align parameter descriptions", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
-      opt("SD_ALIGN_EXCEPTION_COMMENTS", "Align throws exception descriptions", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
-      opt("SD_ALIGN_RETURN_COMMENTS", "Align return value description", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
-      opt("SD_ALIGN_OTHER_TAGS_COMMENTS", "Align other tags descriptions", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
+      opt("SD_ALIGN_PARAMETERS_COMMENTS", ScalaBundle.message("scaladoc.panel.align.parameter.descriptions"), ScalaDocFormattingPanel.ALIGNMENT_GROUP)
+      opt("SD_ALIGN_EXCEPTION_COMMENTS", ScalaBundle.message("scaladoc.panel.align.throws.exception.descriptions"), ScalaDocFormattingPanel.ALIGNMENT_GROUP)
+      opt("SD_ALIGN_RETURN_COMMENTS", ScalaBundle.message("scaladoc.panel.align.return.value.description"), ScalaDocFormattingPanel.ALIGNMENT_GROUP)
+      opt("SD_ALIGN_OTHER_TAGS_COMMENTS", ScalaBundle.message("scaladoc.panel.align.other.tags.descriptions"), ScalaDocFormattingPanel.ALIGNMENT_GROUP)
 
-      opt("SD_KEEP_BLANK_LINES_BETWEEN_TAGS", "Keep (blank lines between tags will not be removed)", ScalaDocFormattingPanel.BLANK_LINES_GROUP)
-      opt("SD_BLANK_LINE_BEFORE_TAGS", message("checkbox.after.description"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
-      opt("SD_BLANK_LINE_AFTER_PARAMETERS_COMMENTS", message("checkbox.after.parameter.descriptions"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
-      opt("SD_BLANK_LINE_AFTER_RETURN_COMMENTS", message("checkbox.after.return.tag"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
-      opt("SD_BLANK_LINE_BETWEEN_PARAMETERS", "Between parameter descriptions", ScalaDocFormattingPanel.BLANK_LINES_GROUP)
-      opt("SD_BLANK_LINE_BEFORE_PARAMETERS", "Before parameter descriptions", ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      opt("SD_KEEP_BLANK_LINES_BETWEEN_TAGS", ScalaBundle.message("scaladoc.panel.blank.lines.keep"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      opt("SD_BLANK_LINE_BEFORE_TAGS", appMessage("checkbox.after.description"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      opt("SD_BLANK_LINE_AFTER_PARAMETERS_COMMENTS", appMessage("checkbox.after.parameter.descriptions"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      opt("SD_BLANK_LINE_AFTER_RETURN_COMMENTS", appMessage("checkbox.after.return.tag"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      opt("SD_BLANK_LINE_BETWEEN_PARAMETERS", ScalaBundle.message("scaladoc.panel.between.parameter.descriptions"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      opt("SD_BLANK_LINE_BEFORE_PARAMETERS", ScalaBundle.message("scaladoc.panel.before.parameter.descriptions"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
 
-      opt("SD_PRESERVE_SPACES_IN_TAGS", "Preserve spaces in tags", ScalaDocFormattingPanel.OTHER_GROUP)
+      opt("SD_PRESERVE_SPACES_IN_TAGS", ScalaBundle.message("scaladoc.panel.preserve.spaces.in.tags"), ScalaDocFormattingPanel.OTHER_GROUP)
     }
   }
 }
@@ -355,7 +356,9 @@ object ScalaLanguageCodeStyleSettingsProvider {
     CodeStyleSettingsCustomizable.BRACE_VALUES
   )
 
-  private val IndentsCodeSample =
+  private def example(@NonNls str: String): String = str.stripMargin.withNormalizedSeparator
+
+  private val IndentsCodeSample = example {
     """class A {
       |  def foo[A](x: Int,
       |             y: Int): Int = 42
@@ -368,11 +371,12 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |    .bar()
       |    .bar()
       |}
-    """.stripMargin.withNormalizedSeparator
+    """
+  }
 
   private val GeneralCodeSample = IndentsCodeSample
 
-  private val SpacingCodeSample: String =
+  private val SpacingCodeSample: String = example {
     """import scala.collection.immutable.{Seq, List} // one line comment 1
       |
       |class A {
@@ -460,9 +464,10 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |  trait X5[F[_] : T1 : T2]
       |  trait X6[F <: G : T1 : T2]
       |}
-    """.stripMargin.withNormalizedSeparator
+    """
+  }
 
-  private val WrappingAndBracesSample =
+  private val WrappingAndBracesSample =example {
     """private final class A {
       |  def foo1 = 42
       |
@@ -658,9 +663,10 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |    case _ =>
       |  }
       |}
-      |""".stripMargin.withNormalizedSeparator
+      |"""
+  }
 
-  private val BlankLinesCodeSample =
+  private val BlankLinesCodeSample = example {
     """//comment
       |package A
       |
@@ -703,5 +709,6 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |    42
       |  }
       |}
-      |""".stripMargin.withNormalizedSeparator
+      |"""
+  }
 }
