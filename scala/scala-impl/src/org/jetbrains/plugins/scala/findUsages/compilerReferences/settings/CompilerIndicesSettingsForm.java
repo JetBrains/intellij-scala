@@ -187,7 +187,7 @@ public class CompilerIndicesSettingsForm {
         compilationListenerPanel.setLayout(new GridLayoutManager(2, 1, new Insets(6, 0, 0, 0), -1, -1));
         mainPanel.add(compilationListenerPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final TitledSeparator titledSeparator1 = new TitledSeparator();
-        titledSeparator1.setText("sbt compilation listener configuration (application-wide)");
+        titledSeparator1.setText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("sbt.compilation.listener"));
         compilationListenerPanel.add(titledSeparator1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
@@ -204,7 +204,7 @@ public class CompilerIndicesSettingsForm {
         manualConfigPanel.setEnabled(true);
         panel2.add(manualConfigPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 2, false));
         final JLabel label1 = new JLabel();
-        label1.setText("Port number:");
+        this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("port.number"));
         manualConfigPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         portSelector = new PortField();
         portSelector.setNumber(65337);
@@ -219,7 +219,7 @@ public class CompilerIndicesSettingsForm {
         panel3.add(pluginSettignsTextArea, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, 1, null, new Dimension(150, 25), null, 0, false));
         final JBLabel jBLabel1 = new JBLabel();
         jBLabel1.setComponentStyle(UIUtil.ComponentStyle.SMALL);
-        jBLabel1.setText("<html>Add the following line to <span style=\"font-family:monospace\">project/plugins.sbt</span>:</html>");
+        this.$$$loadLabelText$$$(jBLabel1, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("add.line.to.plugins.sbt"));
         panel3.add(jBLabel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new GridLayoutManager(2, 1, new Insets(3, 0, 0, 0), -1, -1));
@@ -233,7 +233,7 @@ public class CompilerIndicesSettingsForm {
         jBLabel2.setComponentStyle(UIUtil.ComponentStyle.SMALL);
         jBLabel2.setEnabled(true);
         jBLabel2.setFontColor(UIUtil.FontColor.NORMAL);
-        jBLabel2.setText("<html>Add the following line to <span style=\"font-family:monospace\">build.sbt</span>:</html>");
+        this.$$$loadLabelText$$$(jBLabel2, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("add.line.to.build.sbt"));
         panel4.add(jBLabel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(244, 14), null, 0, false));
         final Spacer spacer1 = new Spacer();
         mainPanel.add(spacer1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
@@ -245,27 +245,54 @@ public class CompilerIndicesSettingsForm {
         findUsagesPanel.add(panel5, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         implicitDefinitionsCB = new JBCheckBox();
         implicitDefinitionsCB.setSelected(true);
-        implicitDefinitionsCB.setText("Implicit definitions");
+        this.$$$loadButtonText$$$(implicitDefinitionsCB, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("implicit.definitions"));
         panel5.add(implicitDefinitionsCB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         applyMethodCB = new JBCheckBox();
         applyMethodCB.setSelected(true);
-        applyMethodCB.setText("<html><span style=\"font-family:monospace\">apply</span> / <span style=\"font-family:monospace\">unapply</span> methods</html>");
+        this.$$$loadButtonText$$$(applyMethodCB, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("apply.unapply.methods"));
         panel5.add(applyMethodCB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         samTypesCB = new JBCheckBox();
         samTypesCB.setSelected(true);
-        samTypesCB.setText("SAM types");
+        this.$$$loadButtonText$$$(samTypesCB, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("sam.types"));
         panel5.add(samTypesCB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         forCompMethodCB = new JBCheckBox();
         forCompMethodCB.setSelected(true);
-        forCompMethodCB.setText("<html>For-comprehension methods (<span style=\"font-family:monospace\">map</span>, <span style=\"font-family:monospace\">withFilter</span>, <span style=\"font-family:monospace\">flatMap</span>, <span style=\"font-family:monospace\">foreach</span>)</html>");
+        this.$$$loadButtonText$$$(forCompMethodCB, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("for.comprehension.methods"));
         panel5.add(forCompMethodCB, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JBLabel jBLabel3 = new JBLabel();
-        jBLabel3.setText("Use indices to search for usages of:");
+        this.$$$loadLabelText$$$(jBLabel3, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("use.indices.to.search"));
         findUsagesPanel.add(jBLabel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();
         buttonGroup.add(manualConfigButton);
         buttonGroup.add(automaticConfigButton);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadLabelText$$$(JLabel component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
     }
 
     /**

@@ -47,7 +47,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="sbt compilation listener configuration (application-wide)"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="sbt.compilation.listener"/>
             </properties>
           </component>
           <grid id="f8d8a" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -90,7 +90,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Port number:"/>
+                      <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="port.number"/>
                     </properties>
                   </component>
                   <component id="90b9b" class="com.intellij.ui.PortField" binding="portSelector">
@@ -127,7 +127,7 @@
                         </constraints>
                         <properties>
                           <componentStyle value="SMALL"/>
-                          <text value="&lt;html&gt;Add the following line to &lt;span style=&quot;font-family:monospace&quot;&gt;project/plugins.sbt&lt;/span&gt;:&lt;/html&gt;"/>
+                          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="add.line.to.plugins.sbt"/>
                         </properties>
                       </component>
                     </children>
@@ -162,7 +162,7 @@
                           <componentStyle value="SMALL"/>
                           <enabled value="true"/>
                           <fontColor value="NORMAL"/>
-                          <text value="&lt;html&gt;Add the following line to &lt;span style=&quot;font-family:monospace&quot;&gt;build.sbt&lt;/span&gt;:&lt;/html&gt;"/>
+                          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="add.line.to.build.sbt"/>
                         </properties>
                       </component>
                     </children>
@@ -200,7 +200,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="Implicit definitions"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="implicit.definitions"/>
                 </properties>
               </component>
               <component id="5cb5f" class="com.intellij.ui.components.JBCheckBox" binding="applyMethodCB">
@@ -209,7 +209,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="&lt;html&gt;&lt;span style=&quot;font-family:monospace&quot;&gt;apply&lt;/span&gt; / &lt;span style=&quot;font-family:monospace&quot;&gt;unapply&lt;/span&gt; methods&lt;/html&gt;"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="apply.unapply.methods"/>
                 </properties>
               </component>
               <component id="fda16" class="com.intellij.ui.components.JBCheckBox" binding="samTypesCB">
@@ -218,7 +218,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="SAM types"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="sam.types"/>
                 </properties>
               </component>
               <component id="d3e3e" class="com.intellij.ui.components.JBCheckBox" binding="forCompMethodCB">
@@ -227,7 +227,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="&lt;html&gt;For-comprehension methods (&lt;span style=&quot;font-family:monospace&quot;&gt;map&lt;/span&gt;, &lt;span style=&quot;font-family:monospace&quot;&gt;withFilter&lt;/span&gt;, &lt;span style=&quot;font-family:monospace&quot;&gt;flatMap&lt;/span&gt;, &lt;span style=&quot;font-family:monospace&quot;&gt;foreach&lt;/span&gt;)&lt;/html&gt;"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="for.comprehension.methods"/>
                 </properties>
               </component>
             </children>
@@ -237,7 +237,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Use indices to search for usages of:"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="use.indices.to.search"/>
             </properties>
           </component>
         </children>
