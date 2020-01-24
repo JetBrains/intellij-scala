@@ -147,6 +147,7 @@ object DependencyGroups {
     scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
+    "io.github.soc" % "directories" % "11",
     scalatestFindersPatched,
     jamm,
     ivy2,
