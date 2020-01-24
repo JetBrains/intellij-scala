@@ -12,6 +12,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.components.JBLabel
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
 
@@ -151,9 +152,10 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 }
 
 object ScalaTabbedCodeStylePanel {
+  @NonNls
   private val formatters: Map[String, Int] = Map(
     "IntelliJ" -> ScalaCodeStyleSettings.INTELLIJ_FORMATTER,
-    "scalafmt" -> ScalaCodeStyleSettings.SCALAFMT_FORMATTER,
+    "Scalafmt" -> ScalaCodeStyleSettings.SCALAFMT_FORMATTER,
   )
 
   private class ScalafmtTabbedLanguageCodeStylePanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings)
