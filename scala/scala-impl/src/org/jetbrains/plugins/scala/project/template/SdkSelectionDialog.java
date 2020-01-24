@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.project.template;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.project.sdkdetect.ScalaSdkProvider;
 import scala.Option;
@@ -64,7 +66,18 @@ public class SdkSelectionDialog extends JDialog {
 
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        new Task.Backgroundable(null, ScalaBundle.message("sdk.scan.title", ""), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+
+        createScanTask(contextDirectory, null).queue();
+
+    }
+
+    @NotNull
+    private Task.Backgroundable createScanTask(VirtualFile contextDirectory, @Nullable Runnable whenFinished) {
+        Project maybeProject = ProjectUtil.guessCurrentProject(myParent);
+        return new Task.Backgroundable(null,
+                ScalaBundle.message("sdk.scan.title", ""),
+                true,
+                () -> !maybeProject.isDefault()) {
 
             private void updateTable(SdkChoice sdkChoice) {
                 ApplicationManager.getApplication().invokeLater(() -> {
@@ -78,10 +91,12 @@ public class SdkSelectionDialog extends JDialog {
                 sdkScanProcess = indicator;
                 ScalaSdkProvider scalaSdkProvider = new ScalaSdkProvider(indicator, contextDirectory);
                 scalaSdkProvider.discoverSDKsAsync(this::updateTable);
+                if (whenFinished != null) {
+                    whenFinished.run();
+                }
                 sdkScanProcess = null;
             }
-        }.queue();
-
+        };
     }
 
     private int setSelectionInterval(String version) {
