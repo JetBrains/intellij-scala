@@ -124,7 +124,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   override def buildMatcher(condition: ArrangementMatchCondition) = throw new IllegalArgumentException("Can't build a matcher for condition " + condition)
 
   override def getMutexes: util.List[util.Set[ArrangementSettingsToken]] =
-    List(scalaAccessModifiersValues.asJava, scalaTypesValues.asJava).asJava
+    List(scalaAccessModifiers.asJava, scalaTypesValues.asJava).asJava
 
   private def setupUtilityMethods(info: ScalaArrangementParseInfo, orderType: ArrangementSettingsToken) {
     if (DEPTH_FIRST == orderType) {
@@ -205,7 +205,7 @@ object ScalaRearranger {
       new ArrangementGroupingRule(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS)
     )
 
-    val accessModifiers = scalaAccessModifiersValues
+    val accessModifiers = scalaAccessModifiers
 
     var matchRules = mutable.Buffer.empty[ArrangementSectionRule]
     matchRules += rule(OBJECT, IMPLICIT)

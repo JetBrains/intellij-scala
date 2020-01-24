@@ -5,7 +5,8 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier.
 import com.intellij.psi.codeStyle.arrangement.std.{ArrangementSettingsToken, StdArrangementSettingsToken, StdArrangementTokenType, StdArrangementTokens}
 import org.jetbrains.annotations.NonNls
 
-import scala.collection.immutable.{HashMap, HashSet, ListMap}
+import scala.collection.immutable.{HashMap, HashSet, ListSet}
+import scala.language.higherKinds
 
 //noinspection TypeAnnotation,SameParameterValue
 //TODO: use names from bundle
@@ -43,118 +44,58 @@ object RearrangerUtils {
   )
 
   //access modifiers
-  private val scalaAccessModifiersByName = ListMap("public" -> PUBLIC, "protected" -> PROTECTED, "private" -> PRIVATE)
-  private val scalaAccessModifiersById   = HashMap(PUBLIC.getId -> PUBLIC, PROTECTED.getId -> PROTECTED, PRIVATE.getId -> PRIVATE)
+  val SEALED  : ArrangementSettingsToken = token("SCALA_SEALED", "sealed", StdArrangementTokenType.MODIFIER)
+  val IMPLICIT: ArrangementSettingsToken = token("SCALA_IMPLICIT", "implicit", StdArrangementTokenType.MODIFIER)
+  val CASE    : ArrangementSettingsToken = token("SCALA_CASE", "case", StdArrangementTokenType.MODIFIER)
+  val OVERRIDE: ArrangementSettingsToken = token("SCALA_OVERRIDE", "override", StdArrangementTokenType.MODIFIER)
+  val LAZY    : ArrangementSettingsToken = token("SCALA_LAZY", "lazy", StdArrangementTokenType.MODIFIER)
 
-  val SEALED: ArrangementSettingsToken = token(
-    "SCALA_SEALED",
-    "sealed",
-    StdArrangementTokenType.MODIFIER
-  )
-  val IMPLICIT: ArrangementSettingsToken = token(
-    "SCALA_IMPLICIT",
-    "implicit",
-    StdArrangementTokenType.MODIFIER
-  )
-  val CASE: ArrangementSettingsToken = token(
-    "SCALA_CASE",
-    "case",
-    StdArrangementTokenType.MODIFIER
-  )
-  val OVERRIDE: ArrangementSettingsToken = token(
-    "SCALA_OVERRIDE",
-    "override",
-    StdArrangementTokenType.MODIFIER
-  )
-  val LAZY: ArrangementSettingsToken = token(
-    "SCALA_LAZY",
-    "lazy",
-    StdArrangementTokenType.MODIFIER
-  )
-  private val scalaOtherModifiersByName = ListMap(
-    "sealed" -> SEALED,
-    "implicit" -> IMPLICIT,
-    "abstract" -> ABSTRACT,
-    "case" -> CASE,
-    "final" -> FINAL,
-    "override" -> OVERRIDE,
-    "lazy" -> LAZY
-  )
-
-  private val scalaOtherModifiersById = HashMap(
-    SEALED.getId -> SEALED,
-    IMPLICIT.getId -> IMPLICIT,
-    ABSTRACT.getId -> ABSTRACT,
-    FINAL.getId -> FINAL,
-    OVERRIDE.getId -> OVERRIDE,
-    LAZY.getId -> LAZY
-  )
-
-  val TYPE: ArrangementSettingsToken = token(
-    "SCALA_TYPE",
-    "type",
-    StdArrangementTokenType.ENTRY_TYPE
-  )
-  val FUNCTION: ArrangementSettingsToken = token(
-    "SCALA_FUNCTION",
-    "function",
-    StdArrangementTokenType.ENTRY_TYPE
-  )
-  val VAL: ArrangementSettingsToken = token(
-    "SCALA_VAL",
-    "val",
-    StdArrangementTokenType.ENTRY_TYPE
-  )
-  val MACRO: ArrangementSettingsToken = token(
-    "SCALA_MACRO",
-    "macro",
-    StdArrangementTokenType.ENTRY_TYPE
-  )
-  val OBJECT: ArrangementSettingsToken = token(
-    "SCALA_OBJECT",
-    "object",
-    StdArrangementTokenType.ENTRY_TYPE
-  )
-  val UNSEPARABLE_RANGE: ArrangementSettingsToken = tokenById(
-    "SCALA_UNSEPARABLE_RANGE",
-    StdArrangementTokenType.ENTRY_TYPE
-  )
+  val TYPE             : ArrangementSettingsToken = token("SCALA_TYPE", "type", StdArrangementTokenType.ENTRY_TYPE)
+  val FUNCTION         : ArrangementSettingsToken = token("SCALA_FUNCTION", "function", StdArrangementTokenType.ENTRY_TYPE)
+  val VAL              : ArrangementSettingsToken = token("SCALA_VAL", "val", StdArrangementTokenType.ENTRY_TYPE)
+  val MACRO            : ArrangementSettingsToken = token("SCALA_MACRO", "macro", StdArrangementTokenType.ENTRY_TYPE)
+  val OBJECT           : ArrangementSettingsToken = token("SCALA_OBJECT", "object", StdArrangementTokenType.ENTRY_TYPE)
+  val UNSEPARABLE_RANGE: ArrangementSettingsToken = tokenById("SCALA_UNSEPARABLE_RANGE", StdArrangementTokenType.ENTRY_TYPE)
 
   //maps and sets of tokens
   val scalaTypesValues = HashSet(TYPE, FUNCTION, CLASS, VAL, VAR, TRAIT, MACRO, CONSTRUCTOR, OBJECT)
   private val scalaTypesById = scalaTypesValues.map(t => t.getId -> t).toMap
 
-  val scalaAccessModifiersValues = scalaAccessModifiersByName.toSet.map((x: tokensType) => x._2)
-
-  val scalaModifiers = scalaAccessModifiersValues ++ scalaOtherModifiersByName.toSet.map((x: tokensType) => x._2)
-
   private type tokensType = (String, ArrangementSettingsToken)
 
   val supportedOrders = HashSet(StdArrangementTokens.Order.BY_NAME, StdArrangementTokens.Order.KEEP)
 
-  val commonModifiers = scalaAccessModifiersValues + FINAL //TODO: determine if final is common
+  val scalaAccessModifiers  = ListSet(PUBLIC, PROTECTED, PRIVATE)
+  private val scalaAccessModifiersByName = scalaAccessModifiers.groupBySingle(_.getRepresentationValue)
+  private val scalaAccessModifiersById = scalaAccessModifiers.groupBySingle(_.getId)
 
-  private val scalaModifiersByName: Map[String, ArrangementSettingsToken] =
-    scalaAccessModifiersByName ++ scalaOtherModifiersByName
+  private val scalaOtherModifiers = ListSet(SEALED, IMPLICIT, ABSTRACT, CASE, FINAL, OVERRIDE, LAZY)
+  private val scalaOtherModifiersByName = scalaOtherModifiers.groupBySingle(_.getRepresentationValue)
+  private val scalaOtherModifiersById = scalaOtherModifiers.groupBySingle(_.getId)
 
-  def getModifierByName(modifierName: String): Option[ArrangementSettingsToken] =
-    scalaModifiersByName.get(modifierName)
+  val scalaModifiers = scalaAccessModifiers ++ scalaOtherModifiers
+  val commonModifiers = scalaAccessModifiers + FINAL //TODO: determine if final is common
 
-  private val scalaTokensById: Map[String, ArrangementSettingsToken] =
-    scalaAccessModifiersById ++ scalaOtherModifiersById ++ scalaTypesById
+  private val scalaModifiersByName = scalaAccessModifiersByName ++ scalaOtherModifiersByName
+  private val scalaTokensById = scalaAccessModifiersById ++ scalaOtherModifiersById ++ scalaTypesById
 
-  def getTokenById(modifierId: String): Option[ArrangementSettingsToken] =
-    scalaTokensById.get(modifierId)
+  def getModifierByName(modifierName: String): Option[ArrangementSettingsToken] = scalaModifiersByName.get(modifierName)
+  def getTokenById(modifierId: String): Option[ArrangementSettingsToken] = scalaTokensById.get(modifierId)
 
   val tokensForType = HashMap(
-    TYPE -> (commonModifiers + OVERRIDE),
-    FUNCTION -> (commonModifiers + OVERRIDE + IMPLICIT),
-    CLASS -> (commonModifiers + ABSTRACT + SEALED),
-    TRAIT -> (commonModifiers + ABSTRACT + SEALED),
-    VAL -> (commonModifiers + OVERRIDE + LAZY + ABSTRACT),
-    VAR -> (commonModifiers + OVERRIDE),
-    MACRO -> (commonModifiers + OVERRIDE),
-    CONSTRUCTOR -> scalaAccessModifiersValues,
-    OBJECT -> commonModifiers
+    TYPE        -> (commonModifiers + OVERRIDE),
+    FUNCTION    -> (commonModifiers + OVERRIDE + IMPLICIT),
+    CLASS       -> (commonModifiers + ABSTRACT + SEALED),
+    TRAIT       -> (commonModifiers + ABSTRACT + SEALED),
+    VAL         -> (commonModifiers + OVERRIDE + LAZY + ABSTRACT),
+    VAR         -> (commonModifiers + OVERRIDE),
+    MACRO       -> (commonModifiers + OVERRIDE),
+    CONSTRUCTOR -> scalaAccessModifiers,
+    OBJECT      -> commonModifiers
   )
+
+  private implicit class CollectionExt[A](private val collection: Traversable[A]) extends AnyVal {
+
+    def groupBySingle[T](f: A => T): Map[T, A] = collection.map(x => f(x) -> x).toMap
+  }
 }

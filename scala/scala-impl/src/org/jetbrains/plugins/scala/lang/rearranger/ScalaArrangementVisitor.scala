@@ -169,7 +169,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
         })
       }
     }
-    if (RearrangerUtils.scalaAccessModifiersValues.intersect(entry.getModifiers.asScala).isEmpty) {
+    if (RearrangerUtils.scalaAccessModifiers.intersect(entry.getModifiers.asScala).isEmpty) {
       entry addModifier PUBLIC
     }
   }
