@@ -62,8 +62,15 @@ class IdeClientIdea(compilerName: String,
         isTemp = rootDescriptor.isTemp
         if (!isTemp) {
           try {
-            if (isClassFile) consumer.registerCompiledClass(rootDescriptor.target, compiledClass)
-            else consumer.registerOutputFile(rootDescriptor.target, outputFile, Collections.singleton[String](sourcePath))
+            val sourcePaths = Collections.singleton(sourcePath)
+            if (isClassFile) {
+              consumer.registerCompiledClass(rootDescriptor.target, compiledClass)
+              ClassFileUtils.correspondingTastyFile(outputFile).foreach { tastyFile =>
+                consumer.registerOutputFile(rootDescriptor.target, tastyFile, sourcePaths)
+              }
+            } else {
+              consumer.registerOutputFile(rootDescriptor.target, outputFile, sourcePaths)
+            }
           }
           catch {
             case e: IOException => context.processMessage(CompilerMessage.createInternalBuilderError(compilerName, e))

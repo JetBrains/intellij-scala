@@ -119,7 +119,7 @@ abstract class BaseCompilationData extends CompilationDataFactory {
     val hasDotty = CompilerData.hasDotty(modules)
 
     val bootCpArgs = CompilerData.bootCpArgs(modules)
-    val otherArgs = compilerSettings.getCompilerOptions.filterNot(_.startsWith("-g:") && hasDotty)
+    val otherArgs = compilerSettings.getCompilerOptions.filterNot(_.startsWith("-g:") && hasDotty) // TODO SCL-16881
     bootCpArgs ++: otherArgs
   }
 
