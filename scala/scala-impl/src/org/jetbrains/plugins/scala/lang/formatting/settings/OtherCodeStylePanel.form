@@ -23,7 +23,7 @@
               <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Enforce functional syntax for methods with Unit return type"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="other.panel.enforce.functional.syntax.for.methods.with.unit.return.type"/>
             </properties>
           </component>
           <vspacer id="78b68">
@@ -36,7 +36,7 @@
               <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Replace '=&gt;' with unicode symbol"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="other.panel.replace.with.unicode.symbol"/>
             </properties>
           </component>
           <component id="2c1d" class="javax.swing.JCheckBox" binding="replaceWithUnicodeSymbolCheckBox1" default-binding="true">
@@ -44,7 +44,7 @@
               <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Replace '-&gt;' with unicode symbol"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="other.panel.replace.with.unicode.symbol1"/>
             </properties>
           </component>
           <component id="f6c08" class="javax.swing.JCheckBox" binding="replaceInForGeneratorCheckBox" default-binding="true">
@@ -52,7 +52,7 @@
               <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Replace '&lt;-' in &quot;for&quot; generator with unicode symbol"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="other.panel.replace.in.for.generator.with.unicode.symbol"/>
             </properties>
           </component>
           <component id="38c92" class="javax.swing.JCheckBox" binding="replaceLambdaWithGreekLetter">
@@ -61,7 +61,7 @@
             </constraints>
             <properties>
               <selected value="false"/>
-              <text value="Kind Projector: Replace 'Lambda' with unicode symbol"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="other.panel.kind.projector.replace.lambda.with.unicode.symbol"/>
             </properties>
           </component>
           <grid id="e81ff" binding="alternateParamIndentPanel" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -77,7 +77,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Alternate indentation for constructor args and parameter declarations:"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="other.panel.alternate.indentation.for.constructor.args.and.parameter.declarations"/>
                   <verticalAlignment value="1"/>
                 </properties>
               </component>
@@ -95,7 +95,7 @@
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="spaces"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="other.panel.spaces"/>
                   <verticalAlignment value="1"/>
                 </properties>
               </component>
@@ -120,7 +120,7 @@
               <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Reformat on compile"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="other.panel.reformat.on.compile"/>
             </properties>
           </component>
           <grid id="e79a3" binding="trailingCommaInnerPanel" custom-create="true" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -156,7 +156,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Implicit value class prefix / suffux"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="other.panel.implicit.value.class.prefix.suffux"/>
                   <toolTipText value=""/>
                 </properties>
               </component>
