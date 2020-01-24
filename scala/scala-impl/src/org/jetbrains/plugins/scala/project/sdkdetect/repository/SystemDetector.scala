@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.project.sdkdetect
+package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import java.nio.file.{Path, Paths}
 import java.util.function.{Function => JFunction}
@@ -9,7 +9,7 @@ import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.project.template._
 
 
-object SystemDetector extends ScalaSdkDetector {
+private[repository] object SystemDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = SystemSdkChoice(descriptor)
   override def friendlyName: String = "System-wide Scala"
 
