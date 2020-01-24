@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, ProjectExt}
 import org.junit.Assert._
 import java.util.{List => JList}
+import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.emptyCollection
 
 import scala.concurrent.duration
 import scala.collection.JavaConverters._
@@ -134,7 +135,7 @@ object ScalaCompilerTestBase {
   import duration.{Duration, DurationInt}
 
   def stopAndWait(timeout: Duration = 10.seconds): Unit = assertTrue(
-    "Compile server process have not terminated after " + timeout,
+    s"Compile server process have not terminated after $timeout",
     CompileServerLauncher.stopAndWaitTermination(timeout.toMillis)
   )
 
@@ -157,10 +158,7 @@ object ScalaCompilerTestBase {
       val problems = messages.asScala.filter { message =>
         categories.contains(message.getCategory)
       }
-      assertTrue(
-        s"Compilation problems: ${problems.mkString(",")}",
-        problems.isEmpty
-      )
+      assertThat(problems, emptyCollection[Seq[_]])
     }
   }
 }
