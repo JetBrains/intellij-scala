@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.project.sdkdetect
+package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import java.nio.file.{Files, Path}
 import java.util.stream.{Stream => JStream}
 
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.project.template._
 
 trait ScalaSdkDetector {
@@ -18,6 +19,11 @@ trait ScalaSdkDetector {
     indicator.checkCanceled()
     indicator.setText2(text2)
   }
+}
+
+object ScalaSdkDetector {
+  def allDetectors(contextDirectory: VirtualFile) =
+    Seq(new ProjectLocalDetector(contextDirectory), SystemDetector, BrewDetector, IvyDetector, MavenDetector, CoursierDetector)
 }
 
 

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.project.sdkdetect
+package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import java.nio.file.Path
 import java.util.stream.{Stream => JStream}
@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
 
 
-object MavenDetector extends ScalaSdkDetector {
+private[repository] object MavenDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = MavenSdkChoice(descriptor)
   override def friendlyName: String = "Maven local repo"
 

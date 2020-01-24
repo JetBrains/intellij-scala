@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.project.sdkdetect
+package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import java.nio.file.{Path, Paths}
 import java.util.function.{Function => JFunction}
@@ -8,7 +8,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
 
-object BrewDetector extends ScalaSdkDetector {
+private[repository] object BrewDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = BrewSdkChoice(descriptor)
   override def friendlyName: String = "Brew packages"
 

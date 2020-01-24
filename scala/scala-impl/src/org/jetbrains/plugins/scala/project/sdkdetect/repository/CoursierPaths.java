@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.project.sdkdetect;
+package org.jetbrains.plugins.scala.project.sdkdetect.repository;
 
 import io.github.soc.directories.ProjectDirectories;
 
