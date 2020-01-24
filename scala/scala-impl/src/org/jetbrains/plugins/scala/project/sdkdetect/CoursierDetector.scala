@@ -4,20 +4,13 @@ import java.util.function.{Function => JFunction}
 import java.util.stream.{Stream => JStream}
 
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.util.SystemInfo
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.template._
 
 object CoursierDetector extends ScalaSdkDetector {
   val COURSIER_CACHE_ENV = "COURSIER_CACHE"
 
-  def getCoursierCacheV1: Option[Path] =
-    if (SystemInfo.isWindows)
-      sys.env.get("LOCALAPPDATA").map(Paths.get(_) / "Coursier" / "Cache" / "v1")
-    else if (SystemInfo.isMac)
-      sys.props.get("user.home").map(Paths.get(_) / "Library" / "Caches" / "Coursier" / "v1")
-    else if (SystemInfo.isLinux)
-      sys.props.get("user.home").map(Paths.get(_) / ".coursier" / "cache" / "v1")
-    else None
+  def getCoursierCacheV1: Option[Path] = CoursierPaths.cacheDirectory().toOption.map(_.toPath)
 
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = CoursierSdkChoice(descriptor)
   override def friendlyName: String = "Coursier v1 cache"
