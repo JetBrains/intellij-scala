@@ -7,6 +7,7 @@ import java.awt.Insets
 import java.lang.reflect.Field
 import java.util.Objects
 
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
@@ -21,7 +22,7 @@ final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeSty
 
   private var innerPanel: JPanel = _
 
-  private var trailingCommaModeSelector: JComboBox[ComboBoxItem[TrailingCommaMode]] = _
+  private var trailingCommaModeSelector: ComboBox[ComboBoxItem[TrailingCommaMode]] = _
   private var trailingCommaModeSelectorModel: DefaultComboBoxModel[ComboBoxItem[TrailingCommaMode]] = _
   private var trailingCommaScopePanel: JPanel = _
   private var scopeCheckboxes: Seq[(JCheckBox, Field)] = _
@@ -84,7 +85,8 @@ final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeSty
       new ComboBoxItem(TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE, ScalaBundle.message("trailing.comma.panel.remove.when.multiline")),
       new ComboBoxItem(TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE, ScalaBundle.message("trailing.comma.panel.add.when.multiline")),
     ))
-    trailingCommaModeSelector = new JComboBox[ComboBoxItem[TrailingCommaMode]] // TODO: remove deprecated
+
+    trailingCommaModeSelector = new ComboBox[ComboBoxItem[TrailingCommaMode]]
     trailingCommaModeSelector.setModel(trailingCommaModeSelectorModel)
     panel.add(trailingCommaModeSelector, new GridConstraints(0, 0, 1, 1, ANCHOR_WEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_SHRINK, SIZEPOLICY_FIXED, null, null, null, 0, false))
     panel.add(new Spacer, new GridConstraints(0, 1, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_WANT_GROW, null, null, null, 0, false))
@@ -111,7 +113,7 @@ final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeSty
       trailingCommaScopePanel.add(cb, new GridConstraints(row, col, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW, SIZEPOLICY_FIXED, null, null, null, 0, false))
     }
 
-    trailingCommaModeSelector.addActionListener { e =>
+    trailingCommaModeSelector.addActionListener { _ =>
       val isScopeEnabled = selectedTrailingCommaMode.exists(_ != TrailingCommaMode.TRAILING_COMMA_KEEP)
       scopeCheckboxes.foreach(_._1.setEnabled(isScopeEnabled))
     }

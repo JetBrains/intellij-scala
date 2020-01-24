@@ -240,6 +240,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public enum TrailingCommaMode {TRAILING_COMMA_KEEP, TRAILING_COMMA_REMOVE_WHEN_MULTILINE, TRAILING_COMMA_ADD_WHEN_MULTILINE}
 
   public TrailingCommaMode TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_KEEP;
+  /** used via reflection in {@link org.jetbrains.plugins.scala.lang.formatting.settings.TrailingCommaPanel#scopeFields} */
   public boolean TRAILING_COMMA_ARG_LIST_ENABLED = true;
   public boolean TRAILING_COMMA_PARAMS_ENABLED = true;
   public boolean TRAILING_COMMA_TUPLE_ENABLED = false;
