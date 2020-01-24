@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.project.sdkdetect
+package org.jetbrains.plugins.scala.project.sdkdetect.repository
 import java.nio.file._
 import java.util.function.{Function => JFunction}
 import java.util.stream.{Stream => JStream}
@@ -7,7 +7,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.template._
 
-object CoursierDetector extends ScalaSdkDetector {
+private[repository] object CoursierDetector extends ScalaSdkDetector {
   val COURSIER_CACHE_ENV = "COURSIER_CACHE"
 
   def getCoursierCacheV1: Option[Path] = CoursierPaths.cacheDirectory().toOption.map(_.toPath)

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.project.sdkdetect
+package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import java.nio.file.{Path, Paths}
 import java.util.stream.{Stream => JStream}
@@ -6,7 +6,7 @@ import java.util.stream.{Stream => JStream}
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
 
-object IvyDetector extends ScalaSdkDetector {
+private[repository] object IvyDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = IvySdkChoice(descriptor)
   override def friendlyName: String = "Ivy2 cache"
 
