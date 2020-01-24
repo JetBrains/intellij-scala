@@ -4,6 +4,7 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
 import com.intellij.psi.codeStyle.arrangement.std.{ArrangementSettingsToken, StdArrangementSettingsToken, StdArrangementTokenType, StdArrangementTokens}
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.ScalaBundle
 
 import scala.collection.immutable.{HashMap, HashSet, ListSet}
 import scala.language.higherKinds
@@ -21,40 +22,40 @@ object RearrangerUtils {
 
   val SCALA_GETTERS_AND_SETTERS: ArrangementSettingsToken = token(
     "SCALA_KEEP_SCALA_GETTERS_SETTERS_TOGETHER",
-    "Keep scala-style getters and setters together",
+    ScalaBundle.message("rearranger.panel.keep.scala.style.getters.and.setters.together"),
     StdArrangementTokenType.GROUPING
   )
 
   val JAVA_GETTERS_AND_SETTERS: ArrangementSettingsToken = token(
     "SCALA_KEEP_JAVA_GETTERS_SETTERS_TOGETHER",
-    "Keep java-style getters and setters together",
+    ScalaBundle.message("rearranger.panel.keep.java.style.getters.and.setters.together"),
     StdArrangementTokenType.GROUPING
   )
 
   val SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS: ArrangementSettingsToken = token(
     "SCALA_SPLIT_BY_EXPRESSIONS",
-    "Split into unarrangeable blocks by expressions",
+    ScalaBundle.message("rearranger.panel.split.into.unarrangeable.blocks.by.expressions"),
     StdArrangementTokenType.GROUPING
   )
 
   val SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS: ArrangementSettingsToken = token(
     "SCALA_SPLIT_BY_IMPLICITS",
-    "Split into unarrangeable blocks by implicits",
+    ScalaBundle.message("rearranger.panel.split.into.unarrangeable.blocks.by.implicits"),
     StdArrangementTokenType.GROUPING
   )
 
   //access modifiers
-  val SEALED  : ArrangementSettingsToken = token("SCALA_SEALED", "sealed", StdArrangementTokenType.MODIFIER)
-  val IMPLICIT: ArrangementSettingsToken = token("SCALA_IMPLICIT", "implicit", StdArrangementTokenType.MODIFIER)
-  val CASE    : ArrangementSettingsToken = token("SCALA_CASE", "case", StdArrangementTokenType.MODIFIER)
-  val OVERRIDE: ArrangementSettingsToken = token("SCALA_OVERRIDE", "override", StdArrangementTokenType.MODIFIER)
-  val LAZY    : ArrangementSettingsToken = token("SCALA_LAZY", "lazy", StdArrangementTokenType.MODIFIER)
+  @NonNls val SEALED  : ArrangementSettingsToken = token("SCALA_SEALED", "sealed", StdArrangementTokenType.MODIFIER)
+  @NonNls val IMPLICIT: ArrangementSettingsToken = token("SCALA_IMPLICIT", "implicit", StdArrangementTokenType.MODIFIER)
+  @NonNls val CASE    : ArrangementSettingsToken = token("SCALA_CASE", "case", StdArrangementTokenType.MODIFIER)
+  @NonNls val OVERRIDE: ArrangementSettingsToken = token("SCALA_OVERRIDE", "override", StdArrangementTokenType.MODIFIER)
+  @NonNls val LAZY    : ArrangementSettingsToken = token("SCALA_LAZY", "lazy", StdArrangementTokenType.MODIFIER)
 
-  val TYPE             : ArrangementSettingsToken = token("SCALA_TYPE", "type", StdArrangementTokenType.ENTRY_TYPE)
-  val FUNCTION         : ArrangementSettingsToken = token("SCALA_FUNCTION", "function", StdArrangementTokenType.ENTRY_TYPE)
-  val VAL              : ArrangementSettingsToken = token("SCALA_VAL", "val", StdArrangementTokenType.ENTRY_TYPE)
-  val MACRO            : ArrangementSettingsToken = token("SCALA_MACRO", "macro", StdArrangementTokenType.ENTRY_TYPE)
-  val OBJECT           : ArrangementSettingsToken = token("SCALA_OBJECT", "object", StdArrangementTokenType.ENTRY_TYPE)
+  @NonNls val TYPE             : ArrangementSettingsToken = token("SCALA_TYPE", "type", StdArrangementTokenType.ENTRY_TYPE)
+  @NonNls val FUNCTION         : ArrangementSettingsToken = token("SCALA_FUNCTION", "function", StdArrangementTokenType.ENTRY_TYPE)
+  @NonNls val VAL              : ArrangementSettingsToken = token("SCALA_VAL", "val", StdArrangementTokenType.ENTRY_TYPE)
+  @NonNls val MACRO            : ArrangementSettingsToken = token("SCALA_MACRO", "macro", StdArrangementTokenType.ENTRY_TYPE)
+  @NonNls val OBJECT           : ArrangementSettingsToken = token("SCALA_OBJECT", "object", StdArrangementTokenType.ENTRY_TYPE)
   val UNSEPARABLE_RANGE: ArrangementSettingsToken = tokenById("SCALA_UNSEPARABLE_RANGE", StdArrangementTokenType.ENTRY_TYPE)
 
   //maps and sets of tokens
