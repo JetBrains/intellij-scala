@@ -9,6 +9,7 @@ import com.intellij.psi.codeStyle.arrangement.ArrangementUtil
 import com.intellij.psi.codeStyle.arrangement.std.ArrangementSettingsToken
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScModifierList, ScReference, ScStableCodeReference}
@@ -34,9 +35,9 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
 
   private val arrangementEntries = mutable.Stack[ScalaArrangementEntry]()
 
-  private val splitBodyByExpressions = groupingRules.contains(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS)
+  private val splitBodyByExpressions = groupingRules.contains(RearrangerUtils.SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS)
 
-  private val splitBodyByImplicits = groupingRules.contains(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS)
+  private val splitBodyByImplicits = groupingRules.contains(RearrangerUtils.SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS)
 
   private val unseparableRanges = mutable.HashMap[ScalaArrangementEntry /*parent*/ ,
           mutable.Queue[ScalaArrangementEntry] /*Arrangement blocks*/ ]()
@@ -163,12 +164,12 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
 
     if (modifiers != null) {
       for (modName <- modifiers.modifiers) {
-        getModifierByName(modName.text()).flatMap((mod: ArrangementSettingsToken) => {
+        RearrangerUtils.getModifierByName(modName.text()).flatMap((mod: ArrangementSettingsToken) => {
           entry.addModifier(mod); None
         })
       }
     }
-    if (scalaAccessModifiersValues.intersect(entry.getModifiers.asScala).isEmpty) {
+    if (RearrangerUtils.scalaAccessModifiersValues.intersect(entry.getModifiers.asScala).isEmpty) {
       entry addModifier PUBLIC
     }
   }
@@ -180,7 +181,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
     }
     if (nextPsiRoot != null) {
       //current entry may have been processed as unseparable range in upper block
-      val newEntry = arrangementEntries.isEmpty || arrangementEntries.head.getType != UNSEPARABLE_RANGE ||
+      val newEntry = arrangementEntries.isEmpty || arrangementEntries.head.getType != RearrangerUtils.UNSEPARABLE_RANGE ||
         arrangementEntries.head.getStartOffset != entry.getStartOffset ||
         arrangementEntries.head.getEndOffset != entry.getEndOffset
       if (newEntry) arrangementEntries.push(entry)
@@ -291,7 +292,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
   }
 
   private def parseProperties(method: ScFunction, entry: ScalaArrangementEntry) {
-    if (!(groupingRules.contains(JAVA_GETTERS_AND_SETTERS) || groupingRules.contains(SCALA_GETTERS_AND_SETTERS)) ||
+    if (!(groupingRules.contains(RearrangerUtils.JAVA_GETTERS_AND_SETTERS) || groupingRules.contains(RearrangerUtils.SCALA_GETTERS_AND_SETTERS)) ||
             entry == null) {
       return
     }
@@ -319,7 +320,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
         }
         unseparableRanges.get(entry).foreach(queue =>
           queue.enqueue(getEntryForRange(body, new TextRange(newOffset,
-            child.getTextRange.getEndOffset), UNSEPARABLE_RANGE, null, canArrange = false, Some(getTokenType(child)))))
+            child.getTextRange.getEndOffset), RearrangerUtils.UNSEPARABLE_RANGE, null, canArrange = false, Some(getTokenType(child)))))
         None
       } else startOffset
     })
@@ -335,7 +336,8 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
 }
 
 object ScalaArrangementVisitor {
-  private def nameStartsWith(name: String, start: String) = {
+
+  private def nameStartsWith(name: String, @NonNls start: String) = {
     val length = name.length
     name.startsWith(start) && length > start.length && !(Character.isLowerCase(name.charAt(start.length())) &&
             (length == start.length() + 1 || Character.isLowerCase(name.charAt(start.length() + 1))))
@@ -345,7 +347,8 @@ object ScalaArrangementVisitor {
     import method.projectContext
 
     val name = method.getName
-    if (nameStartsWith(name, "get") && !(nameStartsWith(name, "getAnd") && name.charAt("getAnd".length).isUpper)) {
+    val getAnd = "getAnd"
+    if (nameStartsWith(name, "get") && !(nameStartsWith(name, getAnd) && name.charAt(getAnd.length).isUpper)) {
       method.returnType.getOrAny != api.Unit
     } else if (nameStartsWith(name, "is")) {
       method.returnType.getOrAny == api.Boolean
@@ -377,17 +380,18 @@ object ScalaArrangementVisitor {
   private def removeScalaSetterEnding(name: String) = name.substring(0, name.length - 4) //removing _$eq
 
   def getTokenType(psiElement: PsiElement): ArrangementSettingsToken = {
+    import RearrangerUtils._
     psiElement match {
-      case _: ScTypeAlias => TYPE
-      case _: ScMacroDefinition => MACRO
-      case _: ScConstructorInvocation => CONSTRUCTOR
-      case _: ScFunction | _: ScFunctionDefinition => FUNCTION
-      case _: ScPatternDefinition | _: ScValueDeclaration => VAL
-      case _: ScClass => CLASS
+      case _: ScTypeAlias                                     => TYPE
+      case _: ScMacroDefinition                               => MACRO
+      case _: ScConstructorInvocation                         => CONSTRUCTOR
+      case _: ScFunction | _: ScFunctionDefinition            => FUNCTION
+      case _: ScPatternDefinition | _: ScValueDeclaration     => VAL
+      case _: ScClass                                         => CLASS
       case _: ScVariableDefinition | _: ScVariableDeclaration => VAR
-      case _: ScTrait => TRAIT
-      case _: ScObject => OBJECT
-      case _ => UNSEPARABLE_RANGE
+      case _: ScTrait                                         => TRAIT
+      case _: ScObject                                        => OBJECT
+      case _                                                  => UNSEPARABLE_RANGE
     }
   }
 }

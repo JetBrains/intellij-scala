@@ -1,10 +1,5 @@
-package org.jetbrains.plugins.scala
-package lang.rearranger
-
+package org.jetbrains.plugins.scala.lang.rearranger
 import java.util
-
-import scala.collection.JavaConverters._
-import scala.collection.{immutable, mutable}
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.{Pair, TextRange}
@@ -20,7 +15,12 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
 import com.intellij.psi.codeStyle.arrangement.std._
 import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.lang.rearranger.RearrangerUtils._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.collection.JavaConverters._
+import scala.collection.{immutable, mutable}
 
 class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with ArrangementStandardSettingsAware {
 
@@ -223,12 +223,12 @@ object ScalaRearranger {
       matchRules = addCondition(matchRules, VAL, access, LAZY)
     }
     matchRules = addCondition(matchRules, VAL, ABSTRACT)
-    matchRules = addCondition(matchRules, VAL, OVERRIDE)
+    matchRules = addCondition(matchRules, VAL, RearrangerUtils.OVERRIDE)
     for (access <- scalaAccessModifiersValues) {
       matchRules = addCondition(matchRules, VAL, access)
     }
     for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, VAR, access, OVERRIDE)
+      matchRules = addCondition(matchRules, VAR, access, RearrangerUtils.OVERRIDE)
     }
     for (access <- scalaAccessModifiersValues) {
       matchRules = addCondition(matchRules, VAR, access)
@@ -237,13 +237,13 @@ object ScalaRearranger {
       matchRules = addCondition(matchRules, CONSTRUCTOR, access)
     }
     matchRules = addCondition(matchRules, CONSTRUCTOR)
-    matchRules = addCondition(matchRules, FUNCTION, PUBLIC, FINAL, OVERRIDE)
-    matchRules = addCondition(matchRules, FUNCTION, PROTECTED, FINAL, OVERRIDE)
+    matchRules = addCondition(matchRules, FUNCTION, PUBLIC, FINAL, RearrangerUtils.OVERRIDE)
+    matchRules = addCondition(matchRules, FUNCTION, PROTECTED, FINAL, RearrangerUtils.OVERRIDE)
     for (access <- scalaAccessModifiersValues) {
       matchRules = addCondition(matchRules, FUNCTION, access)
     }
-    matchRules = addCondition(matchRules, MACRO, PUBLIC, OVERRIDE)
-    matchRules = addCondition(matchRules, MACRO, PROTECTED, OVERRIDE)
+    matchRules = addCondition(matchRules, MACRO, PUBLIC, RearrangerUtils.OVERRIDE)
+    matchRules = addCondition(matchRules, MACRO, PROTECTED, RearrangerUtils.OVERRIDE)
     for (access <- scalaAccessModifiersValues) {
       matchRules = addCondition(matchRules, MACRO, access)
     }
