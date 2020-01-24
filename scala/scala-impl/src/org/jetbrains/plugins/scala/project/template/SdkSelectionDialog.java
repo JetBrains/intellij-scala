@@ -36,7 +36,7 @@ public class SdkSelectionDialog extends JDialog {
     private final SdkTableModel myTableModel = new SdkTableModel();
     private ScalaSdkDescriptor mySelectedSdk;
 
-    private ProgressIndicator sdkScanIndicator;
+    private ProgressIndicator sdkScanProcess;
 
     public SdkSelectionDialog(JComponent parent, VirtualFile contextDirectory) {
         super((Window) parent.getTopLevelAncestor());
@@ -79,25 +79,22 @@ public class SdkSelectionDialog extends JDialog {
                 true,
                 () -> !maybeProject.isDefault()) {
 
-            private void addToTable(SdkChoice sdkChoice) {
+            private void updateTable(SdkChoice sdkChoice) {
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    int previousSelection = myTable.getSelectedRow();
                     myTableModel.addRow(sdkChoice);
-                    myTableModel.fireTableDataChanged();
-                    if (previousSelection >= 0)
-                        myTable.getSelectionModel().setSelectionInterval(previousSelection, previousSelection);
+                    myTable.setModelAndUpdateColumns(myTableModel);
                 });
             }
 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                sdkScanIndicator = indicator;
+                sdkScanProcess = indicator;
                 ScalaSdkProvider scalaSdkProvider = new ScalaSdkProvider(indicator, contextDirectory);
-                scalaSdkProvider.discoverSDKs(this::addToTable);
+                scalaSdkProvider.discoverSDKsAsync(this::updateTable);
                 if (whenFinished != null) {
                     whenFinished.run();
                 }
-                sdkScanIndicator = null;
+                sdkScanProcess = null;
             }
         };
     }
@@ -117,11 +114,10 @@ public class SdkSelectionDialog extends JDialog {
         Option<String> result = new VersionDialog(contentPane).showAndGetSelected();
 
         if (result.isDefined()) {
-            createScanTask(null, () -> {
-                int rowIndex = setSelectionInterval(result.get());
-                myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
-                onOK();
-            }).queue();
+            int rowIndex = setSelectionInterval(result.get());
+
+            myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+            onOK();
         }
     }
 
@@ -138,17 +134,17 @@ public class SdkSelectionDialog extends JDialog {
         if (myTable.getSelectedRowCount() > 0) {
             mySelectedSdk = myTableModel.getItems().get(myTable.getSelectedRow()).sdk();
         }
-        if (sdkScanIndicator != null)
-            sdkScanIndicator.cancel();
-        sdkScanIndicator = null;
+        if (sdkScanProcess != null)
+            sdkScanProcess.cancel();
+        sdkScanProcess = null;
         dispose();
     }
 
     private void onCancel() {
         mySelectedSdk = null;
-        if (sdkScanIndicator != null)
-            sdkScanIndicator.cancel();
-        sdkScanIndicator = null;
+        if (sdkScanProcess != null)
+            sdkScanProcess.cancel();
+        sdkScanProcess = null;
         dispose();
     }
 
