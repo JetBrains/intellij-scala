@@ -114,10 +114,11 @@ public class SdkSelectionDialog extends JDialog {
         Option<String> result = new VersionDialog(contentPane).showAndGetSelected();
 
         if (result.isDefined()) {
-            int rowIndex = setSelectionInterval(result.get());
-
-            myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
-            onOK();
+            createScanTask(null, () -> {
+                int rowIndex = setSelectionInterval(result.get());
+                myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+                onOK();
+            }).queue();
         }
     }
 
