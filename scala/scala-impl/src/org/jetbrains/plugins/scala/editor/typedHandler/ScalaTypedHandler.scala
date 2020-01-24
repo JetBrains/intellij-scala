@@ -103,7 +103,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       replaceArrowTask(file, editor)
     } else if (c == '$') {
       startAutoPopupCompletion(file, editor)
-    } else if (c == '{') {
       convertToInterpolated(file, editor)
     } else if (c == '.' && isSingleCharOnLine(editor)) {
       addContinuationIndent
@@ -454,10 +453,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
           element.getNode.getElementType match {
             case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
               val chars = file.charSequence
-              if (l.getText.filter(_ == '$').length == 1 && chars.charAt(offset - 2) == '$') {
-                if (chars.charAt(offset) != '}' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
-                  document.insertString(offset, "}")
-                }
+              if (l.getText.filter(_ == '$').length == 1 && chars.charAt(offset - 1) == '$') {
                 document.insertString(l.getTextRange.getStartOffset, "s")
                 document.commit(project)
               }
