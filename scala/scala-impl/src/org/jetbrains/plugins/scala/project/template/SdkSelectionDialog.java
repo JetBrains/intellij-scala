@@ -36,7 +36,7 @@ public class SdkSelectionDialog extends JDialog {
     private final SdkTableModel myTableModel = new SdkTableModel();
     private ScalaSdkDescriptor mySelectedSdk;
 
-    private ProgressIndicator sdkScanProcess;
+    private ProgressIndicator sdkScanIndicator;
 
     public SdkSelectionDialog(JComponent parent, VirtualFile contextDirectory) {
         super((Window) parent.getTopLevelAncestor());
@@ -79,22 +79,25 @@ public class SdkSelectionDialog extends JDialog {
                 true,
                 () -> !maybeProject.isDefault()) {
 
-            private void updateTable(SdkChoice sdkChoice) {
+            private void addToTable(SdkChoice sdkChoice) {
                 ApplicationManager.getApplication().invokeLater(() -> {
+                    int previousSelection = myTable.getSelectedRow();
                     myTableModel.addRow(sdkChoice);
-                    myTable.setModelAndUpdateColumns(myTableModel);
+                    myTableModel.fireTableDataChanged();
+                    if (previousSelection >= 0)
+                        myTable.getSelectionModel().setSelectionInterval(previousSelection, previousSelection);
                 });
             }
 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                sdkScanProcess = indicator;
+                sdkScanIndicator = indicator;
                 ScalaSdkProvider scalaSdkProvider = new ScalaSdkProvider(indicator, contextDirectory);
-                scalaSdkProvider.discoverSDKsAsync(this::updateTable);
+                scalaSdkProvider.discoverSDKs(this::addToTable);
                 if (whenFinished != null) {
                     whenFinished.run();
                 }
-                sdkScanProcess = null;
+                sdkScanIndicator = null;
             }
         };
     }
@@ -135,17 +138,17 @@ public class SdkSelectionDialog extends JDialog {
         if (myTable.getSelectedRowCount() > 0) {
             mySelectedSdk = myTableModel.getItems().get(myTable.getSelectedRow()).sdk();
         }
-        if (sdkScanProcess != null)
-            sdkScanProcess.cancel();
-        sdkScanProcess = null;
+        if (sdkScanIndicator != null)
+            sdkScanIndicator.cancel();
+        sdkScanIndicator = null;
         dispose();
     }
 
     private void onCancel() {
         mySelectedSdk = null;
-        if (sdkScanProcess != null)
-            sdkScanProcess.cancel();
-        sdkScanProcess = null;
+        if (sdkScanIndicator != null)
+            sdkScanIndicator.cancel();
+        sdkScanIndicator = null;
         dispose();
     }
 
