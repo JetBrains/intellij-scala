@@ -634,6 +634,10 @@ package object extensions {
 
     def withNextSiblings: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
 
+    def prevVisualSibling: Option[PsiElement] = element.containingFile.flatMap(file => Option(file.findElementAt(element.getTextRange.getStartOffset - 1)))
+
+    def nextVisualSibling: Option[PsiElement] = element.containingFile.flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
+
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)
 
     def withContexts: Iterator[PsiElement] = new ContextsIterator(element, strict = false)
