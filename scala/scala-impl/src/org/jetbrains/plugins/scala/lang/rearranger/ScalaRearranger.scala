@@ -20,12 +20,13 @@ import org.jetbrains.plugins.scala.lang.rearranger.RearrangerUtils._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.collection.JavaConverters._
-import scala.collection.{immutable, mutable}
+import scala.collection.immutable.HashSet
+import scala.collection.mutable
 
 class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with ArrangementStandardSettingsAware {
 
   override def parseWithNew(root: PsiElement, document: Document, ranges: java.util.Collection[TextRange],
-                                      element: PsiElement, settings: ArrangementSettings): Pair[ScalaArrangementEntry, java.util.List[ScalaArrangementEntry]] = {
+                            element: PsiElement, settings: ArrangementSettings): Pair[ScalaArrangementEntry, java.util.List[ScalaArrangementEntry]] = {
     val groupingRules = getGroupingRules(settings)
 
     val existingInfo = new ScalaArrangementParseInfo
@@ -79,8 +80,8 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     }
   }
 
-  private def getGroupingRules(settings: ArrangementSettings) = {
-    var result = immutable.HashSet[ArrangementSettingsToken]()
+  private def getGroupingRules(settings: ArrangementSettings): Set[ArrangementSettingsToken] = {
+    var result = HashSet[ArrangementSettingsToken]()
     if (settings != null) {
       settings.getGroupings.forEach { rule =>
         result = result + rule.getGroupingType
@@ -94,7 +95,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   override def getSerializer: ArrangementSettingsSerializer = ScalaRearranger.SETTINGS_SERIALIZER
 
   override def getSupportedGroupingTokens: util.List[CompositeArrangementSettingsToken] =
-    seqAsJavaList(immutable.List(new CompositeArrangementSettingsToken(DEPENDENT_METHODS, BREADTH_FIRST, DEPTH_FIRST),
+    seqAsJavaList(List(new CompositeArrangementSettingsToken(DEPENDENT_METHODS, BREADTH_FIRST, DEPTH_FIRST),
       new CompositeArrangementSettingsToken(JAVA_GETTERS_AND_SETTERS),
       new CompositeArrangementSettingsToken(SCALA_GETTERS_AND_SETTERS),
       new CompositeArrangementSettingsToken(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS),
@@ -102,7 +103,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     ))
 
   override def getSupportedMatchingTokens: util.List[CompositeArrangementSettingsToken] =
-    immutable.List(
+    List(
       new CompositeArrangementSettingsToken(General.TYPE, scalaTypesValues.asJavaCollection),
       new CompositeArrangementSettingsToken(General.MODIFIER, scalaModifiers.asJavaCollection),
       new CompositeArrangementSettingsToken(General.ORDER, Order.KEEP, Order.BY_NAME)).asJava
@@ -123,7 +124,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   override def buildMatcher(condition: ArrangementMatchCondition) = throw new IllegalArgumentException("Can't build a matcher for condition " + condition)
 
   override def getMutexes: util.List[util.Set[ArrangementSettingsToken]] =
-    immutable.List(scalaAccessModifiersValues.asJava, scalaTypesValues.asJava).asJava
+    List(scalaAccessModifiersValues.asJava, scalaTypesValues.asJava).asJava
 
   private def setupUtilityMethods(info: ScalaArrangementParseInfo, orderType: ArrangementSettingsToken) {
     if (DEPTH_FIRST == orderType) {
@@ -182,99 +183,71 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 }
 
 object ScalaRearranger {
-  private def addCondition(matchRules: immutable.List[ArrangementSectionRule], conditions: ArrangementSettingsToken*) = {
-    if (conditions.length == 1) {
-      ArrangementSectionRule.create(
-        new StdArrangementMatchRule(
-          new StdArrangementEntryMatcher(new ArrangementAtomMatchCondition(conditions(0), conditions(0)))
-        )
-      ) :: matchRules
+
+  private def rule(tokens: ArrangementSettingsToken*): ArrangementSectionRule = {
+    val conditions = tokens.map(t => new ArrangementAtomMatchCondition(t, t))
+    val condition = if (conditions.length == 1) {
+      conditions.head
     } else {
-      val composite = new ArrangementCompositeMatchCondition
-      for (condition <- conditions) {
-        composite.addOperand(new ArrangementAtomMatchCondition(condition, condition))
-      }
-      ArrangementSectionRule.create(new StdArrangementMatchRule(new StdArrangementEntryMatcher(composite))) :: matchRules
+      new ArrangementCompositeMatchCondition(conditions.asJava)
     }
+    val matcher = new StdArrangementEntryMatcher(condition)
+    val matchRule = new StdArrangementMatchRule(matcher)
+    ArrangementSectionRule.create(matchRule)
   }
 
-  private def getDefaultSettings = {
-    val groupingRules = immutable.List[ArrangementGroupingRule](new ArrangementGroupingRule(DEPENDENT_METHODS, DEPTH_FIRST), new ArrangementGroupingRule(JAVA_GETTERS_AND_SETTERS),
-      new ArrangementGroupingRule(SCALA_GETTERS_AND_SETTERS), new ArrangementGroupingRule(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS))
-    var matchRules = immutable.List[ArrangementSectionRule]()
-    matchRules = addCondition(matchRules, OBJECT, IMPLICIT)
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, FUNCTION, access, IMPLICIT)
-    }
-    matchRules = addCondition(matchRules, CLASS, IMPLICIT)
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, TYPE, access, FINAL)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, TYPE, access)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, VAL, access, FINAL, LAZY)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, VAL, access, FINAL)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, VAL, access, LAZY)
-    }
-    matchRules = addCondition(matchRules, VAL, ABSTRACT)
-    matchRules = addCondition(matchRules, VAL, RearrangerUtils.OVERRIDE)
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, VAL, access)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, VAR, access, RearrangerUtils.OVERRIDE)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, VAR, access)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, CONSTRUCTOR, access)
-    }
-    matchRules = addCondition(matchRules, CONSTRUCTOR)
-    matchRules = addCondition(matchRules, FUNCTION, PUBLIC, FINAL, RearrangerUtils.OVERRIDE)
-    matchRules = addCondition(matchRules, FUNCTION, PROTECTED, FINAL, RearrangerUtils.OVERRIDE)
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, FUNCTION, access)
-    }
-    matchRules = addCondition(matchRules, MACRO, PUBLIC, RearrangerUtils.OVERRIDE)
-    matchRules = addCondition(matchRules, MACRO, PROTECTED, RearrangerUtils.OVERRIDE)
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, MACRO, access)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, TRAIT, access, ABSTRACT, SEALED)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, TRAIT, access, ABSTRACT)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, TRAIT, access, SEALED)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, TRAIT, access)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, CLASS, access, ABSTRACT, SEALED)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, CLASS, access, ABSTRACT)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, CLASS, access, SEALED)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, CLASS, access)
-    }
-    for (access <- scalaAccessModifiersValues) {
-      matchRules = addCondition(matchRules, OBJECT, access)
-    }
-    //TODO: Is 'override' ok for macros?
+  private def getDefaultSettings: StdArrangementSettings = {
+
+    val groupingRules = List[ArrangementGroupingRule](
+      new ArrangementGroupingRule(DEPENDENT_METHODS, DEPTH_FIRST),
+      new ArrangementGroupingRule(JAVA_GETTERS_AND_SETTERS),
+      new ArrangementGroupingRule(SCALA_GETTERS_AND_SETTERS),
+      new ArrangementGroupingRule(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS)
+    )
+
+    val accessModifiers = scalaAccessModifiersValues
+
+    var matchRules = mutable.Buffer.empty[ArrangementSectionRule]
+    matchRules += rule(OBJECT, IMPLICIT)
+    matchRules ++= accessModifiers.map(access => rule(FUNCTION, access, IMPLICIT))
+    matchRules += rule(CLASS, IMPLICIT)
+
+    matchRules ++= accessModifiers.map(access => rule(TYPE, access, FINAL))
+    matchRules ++= accessModifiers.map(access => rule(TYPE, access))
+
+    matchRules ++= accessModifiers.map(access => rule(VAL, access, FINAL, LAZY))
+    matchRules ++= accessModifiers.map(access => rule(VAL, access, FINAL))
+    matchRules ++= accessModifiers.map(access => rule(VAL, access, LAZY))
+    matchRules += rule(VAL, ABSTRACT)
+    matchRules += rule(VAL, RearrangerUtils.OVERRIDE)
+    matchRules ++= accessModifiers.map(access => rule(VAL, access))
+
+    matchRules ++= accessModifiers.map(access => rule(VAR, access, RearrangerUtils.OVERRIDE))
+    matchRules ++= accessModifiers.map(access => rule(VAR, access))
+
+    matchRules ++= accessModifiers.map(access => rule(CONSTRUCTOR, access))
+    matchRules += rule(CONSTRUCTOR)
+
+    matchRules += rule(FUNCTION, PUBLIC, FINAL, RearrangerUtils.OVERRIDE)
+    matchRules += rule(FUNCTION, PROTECTED, FINAL, RearrangerUtils.OVERRIDE)
+    matchRules ++= accessModifiers.map(access => rule(FUNCTION, access))
+
+    //TODO: Is 'override' ok with macros?
+    matchRules += rule(MACRO, PUBLIC, RearrangerUtils.OVERRIDE)
+    matchRules += rule(MACRO, PROTECTED, RearrangerUtils.OVERRIDE)
+
+    matchRules ++= accessModifiers.map(access => rule(MACRO, access))
+    matchRules ++= accessModifiers.map(access => rule(TRAIT, access, ABSTRACT, SEALED))
+    matchRules ++= accessModifiers.map(access => rule(TRAIT, access, ABSTRACT))
+    matchRules ++= accessModifiers.map(access => rule(TRAIT, access, SEALED))
+    matchRules ++= accessModifiers.map(access => rule(TRAIT, access))
+
+    matchRules ++= accessModifiers.map(access => rule(CLASS, access, ABSTRACT, SEALED))
+    matchRules ++= accessModifiers.map(access => rule(CLASS, access, ABSTRACT))
+    matchRules ++= accessModifiers.map(access => rule(CLASS, access, SEALED))
+    matchRules ++= accessModifiers.map(access => rule(CLASS, access))
+
+    matchRules ++= accessModifiers.map(access => rule(OBJECT, access))
 
     new StdArrangementSettings(groupingRules.asJava, matchRules.reverse.asJava)
   }
