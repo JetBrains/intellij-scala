@@ -323,11 +323,6 @@ object ScalaResolveResult {
         }
       }
 
-      val isDeprecated = element match {
-        case doc: PsiDocCommentOwner => doc.isDeprecated
-        case _ => false
-      }
-
       val Setter = """(.*)_=""".r
       val (name, isAssignment) = isRenamed.getOrElse(element.name) match {
         case Setter(string) if !element.isInstanceOf[FakePsiMethod] => //if element is fake psi method, then this setter is already generated from var
@@ -339,7 +334,6 @@ object ScalaResolveResult {
       val result = new ScalaLookupItem(element, name, containingClass)
       result.isClassName = isClassName
       result.isNamedParameter = resolveResult.isNamedParameter
-      result.isDeprecated = isDeprecated
       result.isOverloadedForClassName = isOverloadedForClassName
       result.isRenamed = isRenamed
       result.isUnderlined = resolveResult.implicitFunction.isDefined
