@@ -6,7 +6,6 @@ import com.intellij.codeInsight.completion.{CompletionType, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupItem}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.IconUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction.getImportHolder
 import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, PrefixPackageToImport, TypeAliasToImport}
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection
@@ -55,7 +54,6 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var shouldImport: Boolean = false
   var isOverloadedForClassName: Boolean = false
   var isNamedParameter: Boolean = false
-  var isDeprecated: Boolean = false
   var isUnderlined: Boolean = false
   var isInImport: Boolean = false
   var isInStableCodeReference: Boolean = false
@@ -95,15 +93,15 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     if (isNamedParameter) {
       presentation.setTailText(s" = $typeText")
     } else {
-      val greyed = element match {
+      val grayed = element match {
         case _: PsiPackage | _: PsiClass => true
         case _ => false
       }
-      presentation.setTailText(tailText, greyed)
+      presentation.setTailText(tailText, grayed)
       presentation.setTypeText(typeText)
     }
-    if (presentation.isReal) presentation.setIcon(element.getIcon(0))
-    else presentation.setIcon(IconUtil.getEmptyIcon(false))
+
+    presentation.setIcon(element)
 
     var itemText: String =
       if (isRenamed.nonEmpty)
@@ -113,9 +111,10 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
       else name
 
     if (someSmartCompletion) itemText = "Some(" + itemText + ")"
-
     presentation.setItemText(itemText)
-    presentation.setStrikeout(isDeprecated)
+
+    presentation.setStrikeout(element)
+
     presentation.setItemTextBold(bold)
     if (ScalaProjectSettings.getInstance(element.getProject).isShowImplisitConversions) {
       presentation.setItemTextUnderlined(isUnderlined)

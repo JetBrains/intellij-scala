@@ -18,7 +18,6 @@ class ScalaContainingClassWeigher extends CompletionWeigher {
         namedElement match {
           case _ if item.isLocalVariable => local
           case _ if item.isUnderlined => underlined
-          case _ if item.isDeprecated => deprecated
           case _ if item.isNamedParameter => nparam
           case _ if item.bold => bold
           case func: ScFunction if func.getContainingClass == null => localFunc
@@ -30,7 +29,7 @@ class ScalaContainingClassWeigher extends CompletionWeigher {
   }
 
   object KindWeights extends Enumeration {
-    val deprecated, underlined, normal, nparam, bold, localFunc, local = Value
+    val underlined, normal, nparam, bold, localFunc, local = Value
   }
 
 }
