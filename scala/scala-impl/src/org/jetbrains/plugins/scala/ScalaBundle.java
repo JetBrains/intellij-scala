@@ -15,41 +15,27 @@
 
 package org.jetbrains.plugins.scala;
 
-import com.intellij.CommonBundle;
+import com.intellij.DynamicBundle;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
-
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.util.ResourceBundle;
 
 /**
  * User: Dmitry.Krasilschikov
  * Date: 02.10.2006
  *
  */
-public class ScalaBundle {
-
-  private static Reference<ResourceBundle> ourBundle;
-
+public class ScalaBundle extends DynamicBundle {
   @NonNls
   private static final String BUNDLE = "org.jetbrains.plugins.scala.ScalaBundle";
 
-  private static final String x = "wrong.val.declaration";
+  private static final ScalaBundle INSTANCE = new ScalaBundle();
 
-  public static String message(@PropertyKey(resourceBundle = BUNDLE)String key, Object... params) {
-    return CommonBundle.message(getBundle(), key, params);
+  private ScalaBundle() {
+    super(BUNDLE);
   }
 
-  private static ResourceBundle getBundle() {
-    ResourceBundle bundle = null;
-
-    if (ourBundle != null) bundle = ourBundle.get();
-
-    if (bundle == null) {
-      bundle = ResourceBundle.getBundle(BUNDLE);
-      ourBundle = new SoftReference<ResourceBundle>(bundle);
-    }
-    return bundle;
+  public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, @NotNull Object... params) {
+    return INSTANCE.getMessage(key, params);
   }
 }
