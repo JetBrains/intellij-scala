@@ -1,35 +1,22 @@
 package org.jetbrains.plugins.scala.conversion;
 
-import com.intellij.CommonBundle;
-import com.intellij.reference.SoftReference;
+
+import com.intellij.DynamicBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-import java.lang.ref.Reference;
-import java.util.ResourceBundle;
-
-public class ScalaConversionBundle {
-
-    public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, @NotNull Object... params) {
-        return CommonBundle.message(getBundle(), key, params);
-    }
-
-    private static Reference<ResourceBundle> ourBundle;
+public class ScalaConversionBundle extends DynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaConversionBundle";
 
+    private static final ScalaConversionBundle INSTANCE = new ScalaConversionBundle();
+
     private ScalaConversionBundle() {
+        super(BUNDLE);
     }
 
-    private static ResourceBundle getBundle() {
-        ResourceBundle bundle = SoftReference.dereference(ourBundle);
-        if (bundle == null) {
-            bundle = ResourceBundle.getBundle(BUNDLE);
-            ourBundle = new SoftReference<>(bundle);
-        }
-        return bundle;
+    public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, @NotNull Object... params) {
+        return INSTANCE.getMessage(key, params);
     }
 }
-
-
