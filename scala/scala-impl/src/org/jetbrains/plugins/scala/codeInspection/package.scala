@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -81,4 +82,15 @@ package object codeInspection {
       case parameters => ScParameterizedType(designatorType, parameters.map(UndefinedType(_)))
     }
   }
+
+  private[codeInspection] class ExpressionOfTypeMatcher(fqn: String) {
+    def unapply(expr: ScExpression): Option[ScExpression] = expr match {
+      case Typeable(ty) if conformsToTypeFromClass(ty, fqn)(expr) => Some(expr)
+      case _ => None
+    }
+  }
+
+  val booleanExpr = new ExpressionOfTypeMatcher("scala.Boolean")
+  val charExpr = new ExpressionOfTypeMatcher("scala.Char")
+  val stringExpr = new ExpressionOfTypeMatcher("java.lang.String")
 }
