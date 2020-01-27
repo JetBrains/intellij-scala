@@ -35,5 +35,4 @@ object DebuggerTestUtil {
         val jdkHome = homeDirectory.getCanonicalPath
         Registry.get("compiler.process.jdk").setValue(jdkHome)
     }
-
- }
+}
