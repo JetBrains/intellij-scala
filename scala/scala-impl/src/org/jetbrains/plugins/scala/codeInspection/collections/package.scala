@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -357,7 +357,7 @@ package object collections {
       case ref: ScReferenceExpression => ref.resolve()
     }.flatMap {
       case obj: ScObject => Some(obj)
-      case member: ScMember => Option(member.containingClass)
+      case member: PsiMember => Option(member.containingClass)
       case _ => None
     }.exists {
       qualifiedNameFitToPatterns(_, patterns)
