@@ -113,7 +113,7 @@ object ScalaPluginUpdater {
     doUpdatePluginHosts(branch)
     if(UpdateSettings.getInstance().isCheckNeeded) {
       UpdateChecker.updateAndShowResult()
-        .doWhenDone(extensions.toRunnable(postCheckIdeaCompatibility(branch)))
+        .doWhenDone(() => postCheckIdeaCompatibility(branch))
     }
   }
 

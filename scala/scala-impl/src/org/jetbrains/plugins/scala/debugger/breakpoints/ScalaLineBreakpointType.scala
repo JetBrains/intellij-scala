@@ -147,7 +147,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
         if (dumbService.isDumb) {
           breakpoint match {
             case breakpointImpl: XLineBreakpointImpl[_] =>
-              dumbService.smartInvokeLater {
+              dumbService.smartInvokeLater { () =>
                 executeOnPooledThread {
                   if (lineBp.isValid) {
                     inReadAction(getContainingMethod(lineBp)) //populating caches outside edt

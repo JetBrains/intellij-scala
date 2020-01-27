@@ -533,7 +533,7 @@ object ScalaRefactoringUtil {
       }
     })
 
-    val callback: Runnable = callbackInTransaction(editor.getProject) {
+    val callback: Runnable = () => invokeLaterInTransaction(editor.getProject) {
       onChosen(list.getSelectedValue.asInstanceOf[T])
     }
 

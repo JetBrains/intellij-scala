@@ -190,9 +190,9 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private def saveConfigChangesToFile(configTextNew: String, vFile: VirtualFile): Unit = {
     val document = inReadAction(FileDocumentManager.getInstance.getDocument(vFile))
     inWriteAction {
-      ApplicationManager.getApplication.invokeAndWait({
+      invokeAndWait(ModalityState.current()) {
         document.setText(configTextNew)
-      }, ModalityState.current())
+      }
     }
     configText = Some(configTextNew)
   }

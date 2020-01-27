@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.openapi.application.ApplicationManager.{getApplication => Application}
-import com.intellij.openapi.command.CommandProcessor.{getInstance => CommandProcessor}
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.compiler._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
@@ -31,8 +30,8 @@ class ReformatOnCompileTask(project: Project) extends CompileTask {
     if shouldFormatFile(psiFile, scalaSettings)
     psiFile <- psiFile.asOptionOf[ScalaFile].filterNot(_.isWorksheetFile)
   } {
-    Application.invokeAndWait {
-      CommandProcessor.runUndoTransparentAction {
+    invokeAndWait { () =>
+      CommandProcessor.getInstance().runUndoTransparentAction { () =>
         CodeStyleManager.getInstance(project).reformat(psiFile)
       }
     }

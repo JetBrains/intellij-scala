@@ -1059,8 +1059,6 @@ package object extensions {
 
   implicit def toProcessor[T](action: T => Boolean): Processor[T] = (t: T) => action(t)
 
-  implicit def toRunnable(action: => Any): Runnable = () => action
-
   implicit def toComputable[T](action: => T): Computable[T] = () => action
 
   implicit def toCallable[T](action: => T): Callable[T] = () => action
@@ -1100,7 +1098,7 @@ package object extensions {
     )
 
   def executeUndoTransparentAction(body: => Any): Unit =
-    CommandProcessor.getInstance().runUndoTransparentAction(body)
+    CommandProcessor.getInstance().runUndoTransparentAction(() => body)
 
   def inWriteAction[T](body: => T): T = ApplicationManager.getApplication match {
     case application if application.isWriteAccessAllowed => body
@@ -1120,7 +1118,7 @@ package object extensions {
   def ifReadAllowed[T](body: => T)(default: => T): T = {
     try {
       val ref = Ref.create[T]
-      ProgressManager.getInstance().executeNonCancelableSection {
+      ProgressManager.getInstance().executeNonCancelableSection { () =>
         ref.set(ApplicationUtil.tryRunReadAction(body))
       }
       ref.get
@@ -1173,7 +1171,9 @@ package object extensions {
     ApplicationManager.getApplication.invokeLater(() => body)
 
   def invokeLater[T](modalityState: ModalityState)(body: => T): Unit =
-    ApplicationManager.getApplication.invokeLater(() => body, modalityState)
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      override def run(): Unit = body
+    }, modalityState)
 
   def invokeAndWait[T](body: => T): T = {
     val result = new AtomicReference[T]()
@@ -1188,15 +1188,13 @@ package object extensions {
       ApplicationManager.getApplication.invokeAndWait(() => body, modalityState)
     }
 
-  def callbackInTransaction(disposable: Disposable)(body: => Unit): Runnable = {
-    TransactionGuard.getInstance().submitTransactionLater(disposable, body)
-  }
+  def invokeLaterInTransaction(disposable: Disposable)(body: => Unit): Unit =
+    TransactionGuard.getInstance().submitTransactionLater(disposable, () => body)
 
-  def invokeAndWaitInTransaction(disposable: Disposable)(body: => Unit): Unit = {
-    TransactionGuard.getInstance().submitTransactionAndWait(disposable, body)
-  }
+  def invokeAndWaitInTransaction(body: => Unit): Unit =
+    TransactionGuard.getInstance().submitTransactionAndWait(() => body)
 
-  private def preservingControlFlow(body: => Unit) {
+  private def preservingControlFlow(body: => Unit): Unit =
     try {
       body
     } catch {
@@ -1205,7 +1203,6 @@ package object extensions {
         case _ => throw e
       }
     }
-  }
 
   /** Create a PartialFunction from a sequence of cases. Workaround for pattern matcher bug */
   def pf[A, B](cases: PartialFunction[A, B]*): PartialFunction[A, B] = new PartialFunction[A, B] {
