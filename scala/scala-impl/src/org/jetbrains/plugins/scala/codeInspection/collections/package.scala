@@ -341,7 +341,7 @@ package object collections {
 
   def isIndependentOf(expr: ScExpression, parameter: ScParameter): Boolean = {
     var result = true
-    val name = parameter.getName
+    val name = parameter.name
     val visitor = new ScalaRecursiveElementVisitor() {
       override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
         if (ref.refName == name && ref.resolve() == parameter) result = false
