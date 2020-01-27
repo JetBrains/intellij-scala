@@ -10,7 +10,7 @@ import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.PsiElement
 import com.intellij.ui._
 import javax.swing._
-import javax.swing.event.{ChangeEvent, ChangeListener}
+import javax.swing.event.ChangeEvent
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -22,11 +22,11 @@ import org.jetbrains.plugins.scala.util.JListCompatibility
  * 5/17/13
  */
 object OperationOnCollectionInspectionBase {
-  val inspectionId = InspectionBundle.message("operation.on.collection.id")
-  val inspectionName = InspectionBundle.message("operation.on.collection.name")
+  val inspectionId: String = InspectionBundle.message("operation.on.collection.id")
+  val inspectionName: String = InspectionBundle.message("operation.on.collection.name")
 
-  val likeOptionClassesDefault = Array("scala.Option", "scala.Some", "scala.None")
-  val likeCollectionClassesDefault = Array("scala.collection._", "scala.Array", "scala.Option", "scala.Some", "scala.None")
+  val likeOptionClassesDefault: Array[String] = Array("scala.Option", "scala.Some", "scala.None")
+  val likeCollectionClassesDefault: Array[String] = Array("scala.collection._", "scala.Array", "scala.Option", "scala.Some", "scala.None")
 
   private val likeOptionKey = "operation.on.collection.like.option"
   private val likeCollectionKey = "operation.on.collection.like.collection"
@@ -82,7 +82,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
 
   def possibleSimplificationTypes: Array[SimplificationType]
   def getSimplificationTypesEnabled: Array[java.lang.Boolean]
-  def setSimplificationTypesEnabled(values: Array[java.lang.Boolean])
+  def setSimplificationTypesEnabled(values: Array[java.lang.Boolean]): Unit
 
   private val patternLists = Map(
     likeCollectionKey -> getLikeCollectionClasses _,
@@ -103,11 +103,9 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
       for (i <- possibleSimplificationTypes.indices) {
         val enabled: Array[java.lang.Boolean] = getSimplificationTypesEnabled
         val checkBox = new JCheckBox(possibleSimplificationTypes(i).description, enabled(i))
-        checkBox.getModel.addChangeListener(new ChangeListener {
-          def stateChanged(e: ChangeEvent) {
-            enabled(i) = checkBox.isSelected
-            setSimplificationTypesEnabled(enabled)
-          }
+        checkBox.getModel.addChangeListener((_: ChangeEvent) => {
+          enabled(i) = checkBox.isSelected
+          setSimplificationTypesEnabled(enabled)
         })
         innerPanel.add(checkBox)
       }
@@ -123,12 +121,12 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
       val listModel = JListCompatibility.createDefaultListModel()
       patternList.foreach(JListCompatibility.add(listModel, listModel.size, _))
       val patternJBList = JListCompatibility.createJBListFromModel(listModel)
-      def resetValues() {
+      def resetValues(): Unit = {
         val newArray = listModel.toArray collect {case s: String => s}
         setPatternLists(patternListKey)(newArray)
       }
       val panel = ToolbarDecorator.createDecorator(patternJBList).setAddAction(new AnActionButtonRunnable {
-        def addPattern(pattern: String) {
+        def addPattern(pattern: String): Unit = {
           if (pattern == null) return
           val index: Int = - util.Arrays.binarySearch (listModel.toArray, pattern) - 1
           if (index < 0) return
@@ -139,18 +137,16 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
           IdeFocusManager.getGlobalInstance.requestFocus(patternJBList, false)
         }
 
-        def run(button: AnActionButton) {
+        override def run(button: AnActionButton): Unit = {
           val validator: InputValidator = ScalaProjectSettingsUtil.getPatternValidator
           val inputMessage = inputMessages(patternListKey)
           val inputTitle = inputTitles(patternListKey)
           val newPattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
           addPattern(newPattern)
         }
-      }).setRemoveAction(new AnActionButtonRunnable {
-        def run(t: AnActionButton) {
-          patternJBList.getSelectedIndices.foreach(listModel.removeElementAt)
-          resetValues()
-        }
+      }).setRemoveAction((t: AnActionButton) => {
+        patternJBList.getSelectedIndices.foreach(listModel.removeElementAt)
+        resetValues()
       }).disableUpDownActions.createPanel
 
       val title = panelTitles(patternListKey)
