@@ -23,7 +23,7 @@ class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
     if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
 
     new ScalaElementVisitor {
-      override def visitReferenceExpression(ref: ScReferenceExpression) {
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
         val resolve = ref.resolve()
 
         resolve match {

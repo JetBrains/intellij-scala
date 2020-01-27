@@ -343,7 +343,7 @@ package object collections {
     var result = true
     val name = parameter.getName
     val visitor = new ScalaRecursiveElementVisitor() {
-      override def visitReferenceExpression(ref: ScReferenceExpression) {
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
         if (ref.refName == name && ref.resolve() == parameter) result = false
         super.visitReferenceExpression(ref)
       }
