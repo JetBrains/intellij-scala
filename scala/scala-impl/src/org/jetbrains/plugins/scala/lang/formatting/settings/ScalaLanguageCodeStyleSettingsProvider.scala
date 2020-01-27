@@ -16,14 +16,6 @@ import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import scala.collection.mutable.ArrayBuffer
 
 class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
-  //custom groups
-  private val METHOD_DEFINITION = "Method definition"
-  private val ANONYMOUS_METHOD = "Anonymous method definition"
-  private val CLASS_DEFINITION = "Class definition"
-  private val XML_FORMATTING = "Xml formatting"
-  private val TUPLES_WRAP = "Tuple"
-  private val TYPE_ARGUMENTS = "Type Arguments"
-  private val TYPE_PARAMETERS = "Type Parameters"
 
   override def createConfigurable(baseSettings: CodeStyleSettings, modelSettings: CodeStyleSettings): CodeStyleConfigurable =
     new ScalaCodeStyleAbstractConfigurable(baseSettings, modelSettings)
@@ -38,18 +30,17 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
   override def createCustomSettings(settings: CodeStyleSettings) = new ScalaCodeStyleSettings(settings)
 
-  def getCodeSample(settingsType: SettingsType): String = {
+  override def getCodeSample(settingsType: SettingsType): String =
     settingsType match {
-      case SettingsType.INDENT_SETTINGS => IndentsCodeSample
-      case SettingsType.SPACING_SETTINGS => SpacingCodeSample
+      case SettingsType.INDENT_SETTINGS              => IndentsCodeSample
+      case SettingsType.SPACING_SETTINGS             => SpacingCodeSample
       case SettingsType.WRAPPING_AND_BRACES_SETTINGS => WrappingAndBracesSample
-      case SettingsType.BLANK_LINES_SETTINGS => BlankLinesCodeSample
-      // TODO: looks like other setting types are not displayed for now
-      case SettingsType.LANGUAGE_SPECIFIC => GeneralCodeSample
-      case _ => GeneralCodeSample
+      case SettingsType.BLANK_LINES_SETTINGS         => BlankLinesCodeSample
+      case SettingsType.LANGUAGE_SPECIFIC            => GeneralCodeSample // TODO: looks like other setting types are not displayed for now
+      case _                                         => GeneralCodeSample
     }
-  }
 
+  // TODO: remove deprecated
   override def getDefaultCommonSettings: CommonCodeStyleSettings = {
     val commonSettings = new CommonCodeStyleSettings(getLanguage)
     val indentOptions = commonSettings.initIndentOptions
@@ -61,13 +52,15 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   }
 
   override def customizeSettings(consumer: CodeStyleSettingsCustomizable, settingsType: SettingsType) {
-    val buffer: ArrayBuffer[String] = new ArrayBuffer
+    val settingsToEnable: ArrayBuffer[String] = new ArrayBuffer
+
+    def enableSettings(@NonNls fieldNames: String*): Unit = settingsToEnable ++= fieldNames
 
     //spacing
     if (settingsType == SettingsType.SPACING_SETTINGS) {
       consumer.renameStandardOption("SPACE_BEFORE_TYPE_PARAMETER_LIST", "Before opening square bracket")
 
-      buffer ++= Seq(
+      enableSettings(
         // After
         "SPACE_AFTER_COMMA",
         "SPACE_AFTER_SEMICOLON",
@@ -93,7 +86,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
     //blank lines
     if (settingsType == SettingsType.BLANK_LINES_SETTINGS) {
-      buffer ++= Seq(
+      enableSettings(
         "KEEP_BLANK_LINES_IN_CODE",
         "BLANK_LINES_AFTER_CLASS_HEADER",
         "KEEP_BLANK_LINES_BEFORE_RBRACE",
@@ -113,13 +106,13 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
     //wrapping and Braces
     if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
-      consumer.renameStandardOption("BINARY_OPERATION_WRAP", "Infix expressions")
-      consumer.renameStandardOption("EXTENDS_LIST_WRAP", "Extends/with list")
-      consumer.renameStandardOption("EXTENDS_KEYWORD_WRAP", "Extends keyword")
-      consumer.renameStandardOption("FOR_BRACE_FORCE", "Force yield braces")
+      consumer.renameStandardOption("BINARY_OPERATION_WRAP", ScalaBundle.message("wrapping.and.braces.panel.renamed.infix.expressions"))
+      consumer.renameStandardOption("EXTENDS_LIST_WRAP"    , ScalaBundle.message("wrapping.and.braces.panel.renamed.extends.with.list"))
+      consumer.renameStandardOption("EXTENDS_KEYWORD_WRAP" , ScalaBundle.message("wrapping.and.braces.panel.renamed.extends.keyword"))
+      consumer.renameStandardOption("FOR_BRACE_FORCE"      , ScalaBundle.message("wrapping.and.braces.panel.renamed.force.yield.braces"))
 
       //Binary expression section
-      buffer ++= Seq(
+      enableSettings(
         "BINARY_OPERATION_WRAP",
         "ALIGN_MULTILINE_BINARY_OPERATION",
         "ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION",
@@ -128,7 +121,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       )
 
       //Method calls section
-      buffer ++= Seq(
+      enableSettings(
         "CALL_PARAMETERS_WRAP",
         "ALIGN_MULTILINE_PARAMETERS_IN_CALLS",
         "PREFER_PARAMETERS_WRAP",
@@ -136,7 +129,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       )
 
       //method call chain
-      buffer ++= Seq(
+      enableSettings(
         "METHOD_CALL_CHAIN_WRAP",
         "WRAP_FIRST_METHOD_IN_CALL_CHAIN",
         "ALIGN_MULTILINE_CHAINED_METHODS",
@@ -144,20 +137,20 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       )
 
       //brace placement
-      buffer ++= Seq(
+      enableSettings(
         "CLASS_BRACE_STYLE",
         "METHOD_BRACE_STYLE",
         "BRACE_STYLE"
       )
 
       //extends list wrap
-      buffer ++= Seq(
+      enableSettings(
         "EXTENDS_LIST_WRAP",
         "EXTENDS_KEYWORD_WRAP"
       )
 
       //method parameters
-      buffer ++= Seq(
+      enableSettings(
         "METHOD_PARAMETERS_WRAP",
         "ALIGN_MULTILINE_PARAMETERS",
         "METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE",
@@ -165,14 +158,14 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       )
 
       //if statement
-      buffer ++= Seq(
+      enableSettings(
         "IF_BRACE_FORCE",
         "ELSE_ON_NEW_LINE",
         "SPECIAL_ELSE_IF_TREATMENT"
       )
 
       //brace forces
-      buffer ++= Seq(
+      enableSettings(
         "FOR_BRACE_FORCE",
         "WHILE_BRACE_FORCE",
         "DOWHILE_BRACE_FORCE",
@@ -185,15 +178,15 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       )
 
       //modifier list wrap
-      buffer ++= Seq("MODIFIER_LIST_WRAP")
+      enableSettings("MODIFIER_LIST_WRAP")
 
       //align in columns
-      buffer ++= Seq("ALIGN_GROUP_FIELD_DECLARATIONS")
+      enableSettings("ALIGN_GROUP_FIELD_DECLARATIONS")
 
-      buffer ++= Seq("WRAP_LONG_LINES")
+      enableSettings("WRAP_LONG_LINES")
 
       //annotations wrap
-      buffer ++= Seq(
+      enableSettings(
         "CLASS_ANNOTATION_WRAP",
         "METHOD_ANNOTATION_WRAP",
         "FIELD_ANNOTATION_WRAP",
@@ -201,7 +194,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         "VARIABLE_ANNOTATION_WRAP"
       )
 
-      buffer ++= Seq(
+      enableSettings(
         "KEEP_SIMPLE_BLOCKS_IN_ONE_LINE",
         "KEEP_SIMPLE_METHODS_IN_ONE_LINE",
         "KEEP_FIRST_COLUMN_COMMENT"
@@ -210,13 +203,13 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
     //comments generation
     if (settingsType == SettingsType.COMMENTER_SETTINGS) {
-      buffer ++= Seq(
+      enableSettings(
         "LINE_COMMENT_AT_FIRST_COLUMN",
         "BLOCK_COMMENT_AT_FIRST_COLUMN"
       )
     }
 
-    consumer.showStandardOptions(buffer.toArray: _*)
+    consumer.showStandardOptions(settingsToEnable.toArray: _*)
 
     def opt(@NonNls fieldName: String, title: String, groupName: String,
             keysAndValues: (Array[String], Array[Int]) = null): Unit = {
@@ -224,10 +217,15 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, options: _*)
     }
 
-    def opta(fieldName: String, title: String, groupName: String,
-             anchor: OptionAnchor, anchorField: String,
-             keysAndValues: (Array[String], Array[Int]) = null): Unit = {
-      val options = if (keysAndValues != null) Array(keysAndValues._1, keysAndValues._2) else Array()
+    //noinspection SpellCheckingInspection
+    def opta(@NonNls fieldName: String, title: String, groupName: String,
+             anchor: OptionAnchor, @NonNls anchorField: String,
+             keysAndValues: Array[(String, Int)] = Array()): Unit = {
+      val options: Array[AnyRef] = if (keysAndValues.nonEmpty) {
+        Array(keysAndValues.map(_._1), keysAndValues.map(_._2))
+      } else {
+        Array()
+      }
       consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, anchor, anchorField, options: _*)
     }
 
@@ -236,44 +234,55 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
     //Custom options
     if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
-      opt("ALIGN_EXTENDS_WITH", appMessage("wrapping.align.when.multiline"), appMessage("wrapping.extends.implements.list"),
+      import WrappingAndBracesCustomGroupNames._
+
+      // RENAME: implements -> with
+      val TODO = appMessage("wrapping.extends.implements.list")
+      opt("ALIGN_EXTENDS_WITH", appMessage("wrapping.align.when.multiline"), TODO,
         (ScalaCodeStyleSettings.EXTENDS_ALIGN_STRING, ScalaCodeStyleSettings.EXTENDS_ALIGN_VALUES))
-      opt("WRAP_BEFORE_WITH_KEYWORD", "Wrap before 'with' keyword", appMessage("wrapping.extends.implements.list"))
-      opt("ALIGN_IF_ELSE", "Align if-else statements", appMessage("wrapping.if.statement"))
-      opt("METHOD_BRACE_FORCE", "Force braces", METHOD_DEFINITION, BRACE_OPTION_AND_VALUES)
-      opt("TRY_BRACE_FORCE", "Force 'try' braces", GroupNames.WRAPPING_TRY_STATEMENT, BRACE_OPTION_AND_VALUES)
-      opt("FINALLY_BRACE_FORCE", "Force 'finally' braces", GroupNames.WRAPPING_TRY_STATEMENT, BRACE_OPTION_AND_VALUES)
+      opt("WRAP_BEFORE_WITH_KEYWORD", ScalaBundle.message("wrapping.and.braces.panel.wrap.before.with.keyword"), TODO)
+      opt("ALIGN_IF_ELSE", ScalaBundle.message("wrapping.and.braces.panel.align.if.else.statements"), appMessage("wrapping.if.statement"))
+      opt("METHOD_BRACE_FORCE", ScalaBundle.message("wrapping.and.braces.panel.force.braces"), METHOD_DEFINITION, BRACE_OPTION_AND_VALUES)
+      opt("TRY_BRACE_FORCE", ScalaBundle.message("wrapping.and.braces.panel.force.try.braces"), GroupNames.WRAPPING_TRY_STATEMENT, BRACE_OPTION_AND_VALUES)
+      opt("FINALLY_BRACE_FORCE", ScalaBundle.message("wrapping.and.braces.panel.force.finally.braces"), GroupNames.WRAPPING_TRY_STATEMENT, BRACE_OPTION_AND_VALUES)
 
-      opt("CLOSURE_BRACE_FORCE", "Force braces", ANONYMOUS_METHOD, BRACE_OPTION_AND_VALUES)
-      opt("PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE", "Parameters on new line", ANONYMOUS_METHOD)
+      opt("CLOSURE_BRACE_FORCE", ScalaBundle.message("wrapping.and.braces.panel.force.braces"), ANONYMOUS_METHOD, BRACE_OPTION_AND_VALUES)
+      opt("PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE", ScalaBundle.message("wrapping.and.braces.panel.parameters.on.new.line"), ANONYMOUS_METHOD)
 
-      opt("NOT_CONTINUATION_INDENT_FOR_PARAMS", "Use normal indent for parameters", GroupNames.WRAPPING_METHOD_PARAMETERS)
-      opt("ALIGN_TYPES_IN_MULTILINE_DECLARATIONS", "Align parameter types in multiline declarations", GroupNames.WRAPPING_METHOD_PARAMETERS)
-      opt("INDENT_FIRST_PARAMETER", "Indent first parameter if on new line", GroupNames.WRAPPING_METHOD_PARAMETERS)
-      opt("INDENT_FIRST_PARAMETER_CLAUSE", "Indent first parameter clause if on new line", GroupNames.WRAPPING_METHOD_PARAMETERS)
+      opt("NOT_CONTINUATION_INDENT_FOR_PARAMS", ScalaBundle.message("wrapping.and.braces.panel.use.normal.indent.for.parameters"), GroupNames.WRAPPING_METHOD_PARAMETERS)
+      opt("ALIGN_TYPES_IN_MULTILINE_DECLARATIONS", ScalaBundle.message("wrapping.and.braces.panel.align.parameter.types.in.multiline.declarations"), GroupNames.WRAPPING_METHOD_PARAMETERS)
+      opt("INDENT_FIRST_PARAMETER", ScalaBundle.message("wrapping.and.braces.panel.indent.first.parameter.if.on.new.line"), GroupNames.WRAPPING_METHOD_PARAMETERS)
+      opt("INDENT_FIRST_PARAMETER_CLAUSE", ScalaBundle.message("wrapping.and.braces.panel.indent.first.parameter.clause.if.on.new.line"), GroupNames.WRAPPING_METHOD_PARAMETERS)
 
-      consumer.renameStandardOption(GroupNames.WRAPPING_SWITCH_STATEMENT, "'match' statement")
-      opt("DO_NOT_INDENT_CASE_CLAUSE_BODY", "Do not indent case clause body", GroupNames.WRAPPING_SWITCH_STATEMENT)
-      opt("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches", GroupNames.WRAPPING_SWITCH_STATEMENT)
-      opt("ALIGN_COMPOSITE_PATTERN", "Align multiline pattern alternatives", GroupNames.WRAPPING_SWITCH_STATEMENT)
-      opt("CASE_CLAUSE_BRACE_FORCE", "Force 'case' branch braces", GroupNames.WRAPPING_SWITCH_STATEMENT, BRACE_OPTION_AND_VALUES)
+      consumer.renameStandardOption(GroupNames.WRAPPING_SWITCH_STATEMENT, ScalaBundle.message("wrapping.and.braces.panel.match.statement"))
+      opt("DO_NOT_INDENT_CASE_CLAUSE_BODY", ScalaBundle.message("wrapping.and.braces.panel.do.not.indent.case.clause.body"), GroupNames.WRAPPING_SWITCH_STATEMENT)
+      opt("ALIGN_IN_COLUMNS_CASE_BRANCH", ScalaBundle.message("wrapping.and.braces.panel.align.in.columns.case.branches"), GroupNames.WRAPPING_SWITCH_STATEMENT)
+      opt("ALIGN_COMPOSITE_PATTERN", ScalaBundle.message("wrapping.and.braces.panel.align.multiline.pattern.alternatives"), GroupNames.WRAPPING_SWITCH_STATEMENT)
+      opt("CASE_CLAUSE_BRACE_FORCE", ScalaBundle.message("wrapping.and.braces.panel.force.case.branch.braces"), GroupNames.WRAPPING_SWITCH_STATEMENT, BRACE_OPTION_AND_VALUES)
 
-      opt("PLACE_SELF_TYPE_ON_NEW_LINE", "Place self type on new line", CLASS_DEFINITION)
-      opt("KEEP_XML_FORMATTING", "Keep xml formatting", XML_FORMATTING)
-      opt("KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST", "Simple one-line lambdas in arg list", GroupNames.WRAPPING_KEEP)
+      opt("PLACE_SELF_TYPE_ON_NEW_LINE", ScalaBundle.message("wrapping.and.braces.panel.place.self.type.on.new.line"), CLASS_DEFINITION)
+      opt("KEEP_XML_FORMATTING", ScalaBundle.message("wrapping.and.braces.panel.keep.xml.formatting"), XML_FORMATTING)
+      opt("KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST", ScalaBundle.message("wrapping.and.braces.panel.simple.one.line.lambdas.in.arg.list"), GroupNames.WRAPPING_KEEP)
 
-      opt("INDENT_BRACED_FUNCTION_ARGS", "Indent braced arguments", GroupNames.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
-      opt("DO_NOT_ALIGN_BLOCK_EXPR_PARAMS", "Do not align block expression parameters", GroupNames.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
+      opt("INDENT_BRACED_FUNCTION_ARGS", ScalaBundle.message("wrapping.and.braces.panel.indent.braced.arguments"), GroupNames.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
+      opt("DO_NOT_ALIGN_BLOCK_EXPR_PARAMS", ScalaBundle.message("wrapping.and.braces.panel.do.not.align.block.expression.parameters"), GroupNames.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
+
+      val newLinesOptions: Array[(String, Int)] = {
+        import ScalaCodeStyleSettings._
+        Array(
+          ScalaBundle.message("wrapping.and.braces.panel.new.line.options.no.new.line") -> NO_NEW_LINE,
+          ScalaBundle.message("wrapping.and.braces.panel.new.line.options.new.line.always") -> NEW_LINE_ALWAYS,
+          ScalaBundle.message("wrapping.and.braces.panel.new.line.options.new.line.for.multiple.arguments") -> NEW_LINE_FOR_MULTIPLE_ARGUMENTS
+        )
+      }
       opta("CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN", appMessage("wrapping.new.line.after.lpar"), GroupNames.WRAPPING_METHOD_ARGUMENTS_WRAPPING,
-        OptionAnchor.BEFORE, "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE",
-        (Array("No new line", "New line always", "New line for multiple arguments"),
-          Array(ScalaCodeStyleSettings.NO_NEW_LINE, ScalaCodeStyleSettings.NEW_LINE_ALWAYS, ScalaCodeStyleSettings.NEW_LINE_FOR_MULTIPLE_ARGUMENTS))
+        OptionAnchor.BEFORE, "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE", newLinesOptions
       )
-      opt("DO_NOT_INDENT_TUPLES_CLOSE_BRACE", "Do not indent tuples closing parenthesis", TUPLES_WRAP)
-      opt("ALIGN_TUPLE_ELEMENTS", "Align tuple elements", TUPLES_WRAP)
+      opt("DO_NOT_INDENT_TUPLES_CLOSE_BRACE", ScalaBundle.message("wrapping.and.braces.panel.do.not.indent.tuples.closing.parenthesis"), TUPLES_WRAP)
+      opt("ALIGN_TUPLE_ELEMENTS", ScalaBundle.message("wrapping.and.braces.panel.align.tuple.elements"), TUPLES_WRAP)
 
-      opt("INDENT_TYPE_ARGUMENTS", "Indent", TYPE_ARGUMENTS)
-      opt("INDENT_TYPE_PARAMETERS", "Indent", TYPE_PARAMETERS)
+      opt("INDENT_TYPE_ARGUMENTS", ScalaBundle.message("wrapping.and.braces.panel.indent"), TYPE_ARGUMENTS)
+      opt("INDENT_TYPE_PARAMETERS", ScalaBundle.message("wrapping.and.braces.panel.indent"), TYPE_PARAMETERS)
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {
@@ -328,6 +337,18 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 }
 
 object ScalaLanguageCodeStyleSettingsProvider {
+
+  //noinspection TypeAnnotation
+  private object WrappingAndBracesCustomGroupNames {
+    val METHOD_DEFINITION = ScalaBundle.message("wrapping.and.braces.panel.groups.method.definition")
+    val ANONYMOUS_METHOD = ScalaBundle.message("wrapping.and.braces.panel.groups.anonymous.method.definition")
+    val CLASS_DEFINITION = ScalaBundle.message("wrapping.and.braces.panel.groups.class.definition")
+    val XML_FORMATTING = ScalaBundle.message("wrapping.and.braces.panel.groups.xml.formatting")
+    val TUPLES_WRAP = ScalaBundle.message("wrapping.and.braces.panel.groups.tuple")
+    val TYPE_ARGUMENTS = ScalaBundle.message("wrapping.and.braces.panel.groups.type.arguments")
+    val TYPE_PARAMETERS = ScalaBundle.message("wrapping.and.braces.panel.groups.type.parameters")
+  }
+
   private val Log = Logger.getInstance(getClass)
 
   private class ScalaCodeStyleAbstractConfigurable(settings: CodeStyleSettings, cloneSettings: CodeStyleSettings)
