@@ -1,0 +1,19 @@
+<html>
+<body>
+Don't use .getText.contains(char) but PsiElement.textContains(char) on PsiElement or ASTNode.
+
+<p>
+    Before:
+<pre>
+psiElement.getText.contains('x')
+</pre>
+
+<br>
+    After:
+<pre>
+psiElement.textContains('x')
+</pre>
+</p>
+
+</body>
+</html>
