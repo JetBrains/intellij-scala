@@ -26,31 +26,34 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceT
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
-class ScalaResolveResult(val element: PsiNamedElement,
-                         val substitutor: ScSubstitutor = ScSubstitutor.empty,
-                         val importsUsed: Set[ImportUsed] = Set.empty,
-                         val renamed: Option[String] = None,
-                         val problems: Seq[ApplicabilityProblem] = Seq.empty,
-                         val implicitConversion: Option[ScalaResolveResult] = None,
-                         val implicitType: Option[ScType] = None,
-                         val defaultParameterUsed: Boolean = false,
-                         val innerResolveResult: Option[ScalaResolveResult] = None,
-                         val parentElement: Option[PsiNamedElement] = None,
-                         val isNamedParameter: Boolean = false,
-                         val fromType: Option[ScType] = None,
-                         val tuplingUsed: Boolean = false,
-                         val isAssignment: Boolean = false,
-                         val notCheckedResolveResult: Boolean = false,
-                         val isAccessible: Boolean = true,
-                         val resultUndef: Option[ConstraintSystem] = None,
-                         val prefixCompletion: Boolean = false,
-                         val nameArgForDynamic: Option[String] = None, //argument to a dynamic call
-                         val isForwardReference: Boolean = false,
-                         val implicitParameterType: Option[ScType] = None,
-                         val implicitParameters: Seq[ScalaResolveResult] = Seq.empty, // TODO Arguments and parameters should not be used inerchangeably
-                         val implicitReason: ImplicitResult = NoResult,
-                         val implicitSearchState: Option[ImplicitState] = None,
-                         val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None) extends ResolveResult with ProjectContextOwner {
+class ScalaResolveResult(
+  val element:                  PsiNamedElement,
+  val substitutor:              ScSubstitutor = ScSubstitutor.empty,
+  val importsUsed:              Set[ImportUsed] = Set.empty,
+  val renamed:                  Option[String] = None,
+  val problems:                 Seq[ApplicabilityProblem] = Seq.empty,
+  val implicitConversion:       Option[ScalaResolveResult] = None,
+  val implicitType:             Option[ScType] = None,
+  val defaultParameterUsed:     Boolean = false,
+  val innerResolveResult:       Option[ScalaResolveResult] = None,
+  val parentElement:            Option[PsiNamedElement] = None,
+  val isNamedParameter:         Boolean = false,
+  val fromType:                 Option[ScType] = None,
+  val tuplingUsed:              Boolean = false,
+  val isAssignment:             Boolean = false,
+  val notCheckedResolveResult:  Boolean = false,
+  val isAccessible:             Boolean = true,
+  val resultUndef:              Option[ConstraintSystem] = None,
+  val prefixCompletion:         Boolean = false,
+  val nameArgForDynamic:        Option[String] = None, //argument to a dynamic call
+  val isForwardReference:       Boolean = false,
+  val implicitParameterType:    Option[ScType] = None,
+  val implicitParameters:       Seq[ScalaResolveResult] = Seq.empty, // TODO Arguments and parameters should not be used inerchangeably
+  val implicitReason:           ImplicitResult = NoResult,
+  val implicitSearchState:      Option[ImplicitState] = None,
+  val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None
+) extends ResolveResult
+    with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
 
   override implicit def projectContext: ProjectContext = element.getProject

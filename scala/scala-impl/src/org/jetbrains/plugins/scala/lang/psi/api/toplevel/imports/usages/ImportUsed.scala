@@ -18,8 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
  *
  * @author ilyas
  */
-abstract sealed class ImportUsed(_e: PsiElement) {
-  private val pointer: SmartPsiElementPointer[PsiElement] = SmartPointerManager.createPointer(_e)
+abstract sealed class ImportUsed(e: PsiElement) {
+  private val pointer: SmartPsiElementPointer[PsiElement] =
+    SmartPointerManager.createPointer(e)
 
   def element: PsiElement = pointer.getElement
 
