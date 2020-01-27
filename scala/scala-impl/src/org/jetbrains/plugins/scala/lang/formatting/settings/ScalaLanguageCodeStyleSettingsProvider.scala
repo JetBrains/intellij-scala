@@ -40,15 +40,12 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       case _                                         => GeneralCodeSample
     }
 
-  // TODO: remove deprecated
-  override def getDefaultCommonSettings: CommonCodeStyleSettings = {
-    val commonSettings = new CommonCodeStyleSettings(getLanguage)
-    val indentOptions = commonSettings.initIndentOptions
+  override def customizeDefaults(commonSettings: CommonCodeStyleSettings, indentOptions: CommonCodeStyleSettings.IndentOptions): Unit = {
+    super.customizeDefaults(commonSettings, indentOptions)
     indentOptions.INDENT_SIZE = 2
     indentOptions.TAB_SIZE = 2
     indentOptions.CONTINUATION_INDENT_SIZE = 2
     commonSettings.KEEP_FIRST_COLUMN_COMMENT = false //added here to comply with prior default behavior
-    commonSettings
   }
 
   override def customizeSettings(consumer: CodeStyleSettingsCustomizable, settingsType: SettingsType) {
