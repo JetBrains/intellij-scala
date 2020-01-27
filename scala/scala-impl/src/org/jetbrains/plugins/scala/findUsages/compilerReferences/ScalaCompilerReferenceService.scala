@@ -190,34 +190,39 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   override def getModificationCount: Long = compilationCount.longValue()
 
-  override def projectOpened(): Unit =
+  override def projectOpened(): Unit = initializeReferenceService()
+
+  def initializeReferenceService(): Unit =
     if (CompilerIndicesSettings(project).isBytecodeIndexingActive || ApplicationManager.getApplication.isUnitTestMode) {
-
-      inTransaction { _ =>
-        currentCompilerMode = CompilerMode.forProject(project)
-
-        logger.info(
-          s"Initialized ScalaCompilerReferenceService in ${project.getName}, " +
-            s"current compiler mode = $currentCompilerMode"
-        )
-      }
-
-      new JpsCompilationWatcher(project, transactionManager).start()
-      new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
-
-      dirtyScopeHolder.markProjectAsOutdated()
-      dirtyScopeHolder.installVFSListener()
-
-      Disposer.register(project, () => {
-        openCloseLock.locked {
-          if (isIndexingInProgress) {
-            // if the project is force-closed while indexing is in progress - invalidate index
-            indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
-          }
-          closeReader(incrementBuildCount = false)
-        }
-      })
+      initializedReferenceService
     }
+
+  private lazy val initializedReferenceService = {
+    inTransaction { _ =>
+      currentCompilerMode = CompilerMode.forProject(project)
+
+      logger.info(
+        s"Initialized ScalaCompilerReferenceService in ${project.getName}, " +
+          s"current compiler mode = $currentCompilerMode"
+      )
+    }
+
+    new JpsCompilationWatcher(project, transactionManager).start()
+    new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
+
+    dirtyScopeHolder.markProjectAsOutdated()
+    dirtyScopeHolder.installVFSListener()
+
+    Disposer.register(project, () => {
+      openCloseLock.locked {
+        if (isIndexingInProgress) {
+          // if the project is force-closed while indexing is in progress - invalidate index
+          indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
+        }
+        closeReader(incrementBuildCount = false)
+      }
+    })
+  }
 
   private[this] def toCompilerRef(e: PsiElement): Option[CompilerRef] = readDataLock.locked {
     for {
