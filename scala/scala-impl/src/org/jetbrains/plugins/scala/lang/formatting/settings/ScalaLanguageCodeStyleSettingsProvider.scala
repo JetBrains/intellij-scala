@@ -58,7 +58,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
     //spacing
     if (settingsType == SettingsType.SPACING_SETTINGS) {
-      consumer.renameStandardOption("SPACE_BEFORE_TYPE_PARAMETER_LIST", "Before opening square bracket")
+      consumer.renameStandardOption("SPACE_BEFORE_TYPE_PARAMETER_LIST", ScalaBundle.message("spaces.panel.before.opening.square.bracket"))
 
       enableSettings(
         // After
@@ -286,36 +286,36 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {
-      opt("SPACE_AFTER_MODIFIERS_CONSTRUCTOR", "Constructor parameters with modifiers", GroupNames.SPACES_BEFORE_PARENTHESES)
-      opt("SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES", "Infix method call parentheses", GroupNames.SPACES_BEFORE_PARENTHESES)
-      opt("SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES", "Infix operator-like method call parentheses", GroupNames.SPACES_BEFORE_PARENTHESES)
-      opt("SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES", "Infix method parentheses", GroupNames.SPACES_BEFORE_PARENTHESES)
-      opt("PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME", "Preserve space before method parentheses", GroupNames.SPACES_BEFORE_PARENTHESES)
+      opt("SPACE_AFTER_MODIFIERS_CONSTRUCTOR", ScalaBundle.message("spaces.panel.constructor.parameters.with.modifiers"), GroupNames.SPACES_BEFORE_PARENTHESES)
+      opt("SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES", ScalaBundle.message("spaces.panel.infix.method.call.parentheses"), GroupNames.SPACES_BEFORE_PARENTHESES)
+      opt("SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES", ScalaBundle.message("spaces.panel.infix.operator.like.method.call.parentheses"), GroupNames.SPACES_BEFORE_PARENTHESES)
+      opt("SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES", ScalaBundle.message("spaces.panel.infix.method.parentheses"), GroupNames.SPACES_BEFORE_PARENTHESES)
+      opt("PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME", ScalaBundle.message("spaces.panel.preserve.space.before.method.parentheses"), GroupNames.SPACES_BEFORE_PARENTHESES)
 
-      opta("SPACE_BEFORE_BRACE_METHOD_CALL", "Method call left brace", GroupNames.SPACES_BEFORE_LEFT_BRACE,
+      opta("SPACE_BEFORE_BRACE_METHOD_CALL", ScalaBundle.message("spaces.panel.method.call.left.brace"), GroupNames.SPACES_BEFORE_LEFT_BRACE,
         GroupNames.OptionAnchor.AFTER, "SPACE_BEFORE_METHOD_LBRACE")
 
-      opt("SPACE_AFTER_TYPE_COLON", "After colon, before declarations' type", GroupNames.SPACES_OTHER)
-      opt("SPACE_BEFORE_TYPE_COLON", "Before colon, after declarations' name", GroupNames.SPACES_OTHER)
-      opt("SPACE_INSIDE_CLOSURE_BRACES", "Inside closure braces", GroupNames.SPACES_OTHER)
-      opt("SPACES_AROUND_AT_IN_PATTERNS", "Around '@' in pattern bindings", GroupNames.SPACES_OTHER)
-      opt("NEWLINE_AFTER_ANNOTATIONS", "Newline after annotations", GroupNames.SPACES_OTHER)
-      opt("KEEP_COMMENTS_ON_SAME_LINE", "Keep one-line comments on same line", GroupNames.SPACES_OTHER)
+      opt("SPACE_AFTER_TYPE_COLON", ScalaBundle.message("spaces.panel.after.colon.before.declarations.type"), GroupNames.SPACES_OTHER)
+      opt("SPACE_BEFORE_TYPE_COLON", ScalaBundle.message("spaces.panel.before.colon.after.declarations.name"), GroupNames.SPACES_OTHER)
+      opt("SPACE_INSIDE_CLOSURE_BRACES", ScalaBundle.message("spaces.panel.inside.closure.braces"), GroupNames.SPACES_OTHER)
+      opt("SPACES_AROUND_AT_IN_PATTERNS", ScalaBundle.message("spaces.panel.around.at.in.pattern.bindings"), GroupNames.SPACES_OTHER)
+      opt("NEWLINE_AFTER_ANNOTATIONS", ScalaBundle.message("spaces.panel.newline.after.annotations"), GroupNames.SPACES_OTHER)
+      opt("KEEP_COMMENTS_ON_SAME_LINE", ScalaBundle.message("spaces.panel.keep.one.line.comments.on.same.line"), GroupNames.SPACES_OTHER)
 
-      opt("SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST", "Before opening square bracket", GroupNames.SPACES_IN_TYPE_PARAMETERS)
+      opt("SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST", ScalaBundle.message("spaces.panel.before.opening.square.bracket"), GroupNames.SPACES_IN_TYPE_PARAMETERS)
 
-      opt("SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON", "Before context bound colon (leading)", GroupNames.SPACES_IN_TYPE_PARAMETERS)
-      opt("SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON_HK", "Before context bound colon (leading higher-kinded)", GroupNames.SPACES_IN_TYPE_PARAMETERS)
-      opt("SPACE_BEFORE_TYPE_PARAMETER_REST_CONTEXT_BOUND_COLONS", "Before context bound colon (rest)", GroupNames.SPACES_IN_TYPE_PARAMETERS)
+      opt("SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON", ScalaBundle.message("spaces.panel.before.context.bound.colon.leading"), GroupNames.SPACES_IN_TYPE_PARAMETERS)
+      opt("SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON_HK", ScalaBundle.message("spaces.panel.before.context.bound.colon.leading.higher.kinded"), GroupNames.SPACES_IN_TYPE_PARAMETERS)
+      opt("SPACE_BEFORE_TYPE_PARAMETER_REST_CONTEXT_BOUND_COLONS", ScalaBundle.message("spaces.panel.before.context.bound.colon.rest"), GroupNames.SPACES_IN_TYPE_PARAMETERS)
 
-      opt("SPACE_INSIDE_SELF_TYPE_BRACES", "Self type braces", GroupNames.SPACES_WITHIN)
-      opt("SPACES_IN_IMPORTS", "Import braces", GroupNames.SPACES_WITHIN)
-      opt("SPACES_IN_ONE_LINE_BLOCKS", "Simple one line block braces", GroupNames.SPACES_WITHIN)
+      opt("SPACE_INSIDE_SELF_TYPE_BRACES", ScalaBundle.message("spaces.panel.self.type.braces"), GroupNames.SPACES_WITHIN)
+      opt("SPACES_IN_IMPORTS", ScalaBundle.message("spaces.panel.import.braces"), GroupNames.SPACES_WITHIN)
+      opt("SPACES_IN_ONE_LINE_BLOCKS", ScalaBundle.message("spaces.panel.simple.one.line.block.braces"), GroupNames.SPACES_WITHIN)
     }
 
     if (settingsType == SettingsType.BLANK_LINES_SETTINGS) {
-      opt("BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES", "Around method in inner scopes", GroupNames.BLANK_LINES)
-      opt("BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES", "Around field in inner scopes", GroupNames.BLANK_LINES)
+      opt("BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES", ScalaBundle.message("blank.lines.panel.around.method.in.inner.scopes"), GroupNames.BLANK_LINES)
+      opt("BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES",  ScalaBundle.message("blank.lines.panel.around.field.in.inner.scopes"), GroupNames.BLANK_LINES)
     }
 
     if (settingsType == SettingsType.LANGUAGE_SPECIFIC) {
