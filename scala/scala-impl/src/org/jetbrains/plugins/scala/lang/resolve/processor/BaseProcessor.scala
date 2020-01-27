@@ -30,14 +30,13 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.collection.Set
 
 object BaseProcessor {
-  def unapply(p: BaseProcessor) = Some(p.kinds)
+  def unapply(p: BaseProcessor): Some[Set[ResolveTargets.Value]] = Some(p.kinds)
 
-  def isImplicitProcessor(processor: PsiScopeProcessor): Boolean = {
+  def isImplicitProcessor(processor: PsiScopeProcessor): Boolean =
     processor match {
       case b: BaseProcessor => b.isImplicitProcessor
-      case _ => false
+      case _                => false
     }
-  }
 
   //todo ugly recursion breakers, maybe we need general for type? What about performance?
   private case class RecursionState(visitedProjections: Set[PsiNamedElement],
@@ -92,7 +91,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
 
   def candidatesS: Set[ScalaResolveResult] = candidatesSet
 
-
   //todo: fix this ugly performance improvement
   private var classKind = true
   def setClassKind(classKind: Boolean) {
@@ -139,10 +137,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     updateWithProjectionType: Boolean      = true
   ): Boolean = processTypeImpl(t, place, state, updateWithProjectionType)(RecursionState.empty)
 
-  private def processTypeImpl(t: ScType, place: PsiElement,
-                              state: ResolveState = ScalaResolveState.empty,
-                              updateWithProjectionSubst: Boolean = true)
-                             (implicit recState: RecursionState): Boolean = {
+  private def processTypeImpl(
+    t:                         ScType,
+    place:                     PsiElement,
+    state:                     ResolveState = ScalaResolveState.empty,
+    updateWithProjectionSubst: Boolean = true
+  )(implicit
+    recState: RecursionState
+  ): Boolean = {
     ProgressManager.checkCanceled()
 
     t match {
@@ -216,7 +218,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           case tpt: TypeParameterType =>
             if (recState.visitedTypeParameter.contains(tpt)) return true
             val newState = state.withSubstitutor(ScSubstitutor(p))
-            val substedType = p.substitutor(ParameterizedType(tpt.upperType, typeArgs))
+            val upper    = tpt.upperType
+
+            val substedType =
+              if (upper.isAny || upper.isAnyRef) upper
+              else                               p.substitutor(ParameterizedType(tpt.upperType, typeArgs))
+
             processTypeImpl(substedType, place, newState)(recState.add(tpt))
           case _ => p.extractDesignatedType(expandAliases = false) match {
             case Some((des, subst)) =>
