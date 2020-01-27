@@ -9,6 +9,8 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.util.xmlb.XmlSerializerUtil
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
@@ -109,40 +111,44 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
   private def reportResolveError(error: ScalafmtResolveError): Unit = {
     import ScalafmtNotifications._
 
-    val baseMessage = s"Can not resolve scalafmt version `${error.version}`:<br>"
+    @NonNls val NewLine = "<br>"
+    val ColonWithNewLine = ":" + NewLine
+
+    val baseMessage = ScalaBundle.message("scalafmt.resolve.errors.cant.resolve.scalafmt.version", error.version) + ColonWithNewLine
+
     error match {
       case ScalafmtResolveError.NotFound(version) =>
         // TODO: if reformat action was performed but scalafmt version is not resolve
         //  then we could postpone reformat action after scalafmt is downloaded
-        val message = s"Scalafmt version `$version` is not downloaded yet.<br>Would you like to to download it?"
-        displayWarning(message, Seq(new DownloadScalafmtNotificationActon(version)))
+        val message = ScalaBundle.message("scalafmt.resolve.errors.version.is.not.downloaded.yet", version)
+        displayWarning(message, Seq(new DownloadScalafmtNotificationActon(version, ScalaBundle.message("scalafmt.download"))))
       case ScalafmtResolveError.DownloadInProgress(_) =>
-        val errorMessage = s"$baseMessage Download is in progress"
+        val errorMessage = baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.download.is.in.progress")
         displayError(errorMessage)
       case DownloadError(_, cause) =>
-        val errorMessage = s"$baseMessage An error occurred during downloading:<br>${cause.getMessage}"
+        val errorMessage = baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.downloading.error.occurred") + ColonWithNewLine + cause.getMessage
         displayError(errorMessage)
       case ScalafmtResolveError.CorruptedClassPath(version, _, cause) =>
         Log.warn(cause)
-        val action = new DownloadScalafmtNotificationActon(version, title = "resolve again") {
+        val action = new DownloadScalafmtNotificationActon(version, ScalaBundle.message("scalafmt.resolve.again")) {
           override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
             state.resolvedVersions.remove(version)
             super.actionPerformed(e, notification)
           }
         }
-        displayError(s"$baseMessage Classpath is corrupted", Seq(action))
+        displayError(baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.classpath.is.corrupted"), Seq(action))
       case ScalafmtResolveError.UnknownError(_, cause) =>
         Log.error(cause)
-        displayError(s"$baseMessage Unknown error:<br>${cause.getMessage}")
+        displayError(baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.unknown.error") + ColonWithNewLine + cause.getMessage)
     }
   }
 
-  private class DownloadScalafmtNotificationActon(version: String, title: String = "download")
+  private class DownloadScalafmtNotificationActon(version: String, title: String)
     extends NotificationAction(title) {
 
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
       resolveAsync(version, e.getProject, onResolved = {
-        case Right(_) => ScalafmtNotifications.displayInfo(s"Scalafmt version $version was downloaded")
+        case Right(_) => ScalafmtNotifications.displayInfo(ScalaBundle.message("scalafmt.progress.version.was.downloaded", version))
         case _ => // relying on error reporting in resolve method
       })
       notification.expire()
@@ -159,11 +165,13 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
         invokeLater(onResolved(Left(ScalafmtResolveError.DownloadInProgress(version))))
       case _ =>
         val isDownloaded = state.resolvedVersions.containsKey(DefaultVersion)
-        val titlePrefix = s"${if (isDownloaded) "Resolving" else "Downloading"}"
-        val backgroundTask = new Task.Backgroundable(project, s"$titlePrefix scalafmt version $version", true) {
+        val title =
+          if (isDownloaded) ScalaBundle.message("scalafmt.progress.resolving.scalafmt.version", version)
+          else ScalaBundle.message("scalafmt.progress.downloading.scalafmt.version", version)
+        val backgroundTask = new Task.Backgroundable(project, title, true) {
           override def run(indicator: ProgressIndicator): Unit = {
             indicator.setIndeterminate(true)
-            val progressListener = new ProgressIndicatorDownloadListener(indicator, s"$titlePrefix: ")
+            val progressListener = new ProgressIndicatorDownloadListener(indicator, title + ": ")
             val result = try {
               resolve(version, downloadIfMissing = true, FmtVerbosity.Verbose, progressListener = progressListener)
             } catch {
@@ -174,7 +182,10 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
           }
         }
 
-        backgroundTask.setCancelText(s"Stop ${titlePrefix.toLowerCase}").queue()
+        val cancelText =
+          if (isDownloaded) ScalaBundle.message("scalafmt.progress.resolving.scalafmt.version.cancel", version)
+          else ScalaBundle.message("scalafmt.progress.downloading.scalafmt.version.cancel", version)
+        backgroundTask.setCancelText(cancelText).queue()
     }
   }
 
@@ -228,7 +239,7 @@ object ScalafmtDynamicService {
     @throws[ProcessCanceledException]
     override def progressUpdate(message: String): Unit = {
       if (!message.isEmpty)
-        indicator.setText(s"$prefix$message")
+        indicator.setText(prefix + message)
       indicator.checkCanceled()
     }
     @throws[ProcessCanceledException]

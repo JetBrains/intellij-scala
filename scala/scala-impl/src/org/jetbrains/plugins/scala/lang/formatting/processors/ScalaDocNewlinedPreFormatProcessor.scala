@@ -5,6 +5,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -194,7 +195,7 @@ object ScalaDocNewlinedPreFormatProcessor {
 
   def isTag(element: PsiElement): Boolean = element.getNode.getElementType == ScalaDocElementTypes.DOC_TAG
 
-  def isNamedTag(element: PsiElement, names: String*): Boolean = element match {
+  def isNamedTag(element: PsiElement, @NonNls names: String*): Boolean = element match {
     case tag: ScDocTag => getTagName(tag).exists(names.contains)
     case _ => false
   }

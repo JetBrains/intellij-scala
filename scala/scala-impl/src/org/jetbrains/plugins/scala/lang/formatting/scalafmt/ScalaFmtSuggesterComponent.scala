@@ -5,9 +5,12 @@ import com.intellij.notification._
 import com.intellij.openapi.components.{PersistentStateComponent, _}
 import com.intellij.openapi.project.Project
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.beans.BeanProperty
 
@@ -34,14 +37,8 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
   }
 
   private var state: ScalaFmtSuggesterComponent.State = new ScalaFmtSuggesterComponent.State()
-
-  override def getState: ScalaFmtSuggesterComponent.State = {
-    state
-  }
-
-  override def loadState(state: ScalaFmtSuggesterComponent.State): Unit = {
-    this.state = state
-  }
+  override def getState: ScalaFmtSuggesterComponent.State = state
+  override def loadState(state: ScalaFmtSuggesterComponent.State): Unit = this.state = state
 
   private def enableForProject(): Unit = {
     val codeStyleSchemesModel = new CodeStyleSchemesModel(project)
@@ -58,32 +55,39 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     ScalafmtDynamicConfigManager.instanceIn(project).init()
   }
 
-  private def createNotification: Notification = {
-    suggesterNotificationGroup.createNotification("Scalafmt configuration detected in this project",
-      wrapInRef(enableProjectDescription, enableProjectText) + wrapInRef(dontShowDescription, dontShowText),
-      NotificationType.INFORMATION, listener)
+  private def dontShow(): Unit = {
+    val newState = new scalafmt.ScalaFmtSuggesterComponent.State()
+    newState.enableForCurrentProject = false
+    loadState(newState)
   }
 
-  private val listener: NotificationListener = new NotificationListener.Adapter {
-    override def hyperlinkActivated(notification: Notification, e: HyperlinkEvent): Unit = {
-      notification.expire()
-      e.getDescription match {
-        case `enableProjectDescription` =>
-          enableForProject()
-        case `dontShowDescription` =>
-          val newState = new ScalaFmtSuggesterComponent.State()
-          newState.enableForCurrentProject = false
-          loadState(newState)
-        case _ =>
-      }
+  private def createNotification: Notification =
+    suggesterNotificationGroup.createNotification(
+      ScalaBundle.message("scalafmt.suggester.detected.in.project"),
+      wrapInRef(EnableRef, enableProjectText) + Br +
+        wrapInRef(DontShowRef, dontShowText) + Br,
+      NotificationType.INFORMATION, listener
+    )
+
+  private val listener: NotificationListener = (notification: Notification, link: HyperlinkEvent) => {
+    notification.expire()
+    link.getDescription match {
+      case EnableRef   => enableForProject()
+      case DontShowRef => dontShow()
+      case _           =>
     }
   }
 
-  private def wrapInRef(description: String, text: String) = s"""<a href="$description">$text</a><br/>"""
-  private val enableProjectDescription = "enable"
-  private val enableProjectText = "Use scalafmt formatter"
-  private val dontShowDescription = "dont show"
-  private val dontShowText = "Continue using IntelliJ formatter"
+  //noinspection HardCodedStringLiteral
+  private def wrapInRef(ref: String, text: String): String = s"""<a href="$ref">$text</a>"""
+
+  @NonNls private val Br = "<br/>"
+
+  @NonNls private val EnableRef = "enable"
+  @NonNls private val DontShowRef      = "dont show"
+
+  private val enableProjectText        = ScalaBundle.message("scalafmt.suggester.use.scalafmt.formatter")
+  private val dontShowText             = ScalaBundle.message("scalafmt.suggester.continue.using.intellij.formatter")
 }
 
 object ScalaFmtSuggesterComponent {
@@ -93,5 +97,6 @@ object ScalaFmtSuggesterComponent {
     var enableForCurrentProject: Boolean = true
   }
 
-  val suggesterNotificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scalafmt detection")
+  private val suggesterNotificationGroup: NotificationGroup =
+    NotificationGroup.balloonGroup("Scalafmt detection")
 }

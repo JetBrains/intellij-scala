@@ -6,7 +6,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 
-class OpenFileNotificationActon(project: Project, vFile: VirtualFile, offset: Int, title: String = "open file")
+class OpenFileNotificationActon(project: Project, vFile: VirtualFile, offset: Int, title: String)
   extends NotificationAction(title) {
 
   override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {

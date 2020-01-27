@@ -16,7 +16,8 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang.StringUtils
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.PsiChange._
 import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor._
@@ -78,6 +79,7 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
   private def getScalaSettings(el: PsiElement): ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(el.getProject)
 }
 
+//noinspection HardCodedStringLiteral
 object ScalaFmtPreFormatProcessor {
   private val Log = Logger.getInstance(getClass)
 
@@ -743,7 +745,7 @@ object ScalaFmtPreFormatProcessor {
     val fileName = file.getName
 
     def displayParseError(message: String, offset: Int): Unit = {
-      val errorMessage = s"""Scalafmt parse error (${fileLink(fileName, offset)}):<br>$message"""
+      val errorMessage = ScalaBundle.message("scalafmt.format.errors.scala.file.parse.error", fileLink(fileName, offset), message)
       val listener = fileLinkListener(project, file, offset)
       displayError(errorMessage, listener = Some(listener))
     }
@@ -757,20 +759,19 @@ object ScalaFmtPreFormatProcessor {
         case Some(cause) =>
           reportUnknownError(cause)
         case _ =>
-          val errorMessage = s"Scalafmt error (${fileLink(fileName)}):<br>failed to find correct surrounding code " +
-            s"to pass for scalafmt, no formatting will be performed"
+          val errorMessage = ScalaBundle.message("scalafmt.format.errors.failed.to.find.correct.surrounding.code", fileLink(fileName))
           val listener = fileLinkListener(project, file, 0)
           displayError(errorMessage, listener = Some(listener))
       }
     }
   }
 
-  private val FileHrefAnchor = "OPEN_FILE"
+  @NonNls private val FileHrefAnchor = "OPEN_FILE"
 
-  private def fileLink(fileName: String, offset: Int): String =
+  @NonNls private def fileLink(fileName: String, offset: Int): String =
     s"""<a href="$FileHrefAnchor">$fileName:$offset</a>"""
 
-  private def fileLink(fileName: String): String =
+  @NonNls private def fileLink(fileName: String): String =
     s"""<a href="$FileHrefAnchor">$fileName</a>"""
 
   private def fileLinkListener(project: Project, file: PsiFile, offset: Int): NotificationListener =

@@ -270,6 +270,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     } yield a
 
 
+  //noinspection HardCodedStringLiteral
   // use these methods only for debugging
   private def printSubBlocksDebugInfoToConsole(): Unit = {
     println("#########################################")
@@ -283,6 +284,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     println()
   }
 
+  //noinspection HardCodedStringLiteral
   private def printSubBlocksSpacingDebugInfoToConsole(child1: Block, child2: Block, spacing: Spacing): Unit = {
     (child1, child2, spacing) match {
       case (c1: ScalaBlock, c2: ScalaBlock, s: SpacingImpl) =>
@@ -297,6 +299,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     }
   }
 
+  //noinspection HardCodedStringLiteral
   private def debugText: String = {
     import extensions._
     val text = node.getPsi.getContainingFile.getText.substring(getTextRange)
