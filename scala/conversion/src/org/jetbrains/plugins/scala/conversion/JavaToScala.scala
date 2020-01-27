@@ -563,7 +563,7 @@ object JavaToScala {
     def collectClassObjectMembers(): (Seq[PsiMember], Seq[PsiMember]) = {
       var forClass = mutable.ArrayBuffer[PsiMember]()
       var forObject = mutable.ArrayBuffer[PsiMember]()
-      for (method <- inClass.getMethods) {
+      for (method <- inClass.getMethods if PsiTreeUtil.isAncestor(inClass, method, true)) {
         if (method.hasModifierProperty("static") || inClass.isEnum) forObject += method else forClass += method
       }
 
