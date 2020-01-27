@@ -27,11 +27,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceHelper
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.immutable.Set
 import scala.collection.mutable
 
 /**
@@ -45,13 +45,17 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with ScImportStmt {
 
+  import ScImportStmtImpl._
+
   def importExprs: Seq[ScImportExpr] =
     getStubOrPsiChildren(ScalaElementType.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory).toSeq
 
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                   state: ResolveState,
-                                   lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
+  override def processDeclarations(
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = {
     val importsIterator = importExprs.takeWhile(_ != lastParent).reverseIterator
     while (importsIterator.hasNext) {
       val importExpr = importsIterator.next()
@@ -60,26 +64,27 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
       def workWithImportExpr: Boolean = {
         val ref = importExpr.reference match {
           case Some(element) => element
-          case _ => return true
+          case _             => return true
         }
-        val nameHint = processor.getHint(NameHint.KEY)
-        val name = if (nameHint == null) "" else nameHint.getName(state)
+
+        val nameHint = processor.getHint(NameHint.KEY).nullSafe
+        val name     = nameHint.fold("")(_.getName(state))
+
         if (name != "" && !importExpr.isSingleWildcard) {
-          val decodedName = clean(name)
+          val decodedName   = clean(name)
           val importedNames = importExpr.importedNames.map(clean)
           if (!importedNames.contains(decodedName)) return true
         }
+
         val checkWildcardImports = processor match {
           case r: ResolveProcessor =>
             if (!r.checkImports()) return false
             r.checkWildcardImports()
           case _ => true
         }
-        val exprQual: ScStableCodeReference = importExpr.selectorSet match {
-          case Some(_) => ref
-          case None if importExpr.isSingleWildcard => ref
-          case None => ref.qualifier.getOrElse(return true)
-        }
+
+        val qualifier =
+          importExpr.qualifier.nullSafe.getOrElse(return true)
 
         val resolve = processor match {
           case p: ResolveProcessor =>
@@ -97,40 +102,45 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
           case _ => ref.multiResolveScala(false)
         }
 
-        def isInPackageObject(element: PsiNamedElement): Boolean = {
+        def isInPackageObject(element: PsiNamedElement): Boolean =
           PsiTreeUtil.getContextOfType(element, true, classOf[ScTypeDefinition]) match {
             case obj: ScObject if obj.isPackageObject => true
-            case _ => false
+            case _                                    => false
           }
-        }
 
-        def qualifierType(checkPackageObject: Boolean): Option[ScType] = {
-          exprQual.bind() match {
-            case Some(ScalaResolveResult(p: PsiPackage, _)) =>
+        def resolvedQualifier(): Option[PsiElement] = qualifier.bind().map(_.element)
+
+        def qualifierType(checkPackageObject: Boolean): Option[ScType] =
+          resolvedQualifier().flatMap {
+            case p: PsiPackage =>
               if (!checkPackageObject) None
-              else {
-                ScalaShortNamesCacheManager.getInstance(getProject)
+              else
+                ScalaShortNamesCacheManager
+                  .getInstance(getProject)
                   .findPackageObjectByName(p.getQualifiedName, this.resolveScope)
                   .flatMap(_.`type`().toOption)
-              }
-            case _ => ScSimpleTypeElementImpl.calculateReferenceType(exprQual).toOption
+            case _ => ScSimpleTypeElementImpl.calculateReferenceType(qualifier).toOption
           }
-        }
 
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
+
           @tailrec
-          def getFirstReference(ref: ScStableCodeReference): ScStableCodeReference = {
+          def getFirstReference(ref: ScStableCodeReference): ScStableCodeReference =
             ref.qualifier match {
               case Some(qual) => getFirstReference(qual)
-              case _ => ref
+              case _          => ref
             }
-          }
 
-          val next = resolveIterator.next()
-          val elem = next.getElement
-          val importsUsed = getFirstReference(exprQual).bind().fold(next.importsUsed)(r => r.importsUsed ++ next.importsUsed)
-          val subst = state.substitutor.followed(next.substitutor)
+          val next        = resolveIterator.next()
+          val elem        = next.getElement
+          val importsUsed = getFirstReference(qualifier).bind().fold(next.importsUsed)(r => r.importsUsed ++ next.importsUsed)
+          val subst       = state.substitutor.followed(next.substitutor)
+
+          val qualifierFqn = resolvedQualifier().collect {
+            case p: PsiPackage => p.getQualifiedName
+            case obj: ScObject => obj.qualifiedName
+          }
 
           (elem, processor) match {
             case (pack: PsiPackage, completionProcessor: CompletionProcessor) if completionProcessor.includePrefixImports =>
@@ -153,20 +163,19 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
               }
               val wildcard = names.contains("_")
 
-              def isOK(name: String): Boolean = {
+              def isOK(name: String): Boolean =
                 if (wildcard) !excludeNames.contains(name)
-                else names.contains(name)
-              }
+                else          names.contains(name)
 
-              val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
-              val newState = state.withPrefixCompletion.withImportsUsed(newImportsUsed)
+              val newImportsUsed = importsUsed ++ tryMarkImportExprUsed(processor, qualifierFqn, importExpr)
+              val newState       = state.withPrefixCompletion.withImportsUsed(newImportsUsed)
 
               val importsProcessor = new BaseProcessor(StdKinds.stableImportSelector) {
 
                 override protected def execute(namedElement: PsiNamedElement)
                                               (implicit state: ResolveState): Boolean =
                   if (isOK(namedElement.name)) completionProcessor.execute(namedElement, state)
-                  else true
+                  else                         true
 
                 override def getHint[T](hintKey: Key[T]): T = completionProcessor.getHint(hintKey)
               }
@@ -174,12 +183,14 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
               elem.processDeclarations(importsProcessor, newState, this, place)
             case _ =>
           }
+
           ProgressManager.checkCanceled()
+
           importExpr.selectorSet match {
             case None =>
               // Update the set of used imports
-              val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
-              val refType = qualifierType(isInPackageObject(next.element))
+              val newImportsUsed = importsUsed ++ tryMarkImportExprUsed(processor, qualifierFqn, importExpr)
+              val refType        = qualifierType(isInPackageObject(next.element))
 
               val newState: ResolveState = state
                 .withImportsUsed(newImportsUsed)
@@ -205,8 +216,9 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
               else if (!processor.execute(elem, newState))
                 return false
             case Some(set) =>
-              val shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty
+              val shadowed  = mutable.HashSet.empty[(ScImportSelector, PsiElement)]
               val selectors = set.selectors.iterator //for reducing stacktrace
+
               while (selectors.hasNext) {
                 val selector = selectors.next()
                 ProgressManager.checkCanceled()
@@ -223,11 +235,15 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
                         if (!importedName.contains("_")) {
                           val refType = qualifierType(isInPackageObject(result.element))
                           //processor should skip shadowed reference
-                          val newState: ResolveState = state
-                            .withRename(importedName)
-                            .withImportsUsed(Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector))
-                            .withSubstitutor(subst.followed(result.substitutor))
-                            .withFromType(refType)
+                          val newImportsUsed =
+                            importsUsed ++ tryMarkImportSelectorUsed(processor, qualifierFqn, selector)
+
+                          val newState =
+                            state
+                              .withRename(importedName)
+                              .withImportsUsed(newImportsUsed)
+                              .withSubstitutor(subst.followed(result.substitutor))
+                              .withFromType(refType)
 
                           if (!processor.execute(result.getElement, newState)) {
                             return false
@@ -246,20 +262,17 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
                 processor match {
                   case bp: BaseProcessor =>
                     ProgressManager.checkCanceled()
+
                     val p1 = new BaseProcessor(bp.kinds) {
                       override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
 
                       override def isImplicitProcessor: Boolean = bp.isImplicitProcessor
 
-                      override def handleEvent(event: PsiScopeProcessor.Event, associated: Object) {
+                      override def handleEvent(event: PsiScopeProcessor.Event, associated: Object): Unit =
                         processor.handleEvent(event, associated)
-                      }
 
-                      override def getClassKind: Boolean = bp.getClassKind
-
-                      override def setClassKind(b: Boolean) {
-                        bp.setClassKind(b)
-                      }
+                      override def getClassKind: Boolean          = bp.getClassKind
+                      override def setClassKind(b: Boolean): Unit = bp.setClassKind(b)
 
                       override protected def execute(namedElement: PsiNamedElement)
                                                     (implicit state: ResolveState): Boolean = {
@@ -274,9 +287,13 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
                       }
                     }
 
-                    val newImportsUsed: Set[ImportUsed] = Set(importsUsed.toSeq: _*) + ImportWildcardSelectorUsed(importExpr)
-                    val newState: ResolveState =
-                      state.withImportsUsed(newImportsUsed).withSubstitutor(subst)
+                    val newImportsUsed =
+                      importsUsed ++ tryMarkImportExprUsed(processor, qualifierFqn, importExpr, wildcard = true)
+
+                    val newState =
+                      state
+                        .withImportsUsed(newImportsUsed)
+                        .withSubstitutor(subst)
 
                     (elem, processor) match {
                       case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
@@ -298,14 +315,19 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
                 ProgressManager.checkCanceled()
                 for {
                   element <- selector.reference
-                  result <- element.multiResolveScala(false)
+                  result  <- element.multiResolveScala(false)
                 } {
                   if (!selector.isAliasedImport || selector.importedName == selector.reference.map(_.refName)) {
                     val rSubst = result.substitutor
-                    val newState = state
-                      .withImportsUsed(Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector))
-                      .withSubstitutor(subst.followed(rSubst))
-                      .withFromType(qualifierType(isInPackageObject(result.element)))
+
+                    val newImportsUsed =
+                      importsUsed ++ tryMarkImportSelectorUsed(processor, qualifierFqn, selector)
+
+                    val newState =
+                      state
+                        .withImportsUsed(newImportsUsed)
+                        .withSubstitutor(subst.followed(rSubst))
+                        .withFromType(qualifierType(isInPackageObject(result.element)))
 
                     if (!processor.execute(result.getElement, newState))
                       return false
@@ -322,3 +344,45 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
     true
   }
 }
+
+object ScImportStmtImpl {
+  /** Utility methods to conditionally mark imports as used
+   * only if qualifier is not already available
+   * (e.g. comes from the same package or is implicitly imported)
+   */
+  private def tryMarkImportSelectorUsed(
+    processor:    PsiScopeProcessor,
+    qualifierFqn: Option[String],
+    selector:     ScImportSelector
+  ): Option[ImportUsed] = {
+    val importUsed = ImportSelectorUsed(selector)
+
+    if (selector.isAliasedImport) importUsed.toOption
+    else markImportAsUsed(processor, qualifierFqn, importUsed)
+  }
+
+  private def tryMarkImportExprUsed(
+    processor:    PsiScopeProcessor,
+    qualifierFqn: Option[String],
+    expr:         ScImportExpr,
+    wildcard: Boolean = false
+  ): Option[ImportUsed] = {
+    val importUsed =
+      if (wildcard) ImportWildcardSelectorUsed(expr)
+      else          ImportExprUsed(expr)
+
+    markImportAsUsed(processor, qualifierFqn, importUsed)
+  }
+
+  private def markImportAsUsed(
+    processor:    PsiScopeProcessor,
+    qualifierFqn: Option[String],
+    importUsed:   ImportUsed
+  ): Option[ImportUsed] = processor match {
+    case helper: PrecedenceHelper =>
+      val isAlreadyAvailable = qualifierFqn.exists(helper.isAvailableQualifier)
+      (!isAlreadyAvailable).option(importUsed)
+    case _ => importUsed.toOption
+  }
+}
+

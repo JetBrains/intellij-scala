@@ -5,24 +5,16 @@ package precedence
 
 import java.util
 
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
-import com.intellij.psi.{PsiElement, PsiPackage}
 import com.intellij.util.containers.SmartHashSet
 import gnu.trove.TObjectHashingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 import scala.annotation.tailrec
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 01.12.11
-  */
-//todo: logic is too complicated, too many connections between classes. Rewrite?
 trait PrecedenceHelper {
 
   import PrecedenceHelper._
@@ -60,7 +52,7 @@ trait PrecedenceHelper {
   }
 
   protected val levelSet           : util.Set[ScalaResolveResult] = new SmartHashSet()
-  protected val uniqueNamesSet: util.Set[ScalaResolveResult] = new UniqueNamesSet
+  protected val uniqueNamesSet     : util.Set[ScalaResolveResult] = new UniqueNamesSet
   protected val levelUniqueNamesSet: util.Set[ScalaResolveResult] = new UniqueNamesSet
 
   protected def clear(): Unit = {
@@ -69,11 +61,11 @@ trait PrecedenceHelper {
     levelSet.clear()
   }
 
-  private lazy val suspiciousPackages: Set[String] = collectPackages(getPlace)
+  private[this] lazy val availableQualifiers =
+    precedenceTypes.defaultImports ++ collectPackages(getPlace)
 
-  protected def ignored(results: Seq[ScalaResolveResult]): Boolean =
-    results.headOption.flatMap(findQualifiedName)
-      .exists((IgnoredPackages ++ suspiciousPackages).contains)
+  def isAvailableQualifier(qualifierFqn: String): Boolean =
+    availableQualifiers.contains(qualifierFqn)
 
   protected def isCheckForEqualPrecedence = true
 
@@ -111,23 +103,23 @@ trait PrecedenceHelper {
         (levelUniqueNamesSet.contains(result) || uniqueNamesSet.contains(result))) {
         return false
       } else if (uniqueNamesSet.contains(result)) return false
-      if (!ignored(results)) addResults()
+      addResults()
     } else {
       if (uniqueNamesSet.contains(result)) {
         return false
       } else {
-        if (!ignored(results)) {
-          holder(result) = currentPrecedence
-          val levelSetIterator = levelSet.iterator()
-          while (levelSetIterator.hasNext) {
-            val next = levelSetIterator.next()
-            if (holder.filterNot(next, result)(precedence)) {
-              levelSetIterator.remove()
-            }
+        holder(result) = currentPrecedence
+        val levelSetIterator = levelSet.iterator()
+
+        while (levelSetIterator.hasNext) {
+          val next = levelSetIterator.next()
+          if (holder.filterNot(next, result)(precedence)) {
+            levelSetIterator.remove()
           }
-          clearLevelQualifiedSet(result)
-          addResults()
         }
+
+        clearLevelQualifiedSet(result)
+        addResults()
       }
     }
     true
@@ -139,40 +131,17 @@ trait PrecedenceHelper {
 }
 
 object PrecedenceHelper {
-  private val IgnoredPackages: Set[String] =
-    Set("java.lang", "scala", "scala.Predef")
-
   private def collectPackages(element: PsiElement): Set[String] = {
     @tailrec
     def collectPackages(element: PsiElement, result: Set[String] = Set.empty): Set[String] =
       getContextOfType(element, true, classOf[ScPackaging]) match {
-        case packaging: ScPackaging => collectPackages(packaging, result + packaging.fullPackageName)
+        case packaging: ScPackaging =>
+          collectPackages(packaging, result + packaging.fullPackageName)
         case null => result
       }
 
     collectPackages(element)
   }
-
-  private def findQualifiedName(result: ScalaResolveResult): Option[String] =
-    findImportReference(result)
-      .flatMap(_.bind())
-      .map(_.element)
-      .collect {
-        case p: PsiPackage => p.getQualifiedName
-        case o: ScObject => o.qualifiedName
-      }
-
-  private def findImportReference(result: ScalaResolveResult): Option[ScStableCodeReference] =
-    result.importsUsed.toSeq match {
-      case Seq(head) =>
-        val importExpression = head match {
-          case ImportExprUsed(expr) => expr
-          case ImportSelectorUsed(selector) => getContextOfType(selector, true, classOf[ScImportExpr])
-          case ImportWildcardSelectorUsed(expr) => expr
-        }
-        Some(importExpression.qualifier)
-      case _ => None
-    }
 
   @tailrec
   private def getPlacePackage(place: PsiElement): String = {
@@ -183,5 +152,4 @@ object PrecedenceHelper {
       case null | _: ScalaFile                  => ""
     }
   }
-
 }

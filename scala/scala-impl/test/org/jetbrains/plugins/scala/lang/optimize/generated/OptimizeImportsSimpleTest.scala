@@ -10,6 +10,8 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
 
   def testFromRoot(): Unit = doTest()
 
+  def testHasOverloads(): Unit = doTest()
+
   def testSorted(): Unit = doTest()
 
   def testSortedInPackage(): Unit = doTest()
