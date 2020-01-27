@@ -11,6 +11,7 @@ import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
+import com.intellij.pom.java.LanguageLevel.JDK_11
 import com.intellij.testFramework.{EdtTestUtil, JavaModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
@@ -47,9 +48,11 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     addRoots()
     compilerVmOptions.foreach(setCompilerVmOptions)
     DebuggerTestUtil.enableCompileServer(useCompileServer)
-    DebuggerTestUtil.forceJdk8ForBuildProcess()
+    DebuggerTestUtil.forceLanguageLevelForBuildProcess(getTestProjectJdk)
     setUpLibraries(myModule)
   }
+
+  override protected def getProjectLanguageLevel = JDK_11
 
   protected def compilerVmOptions: Option[String] = None
 
@@ -79,13 +82,13 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(includeScalaReflect = true),
-    HeavyJDKLoader(),
+    HeavyJDKLoader(getProjectLanguageLevel),
     SourcesLoader(getSourceRootDir.getCanonicalPath)
   ) ++ additionalLibraries
 
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
-  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
+  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK(getProjectLanguageLevel)
 
   protected override def tearDown(): Unit =
     EdtTestUtil.runInEdtAndWait { () =>

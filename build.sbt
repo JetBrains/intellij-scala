@@ -84,8 +84,8 @@ lazy val scalaImpl: sbt.Project =
     .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
-      javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
+      javacOptions in Global ++= Seq("-source", "11", "-target", "11", "--add-exports", "jdk.jdi/com.sun.jdi=ALL-UNNAMED", "-Xlint:unchecked"),
+      scalacOptions in Global ++= Seq("-release", "11", "-deprecation"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity,
       addCompilerPlugin(Dependencies.macroParadise),

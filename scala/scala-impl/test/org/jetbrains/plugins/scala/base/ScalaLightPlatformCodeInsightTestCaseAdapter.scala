@@ -32,7 +32,7 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
 
   protected def getSourceRootAdapter: VirtualFile = getSourceRoot
 
-  override protected def getProjectJDK: Sdk = SmartJDKLoader.getOrCreateJDK(JavaSdkVersion.JDK_1_8)
+  override protected def getProjectJDK: Sdk = SmartJDKLoader.getOrCreateJDK()
 
   override protected def librariesLoaders: Seq[LibraryLoader] = {
     val back = new util.ArrayList[LibraryLoader]
@@ -50,7 +50,7 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor() {
     override def tuneModule(module: Module): Unit = afterSetUpProject(module)
 
-    override def getSdk: Sdk = SmartJDKLoader.getOrCreateJDK(JavaSdkVersion.JDK_1_8)
+    override def getSdk: Sdk = ScalaLightPlatformCodeInsightTestCaseAdapter.this.getProjectJDK
   }
 
   protected def afterSetUpProject(module: Module): Unit = {

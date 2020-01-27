@@ -9,6 +9,7 @@ import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
@@ -20,20 +21,15 @@ case class InternalJDKLoader() extends SmartJDKLoader() {
 /**
   * Consider using this instead of HeavyJDKLoader if you don't need java interop in your tests
   */
-case class MockJDKLoader(jdkVersion: JavaSdkVersion = JavaSdkVersion.JDK_1_8) extends SmartJDKLoader(jdkVersion) {
-  override protected def createSdkInstance(): Sdk = jdkVersion match {
-    case JavaSdkVersion.JDK_1_9 => IdeaTestUtil.getMockJdk9
-    case JavaSdkVersion.JDK_1_8 => IdeaTestUtil.getMockJdk18
-    case JavaSdkVersion.JDK_1_7 => IdeaTestUtil.getMockJdk17
-    case _ => Assert.fail(s"mock JDK version $jdkVersion is unavailable in IDEA test platform"); null
-  }
+case class MockJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_11) extends SmartJDKLoader() {
+  override protected def createSdkInstance(): Sdk = IdeaTestUtil.getMockJdk(languageLevel.toJavaVersion)
 }
 
-case class HeavyJDKLoader(jdkVersion: JavaSdkVersion = JavaSdkVersion.JDK_1_8) extends SmartJDKLoader(jdkVersion) {
-  override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+case class HeavyJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_11) extends SmartJDKLoader() {
+  override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateJDK(languageLevel)
 }
 
-abstract class SmartJDKLoader(jdkVersion: JavaSdkVersion = JavaSdkVersion.JDK_1_8) extends LibraryLoader {
+abstract class SmartJDKLoader() extends LibraryLoader {
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
     ModuleRootModificationUtil.setModuleSdk(module, createSdkInstance())
   }
@@ -57,9 +53,11 @@ object SmartJDKLoader {
     "/Library/Java/JavaVirtualMachines" // mac style
   )
 
-  def getOrCreateJDK(jdkVersion: JavaSdkVersion = JavaSdkVersion.JDK_1_8): Sdk = {
-    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
+  def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_11): Sdk = {
+    val jdkVersion = JavaSdkVersion.fromLanguageLevel(languageLevel)
     val jdkName = jdkVersion.getDescription
+
+    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
     Option(jdkTable.findJdk(jdkName)).getOrElse {
       val pathOption = SmartJDKLoader.discoverJDK(jdkVersion)
       Assert.assertTrue(s"Couldn't find $jdkVersion", pathOption.isDefined)

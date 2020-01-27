@@ -1,8 +1,10 @@
-package org.jetbrains.plugins.scala.debugger
+package org.jetbrains.plugins.scala
+package debugger
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.projectRoots.JavaSdkVersion
+import com.intellij.openapi.projectRoots.{JavaSdkVersion, Sdk}
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 
@@ -20,13 +22,13 @@ object DebuggerTestUtil {
     ApplicationManager.getApplication.saveSettings()
   }
 
-  def forceJdk8ForBuildProcess(): Unit = {
-    val jdk8 = SmartJDKLoader.getOrCreateJDK(JavaSdkVersion.JDK_1_8)
-    if (jdk8.getHomeDirectory == null) {
-      throw new RuntimeException(s"Failed to set up JDK, got: ${jdk8.toString}")
+  def forceLanguageLevelForBuildProcess(jdk: Sdk): Unit =
+    jdk.getHomeDirectory match {
+      case null =>
+        throw new RuntimeException(s"Failed to set up JDK, got: $jdk")
+      case homeDirectory =>
+        val jdkHome = homeDirectory.getCanonicalPath
+        Registry.get("compiler.process.jdk").setValue(jdkHome)
     }
-    val jdkHome = jdk8.getHomeDirectory.getCanonicalPath
-    Registry.get("compiler.process.jdk").setValue(jdkHome)
-  }
 
  }
