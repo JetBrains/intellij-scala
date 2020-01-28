@@ -1,0 +1,40 @@
+package org.jetbrains.plugins.scala.worksheet.ui.dialog
+
+import com.intellij.psi.PsiFile
+import com.intellij.uiDesigner.core.GridConstraints
+import com.intellij.uiDesigner.core.GridLayoutManager
+import com.intellij.util.ui.JBUI
+import javax.swing._
+import java.awt._
+
+import com.intellij.ui.components.JBTabbedPane
+
+class WorksheetAllSettingsPanel(
+  val myFile: PsiFile,
+  val currentSettings: WorksheetSettingsData,
+  val defaultSettings: WorksheetSettingsData
+) extends JPanel {
+
+  private val currentFileSettingsForm = new WorksheetSettingsSetForm(myFile, currentSettings)
+  private val defaultSettingsForm     = new WorksheetSettingsSetForm(myFile.getProject, defaultSettings)
+
+  init()
+  
+  private def init(): Unit = {
+    this.setLayout(new GridLayoutManager(1, 1, JBUI.emptyInsets, -1, -1))
+    this.setPreferredSize(new Dimension(200, 200))
+
+    val tabbedPane = new JBTabbedPane
+    tabbedPane.removeAll()
+    tabbedPane.addTab("Settings for " + myFile.getName, currentFileSettingsForm.getMainPanel)
+    tabbedPane.addTab("Default settings", defaultSettingsForm.getMainPanel)
+
+    val constraints = new GridConstraints
+    constraints.setFill(GridConstraints.FILL_BOTH)
+    this.add(tabbedPane, constraints)
+  }
+
+  def fileSettings: WorksheetSettingsData = currentFileSettingsForm.getSettings
+
+  def defaultFileSettigns: WorksheetSettingsData = defaultSettingsForm.getSettings
+}

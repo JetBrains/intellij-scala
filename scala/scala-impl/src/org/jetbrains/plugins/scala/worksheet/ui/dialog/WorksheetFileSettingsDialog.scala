@@ -10,17 +10,17 @@ import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, 
 class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(worksheetFile.getProject, true, true) {
   private val fileSettings = WorksheetFileSettings(worksheetFile)
   private val projectSettings = WorksheetProjectSettings(worksheetFile.getProject)
-  private val myPanel = new WorksheetAllSettingsForm(worksheetFile, getFileSettingsData, getDefaultSettingsData)
+  private val myPanel = new WorksheetAllSettingsPanel(worksheetFile, getFileSettingsData, getDefaultSettingsData)
   
   setTitle("Worksheet Settings")
   setButtonsAlignment(SwingConstants.CENTER)
   init()
   
-  override def createCenterPanel(): JComponent = myPanel.getMainPanel
+  override def createCenterPanel(): JComponent = myPanel
 
   override def doOKAction(): Unit = {
-    applyFileSettings(myPanel.getFileSettings)
-    applyDefaultSettings(myPanel.getDefaultSettings)
+    applyFileSettings(myPanel.fileSettings)
+    applyDefaultSettings(myPanel.defaultSettings)
     DaemonCodeAnalyzer.getInstance(worksheetFile.getProject).restart(worksheetFile)
     super.doOKAction()
   }
