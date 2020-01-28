@@ -176,7 +176,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     this.bind() match {
       case Some(srr) => convertBindToType(srr)
       case _ if getContainingFile.asOptionOf[ScalaFile].exists(_.isMultipleDeclarationsAllowed) =>
-        multiResolveScala(false).headOption.map(convertBindToType).getOrElse(resolveFailure)
+        Option(multiResolveScala(false).filter(
+          result => result.element.getContainingFile == getContainingFile && result.element.getTextOffset < getTextOffset
+        )).filter(_.nonEmpty).map(array => array.maxBy(_.element.getTextOffset)).map(convertBindToType).getOrElse(resolveFailure)
       case _ => resolveFailure
     }
   }
