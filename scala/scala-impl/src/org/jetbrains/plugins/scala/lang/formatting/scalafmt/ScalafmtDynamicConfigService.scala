@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager._
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.ScalafmtConfigException
@@ -25,19 +25,11 @@ import org.jetbrains.sbt.language.SbtFileImpl
 import scala.collection.mutable
 import scala.util.Try
 
-// TODO: remove Project
-class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectComponent {
-  private val Log = Logger.getInstance(classOf[ScalafmtDynamicConfigManager])
+final class ScalafmtDynamicConfigService(private val project: Project) {
+
+  private val Log = Logger.getInstance(classOf[ScalafmtDynamicConfigService])
 
   private val configsCache: mutable.Map[String, CachedConfig] = ScalaCollectionsUtil.newConcurrentMap
-
-  override def projectOpened(): Unit = {
-    init()
-  }
-
-  override def projectClosed(): Unit = {
-    clearCaches()
-  }
 
   def init(): Unit = {
     val scalaSettings = ScalaCodeStyleSettings.getInstance(project)
@@ -49,9 +41,8 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     }
   }
 
-  def clearCaches(): Unit = {
+  def clearCaches(): Unit =
     configsCache.clear()
-  }
 
   def resolveConfigAsync(configFile: VirtualFile,
                          version: ScalafmtVersion,
@@ -201,15 +192,15 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   }
 }
 
-object ScalafmtDynamicConfigManager {
+object ScalafmtDynamicConfigService {
   @NonNls
   val DefaultConfigurationFileName: String = ".scalafmt.conf"
 
-  def instanceIn(project: Project): ScalafmtDynamicConfigManager =
-    project.getComponent(classOf[ScalafmtDynamicConfigManager])
+  def instanceIn(project: Project): ScalafmtDynamicConfigService =
+    project.getService(classOf[ScalafmtDynamicConfigService])
 
-  def instanceIn(file: PsiElement): ScalafmtDynamicConfigManager =
-    file.getProject.getComponent(classOf[ScalafmtDynamicConfigManager])
+  def instanceIn(file: PsiElement): ScalafmtDynamicConfigService =
+    file.getProject.getService(classOf[ScalafmtDynamicConfigService])
 
   def isIncludedInProject(file: PsiFile, config: ScalafmtDynamicConfig): Boolean =
     instanceIn(file.getProject).isIncludedInProject(file, config)

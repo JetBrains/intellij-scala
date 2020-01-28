@@ -17,13 +17,12 @@ import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.PsiChange._
 import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtNotifications}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtNotifications}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -40,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -109,7 +109,7 @@ object ScalaFmtPreFormatProcessor {
   private def formatIfRequired(file: PsiFile, range: TextRange): Unit = {
     val (cachedRange, cachedFileTimeStamp, cachedConfigTimestamp) = file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp, None))
 
-    val (config, configTimestamp) = ScalafmtDynamicConfigManager.instanceIn(file).configForFileWithTimestamp(file) match {
+    val (config, configTimestamp) = ScalafmtDynamicConfigService.instanceIn(file).configForFileWithTimestamp(file) match {
       case Some(result) => result
       case None => return
     }
@@ -307,7 +307,7 @@ object ScalaFmtPreFormatProcessor {
   }
 
   def formatWithoutCommit(file: PsiFile, document: Document, respectProjectMatcher: Boolean): Unit = {
-    val configManager = ScalafmtDynamicConfigManager.instanceIn(file.getProject)
+    val configManager = ScalafmtDynamicConfigService.instanceIn(file.getProject)
     val config = configManager.configForFile(file).orNull
     if (config == null || respectProjectMatcher && !configManager.isIncludedInProject(file, config))
       return

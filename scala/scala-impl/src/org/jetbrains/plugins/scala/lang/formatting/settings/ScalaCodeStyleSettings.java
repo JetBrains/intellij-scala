@@ -116,7 +116,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   /**
    * NOTE! This setting is inferred:
-   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent#inferBestScaladocAsteriskAlignStyle(CodeStyleSettings)}
+   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferService#inferBestScaladocAsteriskAlignStyle(CodeStyleSettings)}
    */
   public boolean USE_SCALADOC2_FORMATTING = false;
 

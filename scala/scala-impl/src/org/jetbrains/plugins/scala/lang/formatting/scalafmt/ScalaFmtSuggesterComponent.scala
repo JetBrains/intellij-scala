@@ -14,25 +14,30 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.beans.BeanProperty
 
-@State(name = "SuggestScalaFmt", storages = Array[Storage](new Storage(value = StoragePathMacros.WORKSPACE_FILE)))
-class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent with PersistentStateComponent[ScalaFmtSuggesterComponent.State] {
+@State(
+  name = "SuggestScalaFmt",
+  storages = Array[Storage](new Storage(value = StoragePathMacros.WORKSPACE_FILE))
+)
+final class ScalaFmtSuggesterComponent(private val project: Project)
+  extends PersistentStateComponent[ScalaFmtSuggesterComponent.State] {
 
   import ScalaFmtSuggesterComponent._
 
-  override def projectOpened(): Unit = {
-    val settings = ScalaCodeStyleSettings.getInstance(project)
-    if (!settings.USE_SCALAFMT_FORMATTER &&
-      projectHasScalafmtDefaultConfigFile &&
-      state.enableForCurrentProject
-    ) {
-      //suggest the feature automatically
+  def init(): Unit =
+    if (needToSuggestScalafmtFormatter(project)) {
       createNotification.notify(project)
     }
+
+  private def needToSuggestScalafmtFormatter(project: Project): Boolean = {
+    val settings = ScalaCodeStyleSettings.getInstance(project)
+    !settings.USE_SCALAFMT_FORMATTER &&
+      projectHasScalafmtDefaultConfigFile &&
+      state.enableForCurrentProject
   }
 
   private def projectHasScalafmtDefaultConfigFile: Boolean = {
     project.baseDir.toOption
-      .flatMap(_.findChild(ScalafmtDynamicConfigManager.DefaultConfigurationFileName).toOption)
+      .flatMap(_.findChild(ScalafmtDynamicConfigService.DefaultConfigurationFileName).toOption)
       .nonEmpty
   }
 
@@ -52,7 +57,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     newSettings.SCALAFMT_CONFIG_PATH = ""
     codeStyleSchemesModel.apply()
 
-    ScalafmtDynamicConfigManager.instanceIn(project).init()
+    ScalafmtDynamicConfigService.instanceIn(project).init()
   }
 
   private def dontShow(): Unit = {
@@ -83,14 +88,17 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
 
   @NonNls private val Br = "<br/>"
 
-  @NonNls private val EnableRef = "enable"
-  @NonNls private val DontShowRef      = "dont show"
+  @NonNls private val EnableRef   = "enable"
+  @NonNls private val DontShowRef = "dont show"
 
-  private val enableProjectText        = ScalaBundle.message("scalafmt.suggester.use.scalafmt.formatter")
-  private val dontShowText             = ScalaBundle.message("scalafmt.suggester.continue.using.intellij.formatter")
+  private val enableProjectText = ScalaBundle.message("scalafmt.suggester.use.scalafmt.formatter")
+  private val dontShowText      = ScalaBundle.message("scalafmt.suggester.continue.using.intellij.formatter")
 }
 
 object ScalaFmtSuggesterComponent {
+
+  def instance(implicit project: Project): ScalaFmtSuggesterComponent =
+    project.getService(classOf[ScalaFmtSuggesterComponent])
 
   class State {
     @BeanProperty

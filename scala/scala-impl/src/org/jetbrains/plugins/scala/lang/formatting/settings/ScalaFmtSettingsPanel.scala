@@ -31,11 +31,11 @@ import javax.swing._
 import javax.swing.event.ChangeEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtDynamicService}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicService}
 
 final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
 
@@ -110,7 +110,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       case None => return
     }
 
-    val versionOpt = ScalafmtDynamicConfigManager.readVersion(configFile) match {
+    val versionOpt = ScalafmtDynamicConfigService.readVersion(configFile) match {
       case Right(v) => v
       case Left(ex) =>
         reportConfigParseError(ex.getMessage)
@@ -118,7 +118,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     }
     val version = versionOpt.getOrElse(DefaultVersion)
 
-    ScalafmtDynamicConfigManager.instanceIn(project).toOption match {
+    ScalafmtDynamicConfigService.instanceIn(project).toOption match {
       case Some(configManager) =>
         configManager.resolveConfigAsync(configFile, version, FmtVerbosity.Silent, onResolveFinished = {
           case Right(config) =>
@@ -344,7 +344,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       }
       override def getText(textField: JTextField): String = {
         val path = textField.getText.toOption.filter(StringUtils.isNotBlank).getOrElse(DefaultConfigFilePath)
-        val absolutePath = projectOpt.flatMap(ScalafmtDynamicConfigManager.absolutePathFromConfigPath(_, path))
+        val absolutePath = projectOpt.flatMap(ScalafmtDynamicConfigService.absolutePathFromConfigPath(_, path))
         absolutePath.getOrElse(DefaultConfigFilePath)
       }
     }
@@ -388,7 +388,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   }
 
   private def projectConfigFile(configPath: String): Option[VirtualFile] =
-    projectOpt.flatMap(ScalafmtDynamicConfigManager.scalafmtProjectConfigFile(_, configPath))
+    projectOpt.flatMap(ScalafmtDynamicConfigService.scalafmtProjectConfigFile(_, configPath))
 
   private var isPanelEnabled: Boolean = false
   private var projectOpt: Option[Project] = None
@@ -404,7 +404,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private var reformatOnFileSaveCheckBox: JBCheckBox = _
   private val customSettingsTitle   = ScalaBundle.message("scalafmt.settings.panel.select.custom.scalafmt.configuration.file")
   //noinspection HardCodedStringLiteral
-  private val DefaultConfigFilePath = s".${File.separatorChar}${ScalafmtDynamicConfigManager.DefaultConfigurationFileName}"
+  private val DefaultConfigFilePath = s".${File.separatorChar}${ScalafmtDynamicConfigService.DefaultConfigurationFileName}"
 }
 
 object ScalaFmtSettingsPanel {

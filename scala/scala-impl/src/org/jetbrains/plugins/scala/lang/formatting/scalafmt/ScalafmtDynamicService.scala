@@ -11,6 +11,7 @@ import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
@@ -23,7 +24,6 @@ import scala.beans.BeanProperty
 import scala.collection.mutable
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 import scala.util.Try
-import org.jetbrains.plugins.scala.extensions._
 
 @State(
   name = "ScalafmtDynamicService",
@@ -41,7 +41,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
   // the method is mainly used for debugging
   def clearCaches(): Unit = {
     ProjectManager.getInstance().getOpenProjects.foreach { p =>
-      ScalafmtDynamicConfigManager.instanceIn(p).clearCaches()
+      ScalafmtDynamicConfigService.instanceIn(p).clearCaches()
     }
     formattersCache.values.foreach {
       case ResolveStatus.Resolved(scalafmt) => scalafmt.classLoader.close()

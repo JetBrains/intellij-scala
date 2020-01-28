@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.settings.inference
 
 import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
 import com.intellij.ide.startup.StartupManagerEx
-import com.intellij.openapi.components.{PersistentStateComponent, ProjectComponent, _}
+import com.intellij.openapi.components.{PersistentStateComponent, _}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.codeStyle.CodeStyleSettings
@@ -16,15 +16,20 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAs
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
-@State(name = "CodeStyleSettingsInfer", storages = Array[Storage](new Storage(value = StoragePathMacros.WORKSPACE_FILE)))
-class CodeStyleSettingsInferComponent(project: Project) extends ProjectComponent with PersistentStateComponent[CodeStyleSettingsInferComponent.State] {
+@State(
+  name = "CodeStyleSettingsInfer",
+  storages = Array[Storage](new Storage(value = StoragePathMacros.WORKSPACE_FILE))
+)
+final class CodeStyleSettingsInferService(private val project: Project)
+  extends PersistentStateComponent[CodeStyleSettingsInferService.State] {
+
   private val Log = Logger.getInstance(getClass)
 
-  private var state = new CodeStyleSettingsInferComponent.State
-  override def getState: CodeStyleSettingsInferComponent.State = state
-  override def loadState(state: CodeStyleSettingsInferComponent.State): Unit = this.state = state
+  private var state = new CodeStyleSettingsInferService.State
+  override def getState: CodeStyleSettingsInferService.State = state
+  override def loadState(state: CodeStyleSettingsInferService.State): Unit = this.state = state
 
-  override def projectOpened(): Unit = {
+  def init(): Unit = {
     if (state.done) {
       Log.info("settings inference skipped: already done")
     } else {
@@ -85,7 +90,7 @@ class CodeStyleSettingsInferComponent(project: Project) extends ProjectComponent
   }
 }
 
-object CodeStyleSettingsInferComponent {
+object CodeStyleSettingsInferService {
   class State {
     @BeanProperty
     var done: Boolean = false

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings.migration
 
 import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
-import com.intellij.openapi.components.{ProjectComponent, State, Storage, StoragePathMacros}
+import com.intellij.openapi.components.{State, Storage, StoragePathMacros}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.codeStyle.{CodeStyleScheme, CodeStyleSettingsManager}
+import com.intellij.psi.codeStyle.CodeStyleScheme
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase.MigrationItem
 
@@ -11,13 +11,10 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleS
   name = "ProjectCodeStyleSettingsMigration",
   storages = Array[Storage](new Storage(value = StoragePathMacros.WORKSPACE_FILE))
 )
-class ProjectCodeStyleSettingsMigrationComponent(private val project: Project)
-  extends CodeStyleSettingsMigrationServiceBase
-    with ProjectComponent {
+final class ProjectCodeStyleSettingsMigrationService(private val project: Project)
+  extends CodeStyleSettingsMigrationServiceBase  {
 
-  override def getComponentName: String = "ProjectCodeStyleSettingsMigrationComponent"
-
-  override def projectOpened(): Unit = {
+  def init(): Unit = {
     migrateIfNeeded()
 
     //application-level code style settings should be migrated at some point in time
