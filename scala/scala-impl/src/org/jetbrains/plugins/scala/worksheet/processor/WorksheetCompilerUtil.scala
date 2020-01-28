@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
   * Date: 29.05.18.
   */
 object WorksheetCompilerUtil {
-  private val ERROR_CONTENT_NAME = "Worksheet errors"
+  private val ERROR_CONTENT_NAME = "Worksheet errors" // TODO: is it effectively used?
 
   sealed trait WorksheetCompileRunRequest
 

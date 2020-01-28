@@ -117,7 +117,7 @@ object WorksheetFileHook {
       val evaluationResultOpt = WorksheetEditorPrinterFactory.loadWorksheetEvaluation(scalaFile)
       evaluationResultOpt.foreach {
         case (result, ratio) if !result.isEmpty =>
-          val viewer = WorksheetEditorPrinterFactory.createViewer(editor, vFile)
+          val viewer = WorksheetEditorPrinterFactory.createViewer(editor)
           val document = viewer.getDocument
 
           val splitter = WorksheetEditorPrinterFactory.DIFF_SPLITTER_KEY.get(viewer)
@@ -153,7 +153,7 @@ object WorksheetFileHook {
           }
         }
 
-        val controlPanel = new WorksheetControlPanel(file)
+        val controlPanel = new WorksheetControlPanel()
         val actions: ju.List[AnAction] = ContainerUtil.immutableSingletonList(new WorksheetReplRunAction)
         UIUtil.putClientProperty(editor.getComponent, AnAction.ACTIONS_KEY, actions)
         file2panel.put(file, controlPanel)

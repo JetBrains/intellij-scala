@@ -22,12 +22,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
+//noinspection HardCodedStringLiteral
 object WorksheetSourceProcessor {
 
   // TODO: it is probably enough just START_TOKEN_MARKER, without END_TOKEN_MARKER, leave just one
@@ -204,6 +205,7 @@ object WorksheetSourceProcessor {
     isObjectOk(file.getFirstChild)
   }
 
+  //noinspection HardCodedStringLiteral
   private abstract class SourceBuilderBase(classBuilder: mutable.StringBuilder,
                                            objectBuilder: mutable.StringBuilder,
                                            iterNumber: Int, srcFile: ScalaFile,

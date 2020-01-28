@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterR
 
 import scala.collection.mutable
 
+//noinspection HardCodedStringLiteral
 final class WorksheetEditorPrinterRepl private[printers](
   editor: Editor,
   viewer: Editor,

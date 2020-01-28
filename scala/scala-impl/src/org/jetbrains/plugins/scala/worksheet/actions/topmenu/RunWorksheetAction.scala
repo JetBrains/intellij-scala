@@ -13,6 +13,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.Workshe
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetCompilerErrorReporter}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.control.NonFatal
@@ -33,7 +34,7 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
 
   override def actionIcon: Icon = AllIcons.Actions.Execute
 
-  override def shortcutId: Option[String] = Some("Scala.RunWorksheet")
+  override def shortcutId: Option[String] = Some(RunWorksheetAction.ShortcutId)
 
   override def actionPerformed(e: AnActionEvent): Unit =
     RunWorksheetAction.runCompilerForSelectedEditor(e, auto = false)
@@ -41,11 +42,11 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
   override def update(e: AnActionEvent): Unit = {
     super.update(e)
 
-    val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts("Scala.RunWorksheet")
+    val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts(RunWorksheetAction.ShortcutId)
 
     if (shortcuts.nonEmpty) {
-      val shortcutText = s" (${KeymapUtil.getShortcutText(shortcuts(0))})"
-      e.getPresentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText)
+      val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
+      e.getPresentation.setText(genericText + shortcutText)
     }
   }
 }
@@ -53,6 +54,8 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
 object RunWorksheetAction {
 
   private val Log: Logger = Logger.getInstance(getClass)
+  @NonNls
+  private val ShortcutId = "Scala.RunWorksheet"
 
   sealed trait RunWorksheetActionResult
   object RunWorksheetActionResult {

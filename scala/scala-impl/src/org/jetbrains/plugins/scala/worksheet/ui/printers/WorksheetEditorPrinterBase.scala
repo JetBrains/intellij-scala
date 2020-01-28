@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
@@ -29,7 +30,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   override def internalError(errorMessage: String): Unit =
     invokeLater {
       inWriteAction {
-        val internalErrorPrefix = "Internal error"
+        val internalErrorPrefix = ScalaBundle.message("worksheet.internal.error")
         val reason = if(errorMessage == null) "" else s": $errorMessage"
         val fullErrorMessage = s"$internalErrorPrefix$reason"
         val documentAlreadyContainsErrors = viewerDocument.getCharsSequence.startsWith(internalErrorPrefix)
@@ -68,7 +69,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     }
   }
 
-  protected def updateFoldings(foldings: Seq[FoldingOffsets], expandedIndexes: Set[Int] = Set.empty): Unit = startCommand() {
+  protected final def updateFoldings(foldings: Seq[FoldingOffsets]): Unit = startCommand() {
     def addRegion(fo: FoldingOffsets): Unit = {
       val FoldingOffsets(outputStartLine, outputEndOffset, inputLinesCount, inputEndLine, expanded) = fo
 

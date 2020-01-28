@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.settings
 
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.psi.PsiErrorElement
-import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.{NonNls, NotNull}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.W
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterFactory}
 
 abstract sealed class WorksheetExternalRunType {
-  def getName: String
+  @NonNls def getName: String
 
   def isReplRunType: Boolean
 

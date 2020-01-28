@@ -32,6 +32,7 @@ import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -1377,7 +1378,7 @@ package object extensions {
 
   implicit final class LoggerExt(private val logger: Logger) extends AnyVal {
 
-    def debugSafe(message: => String): Unit =
+    def debugSafe(@NonNls message: => String): Unit =
       if (logger.isDebugEnabled) {
         logger.debug(message)
       }
