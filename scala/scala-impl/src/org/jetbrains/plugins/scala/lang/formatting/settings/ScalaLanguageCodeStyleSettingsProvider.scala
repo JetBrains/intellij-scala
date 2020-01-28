@@ -233,11 +233,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
       import WrappingAndBracesCustomGroupNames._
 
-      // RENAME: implements -> with
-      val TODO = appMessage("wrapping.extends.implements.list")
-      opt("ALIGN_EXTENDS_WITH", appMessage("wrapping.align.when.multiline"), TODO,
+      val ExtendsWithList = appMessage("wrapping.extends.implements.list")
+      opt("ALIGN_EXTENDS_WITH", appMessage("wrapping.align.when.multiline"), ExtendsWithList,
         (ScalaCodeStyleSettings.EXTENDS_ALIGN_STRING, ScalaCodeStyleSettings.EXTENDS_ALIGN_VALUES))
-      opt("WRAP_BEFORE_WITH_KEYWORD", ScalaBundle.message("wrapping.and.braces.panel.wrap.before.with.keyword"), TODO)
+      opt("WRAP_BEFORE_WITH_KEYWORD", ScalaBundle.message("wrapping.and.braces.panel.wrap.before.with.keyword"), ExtendsWithList)
       opt("ALIGN_IF_ELSE", ScalaBundle.message("wrapping.and.braces.panel.align.if.else.statements"), appMessage("wrapping.if.statement"))
       opt("METHOD_BRACE_FORCE", ScalaBundle.message("wrapping.and.braces.panel.force.braces"), METHOD_DEFINITION, BRACE_OPTION_AND_VALUES)
       opt("TRY_BRACE_FORCE", ScalaBundle.message("wrapping.and.braces.panel.force.try.braces"), GroupNames.WRAPPING_TRY_STATEMENT, BRACE_OPTION_AND_VALUES)
