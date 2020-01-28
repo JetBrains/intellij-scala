@@ -175,10 +175,6 @@
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
 
-        <toolWindow id="WorksheetResultsToolWindow" anchor="bottom" canCloseContents="false"
-                    factoryClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowFactory"
-                    conditionClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowCondition"/>
-
         <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false"
                     factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory"/>
 
