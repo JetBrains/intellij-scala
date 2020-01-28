@@ -33,6 +33,12 @@ private[parsing] object Annotations extends ParsingRule {
     marker.setCustomEdgeTokenBinders(LeftEdgeBinder, null)
   }
 
+  def parseEmptyAndBindLeft()(implicit builder: ScalaPsiBuilder): Unit = {
+    val marker = builder.mark
+    marker.done(ScalaElementType.ANNOTATIONS)
+    marker.setCustomEdgeTokenBinders(LeftEdgeBinder, null)
+  }
+
   private def parse(newlineBeforeCurrentToken: Boolean = false)
                    (implicit builder: ScalaPsiBuilder) = {
     val marker = builder.mark()
