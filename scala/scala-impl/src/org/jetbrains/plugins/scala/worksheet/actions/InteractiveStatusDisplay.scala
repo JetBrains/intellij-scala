@@ -36,7 +36,7 @@ class InteractiveStatusDisplay extends TopComponentDisplayable {
     setCurrentIcon(successIcon)
 
   private def setCurrentIcon(icon: AsyncProcessIcon): Unit = {
-    if (currentIcon.contains(icon)) {
+    if (!currentIcon.contains(icon)) {
       currentIcon = Some(icon)
       iconPanel.removeAll()
       iconPanel.add(icon, 0)
