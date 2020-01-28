@@ -4,10 +4,10 @@ package internal
 
 import com.intellij.codeInspection.LocalInspectionTool
 
-class ScalaGetTextInspectionTest extends ScalaQuickFixTestBase {
+class ScalaShouldBeTextContainsInspectionTest extends ScalaQuickFixTestBase {
 
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
-    classOf[ScalaGetTextInspection]
+    classOf[ScalaShouldBeTextContainsInspection]
 
   override protected val description: String =
     InspectionBundle.message("internal.replace.with.textContains")
