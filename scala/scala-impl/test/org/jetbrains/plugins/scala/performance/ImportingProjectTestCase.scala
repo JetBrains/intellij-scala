@@ -23,8 +23,6 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-
 /**
   * Nikolay.Tropin
   * 14-Dec-17
@@ -52,12 +50,10 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val sbtSettings = SbtSettings.getInstance(myProject)
-    sbtSettings.setVmParameters(sbtSettings.getVmParameters + s"-Dsbt.ivy.home=${rootDirPath}/.ivy_cache")
+    sbtSettings.setVmParameters(sbtSettings.getVmParameters + s"-Dsbt.ivy.home=$rootDirPath/.ivy_cache")
+
     val settings = new SbtProjectSettings
-    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
-    val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk18
-    else internalSdk
-    settings.jdk = sdk.getName
+    settings.jdk = internalJdkOrDefault.getName
     settings.setCreateEmptyContentRootDirectories(true)
     settings
   }
@@ -87,14 +83,13 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
     extensions.inWriteAction {
-      val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
-      val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk18
-      else internalSdk
+      val jdk = internalJdkOrDefault
 
-      if (ProjectJdkTable.getInstance().findJdk(sdk.getName) == null) {
-        ProjectJdkTable.getInstance().addJdk(sdk, myProject)
+      val jdkTable = ProjectJdkTable.getInstance
+      if (jdkTable.findJdk(jdk.getName) == null) {
+        jdkTable.addJdk(jdk, myProject)
       }
-      ProjectRootManager.getInstance(myProject).setProjectSdk(sdk)
+      ProjectRootManager.getInstance(myProject).setProjectSdk(jdk)
       reporter.notify("Finished sbt setup, starting import")
     }
   }
@@ -105,8 +100,8 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     importProject()
   }
 
-  def findFile(filename: String): VirtualFile = {
-
+  protected def findFile(filename: String): VirtualFile = {
+    import collection.JavaConverters._
     val searchScope = SourceFilterScope(GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true))(myProject)
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
@@ -126,4 +121,10 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     LocalFileSystem.getInstance().refreshFiles(files)
     file
   }
+
+  private def internalJdkOrDefault =
+    JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk match {
+      case null => IdeaTestUtil.getMockJdk18
+      case internalJdk => internalJdk
+    }
 }
