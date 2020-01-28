@@ -1,0 +1,19 @@
+<html>
+<body>
+Use PsiElement.textMatches instead of PsiElement.getText when comparing with a string.
+
+<p>
+    Before:
+<pre>
+psiElement.getText == "null"
+</pre>
+
+<br>
+After:
+<pre>
+psiElement.textMatches("null")
+</pre>
+</p>
+
+</body>
+</html>
