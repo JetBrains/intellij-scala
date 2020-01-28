@@ -880,7 +880,7 @@
                          displayName="Wrong platform method usage"
                          language="Scala" groupPath="Scala" groupName="Internal"
                          isInternal="true" level="WARNING" enabledByDefault="true"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.ScalaGetTextInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.ScalaShouldBeTextContainsInspection"
                          bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
                          key="internal.getText.contains.shouldBe.textContains"
                          language="Scala" groupPath="Scala" groupName="Internal"

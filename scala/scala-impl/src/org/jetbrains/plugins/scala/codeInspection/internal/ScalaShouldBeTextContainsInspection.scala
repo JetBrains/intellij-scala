@@ -6,12 +6,12 @@ package internal
 import org.jetbrains.plugins.scala.codeInspection.collections.{OperationOnCollectionInspection, Qualified, Simplification, SimplificationType, invocation, invocationText}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
-class ScalaGetTextInspection extends OperationOnCollectionInspection {
+class ScalaShouldBeTextContainsInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(ScalaGetTextInspection)
+    Array(ScalaShouldBeTextContainsInspection)
 }
 
-object ScalaGetTextInspection extends SimplificationType() {
+object ScalaShouldBeTextContainsInspection extends SimplificationType() {
   override val hint: String = InspectionBundle.message("internal.replace.with.textContains")
 
   private val `.getText`: Qualified = invocation("getText").from(Array(psiElementFqn, psiASTNodeFqn))
