@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala.worksheet.runconfiguration
 
 import java.io.File
 
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Editor, EditorFactory}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
@@ -13,14 +12,9 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.Compile
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 03.02.17.
-  */
-class WorksheetCache(project: Project) extends ProjectComponent  {
-
-  override def getComponentName: String = "WorksheetCache"
+final class WorksheetCache {
 
   private val allViewers = ContainerUtil.createWeakMap[Editor, List[Editor]]()
   private val allReplPrinters = ContainerUtil.createWeakMap[Editor, WorksheetEditorPrinter]()
@@ -117,19 +111,17 @@ class WorksheetCache(project: Project) extends ProjectComponent  {
       }
     }
 
-  private def invalidateViewers() {
-    val i = allViewers.values().iterator()
+  private[runconfiguration] def invalidateViewers() {
     val factory = EditorFactory.getInstance()
-
-    while (i.hasNext) {
-      i.next().foreach {
-        case e: EditorImpl =>
-          if (!e.isDisposed) try {
-            factory.releaseEditor(e)
-          } catch {
-            case _: Exception => //ignore
-          }
-        case _ =>
+    for {
+      editors <- allViewers.values().asScala
+      e <- editors.filter(_.isInstanceOf[EditorImpl])
+      if !e.isDisposed
+    } {
+      try {
+        factory.releaseEditor(e)
+      } catch {
+        case _: Exception => //ignore
       }
     }
   }
@@ -141,11 +133,14 @@ class WorksheetCache(project: Project) extends ProjectComponent  {
         case list => list.headOption.orNull
       }
     }
-
-  override def projectClosed(): Unit =
-    invalidateViewers()
 }
 
 object WorksheetCache {
-  def getInstance(project: Project): WorksheetCache = project.getComponent(classOf[WorksheetCache])
+  def getInstance(project: Project): WorksheetCache = project.getService(classOf[WorksheetCache])
+}
+
+final class WorksheetCacheProjectListener extends ProjectManagerListener {
+
+  override def projectClosed(project: Project): Unit =
+    WorksheetCache.getInstance(project).invalidateViewers()
 }
