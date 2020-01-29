@@ -1,9 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="11" />
+    <bytecodeTargetLevel target="11">
+      <module name="android" target="11" />
+      <module name="bsp" target="11" />
+      <module name="codeInsight" target="11" />
+      <module name="compiler-jps" target="8" />
+      <module name="compiler-shared" target="8" />
+      <module name="conversion" target="11" />
+      <module name="copyright" target="11" />
+      <module name="decompiler" target="11" />
+      <module name="devKit" target="11" />
+      <module name="gradle" target="11" />
+      <module name="idea-runner" target="11" />
+      <module name="intelliLang" target="11" />
+      <module name="java-decompiler" target="11" />
+      <module name="macros" target="11" />
+      <module name="maven" target="11" />
+      <module name="nailgun" target="11" />
+      <module name="properties" target="11" />
+      <module name="repackagedZinc" target="11" />
+      <module name="runners" target="8" />
+      <module name="scala-api" target="11" />
+      <module name="scala-impl" target="11" />
+      <module name="scalaCommunity" target="11" />
+      <module name="uast" target="11" />
+      <module name="worksheet" target="11" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_STRING" value="-Xlint:unchecked -source 11 -target 11 --add-exports jdk.jdi/com.sun.jdi=ALL-UNNAMED " />
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-Xlint:unchecked" />
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="compiler-jps" options="--release 8" />
+      <module name="compiler-shared" options="--release 8" />
+      <module name="runners" options="--release 8" />
+      <module name="scala-impl" options="--add-exports jdk.jdi/com.sun.jdi=ALL-UNNAMED" />
+    </option>
   </component>
 </project>

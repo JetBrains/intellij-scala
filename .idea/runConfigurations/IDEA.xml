@@ -5,7 +5,7 @@
     <module name="idea-runner" />
     <option name="PROGRAM_PARAMETERS" value="nosplash" />
     <shortenClasspath name="ARGS_FILE" />
-    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=240m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.ScalaPluginIC/system -Didea.config.path=$USER_HOME$/.ScalaPluginIC/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala -Didea.platform.prefix=Idea" />
+    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=240m -XX:+HeapDumpOnOutOfMemoryError -ea --add-exports java.base/jdk.internal.vm=ALL-UNNAMED -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.ScalaPluginIC/system -Didea.config.path=$USER_HOME$/.ScalaPluginIC/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala -Didea.platform.prefix=Idea" />
     <RunnerSettings RunnerId="Debug">
       <option name="DEBUG_PORT" value="" />
       <option name="TRANSPORT" value="0" />
