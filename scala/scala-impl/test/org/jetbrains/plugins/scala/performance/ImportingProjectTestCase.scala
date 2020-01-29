@@ -123,8 +123,5 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
   }
 
   private def internalJdkOrDefault =
-    JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk match {
-      case null => IdeaTestUtil.getMockJdk18
-      case internalJdk => internalJdk
-    }
+    JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
 }
