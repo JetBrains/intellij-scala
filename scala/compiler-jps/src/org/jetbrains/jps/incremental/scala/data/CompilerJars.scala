@@ -13,6 +13,8 @@ case class CompilerJars(library: File,
 
   def hasDotty: Boolean =
     CompilerJars.hasDotty(extra)
+
+  def allJars: Seq[File] = library +: compiler +: extra
 }
 
 object CompilerJars {
@@ -20,3 +22,4 @@ object CompilerJars {
   def hasDotty(files: Seq[File]): Boolean =
     files.exists(_.getName.startsWith("dotty"))
 }
+
