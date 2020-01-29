@@ -48,12 +48,13 @@ import scala.language.implicitConversions
 //noinspection HardCodedStringLiteral
 final class ScalaTypedHandler extends TypedHandlerDelegate {
 
+  @Measure
   override def charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
 
     val offset = editor.offset
     val element = file.findElementAt(offset - 1)
-    if (element == null) return Result.CONTINUE
+    //if (element == null) return Result.CONTINUE
 
     val document = editor.getDocument
     val text = document.getImmutableCharSequence
@@ -71,18 +72,18 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     // TODO: we can avoid allocations by comparing strings inplace, without substring
     @inline
     def hasPrefix(prefix: String): Boolean =
-      prefix.length <= offset && offset < text.length &&
+      prefix.length <= offset && offset <= text.length &&
         text.substring(offset - prefix.length, offset) == prefix
 
-    val myTask: Task = if (isInDocComment(element)) { //we don't have to check offset >= 3 because "/**" is already has 3 characters
+    val myTask: Task = if (element != null && isInDocComment(element)) { //we don't have to check offset >= 3 because "/**" is already has 3 characters
       getScaladocTask(text, offset)
     } else if (c == ' ' && hasPrefix(" case ")) {
       indentCase(file)
-    } else if (c == ' ' && hasPrefix(" else ")) {
+    } else if (c == ' ' && hasPrefix("else ")) {
       indentElse(file)
     } else if (c == '{' && hasPrefix(" {")) {
       indentValBraceStyle(file)
-    } else if (isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
+    } else if (element != null && isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
       chooseXmlTask(withAttr = true)
     } else if (file.findElementAt(offset - 2) match {
       case el: PsiElement if !ScalaNamesUtil.isOperatorName(el.getText) && el.getText != "=" =>
@@ -90,14 +91,14 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       case _ => false
     }) {
       chooseXmlTask(withAttr = false)
-    } else if (element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementType.CASE_CLAUSES) {
+    } else if (element != null && element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementType.CASE_CLAUSES) {
       val ltIndex = element.getPrevSibling.getText.indexOf("<")
       if (ltIndex > "case ".length - 1 && element.getPrevSibling.getText.substring(0, ltIndex).trim == "case") {
         chooseXmlTask(withAttr = false)
       } else {
         null
       }
-    } else if (c == '{' && (element.getParent match {
+    } else if (element != null && c == '{' && (element.getParent match {
       case l: ScInterpolatedStringLiteral => !l.isMultiLineString
       case _ => false
     })) {
@@ -135,6 +136,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
+  @Measure
   override def beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
 
