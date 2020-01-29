@@ -9,8 +9,6 @@ class ScalafmtProjectListener extends ProjectManagerListener {
     ScalafmtDynamicConfigService.instanceIn(project).init()
   }
 
-  override def projectClosed(project: Project): Unit = {
-    super.projectClosed(project)
+  override def projectClosing(project: Project): Unit =
     ScalafmtDynamicConfigService.instanceIn(project).clearCaches()
-  }
 }

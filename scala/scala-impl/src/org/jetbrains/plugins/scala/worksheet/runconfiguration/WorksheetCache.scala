@@ -141,6 +141,6 @@ object WorksheetCache {
 
 final class WorksheetCacheProjectListener extends ProjectManagerListener {
 
-  override def projectClosed(project: Project): Unit =
+  override def projectClosing(project: Project): Unit =
     WorksheetCache.getInstance(project).invalidateViewers()
 }
