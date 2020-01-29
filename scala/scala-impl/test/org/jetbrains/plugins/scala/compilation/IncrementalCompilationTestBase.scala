@@ -7,14 +7,18 @@ import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13, Scala_
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.junit.Assert.assertThat
-import org.junit.Assume.assumeThat
 import org.hamcrest.CoreMatchers.equalTo
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.everyValueGreaterThanIn
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[ScalacTests]))
-abstract class IncrementalCompilationTestBase
+abstract class IncrementalCompilationTestBase(scalaVersion: ScalaVersion,
+                                              override protected val incrementalityType: IncrementalityType,
+                                              override protected val useCompileServer: Boolean = false)
   extends ScalaCompilerTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == scalaVersion
 
   def testRecompileOnlyAffectedFiles(): Unit = {
     val sources = initBuildProject(
@@ -108,7 +112,7 @@ abstract class IncrementalCompilationTestBase
 
     val actualTargetFileNames = targetFileNames
     val expectedTargetFileNames = result.flatMap(_.expectedTargetFileNames).toSet
-    assumeThat("Failed initial compilation",
+    assertThat("Failed initial compilation",
       actualTargetFileNames, equalTo(expectedTargetFileNames)
     )
     result
@@ -175,40 +179,31 @@ abstract class IncrementalCompilationTestBase
 }
 
 // 2.12
-class IncrementalIdeaCompilationTest_2_12 extends IncrementalCompilationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+class IncrementalIdeaCompilationTest_2_12
+  extends IncrementalCompilationTestBase(Scala_2_12, IncrementalityType.IDEA)
 
-  override protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
-}
+class IncrementalSbtCompilationTest_2_12
+  extends IncrementalCompilationTestBase(Scala_2_12, IncrementalityType.SBT)
 
-class IncrementalSbtCompilationTest_2_12 extends IncrementalCompilationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
-
-  override protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
-}
+class IncrementalServerCompilationTest_2_12
+  extends IncrementalCompilationTestBase(Scala_2_12, IncrementalityType.IDEA, useCompileServer = true)
 
 // 2.13
-class IncrementalIdeaCompilationTest_2_13 extends IncrementalCompilationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_13
+class IncrementalIdeaCompilationTest_2_13
+  extends IncrementalCompilationTestBase(Scala_2_13, IncrementalityType.IDEA)
 
-  override protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
-}
+class IncrementalSbtCompilationTest_2_13
+  extends IncrementalCompilationTestBase(Scala_2_13, IncrementalityType.SBT)
 
-class IncrementalSbtCompilationTest_2_13 extends IncrementalCompilationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_13
-
-  override protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
-}
+class IncrementalServerCompilationTest_2_13
+  extends IncrementalCompilationTestBase(Scala_2_13, IncrementalityType.IDEA, useCompileServer = true)
 
 // 3.0
-class IncrementalIdeaCompilationTest_3_0 extends IncrementalCompilationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_3_0
+class IncrementalIdeaCompilationTest_3_0
+  extends IncrementalCompilationTestBase(Scala_3_0, IncrementalityType.IDEA)
 
-  override protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
-}
+class IncrementalSbtCompilationTest_3_0
+  extends IncrementalCompilationTestBase(Scala_3_0, IncrementalityType.SBT)
 
-class IncrementalSbtCompilationTest_3_0 extends IncrementalCompilationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_3_0
-
-  override protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
-}
+class IncrementalServerCompilationTest_3_0
+  extends IncrementalCompilationTestBase(Scala_3_0, IncrementalityType.IDEA, useCompileServer = true)

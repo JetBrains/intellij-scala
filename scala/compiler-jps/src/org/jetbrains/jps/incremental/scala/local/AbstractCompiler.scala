@@ -18,7 +18,6 @@ import scala.collection.JavaConverters._
  */
 abstract class AbstractCompiler extends Compiler {
 
-
   def getReporter(client: Client): Reporter = new ClientReporter(client)
 
   def getLogger(client: Client, zincLogFilter: ZincLogFilter): Logger = new ClientLogger(client, zincLogFilter) with JavacOutputParsing

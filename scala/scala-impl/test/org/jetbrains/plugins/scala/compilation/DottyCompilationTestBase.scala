@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.compilation
 import java.net.{URL, URLClassLoader}
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_3_0, ScalacTests}
@@ -11,7 +10,6 @@ import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, LibraryExt, ModuleExt}
@@ -25,12 +23,11 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[ScalacTests]))
 abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
-                                        allowCompilationWarnings: Boolean = false)
+                                        useCompileServer: Boolean = false)
   extends DownloadingAndImportingTestCase
     with ScalaSdkOwner {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version.major == Scala_3_0.major
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_3_0
 
   override def githubUsername: String = "lampepfl"
 
@@ -44,6 +41,8 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
 
   override def setUp(): Unit = {
     super.setUp()
+
+    CompilerTestUtil.enableCompileServer(useCompileServer)
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
     compiler = new CompilerTester(module)
   }
@@ -51,29 +50,21 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
   override def tearDown(): Unit = try {
     compiler.tearDown()
     ScalaCompilerTestBase.stopAndWait()
-    inWriteAction {
-      val jdkTable = ProjectJdkTable.getInstance
-      jdkTable.getAllJdks.foreach(jdkTable.removeJdk)
-    }
   } finally {
     compiler = null
-    super.tearDown()
   }
 
   def testDownloadCompileRun(): Unit = {
-    val messages = compiler.rebuild()
-
-    if (allowCompilationWarnings)
-      messages.assertNoErrors()
-    else
-      messages.assertNoProblems()
+    compiler.rebuild().assertNoProblems()
 
     val urls = (librariesUrls + targetUrl).toArray
-    val classLoader = new URLClassLoader(urls)
+    val classLoader = new URLClassLoader(urls, null)
+
     val mainClass = classLoader.loadClass("Main")
     val args = Seq[AnyRef](Array.empty[String])
     val argsTypes = args.map(_.getClass)
     val mainMethod = mainClass.getMethod("main", argsTypes: _*)
+
     mainMethod.invoke(null, args: _*)
   }
 
@@ -87,6 +78,8 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
     getModule(githubRepoName)
 }
 
-class DottyIdeaCompilationTest extends DottyCompilationTestBase(IncrementalityType.IDEA)
+class DottyIdeaCompilationTest
+  extends DottyCompilationTestBase(IncrementalityType.IDEA)
 
-class DottySbtCompilationTest extends DottyCompilationTestBase(IncrementalityType.SBT)
+class DottySbtCompilationTest
+  extends DottyCompilationTestBase(IncrementalityType.SBT)

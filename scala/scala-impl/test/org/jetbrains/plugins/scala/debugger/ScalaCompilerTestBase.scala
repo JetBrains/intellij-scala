@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, ProjectExt}
 import org.junit.Assert._
 import java.util.{List => JList}
+
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.emptyCollection
 
 import scala.concurrent.duration
@@ -47,8 +49,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
     addSrcRoot()
     compilerVmOptions.foreach(setCompilerVmOptions)
-    DebuggerTestUtil.enableCompileServer(useCompileServer)
-    DebuggerTestUtil.forceLanguageLevelForBuildProcess(getTestProjectJdk)
+    CompilerTestUtil.enableCompileServer(useCompileServer)
+    CompilerTestUtil.forceLanguageLevelForBuildProcess(getTestProjectJdk)
     setUpLibraries(getModule)
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
     compilerTester = new CompilerTester(getModule)
@@ -143,16 +145,17 @@ object ScalaCompilerTestBase {
     extends AnyVal {
 
     /**
-     * Checks if not compilation errors
+     * Checks if no compilation problems.
+     *
+     * @param allowWarnings if ''true'' checks only ERROR-messages, else ERROR- and WARNING-messages.
      */
-    def assertNoErrors(): Unit =
-      assertNoMessages(Set(CompilerMessageCategory.ERROR))
-
-    /**
-     * Checks if no compilation errors or warnings
-     */
-    def assertNoProblems(): Unit =
-      assertNoMessages(Set(CompilerMessageCategory.ERROR, CompilerMessageCategory.WARNING))
+    def assertNoProblems(allowWarnings: Boolean = false): Unit = {
+      val categories = if (allowWarnings)
+        Set(CompilerMessageCategory.ERROR)
+      else
+        Set(CompilerMessageCategory.ERROR, CompilerMessageCategory.WARNING)
+      assertNoMessages(categories)
+    }
 
     private def assertNoMessages(categories: Set[CompilerMessageCategory]): Unit = {
       val problems = messages.asScala.filter { message =>
