@@ -534,7 +534,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def inSameFile(elem: PsiElement, holder: AnnotationHolder): Boolean = {
-    elem != null && elem.getContainingFile.getViewProvider == holder.getCurrentAnnotationSession.getFile.getViewProvider
+    elem != null && elem.getContainingFile.getViewProvider.getVirtualFile == holder.getCurrentAnnotationSession.getFile.getViewProvider.getVirtualFile
   }
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReference,
