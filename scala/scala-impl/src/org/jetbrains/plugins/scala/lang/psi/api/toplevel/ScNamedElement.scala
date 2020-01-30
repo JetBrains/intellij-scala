@@ -7,6 +7,7 @@ package toplevel
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.stubs.{NamedStub, StubElement}
 import com.intellij.psi.util.PsiTreeUtil
@@ -94,16 +95,16 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
         case _ => null
       }
 
-    val parentMember: ScMember = PsiTreeUtil.getParentOfType(this, classOf[ScMember], false)
+    val parentMember = Option(PsiTreeUtil.getParentOfType(this, classOf[ScMember], false))
     new ItemPresentation {
       def getPresentableText: String = name
       def getTextAttributesKey: TextAttributesKey = null
       def getLocationString: String = clazz match {
         case _: ScTypeDefinition => "(" + clazz.qualifiedName + ")"
         case _: ScNewTemplateDefinition => "(<anonymous>)"
-        case _ => ""
+        case _ => parentMember.map(m => StringUtil.first(m.getText, 30, true)).getOrElse("")
       }
-      override def getIcon(open: Boolean): Icon = parentMember match {case mem: ScMember => mem.getIcon(0) case _ => null}
+      override def getIcon(open: Boolean): Icon = parentMember.map(_.getIcon(0)).orNull
     }
   }
 
