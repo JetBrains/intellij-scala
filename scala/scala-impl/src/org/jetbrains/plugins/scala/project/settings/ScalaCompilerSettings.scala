@@ -29,6 +29,7 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  specialization: Boolean,
                                  continuations: Boolean,
                                  debuggingInfoLevel: DebuggingInfoLevel,
+                                 dottySbtBridgePath: String,
                                  additionalCompilerOptions: Seq[String],
                                  plugins: Seq[String]) {
 
@@ -77,6 +78,7 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
     state.specialization = specialization
     state.continuations = continuations
     state.debuggingInfoLevel = debuggingInfoLevel
+    state.dottySbtBridgePath = dottySbtBridgePath
     state.additionalCompilerOptions = additionalCompilerOptions.toArray
     state.plugins = plugins.toArray
     state
@@ -110,6 +112,7 @@ object ScalaCompilerSettings {
       specialization = state.specialization,
       continuations = state.continuations,
       debuggingInfoLevel = state.debuggingInfoLevel,
+      dottySbtBridgePath = state.dottySbtBridgePath,
       additionalCompilerOptions = state.additionalCompilerOptions.toSeq,
       plugins = state.plugins.toSeq
     )

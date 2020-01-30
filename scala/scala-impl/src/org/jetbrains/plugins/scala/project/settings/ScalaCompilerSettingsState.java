@@ -59,6 +59,8 @@ public class ScalaCompilerSettingsState {
 
   public DebuggingInfoLevel debuggingInfoLevel = DebuggingInfoLevel.Vars;
 
+  public String dottySbtBridgePath = "";
+
   public boolean hasOption(String optionKey) {
     return ArrayUtil.contains(optionKey, additionalCompilerOptions);
   }
@@ -101,6 +103,7 @@ public class ScalaCompilerSettingsState {
         continuations == that.continuations &&
         Arrays.equals(additionalCompilerOptions, that.additionalCompilerOptions) &&
         Arrays.equals(plugins, that.plugins) &&
-        debuggingInfoLevel == that.debuggingInfoLevel;
+        debuggingInfoLevel == that.debuggingInfoLevel &&
+        dottySbtBridgePath.equals(that.dottySbtBridgePath);
   }
 }

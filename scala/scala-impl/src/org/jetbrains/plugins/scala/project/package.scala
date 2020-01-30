@@ -92,6 +92,9 @@ package object project {
     private def scalaModuleSettings: Option[ScalaModuleSettings] =
       ScalaModuleSettings(module)
 
+    def isBuildModule: Boolean =
+      module.getName.endsWith("-build")
+
     def isSourceModule: Boolean = SbtModuleType.unapply(module).isEmpty
 
     def hasScala: Boolean =
@@ -162,7 +165,7 @@ package object project {
       compilerConfiguration.getSettingsForModule(module)
 
     def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]): Unit =
-      compilerConfiguration.configureSettingsForModule(module, source, options)
+      compilerConfiguration.configureSettingsForModule(module, source, ScalaCompilerSettings.fromOptions(options))
 
     def scalaLanguageLevel: Option[ScalaLanguageLevel] =
       scalaModuleSettings.map(_.scalaLanguageLevel)

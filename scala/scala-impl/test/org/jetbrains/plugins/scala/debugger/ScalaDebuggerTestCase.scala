@@ -63,7 +63,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     ThreadTracker.longRunningThreadCreated(threadLeakDisposable, "DebugProcessEvents")
 
     if (needMake) {
-      compiler.rebuild().assertNoProblems()
+      compiler.rebuild().assertNoProblems(allowWarnings = true)
       saveChecksums()
     }
   }

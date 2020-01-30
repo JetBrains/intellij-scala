@@ -3,9 +3,11 @@ package org.jetbrains.plugins.scala.compilation
 import java.net.{URL, URLClassLoader}
 
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_3_0, ScalacTests}
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
@@ -50,22 +52,22 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
   override def tearDown(): Unit = try {
     compiler.tearDown()
     ScalaCompilerTestBase.stopAndWait()
+    val table = ProjectJdkTable.getInstance
+    inWriteAction {
+      table.getAllJdks.foreach(table.removeJdk)
+    }
   } finally {
     compiler = null
+    super.tearDown()
   }
 
-  def testDownloadCompileRun(): Unit = {
+  def testDownloadCompileLoadClass(): Unit = {
     compiler.rebuild().assertNoProblems()
 
     val urls = (librariesUrls + targetUrl).toArray
     val classLoader = new URLClassLoader(urls, null)
 
-    val mainClass = classLoader.loadClass("Main")
-    val args = Seq[AnyRef](Array.empty[String])
-    val argsTypes = args.map(_.getClass)
-    val mainMethod = mainClass.getMethod("main", argsTypes: _*)
-
-    mainMethod.invoke(null, args: _*)
+    classLoader.loadClass("Main")
   }
 
   private def librariesUrls: Set[URL] =

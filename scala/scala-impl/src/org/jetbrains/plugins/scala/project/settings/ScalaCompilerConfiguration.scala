@@ -67,16 +67,13 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     modules.map(getSettingsForModule)
   }
 
-  def configureSettingsForModule(module: Module, source: String, options: Seq[String]) {
+  def configureSettingsForModule(module: Module, source: String, settings: ScalaCompilerSettings): Unit = {
     customProfiles.foreach { profile =>
       profile.removeModuleName(module.getName)
       if (profile.getName.startsWith(source) && profile.moduleNames.isEmpty) {
         customProfiles = customProfiles.filterNot(_ == profile)
       }
     }
-
-    val settings = ScalaCompilerSettings.fromOptions(options)
-
     customProfiles.find(_.getSettings.toState == settings.toState) match {
       case Some(profile) => profile.addModuleName(module.getName)
       case None =>
