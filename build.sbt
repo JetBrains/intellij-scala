@@ -187,6 +187,8 @@ lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
     .dependsOn(runners)
     .settings(
+      javacOptions        := jpsJavacOptions,
+      scalacOptions       := jpsScalacOptions,
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
       packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)
