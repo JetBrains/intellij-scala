@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.project.{IncrementalityType, ProjectExt}
 import org.junit.Assert._
 import java.util.{List => JList}
 
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.emptyCollection
 
@@ -57,7 +58,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     addOutRoot()
   }
 
-  override protected def getProjectLanguageLevel = JDK_11
+  override protected def getProjectLanguageLevel: LanguageLevel = LanguageLevel.JDK_11
 
   override protected def tearDown(): Unit = try {
     compilerTester.tearDown()

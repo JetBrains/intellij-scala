@@ -556,7 +556,7 @@ public class ScalaProjectSettingsPanel {
         panel3.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(panel3, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "collection.type.highlighting.option"));
+        this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("collection.type.highlighting.option"));
         panel3.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         collectionHighlightingChooser = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
@@ -606,8 +606,8 @@ public class ScalaProjectSettingsPanel {
         searchAllSymbolsIncludeCheckBox.setText("Search all symbols (include locals)");
         panel5.add(searchAllSymbolsIncludeCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
-        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scala.meta.settings.annot212"));
-        label3.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scala.meta.settings.annot212Tooltip"));
+        this.$$$loadLabelText$$$(label3, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.annot212"));
+        label3.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.annot212Tooltip"));
         panel5.add(label3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         scalaMetaMode = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
@@ -615,11 +615,11 @@ public class ScalaProjectSettingsPanel {
         defaultComboBoxModel2.addElement("Disabled");
         defaultComboBoxModel2.addElement("Manual");
         scalaMetaMode.setModel(defaultComboBoxModel2);
-        scalaMetaMode.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scala.meta.settings.modeOptionsTooltip"));
+        scalaMetaMode.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.modeOptionsTooltip"));
         panel5.add(scalaMetaMode, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         metaTrimBodies = new JCheckBox();
-        this.$$$loadButtonText$$$(metaTrimBodies, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scala.meta.settings.trimBodiesCap"));
-        metaTrimBodies.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scala.meta.settings.trimBodiesTooltip"));
+        this.$$$loadButtonText$$$(metaTrimBodies, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.trimBodiesCap"));
+        metaTrimBodies.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.trimBodiesTooltip"));
         panel5.add(metaTrimBodies, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ivy2IndexingModeCBB = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel3 = new DefaultComboBoxModel();
@@ -627,11 +627,11 @@ public class ScalaProjectSettingsPanel {
         defaultComboBoxModel3.addElement("Metadata");
         defaultComboBoxModel3.addElement("Classes");
         ivy2IndexingModeCBB.setModel(defaultComboBoxModel3);
-        ivy2IndexingModeCBB.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "project.settings.sbt.index.ivy2.mode.hint"));
+        ivy2IndexingModeCBB.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("project.settings.sbt.index.ivy2.mode.hint"));
         panel5.add(ivy2IndexingModeCBB, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label4 = new JLabel();
-        this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "project.settings.sbt.index.ivy2.mode"));
-        label4.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "project.settings.sbt.index.ivy2.mode.hint"));
+        this.$$$loadLabelText$$$(label4, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("project.settings.sbt.index.ivy2.mode"));
+        label4.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("project.settings.sbt.index.ivy2.mode.hint"));
         panel5.add(label4, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel6 = new JPanel();
         panel6.setLayout(new GridLayoutManager(8, 6, new Insets(9, 9, 0, 0), -1, -1));
@@ -749,23 +749,6 @@ public class ScalaProjectSettingsPanel {
         scrollPane2.setViewportView(disabledInspectionsTable);
     }
 
-    private static Method $$$cachedGetBundleMethod$$$ = null;
-
-    private String $$$getMessageFromBundle$$$(String path, String key) {
-        ResourceBundle bundle;
-        try {
-            Class<?> thisClass = this.getClass();
-            if ($$$cachedGetBundleMethod$$$ == null) {
-                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
-                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
-            }
-            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
-        } catch (Exception e) {
-            bundle = ResourceBundle.getBundle(path);
-        }
-        return bundle.getString(key);
-    }
-
     /**
      * @noinspection ALL
      */
@@ -825,6 +808,23 @@ public class ScalaProjectSettingsPanel {
      */
     public JComponent $$$getRootComponent$$$() {
         return myPanel;
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
     }
 
 

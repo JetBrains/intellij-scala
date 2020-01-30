@@ -97,7 +97,7 @@ public abstract class TypeAnnotationsPanelBase extends ScalaCodeStylePanelBase {
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(7, 1, new Insets(0, 0, 0, 0), -1, -1));
         myContent.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel1.setBorder(IdeBorderFactory.createTitledBorder(null));
+        panel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0), null));
         myPublicMember = new JCheckBox();
         myPublicMember.setSelected(true);
         myPublicMember.setText("Public member");
@@ -124,7 +124,7 @@ public abstract class TypeAnnotationsPanelBase extends ScalaCodeStylePanelBase {
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(10, 2, new Insets(0, 0, 0, 0), 0, -1));
         myContent.add(panel2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        panel2.setBorder(IdeBorderFactory.createTitledBorder(null));
+        panel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0), null));
         myConstant = new JCheckBox();
         myConstant.setSelected(true);
         myConstant.setText("Constant (final val)");
@@ -178,7 +178,7 @@ public abstract class TypeAnnotationsPanelBase extends ScalaCodeStylePanelBase {
         final JPanel panel6 = new JPanel();
         panel6.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
         myContent.add(panel6, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel6.setBorder(IdeBorderFactory.createTitledBorder(null));
+        panel6.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0), null));
         final TitledSeparator titledSeparator3 = new TitledSeparator();
         titledSeparator3.setText("Enforce for");
         panel6.add(titledSeparator3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));

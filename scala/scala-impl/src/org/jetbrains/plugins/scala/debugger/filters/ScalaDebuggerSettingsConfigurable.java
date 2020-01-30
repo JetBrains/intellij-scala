@@ -132,23 +132,23 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
         final Spacer spacer1 = new Spacer();
         myPanel.add(spacer1, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         friendlyDisplayOfScalaCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(friendlyDisplayOfScalaCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "friendly.collection.display.enabled"));
+        this.$$$loadButtonText$$$(friendlyDisplayOfScalaCheckBox, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("friendly.collection.display.enabled"));
         myPanel.add(friendlyDisplayOfScalaCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         myPanel.add(panel1, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         startIndexLabel = new JLabel();
-        this.$$$loadLabelText$$$(startIndexLabel, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "friendly.collection.debug.start.index"));
+        this.$$$loadLabelText$$$(startIndexLabel, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("friendly.collection.debug.start.index"));
         panel1.add(startIndexLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myStartIndexSpinner = new JSpinner();
         panel1.add(myStartIndexSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         endIndexLabel = new JLabel();
-        this.$$$loadLabelText$$$(endIndexLabel, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "friendly.collection.debug.end.index"));
+        this.$$$loadLabelText$$$(endIndexLabel, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("friendly.collection.debug.end.index"));
         panel1.add(endIndexLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myEndIndexSpinner = new JSpinner();
         panel1.add(myEndIndexSpinner, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         doNotExpandStreamsCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(doNotExpandStreamsCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "friendly.collection.do.not.display.streams"));
+        this.$$$loadButtonText$$$(doNotExpandStreamsCheckBox, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("friendly.collection.do.not.display.streams"));
         myPanel.add(doNotExpandStreamsCheckBox, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         myPanel.add(spacer2, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
@@ -161,34 +161,17 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
         label2.setText("   ");
         myPanel.add(label2, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         dontShowRuntimeRefs = new JCheckBox();
-        this.$$$loadButtonText$$$(dontShowRuntimeRefs, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "dont.show.runtime.refs"));
+        this.$$$loadButtonText$$$(dontShowRuntimeRefs, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("dont.show.runtime.refs"));
         myPanel.add(dontShowRuntimeRefs, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         showOuterVariables = new JCheckBox();
-        this.$$$loadButtonText$$$(showOuterVariables, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "show.variables.from.outer.scopes.in.variables.view"));
+        this.$$$loadButtonText$$$(showOuterVariables, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("show.variables.from.outer.scopes.in.variables.view"));
         myPanel.add(showOuterVariables, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         forceClassPrepareRequestsForNestedTypes = new JCheckBox();
-        this.$$$loadButtonText$$$(forceClassPrepareRequestsForNestedTypes, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "force.class.prepare.request.for.nested.types"));
+        this.$$$loadButtonText$$$(forceClassPrepareRequestsForNestedTypes, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("force.class.prepare.request.for.nested.types"));
         myPanel.add(forceClassPrepareRequestsForNestedTypes, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         forcePositionLookupInNestedTypes = new JCheckBox();
-        this.$$$loadButtonText$$$(forcePositionLookupInNestedTypes, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "force.position.lookup.in.nested.types"));
+        this.$$$loadButtonText$$$(forcePositionLookupInNestedTypes, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("force.position.lookup.in.nested.types"));
         myPanel.add(forcePositionLookupInNestedTypes, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    }
-
-    private static Method $$$cachedGetBundleMethod$$$ = null;
-
-    private String $$$getMessageFromBundle$$$(String path, String key) {
-        ResourceBundle bundle;
-        try {
-            Class<?> thisClass = this.getClass();
-            if ($$$cachedGetBundleMethod$$$ == null) {
-                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
-                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
-            }
-            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
-        } catch (Exception e) {
-            bundle = ResourceBundle.getBundle(path);
-        }
-        return bundle.getString(key);
     }
 
     /**
@@ -250,6 +233,23 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
      */
     public JComponent $$$getRootComponent$$$() {
         return myPanel;
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
     }
 
 }

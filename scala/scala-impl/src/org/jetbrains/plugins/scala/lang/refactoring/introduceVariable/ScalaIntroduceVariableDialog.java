@@ -327,30 +327,13 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         mySpecifyTypeChb.setHorizontalTextPosition(11);
         mySpecifyTypeChb.setInheritsPopupMenu(false);
         mySpecifyTypeChb.setMargin(new Insets(0, 0, 0, 0));
-        this.$$$loadButtonText$$$(mySpecifyTypeChb, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "specify.return.type.explicitly"));
+        this.$$$loadButtonText$$$(mySpecifyTypeChb, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("specify.return.type.explicitly"));
         panel3.add(mySpecifyTypeChb);
         myLinkContainer = new JPanel();
         myLinkContainer.setLayout(new BorderLayout(0, 0));
         myLinkContainer.setAlignmentX(0.0f);
         myLinkContainer.setAlignmentY(0.0f);
         panel3.add(myLinkContainer);
-    }
-
-    private static Method $$$cachedGetBundleMethod$$$ = null;
-
-    private String $$$getMessageFromBundle$$$(String path, String key) {
-        ResourceBundle bundle;
-        try {
-            Class<?> thisClass = this.getClass();
-            if ($$$cachedGetBundleMethod$$$ == null) {
-                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
-                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
-            }
-            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
-        } catch (Exception e) {
-            bundle = ResourceBundle.getBundle(path);
-        }
-        return bundle.getString(key);
     }
 
     /**
@@ -385,6 +368,23 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
      */
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
     }
 
     class DataChangedListener implements EventListener {

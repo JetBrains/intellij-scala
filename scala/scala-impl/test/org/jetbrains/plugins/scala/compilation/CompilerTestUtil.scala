@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala.debugger
+package org.jetbrains.plugins.scala.compilation
 
 import com.intellij.openapi.application.ex.ApplicationManagerEx
-import com.intellij.openapi.projectRoots.JavaSdkVersion
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.Registry
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 
 /**
