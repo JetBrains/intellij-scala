@@ -21,8 +21,9 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.experimental = true
+    val newSettings = defaultProfile.getSettings.copy(
+      experimental = true
+    )
     defaultProfile.setSettings(newSettings)
   }
 

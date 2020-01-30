@@ -26,8 +26,9 @@ class AppliedTypeLambdaCanBeSimplifiedTest extends ScalaQuickFixTestBase {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.plugins :+= "kind-projector" //only some of the tests require kind-projector
+    val newSettings = defaultProfile.getSettings.copy(
+      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+    )
     defaultProfile.setSettings(newSettings)
   }
 

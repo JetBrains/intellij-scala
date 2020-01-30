@@ -151,11 +151,11 @@ public class ScalaCompilerSettingsPanel {
     }
 
     public void saveTo(ScalaCompilerSettingsProfile profile) {
-        profile.setSettings(new ScalaCompilerSettings(getState()));
+        profile.setSettings(ScalaCompilerSettings.fromState(getState()));
     }
 
     public void setProfile(ScalaCompilerSettingsProfile profile) {
-        setState(profile.getSettings().getState());
+        setState(profile.getSettings().toState());
     }
 
     {

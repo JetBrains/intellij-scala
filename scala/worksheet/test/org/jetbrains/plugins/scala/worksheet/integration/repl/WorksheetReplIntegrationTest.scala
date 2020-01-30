@@ -297,7 +297,11 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile(): Unit = {
     val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    getModule.scalaCompilerSettings.additionalCompilerOptions = PartialUnificationCompilerOptions
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(
+      additionalCompilerOptions = PartialUnificationCompilerOptions
+    )
+    profile.setSettings(newSettings)
     doRenderTest(editor,
       """foo: [F[_], A](fa: F[A])String
         |res0: String = 123""".stripMargin
@@ -307,7 +311,11 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting(): Unit = {
     val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq()
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(
+      additionalCompilerOptions = Seq.empty
+    )
+    profile.setSettings(newSettings)
     doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 
@@ -315,7 +323,11 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_NonDefaultProfile(): Unit = {
     val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     worksheetSettings(editor).setCompilerProfileName(TestProfileName)
-    createCompilerProfileForCurrentModule(TestProfileName).getSettings.additionalCompilerOptions = PartialUnificationCompilerOptions
+    val profile = createCompilerProfileForCurrentModule(TestProfileName)
+    val newSettings = profile.getSettings.copy(
+      additionalCompilerOptions = PartialUnificationCompilerOptions
+    )
+    profile.setSettings(newSettings)
     doRenderTest(editor,
       """foo: [F[_], A](fa: F[A])String
         |res0: String = 123""".stripMargin
@@ -326,7 +338,11 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting_NonDefaultProfile(): Unit = {
     val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     worksheetSettings(editor).setCompilerProfileName(TestProfileName)
-    createCompilerProfileForCurrentModule(TestProfileName).getSettings.additionalCompilerOptions = Seq()
+    val profile = createCompilerProfileForCurrentModule(TestProfileName)
+    val newSettings = profile.getSettings.copy(
+      additionalCompilerOptions = Seq.empty
+    )
+    profile.setSettings(newSettings)
     doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 }

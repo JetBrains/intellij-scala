@@ -42,10 +42,11 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     profile
   }
 
-  def getSettingsForModule(module: Module): ScalaCompilerSettings = {
-    val profile = customProfiles.find(_.moduleNames.contains(module.getName)).getOrElse(defaultProfile)
-    profile.getSettings
-  }
+  def getProfileForModule(module: Module): ScalaCompilerSettingsProfile =
+    customProfiles.find(_.moduleNames.contains(module.getName)).getOrElse(defaultProfile)
+
+  def getSettingsForModule(module: Module): ScalaCompilerSettings =
+    getProfileForModule(module).getSettings
 
   def allCompilerPlugins: Seq[String] = (allProfiles).map(_.getSettings).flatMap(_.plugins)
 
@@ -74,10 +75,9 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
       }
     }
 
-    val settings = new ScalaCompilerSettings()
-    settings.initFrom(options)
+    val settings = ScalaCompilerSettings.fromOptions(options)
 
-    customProfiles.find(_.getSettings.getState == settings.getState) match {
+    customProfiles.find(_.getSettings.toState == settings.toState) match {
       case Some(profile) => profile.addModuleName(module.getName)
       case None =>
         val profileNames = customProfiles.iterator.map(_.getName).filter(_.startsWith(source)).toSet
@@ -93,7 +93,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   def getState: Element = {
-    val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.getState, new SkipDefaultValuesSerializationFilters())
+    val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters())
 
     if (incrementalityType != IncrementalityType.IDEA) {
       val incrementalityTypeElement = new Element("option")
@@ -103,7 +103,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     }
 
     customProfiles.foreach { profile =>
-      val profileElement = XmlSerializer.serialize(profile.getSettings.getState, new SkipDefaultValuesSerializationFilters())
+      val profileElement = XmlSerializer.serialize(profile.getSettings.toState, new SkipDefaultValuesSerializationFilters())
       profileElement.setName("profile")
       profileElement.setAttribute("name", profile.getName)
       profileElement.setAttribute("modules", profile.moduleNames.sorted.mkString(","))
@@ -120,12 +120,12 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
       .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))
       .getOrElse(IncrementalityType.IDEA)
 
-    defaultProfile.setSettings(new ScalaCompilerSettings(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
+    defaultProfile.setSettings(ScalaCompilerSettings.fromState(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
 
     customProfiles = configurationElement.getChildren("profile").asScala.map { profileElement =>
       val profile = new ScalaCompilerSettingsProfile(profileElement.getAttributeValue("name"))
 
-      val settings = new ScalaCompilerSettings(XmlSerializer.deserialize(profileElement, classOf[ScalaCompilerSettingsState]))
+      val settings = ScalaCompilerSettings.fromState(XmlSerializer.deserialize(profileElement, classOf[ScalaCompilerSettingsState]))
       profile.setSettings(settings)
 
       val moduleNames = profileElement.getAttributeValue("modules").split(",").filter(!_.isEmpty)

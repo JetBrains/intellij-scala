@@ -47,6 +47,8 @@ public class ScalaCompilerSettingsState {
 
   public boolean featureWarnings = false;
 
+  public boolean strict = false;
+
   public boolean optimiseBytecode = false;
 
   public boolean explainTypeErrors = false;
@@ -92,6 +94,7 @@ public class ScalaCompilerSettingsState {
         deprecationWarnings == that.deprecationWarnings &&
         uncheckedWarnings == that.uncheckedWarnings &&
         featureWarnings == that.featureWarnings &&
+        strict == that.strict &&
         optimiseBytecode == that.optimiseBytecode &&
         explainTypeErrors == that.explainTypeErrors &&
         specialization == that.specialization &&

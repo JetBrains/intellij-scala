@@ -17,7 +17,9 @@ abstract class WorksheetLanguageFeatureInspectionBaseTest extends LanguageFeatur
 class WorksheetLanguageFeatureInspection extends WorksheetLanguageFeatureInspectionBaseTest {
 
   def testThatModuleCompilerProfileSettingsAreUsedInWorksheet_HasError(): Unit = {
-    getModule.scalaCompilerSettings.higherKinds = false
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(higherKinds = false)
+    profile.setSettings(newSettings)
     checkTextHasError(
       s"""def foo[F$START[_]$END, A](fa: F[A]): String = "123"
          |""".stripMargin
@@ -25,7 +27,9 @@ class WorksheetLanguageFeatureInspection extends WorksheetLanguageFeatureInspect
   }
 
   def testThatModuleCompilerProfileSettingsAreUsedInWorksheet_NoError(): Unit = {
-    getModule.scalaCompilerSettings.higherKinds = true
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(higherKinds = true)
+    profile.setSettings(newSettings)
     checkTextHasNoErrors(
       s"""def foo[F[_], A](fa: F[A]): String = "123"
          |""".stripMargin
@@ -43,7 +47,9 @@ class WorksheetScratchFileLanguageFeatureInspection extends WorksheetLanguageFea
     WorksheetFileSettings(file).setCompilerProfileName(TestCompilerProfile)
 
   def testThatSpecifiedCompilerProfileSettingsAreUsedInScratchFile_NoError(): Unit = {
-    createCompilerProfile(TestCompilerProfile).getSettings.higherKinds = true
+    val profile = createCompilerProfile(TestCompilerProfile)
+    val newSettings = profile.getSettings.copy(higherKinds = true)
+    profile.setSettings(newSettings)
     checkTextHasNoErrors(
       s"""def foo[F[_], A](fa: F[A]): String = "123"
          |""".stripMargin
@@ -51,7 +57,9 @@ class WorksheetScratchFileLanguageFeatureInspection extends WorksheetLanguageFea
   }
 
   def testThatSpecifiedCompilerProfileSettingsAreUsedInWorksheet_Scratchfile(): Unit = {
-    createCompilerProfile(TestCompilerProfile).getSettings.higherKinds = true
+    val profile = createCompilerProfile(TestCompilerProfile)
+    val newSettings = profile.getSettings.copy(higherKinds = true)
+    profile.setSettings(newSettings)
     checkTextHasNoErrors(
       s"""def foo[F[_], A](fa: F[A]): String = "123"
          |""".stripMargin

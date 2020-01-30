@@ -71,8 +71,8 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val settings = profile.getSettings
     assertTrue("Paradise plugin not found, aborting compilation", pluginArtifact.nonEmpty)
-    settings.plugins :+= pluginArtifact.head.file.getCanonicalPath
-    profile.setSettings(settings)
+    val newSettings = settings.copy(plugins = settings.plugins :+ pluginArtifact.head.file.getCanonicalPath)
+    profile.setSettings(newSettings)
   }
 
   protected def checkNoErrorHighlights(expectedMessagePrefix: String = ""): Unit = {
