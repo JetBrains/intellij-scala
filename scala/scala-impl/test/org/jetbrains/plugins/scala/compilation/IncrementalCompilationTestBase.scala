@@ -3,22 +3,29 @@ package org.jetbrains.plugins.scala.compilation
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.testFramework.VfsTestUtil
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13, Scala_3_0, ScalacTests}
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_3_0, ScalacTests}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.junit.Assert.assertThat
 import org.hamcrest.CoreMatchers.equalTo
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.everyValueGreaterThanIn
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_10,
+  TestScalaVersion.Scala_2_11,
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_0
+))
 @Category(Array(classOf[ScalacTests]))
-abstract class IncrementalCompilationTestBase(scalaVersion: ScalaVersion,
-                                              override protected val incrementalityType: IncrementalityType,
+abstract class IncrementalCompilationTestBase(override protected val incrementalityType: IncrementalityType,
                                               override protected val useCompileServer: Boolean = false)
   extends ScalaCompilerTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == scalaVersion
 
   def testRecompileOnlyAffectedFiles(): Unit = {
     val sources = initBuildProject(
@@ -178,32 +185,11 @@ abstract class IncrementalCompilationTestBase(scalaVersion: ScalaVersion,
   }
 }
 
-// 2.12
-class IncrementalIdeaCompilationTest_2_12
-  extends IncrementalCompilationTestBase(Scala_2_12, IncrementalityType.IDEA)
+class IncrementalIdeaCompilationTest
+  extends IncrementalCompilationTestBase(IncrementalityType.IDEA)
 
-class IncrementalSbtCompilationTest_2_12
-  extends IncrementalCompilationTestBase(Scala_2_12, IncrementalityType.SBT)
+class IncrementalSbtCompilationTest
+  extends IncrementalCompilationTestBase(IncrementalityType.SBT)
 
-class IncrementalServerCompilationTest_2_12
-  extends IncrementalCompilationTestBase(Scala_2_12, IncrementalityType.IDEA, useCompileServer = true)
-
-// 2.13
-class IncrementalIdeaCompilationTest_2_13
-  extends IncrementalCompilationTestBase(Scala_2_13, IncrementalityType.IDEA)
-
-class IncrementalSbtCompilationTest_2_13
-  extends IncrementalCompilationTestBase(Scala_2_13, IncrementalityType.SBT)
-
-class IncrementalServerCompilationTest_2_13
-  extends IncrementalCompilationTestBase(Scala_2_13, IncrementalityType.IDEA, useCompileServer = true)
-
-// 3.0
-class IncrementalIdeaCompilationTest_3_0
-  extends IncrementalCompilationTestBase(Scala_3_0, IncrementalityType.IDEA)
-
-class IncrementalSbtCompilationTest_3_0
-  extends IncrementalCompilationTestBase(Scala_3_0, IncrementalityType.SBT)
-
-class IncrementalServerCompilationTest_3_0
-  extends IncrementalCompilationTestBase(Scala_3_0, IncrementalityType.IDEA, useCompileServer = true)
+class IncrementalOnServerCompilationTest
+  extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = true)
