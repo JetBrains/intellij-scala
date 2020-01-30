@@ -38,6 +38,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScMethodCallAnnotator ::
       ScMethodInvocationAnnotator ::
       ScNewTemplateDefinitionAnnotator ::
+      ScFunctionExprAnnotator ::
       ScParameterAnnotator ::
       ScParameterizedTypeElementAnnotator ::
       ScParametersAnnotator ::

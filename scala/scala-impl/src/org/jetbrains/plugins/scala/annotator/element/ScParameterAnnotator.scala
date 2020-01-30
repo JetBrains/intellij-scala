@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.extensions._
 
 object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
 
@@ -27,7 +28,10 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
           case None =>
             element.expectedParamType match {
               case None =>
-                holder.createErrorAnnotation(element, "Missing parameter type: " + element.name)
+                val inFunctionLiteral = element.parents.drop(2).headOption.exists(_.is[ScFunctionExpr])
+                if (!inFunctionLiteral) { // ScFunctionExprAnnotator does that more gracefully
+                  holder.createErrorAnnotation(element, "Missing parameter type: " + element.name)
+                }
               case _ =>
             }
           case _ =>
