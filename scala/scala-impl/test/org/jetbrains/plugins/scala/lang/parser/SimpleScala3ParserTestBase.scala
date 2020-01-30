@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-trait SimpleParserTestBase extends SimpleTestCase {
+trait SimpleScala3ParserTestBase extends SimpleTestCase {
   def err(err: String): String = {
     s"[[Err($err)]]"
   }
@@ -37,7 +37,7 @@ trait SimpleParserTestBase extends SimpleTestCase {
          |""".stripMargin
     )
 
-    val file = parseText(code)
+    val file = parseText(code, lang = Scala3Language.INSTANCE)
     val errors = file.depthFirst().toSeq.filterBy[PsiErrorElement]
     if (expectedErrors.isEmpty) {
       assert(errors.isEmpty, "Expected no errors but found: " + errors.map(_.getErrorDescription).mkString(", "))
