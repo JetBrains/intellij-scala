@@ -52,6 +52,8 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
+      <java.programPatcher implementation="org.jetbrains.bsp.project.test.environment.BspJvmEnvironmentProgramPatcher"/>
+      <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchTestEnvironmentTaskProvider"/>
         <annotator language="JAVA"
                    implementationClass="org.jetbrains.plugins.scala.annotator.template.SealedJavaInheritance"/>
         <annotator language="Scala"
