@@ -249,7 +249,7 @@ object ScalaRearranger {
 
     matchRules ++= accessModifiers.map(access => rule(OBJECT, access))
 
-    new StdArrangementSettings(groupingRules.asJava, matchRules.reverse.asJava)
+    new StdArrangementSettings(groupingRules.asJava, matchRules.asJava)
   }
 
   private val defaultSettings = getDefaultSettings
