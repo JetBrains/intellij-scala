@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -25,6 +26,18 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   def params: ScParameters = findChildByClass(classOf[ScParameters])
 
   def result: Option[ScExpression] = findChild(classOf[ScExpression])
+
+  override def hasParentheses: Boolean = leftParen.isDefined && rightParen.isDefined
+
+  def leftParen: Option[PsiElement] = params.clauses.head.getFirstChild match {
+    case (e: LeafPsiElement) if e.textMatches("(") => Some(e)
+    case _ => None
+  }
+
+  def rightParen: Option[PsiElement] = params.clauses.head.getLastChild match {
+    case (e: LeafPsiElement) if e.textMatches(")") => Some(e)
+    case _ => None
+  }
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
