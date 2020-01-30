@@ -638,6 +638,12 @@ package object extensions {
 
     def nextVisualSibling: Option[PsiElement] = element.containingFile.flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
 
+    def isWhitespace: Boolean = element.isInstanceOf[PsiWhiteSpace]
+
+    def prevVisualSiblingNotWhitespace: Option[PsiElement] = element.prevVisualSibling.flatMap(e => if (e.isWhitespace) e.prevVisualSibling else Some(e))
+
+    def nextVisualSiblingNotWhitespace: Option[PsiElement] = element.nextVisualSibling.flatMap(e => if (e.isWhitespace) e.nextVisualSibling else Some(e))
+
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)
 
     def withContexts: Iterator[PsiElement] = new ContextsIterator(element, strict = false)
