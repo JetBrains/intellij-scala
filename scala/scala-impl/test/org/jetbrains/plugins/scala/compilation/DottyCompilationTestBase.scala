@@ -21,7 +21,7 @@ import org.junit.experimental.categories.Category
  * This test:
  * - downloads dotty project from GitHub
  * - then compiles it
- * - and then runs main method
+ * - and then loads Main class
  */
 @Category(Array(classOf[ScalacTests]))
 abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
