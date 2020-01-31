@@ -119,7 +119,7 @@ object SimpleExpr {
         simpleMarker.drop()
     }
     @tailrec
-    def subparse(marker: PsiBuilder.Marker) {
+    def subparse(marker: PsiBuilder.Marker): Unit = {
       builder.getTokenType match {
         case `tUNDER` if !builder.newlineBeforeCurrentToken =>
           if (state) {

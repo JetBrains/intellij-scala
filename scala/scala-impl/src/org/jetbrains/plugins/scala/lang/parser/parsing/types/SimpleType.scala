@@ -25,8 +25,8 @@ import scala.annotation.tailrec
  *              | '(' Types [','] ')'
  */
 object SimpleType extends SimpleType {
-  override protected def typeArgs = TypeArgs
-  override protected def types = Types
+  override protected def typeArgs: TypeArgs = TypeArgs
+  override protected def types: Types = Types
 }
 
 trait SimpleType {
@@ -35,7 +35,7 @@ trait SimpleType {
 
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
     @tailrec
-    def parseTail(curMarker: PsiBuilder.Marker, checkSQBracket: Boolean = true) {
+    def parseTail(curMarker: PsiBuilder.Marker, checkSQBracket: Boolean = true): Unit = {
       builder.getTokenType match {
         case ScalaTokenTypes.tLSQBRACKET if checkSQBracket =>
           val newMarker = curMarker.precede

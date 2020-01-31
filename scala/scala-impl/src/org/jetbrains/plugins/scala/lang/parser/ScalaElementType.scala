@@ -28,7 +28,7 @@ sealed abstract class ScalaElementType(debugName: String,
   extends IElementType(debugName, ScalaLanguage.INSTANCE)
     with SelfPsiCreator {
 
-  def createElement(node: ASTNode): ScalaPsiElement
+  override def createElement(node: ASTNode): ScalaPsiElement
 
   override final def toString: String = super.toString
 }
@@ -179,7 +179,7 @@ object ScalaElementType {
   /** ***********************************************************************************/
 
   sealed abstract class ScTypeElementType(debugName: String) extends ScalaElementType(debugName) {
-    def createElement(node: ASTNode): ScTypeElement
+    override def createElement(node: ASTNode): ScTypeElement
   }
 
   val COMPOUND_TYPE: ScTypeElementType = new ScTypeElementType("compound type") {
@@ -215,10 +215,9 @@ object ScalaElementType {
   val TYPE_GENERIC_CALL: ScTypeElementType = new ScTypeElementType("type generic call") {
     override def createElement(node: ASTNode) = new ScParameterizedTypeElementImpl(node)
   }
-  val LITERAL_TYPE: ScTypeElementType = new ScTypeElementType("Literal type") {
+  val LITERAL_TYPE: ScTypeElementType = new ScTypeElementType("literal type") {
     override def createElement(node: ASTNode) = new ScLiteralTypeElementImpl(node)
   }
-
   val TYPE_VARIABLE: ScTypeElementType = new ScTypeElementType("type variable") {
     override def createElement(node: ASTNode) = new ScTypeVariableTypeElementImpl(node)
   }

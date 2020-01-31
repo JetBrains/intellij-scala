@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
 
-  protected def innerType: TypeResult = innerNonValueType(inferValueType = true)
+  override protected def innerType: TypeResult = innerNonValueType(inferValueType = true)
 
   override def getTypeNoConstructor: TypeResult = innerNonValueType(inferValueType = true, noConstructor = true)
 
@@ -319,7 +319,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitSimpleTypeElement(this)
   }
 }
