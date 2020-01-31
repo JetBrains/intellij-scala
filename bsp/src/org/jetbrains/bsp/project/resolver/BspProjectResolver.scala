@@ -272,20 +272,28 @@ object BspProjectResolver {
     val sbtLauncher = SbtUtil.getDefaultLauncher
 
     val injectedPlugins = s"""addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "${BuildInfo.bloopVersion}")"""
-    val settingsFile = FileUtil.createTempFile("idea",".sbt", true)
-    val settingsPath = SbtUtil.normalizePath(settingsFile)
-    FileUtil.writeToFile(settingsFile, injectedPlugins)
+    val pluginFile = FileUtil.createTempFile("idea",".sbt", true)
+    val pluginFilePath = SbtUtil.normalizePath(pluginFile)
+    FileUtil.writeToFile(pluginFile, injectedPlugins)
 
-    val sbtCommandArgs = "early(addPluginSbtFile=\"\"\"" + settingsPath + "\"\"\")"
+    val injectedSettings = """bloopExportJarClassifiers in Global := Some(Set("sources"))"""
+    val settingsFile = FileUtil.createTempFile(baseDir, "idea-bloop", ".sbt", true)
+    FileUtil.writeToFile(settingsFile, injectedSettings)
+
+    val sbtCommandArgs = "early(addPluginSbtFile=\"\"\"" + pluginFilePath + "\"\"\")"
     val sbtCommands = "bloopInstall"
 
-    val dumper = new SbtStructureDump()
-    dumper.runSbt(
-      baseDir, jdkExe,
-      SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome),
-      Map.empty, sbtLauncher, sbtCommandArgs, sbtCommands,
-      reporter,
-      "creating Bloop configuration from sbt",
-    )
+    try {
+      val dumper = new SbtStructureDump()
+      dumper.runSbt(
+        baseDir, jdkExe,
+        SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome),
+        Map.empty, sbtLauncher, sbtCommandArgs, sbtCommands,
+        reporter,
+        "creating Bloop configuration from sbt",
+      )
+    } finally {
+      settingsFile.delete()
+    }
   }
 }
