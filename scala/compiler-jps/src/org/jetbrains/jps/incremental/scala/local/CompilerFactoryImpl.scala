@@ -89,14 +89,11 @@ object CompilerFactoryImpl {
 
       val classLoader = synchronized(classLoadersMap.getOrElse(paths, createClassLoader()))
 
-      val version = readScalaVersionIn(classLoader)
+      val version = compilerVersion(classLoader)
 
       new ScalaInstance(version.getOrElse("unknown"), classLoader, jars.library, jars.compiler, jars.extra.toArray, version)
     }
   }
-
-  def readScalaVersionIn(classLoader: ClassLoader): Option[String] =
-    readProperty(classLoader, "compiler.properties", "version.number")
 
   private def getOrCompileInterfaceJar(home: File,
                                        compilerBridges: SbtData.CompilerBridges,

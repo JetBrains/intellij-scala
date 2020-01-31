@@ -3,7 +3,7 @@ package org.jetbrains.jps.incremental.scala.data
 import java.io.File
 
 import org.jetbrains.jps.incremental.scala.data.CompilerJarsFactory.CompilerJarsResolveError
-import org.jetbrains.jps.incremental.scala.readProperty
+import org.jetbrains.jps.incremental.scala.{containsDotty, readProperty}
 
 /**
  * @author Pavel Fatin
@@ -13,7 +13,7 @@ case class CompilerJars(library: File,
                         extra: Seq[File]) {
 
   def hasDotty: Boolean =
-    CompilerJars.hasDotty(extra)
+    containsDotty(extra)
 
   def allJars: Seq[File] = library +: compiler +: extra
 }
