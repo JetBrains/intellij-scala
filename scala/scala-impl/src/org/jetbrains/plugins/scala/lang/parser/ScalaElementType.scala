@@ -73,7 +73,7 @@ object ScalaElementType {
   val PATTERN_LIST = new ScPatternListElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
   val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
-  val MODIFIERS = new ScModifiersElementType("moifiers") // TODO: should it be moDifiers?
+  val MODIFIERS = new ScModifiersElementType("modifiers")
   val ACCESS_MODIFIER = new ScAccessModifierElementType
   val ANNOTATION = new ScAnnotationElementType
   val ANNOTATIONS = new ScAnnotationsElementType
