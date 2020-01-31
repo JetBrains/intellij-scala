@@ -47,15 +47,6 @@ public final class MultiLineStringCodeStylePanel extends ScalaCodeStylePanelBase
             }
         });
         marginCharTextField.addFocusListener(new NonEmptyFieldValidator(marginCharTextField));
-
-        insertMarginChar.addActionListener(e -> {
-            if (insertMarginChar.isSelected()) {
-                processMarginCheckBox.setEnabled(true);
-            } else {
-                processMarginCheckBox.setSelected(false);
-                processMarginCheckBox.setEnabled(false);
-            }
-        });
     }
 
     @Override
