@@ -5,7 +5,7 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_12
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.4.0-RC1+2-2d96bcf6"
+  val bloopVersion = "1.4.0-RC1+33-dfd03f53"
   val zincVersion = "1.1.1"
   val intellijVersion = "201.5259.8"
   val bspVersion = "2.0.0-M4"
@@ -73,7 +73,7 @@ object Dependencies {
   val sbtStructureExtractor_100: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_1_0)
 
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
-  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_${scalaBinaryVersion}" % bloopVersion
+  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_$scalaBinaryVersion" % bloopVersion
   val jamm: ModuleID = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
