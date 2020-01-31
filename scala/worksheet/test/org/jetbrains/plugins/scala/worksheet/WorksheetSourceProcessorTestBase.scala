@@ -56,7 +56,7 @@ abstract class WorksheetSourceProcessorTestBase extends ScalaCompilerTestBase {
     val vFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
     assertNotNull("Can't find created file", vFile)
 
-    compiler.rebuild().assertNoProblems()
+    compiler.rebuild().assertNoProblems(allowWarnings = true)
   }
 }
 
