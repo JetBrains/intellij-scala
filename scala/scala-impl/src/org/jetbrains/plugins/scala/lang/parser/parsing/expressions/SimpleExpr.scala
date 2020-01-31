@@ -65,6 +65,14 @@ object SimpleExpr {
         builder.advanceLexer() //Ate _
         newMarker = simpleMarker.precede
         simpleMarker.done(ScalaElementType.PLACEHOLDER_EXPR)
+      case `SpliceStart` =>
+        newMarker = simpleMarker.precede
+        simpleMarker.drop()
+        Spliced.parse(builder, inType = false)
+      case `QuoteStart` =>
+        newMarker = simpleMarker.precede
+        simpleMarker.drop()
+        Quoted.parse(builder)
       case `tLPARENTHESIS` =>
         state = true
         builder.advanceLexer()
