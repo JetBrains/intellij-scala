@@ -2,12 +2,17 @@ package org.jetbrains.bsp
 
 import java.io.File
 import java.net.URI
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 
+import ch.epfl.scala.bsp4j.BuildTargetIdentifier
 import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
+import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildTaskReporter
 
@@ -17,6 +22,27 @@ object BspUtil {
 
   val BspConfigDirName = ".bsp"
   val BloopConfigDirName = ".bloop"
+
+  /** BSP Workspaces in modules managed by project. */
+  def workspaces(project: Project): Set[Path] =
+    ModuleManager.getInstance(project).getModules.toList
+      .map { module =>
+        val modulePath = ExternalSystemApiUtil.getExternalProjectPath(module)
+        Paths.get(modulePath)
+      }
+      .toSet
+
+  def isBspConfigFile(file: File): Boolean = {
+    file.isFile &&
+      file.getParentFile.getName == BspConfigDirName &&
+      file.getName.endsWith(".json")
+  }
+
+  def isBloopConfigFile(file: File): Boolean = {
+    file.isFile &&
+      file.getParentFile.getName == BloopConfigDirName &&
+      file.getName.endsWith(".json")
+  }
 
   def bspConfigFiles(workspace: File): List[File] = {
     val bspDir = new File(workspace, BspConfigDirName)
