@@ -16,7 +16,6 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFileManager}
 import com.intellij.util.SystemProperties
-import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector._
@@ -186,15 +185,17 @@ object BspCommunication {
 
   private def findBspConfigs(projectBase: File): List[BspConnectionDetails] = {
 
-    val workspaceConfigDir = new File(projectBase, ".bsp")
-    val workspaceConfigs = listFiles(List(workspaceConfigDir))
+    val workspaceConfigs = BspUtil.bspConfigFiles(projectBase)
     val systemConfigs = systemDependentConnectionFiles
-
     val potentialConfigs = tryReadingConnectionFiles(workspaceConfigs ++ systemConfigs)
 
     potentialConfigs.flatMap(_.toOption).toList
   }
 
+  /**
+   * Find connection files installed on user's system.
+   * https://build-server-protocol.github.io/docs/server-discovery.html#default-locations-for-bsp-connection-files
+   */
   private def systemDependentConnectionFiles: List[File] = {
     val basePaths =
       if (SystemInfo.isWindows) windowsBspFiles()
@@ -243,12 +244,6 @@ object BspCommunication {
   private def listFiles(dirs: List[File]): List[File] = dirs.flatMap { dir =>
     if (dir.isDirectory) dir.listFiles()
     else Array.empty[File]
-  }
-
-  private def findFreePort(port: Int): Int = {
-    val port = 5001
-    if (NetUtils.canConnectToSocket("localhost", port)) port
-    else NetUtils.findAvailableSocketPort()
   }
 
 }
