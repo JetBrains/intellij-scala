@@ -221,6 +221,9 @@ object ScalaElementType {
   val TYPE_VARIABLE: ScTypeElementType = new ScTypeElementType("type variable") {
     override def createElement(node: ASTNode) = new ScTypeVariableTypeElementImpl(node)
   }
+  val SPLICED_BLOCK_TYPE: ScTypeElementType = new ScTypeElementType("spliced block") {
+    override def createElement(node: ASTNode) = new ScSplicedBlockImpl(node)
+  }
 
   /** ***********************************************************************************/
   /** ************************************ TYPE PARTS ***********************************/
@@ -282,6 +285,15 @@ object ScalaElementType {
   }
   val BLOCK: ScExpressionElementType = new ScExpressionElementType("block") {
     override def createElement(node: ASTNode) = new ScBlockImpl(node)
+  }
+  val SPLICED_BLOCK_EXPR: ScExpressionElementType = new ScExpressionElementType("spliced block") {
+    override def createElement(node: ASTNode) = new ScSplicedBlockImpl(node)
+  }
+  val QUOTED_BLOCK: ScExpressionElementType = new ScExpressionElementType("quoted block") {
+    override def createElement(node: ASTNode) = new ScQuotedBlockImpl(node)
+  }
+  val QUOTED_TYPE: ScExpressionElementType = new ScExpressionElementType("quoted type") {
+    override def createElement(node: ASTNode): ScExpression = new ScQuotedTypeImpl(node)
   }
   val TUPLE: ScExpressionElementType = new ScExpressionElementType("Tuple") {
     override def createElement(node: ASTNode) = new ScTupleImpl(node)
