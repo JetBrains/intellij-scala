@@ -189,15 +189,13 @@ class BspProjectOpenProcessor extends ProjectOpenProcessor {
 
 object BspProjectOpenProcessor {
 
-  def canOpenProject(file: VirtualFile): Boolean = {
-    val bspConnectionProtocolSupported = Option(file.findChild(".bsp"))
-      .exists(bspDir =>
-        bspDir.isDirectory &&
-        bspDir.getChildren.exists(_.getExtension == "json"))
+  def canOpenProject(workspace: VirtualFile): Boolean = {
+    val ioWorkspace = new File(workspace.getPath)
 
-    val bloopProject = Option(file.findChild(BspUtil.BloopConfigDirName)).exists(_.isDirectory)
-    val sbtProject = SbtProjectImportProvider.canImport(file)
+    val bspConnectionProtocolSupported = BspUtil.bspConfigFiles(ioWorkspace).nonEmpty
+    val bloopProject = BspUtil.bloopConfigDir(ioWorkspace).isDefined
+    val sbtProject = SbtProjectImportProvider.canImport(workspace)
 
-    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported
+    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject
   }
 }

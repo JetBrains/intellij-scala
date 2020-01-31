@@ -6,6 +6,7 @@ import java.nio.file.Paths
 import java.util.concurrent.CompletableFuture
 
 import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
+import com.intellij.openapi.util.io.FileUtil
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildTaskReporter
@@ -14,10 +15,18 @@ import scala.util.{Failure, Success, Try}
 
 object BspUtil {
 
+  val BspConfigDirName = ".bsp"
   val BloopConfigDirName = ".bloop"
 
+  def bspConfigFiles(workspace: File): List[File] = {
+    val bspDir = new File(workspace, BspConfigDirName)
+    if(bspDir.isDirectory)
+      bspDir.listFiles(file => file.getName.endsWith(".json")).toList
+    else List.empty
+  }
+
   def bloopConfigDir(workspace: File): Option[File] = {
-    val bloopDir = new File(workspace, ".bloop")
+    val bloopDir = new File(workspace, BloopConfigDirName)
 
     if (bloopDir.isDirectory)
       Some(bloopDir.getCanonicalFile)
