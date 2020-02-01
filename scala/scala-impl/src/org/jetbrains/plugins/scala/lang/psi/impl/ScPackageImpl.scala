@@ -23,18 +23,22 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
  * User: Alexander Podkhalyuzin
  * Date: 22.04.2010
  */
-class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
-        pack.getQualifiedName) with ScPackage {
+final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
+  pack.getManager.asInstanceOf[PsiManagerEx],
+  pack.getQualifiedName
+) with ScPackage {
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
-    if (place.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && pack.getQualifiedName == "scala") {
+    val qualifiedName = getQualifiedName
+    if (place.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && qualifiedName == ScalaLowerCase) {
       if (!BaseProcessor.isImplicitProcessor(processor)) {
-        val scope = processor match {
-          case r: ResolveProcessor => r.getResolveScope
-          case _ => place.resolveScope
+        val namesSet = ScalaPsiManager.instance(getProject).getScalaPackageClassNames {
+          processor match {
+            case r: ResolveProcessor => r.getResolveScope
+            case _ => place.resolveScope
+          }
         }
-        val namesSet = ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(pack, scope)
 
         //Process synthetic classes for scala._ package
         /**
@@ -65,8 +69,8 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
         case _ => place.resolveScope
       }
 
-      val maybeObject = getQualifiedName match {
-        case fqn@"scala" => ElementScope(place.getProject, scope).getCachedObject(fqn)
+      val maybeObject = qualifiedName match {
+        case fqn@ScalaLowerCase => ElementScope(place.getProject, scope).getCachedObject(fqn) // TODO impossible!
         case _ => findPackageObject(scope)
       }
 

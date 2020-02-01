@@ -7,6 +7,8 @@ import com.intellij.util.SystemProperties
 
 package object scala {
 
+  val ScalaLowerCase = "scala"
+
   def isInternalMode: Boolean = application match {
     case null => SystemProperties.is(PluginManagerCore.IDEA_IS_INTERNAL_PROPERTY)
     case application => application.isInternal

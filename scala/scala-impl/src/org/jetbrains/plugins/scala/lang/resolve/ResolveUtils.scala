@@ -477,7 +477,7 @@ object ResolveUtils {
                 case r: ResolveProcessor => r.getResolveScope
                 case _ => place.resolveScope
               }
-              val iterator = manager.getClasses(pack, scope).iterator
+              val iterator = manager.getClasses(pack)(scope).iterator
               while (iterator.hasNext) {
                 val clazz = iterator.next()
                 if (clazz.containingClass == null && !processor.execute(clazz, state)) return false
