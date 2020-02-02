@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.PsiPackageImpl
-import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveState}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 /**
@@ -31,41 +31,33 @@ final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
 
   import ScPackageImpl._
 
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
-                                   lastParent: PsiElement, place: PsiElement): Boolean = {
-    val qualifiedName = getQualifiedName
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
     val isInScalaContext = place.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
+    implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
 
-    qualifiedName match {
+    def processObject(`object`: ScObject) =
+      ScPackageImpl.processObject(`object`)(processor, state, lastParent, place)
+
+    getQualifiedName match {
       case ScalaLowerCase if isInScalaContext =>
+        implicit val scope: GlobalSearchScope = findScope(processor, place)
+
         if (!BaseProcessor.isImplicitProcessor(processor)) {
-          processScalaPackage(processor)(
-            ScalaPsiManager.instance(getProject),
-            findScope(processor, place)
-          )
+          processScalaPackage(processor)
         }
+
+        manager.getCachedClasses(scope, ScalaLowerCase)
+          .findByType[ScObject]
+          .forall(processObject)
+      case _ if !packageProcessDeclarations(pack)(processor, state, lastParent, place) => false
+      case _ if isInScalaContext =>
+        val scope = findScope(processor, place)
+        findPackageObject(scope).forall(processObject)
       case _ =>
-        if (!ResolveUtils.packageProcessDeclarations(pack, processor, state, lastParent, place)) return false
-    }
-
-    if (isInScalaContext) {
-      val scope = findScope(processor, place)
-
-      val maybeObject = qualifiedName match {
-        case ScalaLowerCase => ElementScope(place.getProject, scope).getCachedObject(qualifiedName) // TODO impossible!
-        case _ => findPackageObject(scope)
-      }
-
-      maybeObject.forall { obj =>
-        val newState = obj.`type`().fold(
-          Function.const(state),
-          state.withFromType
-        )
-
-        obj.processDeclarations(processor, newState, lastParent, place)
-      }
-    } else {
-      true
+        true
     }
   }
 
@@ -130,8 +122,111 @@ object ScPackageImpl {
     true
   }
 
+  private[psi] def processObject(`object`: ScObject)
+                                 (processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    val newState = `object`.`type`().fold(
+      Function.const(state),
+      state.withFromType
+    )
+
+    `object`.processDeclarations(processor, newState, lastParent, place)
+  }
+
+  private[psi] def packageProcessDeclarations(`package`: PsiPackage)
+                                             (processor: PsiScopeProcessor,
+                                              state: ResolveState,
+                                              lastParent: PsiElement,
+                                              place: PsiElement)
+                                             (implicit manager: ScalaPsiManager): Boolean = processor match {
+    case b: BaseProcessor if b.isImplicitProcessor =>
+      val objectsIterator = manager.
+        getPackageImplicitObjects(`package`.getQualifiedName, place.resolveScope).iterator
+      while (objectsIterator.hasNext) {
+        val obj = objectsIterator.next()
+        if (!processor.execute(obj, state)) return false
+      }
+      true
+    case base: BaseProcessor =>
+      val nameHint = base.getHint(NameHint.KEY)
+      val name = if (nameHint == null) "" else nameHint.getName(state)
+      if (name != null && name != "" && base.getClassKind) {
+        try {
+          base.setClassKind(classKind = false)
+
+          if (base.getClassKindInner) {
+            val qName = `package`.getQualifiedName
+
+            val calcForName = {
+              val fqn = if (qName.length() > 0) qName + "." + name else name
+              val scope = base match {
+                case r: ResolveProcessor => r.getResolveScope
+                case _ => place.resolveScope
+              }
+              val classes = manager.getCachedClasses(scope, fqn).iterator
+              var stop = false
+              while (classes.hasNext && !stop) {
+                val clazz = classes.next()
+                stop = clazz.containingClass == null && !processor.execute(clazz, state)
+              }
+              !stop
+            }
+            if (!calcForName) return false
+          }
+
+          //process subpackages
+          if (base.kinds.contains(ResolveTargets.PACKAGE)) {
+            val psiPack = `package` match {
+              case s: ScPackageImpl => s.pack
+              case _ => `package`
+            }
+            val qName: String = psiPack.getQualifiedName
+            val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
+            val subPackage = manager.getCachedPackageInScope(subpackageQName)(place.getResolveScope).orNull
+
+            if (subPackage != null) {
+              if (!processor.execute(subPackage, state)) return false
+            }
+            true
+          } else true
+        } finally {
+          base.setClassKind(classKind = true)
+        }
+      } else {
+        try {
+          if (base.getClassKindInner) {
+            base.setClassKind(classKind = false)
+            val scope = base match {
+              case r: ResolveProcessor => r.getResolveScope
+              case _ => place.resolveScope
+            }
+            val iterator = manager.getClasses(`package`)(scope).iterator
+            while (iterator.hasNext) {
+              val clazz = iterator.next()
+              if (clazz.containingClass == null && !processor.execute(clazz, state)) return false
+            }
+          }
+
+          if (base.kinds.contains(ResolveTargets.PACKAGE)) {
+            //process subpackages
+            `package` match {
+              case s: ScPackageImpl =>
+                s.pack.processDeclarations(processor, state, lastParent, place)
+              case _ =>
+                `package`.processDeclarations(processor, state, lastParent, place)
+            }
+          } else true
+        } finally {
+          base.setClassKind(classKind = true)
+        }
+      }
+    case _ => `package`.processDeclarations(processor, state, lastParent, place)
+  }
+
   private def findScope(processor: PsiScopeProcessor,
-                place: PsiElement) = processor match {
+                        place: PsiElement) = processor match {
     case processor: ResolveProcessor => processor.getResolveScope
     case _ => place.resolveScope
   }

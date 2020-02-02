@@ -130,17 +130,22 @@ class ScalaPsiManager(implicit val project: Project) {
     Option(JavaPsiFacade.getInstance(project).findPackage(fqn))
   }
 
-  private def isPackageInScope(p: PsiPackage, scope: GlobalSearchScope): Boolean = {
-    def scalaPackageExistsInScope: Boolean = {
-      val fqn = p.getQualifiedName
-      PACKAGE_FQN_KEY.hasIntegerElements(fqn, scope, classOf[ScPackaging]) ||
-        PACKAGE_OBJECT_KEY.hasIntegerElements(fqn, scope, classOf[PsiClass])
-    }
-    scalaPackageExistsInScope || p.getSubPackages(scope).nonEmpty || p.getClasses(scope).nonEmpty
-  }
+  private[this] def isPackageOutOfScope(`package`: PsiPackage)
+                                       (implicit scope: GlobalSearchScope): Boolean =
+    `package`.getSubPackages(scope).isEmpty &&
+      `package`.getClasses(scope).isEmpty
 
-  def getCachedPackageInScope(fqn: String, scope: GlobalSearchScope): Option[PsiPackage] =
-    getCachedPackage(fqn).filter(isPackageInScope(_, scope))
+  private[this] def isScalaPackageInScope(fqn: String)
+                                         (implicit scope: GlobalSearchScope): Boolean =
+    PACKAGE_FQN_KEY.hasIntegerElements(fqn, scope, classOf[ScPackaging]) ||
+      PACKAGE_OBJECT_KEY.hasIntegerElements(fqn, scope, classOf[PsiClass])
+
+  def getCachedPackageInScope(fqn: String)
+                             (implicit scope: GlobalSearchScope): Option[PsiPackage] =
+    getCachedPackage(fqn).filter { `package` =>
+      isScalaPackageInScope(fqn) ||
+        !isPackageOutOfScope(`package`)
+    }
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {

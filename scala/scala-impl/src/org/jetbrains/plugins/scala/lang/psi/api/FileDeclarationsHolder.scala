@@ -8,15 +8,12 @@ import com.intellij.psi.impl.migration.PsiMigrationManager
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
@@ -31,6 +28,7 @@ import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsHolder {
 
   import FileDeclarationsHolder._
+  import ScPackageImpl._
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
@@ -52,9 +50,8 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
         .foreach(processor.execute(_, state))
     }
 
-    val scope = place.resolveScope
-
-    val manager = ScalaPsiManager.instance(getProject)
+    implicit val scope: GlobalSearchScope = place.resolveScope
+    implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
 
     place match {
       case ref: ScReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
@@ -64,7 +61,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
         val defaultPackage = ScPackageImpl(manager.getCachedPackage("").orNull)
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
           if (defaultPackage != null &&
-            !ResolveUtils.packageProcessDeclarations(defaultPackage, processor, state, null, place)) return false
+            !packageProcessDeclarations(defaultPackage)(processor, state, null, place)) return false
         }
         else if (defaultPackage != null && !BaseProcessor.isImplicitProcessor(processor)) {
           //we will add only packages
@@ -91,7 +88,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
               }
             }
           } else {
-            val aPackage: PsiPackage = ScPackageImpl(manager.getCachedPackageInScope(name, scope).orNull)
+            val aPackage: PsiPackage = ScPackageImpl(manager.getCachedPackageInScope(name).orNull)
             if (aPackage != null && !processor.execute(aPackage, state)) return false
           }
         }
@@ -108,7 +105,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     }
 
     if (checkPredefinedClassesAndPackages) {
-      if (!processImplicitImports(processor, scope, state, place)) return false
+      if (!processImplicitImports(processor, state, place)) return false
     }
 
     if (isProcessLocalClasses(lastParent) &&
@@ -117,42 +114,38 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     true
   }
 
-  def processImplicitImports(
-    processor: PsiScopeProcessor,
-    scope:     GlobalSearchScope,
-    state:     ResolveState,
-    place:     PsiElement
-  ): Boolean = {
+  def processImplicitImports(processor: PsiScopeProcessor,
+                             state: ResolveState,
+                             place: PsiElement)
+                            (implicit manager: ScalaPsiManager,
+                             scope: GlobalSearchScope)
+  : Boolean = {
     val precedenceTypes = PrecedenceTypes.forElement(this)
-    val importedFqns    = precedenceTypes.defaultImportsWithPrecedence
-    val psiManager      = ScalaPsiManager.instance(getProject)
+    val importedFqns = precedenceTypes.defaultImportsWithPrecedence
 
     importedFqns.foreach { case (fqn, precedence) =>
       ProgressManager.checkCanceled()
       if (!shouldNotProcessDefaultImport(fqn)) {
 
-        val objects =
-          psiManager
-            .getCachedClasses(scope, fqn)
-            .collectFirst { case obj: ScObject => obj }
-
         updateProcessor(processor, precedence) {
-          objects.foreach { obj =>
-            val newState = state.withFromType(obj.`type`().toOption)
-            if (!obj.processDeclarations(processor, newState, null, place)) return false
-          }
+          manager.getCachedClasses(scope, fqn)
+            .findByType[ScObject]
+            .foreach { `object` =>
+              if (!processObject(`object`)(processor, state, null, place))
+                return false
+            }
 
-          val maybePackage = psiManager.getCachedPackage(fqn)
-          maybePackage.foreach(pkg =>
-            if (!ResolveUtils.packageProcessDeclarations(pkg, processor, state, null, place))
-              return false
-          )
+          manager.getCachedPackage(fqn)
+            .foreach { `package` =>
+              if (!packageProcessDeclarations(`package`)(processor, state, null, place))
+                return false
+            }
         }
       }
 
       /* scala package requires special treatment to process synthetic classes/objects */
       if (fqn == ScalaLowerCase &&
-        !ScPackageImpl.processScalaPackage(processor, state)(psiManager, scope))
+        !processScalaPackage(processor, state))
         return false
     }
 
