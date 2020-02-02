@@ -117,24 +117,6 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     true
   }
 
-  private def processScalaPackage(processor: PsiScopeProcessor,
-                                  state: ResolveState)
-                                 (implicit manager: ScalaPsiManager,
-                                  scope: GlobalSearchScope): Boolean = {
-    val namesSet = manager.getScalaPackageClassNames
-
-    val syntheticClasses = SyntheticClasses.get(getProject)
-    val iterator = syntheticClasses.getAll.iterator ++ syntheticClasses.syntheticObjects.valuesIterator
-
-    iterator.foreach { syntheticSym =>
-      ProgressManager.checkCanceled()
-      if (!namesSet.contains(syntheticSym.getName) && !processor.execute(syntheticSym, state))
-        return false
-    }
-
-    true
-  }
-
   def processImplicitImports(
     processor: PsiScopeProcessor,
     scope:     GlobalSearchScope,
@@ -169,7 +151,8 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
       }
 
       /* scala package requires special treatment to process synthetic classes/objects */
-      if (fqn == ScalaLowerCase && !processScalaPackage(processor, state)(psiManager, scope))
+      if (fqn == ScalaLowerCase &&
+        !ScPackageImpl.processScalaPackage(processor, state)(psiManager, scope))
         return false
     }
 

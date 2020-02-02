@@ -3,6 +3,7 @@ package lang
 package psi
 package impl
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiManagerEx
@@ -28,60 +29,44 @@ final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
   pack.getQualifiedName
 ) with ScPackage {
 
+  import ScPackageImpl._
+
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
     val qualifiedName = getQualifiedName
-    if (place.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && qualifiedName == ScalaLowerCase) {
-      if (!BaseProcessor.isImplicitProcessor(processor)) {
-        val namesSet = ScalaPsiManager.instance(getProject).getScalaPackageClassNames {
-          processor match {
-            case r: ResolveProcessor => r.getResolveScope
-            case _ => place.resolveScope
-          }
-        }
+    val isInScalaContext = place.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
 
-        //Process synthetic classes for scala._ package
-        /**
-         * Does the "scala" package already contain a class named `className`?
-         *
-         * [[https://youtrack.jetbrains.net/issue/SCL-2913]]
-         */
-        def alreadyContains(className: String) = namesSet.contains(className)
-
-        for (synth <- SyntheticClasses.get(getProject).getAll) {
-          if (!alreadyContains(synth.name)) processor.execute(synth, ScalaResolveState.empty)
+    qualifiedName match {
+      case ScalaLowerCase if isInScalaContext =>
+        if (!BaseProcessor.isImplicitProcessor(processor)) {
+          processScalaPackage(processor)(
+            ScalaPsiManager.instance(getProject),
+            findScope(processor, place)
+          )
         }
-        for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects.valuesIterator) {
-
-          // Assume that is the scala package contained a class with the same names as the synthetic object,
-          // then it must also contain the object.
-          if (!alreadyContains(synthObj.name)) processor.execute(synthObj, ScalaResolveState.empty)
-        }
-      }
-    } else {
-      if (!ResolveUtils.packageProcessDeclarations(pack, processor, state, lastParent, place)) return false
+      case _ =>
+        if (!ResolveUtils.packageProcessDeclarations(pack, processor, state, lastParent, place)) return false
     }
 
-    //for Scala
-    if (place.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
-      val scope = processor match {
-        case r: ResolveProcessor => r.getResolveScope
-        case _ => place.resolveScope
-      }
+    if (isInScalaContext) {
+      val scope = findScope(processor, place)
 
       val maybeObject = qualifiedName match {
-        case fqn@ScalaLowerCase => ElementScope(place.getProject, scope).getCachedObject(fqn) // TODO impossible!
+        case ScalaLowerCase => ElementScope(place.getProject, scope).getCachedObject(qualifiedName) // TODO impossible!
         case _ => findPackageObject(scope)
       }
 
       maybeObject.forall { obj =>
-        val newState = obj.`type`().toOption.fold(state) {
-          state.withFromType(_)
-        }
+        val newState = obj.`type`().fold(
+          Function.const(state),
+          state.withFromType
+        )
 
         obj.processDeclarations(processor, newState, lastParent, place)
       }
-    } else true
+    } else {
+      true
+    }
   }
 
   @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
@@ -118,4 +103,36 @@ object ScPackageImpl {
 
   def findPackage(project: Project, pName: String): ScPackageImpl =
     ScPackageImpl(ScalaPsiManager.instance(project).getCachedPackage(pName).orNull)
+
+  /**
+   * Process synthetic classes for scala._ package
+   */
+  def processScalaPackage(processor: PsiScopeProcessor,
+                          state: ResolveState = ScalaResolveState.empty)
+                         (implicit manager: ScalaPsiManager,
+                          scope: GlobalSearchScope): Boolean = {
+    val namesSet = manager.getScalaPackageClassNames
+
+    val syntheticClasses = SyntheticClasses.get(manager.project)
+    for {
+      syntheticElement <- syntheticClasses.getAll ++
+        syntheticClasses.syntheticObjects.valuesIterator
+      // Assume that is the scala package contained a class with the same names as the synthetic object, then it must also contain the object.
+
+      // Does the "scala" package already contain a class named `className`?
+      // SCL-2913
+      if !namesSet(syntheticElement.name)
+    } {
+      ProgressManager.checkCanceled()
+      if (!processor.execute(syntheticElement, state)) return false
+    }
+
+    true
+  }
+
+  private def findScope(processor: PsiScopeProcessor,
+                place: PsiElement) = processor match {
+    case processor: ResolveProcessor => processor.getResolveScope
+    case _ => place.resolveScope
+  }
 }
