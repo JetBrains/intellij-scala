@@ -502,6 +502,9 @@
         <filetype.stubBuilder filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileStubBuilder"/>
         <filetype.decompiler filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileDecompiler"/>
 
+        <registryKey key="scala.show.compiler.errors.in.editor" defaultValue="false" restartRequired="false"
+                     description="Show errors from scala compiler in the editor"/>
+
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
         <nameSuggestionProvider id="ScalaDictionarySuggestionProvider" implementation="org.jetbrains.plugins.scala.spellchecker.ScalaDictionarySuggestionProvider" order="first, before DictionarySuggestionProvider"/>
@@ -1407,6 +1410,9 @@
                   class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetEditorListener"/>
         <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
                   class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetDumbModeListener"/>
+
+        <listener topic="com.intellij.openapi.compiler.CompilationStatusListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.CompilerErrorsListener"/>
     </projectListeners>
 
     <project-components>
