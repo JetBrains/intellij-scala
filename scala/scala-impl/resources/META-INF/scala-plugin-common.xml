@@ -478,6 +478,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerErrorsListener$State"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
