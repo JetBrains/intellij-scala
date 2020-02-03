@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.annotator.Tree.Leaf
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Mismatch, asString}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScTypedExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScParenthesisedExpr, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
@@ -15,9 +15,20 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   override def annotate(element: ScTypedExpression, typeAware: Boolean = true)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
-      implicit val context: TypePresentationContext = TypePresentationContext(element)
-      element.typeElement.foreach(checkUpcasting(element.expr, _))
+      val isTypeAscriptionToFunctionLiteral = element.expr match {
+        case ScParenthesisedExpr(_: ScFunctionExpr) | ScBlock(_: ScFunctionExpr) => true
+        case _ => false
+      }
+
+      if (!isTypeAscriptionToFunctionLiteral) { // handled in ScFunctionExprAnnotator
+        doAnnotate(element)
+      }
     }
+  }
+
+  private[annotator] def doAnnotate(element: ScTypedExpression)(implicit holder: ScalaAnnotationHolder): Unit = {
+    implicit val context: TypePresentationContext = TypePresentationContext(element)
+    element.typeElement.foreach(checkUpcasting(element.expr, _))
   }
 
   // SCL-15544
