@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala
 package highlighter
 
+import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -27,8 +29,15 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
   * User: Alexander Podkhalyuzin
   * Date: 17.07.2008
   */
+class ScalaColorSchemeAnnotator extends Annotator {
+  import ScalaColorSchemeAnnotator._
 
-object AnnotatorHighlighter {
+  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
+    highlightElement(element, new ScalaAnnotationHolderAdapter(holder))
+  }
+}
+
+object ScalaColorSchemeAnnotator {
   private val JAVA_COLLECTIONS_BASES = List("java.util.Map", "java.util.Collection")
   private val SCALA_FACTORY_METHODS_NAMES = Set("make", "apply")
   private val SCALA_COLLECTION_MUTABLE_BASE = "_root_.scala.collection.mutable."
@@ -37,7 +46,6 @@ object AnnotatorHighlighter {
   private val SCALA_PREDEFINED_OBJECTS = Set("scala", "scala.Predef")
   private val SCALA_PREDEF_IMMUTABLE_BASES = Set("_root_.scala.PredefMap", "_root_.scala.PredefSet", "scalaList",
     "scalaNil", "scalaStream", "scalaVector", "scalaSeq")
-
 
   private def getParentByStub(x: PsiElement): PsiElement = {
     x match {
