@@ -49,6 +49,15 @@ package object completion {
                   (implicit place: PsiElement): Boolean =
     ResolveUtils.isAccessible(member, place, forCompletion = true)
 
+  def isAccessible(member: PsiMember,
+                   invocationCount: Int)
+                  (implicit place: PsiElement): Boolean =
+    regardlessAccessibility(invocationCount) ||
+      isAccessible(member)
+
+  def regardlessAccessibility(invocationCount: Int): Boolean =
+    invocationCount >= 2
+
   implicit class CaptureExt(private val pattern: ElementPattern[_ <: PsiElement]) extends AnyVal {
 
     import StandardPatterns.{and, or}
