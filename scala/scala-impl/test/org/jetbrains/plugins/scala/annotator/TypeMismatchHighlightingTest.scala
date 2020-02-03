@@ -411,6 +411,33 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     assertMessages(errorsFromScalaCode("val v: Int = x => 1"))(Error("x", "Missing parameter type"))
   }
 
+  // SAMs
+
+  def testTypeMismatchSam(): Unit = {
+    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = s => 1"))()
+  }
+
+  def testTypeMismatchSamNotEnoughParameters(): Unit = {
+    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = () => 1"))(
+      Error("()", "Missing parameter: String"))
+  }
+
+  def testTypeMismatchSamTooManyParameters(): Unit = {
+    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = (s: String, b: Boolean) => 1"))(
+      Error(", b", "Too many parameters"))
+  }
+
+  def testTypeMismatchSamParameterTypeMismatch(): Unit = {
+    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = (s: Boolean) => 1"))(
+      Error("Boolean", "Type mismatch, expected: String, actual: Boolean"))
+  }
+
+  def testTypeMismatchSamResultTypeMimatch(): Unit = {
+    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = s => false"))(
+      Hint("s => false", "("), Hint("s => false", "): String => Boolean"),
+      Error("s => false", "Expression of type String => Boolean doesn't conform to expected type SAM"))
+  }
+
   // Missing parameter type, SCL-16904
 
   def testTypeMismatchFunctionLiteralParameterTypeInferred(): Unit = {
