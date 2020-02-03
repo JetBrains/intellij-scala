@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import java.io.{File, PrintWriter}
+import java.io.{File, PrintWriter, Flushable}
 
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper
 
@@ -12,15 +12,17 @@ import scala.tools.nsc.interpreter.{ILoop, IMain, NamedParam, ReplReporter, Resu
 import scala.collection.JavaConverters._
 
 /**
- * ATTENTION: when editing ensure to increase the ILoopWrapperFactoryHandler.WRAPPER_VERSION
+ * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler
  */
 class ILoopWrapperImpl(
-  out: PrintWriter,
+  myOut: PrintWriter,
   wrapperReporter: ILoopWrapperReporter,
   projectFullCp: java.util.List[String],
   scalaOptions: java.util.List[String]
-) extends ILoop(None, out)
+) extends ILoop(None, myOut)
   with ILoopWrapper {
+
+  override def getOutput: Flushable = myOut
 
   override def init(): Unit = {
     val mySettings = new Settings
@@ -42,7 +44,7 @@ class ILoopWrapperImpl(
   // copied from ILoop
   override def createInterpreter() {
     if (addedClasspath != "")
-      settings.classpath append addedClasspath
+      settings.classpath.append(addedClasspath)
 
     intp = new MyILoopInterpreter
   }
@@ -66,6 +68,4 @@ class ILoopWrapperImpl(
       case Results.Success => true
       case _ => false
     }
-
-  override def getOutputWriter: PrintWriter = out
 }

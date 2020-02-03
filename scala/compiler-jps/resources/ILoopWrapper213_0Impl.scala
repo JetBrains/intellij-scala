@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import java.io.{File, PrintWriter}
+import java.io.{File, PrintWriter, Flushable}
 
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper213_0Impl.DummyConfig
@@ -16,7 +16,7 @@ import scala.tools.nsc.interpreter.{IMain, Results}
 import scala.jdk.CollectionConverters._
 
 /**
- * ATTENTION: when editing ensure to increase the ILoopWrapperFactoryHandler.WRAPPER_VERSION
+ * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler
  */
 class ILoopWrapper213_0Impl(
   myOut: PrintWriter,
@@ -25,6 +25,8 @@ class ILoopWrapper213_0Impl(
   scalaOptions: java.util.List[String]
 ) extends ILoop(new DummyConfig, out = myOut)
   with ILoopWrapper {
+
+  override def getOutput: Flushable = myOut
 
   override def init(): Unit = {
     val mySettings = new Settings
@@ -62,22 +64,16 @@ class ILoopWrapper213_0Impl(
       case Results.Success => true
       case _ => false
     }
-
-  override def getOutputWriter: PrintWriter = myOut
 }
 
 object ILoopWrapper213_0Impl {
+
   class DummyConfig extends ShellConfig {
     override def filesToPaste: List[String] = List.empty
-
     override def filesToLoad: List[String] = List.empty
-
     override def batchText: String = ""
-
     override def batchMode: Boolean = false
-
     override def doCompletion: Boolean = false
-
     override def haveInteractiveConsole: Boolean = false
   }
 }
