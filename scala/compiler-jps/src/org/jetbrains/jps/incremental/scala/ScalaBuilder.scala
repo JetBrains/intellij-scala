@@ -1,4 +1,4 @@
-package org.jetbrains.jps
+ package org.jetbrains.jps
 package incremental
 package scala
 
@@ -84,11 +84,9 @@ object ScalaBuilder {
   }
 
   private lazy val sbtData = {
-    val classLoader = getClass.getClassLoader
-    val pluginRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
+    val pluginJpsRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
     val javaClassVersion = System.getProperty("java.class.version")
-
-    SbtData.from(classLoader, pluginRoot, javaClassVersion)
+    SbtData.from(pluginJpsRoot, javaClassVersion)
   }
 
   private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client) {

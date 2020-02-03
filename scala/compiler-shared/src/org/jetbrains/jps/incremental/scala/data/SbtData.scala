@@ -43,44 +43,39 @@ object SbtData {
     customPath.map(new File(_)).getOrElse(defaultDir)
   }
 
-  def from(classLoader: ClassLoader, pluginRoot: File, javaClassVersion: String): Either[String, SbtData] = {
-    Either.cond(pluginRoot.exists, pluginRoot,
-      "sbt home directory does not exist: " + pluginRoot).flatMap { sbtHome =>
+  def from(pluginJpsRoot: File, javaClassVersion: String): Either[String, SbtData] =
+    for {
+      sbtHome  <- Either.cond(pluginJpsRoot.exists, pluginJpsRoot, "sbt home directory does not exist: " + pluginJpsRoot)
+      sbtFiles <- Option(sbtHome.listFiles).toRight("Invalid sbt home directory: " + sbtHome.getPath)
+      sbtData  <- from(sbtFiles, javaClassVersion)
+    } yield sbtData
 
-      Option(sbtHome.listFiles)
-        .toRight("Invalid sbt home directory: " + sbtHome.getPath)
-        .flatMap { files =>
+  private def from(sbtFiles: Seq[File], javaClassVersion: String): Either[String, SbtData] = {
+    def fileWithName(name: String): Either[String, File] =
+      sbtFiles.find(_.getName == name).toRight(s"No '$name' in sbt home directory")
 
-          def fileWithName(name: String): Either[String, File] = {
-            files.find(_.getName == name)
-              .toRight(s"No '$name' in sbt home directory")
-          }
+    for {
+      sbtInterfaceJar      <- fileWithName("sbt-interface.jar")
+      compilerInterfaceJar <- fileWithName("compiler-interface.jar")
+      scalaBridge_2_10     <- fileWithName("compiler-interface-sources-2.10.jar")
+      scalaBridge_2_11     <- fileWithName("compiler-interface-sources-2.11.jar")
+      scalaBridge_2_13     <- fileWithName("compiler-interface-sources-2.13.jar")
+      dottyBridge_0_21     <- fileWithName("dotty-sbt-bridge-0.21.jar")
+      sbtVersion           <- readSbtVersionFrom(sbtInterfaceJar)
+    } yield {
+      val checksum = encodeHex(md5(scalaBridge_2_10))
+      val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
+      val scalaBridgeSources = ScalaSourceJars(
+        _2_10 = scalaBridge_2_10,
+        _2_11 = scalaBridge_2_11,
+        _2_13 = scalaBridge_2_13
+      )
+      val dottyBridges = DottyJars(
+        _0_21 = dottyBridge_0_21
+      )
+      val compilerBridges = CompilerBridges(scalaBridgeSources, dottyBridges)
 
-          for {
-            sbtInterfaceJar      <- fileWithName("sbt-interface.jar")
-            compilerInterfaceJar <- fileWithName("compiler-interface.jar")
-            scalaBridge_2_10     <- fileWithName("compiler-interface-sources-2.10.jar")
-            scalaBridge_2_11     <- fileWithName("compiler-interface-sources-2.11.jar")
-            scalaBridge_2_13     <- fileWithName("compiler-interface-sources-2.13.jar")
-            dottyBridge_0_21     <- fileWithName("dotty-sbt-bridge-0.21.jar")
-            sbtVersion           <- readSbtVersionFrom(sbtInterfaceJar)
-          } yield {
-
-            val checksum = encodeHex(md5(scalaBridge_2_10))
-            val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
-            val scalaBridgeSources = ScalaSourceJars(
-              _2_10 = scalaBridge_2_10,
-              _2_11 = scalaBridge_2_11,
-              _2_13 = scalaBridge_2_13
-            )
-            val dottyBridges = DottyJars(
-              _0_21 = dottyBridge_0_21
-            )
-            val compilerBridges = CompilerBridges(scalaBridgeSources, dottyBridges)
-
-            new SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
-          }
-      }
+      new SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
     }
   }
 

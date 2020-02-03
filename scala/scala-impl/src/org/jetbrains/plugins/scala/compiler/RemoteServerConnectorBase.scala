@@ -12,11 +12,7 @@ import org.jetbrains.jps.incremental.scala.data.SbtData
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
-/**
- * Nikolay.Tropin
- * 2014-10-07
- */
-
+//noinspection SameParameterValue
 abstract class RemoteServerConnectorBase(protected val module: Module, filesToCompile: Seq[File], outputDir: File, needCheck: Boolean = true) {
 
   implicit def projectContext: ProjectContext = module.getProject
@@ -31,13 +27,13 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
 
   private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)
 
-  private val sbtData = SbtData.from(
-    new URLClassLoader(Array(new URL("jar:file:" + (if (libCanonicalPath startsWith "/") "" else "/" ) + libCanonicalPath + "/jps/sbt-interface.jar!/")), getClass.getClassLoader),
-    new File(libRoot, "jps"),
-    System.getProperty("java.class.version")
-  ) match {
-    case Left(msg) => throw new IllegalArgumentException(msg)
-    case Right(data) => data
+  private val sbtData = {
+    val pluginJpsRoot = new File(libRoot, "jps")
+    val javaClassVersion = System.getProperty("java.class.version")
+    SbtData.from(pluginJpsRoot, javaClassVersion) match {
+      case Left(msg)   => throw new IllegalArgumentException(msg)
+      case Right(data) => data
+    }
   }
 
   private val sourceRoot = filesToCompile.head.getAbsoluteFile.getParentFile
@@ -46,7 +42,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
 
   private val javaParameters = Array.empty[String]
 
-  private val compilerClasspath = module.scalaCompilerClasspath
+  private val compilerClasspath: Seq[File] = module.scalaCompilerClasspath
 
   private val compilerSharedJar = new File(libCanonicalPath, "compiler-shared.jar")
   
@@ -68,6 +64,10 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
   implicit private def files2paths(files: Iterable[File]): String = files map file2path mkString "\n"
   implicit private def array2string(arr: Array[String]): String = arr mkString "\n"
 
+  /**
+   * parsed again in [[org.jetbrains.jps.incremental.scala.remote.Arguments#from(scala.collection.Seq)]]
+   * TODO: maybe use some common shared jar and share the logic there?
+   */
   def arguments: Seq[String] = Seq[String](
     sbtData.sbtInterfaceJar,
     sbtData.compilerInterfaceJar,

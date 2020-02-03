@@ -56,8 +56,8 @@ class RemoteServerConnector(
       case OutOfProcessServer =>
         Array.empty[String]
       case _ =>
-        val base = Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
-        replArgs.map(ra => base ++ Array(ra.path, ra.codeChunk, "replenabled")).getOrElse(base)
+        val baseArgs = Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
+        baseArgs ++ replArgs.toArray.flatMap(ra => Array(ra.path, ra.codeChunk, "replenabled"))
     }
 
   // TODO: make something more advanced than just `callback: Runnable`: error reporting, Future, Task, etc...
