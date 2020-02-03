@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import java.awt.BorderLayout
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.icons.AllIcons
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem._
@@ -27,7 +28,7 @@ class CleanWorksheetAction extends AnAction with TopComponentAction {
 
   override def actionIcon: Icon = AllIcons.Actions.GC
 
-  override def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
     if (project == null) return //EA-72055
 
@@ -66,6 +67,7 @@ object CleanWorksheetAction {
 
         editor.getSettings.setFoldingOutlineShown(true)
         editor.getContentComponent.requestFocus() //  properly repaints editor SCL-16073
+        DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
       }
     }
   }
