@@ -601,6 +601,8 @@ package object extensions {
     def findContextOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
       Option(getContextOfType(element, clazz))
 
+    def elementAt(offset: Int): Option[PsiElement] = Option(element.findElementAt(offset))
+
     def isAncestorOf(otherElement: PsiElement): Boolean = isAncestor(element, otherElement, true)
 
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
@@ -634,15 +636,16 @@ package object extensions {
 
     def withNextSiblings: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
 
-    def prevVisualSibling: Option[PsiElement] = element.containingFile.flatMap(file => Option(file.findElementAt(element.getTextRange.getStartOffset - 1)))
+    def prevElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.startOffset - 1))
 
-    def nextVisualSibling: Option[PsiElement] = element.containingFile.flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
+    def nextElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.endOffset))
 
     def isWhitespace: Boolean = element.isInstanceOf[PsiWhiteSpace]
 
-    def prevVisualSiblingNotWhitespace: Option[PsiElement] = element.prevVisualSibling.flatMap(e => if (e.isWhitespace) e.prevVisualSibling else Some(e))
+    // TODO Scala 2.13: use Iterator.unfold to extract prevElements and nextElements methods
+    def prevElementNotWhitespace: Option[PsiElement] = element.prevElement.flatMap(e => if (e.isWhitespace) e.prevElement else Some(e))
 
-    def nextVisualSiblingNotWhitespace: Option[PsiElement] = element.nextVisualSibling.flatMap(e => if (e.isWhitespace) e.nextVisualSibling else Some(e))
+    def nextElementNotWhitespace: Option[PsiElement] = element.nextElement.flatMap(e => if (e.isWhitespace) e.nextElement else Some(e))
 
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)
 
