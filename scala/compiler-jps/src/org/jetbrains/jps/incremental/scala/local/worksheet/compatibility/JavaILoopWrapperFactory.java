@@ -66,7 +66,7 @@ public class JavaILoopWrapperFactory {
   }
 
   private void loadReplWrapperAndRun(final WorksheetArgsJava worksheetArgs,
-                                     final OutputStream outStream,
+                                     final PrintStream outStream,
                                      final File iLoopFile,
                                      final JavaClientProvider clientProvider,
                                      final ClassLoader classLoader) {

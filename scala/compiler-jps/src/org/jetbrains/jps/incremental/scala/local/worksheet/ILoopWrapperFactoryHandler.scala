@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import java.io.{File, OutputStream}
+import java.io.{File, PrintStream}
 import java.lang.reflect.InvocationTargetException
 import java.net.{URLClassLoader, URLDecoder}
 
@@ -21,7 +21,7 @@ class ILoopWrapperFactoryHandler {
 
   def loadReplWrapperAndRun(
     commonArguments: Arguments,
-    out: OutputStream,
+    out: PrintStream, // the consumed output is delegated to client then encoded and delegated to Nailgun out and sent to the
     client: Client
   ): Unit = try {
     val compilerJars = commonArguments.compilerData.compilerJars.orNull

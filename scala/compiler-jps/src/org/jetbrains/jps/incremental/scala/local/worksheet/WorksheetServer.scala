@@ -3,12 +3,12 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 import java.io._
 import java.net.URL
 import java.nio.{Buffer, ByteBuffer}
-import java.util.Base64
 
 import com.martiansoftware.nailgun.ThreadLocalPrintStream
+import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.CompilerJars
 import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.{ReplArgsJava, WorksheetArgsJava}
-import org.jetbrains.jps.incremental.scala.remote.{Arguments, EventGeneratingClient, WorksheetOutputEvent}
+import org.jetbrains.jps.incremental.scala.remote.Arguments
 
 import scala.collection.JavaConverters._
 
@@ -20,18 +20,17 @@ class WorksheetServer {
 
   def loadAndRun(
     commonArguments: Arguments,
-    out: PrintStream,
-    client: EventGeneratingClient,
-    standalone: Boolean
-  ) {
-    val printStream = new MyEncodingOutputStream(out, standalone)
+    client: Client
+  ): Unit = {
+    val outputStream = new RedirectToClientOutputStream(client)
+    val printStream = new PrintStream(outputStream)
     
     if (isRepl(commonArguments)) {
       replFactory.loadReplWrapperAndRun(commonArguments, printStream, client)
     } else {
       val argsParsed = WorksheetServer.parseWorksheetArgsFrom(commonArguments)
       argsParsed.foreach { args =>
-        plainFactory.getRunner(printStream, standalone).loadAndRun(args, client)
+        plainFactory.getRunner(printStream).loadAndRun(args, client)
       }
     }
   }
@@ -41,9 +40,10 @@ class WorksheetServer {
 }
 
 object WorksheetServer {
-  def patchSystemOut(out: OutputStream) {
+
+  def patchSystemOut(out: OutputStream): Unit = {
     val printStream = new PrintStream(out)
-    
+
     System.out match {
       case threadLocal: ThreadLocalPrintStream => threadLocal.init(printStream)
       case _ => System.setOut(printStream)
@@ -103,43 +103,60 @@ object WorksheetServer {
     def fromJava(args: ReplArgsJava): ReplArgs = ReplArgs(args.getSessionId, args.getCodeChunk)
   }
 
-  private class MyEncodingOutputStream(delegateOut: PrintStream, standalone: Boolean) extends OutputStream {
+  private class RedirectToClientOutputStream(client: Client) extends OutputStream {
     private var capacity = 1200
     private var buffer = ByteBuffer.allocate(capacity)
 
-    override def write(b: Int) {
+    override def write(b: Int): Unit = {
       if (b == '\r') return
 
-      if (buffer.position() < capacity) buffer.put(b.toByte) else {
-        val copy = buffer.array().clone()
-        capacity *= 2
-        buffer = ByteBuffer.allocate(capacity)
-        buffer.put(copy)
-        buffer.put(b.toByte)
-      }
+      if (buffer.position() >= capacity)
+        grow()
+      buffer.put(b.toByte)
 
-      if (b == '\n') flush()
+      if (b == '\n')
+        flush()
     }
-    
-    override def close() {
+
+    private def grow(): Unit = {
+      capacity *= 2
+      val newBuffer = ByteBuffer.allocate(capacity)
+      newBuffer.put(buffer.array())
+      val old = buffer
+      buffer = newBuffer
+      old.clear()
+    }
+
+    override def close(): Unit =
       flush()
-    }
 
-    override def flush() {
+    override def flush(): Unit = {
       if (buffer.position() == 0) return
-      val event = WorksheetOutputEvent(new String(buffer.array(), 0, buffer.position()))
+      val worksheetOutputText = new String(buffer.array(), 0, buffer.position())
+      client.worksheetOutput(worksheetOutputText)
+
       // ATTENTION: do not delete this cast to Buffer!
       // it is required to be run on JDK 8 in case plugin is built with JDK 11, see SCL-16277 for the details
       buffer.asInstanceOf[Buffer].clear()
-      val encode = Base64.getEncoder.encodeToString(event.toBytes)
-      delegateOut.write(if (standalone && !encode.endsWith("=")) (encode + "=").getBytes else encode.getBytes)
     }
   }
-  
+
+  // buffering is already done in MyEncodingOutputStream
+  class MyUpdatePrintStream(stream: OutputStream) extends PrintStream(stream) {
+    private var curHash = stream.hashCode
+
+    def updateOut(stream: OutputStream): Unit = {
+      if (stream.hashCode != curHash) {
+        out = stream
+        curHash = stream.hashCode()
+      }
+    }
+  }
+
   class MyUpdatePrintWriter(stream: OutputStream) extends PrintWriter(stream) {
     private var curHash = stream.hashCode()
-    
-    def updateOut(stream: OutputStream) {
+
+    def updateOut(stream: OutputStream): Unit = {
       if (stream.hashCode() != curHash) {
         out = new BufferedWriter(new OutputStreamWriter(stream))
         curHash = stream.hashCode()

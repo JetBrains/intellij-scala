@@ -32,7 +32,7 @@ object Main {
    *      [[com.martiansoftware.nailgun.NGServer:198]]<br>
    */
   def nailMain(context: NGContext): Unit = {
-    cancelShutdown()
+    cancelShutdownTimer()
     make(context.getArgs.toSeq, context.out, context.getNGServer.getPort, standalone = false)
     resetShutdownTimer(context)
   }
@@ -43,28 +43,7 @@ object Main {
   }
 
   private def make(argsEncoded: Seq[String], out: PrintStream, port: Int, standalone: Boolean): Unit = {
-    var hasErrors = false
-
-    val client: EventGeneratingClient = {
-      val eventHandler = (event: Event) => {
-        val encoded = Base64.getEncoder.encodeToString(event.toBytes)
-        val encodedNormalized = if (standalone && !encoded.endsWith("=")) encoded + "=" else encoded
-        val bytes = encodedNormalized.getBytes
-        out.write(bytes)
-      }
-      new EventGeneratingClient(eventHandler, out.checkError) {
-        override def error(text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit = {
-          hasErrors = true
-          super.error(text, source, line, column)
-        }
-
-        override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit = {
-          if (kind == Kind.ERROR) hasErrors = true
-          super.message(kind, text, source, line, column)
-        }
-      }
-    }
-
+    val client = new EncodingEventGeneratingClient(out, standalone)
     val oldOut = System.out
     // Suppress any stdout data, interpret such data as error
     System.setOut(System.err)
@@ -88,8 +67,8 @@ object Main {
         server.compile(args.sbtData, args.compilerData, args.compilationData, client)
       }
 
-      if (!hasErrors) {
-        worksheetServer.loadAndRun(args, out, client, standalone)
+      if (!client.hasErrors) {
+        worksheetServer.loadAndRun(args, client)
       }
     } catch {
       case e: Throwable =>
@@ -135,7 +114,7 @@ object Main {
 
   private class TokenVerificationException(message: String) extends Exception(message)
 
-  private def cancelShutdown(): Unit = synchronized {
+  private def cancelShutdownTimer(): Unit = synchronized {
     if (shutdownTimer != null) {
       shutdownTimer.cancel()
       shutdownTimer = null
@@ -151,7 +130,7 @@ object Main {
       }
 
       synchronized {
-        cancelShutdown()
+        cancelShutdownTimer()
         shutdownTimer = new Timer()
         shutdownTimer.schedule(shutdownTask, delayMs)
       }
