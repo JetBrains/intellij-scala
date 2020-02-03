@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
+import java.util.UUID
 
-import com.intellij.compiler.server.BuildManager
+import com.intellij.compiler.server.{BuildManager, BuildManagerListener}
 import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManagerCore}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
@@ -33,6 +34,32 @@ import scala.util.control.Exception._
 object CompileServerLauncher {
   private var serverInstance: Option[ServerInstance] = None
   private val LOG = Logger.getInstance(getClass)
+
+  private class Listener extends BuildManagerListener {
+    override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
+      startCompileServer(project)
+    }
+
+    private def startCompileServer(project: Project): Unit = {
+      val settings = ScalaCompileServerSettings.getInstance
+
+      if (settings.COMPILE_SERVER_ENABLED && project.hasScala) {
+        invokeAndWait {
+          CompileServerManager.configureWidget(project)
+        }
+
+        if (CompileServerLauncher.needRestart(project)) {
+          stop()
+        }
+
+        if (!running) {
+          invokeAndWait {
+            tryToStart(project)
+          }
+        }
+      }
+    }
+  }
 
   ShutDownTracker.getInstance().registerShutdownTask(() =>
     if (running) stop()

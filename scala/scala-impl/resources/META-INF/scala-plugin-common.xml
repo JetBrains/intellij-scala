@@ -1402,6 +1402,8 @@
                   class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassesListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
+        <listener topic="com.intellij.compiler.server.BuildManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
     </applicationListeners>
 
     <projectListeners>
