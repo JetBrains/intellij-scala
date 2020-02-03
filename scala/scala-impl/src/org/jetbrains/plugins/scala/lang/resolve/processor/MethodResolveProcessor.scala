@@ -285,7 +285,7 @@ object MethodResolveProcessor {
               case tpe => tpe
             }
 
-            val expr = Expression(withUndefParams.inferValueType, ref)
+            val expr         = Expression(withUndefParams.inferValueType, ref)
 
             expr.getTypeAfterImplicitConversion(
               checkImplicits = true,
@@ -296,7 +296,7 @@ object MethodResolveProcessor {
 
         val constraints =
           typeAfterConversions.map(tpe =>
-            substitutor(tpe).conforms(expectedType, ConstraintSystem.empty)
+            substitutor(tpe).isConservativelyCompatible(expectedType)
           ).getOrElse(ConstraintsResult.Left)
 
         constraints match {
