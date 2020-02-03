@@ -14,6 +14,9 @@ import org.jetbrains.plugins.scala.util.SAMUtil.toSAMType
 object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
   override def annotate(literal: ScFunctionExpr, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
+    if (!typeAware) {
+      return
+    }
 
     var problemWithParameters = false
 
