@@ -23,11 +23,13 @@ import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
+import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.Promise
 import scala.util.{Failure, Success}
 
 class BspTestRunner(
@@ -165,7 +167,9 @@ class BspTestRunner(
       project, rc, "BSP", ex))
     val bspCommunication = BspCommunication.forWorkspace(new File(project.getBasePath))
 
-    val reporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, "BSP Tests")
+    val cancelToken = Promise[Unit]()
+    val cancelAction = new CancelBuildAction(cancelToken)
+    val reporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, "BSP Tests", cancelAction)
     reporter.start()
 
     bspCommunication

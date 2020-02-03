@@ -9,7 +9,6 @@ import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.{BspError, BspTaskCancelled}
-import org.jetbrains.plugins.scala.build.BuildTaskReporter
 
 import scala.concurrent.{CancellationException, Future, Promise}
 

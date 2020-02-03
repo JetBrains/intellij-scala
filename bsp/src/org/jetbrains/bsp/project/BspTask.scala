@@ -17,17 +17,19 @@ import mercator._
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.{BspTarget, TextCollector}
+import org.jetbrains.bsp.protocol.BspJob.CancelCheck
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.concurrency.AsyncPromise
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
+import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, BuildToolWindowReporter, IndicatorReporter}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
-import scala.concurrent.{Await, TimeoutException}
+import scala.concurrent.{Await, Promise, TimeoutException}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
 
@@ -39,7 +41,9 @@ class BspTask[T](project: Project,
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
-  private val report = new BuildToolWindowReporter(project, bspTaskId, "bsp build")
+  private val cancelPromise: Promise[Unit] = Promise()
+  private val report = new BuildToolWindowReporter(
+    project, bspTaskId, "bsp build", new CancelBuildAction(cancelPromise))
 
   private val diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
@@ -91,8 +95,10 @@ class BspTask[T](project: Project,
         processLog(report))
     }
 
+    val cancelToken = new CancelCheck(cancelPromise, indicator)
+
     val combinedMessages = buildJobs
-      .traverse(waitForJobCancelable(_, indicator))
+      .traverse(waitForJobCancelable(_, cancelToken))
       .map { compileResults =>
         val updatedMessages = compileResults.map(r => messagesWithStatus(report, reportIndicator, r._1, r._2))
         updatedMessages.fold(BuildMessages.empty) { (m1, m2) => m1.combine(m2) }
@@ -168,16 +174,18 @@ class BspTask[T](project: Project,
   }
 
 
-  @tailrec private def waitForJobCancelable[R](job: BspJob[R], indicator: ProgressIndicator): Try[R] =
+  @tailrec private def waitForJobCancelable[R](job: BspJob[R], cancelCheck: CancelCheck): Try[R] =
     try {
-      indicator.checkCanceled()
-      val res = Await.result(job.future, 300.millis)
-      Try(res)
-    } catch {
-      case _ : TimeoutException => waitForJobCancelable(job, indicator)
-      case cancel : ProcessCanceledException =>
+      if (!cancelCheck.isCancelled) {
+        val res = Await.result(job.future, 300.millis)
+        cancelCheck.complete()
+        Try(res)
+      } else {
         job.cancel()
-        Failure(cancel)
+        Failure(new ProcessCanceledException())
+      }
+    } catch {
+      case _ : TimeoutException => waitForJobCancelable(job, cancelCheck)
     }
 
   private def buildRequests(targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget])
@@ -317,6 +325,7 @@ class BspTask[T](project: Project,
 }
 
 object BspTask {
+
   private class TextCollector extends ColoredTextAcceptor {
     private val builder = StringBuilder.newBuilder
 

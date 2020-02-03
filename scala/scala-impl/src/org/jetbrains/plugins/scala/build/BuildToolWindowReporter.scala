@@ -4,18 +4,28 @@ import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, EventResult, MessageEvent}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition}
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.project.Project
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.project.{DumbAwareAction, Project}
 import javax.swing.JComponent
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
-class BuildToolWindowReporter(project: Project, buildId: EventId, title: String, viewManager: BuildViewManager)
+import scala.concurrent.Promise
+
+class BuildToolWindowReporter(project: Project,
+                              buildId: EventId,
+                              title: String,
+                              viewManager: BuildViewManager,
+                              cancelAction: AnAction)
   extends BuildTaskReporter {
   import MessageEvent.Kind
 
-  def this(project: Project, buildId: EventId, title: String) =
+  def this(project: Project, buildId: EventId, title: String, cancelAction: AnAction) =
     this(
       project, buildId, title,
-      project.getService(classOf[BuildViewManager])
+      project.getService(classOf[BuildViewManager]),
+      cancelAction
     )
 
   override def start(): Unit = {
@@ -27,6 +37,7 @@ class BuildToolWindowReporter(project: Project, buildId: EventId, title: String,
         descriptor.setAutoFocusContent(false)
         descriptor
       }
+      .withRestartActions(cancelAction)
 
     viewManager.onEvent(buildId, startEvent)
   }
@@ -66,14 +77,12 @@ class BuildToolWindowReporter(project: Project, buildId: EventId, title: String,
   }
 
   override def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
-    val time = System.currentTimeMillis() // TODO pass as parameter?
     val unitOrDefault = if (unit == null) "items" else unit
     val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unitOrDefault)
     viewManager.onEvent(buildId, event)
   }
 
   override def finishTask(taskId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
-    val time = System.currentTimeMillis() // TODO pass as parameter?
     val event = new FinishEventImpl(taskId, null, time, message, result)
     viewManager.onEvent(buildId, event)
   }
@@ -96,4 +105,18 @@ class BuildToolWindowReporter(project: Project, buildId: EventId, title: String,
   private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
     BuildMessages.message(buildId, message, kind, position)
 
+}
+
+object BuildToolWindowReporter {
+  class CancelBuildAction(cancelToken: Promise[Unit])
+    extends DumbAwareAction("Cancel Build", "Cancel build", AllIcons.Actions.Suspend) {
+
+    override def actionPerformed(e: AnActionEvent): Unit = {
+      cancelToken.failure(new ProcessCanceledException())
+    }
+
+    override def update(e: AnActionEvent): Unit = {
+      e.getPresentation.setEnabled(!cancelToken.isCompleted)
+    }
+  }
 }
