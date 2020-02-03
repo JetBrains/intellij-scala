@@ -46,7 +46,7 @@ object ClassDef extends TemplateDef {
 object TraitDef extends TemplateDef {
 
   override protected def parseConstructor()(implicit builder: ScalaPsiBuilder): Unit =
-    TypeParamClause.parse(builder)
+    ClassConstr()
 
   override protected def extendsBlockRule: TraitTemplate.type = TraitTemplate
 }
