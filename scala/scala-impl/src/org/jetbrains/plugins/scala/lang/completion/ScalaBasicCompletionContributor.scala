@@ -24,9 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScReferenceExpressionImpl, ScReferenceImpl}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
@@ -92,7 +90,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           }
 
         position.getContext match {
-          case ref: ScReference =>
+          case reference: ScReferenceImpl =>
 
             object ValidItem {
 
@@ -165,23 +163,13 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 }
             }
 
-            val defaultLookupElements = (ref match {
-              case refImpl: ScStableCodeReferenceImpl =>
-                val processor = new PostProcessor(position)
-                refImpl.doResolve(processor)
-                processor.lookupElements
-              case refImpl: ScReferenceExpressionImpl =>
-                val processor = new PostProcessor(position, isImplicit = true)
-                refImpl.doResolve(processor)
-                processor.lookupElements
-              case refImpl: ScTypeProjectionImpl =>
-                val processor = new PostProcessor(position)
-                refImpl.doResolve(processor)
-                processor.lookupElements
-              case _ => (ref: PsiReference).getVariants.toSeq
-            }).collect {
+            val defaultLookupElements = {
+              val processor = new PostProcessor(reference)
+              reference.doResolve(processor)
+              processor.lookupElements
+            }.collect {
               case ValidItem(item) => item
-            } ++ prefixedThisAndSupers(ref)
+            } ++ prefixedThisAndSupers(reference)
 
             import JavaConverters._
             result.addAllElements(defaultLookupElements.asJava)
@@ -194,16 +182,14 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
             //adds runtime completions for evaluate expression in debugger
             for {
-              qualifierCastType <- qualifierCastType(ref)
+              qualifierCastType <- qualifierCastType(reference)
               canonicalText = qualifierCastType.canonicalText
-              reference <- createReferenceWithQualifierType(canonicalText)(ref.getContext, ref)
+              newReference <- createReferenceWithQualifierType(canonicalText)(reference.getContext, reference)
 
-              processor = new PostProcessor(reference, isImplicit = true, position) {
+              processor = new PostProcessor(newReference, Some(qualifierCastType)) {
 
                 private val lookupStrings = mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
                 private val decorator = insertHandlerDecorator(s".asInstanceOf[$canonicalText]")
-
-                override protected val qualifierType: Some[ScType] = Some(qualifierCastType)
 
                 override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] =
                   super.validLookupElement(result).filter {
@@ -214,7 +200,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                   }
               }
             } {
-              reference.doResolve(processor)
+              newReference.doResolve(processor)
               val runtimeLookupElements = processor.lookupElements
               result.addAllElements(runtimeLookupElements.asJava)
             }
@@ -233,20 +219,18 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 object ScalaBasicCompletionContributor {
 
   private class PostProcessor(override val getPlace: ScReference,
-                              override val isImplicit: Boolean,
-                              private val position: PsiElement)
-    extends CompletionProcessor(getPlace.getKinds(incomplete = false, completion = true), getPlace, isImplicit) {
-
-    def this(position: PsiElement, isImplicit: Boolean = false) =
-      this(position.getContext.asInstanceOf[ScReference], isImplicit, position)
+                              private val qualifierType: Option[ScType] = None)
+    extends CompletionProcessor(
+      getPlace.getKinds(incomplete = false, completion = true),
+      getPlace,
+      isImplicit = getPlace.isInstanceOf[ScReferenceExpressionImpl]
+    ) {
 
     private val lookupElements_ = mutable.ArrayBuffer.empty[LookupElement]
 
-    private val containingClass = Option(getContextOfType(position, classOf[PsiClass]))
+    private val containingClass = Option(getContextOfType(getPlace, classOf[PsiClass]))
     private val isInImport = getContextOfType(getPlace, classOf[ScImportStmt]) != null
     private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReference]
-
-    protected val qualifierType: Option[ScType] = None
 
     def lookupElements: Seq[LookupElement] = lookupElements_
 
