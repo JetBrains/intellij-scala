@@ -24,7 +24,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
         // Missing parameters
         if (parameters.length < expectedParameterTypes.length) {
           val startElement = if (parameters.isEmpty) literal.leftParen.getOrElse(literal.params) else parameters.last
-          val errorRange = startElement.nextVisualSiblingNotWhitespace match {
+          val errorRange = startElement.nextElementNotWhitespace match {
             case Some(nextElement) => new TextRange(startElement.getTextRange.getEndOffset - 1, nextElement.getTextOffset + 1)
             case None => startElement.getTextRange
           }
@@ -41,7 +41,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
           } else {
             val firstExcessiveParameter = parameters(expectedParameterTypes.length)
             val range = new TextRange(
-              firstExcessiveParameter.prevVisualSiblingNotWhitespace.getOrElse(literal.params).getTextRange.getEndOffset - 1,
+              firstExcessiveParameter.prevElementNotWhitespace.getOrElse(literal.params).getTextRange.getEndOffset - 1,
               firstExcessiveParameter.getTextOffset + 1)
             holder.createErrorAnnotation(range, "Too many parameters")
           }

@@ -46,7 +46,7 @@ object TypeMismatchHints {
     val margin = if (format == InnerParentheses) None else Hint.leftInsetLikeChar(' ')
 
     def isWhitespaceRequiredBeforeNextElement =
-      element.nextVisualSibling
+      element.nextElement
         .fold(Iterator.empty: Iterator[PsiElement])(_.withNextSiblings)
         .dropWhile(e => e.is[PsiWhiteSpace] && !e.textContains('\n'))
         .headOption
@@ -54,7 +54,7 @@ object TypeMismatchHints {
 
     val offsetDelta =
       if (format == OuterParentheses) 0
-      else element.nextVisualSibling
+      else element.nextElement
         .filter(_.is[PsiWhiteSpace])
         .map(e => 0.max(e.getText.takeWhile(_ != '\n').length - (if (isWhitespaceRequiredBeforeNextElement) 1 else 0)))
         .getOrElse(0)
