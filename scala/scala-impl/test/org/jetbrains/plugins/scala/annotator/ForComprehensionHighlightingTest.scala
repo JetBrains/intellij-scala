@@ -348,7 +348,7 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 
     assertMessagesSorted(errorsFromScalaCode(code))(
       Error("withFilter", "Cannot resolve symbol withFilter"),
-      Error("x", "Missing parameter type: x"),
+      Error("x", "Missing parameter type"),
       Error(">", "Cannot resolve symbol >")
     )
   }
