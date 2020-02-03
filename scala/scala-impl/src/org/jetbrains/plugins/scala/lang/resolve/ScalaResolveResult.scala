@@ -286,6 +286,7 @@ object ScalaResolveResult {
                          shouldImport: Boolean = false,
                          isInStableCodeReference: Boolean = false,
                          containingClass: Option[PsiClass] = None,
+                         isLocalVariable: Boolean = false,
                          isInSimpleString: Boolean = false,
                          isInInterpolatedString: Boolean = false): Option[ScalaLookupItem] =
       resolveResult.element match {
@@ -344,6 +345,7 @@ object ScalaResolveResult {
           result.isInStableCodeReference = isInStableCodeReference
           result.substitutor = resolveResult.substitutor
           result.prefixCompletion = resolveResult.prefixCompletion
+          result.isLocalVariable = isLocalVariable
           result.isInSimpleString = isInSimpleString
           result.isInInterpolatedString = isInInterpolatedString
 
