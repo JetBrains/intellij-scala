@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFunctionExpr, ScParenthesisedExpr, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType.isFunctionType
+import org.jetbrains.plugins.scala.util.SAMUtil.toSAMType
 
 object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
@@ -18,7 +19,13 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
     val (result, parameters) = (literal.result, literal.parameters)
 
-    literal.expectedType() match {
+    val functionType = literal.expectedType() match {
+      case Some(t @ FunctionType(_, _)) => Some(t)
+      case Some(t) => toSAMType(t, literal)
+      case _ => None
+    }
+
+    functionType match {
       case Some(FunctionType(_, expectedParameterTypes)) =>
 
         // Missing parameters
