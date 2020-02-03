@@ -20,10 +20,10 @@ import org.jetbrains.plugins.scala.compiler.{NonServerRunner, RemoteServerConnec
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 
 private[worksheet]
@@ -152,7 +152,7 @@ object RemoteServerConnector {
   }
 
   private class MyTranslatingClient(project: Project, worksheet: VirtualFile, consumer: CompilerInterface) extends DummyClient {
-    private val endMarker = WorksheetSourceProcessor.END_GENERATED_MARKER
+    private val endMarker = WorksheetDefaultSourcePreprocessor.END_GENERATED_MARKER
 
     override def progress(text: String, done: Option[Float]): Unit =
       consumer.progress(text, done)

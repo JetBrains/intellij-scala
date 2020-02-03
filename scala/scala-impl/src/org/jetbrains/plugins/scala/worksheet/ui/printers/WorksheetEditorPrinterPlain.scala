@@ -11,7 +11,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain._
 
@@ -55,7 +55,7 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
     } else if (isResultEnd(line)) {
       if (!isInited) init()
 
-      WorksheetSourceProcessor.inputLinesRangeFromEnd(line) match {
+      WorksheetDefaultSourcePreprocessor.inputLinesRangeFromEnd(line) match {
         case Some((inputStartLine, inputEndLine)) =>
           val output = currentOutputBuffer.mkString
           val chunk  = EvaluationChunk(inputStartLine, inputEndLine, output)
@@ -134,7 +134,7 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
   private def buildIncompleteLastChunkOpt: Option[EvaluationChunk] = {
     if (StringUtils.isNotBlank(currentOutputBuffer)) {
       val (inputStartLine, inputEndLine) =
-        currentResultStartLine.flatMap(WorksheetSourceProcessor.inputLinesRangeFromStart).getOrElse(0, 0)
+        currentResultStartLine.flatMap(WorksheetDefaultSourcePreprocessor.inputLinesRangeFromStart).getOrElse(0, 0)
       val output = currentOutputBuffer.mkString
       Some(EvaluationChunk(inputStartLine, inputEndLine, output))
     } else {
@@ -143,13 +143,13 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
   }
 
   private def isTerminationLine(line: String): Boolean =
-    line.stripSuffix("\n") == WorksheetSourceProcessor.END_OUTPUT_MARKER
+    line.stripSuffix("\n") == WorksheetDefaultSourcePreprocessor.END_OUTPUT_MARKER
 
   private def isResultStart(line: String): Boolean =
-    line.startsWith(WorksheetSourceProcessor.START_TOKEN_MARKER)
+    line.startsWith(WorksheetDefaultSourcePreprocessor.START_TOKEN_MARKER)
 
   private def isResultEnd(line: String): Boolean =
-    line.startsWith(WorksheetSourceProcessor.END_TOKEN_MARKER)
+    line.startsWith(WorksheetDefaultSourcePreprocessor.END_TOKEN_MARKER)
 
   private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[FoldingOffsets]): Unit =
     invokeLater {

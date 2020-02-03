@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.WorksheetSourceProcessorTestBase._
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor.PreprocessResult
 import org.junit.Assert._
 
 abstract class WorksheetSourceProcessorTestBase extends ScalaCompilerTestBase {
@@ -27,8 +28,8 @@ abstract class WorksheetSourceProcessorTestBase extends ScalaCompilerTestBase {
   protected def testCompilesInPlainMode(text: String): Unit = {
     val (scalaFile, document) = prepareFileAndDocument(text)
 
-    WorksheetSourceProcessor.processDefault(scalaFile, document) match {
-      case Right((code, _)) =>
+    WorksheetDefaultSourcePreprocessor.preprocess(scalaFile, document) match {
+      case Right(PreprocessResult(code, _)) =>
         assertCodeIsCompiled(code)
 
       case Left(errorElement) =>

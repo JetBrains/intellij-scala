@@ -1,13 +1,11 @@
-package org.jetbrains.plugins.scala
-package worksheet.processor
+package org.jetbrains.plugins.scala.worksheet.processor
 
-import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi._
-import com.intellij.util.Base64
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StringExt, inReadAction}
+import com.intellij.psi.{JavaDirectoryService, PsiElement, PsiErrorElement, PsiFile, _}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -17,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
@@ -28,8 +26,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-//noinspection HardCodedStringLiteral
-object WorksheetSourceProcessor {
+object WorksheetDefaultSourcePreprocessor {
 
   // TODO: it is probably enough just START_TOKEN_MARKER, without END_TOKEN_MARKER, leave just one
   //  BUT FIRST: finish covering worksheets with tests, due to rendering logic is quite complicated
@@ -40,10 +37,9 @@ object WorksheetSourceProcessor {
 
   private val WORKSHEET_PRE_CLASS_KEY = new Key[String]("WorksheetPreClassKey")
 
-  private val REPL_DELIMITER = "\n$\n$\n"
-
   private val PRINT_ARRAY_NAME = "print$$$Worksheet$$$Array$$$"
   private val runPrinterName = "worksheet$$run$$printer"
+  private val genericPrintMethodName = "println"
 
   private def printArrayText(scalaLanguageLevel: ScalaLanguageLevel) = {
     val arrayWrapperClass =
@@ -63,48 +59,9 @@ object WorksheetSourceProcessor {
     """.stripMargin
   }
 
-  private val genericPrintMethodName = "println"
+  case class PreprocessResult(code: String, mainClassName: String)
 
-  def inputLinesRangeFromEnd(encodedLine: String): Option[(Int, Int)] =
-    inputLinesRangeFrom(encodedLine, END_TOKEN_MARKER)
-
-  def inputLinesRangeFromStart(encodedLine: String): Option[(Int, Int)] =
-    inputLinesRangeFrom(encodedLine, START_TOKEN_MARKER)
-
-  private def inputLinesRangeFrom(encodedLine: String, prefixMarker: String): Option[(Int, Int)] = {
-    if (encodedLine.startsWith(prefixMarker)) {
-      val startWithEnd = encodedLine.stripPrefix(prefixMarker).stripSuffix("\n").split('|')
-      startWithEnd match {
-        case Array(start, end) =>
-          for {
-            s <- start.toIntOpt
-            e <- end.toIntOpt
-            if s != -1 && e != -1
-          } yield (s, e)
-        case _ => None
-      }
-    } else None
-  }
-
-  def processIncremental(srcFile: ScalaFile, editor: Editor): Either[PsiErrorElement, String] = {
-    val lastProcessed = WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(editor)
-
-    val glue = WorksheetPsiGlue()
-    val iterator = new WorksheetInterpretExprsIterator(srcFile, Some(editor), lastProcessed)
-    iterator.collectAll(x => inReadAction(glue.processPsi(x)), Some(e => return Left(e)))
-    val elements = glue.result
-
-    val texts = elements.map(_.getText)
-    val allExprs = if (lastProcessed.isEmpty) ":reset" +: texts else texts
-
-    val code = allExprs.mkString(REPL_DELIMITER)
-    Right(Base64.encode(code.getBytes))
-  }
-
-  /**
-   * @return (Code, Main class name)
-   */
-  def processDefault(srcFile: ScalaFile, document: Document): Either[PsiErrorElement, (String, String)] = {
+  def preprocess(srcFile: ScalaFile, document: Document): Either[PsiErrorElement, PreprocessResult] = {
     if (!srcFile.isWorksheetFile) return Left(null)
 
     val iterNumber = WorksheetCache.getInstance(srcFile.getProject)
@@ -205,15 +162,19 @@ object WorksheetSourceProcessor {
     isObjectOk(file.getFirstChild)
   }
 
+
+  private def calcContentLines(document: Document, range: TextRange): Int =
+    document.getLineNumber(range.getEndOffset) - document.getLineNumber(range.getStartOffset) + 1
+
   //noinspection HardCodedStringLiteral
-  private abstract class SourceBuilderBase(classBuilder: mutable.StringBuilder,
-                                           objectBuilder: mutable.StringBuilder,
-                                           iterNumber: Int, srcFile: ScalaFile,
-                                           moduleOpt: Option[Module],
-                                           document: Document,
-                                           tpePrinterName: String,
-                                           packageOpt: Option[String],
-                                           objectPrologue: String) {
+  private class ScalaSourceBuilder(classBuilder: mutable.StringBuilder,
+                                   objectBuilder: mutable.StringBuilder,
+                                   iterNumber: Int, srcFile: ScalaFile,
+                                   moduleOpt: Option[Module],
+                                   document: Document,
+                                   tpePrinterName: String,
+                                   packageOpt: Option[String],
+                                   objectPrologue: String) {
     protected val name = s"A$$A$iterNumber"
     protected val tempVarName = "$$temp$$"
     protected val instanceName = s"inst$$A$$A"
@@ -383,7 +344,7 @@ object WorksheetSourceProcessor {
           val qualifierName = lastQualifier.qualName
           val lineNums = psiToLineNumbers(imp)
           val memberName = if (el.isInstanceOf[ScValue] || el.isInstanceOf[ScVariable]) //variable to avoid weird errors
-            variableInstanceName(qualifierName) else qualifierName
+          variableInstanceName(qualifierName) else qualifierName
 
           appendStartPsiLineInfo(lineNums)
 
@@ -442,7 +403,7 @@ object WorksheetSourceProcessor {
     def process(elements: Iterator[PsiElement],
                 preDeclarations: Iterable[PsiElement],
                 postDeclarations: Iterable[PsiElement],
-                languageLevel: ScalaLanguageLevel): Either[PsiErrorElement, (String, String)] = {
+                languageLevel: ScalaLanguageLevel): Either[PsiErrorElement, PreprocessResult] = {
       insertUntouched(preDeclarations)
 
       for (e <- elements) e match {
@@ -479,7 +440,7 @@ object WorksheetSourceProcessor {
            |
            |${objectBuilder.toString()}""".stripMargin
       val mainClassName = s"${packageOpt.fold("")(_ + ".")}$name"
-      Right((codeResult, mainClassName))
+      Right(PreprocessResult(codeResult, mainClassName))
     }
 
     //kinda utils stuff that shouldn't be overridden
@@ -558,19 +519,24 @@ object WorksheetSourceProcessor {
     }
   }
 
-  private def calcContentLines(document: Document, range: TextRange): Int =
-    document.getLineNumber(range.getEndOffset) - document.getLineNumber(range.getStartOffset) + 1
+  def inputLinesRangeFromEnd(encodedLine: String): Option[(Int, Int)] =
+    inputLinesRangeFrom(encodedLine, END_TOKEN_MARKER)
 
-  private class ScalaSourceBuilder(classBuilder: mutable.StringBuilder,
-                                   objectBuilder: mutable.StringBuilder,
-                                   iterNumber: Int, srcFile: ScalaFile,
-                                   moduleOpt: Option[Module],
-                                   document: Document,
-                                   tpePrinterName: String,
-                                   packageOpt: Option[String],
-                                   objectPrologue: String)
-    extends SourceBuilderBase(
-      classBuilder, objectBuilder, iterNumber, srcFile,
-      moduleOpt, document, tpePrinterName, packageOpt, objectPrologue
-    )
+  def inputLinesRangeFromStart(encodedLine: String): Option[(Int, Int)] =
+    inputLinesRangeFrom(encodedLine, START_TOKEN_MARKER)
+
+  private def inputLinesRangeFrom(encodedLine: String, prefixMarker: String): Option[(Int, Int)] = {
+    if (encodedLine.startsWith(prefixMarker)) {
+      val startWithEnd = encodedLine.stripPrefix(prefixMarker).stripSuffix("\n").split('|')
+      startWithEnd match {
+        case Array(start, end) =>
+          for {
+            s <- start.toIntOpt
+            e <- end.toIntOpt
+            if s != -1 && e != -1
+          } yield (s, e)
+        case _ => None
+      }
+    } else None
+  }
 }
