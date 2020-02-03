@@ -11,9 +11,12 @@ import org.jetbrains.jps.incremental.scala.remote.Arguments._
 /**
  * @author Pavel Fatin
   *         
-  * @param worksheetFiles see org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.worksheetArgs         
- */
+  * @param worksheetFiles
+  * @see [[org.jetbrains.plugins.scala.compiler.RemoteServerConnectorBase#arguments()]]
+  *
+  */
 case class Arguments(token: String, sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, worksheetFiles: Seq[String]) {
+
   def asStrings: Seq[String] = {
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
 
@@ -103,8 +106,11 @@ object Arguments {
       val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
 
       val compilerJars = compilerJarPaths.map {
-        case PathsToFiles(Seq(libraryJar, compilerJar, extraJars @ _*)) =>
-          CompilerJars(libraryJar, compilerJar, extraJars)
+        case PathsToFiles(files) =>
+          CompilerJars.fromFiles(files) match {
+            case Left(error)  => throw new RuntimeException(s"Couldn't extract compiler jars from: ${files.mkString(";")}\n" + error.toString)
+            case Right(value) => value
+          }
       }
 
       val javaHome = javaHomePath.map {

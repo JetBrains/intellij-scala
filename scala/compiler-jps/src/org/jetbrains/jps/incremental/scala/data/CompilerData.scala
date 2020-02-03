@@ -4,13 +4,13 @@ import _root_.java.io.File
 
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.jps.incremental.scala.data.CompilerJarsFactory.CompilerJarsResolveError
 import org.jetbrains.jps.incremental.scala.{ScalaBuilder, SettingsManager}
 import org.jetbrains.jps.incremental.scala.model.{IncrementalityType, LibrarySettings}
 import org.jetbrains.jps.model.JpsModel
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import org.jetbrains.jps.model.library.JpsLibrary
 import org.jetbrains.jps.model.module.JpsModule
-import org.jetbrains.jps.incremental.scala.readProperty
 
 /**
  * @author Pavel Fatin
@@ -20,10 +20,6 @@ case class CompilerData(compilerJars: Option[CompilerJars],
                         incrementalType: IncrementalityType)
 
 object CompilerData extends CompilerDataFactory {
-
-  private val JarExtension = ".jar"
-
-  private case class JarFileWithName(file: File, name: String)
 
   override def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
     val module = chunk.representativeTarget.getModule
@@ -50,27 +46,13 @@ object CompilerData extends CompilerDataFactory {
       .flatMap(validateAllFilesExist)
       .left.map(toErrorMessage(_, scalaSdk, module))
 
-  private def validateAllFilesExist(jars: CompilerJars): Either[CompilerJarsError.FilesDoNotExist, CompilerJars] = {
+  private def validateAllFilesExist(jars: CompilerJars): Either[CompilerJarsResolveError.FilesDoNotExist, CompilerJars] = {
     val absentJars = jars.allJars.filterNot(_.exists)
     Either.cond(
       absentJars.isEmpty,
       jars,
-      CompilerJarsError.FilesDoNotExist(absentJars)
+      CompilerJarsResolveError.FilesDoNotExist(absentJars)
     )
-  }
-
-  private def toErrorMessage(error: CompilerJarsResolveError, scalaSdk: JpsLibrary, module: JpsModule): String = {
-    import CompilerJarsError._
-
-    def inScalaCompiler = s"in Scala compiler classpath in Scala SDK ${scalaSdk.getName}"
-    def filesNames(files: Seq[JarFileWithName]) = files.map(_.name).mkString(", ")
-    def filePaths(absentJars: Seq[File]) = absentJars.map(_.getPath).mkString(", ")
-
-    error match {
-      case NotFound(kind)               => s"No '$kind*$JarExtension' $inScalaCompiler"
-      case DuplicatesFound(kind, files) => s"Multiple '$kind*$JarExtension' files (${filesNames(files)}) $inScalaCompiler"
-      case FilesDoNotExist(absentJars)  => s"Scala compiler JARs not found (module '${module.getName}'): ${filePaths(absentJars)}"
-    }
   }
 
   private def javaHome(model: JpsModel,
@@ -114,7 +96,7 @@ object CompilerData extends CompilerDataFactory {
     } else {
       val needBootCp = modules.exists {
         compilerJarsIn(_).forall {
-          case CompilerJars(_, compiler, _) => versionIn(compiler, "2.8", "2.9")
+          case CompilerJars(_, compiler, _) => CompilerJars.versionIn(compiler, "2.8", "2.9")
         }
       }
       if (needBootCp)
@@ -128,59 +110,32 @@ object CompilerData extends CompilerDataFactory {
       .flatMap(compilerJarsInSdk(_).toOption)
 
   private def compilerJarsInSdk(sdk: JpsLibrary): Either[CompilerJarsResolveError, CompilerJars] = {
-    val files = sdk.getProperties match {
-      case settings: LibrarySettings =>
-        for {
-          file <- settings.getCompilerClasspath.toSeq
-          name = file.getName
-          if name.endsWith(JarExtension)
-        } yield JarFileWithName(file, name)
-      case _ =>
-        Seq.empty
+    val files = compilerClasspath(sdk)
+    val jarFiles = CompilerJars.collectJars(files)
+    CompilerJars.fromFiles(jarFiles)
+  }
+
+  private def compilerClasspath(sdk: JpsLibrary): Seq[File] =
+    sdk.getProperties match {
+      case settings: LibrarySettings => settings.getCompilerClasspath.toSeq
+      case _                         => Seq.empty
     }
 
-    val compilerPrefix = if (CompilerJars.hasDotty(files.map(_.file))) "dotty" else "scala"
-    for {
-      library <- find(files, "scala-library")
-      compiler <- find(files, s"$compilerPrefix-compiler")
+  private def toErrorMessage(error: CompilerJarsResolveError, scalaSdk: JpsLibrary, module: JpsModule): String = {
+    import CompilerJarsResolveError._
+    import CompilerJars.JarFileWithName
 
-      extra = files.filter {
-        case `library` | `compiler` => false
-        case _ => true
-      }
+    def inScalaCompiler = s"in Scala compiler classpath in Scala SDK ${scalaSdk.getName}"
+    def filesNames(files: Seq[JarFileWithName]) = files.map(_.name).mkString(", ")
+    def filePaths(absentJars: Seq[File]) = absentJars.map(_.getPath).mkString(", ")
 
-      _ <- if (versionIn(compiler.file, "2.10")) find(extra, "scala-reflect") else Right(null)
-    } yield CompilerJars(
-      library.file,
-      compiler.file,
-      extra.map(_.file)
-    )
-  }
+    import CompilerJars.JarExtension
 
-  private def find(files: Seq[JarFileWithName], kind: String): Either[CompilerJarsResolveError, JarFileWithName] = {
-    val filesOfKind = files.filter(_.name.startsWith(kind)).distinct
-    filesOfKind match {
-      case Seq(file)  => Right(file)
-      case Seq()      => Left(CompilerJarsError.NotFound(kind))
-      case duplicates => Left(CompilerJarsError.DuplicatesFound(kind, duplicates))
+    error match {
+      case NotFound(kind)               => s"No '$kind*$JarExtension' $inScalaCompiler"
+      case DuplicatesFound(kind, files) => s"Multiple '$kind*$JarExtension' files (${filesNames(files)}) $inScalaCompiler"
+      case FilesDoNotExist(absentJars)  => s"Scala compiler JARs not found (module '${module.getName}'): ${filePaths(absentJars)}"
     }
   }
-
-  private sealed trait CompilerJarsResolveError
-  private object CompilerJarsError {
-    case class NotFound(kind: String) extends CompilerJarsResolveError
-    case class DuplicatesFound(kind: String, duplicates: Seq[JarFileWithName]) extends CompilerJarsResolveError
-    case class FilesDoNotExist(files: Seq[File]) extends CompilerJarsResolveError
-  }
-
-  // TODO implement a better version comparison
-  private def versionIn(compiler: File,
-                        versions: String*) =
-    compilerVersion(compiler).exists { version => versions.exists(version.startsWith) }
-
-  private def compilerVersion(compiler: File): Option[String] = readProperty(
-    compiler,
-    "compiler.properties",
-    "version.number"
-  )
 }
+
