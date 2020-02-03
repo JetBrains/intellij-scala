@@ -123,7 +123,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("Blergh", cannotUpcast()) :: Error("j", doesNotConform()) :: Nil => // TODO don't show type mismatch when expected type is due to type ascription
+      case Error("Blergh", cannotUpcast()) :: Nil =>
     }
   }
 
@@ -136,7 +136,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("Blargle", cannotUpcast()) :: Nil =>
+      case Error("t)", "Missing parameter: String") :: Nil =>
     }
   }
 
@@ -149,7 +149,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("Blargle", cannotUpcast()) :: Nil =>
+      case Error("Int", typeMismatch()) :: Nil =>
     }
   }
 
@@ -162,7 +162,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("Blergh", cannotUpcast()) :: Error("j", doesNotConform()) :: Nil => // TODO don't show type mismatch when expected type is due to type ascription
+      case Error("Blergh", cannotUpcast()) :: Nil =>
     }
   }
 
@@ -199,7 +199,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("() => 3", typeMismatch()) :: Nil =>
+      case Error("() => 3", doesNotConform()) :: Nil =>
     }
   }
 
@@ -700,7 +700,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
         |def l[T]: MyChangeListener[_ >: T] = (observable: P[_ <: T]) => ()
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("(observable: P[_ <: T]) => ()", typeMismatch()) :: Nil =>
+      case Error("(observable: P[_ <: T]) => ()", doesNotConform()) :: Nil =>
     }
   }
 
