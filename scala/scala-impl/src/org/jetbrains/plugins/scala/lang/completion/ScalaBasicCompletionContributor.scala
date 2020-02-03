@@ -23,12 +23,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
 
 import scala.annotation.tailrec
 import scala.collection.{JavaConverters, mutable}
@@ -57,25 +57,20 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         val maybePosition = (isInSimpleString, isInInterpolatedString) match {
           case (true, true) => return
           case (true, _) =>
-            Some(("s" + dummyPosition.getText, dummyPosition, parameters.getPosition))
+            Some(("s" + dummyPosition.getText, dummyPosition))
           case (_, true) =>
-            (dummyPosition.getContext, parameters.getPosition.getParent) match {
-              case (interpolated: ScInterpolated, dummyInterpolated: ScInterpolated) =>
-                splitInterpolatedString(interpolated, parameters.getOffset, dummyInterpolated) match {
-                  case Some((first, second, third)) =>
-                    Some((s"$first{$second}$third", interpolated, dummyInterpolated))
-                  case _ => return
-                }
+            val context = dummyPosition.getContext
+            splitInterpolatedString(context, parameters.getOffset) match {
+              case Some(text) => Some((text, context))
               case _ => return
             }
           case _ => None
         }
 
-        val position = maybePosition match {
-          case Some((text, projectContext, offsetContext)) =>
-            ScalaPsiElementFactory.createExpressionFromText(text, projectContext.getContext)
+        val position = maybePosition.fold(dummyPosition) {
+          case (text, offsetContext) =>
+            createExpressionFromText(text, offsetContext.getContext)
               .findElementAt(parameters.getOffset - offsetContext.getTextRange.getStartOffset + 1)
-          case _ => dummyPosition
         }
 
         result.restartCompletionWhenNothingMatches()
@@ -170,7 +165,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             for {
               qualifierCastType <- qualifierCastType(reference)
               canonicalText = qualifierCastType.canonicalText
-              newReference <- createReferenceWithQualifierType(canonicalText)(reference.getContext, reference)
+              newReference <- createReferenceWithQualifierType(canonicalText, reference)
 
               processor = new PostProcessor(
                 newReference,
@@ -199,7 +194,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             }
           case _ =>
         }
-        if (position.getNode.getElementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
+        if (position.getNode.getElementType == DOC_TAG_VALUE_TOKEN) result.stopHere()
       }
     })
 
@@ -210,6 +205,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 }
 
 object ScalaBasicCompletionContributor {
+
+  import ScalaTokenTypes._
 
   private class PostProcessor(override val getPlace: ScReference,
                               private val isInSimpleString: Boolean,
@@ -258,17 +255,17 @@ object ScalaBasicCompletionContributor {
         })
   }
 
-  private def splitInterpolatedString(interpolated: ScInterpolated,
-                                      offset: Int,
-                                      context: ScInterpolated): Option[(String, String, String)] =
-    interpolatedStringBounds(interpolated, offset, context) match {
-      case Some((origin, bound)) =>
-        val text = interpolated.getText
-        Some((
-          text.substring(0, origin),
-          text.substring(origin, bound),
-          text.substring(bound)
-        ))
+  private def splitInterpolatedString(context: PsiElement,
+                                      offset: Int): Option[String] =
+    context match {
+      case interpolated: ScInterpolated =>
+        interpolatedStringBounds(interpolated, offset).map {
+          case (origin, bound) =>
+            val text = interpolated.getText
+            text.substring(0, origin) +
+              "{" + text.substring(origin, bound) + "}" +
+              text.substring(bound)
+        }
       case _ => None
     }
 
@@ -276,44 +273,45 @@ object ScalaBasicCompletionContributor {
     case null => (true, true)
     case node =>
       node.getElementType match {
-        case ScalaTokenTypes.tIDENTIFIER | ScalaDocTokenType.DOC_TAG_VALUE_TOKEN => (false, false)
-        case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING => (true, false)
-        case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING => (false, true)
-        case _ => (true, true)
+        case `tIDENTIFIER` |
+             DOC_TAG_VALUE_TOKEN =>
+          (false, false)
+        case `tSTRING` |
+             `tMULTILINE_STRING` =>
+          (true, false)
+        case `tINTERPOLATED_STRING` |
+             `tINTERPOLATED_MULTILINE_STRING` =>
+          (false, true)
+        case _ =>
+          (true, true)
       }
   }
 
   def interpolatedStringBounds(interpolated: ScInterpolated,
-                               offset: Int,
-                               context: ScInterpolated): Option[(Int, Int)] =
+                               offset: Int): Option[(Int, Int)] =
     interpolated.getInjections.reverseIterator
       .find(_.getTextRange.getEndOffset <= offset)
-      .collect {
-        case expression if !expression.isInstanceOf[ScBlock] =>
-          val range = expression.getTextRange
-          (range.getStartOffset, range.getEndOffset)
-      }.flatMap {
-      case (rangeStartOffset, rangeEndOffset) =>
+      .filterNot(_.isInstanceOf[ScBlock])
+      .map(_.getTextRange)
+      .flatMap { range =>
         val stringText = interpolated.getText
 
         val startOffset = interpolated.getTextRange.getStartOffset
-        val pointPosition = rangeEndOffset - startOffset
+        val pointPosition = range.getEndOffset - startOffset
 
         tokenizeLiteral(stringText.substring(pointPosition), interpolated.quoteLength).flatMap { tokenEnd =>
-          tokenEnd + pointPosition match {
-            case endPoint if endPoint >= startOffset - context.getTextRange.getStartOffset =>
-              Some(rangeStartOffset - startOffset, endPoint)
-            case _ => None
-          }
+          val endPoint = tokenEnd + pointPosition
+          if (endPoint >= 0) Some(range.getStartOffset - startOffset, endPoint)
+          else None
         }
-    }
+      }
 
   private def tokenizeLiteral(text: String, quoteLength: Int) = text.charAt(0) match {
     case '.' =>
       val lexer = new ScalaLexer()
       lexer.start(text, 1, text.length - quoteLength)
       lexer.getTokenType match {
-        case ScalaTokenTypes.tIDENTIFIER => Some(lexer.getTokenEnd)
+        case `tIDENTIFIER` => Some(lexer.getTokenEnd)
         case _ => None
       }
     case _ => None
@@ -328,17 +326,15 @@ object ScalaBasicCompletionContributor {
     case _ => None
   }
 
-  private def createReferenceWithQualifierType(canonicalText: String)
-                                              (context: PsiElement, child: PsiElement): Option[ScReferenceExpression] = {
+  private def createReferenceWithQualifierType(canonicalText: String,
+                                               reference: ScReference): Option[ScReferenceExpression] = {
     val text =
       s"""{
          |  val xxx: $canonicalText = null
          |  xxx.xxx
          |}""".stripMargin
-    ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, child) match {
-      case block: ScBlock => block.exprs.lastOption.collect {
-        case expression: ScReferenceExpression => expression
-      }
+    createExpressionWithContextFromText(text, reference.getContext, reference) match {
+      case block: ScBlock => block.exprs.lastOption.filterByType[ScReferenceExpression]
       case _ => None
     }
   }
