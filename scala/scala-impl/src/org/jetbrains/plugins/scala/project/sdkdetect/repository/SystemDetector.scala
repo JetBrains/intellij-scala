@@ -6,6 +6,7 @@ import java.util.stream.{Stream => JStream}
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.template._
 
 
@@ -30,8 +31,8 @@ private[repository] object SystemDetector extends ScalaSdkDetector {
   private def rootsFromPath: Seq[Path] = env("PATH").flatMap { path =>
     path.split(java.io.File.pathSeparator)
       .find(_.toLowerCase.contains("scala"))
-      .map(s => Paths.get(s.replaceFirst("""[/\\]?bin[/\\]?$""", "")))
-  }.toSeq
+      .map(s => Paths.get(s).getParent.toOption.map(_.getParent)) // we should return *parent* dir for "scala" folder, not the "bin" one
+  }.toSeq.flatten
 
   private def rootsFromEnv: Seq[Path] = env("SCALA_HOME").map(Paths.get(_)).toSeq
 
