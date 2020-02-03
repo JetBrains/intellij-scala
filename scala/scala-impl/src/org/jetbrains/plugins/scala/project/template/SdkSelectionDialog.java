@@ -117,6 +117,9 @@ public class SdkSelectionDialog extends JDialog {
         Option<String> result = new VersionDialog(contentPane).showAndGetSelected();
 
         if (result.isDefined()) {
+            for (int i = 0; i < myTableModel.getRowCount(); i++) {
+                myTableModel.removeRow(i);
+            }
             createScanTask(null, () -> {
                 int rowIndex = setSelectionInterval(result.get());
                 myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
