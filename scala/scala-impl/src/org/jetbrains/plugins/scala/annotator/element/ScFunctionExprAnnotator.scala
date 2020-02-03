@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScExpressionAnnotator.check
 import org.jetbrains.plugins.scala.annotator.element.ScTypedExpressionAnnotator.mismatchRangesIn
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFunctionExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFunctionExpr, ScParenthesisedExpr, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType.isFunctionType
 
@@ -76,15 +76,23 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
     // Result type mismatch
     if (!problemWithParameters) {
-      val inMultilineBlock = literal match {
-        case Parent(b: ScBlockExpr) => b.textContains('\n')
-        case _ => false
+      val typeAscription = literal match {
+        case Parent((_: ScParenthesisedExpr | _: ScBlockExpr) && Parent(ta: ScTypedExpression)) => Some(ta)
+        case _ => None
       }
 
-      if (!inMultilineBlock && literal.expectedType().exists(isFunctionType)) {
-        result.foreach(checkExpressionType(_, typeAware, fromFunctionLiteral = true))
-      } else {
-        checkExpressionType(literal, typeAware, fromFunctionLiteral = true)
+      typeAscription match {
+        case Some(ta) => ScTypedExpressionAnnotator.doAnnotate(ta)
+        case None =>
+          val inMultilineBlock = literal match {
+            case Parent(b: ScBlockExpr) => b.textContains('\n')
+            case _ => false
+          }
+          if (!inMultilineBlock && literal.expectedType().exists(isFunctionType)) {
+            result.foreach(checkExpressionType(_, typeAware, fromFunctionLiteral = true))
+          } else {
+            checkExpressionType(literal, typeAware, fromFunctionLiteral = true)
+          }
       }
     }
   }
