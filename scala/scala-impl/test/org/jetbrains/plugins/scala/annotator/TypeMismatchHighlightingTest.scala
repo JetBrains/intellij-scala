@@ -467,6 +467,19 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
       Error("}" , "Expression of type Int => Int doesn't conform to expected type Int => String"))
   }
 
+  // Function literal with type ascription
+
+  def testTypeMismatchFunctionLiteralResutlTypeMismatchAndTypeAscription(): Unit = {
+    assertMessages(errorsFromScalaCode("((i: Int) => false): Int => String"))(
+      Error("String" , "Cannot upcast Int => Boolean to Int => String"))
+  }
+
+  def testTypeMismatchFunctionLiteralResutlTypeMismatchAndTypeAscriptionBlock(): Unit = {
+    assertMessages(errorsFromScalaCode("{ (i: Int) => false }: Int => String"))(
+      Error("String" , "Cannot upcast Int => Boolean to Int => String"))
+  }
+
+  // TODO Generalize to arbitrary expression
   // TODO The following is a workaround for SCL-16898 (Function literals: don't infer type when parameter type is not known)
 
   def testTypeMismatchFunctionLiteralUnresolvedReference(): Unit = {
