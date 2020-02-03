@@ -11,7 +11,6 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     Scala_2_11("2.11"),
     Scala_2_12("2.12"),
     Scala_2_13("2.13"),
-    Scala_2_14("2.14"),
     Scala_3_0("0.21", "3.0");
 
     @NotNull
