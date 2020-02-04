@@ -12,199 +12,199 @@ class ScFunctionExprAnnotatorTest extends ScalaHighlightingTestBase {
 
   // Function literal, SCL-16904
 
-  def notEnoughParameters1(): Unit = {
+  def testNotEnoughParameters1(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => Boolean = () => true"))(Error("()", "Missing parameter: Int"))
   }
 
-  def notEnoughParameters2(): Unit = {
+  def testNotEnoughParameters2(): Unit = {
     assertMessages(errorsFromScalaCode("val v: (Int, String) => Boolean = foo => true"))(Error("o =", "Missing parameter: String"))
   }
 
-  def notEnoughParameters3(): Unit = {
+  def testNotEnoughParameters3(): Unit = {
     assertMessages(errorsFromScalaCode("val v: (Int, String) => Boolean = (foo) => true"))(Error("o)", "Missing parameter: String"))
   }
 
-  def notEnoughParameters4(): Unit = {
+  def testNotEnoughParameters4(): Unit = {
     assertMessages(errorsFromScalaCode("val v: (Int, String) => Boolean = (foo: Int) => true"))(Error("t)", "Missing parameter: String"))
   }
 
-  def notEnoughParameters5(): Unit = {
+  def testNotEnoughParameters5(): Unit = {
     assertMessages(errorsFromScalaCode("val v: (Int, String, Double) => Boolean = foo => true"))(Error("o =", "Missing parameters: String, Double"))
   }
 
-  def tooManyParameters1(): Unit = {
+  def testTooManyParameters1(): Unit = {
     assertMessages(errorsFromScalaCode("val v: () => Boolean = foo => true"))(Error("foo", "Too many parameters"))
   }
 
-  def tooManyParameters2(): Unit = {
+  def testTooManyParameters2(): Unit = {
     assertMessages(errorsFromScalaCode("val v: () => Boolean = (foo) => true"))(Error("(f", "Too many parameters"))
   }
 
-  def tooManyParameters3(): Unit = {
+  def testTooManyParameters3(): Unit = {
     assertMessages(errorsFromScalaCode("val v: () => Boolean = (foo: Int) => true"))(Error("(f", "Too many parameters"))
   }
 
-  def tooManyParameters4(): Unit = {
+  def testTooManyParameters4(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => Boolean = (foo: Int, bar: String) => true"))(Error(", b", "Too many parameters"))
   }
 
-  def tooManyParameters5(): Unit = {
+  def testTooManyParameters5(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => Boolean = (foo: Int, bar: String, moo: Double) => true"))(Error(", b", "Too many parameters"))
   }
 
-  def parameterTypeMismatch1(): Unit = {
+  def testParameterTypeMismatch1(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => Boolean = (x: String) => true"))(Error("String", "Type mismatch, expected: Int, actual: String"))
   }
 
-  def parameterTypeMismatch2(): Unit = { // TODO Why the .scala qualifier is added to the presentation?
+  def testParameterTypeMismatch2(): Unit = { // TODO Why the .scala qualifier is added to the presentation?
     assertMessages(errorsFromScalaCode("val v: Option[Int] => Boolean = (x: scala.Option[String]) => true"))(Error("String", "Type mismatch, expected: Option[Int], actual: scala.Option[String]"))
   }
 
-  def parameterTypeMismatch3(): Unit = {
+  def testParameterTypeMismatch3(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => Boolean = (x: String, y: Double) => true"))(Error(", y", "Too many parameters"))
   }
 
-  def parameterTypeMismatch4(): Unit = {
+  def testParameterTypeMismatch4(): Unit = {
     assertMessages(errorsFromScalaCode("val v: (Int, String) => Boolean = (x: String, y: Int) => true"))(Error("String", "Type mismatch, expected: Int, actual: String"))
   }
 
-  def resultTypeMismatch(): Unit = {
+  def testResultTypeMismatch(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => String = x => 2"))(Hint("2", ": Int"),
       Error("2" , "Expression of type Int doesn't conform to expected type String"))
   }
 
-  def parameterMissingAndResultTypeMismatch(): Unit = {
+  def testParameterMissingAndResultTypeMismatch(): Unit = {
     assertMessages(errorsFromScalaCode("val v: (Int, Double) => String = foo => 2)"))(
       Error("o =" , "Missing parameter: Double"))
   }
 
-  def tooManyParametersAndResultTypeMismatch(): Unit = {
+  def testTooManyParametersAndResultTypeMismatch(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => String = (foo, bar) => 2)"))(
       Error(", b" , "Too many parameters"))
   }
 
-  def parameterTypeMismatchAndResultTypeMismatch(): Unit = {
+  def testParameterTypeMismatchAndResultTypeMismatch(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => String = (s: String) => 2)"))(
       Error("String" , "Type mismatch, expected: Int, actual: String"))
   }
 
   // Function vs non-function, SCL-16904
 
-  def testTypeMismatchFunctionTypeAndNonFunction1(): Unit = {
+  def testFunctionTypeAndNonFunction1(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => Int = true"))(Hint("true", ": Boolean"),
       Error("true", "Expression of type Boolean doesn't conform to expected type Int => Int"))
   }
 
-  def testTypeMismatchFunctionTypeAndNonFunction2(): Unit = {
+  def testFunctionTypeAndNonFunction2(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => Int = 1"))(Hint("1", ": Int"),
       Error("1", "Expression of type Int doesn't conform to expected type Int => Int"))
   }
 
-  def testTypeMismatchNonFunctionTypeAndFunctionLiteral1(): Unit = {
+  def testNonFunctionTypeAndFunctionLiteral1(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int = (x: String) => true"))(Hint("(x: String) => true", "("), Hint("(x: String) => true", "): String => Boolean"),
       Error("(x: String) => true", "Expression of type String => Boolean doesn't conform to expected type Int"))
   }
 
-  def testTypeMismatchNonFunctionTypeAndFunctionLiteral2(): Unit = {
+  def testNonFunctionTypeAndFunctionLiteral2(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int = (x: Int) => 1"))(Hint("(x: Int) => 1", "("), Hint("(x: Int) => 1", "): Int => Int"),
       Error("(x: Int) => 1", "Expression of type Int => Int doesn't conform to expected type Int"))
   }
 
-  def testTypeMismatchNonFunctionTypeAndFunctionLiteral3(): Unit = {
+  def testNonFunctionTypeAndFunctionLiteral3(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int = x => 1"))(Error("x", "Missing parameter type"))
   }
 
   // SAMs
 
   def testTypeMismatchSam(): Unit = {
-    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = s => 1"))()
+    assertMessages(errorsFromScalaCode("trait SAM { def testF(s: String): Int }; val v: SAM = s => 1"))()
   }
 
   def testTypeMismatchSamNotEnoughParameters(): Unit = {
-    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = () => 1"))(
+    assertMessages(errorsFromScalaCode("trait SAM { def testF(s: String): Int }; val v: SAM = () => 1"))(
       Error("()", "Missing parameter: String"))
   }
 
   def testTypeMismatchSamTooManyParameters(): Unit = {
-    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = (s: String, b: Boolean) => 1"))(
+    assertMessages(errorsFromScalaCode("trait SAM { def testF(s: String): Int }; val v: SAM = (s: String, b: Boolean) => 1"))(
       Error(", b", "Too many parameters"))
   }
 
   def testTypeMismatchSamParameterTypeMismatch(): Unit = {
-    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = (s: Boolean) => 1"))(
+    assertMessages(errorsFromScalaCode("trait SAM { def testF(s: String): Int }; val v: SAM = (s: Boolean) => 1"))(
       Error("Boolean", "Type mismatch, expected: String, actual: Boolean"))
   }
 
   def testTypeMismatchSamResultTypeMimatch(): Unit = {
-    assertMessages(errorsFromScalaCode("trait SAM { def f(s: String): Int }; val v: SAM = s => false"))(
+    assertMessages(errorsFromScalaCode("trait SAM { def testF(s: String): Int }; val v: SAM = s => false"))(
       Hint("s => false", "("), Hint("s => false", "): String => Boolean"),
       Error("s => false", "Expression of type String => Boolean doesn't conform to expected type SAM"))
   }
 
   // Missing parameter type, SCL-16904
 
-  def parameterTypeInferred(): Unit = {
+  def testParameterTypeInferred(): Unit = {
     assertNothing(errorsFromScalaCode("val v: Int => Boolean = x => true"))
   }
 
-  def parameterTypeMissing1(): Unit = {
+  def testParameterTypeMissing1(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Any = x => true"))(Error("x", "Missing parameter type"))
   }
 
-  def parameterTypeMissing2(): Unit = {
+  def testParameterTypeMissing2(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Any = (x) => true"))(Error("x", "Missing parameter type"))
   }
 
-  def parameterTypeMissing3(): Unit = {
+  def testParameterTypeMissing3(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Any = (x, y) => true"))(Error("x", "Missing parameter type"))
   }
 
   // Function literal in a block
 
-  def inBlockExpressionProblemWithParametersAndResutlTypeMismatch(): Unit = {
+  def testInBlockExpressionProblemWithParametersAndResutlTypeMismatch(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => String = { (i: Boolean) => 2 }"))(
       Error("Boolean" , "Type mismatch, expected: Int, actual: Boolean"))
   }
 
-  def inBlockExpressionResultTypeMismatch1(): Unit = {
+  def testInBlockExpressionResultTypeMismatch1(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => String = { i => 2 }"))(Hint("2", ": Int"),
       Error("2" , "Expression of type Int doesn't conform to expected type String"))
   }
 
-  def inBlockExpressionResultTypeMismatch2(): Unit = {
+  def testInBlockExpressionResultTypeMismatch2(): Unit = {
     assertMessages(errorsFromScalaCode("def f(v: Int => String) = (); f { i => 2 }"))(Hint("2", ": Int"),
       Error("2" , "Expression of type Int doesn't conform to expected type String"))
   }
 
-  def inBlockExpressionProblemWithParametersAndResultTypeMismatchNewLine(): Unit = {
+  def testInBlockExpressionProblemWithParametersAndResultTypeMismatchNewLine(): Unit = {
     assertMessages(errorsFromScalaCode("val x: Int => String = { (i: Boolean) => 2\n}"))(
       Error("Boolean" , "Type mismatch, expected: Int, actual: Boolean"))
   }
 
   // When block expression is multiline, and the problem is with the result type (but not parameters), highlight the whole literal.
-  def inBlockExpressionResultTypeMismatchNewLine1(): Unit = {
+  def testInBlockExpressionResultTypeMismatchNewLine1(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int => String = { i => 2\n}"))(Hint("}", ": Int => Int"),
       Error("}" , "Expression of type Int => Int doesn't conform to expected type Int => String"))
   }
 
-  def inBlockExpressionResultTypeMismatchNewLine2(): Unit = {
+  def testInBlockExpressionResultTypeMismatchNewLine2(): Unit = {
     assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f { i => 2\n}"))(Hint("}", ": Int => Int"),
       Error("}" , "Expression of type Int => Int doesn't conform to expected type Int => String"))
   }
 
-  def inBlockExpressionResultTypeMismatchNewLine3(): Unit = {
+  def testInBlockExpressionResultTypeMismatchNewLine3(): Unit = {
     assertMessages(errorsFromScalaCode("def f(x: Int => String): Int = 1; f { i =>\n2 }"))(Hint("}", ": Int => Int"),
       Error("}" , "Expression of type Int => Int doesn't conform to expected type Int => String"))
   }
 
   // Function literal with type ascription
 
-  def resutlTypeMismatchAndTypeAscription(): Unit = {
+  def testResutlTypeMismatchAndTypeAscription(): Unit = {
     assertMessages(errorsFromScalaCode("((i: Int) => false): Int => String"))(
       Error("String" , "Cannot upcast Int => Boolean to Int => String"))
   }
 
-  def resutlTypeMismatchAndTypeAscriptionBlock(): Unit = {
+  def testResutlTypeMismatchAndTypeAscriptionBlock(): Unit = {
     assertMessages(errorsFromScalaCode("{ (i: Int) => false }: Int => String"))(
       Error("String" , "Cannot upcast Int => Boolean to Int => String"))
   }
