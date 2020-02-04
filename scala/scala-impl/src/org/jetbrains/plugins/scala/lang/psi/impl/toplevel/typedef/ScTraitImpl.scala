@@ -77,7 +77,7 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
     getSupers.filter(_.isInterface)
   }
 
-  def fakeCompanionClass: PsiClass = {
+  override def fakeCompanionClass: PsiClass = {
     new PsiClassWrapper(this, withSuffix(getQualifiedName), withSuffix(getName))
   }
 
