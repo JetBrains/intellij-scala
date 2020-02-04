@@ -195,4 +195,9 @@ class ScFunctionExprAnnotatorTest extends ScalaHighlightingTestBase {
   def testResutlTypeMismatchAndTypeAscriptionBlock(): Unit = assertErrors(
     "{ (i: Int) => false }: Int => String",
     Error("String", "Cannot upcast Int => Boolean to Int => String"))
+
+  // Implicit conversion
+
+  def testImplicitConversion(): Unit = assertErrors(
+    "implicit def convert(f: () => Int): String => Int = ???; val v: String => Int = () => 1")
 }
