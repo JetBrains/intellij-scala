@@ -25,13 +25,10 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, BuildToolWindowReporter, IndicatorReporter}
 
-import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Promise, TimeoutException}
+import scala.concurrent.Promise
 import scala.util.control.NonFatal
-import scala.util.{Failure, Try}
 
 class BspTask[T](project: Project,
                  targets: Iterable[BspTarget],
@@ -98,7 +95,7 @@ class BspTask[T](project: Project,
     val cancelToken = new CancelCheck(cancelPromise, indicator)
 
     val combinedMessages = buildJobs
-      .traverse(waitForJobCancelable(_, cancelToken))
+      .traverse(BspJob.waitForJobCancelable(_, cancelToken))
       .map { compileResults =>
         val updatedMessages = compileResults.map(r => messagesWithStatus(report, reportIndicator, r._1, r._2))
         updatedMessages.fold(BuildMessages.empty) { (m1, m2) => m1.combine(m2) }
@@ -172,21 +169,6 @@ class BspTask[T](project: Project,
           .status(BuildMessages.Error)
     }
   }
-
-
-  @tailrec private def waitForJobCancelable[R](job: BspJob[R], cancelCheck: CancelCheck): Try[R] =
-    try {
-      if (!cancelCheck.isCancelled) {
-        val res = Await.result(job.future, 300.millis)
-        cancelCheck.complete()
-        Try(res)
-      } else {
-        job.cancel()
-        Failure(new ProcessCanceledException())
-      }
-    } catch {
-      case _ : TimeoutException => waitForJobCancelable(job, cancelCheck)
-    }
 
   private def buildRequests(targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget])
                            (implicit server: BspServer, capabilities: BuildServerCapabilities) = {

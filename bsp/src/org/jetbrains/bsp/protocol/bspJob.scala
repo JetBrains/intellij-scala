@@ -1,11 +1,11 @@
 package org.jetbrains.bsp.protocol
 
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
-import org.jetbrains.bsp.BspError
+import com.intellij.openapi.progress.ProgressIndicator
+import org.jetbrains.bsp.{BspError, BspTaskCancelled}
 
 import scala.annotation.tailrec
 import scala.concurrent._
-import duration._
+import scala.concurrent.duration._
 import scala.util.{Failure, Try}
 
 
@@ -20,7 +20,7 @@ object BspJob {
   class CancelCheck(promise: Promise[Unit], indicator: ProgressIndicator) {
 
     def cancel(): Unit = {
-      promise.failure(new ProcessCanceledException())
+      promise.failure(BspTaskCancelled)
       indicator.cancel()
     }
 
@@ -33,7 +33,7 @@ object BspJob {
     def isCancelled: Boolean = {
       // if one is canceled, cancel the other
       if (!promise.isCompleted && indicator.isCanceled)
-        promise.failure(new ProcessCanceledException())
+        promise.failure(BspTaskCancelled)
       else if (!indicator.isCanceled && promise.isCompleted)
         indicator.cancel()
 
@@ -45,9 +45,10 @@ object BspJob {
     try {
       if (cancelCheck.isCancelled) {
         job.cancel()
-        Failure(new ProcessCanceledException())
+        Failure(BspTaskCancelled)
       } else {
         val res = Await.result(job.future, 300.millis)
+        cancelCheck.complete()
         Try(res)
       }
     } catch {
