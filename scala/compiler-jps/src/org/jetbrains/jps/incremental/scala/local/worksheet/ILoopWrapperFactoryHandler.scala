@@ -7,7 +7,7 @@ import java.net.{URLClassLoader, URLDecoder}
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData}
-import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl
+import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
 import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.{JavaClientProvider, JavaILoopWrapperFactory}
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.IsolatingClassLoader
 import org.jetbrains.jps.incremental.scala.remote.Arguments
@@ -116,7 +116,7 @@ class ILoopWrapperFactoryHandler {
 
     client.progress("Compiling REPL runner...")
 
-    val logger = new ClientDelegatingLogger(client)
+    val logger = NullLogger //new ClientDelegatingLogger(client)
     sbtData.interfacesHome.mkdirs()
 
     def filter(file: File): Boolean =
@@ -177,6 +177,8 @@ object ILoopWrapperFactoryHandler {
     list
   }
 
+
+  // use for debugging
   private class ClientDelegatingLogger(client: Client) extends Logger {
     override def trace(t: => Throwable): Unit = client.trace(t)
     override def success(message: => String): Unit = client.info(s"success: $message")
