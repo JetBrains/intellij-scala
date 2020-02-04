@@ -57,7 +57,7 @@ class SbtStructureDump {
 
     val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
     val reporter = new ExternalSystemNotificationReporter(dir.getAbsolutePath, taskId, notifications)
-    val aggregator = shellMessageAggregator(taskId, EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
+    val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
 
     shell.command(cmd, BuildMessages.empty, aggregator, showShell = false)
   }
@@ -136,6 +136,9 @@ class SbtStructureDump {
       val processBuilder = new ProcessBuilder(processCommands.asJava)
       processBuilder.directory(directory)
       processBuilder.environment().putAll(environment.asJava)
+      val procString = processBuilder.command().asScala.mkString(" ")
+      reporter.log(procString)
+
       val process = processBuilder.start()
       val result = using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
         writer.println(sbtCommands)
@@ -240,10 +243,9 @@ object SbtStructureDump {
     } else messages
   }
 
-  private def shellMessageAggregator(id: ExternalSystemTaskId,
-                                    dumpTaskId: EventId,
-                                    shell: SbtShellCommunication,
-                                    reporter: BuildTaskReporter,
+  private def shellMessageAggregator(dumpTaskId: EventId,
+                                     shell: SbtShellCommunication,
+                                     reporter: BuildTaskReporter,
                                    ): EventAggregator[BuildMessages] = {
     case (messages, TaskStart) =>
       reporter.startTask(dumpTaskId, None, "extracting project structure from sbt shell")

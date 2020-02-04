@@ -5,26 +5,25 @@ package resolve
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 
 object StdKinds {
-  val stableQualRef = ValueSet(PACKAGE, OBJECT, VAL)
-  val stableQualOrClass = stableQualRef + CLASS
-  val noPackagesClassCompletion = ValueSet(OBJECT, VAL, CLASS)
-  val stableImportSelector = ValueSet(OBJECT, VAL, VAR, METHOD, PACKAGE, CLASS)
-  val stableClass = ValueSet(CLASS)
+  val stableQualRef: ResolveTargets.ValueSet             = ValueSet(PACKAGE, OBJECT, VAL)
+  val stableQualOrClass: ResolveTargets.ValueSet         = stableQualRef + CLASS
+  val noPackagesClassCompletion: ResolveTargets.ValueSet = ValueSet(OBJECT, VAL, CLASS)
+  val stableImportSelector: ResolveTargets.ValueSet      = ValueSet(OBJECT, VAL, VAR, METHOD, PACKAGE, CLASS)
+  val stableClass: ResolveTargets.ValueSet               = ValueSet(CLASS)
 
-  val stableClassOrObject = ValueSet(CLASS, OBJECT)
-  val objectOrValue = ValueSet(OBJECT, VAL)
+  val stableClassOrObject: ResolveTargets.ValueSet = ValueSet(CLASS, OBJECT)
+  val objectOrValue: ResolveTargets.ValueSet       = ValueSet(OBJECT, VAL)
 
-  val refExprLastRef = ValueSet(OBJECT, VAL, VAR, METHOD)
-  val refExprQualRef = refExprLastRef + PACKAGE
+  val refExprLastRef: ResolveTargets.ValueSet = ValueSet(OBJECT, VAL, VAR, METHOD)
+  val refExprQualRef: ResolveTargets.ValueSet = refExprLastRef + PACKAGE
 
-  val methodRef = ValueSet(VAL, VAR, METHOD)
-  val methodsOnly = ValueSet(METHOD)
+  val methodRef: ResolveTargets.ValueSet   = ValueSet(VAL, VAR, METHOD)
+  val methodsOnly: ResolveTargets.ValueSet = ValueSet(METHOD)
 
-  val valuesRef = ValueSet(VAL, VAR)
+  val valuesRef: ResolveTargets.ValueSet = ValueSet(VAL, VAR)
+  val varsRef: ResolveTargets.ValueSet   = ValueSet(VAR)
 
-  val varsRef = ValueSet(VAR)
+  val packageRef: ResolveTargets.ValueSet = ValueSet(PACKAGE)
 
-  val packageRef = ValueSet(PACKAGE)
-
-  val annotCtor = ValueSet(CLASS, ANNOTATION)
+  val annotCtor: ResolveTargets.ValueSet = ValueSet(CLASS, ANNOTATION)
 }

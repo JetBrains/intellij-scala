@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package compiler
 
+import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask}
 import com.intellij.openapi.module.{Module, ModuleManager}
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.project._
  * Pavel Fatin
  */
 
-class ServerMediatorTask extends CompileTask {
+class ServerMediatorTask extends BuildManagerListener with CompileTask {
 
   override def execute(context: CompileContext): Boolean = {
     val project = context.getProject
@@ -24,29 +25,7 @@ class ServerMediatorTask extends CompileTask {
       return true
     }
 
-    checkCompilationSettings(project) && startCompileServer(project)
-  }
-
-  private def startCompileServer(project: Project): Boolean = {
-    val settings = ScalaCompileServerSettings.getInstance
-
-    if (settings.COMPILE_SERVER_ENABLED) {
-      invokeAndWait {
-        CompileServerManager.configureWidget(project)
-      }
-
-      if (CompileServerLauncher.needRestart(project)) {
-        CompileServerLauncher.stop()
-      }
-
-      if (!CompileServerLauncher.running) {
-        invokeAndWait {
-          CompileServerLauncher.tryToStart(project)
-        }
-      }
-    }
-
-    true
+    checkCompilationSettings(project)
   }
 
   private def checkCompilationSettings(project: Project): Boolean = {

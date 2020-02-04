@@ -11,8 +11,9 @@ trait KindProjectorSetUp extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProjectAdapter).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.plugins = newSettings.plugins :+ "kind-projector"
+    val newSettings = defaultProfile.getSettings.copy(
+      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+    )
     defaultProfile.setSettings(newSettings)
   }
 }

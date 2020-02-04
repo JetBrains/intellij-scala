@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 final class ScProjectionType private(val projected: ScType,
                                      val element: PsiNamedElement) extends DesignatorOwner {
 
-  override protected def isAliasTypeInner: Option[AliasType] = {
+  override protected def calculateAliasType: Option[AliasType] = {
     actualElement match {
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         val subst: ScSubstitutor = actualSubst
@@ -219,14 +219,16 @@ final class ScProjectionType private(val projected: ScType,
         }
       case _ =>
     }
-    isAliasType match {
-      case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
+
+    this match {
+      case AliasType(_: ScTypeAliasDefinition, lower, _) =>
         return (lower match {
           case Right(tp) => tp
-          case _ => return ConstraintsResult.Left
+          case _         => return ConstraintsResult.Left
         }).equiv(r, constraints, falseUndef)
       case _ =>
     }
+
     r match {
       case t: StdType =>
         element match {
@@ -234,11 +236,11 @@ final class ScProjectionType private(val projected: ScType,
           case _ => ConstraintsResult.Left
         }
       case ParameterizedType(ScProjectionType(_, _), _) =>
-        r.isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
+        r match {
+          case AliasType(_: ScTypeAliasDefinition, lower, _) =>
             this.equiv(lower match {
               case Right(tp) => tp
-              case _ => return ConstraintsResult.Left
+              case _         => return ConstraintsResult.Left
             }, constraints, falseUndef)
           case _ => ConstraintsResult.Left
         }
@@ -255,14 +257,16 @@ final class ScProjectionType private(val projected: ScType,
             }
           case _ =>
         }
-        r.isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
+
+        r match {
+          case AliasType(_: ScTypeAliasDefinition, lower, _) =>
             this.equiv(lower match {
               case Right(tp) => tp
-              case _ => return ConstraintsResult.Left
+              case _         => return ConstraintsResult.Left
             }, constraints, falseUndef)
           case _ =>
         }
+
         if (actualElement != proj2.actualElement) {
           actualElement match {
             case _: ScObject =>

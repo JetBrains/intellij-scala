@@ -116,7 +116,7 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     processor match {
-      case p : ResolveProcessor =>
+      case p: ResolveProcessor =>
         val name = ScalaNamesUtil.clean(state.renamed.getOrElse(p.name))
         methods.get(name) match {
           case Some(ms) => for (method <- ms) {

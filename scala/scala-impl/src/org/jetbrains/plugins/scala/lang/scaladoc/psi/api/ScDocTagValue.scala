@@ -12,13 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDo
  * User: Dmitry Naydanov
  * Date: 11/23/11
  */
-
 trait ScDocTagValue extends PsiDocTagValue with PsiReference with PsiNamedElement {
-  def getValue: String
 
-//  def getName: String = getText
-
-  def setName(name: String): PsiElement = {
+  override def setName(name: String): PsiElement = {
     replace(createDocTagValue(name)(getManager))
     this
   }

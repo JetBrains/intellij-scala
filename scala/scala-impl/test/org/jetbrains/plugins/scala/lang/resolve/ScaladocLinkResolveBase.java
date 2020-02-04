@@ -47,13 +47,14 @@ abstract public class ScaladocLinkResolveBase extends ScalaResolveTestCase {
 
     for (int i : carets) {
       PsiReference ref = getFileAdapter().findReferenceAt(i);
-      assertSize(expectedLength, ((ScReference) ref).multiResolveScala(false));
+      ScalaResolveResult[] results = ((ScReference) ref).multiResolveScala(false);
+      assertSize(expectedLength, results);
 
       if (expectedLength == 0) {
         continue;
       }
 
-      PsiElement resolved = ((ScReference) ref).multiResolveScala(false)[0].getElement();
+      PsiElement resolved = results[0].getElement();
       assertTrue(expectedClass.isAssignableFrom(resolved.getClass()));
 
       final String refText = ((ScReference) ref).getText();

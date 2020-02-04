@@ -198,11 +198,11 @@ package object types {
 
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
-          `type` => `type`.isAliasType match {
-            case Some(AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _)) => ProcessSubtypes
-            case Some(AliasType(ta: ScTypeAliasDefinition, _, Failure(_))) if needExpand(ta) =>
+          `type` => `type` match {
+            case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _) => ProcessSubtypes
+            case AliasType(ta: ScTypeAliasDefinition, _, Failure(_)) if needExpand(ta) =>
               ReplaceWith(projectContext.stdTypes.Any)
-            case Some(AliasType(ta: ScTypeAliasDefinition, _, Right(upper))) if needExpand(ta) =>
+            case AliasType(ta: ScTypeAliasDefinition, _, Right(upper)) if needExpand(ta) =>
               if (visited.contains(`type`)) throw RecursionException
               val updated =
                 try innerUpdate(upper, visited + `type`)
@@ -332,10 +332,6 @@ package object types {
   }
 
   private object RecursionException extends NoStackTrace
-
-  object Aliased {
-    def unapply(tpe: ScType): Option[AliasType] = tpe.isAliasType
-  }
 
   /**
    * Extractor for types, which are function-like

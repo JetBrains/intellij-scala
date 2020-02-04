@@ -47,6 +47,8 @@ public class ScalaCompilerSettingsState {
 
   public boolean featureWarnings = false;
 
+  public boolean strict = false;
+
   public boolean optimiseBytecode = false;
 
   public boolean explainTypeErrors = false;
@@ -56,6 +58,8 @@ public class ScalaCompilerSettingsState {
   public boolean continuations = false;
 
   public DebuggingInfoLevel debuggingInfoLevel = DebuggingInfoLevel.Vars;
+
+  public String dottySbtBridgePath = "";
 
   public boolean hasOption(String optionKey) {
     return ArrayUtil.contains(optionKey, additionalCompilerOptions);
@@ -92,12 +96,14 @@ public class ScalaCompilerSettingsState {
         deprecationWarnings == that.deprecationWarnings &&
         uncheckedWarnings == that.uncheckedWarnings &&
         featureWarnings == that.featureWarnings &&
+        strict == that.strict &&
         optimiseBytecode == that.optimiseBytecode &&
         explainTypeErrors == that.explainTypeErrors &&
         specialization == that.specialization &&
         continuations == that.continuations &&
         Arrays.equals(additionalCompilerOptions, that.additionalCompilerOptions) &&
         Arrays.equals(plugins, that.plugins) &&
-        debuggingInfoLevel == that.debuggingInfoLevel;
+        debuggingInfoLevel == that.debuggingInfoLevel &&
+        dottySbtBridgePath.equals(that.dottySbtBridgePath);
   }
 }

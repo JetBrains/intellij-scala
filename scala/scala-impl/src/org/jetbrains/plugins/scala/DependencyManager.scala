@@ -203,6 +203,7 @@ object DependencyManagerBase {
 
   def scalaReflectDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaDependency("reflect")
 
+
   implicit class RichStr(private val org: String) extends AnyVal {
 
     def %(artId: String) = DependencyDescription(org, artId, "")

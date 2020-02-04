@@ -115,13 +115,12 @@ abstract class BaseCompilationData extends CompilationDataFactory {
   }
 
   def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Array[String] = {
-    val noBootCp = if (CompilerData.needBootCp(chunk.getModules.asScala.toSet))
-      Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
-    else
-      Seq.empty
+    val modules = chunk.getModules.asScala.toSet
+    val hasDotty = CompilerData.hasDotty(modules)
 
-    val scalaOptions = noBootCp ++: compilerSettings.getCompilerOptions
-    scalaOptions
+    val bootCpArgs = CompilerData.bootCpArgs(modules)
+    val otherArgs = compilerSettings.getCompilerOptions.filterNot(_.startsWith("-g:") && hasDotty) // TODO SCL-16881
+    bootCpArgs ++: otherArgs
   }
 
   def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {

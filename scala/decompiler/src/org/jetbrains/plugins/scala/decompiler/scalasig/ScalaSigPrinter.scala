@@ -596,26 +596,27 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
           val path = prefixStr.removeDotPackage
           val name = processName(symbol.name)
           val res = path + name
-          val typeBounds = if (name == "_") {
-            symbol.get match {
-              case ts: TypeSymbol =>
-                ts.infoType match {
-                  case t: TypeBoundsType =>
-                    if (visitedTypeBoundsType.contains(t)) ""
-                    else {
-                      visitedTypeBoundsType += t
-                      try {
-                        toString(t, level)
-                      } finally {
-                        visitedTypeBoundsType -= t
+          val suffix =
+            if (name == "_") {
+              symbol.get match {
+                case ts: TypeSymbol =>
+                  ts.infoType match {
+                    case t: TypeBoundsType =>
+                      if (visitedTypeBoundsType.contains(t)) ""
+                      else {
+                        visitedTypeBoundsType += t
+                        try     toString(t, level)
+                        finally visitedTypeBoundsType -= t
                       }
-                    }
-                  case _ => ""
-                }
-              case _ => ""
-            }
-          } else ""
-          val ress = res.stripPrefix("<empty>.") + typeArgString(typeArgs, level) + typeBounds
+                    case _ => ""
+                  }
+                case _ => ""
+              }
+            } else symbol.get match {
+                case ex: ExternalSymbol if ex.isObject => ".type"
+                case _                                 => ""
+              }
+          val ress = res.stripPrefix("<empty>.") + typeArgString(typeArgs, level) + suffix
           ress
       })
       case TypeBoundsType(lower, upper) =>

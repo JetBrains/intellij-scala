@@ -12,22 +12,18 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Set, mutable}
+import scala.collection.Set
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds)(ref) with PrecedenceHelper {
-
-  import ResolveProcessor._
 
   private object ResolveStrategy extends NameUniquenessStrategy {
 
@@ -35,7 +31,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
     override def computeHashCode(result: ScalaResolveResult): Int = result.qualifiedNameId match {
       case null => 0
-      case id => id.hashCode
+      case id   => id.hashCode
     }
 
     override def equals(left: ScalaResolveResult, right: ScalaResolveResult): Boolean =
@@ -45,17 +41,12 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   @volatile
   private var resolveScope: GlobalSearchScope = _
 
-  private val history = new ArrayBuffer[HistoryEvent]
-  private var fromHistory: Boolean = false
-
   def getResolveScope: GlobalSearchScope = {
     if (resolveScope == null) {
       resolveScope = ref.resolveScope
     }
     resolveScope
   }
-
-  private val ignoredSet = new mutable.HashSet[ScalaResolveResult]()
 
   def getPlace: PsiElement = ref
 
@@ -89,10 +80,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     holder.currentPrecedence <= i
 
   override def changedLevel: Boolean = {
-    if (!fromHistory && !history.lastOption.contains(ChangedLevel)) {
-      history += ChangedLevel
-    }
-
     def update: Boolean = {
       val iterator = levelSet.iterator()
       while (iterator.hasNext) {
@@ -104,9 +91,9 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       false
     }
 
-    if (levelSet.isEmpty) true
+    if (levelSet.isEmpty)                               true
     else if (holder.currentPrecedence == OTHER_MEMBERS) update
-    else !update
+    else                                                !update
   }
 
   def isAccessible(named: PsiNamedElement, place: PsiElement): Boolean = {
@@ -164,52 +151,11 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     }
   }
 
-  override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
-    if (!fromHistory) history += AddResult(results)
-    super.addResults(results)
-  }
-
-  override protected def ignored(results: Seq[ScalaResolveResult]): Boolean = {
-    val result = !fromHistory && super.ignored(results)
-
-    if (result) {
-      ignoredSet ++= results
-    }
-
-    result
-  }
-
-  override protected def clear(): Unit = {
-    ignoredSet.clear()
-    candidatesSet = Set.empty
-    super.clear()
-
-    fromHistory = true
-    try {
-      history.foreach {
-        case ChangedLevel => changedLevel
-        case AddResult(results) => addResults(results)
-      }
-    }
-    finally {
-      fromHistory = false
-    }
-  }
-
   override def candidatesS: Set[ScalaResolveResult] = {
     var res = candidatesSet
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {
       res += iterator.next()
-    }
-    if (!ResolveProcessor.compare(ignoredSet, res)) {
-      res = Set.empty
-      clear()
-      //now let's add everything again
-      val iterator = levelSet.iterator()
-      while (iterator.hasNext) {
-        res += iterator.next()
-      }
     }
 
     /*
@@ -244,30 +190,3 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   override def toString = s"ResolveProcessor($name)"
 }
 
-object ResolveProcessor {
-
-  private sealed trait HistoryEvent
-
-  private case object ChangedLevel extends HistoryEvent
-
-  private case class AddResult(results: Seq[ScalaResolveResult]) extends HistoryEvent
-
-  private def compare(ignoredSet: Set[ScalaResolveResult], set: Set[ScalaResolveResult]): Boolean = {
-    if (ignoredSet.nonEmpty && set.isEmpty) return false
-
-    ignoredSet.forall { ignored =>
-      set.forall { result =>
-        areEquivalent(ignored.getActualElement, result.getActualElement)
-      }
-    }
-  }
-
-  private[this] def areEquivalent(left: PsiNamedElement, right: PsiNamedElement): Boolean =
-    ScEquivalenceUtil.smartEquivalence(left, right) ||
-      isExactAliasFor(left, right) || isExactAliasFor(right, left)
-
-  private[this] def isExactAliasFor(left: PsiNamedElement, right: PsiNamedElement): Boolean =
-    left.isInstanceOf[ScTypeAliasDefinition] &&
-      right.isInstanceOf[PsiClass] &&
-      left.asInstanceOf[ScTypeAliasDefinition].isExactAliasFor(right.asInstanceOf[PsiClass])
-}

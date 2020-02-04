@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.project.NamedValueRenderer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.Method;
+import java.util.ResourceBundle;
 
 /**
  * @author Pavel Fatin
@@ -149,11 +151,11 @@ public class ScalaCompilerSettingsPanel {
     }
 
     public void saveTo(ScalaCompilerSettingsProfile profile) {
-        profile.setSettings(new ScalaCompilerSettings(getState()));
+        profile.setSettings(ScalaCompilerSettings.fromState(getState()));
     }
 
     public void setProfile(ScalaCompilerSettingsProfile profile) {
-        setState(profile.getSettings().getState());
+        setState(profile.getSettings().toState());
     }
 
     {
@@ -180,126 +182,161 @@ public class ScalaCompilerSettingsPanel {
         panel1.setLayout(new GridLayoutManager(13, 2, new Insets(0, 0, 10, 0), -1, -1));
         myContentPanel.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        label1.setText("Additional compiler options:");
-        label1.setDisplayedMnemonic('O');
-        label1.setDisplayedMnemonicIndex(20);
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "additional.compiler.options"));
         panel1.add(label1, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myAdditionalCompilerOptions = new RawCommandLineEditor();
-        myAdditionalCompilerOptions.setDialogCaption("Additional command-line parameters for Scala compiler");
+        myAdditionalCompilerOptions.setDialogCaption("");
         panel1.add(myAdditionalCompilerOptions, new GridConstraints(12, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
         final JLabel label2 = new JLabel();
-        label2.setText("Debugging info level:");
-        label2.setDisplayedMnemonic('L');
-        label2.setDisplayedMnemonicIndex(15);
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "debugging.info.level"));
         panel1.add(label2, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myDebuggingInfoLevel = new JComboBox();
         panel1.add(myDebuggingInfoLevel, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myWarnings = new JCheckBox();
-        myWarnings.setText("Enable warnings");
-        myWarnings.setMnemonic('W');
-        myWarnings.setDisplayedMnemonicIndex(7);
-        myWarnings.setToolTipText("Generate warnings");
+        this.$$$loadButtonText$$$(myWarnings, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "enable.warnings"));
+        myWarnings.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "enable.warnings.tooltip"));
         panel1.add(myWarnings, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myDeprecationWarnings = new JCheckBox();
-        myDeprecationWarnings.setText("Deprecation warnings");
-        myDeprecationWarnings.setMnemonic('D');
-        myDeprecationWarnings.setDisplayedMnemonicIndex(0);
-        myDeprecationWarnings.setToolTipText("Emit warning and location for usages of deprecated APIs.");
+        this.$$$loadButtonText$$$(myDeprecationWarnings, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "deprecation.warnings"));
+        myDeprecationWarnings.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "deprecation.warnings.tooltip"));
         panel1.add(myDeprecationWarnings, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myUncheckedWarnings = new JCheckBox();
-        myUncheckedWarnings.setText("Unchecked warnings");
-        myUncheckedWarnings.setMnemonic('U');
-        myUncheckedWarnings.setDisplayedMnemonicIndex(0);
-        myUncheckedWarnings.setToolTipText(" Enable additional warnings where generated code depends on assumptions. ");
+        this.$$$loadButtonText$$$(myUncheckedWarnings, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "unchecked.warnings"));
+        myUncheckedWarnings.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "unchecked.warnings.tooltip"));
         panel1.add(myUncheckedWarnings, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myOptimiseBytecode = new JCheckBox();
-        myOptimiseBytecode.setText("Optimise bytecode (use with care*)");
-        myOptimiseBytecode.setMnemonic('O');
-        myOptimiseBytecode.setDisplayedMnemonicIndex(0);
-        myOptimiseBytecode.setToolTipText("Generates faster bytecode by applying optimisations to the program. May trigger various compilation problems. Use with care.");
+        this.$$$loadButtonText$$$(myOptimiseBytecode, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "optimise.bytecode"));
+        myOptimiseBytecode.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "optimise.bytecode.tooltip"));
         panel1.add(myOptimiseBytecode, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myExplainTypeErrors = new JCheckBox();
-        myExplainTypeErrors.setText("Explain type errors");
-        myExplainTypeErrors.setMnemonic('E');
-        myExplainTypeErrors.setDisplayedMnemonicIndex(0);
-        myExplainTypeErrors.setToolTipText("Explain type errors in more detail");
+        this.$$$loadButtonText$$$(myExplainTypeErrors, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "explain.type.errors"));
+        myExplainTypeErrors.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "explain.type.errors.tooltip"));
         panel1.add(myExplainTypeErrors, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(panel2, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
-        label3.setText("Compile order:");
-        label3.setDisplayedMnemonic('O');
-        label3.setDisplayedMnemonicIndex(8);
+        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "compile.order"));
         panel2.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myCompileOrder = new JComboBox();
         panel2.add(myCompileOrder, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final TitledSeparator titledSeparator1 = new TitledSeparator();
-        titledSeparator1.setText("Options");
+        titledSeparator1.setText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "options"));
         panel1.add(titledSeparator1, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myDynamics = new JCheckBox();
-        myDynamics.setText("Dynamics");
-        myDynamics.setMnemonic('D');
-        myDynamics.setDisplayedMnemonicIndex(0);
+        this.$$$loadButtonText$$$(myDynamics, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.dynamics"));
         panel1.add(myDynamics, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myPostfixOps = new JCheckBox();
-        myPostfixOps.setText("Postfix operator notation");
-        myPostfixOps.setMnemonic('P');
-        myPostfixOps.setDisplayedMnemonicIndex(0);
+        this.$$$loadButtonText$$$(myPostfixOps, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.postfix.notation"));
         panel1.add(myPostfixOps, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myHigherKinds = new JCheckBox();
-        myHigherKinds.setText("Higher-kinded types");
-        myHigherKinds.setMnemonic('H');
-        myHigherKinds.setDisplayedMnemonicIndex(0);
+        this.$$$loadButtonText$$$(myHigherKinds, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.higher.kinded.types"));
         panel1.add(myHigherKinds, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myExistentials = new JCheckBox();
-        myExistentials.setText("Existential types");
-        myExistentials.setMnemonic('E');
-        myExistentials.setDisplayedMnemonicIndex(0);
+        this.$$$loadButtonText$$$(myExistentials, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.existential.types"));
         panel1.add(myExistentials, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final TitledSeparator titledSeparator2 = new TitledSeparator();
-        titledSeparator2.setText("Features");
+        titledSeparator2.setText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "features"));
         panel1.add(titledSeparator2, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myFeatureWarnings = new JCheckBox();
-        myFeatureWarnings.setText("Feature warnings");
-        myFeatureWarnings.setMnemonic('F');
-        myFeatureWarnings.setDisplayedMnemonicIndex(0);
-        myFeatureWarnings.setToolTipText("Emit language feature warnings. ");
+        this.$$$loadButtonText$$$(myFeatureWarnings, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.warnings"));
+        myFeatureWarnings.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.warnings.tooltip"));
         panel1.add(myFeatureWarnings, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myImplicitConversions = new JCheckBox();
-        myImplicitConversions.setText("Implicit conversions");
-        myImplicitConversions.setMnemonic('I');
-        myImplicitConversions.setDisplayedMnemonicIndex(0);
+        this.$$$loadButtonText$$$(myImplicitConversions, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.implicit.conversions"));
         panel1.add(myImplicitConversions, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myMacros = new JCheckBox();
-        myMacros.setText("Macros");
-        myMacros.setMnemonic('M');
-        myMacros.setDisplayedMnemonicIndex(0);
+        this.$$$loadButtonText$$$(myMacros, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.macros"));
         panel1.add(myMacros, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myReflectiveCalls = new JCheckBox();
-        myReflectiveCalls.setText("Reflective calls");
-        myReflectiveCalls.setMnemonic('R');
-        myReflectiveCalls.setDisplayedMnemonicIndex(0);
+        this.$$$loadButtonText$$$(myReflectiveCalls, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.reflective.calls"));
         panel1.add(myReflectiveCalls, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myContinuations = new JCheckBox();
-        myContinuations.setText("Enable continuations");
-        myContinuations.setMnemonic('C');
-        myContinuations.setDisplayedMnemonicIndex(7);
+        this.$$$loadButtonText$$$(myContinuations, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "enable.continuations"));
         panel1.add(myContinuations, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mySpecialization = new JCheckBox();
-        mySpecialization.setText("Enable specialization");
-        mySpecialization.setMnemonic('S');
-        mySpecialization.setDisplayedMnemonicIndex(7);
-        mySpecialization.setToolTipText("Respect @specialize annotations");
+        this.$$$loadButtonText$$$(mySpecialization, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "enable.specialization"));
+        mySpecialization.setToolTipText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "enable.specialization.tooltip"));
         panel1.add(mySpecialization, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myExperimental = new JCheckBox();
-        myExperimental.setText("Experimental Features");
-        myExperimental.setMnemonic('X');
-        myExperimental.setDisplayedMnemonicIndex(1);
+        this.$$$loadButtonText$$$(myExperimental, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "feature.experimental.features"));
         panel1.add(myExperimental, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final TitledSeparator titledSeparator3 = new TitledSeparator();
-        titledSeparator3.setText("Compiler plugins");
+        titledSeparator3.setText(this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "compiler.plugins"));
         myContentPanel.add(titledSeparator3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        label2.setLabelFor(myDebuggingInfoLevel);
+        label3.setLabelFor(myCompileOrder);
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadLabelText$$$(JLabel component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
     }
 
     /**
@@ -308,4 +345,5 @@ public class ScalaCompilerSettingsPanel {
     public JComponent $$$getRootComponent$$$() {
         return myContentPanel;
     }
+
 }

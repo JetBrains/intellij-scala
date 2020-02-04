@@ -18,11 +18,16 @@ class PartialUnificationCatsHighlightingTest_2_12 extends ScalaLightCodeInsightF
 
   override def setUp(): Unit = {
     super.setUp()
-    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
+    val moduleProfile = getModule.scalaCompilerSettingsProfile
+    val newModuleSettings = moduleProfile.getSettings.copy(
+      additionalCompilerOptions = Seq("-Ypartial-unification")
+    )
+    moduleProfile.setSettings(newModuleSettings)
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.plugins = newSettings.plugins :+ "kind-projector"
+    val newSettings = defaultProfile.getSettings.copy(
+      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+    )
     defaultProfile.setSettings(newSettings)
   }
 

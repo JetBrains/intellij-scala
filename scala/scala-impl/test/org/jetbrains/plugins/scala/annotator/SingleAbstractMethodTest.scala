@@ -775,8 +775,9 @@ class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.experimental = true
+    val newSettings = defaultProfile.getSettings.copy(
+      experimental = true
+    )
     defaultProfile.setSettings(newSettings)
   }
 

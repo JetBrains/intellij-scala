@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiC
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard, ModCount}
 
@@ -85,22 +84,25 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
 
   override def isCase: Boolean = hasModifierProperty("case")
 
-  override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
-                                   state: ResolveState,
-                                   lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
-    if (DumbService.getInstance(getProject).isDumb) return true
-    if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
-    if (isPackageObject && name != "`package`") {
-      val newState = state.withFromType(None)
-      val qual = qualifiedName
-      val facade = JavaPsiFacade.getInstance(getProject)
-      val pack = facade.findPackage(qual) //do not wrap into ScPackage to avoid SOE
-      if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, newState, lastParent, place))
-        return false
-    }
-    true
-  }
+  override def processDeclarationsForTemplateBody(
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean =
+    if (DumbService.getInstance(getProject).isDumb) true
+    else if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place)) false
+    else if (isPackageObject && name != "`package`") {
+      JavaPsiFacade.getInstance(getProject)
+        // do not wrap into ScPackage to avoid SOE
+        .findPackage(qualifiedName) match {
+        case null => true
+        case pack =>
+          val newState = state.withFromType(None)
+
+          ScPackageImpl.packageProcessDeclarations(pack)(processor, newState, lastParent, place)(ScalaPsiManager.instance)
+      }
+    } else true
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
@@ -131,7 +133,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   private def getModuleField: Option[PsiField] = {
     def hasJavaKeywords(qName: String) =
       qName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))
-    
+
     if (Option(getQualifiedName).forall(hasJavaKeywords))
       None
     else

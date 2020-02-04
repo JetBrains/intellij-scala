@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
+import java.net.URL
 
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.module.SbtModuleType
 
@@ -53,6 +54,13 @@ package object project {
     def hasRuntimeLibrary: Boolean = name.exists(isRuntimeLibrary)
 
     private def name: Option[String] = Option(library.getName)
+
+    def jarUrls: Set[URL] =
+      library
+        .getFiles(OrderRootType.CLASSES)
+        .map(_.getPath)
+        .map(path => new URL(s"jar:file://$path"))
+        .toSet
   }
 
   object LibraryExt {
@@ -83,6 +91,9 @@ package object project {
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     private def scalaModuleSettings: Option[ScalaModuleSettings] =
       ScalaModuleSettings(module)
+
+    def isBuildModule: Boolean =
+      module.getName.endsWith("-build")
 
     def isSourceModule: Boolean = SbtModuleType.unapply(module).isEmpty
 
@@ -147,11 +158,14 @@ package object project {
     def isTrailingCommasEnabled: Boolean =
       scalaModuleSettings.exists(_.isTrailingCommasEnabled)
 
+    def scalaCompilerSettingsProfile: ScalaCompilerSettingsProfile =
+      compilerConfiguration.getProfileForModule(module)
+
     def scalaCompilerSettings: ScalaCompilerSettings =
       compilerConfiguration.getSettingsForModule(module)
 
     def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]): Unit =
-      compilerConfiguration.configureSettingsForModule(module, source, options)
+      compilerConfiguration.configureSettingsForModule(module, source, ScalaCompilerSettings.fromOptions(options))
 
     def scalaLanguageLevel: Option[ScalaLanguageLevel] =
       scalaModuleSettings.map(_.scalaLanguageLevel)

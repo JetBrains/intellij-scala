@@ -87,7 +87,7 @@ class ILoopWrapperFactoryHandler {
                                   client: Client): Unit = {
     // sources containing ILoopWrapper213Impl.scala and ILoopWrapperImpl.scala
     val sourceJar = {
-      val jpsJarsFolder = sbtData.sourceJars._2_11.getParent
+      val jpsJarsFolder = sbtData.compilerBridges.scala._2_11.getParent
       new File(jpsJarsFolder, "repl-interface-sources.jar")
     }
     val interfaceJar = sbtData.compilerInterfaceJar

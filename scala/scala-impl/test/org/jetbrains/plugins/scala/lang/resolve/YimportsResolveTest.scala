@@ -15,8 +15,9 @@ class YimportsResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with S
 
   private[this] def setCompilerOptions(options: String*): Unit = {
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings    = defaultProfile.getSettings
-    newSettings.additionalCompilerOptions = options
+    val newSettings    = defaultProfile.getSettings.copy(
+      additionalCompilerOptions = options
+    )
     defaultProfile.setSettings(newSettings)
   }
 

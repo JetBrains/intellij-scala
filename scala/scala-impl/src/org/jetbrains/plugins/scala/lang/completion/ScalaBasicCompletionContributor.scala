@@ -24,12 +24,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 import scala.annotation.tailrec
@@ -55,8 +53,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                                   result: CompletionResultSet): Unit = {
         val dummyPosition = positionFromParameters(parameters)
 
-        val (inString, inInterpolatedString) = isInString(dummyPosition)
-        val maybePosition = (inString, inInterpolatedString) match {
+        val (isInSimpleString, isInInterpolatedString) = isInString(dummyPosition)
+        val maybePosition = (isInSimpleString, isInInterpolatedString) match {
           case (true, true) => return
           case (true, _) =>
             Some(("s" + dummyPosition.getText, dummyPosition, parameters.getPosition))
@@ -81,10 +79,16 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         }
 
         result.restartCompletionWhenNothingMatches()
-        if (!inString && !inInterpolatedString && !ScalaPsiUtil.fileContext(position).isInstanceOf[ScalaFile]) return
 
+        if (!(isInSimpleString ||
+          isInInterpolatedString ||
+          getContextOfType(position, classOf[ScalaFile]) != null)) {
+          return
+        }
+
+        val prefixMatcher = result.getPrefixMatcher
         //if prefix is capitalized, class name completion is enabled
-        val classNameCompletion = shouldRunClassNameCompletion(dummyPosition, result.getPrefixMatcher)(parameters)
+        val classNameCompletion = shouldRunClassNameCompletion(dummyPosition, prefixMatcher)(parameters)
         val lookingForAnnotations: Boolean =
           position.getContainingFile.findElementAt(position.getTextOffset - 1) match {
             case null => false
@@ -92,47 +96,38 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           }
 
         position.getContext match {
-          case ref: ScReference =>
-
+          case reference: ScReferenceImpl =>
             object ValidItem {
 
               private val isInTypeElement = getContextOfType(position, classOf[ScTypeElement]) != null
               private val maybeExpectedTypes = expectedTypeAfterNew(position)(context)
 
-              def unapply(item: ScalaLookupItem): Option[ScalaLookupItem] = if (item.isValid) {
-                if (isInaccessible(item))
-                  return None
-
-                if (inString) item.isInSimpleString = true
-                if (inInterpolatedString) item.isInInterpolatedString = true
-
-                item.element match {
-                  case definition: ScTypeDefinition if filterDuplications(definition, item.isInImport) => None
-                  case clazz: PsiClass if isExcluded(clazz) ||
-                    classNameCompletion ||
-                    (lookingForAnnotations && !clazz.isAnnotationType) => None
-                  case clazz: PsiClass =>
-                    maybeExpectedTypes.map {
-                      _.apply(clazz, createRenamePair(item).toMap)
-                    }.orElse(Some(item))
-                  case _ if lookingForAnnotations => None
-                  case _: ScFun | _: ScClassParameter => Some(item)
-                  case parameter: ScParameter if !item.isNamedParameter =>
-                    validLocalDefinitionItem(item, parameter)
-                  case pattern@(_: ScBindingPattern |
-                                _: ScFieldId) =>
-                    ScalaPsiUtil.nameContext(pattern) match {
-                      case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal =>
-                        validLocalDefinitionItem(item, valueOrVariable)
-                      case ScCaseClause(Some(pattern), _, _) =>
-                        validLocalDefinitionItem(item, pattern)
-                      case patterned: ScPatterned =>
-                        validLocalDefinitionItem(item, patterned)
-                      case _ => Some(item)
-                    }
-                  case _ => Some(item)
-                }
-              } else None
+              def unapply(item: ScalaLookupItem): Option[ScalaLookupItem] = item.element match {
+                case definition: ScTypeDefinition if filterDuplications(definition, item.isInImport) => None
+                case clazz: PsiClass if isExcluded(clazz) ||
+                  classNameCompletion ||
+                  (lookingForAnnotations && !clazz.isAnnotationType) => None
+                case clazz: PsiClass =>
+                  maybeExpectedTypes.map {
+                    _.apply(clazz, createRenamePair(item).toMap)
+                  }.orElse(Some(item))
+                case _ if lookingForAnnotations => None
+                case _: ScFun | _: ScClassParameter => Some(item)
+                case parameter: ScParameter if !item.isNamedParameter =>
+                  validLocalDefinitionItem(item, parameter)
+                case pattern@(_: ScBindingPattern |
+                              _: ScFieldId) =>
+                  ScalaPsiUtil.nameContext(pattern) match {
+                    case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal =>
+                      validLocalDefinitionItem(item, valueOrVariable)
+                    case ScCaseClause(Some(pattern), _, _) =>
+                      validLocalDefinitionItem(item, pattern)
+                    case patterned: ScPatterned =>
+                      validLocalDefinitionItem(item, patterned)
+                    case _ => Some(item)
+                  }
+                case _ => Some(item)
+              }
 
               private def filterDuplications(definition: ScTypeDefinition, isInImport: Boolean) =
                 definition.baseCompanionModule.isDefined &&
@@ -140,21 +135,6 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                     case _: ScObject => isInTypeElement
                     case _ => isInImport
                   })
-
-              private def isInaccessible(item: ScalaLookupItem) = {
-                val checkAccessibility = parameters.getInvocationCount < 2
-                def isAccessible(m: PsiMember) =
-                  ResolveUtils.isAccessible(m, position, forCompletion = true)
-
-                if (checkAccessibility)
-                  item.element match {
-                    case method: FakePsiMethod => method.name.endsWith("_=") //don't show _= methods for vars in basic completion
-                    case cp: ScClassParameter  => !isAccessible(cp) && !item.isNamedParameter
-                    case member: PsiMember     => !isAccessible(member)
-                    case _ => false
-                  }
-                else false
-              }
 
               private def validLocalDefinitionItem(item: ScalaLookupItem, ancestor: ScalaPsiElement) =
                 if (isAncestor(ancestor, position, true)) {
@@ -165,48 +145,47 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 }
             }
 
-            val defaultLookupElements = (ref match {
-              case refImpl: ScStableCodeReferenceImpl =>
-                val processor = new PostProcessor(position)
-                refImpl.doResolve(processor)
-                processor.lookupElements
-              case refImpl: ScReferenceExpressionImpl =>
-                val processor = new PostProcessor(position, isImplicit = true)
-                refImpl.doResolve(processor)
-                processor.lookupElements
-              case refImpl: ScTypeProjectionImpl =>
-                val processor = new PostProcessor(position)
-                refImpl.doResolve(processor)
-                processor.lookupElements
-              case _ => (ref: PsiReference).getVariants.toSeq
-            }).collect {
-              case ValidItem(item) => item
-            } ++ prefixedThisAndSupers(ref)
+            val processor = new PostProcessor(
+              reference,
+              isInSimpleString,
+              isInInterpolatedString,
+              parameters.getInvocationCount
+            )
+            reference.doResolve(processor)
+            val defaultLookupElements = processor.lookupElements.flatMap {
+              case ValidItem(item) => Some(item)
+              case _ => None
+            } ++ prefixedThisAndSupers(reference)
 
             import JavaConverters._
             result.addAllElements(defaultLookupElements.asJava)
 
-            if (!defaultLookupElements.exists(result.getPrefixMatcher.prefixMatches)
+            if (!defaultLookupElements.exists(prefixMatcher.prefixMatches)
               && !classNameCompletion
-              && (lookingForAnnotations || shouldRunClassNameCompletion(dummyPosition, result.getPrefixMatcher, checkInvocationCount = false)(parameters))) {
+              && (lookingForAnnotations || shouldRunClassNameCompletion(dummyPosition, prefixMatcher, checkInvocationCount = false)(parameters))) {
               ScalaClassNameCompletionContributor.completeClassName(dummyPosition, result)(parameters, context)
             }
 
             //adds runtime completions for evaluate expression in debugger
             for {
-              qualifierCastType <- qualifierCastType(ref)
+              qualifierCastType <- qualifierCastType(reference)
               canonicalText = qualifierCastType.canonicalText
-              reference <- createReferenceWithQualifierType(canonicalText)(ref.getContext, ref)
+              newReference <- createReferenceWithQualifierType(canonicalText)(reference.getContext, reference)
 
-              processor = new PostProcessor(reference, isImplicit = true, position) {
+              processor = new PostProcessor(
+                newReference,
+                isInSimpleString,
+                isInInterpolatedString,
+                invocationCount = 3 /* all */ ,
+                qualifierType = Some(qualifierCastType)
+              ) {
 
                 private val lookupStrings = mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
                 private val decorator = insertHandlerDecorator(s".asInstanceOf[$canonicalText]")
 
-                override protected val qualifierType: Some[ScType] = Some(qualifierCastType)
-
                 override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] =
                   super.validLookupElement(result).filter {
+                    // TODO support renamed classes
                     case ValidItem(item) => lookupStrings.add(item.getLookupString)
                     case _ => false
                   }.map {
@@ -214,7 +193,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                   }
               }
             } {
-              reference.doResolve(processor)
+              newReference.doResolve(processor)
               val runtimeLookupElements = processor.lookupElements
               result.addAllElements(runtimeLookupElements.asJava)
             }
@@ -233,20 +212,21 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 object ScalaBasicCompletionContributor {
 
   private class PostProcessor(override val getPlace: ScReference,
-                              override val isImplicit: Boolean,
-                              private val position: PsiElement)
-    extends CompletionProcessor(getPlace.getKinds(incomplete = false, completion = true), getPlace, isImplicit) {
-
-    def this(position: PsiElement, isImplicit: Boolean = false) =
-      this(position.getContext.asInstanceOf[ScReference], isImplicit, position)
+                              private val isInSimpleString: Boolean,
+                              private val isInInterpolatedString: Boolean,
+                              private val invocationCount: Int,
+                              private val qualifierType: Option[ScType] = None)
+    extends CompletionProcessor(
+      getPlace.getKinds(incomplete = false, completion = true),
+      getPlace,
+      isImplicit = getPlace.isInstanceOf[ScReferenceExpression]
+    ) {
 
     private val lookupElements_ = mutable.ArrayBuffer.empty[LookupElement]
 
-    private val containingClass = Option(getContextOfType(position, classOf[PsiClass]))
+    private val containingClass = Option(getContextOfType(getPlace, classOf[PsiClass]))
     private val isInImport = getContextOfType(getPlace, classOf[ScImportStmt]) != null
     private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReference]
-
-    protected val qualifierType: Option[ScType] = None
 
     def lookupElements: Seq[LookupElement] = lookupElements_
 
@@ -254,13 +234,28 @@ object ScalaBasicCompletionContributor {
       lookupElements_ ++= validLookupElement(resolveResult)
     }
 
-    protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] =
-      result.getLookupElement(
-        qualifierType = qualifierType,
-        isInImport = isInImport,
-        containingClass = containingClass,
-        isInStableCodeReference = isInStableCodeReference
-      )
+    protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = result.element match {
+      case element if isAccessible(element, result.isNamedParameter) =>
+        result.getLookupElement(
+          qualifierType = qualifierType,
+          isInImport = isInImport,
+          containingClass = containingClass,
+          isInStableCodeReference = isInStableCodeReference,
+          isInSimpleString = isInSimpleString,
+          isInInterpolatedString = isInInterpolatedString
+        )
+      case _ => None
+    }
+
+    private def isAccessible(element: PsiNamedElement,
+                             isNamedParameter: Boolean): Boolean =
+      completion.regardlessAccessibility(invocationCount) ||
+        (element match {
+          case method: FakePsiMethod => !method.name.endsWith("_=") // TODO unify! // don't show _= methods for vars in basic completion
+          case _: ScClassParameter if isNamedParameter => true
+          case member: PsiMember => completion.isAccessible(member)(getPlace)
+          case _ => true
+        })
   }
 
   private def splitInterpolatedString(interpolated: ScInterpolated,

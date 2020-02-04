@@ -12,7 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaLookupItem, T}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
@@ -161,13 +161,9 @@ object ScalaAfterNewCompletionContributor {
         def renderElement(ignore: LookupElement, presentation: LookupElementPresentation) {
           val tailText = if (isInterface) "{...} " else ""
           presentation.setTailText(" " + tailText + clazz.getPresentation.getLocationString, true)
-          presentation.setIcon(clazz.getIcon(0))
 
-          val isDeprecated = clazz match {
-            case owner: PsiDocCommentOwner => owner.isDeprecated
-            case _ => false
-          }
-          presentation.setStrikeout(isDeprecated)
+          presentation.setIcon(clazz)
+          presentation.setStrikeout(clazz)
 
           val nameText = isRenamed match {
             case Some(newName) => s"$newName <= $name"

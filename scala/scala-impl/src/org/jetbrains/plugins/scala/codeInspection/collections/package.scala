@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -85,15 +85,15 @@ package object collections {
 
   private[collections] val `.to` = invocation("to").from(Array("RichInt", "RichChar", "RichLong", "RichDouble", "RichFloat").map("scala.runtime." + _))
 
-  private[collections] val `!=` = invocation("!=")
-  private[collections] val `==` = invocation(Set("==", "equals"))
-  private[collections] val `>` = invocation(">")
-  private[collections] val `>=` = invocation(">=")
-  private[collections] val `<` = invocation("<")
-  private[collections] val `<=` = invocation("<=")
-  private[collections] val `!` = invocation(Set("!", "unary_!"))
-  private[collections] val `-` = invocation("-")
-  private[collections] val `+` = invocation("+")
+  val `!=`: Qualified = invocation("!=")
+  val `==`: Qualified = invocation(Set("==", "equals"))
+  val `>`: Qualified = invocation(">")
+  val `>=`: Qualified = invocation(">=")
+  val `<`: Qualified = invocation("<")
+  val `<=`: Qualified = invocation("<=")
+  val `!`: Qualified = invocation(Set("!", "unary_!"))
+  val `-`: Qualified = invocation("-")
+  val `+`: Qualified = invocation("+")
 
   private[collections] val `.toCollection` = new Qualified(name => name.startsWith("to") && name != "toString").from(likeCollectionClasses)
   private[collections] val `.toSet` = invocation("toSet").from(likeCollectionClasses)
@@ -341,9 +341,9 @@ package object collections {
 
   def isIndependentOf(expr: ScExpression, parameter: ScParameter): Boolean = {
     var result = true
-    val name = parameter.getName
+    val name = parameter.name
     val visitor = new ScalaRecursiveElementVisitor() {
-      override def visitReferenceExpression(ref: ScReferenceExpression) {
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
         if (ref.refName == name && ref.resolve() == parameter) result = false
         super.visitReferenceExpression(ref)
       }
@@ -357,7 +357,7 @@ package object collections {
       case ref: ScReferenceExpression => ref.resolve()
     }.flatMap {
       case obj: ScObject => Some(obj)
-      case member: ScMember => Option(member.containingClass)
+      case member: PsiMember => Option(member.containingClass)
       case _ => None
     }.exists {
       qualifiedNameFitToPatterns(_, patterns)

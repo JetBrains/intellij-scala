@@ -251,8 +251,9 @@ class ExpandForComprehensionTest_WithBetterMonadicFor extends ExpandForComprehen
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.plugins = newSettings.plugins :+ "better-monadic-for"
+    val newSettings = defaultProfile.getSettings.copy(
+      plugins = defaultProfile.getSettings.plugins :+ "better-monadic-for"
+    )
     defaultProfile.setSettings(newSettings)
   }
 

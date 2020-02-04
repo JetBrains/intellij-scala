@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
+import java.util.UUID
 
-import com.intellij.compiler.server.BuildManager
+import com.intellij.compiler.server.{BuildManager, BuildManagerListener}
 import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManagerCore}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
@@ -33,6 +34,32 @@ import scala.util.control.Exception._
 object CompileServerLauncher {
   private var serverInstance: Option[ServerInstance] = None
   private val LOG = Logger.getInstance(getClass)
+
+  private class Listener extends BuildManagerListener {
+    override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
+      startCompileServer(project)
+    }
+
+    private def startCompileServer(project: Project): Unit = {
+      val settings = ScalaCompileServerSettings.getInstance
+
+      if (settings.COMPILE_SERVER_ENABLED && project.hasScala) {
+        invokeAndWait {
+          CompileServerManager.configureWidget(project)
+        }
+
+        if (CompileServerLauncher.needRestart(project)) {
+          stop()
+        }
+
+        if (!running) {
+          invokeAndWait {
+            tryToStart(project)
+          }
+        }
+      }
+    }
+  }
 
   ShutDownTracker.getInstance().registerShutdownTask(() =>
     if (running) stop()
@@ -88,14 +115,11 @@ object CompileServerLauncher {
 
     compilerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
-        val bootCp = dottyClasspath(project)
-        val bootClassPathLibs = bootCp.map(_.getAbsolutePath)
-        val bootclasspathArg =
-          if (bootClassPathLibs.isEmpty) Nil
-          else Seq("-Xbootclasspath/a:" + bootClassPathLibs.mkString(File.pathSeparator))
-        val classpath = (jdk.tools ++ (presentFiles ++ compilerServerAddtionalCP()))
-          .map(_.canonicalPath)
-          .mkString(File.pathSeparator)
+        val (nailgunCpFiles, classpathFiles) = presentFiles.partition(_.getName contains "nailgun")
+        val nailgunClasspath = nailgunCpFiles
+          .map(_.canonicalPath).mkString(File.pathSeparator)
+        val classpath = (jdk.tools ++ (classpathFiles ++ compilerServerAddtionalCP()))
+          .map(_.canonicalPath).mkString(File.pathSeparator)
 
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
@@ -114,8 +138,8 @@ object CompileServerLauncher {
 
         val extraJvmParameters = CompileServerVmOptionsProvider.implementations.flatMap(_.vmOptionsFor(project))
 
-        val commands = jdk.executable.canonicalPath +: bootclasspathArg ++: "-cp" +: classpath +: jvmParameters ++: shutdownDelayArg ++:
-          extraJvmParameters ++: ngRunnerFqn +: freePort.toString +: id.toString +: Nil
+        val commands = jdk.executable.canonicalPath +: "-cp" +: nailgunClasspath +: jvmParameters ++: shutdownDelayArg ++:
+          extraJvmParameters ++: ngRunnerFqn +: freePort.toString +: id.toString +: classpath +: Nil
 
         val builder = new ProcessBuilder(commands.asJava)
 
@@ -127,7 +151,7 @@ object CompileServerLauncher {
                 .left.map(_.getMessage)
                 .right.map { process =>
           val watcher = new ProcessWatcher(process, "scalaCompileServer")
-          serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), withTimestamps(bootCp), jdk))
+          serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), jdk))
           watcher.startNotify()
           process
         }
@@ -164,7 +188,7 @@ object CompileServerLauncher {
 
   def port: Option[Int] = serverInstance.map(_.port)
 
-  def compileServerSdk(project: Project): Option[Sdk] = {
+  private def compileServerSdk(project: Project): Option[Sdk] = {
     def defaultSdk = BuildManager.getBuildProcessRuntimeSdk(project).first
 
     val settings = ScalaCompileServerSettings.getInstance()
@@ -215,12 +239,6 @@ object CompileServerLauncher {
     }
   }
 
-  def dottyClasspath(project: Project): Seq[File] = Seq.empty
-
-  private def withTimestamps(files: Seq[File]): Set[(File, Long)] = {
-    files.map(f => (f, f.lastModified())).toSet
-  }
-
   def jvmParameters: Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance
     val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
@@ -250,7 +268,7 @@ object CompileServerLauncher {
           case Some(projectJdk) => projectJdk != instance.jdk
           case _ => false
         }
-        workingDirChanged || instance.bootClasspath != withTimestamps(dottyClasspath(project)) || jdkChanged
+        workingDirChanged || jdkChanged
     }
   }
 
@@ -305,7 +323,6 @@ object CompileServerLauncher {
 private case class ServerInstance(watcher: ProcessWatcher,
                                   port: Int,
                                   workingDir: File,
-                                  bootClasspath: Set[(File, Long)],
                                   jdk: JDK) {
   private var stopped = false
 

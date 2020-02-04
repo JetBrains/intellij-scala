@@ -12,7 +12,11 @@ abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBas
 
   override def errorsFromScalaCode(scalaFileText: String): List[Message] = {
     import org.jetbrains.plugins.scala.project._
-    myFixture.getModule.scalaCompilerSettings.additionalCompilerOptions = Seq("-Yliteral-types")
+    val profile = myFixture.getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(
+      additionalCompilerOptions = Seq("-Yliteral-types")
+    )
+    profile.setSettings(newSettings)
     super.errorsFromScalaCode(scalaFileText)
   }
 

@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -19,8 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReference, ScDocTag, ScDocTagValue}
@@ -31,34 +30,45 @@ import scala.collection.{Set, mutable}
  * User: Dmitry Naydanov
  * Date: 11/23/11
  */
+final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with ScDocTagValue with ScDocReference {
 
-class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with ScDocTagValue with ScDocReference {
+  import ResolveTargets._
+
   def nameId: PsiElement = this
 
   override def getName: String = getText
 
   def qualifier: Option[ScalaPsiElement] = None
 
-  def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = Set(ResolveTargets.VAL)
+  override def getKinds(incomplete: Boolean, completion: Boolean): Set[Value] = Set(
+    CLASS,
+    VAL,
+    VAR
+  )
 
   def getSameNameVariants: Array[ScalaResolveResult] = Array.empty
 
   def multiResolveScala(incompleteCode: Boolean): Array[ScalaResolveResult] =
-    doResolve(null, accessibilityCheck = false)
+    doResolve(
+      new ResolveProcessor(getKinds(incompleteCode), this, refName),
+      accessibilityCheck = false
+    )
 
-  override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean): Array[ScalaResolveResult] =
-    getParametersVariants.filter { element =>
-      ScalaNamesUtil.equivalent(element.name, refName)
-    }.map(new ScalaResolveResult(_))
+  override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean): Array[ScalaResolveResult] = {
+    if (!accessibilityCheck) processor.doNotCheckAccessibility()
+
+    getParametersVariants.foreach {
+      processor.execute(_, ResolveState.initial)
+    }
+    processor.candidates
+  }
 
   override def toString: String = "ScalaDocTagValue: " + getText
 
-  def getValue: String = getText
-
   def bindToElement(element: PsiElement): PsiElement = {
     element match {
-      case _ : ScParameter => this
-      case _ : ScTypeParam =>
+      case _: ScParameter => this
+      case _: ScTypeParam =>
         handleElementRename(element.getText)
         this
       case _ => throw new UnsupportedOperationException("Can't bind to this element")

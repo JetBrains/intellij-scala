@@ -189,7 +189,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       case Seq(st, t) if t.ty.isNothing || t.ty.isAny =>
         // if the computed type is nothing or any, the super type can only be more expressive
         Seq(st)
-      case Seq(st, t) if t.ty.isAliasType.isEmpty && t.ty.equiv(st.ty) =>
+      case Seq(st, t) if !t.ty.isAliasType && t.ty.equiv(st.ty) =>
         // if both types are equivalent, use the super type, because it might be a type alias
         // except, of course, the computed type is a type alias then better let the user choose
         Seq(st)

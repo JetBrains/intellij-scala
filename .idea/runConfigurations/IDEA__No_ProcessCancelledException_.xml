@@ -3,7 +3,8 @@
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.intellij.idea.Main" />
     <module name="idea-runner" />
-    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=240m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.ScalaPluginIC/system -Didea.config.path=$USER_HOME$/.ScalaPluginIC/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala -Didea.ProcessCanceledException=disabled -Didea.platform.prefix=Idea" />
+    <shortenClasspath name="ARGS_FILE" />
+    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=240m -XX:+HeapDumpOnOutOfMemoryError -ea --add-exports java.base/jdk.internal.vm=ALL-UNNAMED -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.ScalaPluginIC/system -Didea.config.path=$USER_HOME$/.ScalaPluginIC/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala -Didea.ProcessCanceledException=disabled -Didea.platform.prefix=Idea" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <RunnerSettings RunnerId="Debug">
       <option name="DEBUG_PORT" value="" />

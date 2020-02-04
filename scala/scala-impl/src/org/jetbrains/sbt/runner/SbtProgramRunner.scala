@@ -2,8 +2,7 @@ package org.jetbrains.sbt.runner
 
 import com.intellij.execution.configurations.{RunProfile, RunProfileState, RunnerSettings}
 import com.intellij.execution.executors.DefaultDebugExecutor
-import com.intellij.execution.runners.{BaseProgramRunner, ExecutionEnvironment, GenericProgramRunner, ProgramRunner}
-import org.jetbrains.sbt.shell.SbtShellCommunication
+import com.intellij.execution.runners.{ExecutionEnvironment, GenericProgramRunner, ProgramRunner}
 
 /**
   * User: Dmitry.Naydanov

@@ -22,9 +22,9 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
   override def isModified: Boolean = {
     if (form.getIncrementalityType != configuration.incrementalityType)
       return true
-    if (profilesPanel.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState)
+    if (profilesPanel.getDefaultProfile.getSettings.toState != configuration.defaultProfile.getSettings.toState)
       return true
-    if (!profilesPanel.getModuleProfiles.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState))
+    if (!profilesPanel.getModuleProfiles.corresponds(configuration.customProfiles)(_.getSettings.toState == _.getSettings.toState))
       return true
 
     false

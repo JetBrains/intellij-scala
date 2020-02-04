@@ -1,28 +1,24 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Type Inference Tests" type="JUnit" factoryName="JUnit">
+    <module name="scalaCommunity" />
+    <shortenClasspath name="ARGS_FILE" />
+    <useClassPathOnly />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
       <pattern>
         <option name="PATTERN" value="org.jetbrains.plugins.scala.lang.typeInference.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
-    <module name="scalaCommunity" />
-    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-    <option name="ALTERNATIVE_JRE_PATH" value="" />
     <option name="PACKAGE_NAME" value="org.jetbrains.plugins.scala.lang.typeInference" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="package" />
-    <option name="VM_PARAMETERS" value="-Xms128m -Xmx1024m -ea -Didea.system.path=$USER_HOME$/.ScalaPluginIC/test-system -Didea.config.path=$USER_HOME$/.ScalaPluginIC/test-config -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala" />
+    <option name="VM_PARAMETERS" value="-Xms128m -Xmx1024m -ea --add-exports java.base/jdk.internal.vm=ALL-UNNAMED -Didea.system.path=$USER_HOME$/.ScalaPluginIC/test-system -Didea.config.path=$USER_HOME$/.ScalaPluginIC/test-config -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala" />
     <option name="PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
-    <option name="ENV_VARIABLES" />
-    <option name="PASS_PARENT_ENVS" value="true" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="TEST_SEARCH_SCOPE">
       <value defaultName="moduleWithDependencies" />
     </option>
-    <envs />
-    <patterns />
     <RunnerSettings RunnerId="Debug">
       <option name="DEBUG_PORT" value="" />
       <option name="TRANSPORT" value="0" />

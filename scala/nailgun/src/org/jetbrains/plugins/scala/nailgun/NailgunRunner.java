@@ -6,6 +6,9 @@ import com.martiansoftware.nailgun.NGServer;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,6 +16,8 @@ import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
@@ -30,21 +35,38 @@ public class NailgunRunner {
   private static final String STOP_CLASS_NAME = "com.martiansoftware.nailgun.builtins.NGStop";
 
   public static void main(String[] args) throws IOException, ClassNotFoundException {
-    if (args.length != 2) throw new IllegalArgumentException("Usage: NailgunRunner [port] [id]");
+    if (args.length != 3) throw new IllegalArgumentException("Usage: NailgunRunner [port] [id] [classpath]");
 
     InetAddress address = InetAddress.getByName(null);
     int port = Integer.parseInt(args[0]);
     String id = args[1];
+    URLClassLoader classLoader = constructClassLoader(args[2]);
 
     writeTokenTo(tokenPathFor(port), UUID.randomUUID());
 
-    NGServer server = createServer(address, port, id);
+    NGServer server = createServer(address, port, id, classLoader);
 
     Thread thread = new Thread(server);
     thread.setName("NGServer(" + address.toString() + ", " + port + "," + id + ")");
+    thread.setContextClassLoader(classLoader);
     thread.start();
 
     Runtime.getRuntime().addShutdownHook(new ShutdownHook(server));
+  }
+
+  private static URLClassLoader constructClassLoader(String classpath) {
+    Function<String, URL> pathToUrl = path -> {
+      try {
+        return new File(path).toURI().toURL();
+      } catch (MalformedURLException e) {
+        throw new RuntimeException(e);
+      }
+    };
+
+    URL[] urls = Stream.of(classpath.split(File.pathSeparator))
+            .map(pathToUrl)
+            .toArray(URL[]::new);
+    return new URLClassLoader(urls, NailgunRunner.class.getClassLoader());
   }
 
   private static Path tokenPathFor(int port) {
@@ -72,16 +94,16 @@ public class NailgunRunner {
     }
   }
 
-  private static NGServer createServer(InetAddress address, int port, String id)
+  private static NGServer createServer(InetAddress address, int port, String id, URLClassLoader classLoader)
       throws ClassNotFoundException {
     NGServer server = new NGServer(address, port);
 
     server.setAllowNailsByClassName(false);
 
-    Class serverClass = Class.forName(SERVER_CLASS_NAME);
+    Class<?> serverClass = classLoader.loadClass(SERVER_CLASS_NAME);
     server.getAliasManager().addAlias(new Alias(SERVER_ALIAS, SERVER_DESCRIPTION, serverClass));
 
-    Class stopClass = Class.forName(STOP_CLASS_NAME);
+    Class<?> stopClass = classLoader.loadClass(STOP_CLASS_NAME);
     String stopAlias = STOP_ALIAS_START + id;
     server.getAliasManager().addAlias(new Alias(stopAlias, "", stopClass));
 

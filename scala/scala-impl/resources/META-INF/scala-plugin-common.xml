@@ -478,6 +478,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerErrorsListener$State"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
@@ -501,6 +502,9 @@
                                           implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileViewProviderFactory"/>
         <filetype.stubBuilder filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileStubBuilder"/>
         <filetype.decompiler filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileDecompiler"/>
+
+        <registryKey key="scala.show.compiler.errors.in.editor" defaultValue="false" restartRequired="false"
+                     description="Show errors from scala compiler in the editor"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
@@ -880,6 +884,16 @@
                          displayName="Wrong platform method usage"
                          language="Scala" groupPath="Scala" groupName="Internal"
                          isInternal="true" level="WARNING" enabledByDefault="true"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.ScalaShouldBeTextContainsInspection"
+                         bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                         key="internal.getText.contains.shouldBe.textContains"
+                         language="Scala" groupPath="Scala" groupName="Internal"
+                         isInternal="true" level="WARNING" enabledByDefault="true" />
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.ScalaShouldBeTextMatchesInspection"
+                         bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                         key="internal.getText.equals.shouldBe.textMatches"
+                         language="Scala" groupPath="Scala" groupName="Internal"
+                         isInternal="true" level="WARNING" enabledByDefault="true" />
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.bundled.BundledCompoundInspection"
                          displayName="Scala bundled inspections runner" groupPath="Scala" groupName="General"
@@ -1388,6 +1402,8 @@
                   class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassesListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
+        <listener topic="com.intellij.compiler.server.BuildManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
     </applicationListeners>
 
     <projectListeners>
@@ -1397,6 +1413,9 @@
                   class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetEditorListener"/>
         <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
                   class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetDumbModeListener"/>
+
+        <listener topic="com.intellij.openapi.compiler.CompilationStatusListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.CompilerErrorsListener"/>
     </projectListeners>
 
     <project-components>

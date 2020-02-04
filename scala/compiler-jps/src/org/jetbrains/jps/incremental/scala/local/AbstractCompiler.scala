@@ -18,7 +18,6 @@ import scala.collection.JavaConverters._
  */
 abstract class AbstractCompiler extends Compiler {
 
-
   def getReporter(client: Client): Reporter = new ClientReporter(client)
 
   def getLogger(client: Client, zincLogFilter: ZincLogFilter): Logger = new ClientLogger(client, zincLogFilter) with JavacOutputParsing
@@ -71,14 +70,6 @@ abstract class AbstractCompiler extends Compiler {
         lastTimeChecked = time
         !client.isCanceled
       } else true
-    }
-
-    def generated(source: File, module: File, name: String): Unit = {
-      client.generated(source, module, name)
-    }
-
-    def deleted(module: File) {
-      client.deleted(module)
     }
   }
 

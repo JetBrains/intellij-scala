@@ -24,14 +24,29 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
   import template.Artifact.ScalaCompiler.{versionOf => ScalaCompilerVersion}
 
   protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
-    for {
-      descriptor <- scalaCompilerDescription ::
-        scalaLibraryDescription ::
-        scalaReflectDescription ::
-        Nil
-
-      if includeScalaReflect || !descriptor.artId.contains("reflect")
-    } yield descriptor
+    version match { // TODO maybe refactoring?
+      case Scala_3_0 =>
+        List(
+          scalaCompilerDescription,
+          scalaLibraryDescription,
+          scalaLibraryDescription(Scala_2_13),
+          DependencyDescription("ch.epfl.lamp", s"tasty-core_${version.major}", version.minor),
+          DependencyDescription("ch.epfl.lamp", "dotty-interfaces", version.minor),
+          DependencyDescription("org.scala-lang.modules", "scala-asm", "7.0.0-scala-1")
+        )
+      case _ =>
+        if (includeScalaReflect)
+          List(
+            scalaCompilerDescription,
+            scalaLibraryDescription,
+            scalaReflectDescription
+          )
+        else
+          List(
+            scalaCompilerDescription,
+            scalaLibraryDescription
+          )
+    }
 
   protected def sourcesDependency(implicit version: ScalaVersion): DependencyDescription =
     scalaLibraryDescription % Types.SRC

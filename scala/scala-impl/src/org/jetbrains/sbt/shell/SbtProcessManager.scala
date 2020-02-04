@@ -203,7 +203,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   }
 
   private def notifyVersionUpgrade(projectSbtVersion: String, upgradedSbtVersion: Version, projectPath: File): Unit = {
-    val message = s"Started sbt shell with sbt version ${upgradedSbtVersion.presentation} instead of ${projectSbtVersion} configured by project."
+    val message = s"Started sbt shell with sbt version ${upgradedSbtVersion.presentation} instead of $projectSbtVersion configured by project."
     val notification = SbtShellNotifications.notificationGroup.createNotification(message, MessageType.INFO)
 
     notification.addAction(new UpdateSbtVersionAction(projectPath))
@@ -271,7 +271,6 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   }
 
   private object ConfigureProjectJdkAction extends NotificationAction("&Configure project jdk") {
-    override def startInTransaction(): Boolean = true
 
     // copied from ShowStructureSettingsAction
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
@@ -420,7 +419,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   @TraceWithLogger
   def destroyProcess(): Unit = processData.synchronized {
     processData match {
-      case Some(ProcessData(handler, runner)) =>
+      case Some(ProcessData(handler, _)) =>
         handler.destroyProcess()
         processData = None
       case None => // nothing to do

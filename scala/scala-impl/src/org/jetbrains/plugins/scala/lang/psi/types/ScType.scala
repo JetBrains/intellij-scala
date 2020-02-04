@@ -11,17 +11,19 @@ trait ScType extends project.ProjectContextOwner {
 
   def typeSystem: api.TypeSystem = projectContext.typeSystem
 
-  private var aliasType: Option[AliasType] = null
+  private var aliasTypeInner: Option[AliasType] = _
 
-  final def isAliasType: Option[AliasType] = {
-    if (aliasType == null) {
+  final def aliasType: Option[AliasType] = {
+    if (aliasTypeInner == null) {
       ProgressManager.checkCanceled()
-      aliasType = isAliasTypeInner
+      aliasTypeInner = calculateAliasType
     }
-    aliasType
+    aliasTypeInner
   }
 
-  private var unpacked: ScType = null
+  final def isAliasType: Boolean = aliasType.isDefined
+
+  private var unpacked: ScType = _
 
   final def unpackedType: ScType = {
     if (unpacked == null) {
@@ -31,7 +33,7 @@ trait ScType extends project.ProjectContextOwner {
     unpacked
   }
 
-  protected def isAliasTypeInner: Option[AliasType] = None
+  protected def calculateAliasType: Option[AliasType] = None
 
   override final def toString: String = extensions.ifReadAllowed {
     presentableText(TypePresentationContext.emptyContext)

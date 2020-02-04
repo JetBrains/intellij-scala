@@ -15,13 +15,24 @@ import scala.util.{Failure, Success, Try}
  */
 case class SbtData(sbtInterfaceJar: File,
                    compilerInterfaceJar: File,
-                   sourceJars: SbtData.SourceJars,
+                   compilerBridges: SbtData.CompilerBridges,
                    interfacesHome: File,
                    javaClassVersion: String)
 
 object SbtData {
 
-  case class SourceJars(_2_10: File, _2_11: File, _2_13: File)
+  case class CompilerBridges(scala: ScalaSourceJars, dotty: DottyJars)
+
+  /**
+   * Contains sources of the scala compiler bridges.
+   * We must compile sources to use bridges.
+   */
+  case class ScalaSourceJars(_2_10: File, _2_11: File, _2_13: File)
+
+  /**
+   * Contains already compiled dotty compiler bridges.
+   */
+  case class DottyJars(_0_21: File)
 
   val compilerInterfacesKey = "scala.compiler.interfaces.dir"
 
@@ -48,17 +59,26 @@ object SbtData {
           for {
             sbtInterfaceJar      <- fileWithName("sbt-interface.jar")
             compilerInterfaceJar <- fileWithName("compiler-interface.jar")
-            source_2_10          <- fileWithName("compiler-interface-sources-2.10.jar")
-            source_2_11          <- fileWithName("compiler-interface-sources-2.11.jar")
-            source_2_13          <- fileWithName("compiler-interface-sources-2.13.jar")
+            scalaBridge_2_10     <- fileWithName("compiler-interface-sources-2.10.jar")
+            scalaBridge_2_11     <- fileWithName("compiler-interface-sources-2.11.jar")
+            scalaBridge_2_13     <- fileWithName("compiler-interface-sources-2.13.jar")
+            dottyBridge_0_21     <- fileWithName("dotty-sbt-bridge-0.21.jar")
             sbtVersion           <- readSbtVersionFrom(sbtInterfaceJar)
           } yield {
 
-            val checksum = encodeHex(md5(source_2_10))
+            val checksum = encodeHex(md5(scalaBridge_2_10))
             val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
-            val sources = SourceJars(source_2_10, source_2_11, source_2_13)
+            val scalaBridgeSources = ScalaSourceJars(
+              _2_10 = scalaBridge_2_10,
+              _2_11 = scalaBridge_2_11,
+              _2_13 = scalaBridge_2_13
+            )
+            val dottyBridges = DottyJars(
+              _0_21 = dottyBridge_0_21
+            )
+            val compilerBridges = CompilerBridges(scalaBridgeSources, dottyBridges)
 
-            new SbtData(sbtInterfaceJar, compilerInterfaceJar, sources, interfacesHome, javaClassVersion)
+            new SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
           }
       }
     }

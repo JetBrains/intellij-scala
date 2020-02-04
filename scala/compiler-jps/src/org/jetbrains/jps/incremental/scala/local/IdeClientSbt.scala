@@ -35,8 +35,6 @@ class IdeClientSbt(compilerName: String,
     consumer.registerCompiledClass(target, compiledClass)
   }
 
-  def processed(source: File): Unit = {}
-
   // TODO Expect JPS compiler in UI-designer to take generated class events into account
   private val FormsToCompileKey = catching(classOf[ClassNotFoundException], classOf[NoSuchFieldException]).opt {
     val field = Class.forName("org.jetbrains.jps.uiDesigner.compiler.FormsBuilder").getDeclaredField("FORMS_TO_COMPILE")

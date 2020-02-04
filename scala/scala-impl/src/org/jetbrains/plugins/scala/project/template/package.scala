@@ -152,11 +152,18 @@ package object template {
 
   private[this] def vmOptions = {
     import JavaConverters._
-    net.HttpConfigurable.getInstance
+    val proxyOpts = net.HttpConfigurable.getInstance
       .getJvmProperties(false, null)
       .asScala
+    val javaOpts = Seq(sysprop("java.io.tmpdir")).flatten
+    (proxyOpts ++ javaOpts)
       .map { pair =>
         "-D" + pair.getFirst + "=" + pair.getSecond
       }
+  }
+
+  private def sysprop(key: String) = {
+    import com.intellij.openapi.util.Pair
+    Option(System.getProperty(key)).map(value => Pair.pair(key, value))
   }
 }

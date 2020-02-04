@@ -273,7 +273,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case _: WildcardType => "?"
       case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
       case TypeLambda(text)          => text
-      case FunctionType(ret, params) if t.isAliasType.isEmpty =>
+      case FunctionType(ret, params) if !t.isAliasType =>
         val paramsText = params match {
           case Seq(fun @ FunctionType(_, _)) => innerTypeText(fun).parenthesize()
           case Seq(tup @ TupleType(tps)) => innerTypeText(tup).parenthesize()

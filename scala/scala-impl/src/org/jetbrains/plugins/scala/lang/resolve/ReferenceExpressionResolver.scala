@@ -212,9 +212,14 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     else result
   }
 
-  def doResolve(ref: ScReferenceExpression, processor: BaseProcessor, accessibilityCheck: Boolean = true,
-                tryThisQualifier: Boolean = false): Array[ScalaResolveResult] = {
-    def resolveUnqalified(processor: BaseProcessor): BaseProcessor = {
+  def doResolve(
+    ref:                ScReferenceExpression,
+    processor:          BaseProcessor,
+    accessibilityCheck: Boolean = true,
+    tryThisQualifier:   Boolean = false
+  ): Array[ScalaResolveResult] = {
+
+    def resolveUnqalified(processor: BaseProcessor): BaseProcessor =
       ref.getContext match {
         case ScSugarCallExpr(operand, operation, _) if ref == operation =>
           processTypes(operand, processor)
@@ -222,11 +227,10 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           resolveUnqualifiedExpression(processor)
           processor
       }
-    }
 
-    def resolveUnqualifiedExpression(processor: BaseProcessor) {
+    def resolveUnqualifiedExpression(processor: BaseProcessor): Unit = {
       @tailrec
-      def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+      def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
         if (place == null) return
         if (!place.processDeclarations(processor, ScalaResolveState.empty, lastParent, ref)) return
         place match {
@@ -237,15 +241,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       val context = ref.getContext
+
       val contextElement = (context, processor) match {
         case (x: ScAssignment, _) if x.leftExpression == ref => Some(context)
-        case (_, _: DependencyProcessor) => None
-        case (_, _: CompletionProcessor) => Some(ref)
-        case _ => None
+        case (_, _: DependencyProcessor)                     => None
+        case (_, _: CompletionProcessor)                     => Some(ref)
+        case _                                               => None
       }
 
       contextElement.foreach(processAssignment(_, processor))
-
       treeWalkUp(ref, null)
     }
 
@@ -285,7 +289,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
       for (variant <- callReference.multiResolveScala(false)) {
         def processResult(r: ScalaResolveResult) = r match {
-          case ScalaResolveResult(fun: ScFunction, _) if isApplyDynamicNamed(r) =>
+          case ScalaResolveResult(_: ScFunction, _) if isApplyDynamicNamed(r) =>
             addParamForApplyDynamicNamed()
           case ScalaResolveResult(_, _) if call.applyOrUpdateElement.exists(isApplyDynamicNamed) =>
             addParamForApplyDynamicNamed()

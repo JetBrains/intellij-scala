@@ -176,7 +176,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     this.bind() match {
       case Some(srr) => convertBindToType(srr)
       case _ if getContainingFile.asOptionOf[ScalaFile].exists(_.isMultipleDeclarationsAllowed) =>
-        multiResolveScala(false).headOption.map(convertBindToType).getOrElse(resolveFailure)
+        val priorDeclarations = multiResolveScala(false).filter(
+          result => result.element.getContainingFile == getContainingFile && result.element.getTextOffset < getTextOffset
+        )
+
+        if (priorDeclarations.nonEmpty) convertBindToType(priorDeclarations.maxBy(_.element.getTextOffset)) else resolveFailure
       case _ => resolveFailure
     }
   }
@@ -218,10 +222,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case Some(downer: DesignatorOwner)     => downer.isStable
       case Some(other) if !t.conforms(other) =>
         other match {
-          case Aliased(AliasType(_, Right(lower: DesignatorOwner), _))                   => lower.isStable
-          case Aliased(AliasType(_: ScTypeAliasDefinition, Right(c: ScCompoundType), _)) => isRefinement(c)
-          case c: ScCompoundType                                                         => isRefinement(c)
-          case _                                                                         => false
+          case AliasType(_, Right(lower: DesignatorOwner), _)                   => lower.isStable
+          case AliasType(_: ScTypeAliasDefinition, Right(c: ScCompoundType), _) => isRefinement(c)
+          case c: ScCompoundType                                                => isRefinement(c)
+          case _                                                                => false
         }
       case _ => false
     }

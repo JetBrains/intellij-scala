@@ -4,26 +4,30 @@ package debugger
 import java.io.File
 
 import com.intellij.compiler.server.BuildManager
-import com.intellij.compiler.{CompilerConfiguration, CompilerTestUtil}
-import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.compiler._
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
-import com.intellij.testFramework.{EdtTestUtil, JavaModuleTestCase, PsiTestUtil, VfsTestUtil}
-import com.intellij.util.concurrency.Semaphore
-import com.intellij.util.ui.UIUtil
-import javax.swing.SwingUtilities
+import com.intellij.testFramework.{CompilerTester, EdtTestUtil, JavaModuleTestCase, PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.{IncrementalityType, ProjectExt}
 import org.junit.Assert._
+import java.util.{List => JList}
+
+import com.intellij.pom.java.LanguageLevel
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
+import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.emptyCollection
 
 import scala.concurrent.duration
-import scala.util.{Failure, Success, Try}
+import scala.collection.JavaConverters._
+import scala.language.implicitConversions
 
 /**
  * Nikolay.Tropin
@@ -31,9 +35,9 @@ import scala.util.{Failure, Success, Try}
  */
 abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwner {
 
-  private var deleteProjectAtTearDown = false
+  private var compilerTester: CompilerTester = _
 
-  override def setUp(): Unit = {
+  override protected def setUp(): Unit = {
     super.setUp()
 
     // uncomment to enable debugging of compile server in tests
@@ -44,30 +48,78 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
       BuildManager.getInstance.clearState(myProject)
     }
 
-    addRoots()
+    addSrcRoot()
     compilerVmOptions.foreach(setCompilerVmOptions)
-    DebuggerTestUtil.enableCompileServer(useCompileServer)
-    DebuggerTestUtil.forceJdk8ForBuildProcess()
-    setUpLibraries(myModule)
+    CompilerTestUtil.enableCompileServer(useCompileServer)
+    CompilerTestUtil.forceLanguageLevelForBuildProcess(getTestProjectJdk)
+    setUpLibraries(getModule)
+    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
+    compilerTester = new CompilerTester(getModule)
+    addOutRoot()
   }
+
+  override protected def getProjectLanguageLevel: LanguageLevel = LanguageLevel.JDK_11
+
+  override protected def tearDown(): Unit = try {
+    compilerTester.tearDown()
+    ScalaCompilerTestBase.stopAndWait()
+    EdtTestUtil.runInEdtAndWait { () =>
+      disposeLibraries(getModule)
+    }
+  } finally {
+    compilerTester = null
+    EdtTestUtil.runInEdtAndWait { () =>
+      ScalaCompilerTestBase.super.tearDown()
+    }
+  }
+
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
+    ScalaSDKLoader(includeScalaReflect = true),
+    HeavyJDKLoader(getProjectLanguageLevel),
+    SourcesLoader(getSourceRootDir.getCanonicalPath)
+  ) ++ additionalLibraries
+
+  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
+
+  protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
+
+  protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
 
   protected def compilerVmOptions: Option[String] = None
 
   protected def useCompileServer: Boolean = false
 
-  private def addRoots(): Unit = {
-    def getOrCreateChildDir(name: String) = {
-      val file = new File(getBaseDir.getCanonicalPath, name)
-      if (!file.exists()) file.mkdir()
-      LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
-    }
+  protected def compiler: CompilerTester = compilerTester
 
-    inWriteAction {
-      val srcRoot = getOrCreateChildDir("src")
-      PsiTestUtil.addSourceRoot(getModule, srcRoot, false)
-      val output = getOrCreateChildDir("out")
-      CompilerProjectExtension.getInstance(getProject).setCompilerOutputUrl(output.getUrl)
-    }
+  protected def getBaseDir: VirtualFile = {
+    val baseDir = myProject.baseDir
+    assertNotNull(baseDir)
+    baseDir
+  }
+
+  protected def getSourceRootDir: VirtualFile = getBaseDir.findChild("src")
+
+  protected def addFileToProjectSources(relativePath: String, text: String): VirtualFile = VfsTestUtil.createFile(
+    getSourceRootDir,
+    relativePath,
+    StringUtil.convertLineSeparators(text)
+  )
+
+  private def getOrCreateChildDir(name: String) = {
+    val file = new File(getBaseDir.getCanonicalPath, name)
+    if (!file.exists()) file.mkdir()
+    LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
+  }
+
+  private def addSrcRoot(): Unit = inWriteAction {
+    val srcRoot = getOrCreateChildDir("src")
+    PsiTestUtil.addSourceRoot(getModule, srcRoot, false)
+  }
+
+
+  private def addOutRoot(): Unit = inWriteAction {
+    val outRoot = getOrCreateChildDir("out")
+    CompilerProjectExtension.getInstance(getProject).setCompilerOutputUrl(outRoot.getUrl)
   }
 
   private def setCompilerVmOptions(options: String): Unit =
@@ -77,120 +129,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
       CompilerConfiguration.getInstance(getProject).setBuildProcessVMOptions(options)
     }
 
-  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaSDKLoader(includeScalaReflect = true),
-    HeavyJDKLoader(),
-    SourcesLoader(getSourceRootDir.getCanonicalPath)
-  ) ++ additionalLibraries
-
-  protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
-
-  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
-
-  protected override def tearDown(): Unit =
-    EdtTestUtil.runInEdtAndWait { () =>
-      val baseDir = getBaseDir
-      try {
-        CompilerTestUtil.disableExternalCompiler(myProject)
-        ScalaCompilerTestBase.stopAndWait()
-        disposeLibraries(myModule)
-      } finally {
-        ScalaCompilerTestBase.super.tearDown()
-        if (deleteProjectAtTearDown) {
-          VfsTestUtil.deleteFile(baseDir)
-        }
-      }
-    }
-
-  protected final def make(): Seq[String] = {
-    val semaphore = new Semaphore
-    semaphore.down()
-
-    val callback = new ErrorReportingCallback(semaphore)
-    EdtTestUtil.runInEdtAndWait(() => {
-      CompilerTestUtil.saveApplicationSettings()
-      val ioFile = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
-      saveProject()
-      assertTrue("File does not exist: " + ioFile.getPath, ioFile.exists)
-      CompilerManager.getInstance(getProject).rebuild(callback)
-    })
-
-    val maxCompileTime = 6000
-    var i = 0
-    while (!semaphore.waitFor(100) && i < maxCompileTime) {
-      if (SwingUtilities.isEventDispatchThread) {
-        UIUtil.dispatchAllInvocationEvents()
-      }
-      i += 1
-    }
-
-    assertTrue(
-      s"Too long compilation of test data for ${getClass.getSimpleName}.test${getTestName(false)}",
-      i < maxCompileTime
-    )
-
-    callback.result match {
-      case Success(messages) =>
-        messages
-      case Failure(throwable) =>
-        deleteProjectAtTearDown = true
-        throw new RuntimeException(throwable)
-    }
-  }
-
-  private class ErrorReportingCallback(semaphore: Semaphore) extends CompileStatusNotification {
-
-    private var result_ : Try[Seq[String]] = _
-
-    def result: Try[Seq[String]] = result_
-
-    def finished(aborted: Boolean,
-                 errors: Int,
-                 warnings: Int,
-                 compileContext: CompileContext): Unit =
-      try {
-        val messages = for {
-          category <- CompilerMessageCategory.values
-          compilerMessage <- compileContext.getMessages(category)
-
-          message = compilerMessage.getMessage
-          if !(category == CompilerMessageCategory.INFORMATION && message.startsWith("Compilation completed successfully"))
-        } yield category + ": " + message
-
-        result_ = Success(messages)
-
-        errors match {
-          case 0 => assertFalse("Code did not compile!", aborted)
-          case _ => fail("Compiler errors occurred! " + messages.mkString("\n"))
-        }
-      } catch {
-        case throwable: Throwable => result_ = Failure(throwable)
-      } finally {
-        semaphore.up()
-      }
-  }
-
-  protected def getBaseDir: VirtualFile = {
-    val baseDir = myProject.baseDir
-    assertNotNull(baseDir)
-    baseDir
-  }
-
-  protected def addFileToProjectSources(relativePath: String, text: String): VirtualFile = VfsTestUtil.createFile(
-    getSourceRootDir,
-    relativePath,
-    StringUtil.convertLineSeparators(text)
-  )
-
-  protected def getSourceRootDir: VirtualFile = getBaseDir.findChild("src")
-
-  private def saveProject(): Unit = {
-    val applicationEx = ApplicationManagerEx.getApplicationEx
-    val setting = applicationEx.isSaveAllowed
-    applicationEx.setSaveAllowed(true)
-    getProject.save()
-    applicationEx.setSaveAllowed(setting)
-  }
+  protected implicit def listCompilerMessage2Ext(messages: JList[CompilerMessage]): ListCompilerMessageExt =
+    new ListCompilerMessageExt(messages)
 }
 
 object ScalaCompilerTestBase {
@@ -198,7 +138,31 @@ object ScalaCompilerTestBase {
   import duration.{Duration, DurationInt}
 
   def stopAndWait(timeout: Duration = 10.seconds): Unit = assertTrue(
-    "Compile server process have not terminated after " + timeout,
+    s"Compile server process have not terminated after $timeout",
     CompileServerLauncher.stopAndWaitTermination(timeout.toMillis)
   )
+
+  implicit class ListCompilerMessageExt(val messages: JList[CompilerMessage])
+    extends AnyVal {
+
+    /**
+     * Checks if no compilation problems.
+     *
+     * @param allowWarnings if ''true'' checks only ERROR-messages, else ERROR- and WARNING-messages.
+     */
+    def assertNoProblems(allowWarnings: Boolean = false): Unit = {
+      val categories = if (allowWarnings)
+        Set(CompilerMessageCategory.ERROR)
+      else
+        Set(CompilerMessageCategory.ERROR, CompilerMessageCategory.WARNING)
+      assertNoMessages(categories)
+    }
+
+    private def assertNoMessages(categories: Set[CompilerMessageCategory]): Unit = {
+      val problems = messages.asScala.filter { message =>
+        categories.contains(message.getCategory)
+      }
+      assertThat(problems, emptyCollection[Seq[_]])
+    }
+  }
 }

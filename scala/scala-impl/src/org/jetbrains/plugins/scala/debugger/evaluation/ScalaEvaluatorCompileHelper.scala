@@ -117,7 +117,6 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
     override def progress(text: String, done: Option[Float]): Unit = {}
     override def isCanceled: Boolean = false
     override def debug(text: String): Unit = {}
-    override def processed(source: File): Unit = {}
     override def trace(exception: Throwable): Unit = {}
     override def generated(source: File, module: File, name: String): Unit = {}
   }
