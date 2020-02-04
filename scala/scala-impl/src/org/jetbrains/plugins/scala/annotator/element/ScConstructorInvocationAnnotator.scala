@@ -32,7 +32,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
 
   // TODO duplication with application annotator.
   private def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation)
-                                           (implicit holder: ScalaAnnotationHolder) {
+                                           (implicit holder: ScalaAnnotationHolder): Unit = {
     constrInvocation.typeElement match {
       case lit: ScLiteralTypeElement =>
         holder.createErrorAnnotation(constrInvocation.typeElement, s"Class type required but ($lit) found")
