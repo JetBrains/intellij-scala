@@ -194,7 +194,7 @@ object CompileServerLauncher {
     val settings = ScalaCompileServerSettings.getInstance()
 
     val sdk =
-      if (settings.USE_DEFAULT_SDK) defaultSdk
+      if (settings.USE_DEFAULT_SDK || !settings.COMPILE_SERVER_ENABLED) defaultSdk
       else ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)
 
     Option(sdk)
