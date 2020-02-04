@@ -1134,12 +1134,12 @@ package object extensions {
     }
   }
 
-  def withProgressSynchronouslyTry[T](title: String)(body: ProgressManager => T): Try[T] = {
+  def withProgressSynchronouslyTry[T](title: String, canBeCanceled: Boolean = false)(body: ProgressManager => T): Try[T] = {
     val manager = ProgressManager.getInstance
     catching(classOf[Exception]).withTry {
       manager.runProcessWithProgressSynchronously(new ThrowableComputable[T, Exception] {
         def compute: T = body(manager)
-      }, title, false, null)
+      }, title, canBeCanceled, null)
     }
   }
 
