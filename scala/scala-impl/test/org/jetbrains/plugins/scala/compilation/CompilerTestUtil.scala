@@ -29,4 +29,10 @@ object CompilerTestUtil {
         val jdkHome = homeDirectory.getCanonicalPath
         Registry.get("compiler.process.jdk").setValue(jdkHome)
     }
+
+  def setCompileServerJdk(getTestProjectJdk: Sdk): Unit = {
+    val compilerServerSettings = ScalaCompileServerSettings.getInstance
+    compilerServerSettings.USE_DEFAULT_SDK = false
+    compilerServerSettings.COMPILE_SERVER_SDK = getTestProjectJdk.getName
+  }
 }

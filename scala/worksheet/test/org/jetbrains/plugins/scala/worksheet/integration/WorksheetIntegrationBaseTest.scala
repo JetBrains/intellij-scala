@@ -79,8 +79,6 @@ abstract class WorksheetIntegrationBaseTest
     settings.setAutoRunDelay(300)
 
     if (useCompileServer) {
-      ScalaCompileServerSettings.getInstance.USE_DEFAULT_SDK = false
-      ScalaCompileServerSettings.getInstance.COMPILE_SERVER_SDK = getTestProjectJdk.getName
       val result = CompileServerLauncher.ensureServerRunning(project)
       assertTrue("compile server is expected to be running", result)
     }

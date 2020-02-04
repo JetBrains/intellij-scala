@@ -5,7 +5,7 @@ import java.lang.annotation.Annotation
 import com.intellij.pom.java.{LanguageLevel => JdkVersion}
 import junit.extensions.TestDecorator
 import junit.framework.{Test, TestCase, TestSuite}
-import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.jetbrains.plugins.scala.base.{InjectableJdk, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, Scala_2_12, Scala_2_13}
 import org.junit.experimental.categories.Category
 import org.junit.internal.runners.JUnit38ClassRunner
@@ -28,14 +28,17 @@ class MultipleScalaVersionsRunner(myTest: Test, klass: Class[_]) extends JUnit38
 
 private object MultipleScalaVersionsRunner {
 
-  private val DefaultScalaVersionsToRun = Seq(
-    TestScalaVersion.Scala_2_10,
-    TestScalaVersion.Scala_2_11,
-    TestScalaVersion.Scala_2_12,
-    TestScalaVersion.Scala_2_13,
-  )
+  private val DefaultScalaVersionsToRun: Seq[TestScalaVersion] =
+    Seq(
+      TestScalaVersion.Scala_2_10,
+      TestScalaVersion.Scala_2_11,
+      TestScalaVersion.Scala_2_12,
+      TestScalaVersion.Scala_2_13,
+    )
 
-  private val DefaultJdkVersionToRun = TestJdkVersion.JDK_1_8
+  private val DefaultJdkVersionToRun: TestJdkVersion =
+    TestJdkVersion.from(InjectableJdk.DefaultJdk)
+
 
   private case class ScalaVersionTestSuite(name: String) extends TestSuite(name) {
     def this() = this(null: String)

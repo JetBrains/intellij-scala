@@ -51,6 +51,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     addSrcRoot()
     compilerVmOptions.foreach(setCompilerVmOptions)
     CompilerTestUtil.enableCompileServer(useCompileServer)
+    CompilerTestUtil.setCompileServerJdk(getTestProjectJdk)
     CompilerTestUtil.forceLanguageLevelForBuildProcess(getTestProjectJdk)
     setUpLibraries(getModule)
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType

@@ -15,4 +15,12 @@ public enum TestJdkVersion {
             default: return null; // unreachable code
         }
     };
+
+    public static TestJdkVersion from(LanguageLevel level) {
+        switch (level) {
+            case JDK_1_8: return JDK_1_8;
+            case JDK_11: return JDK_11;
+            default: throw new RuntimeException("Jdk is not supported in tests for now");
+        }
+    }
 }

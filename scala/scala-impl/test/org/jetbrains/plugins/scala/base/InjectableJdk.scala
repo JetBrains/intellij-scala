@@ -9,5 +9,10 @@ trait InjectableJdk {
   def injectedJdkVersion_=(value: LanguageLevel): Unit = _injectedJdkVersion = Some(value)
 
   def testProjectJdkVersion: LanguageLevel =
-    injectedJdkVersion.getOrElse(LanguageLevel.JDK_11)
+    injectedJdkVersion.getOrElse(InjectableJdk.DefaultJdk)
+}
+
+object InjectableJdk {
+
+  val DefaultJdk = LanguageLevel.JDK_11
 }
