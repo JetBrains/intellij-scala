@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{JavaDirectoryService, PsiElement, PsiErrorElement, PsiFile, _}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -22,7 +20,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -35,28 +32,23 @@ object WorksheetDefaultSourcePreprocessor {
   val END_OUTPUT_MARKER    = "###worksheet###$$end$$!@#$%^&*(("
   val END_GENERATED_MARKER = "/* ###worksheet### generated $$end$$ */ "
 
-  private val WORKSHEET_PRE_CLASS_KEY = new Key[String]("WorksheetPreClassKey")
+  private val GenericPrintMethodName = "println"
+  private val ArrayPrintMethodName = "print$$$Worksheet$$$Array$$$"
 
-  private val PRINT_ARRAY_NAME = "print$$$Worksheet$$$Array$$$"
-  private val runPrinterName = "worksheet$$run$$printer"
-  private val genericPrintMethodName = "println"
-
-  private def printArrayText(scalaLanguageLevel: ScalaLanguageLevel) = {
+  private def printArrayText(scalaLanguageLevel: ScalaLanguageLevel): String = {
     val arrayWrapperClass =
       if (scalaLanguageLevel < ScalaLanguageLevel.Scala_2_13)
         "WrappedArray"
       else
         "ArraySeq"
-    s"""
-       |def $PRINT_ARRAY_NAME(an: Any): String = {
+    s"""def $ArrayPrintMethodName(an: Any): String =
        |  an match {
        |    case arr: Array[_] =>
        |      val a = scala.collection.mutable.$arrayWrapperClass.make(arr)
        |      "Array" + a.toString.stripPrefix("$arrayWrapperClass")
        |    case null => "null"
        |    case other => other.toString
-       |  }}
-    """.stripMargin
+       |  }""".stripMargin
   }
 
   case class PreprocessResult(code: String, mainClassName: String)
@@ -64,75 +56,26 @@ object WorksheetDefaultSourcePreprocessor {
   def preprocess(srcFile: ScalaFile, document: Document): Either[PsiErrorElement, PreprocessResult] = {
     if (!srcFile.isWorksheetFile) return Left(null)
 
-    val iterNumber = WorksheetCache.getInstance(srcFile.getProject)
-      .peakCompilationIteration(srcFile.getViewProvider.getVirtualFile.getCanonicalPath) + 1
+    implicit val languageLevel: ScalaLanguageLevel = languageLevelForFile(srcFile)
 
-    val name = s"A$$A$iterNumber"
-    val instanceName = s"inst$$A$$A"
-    val moduleOpt = Option(WorksheetFileSettings(srcFile).getModuleFor)
-
-    val packOpt: Option[String] = for {
-      dir         <- srcFile.getContainingDirectory.toOption
-      psiPackage  <- JavaDirectoryService.getInstance().getPackage(dir).toOption
-      packageName = psiPackage.getQualifiedName
-      if !packageName.trim.isEmpty
-    } yield packageName
-
-    val packStmt = packOpt.map("package " + _ + " ; ").getOrElse("")
-
-    val languageLevel = moduleOpt.flatMap(_.scalaLanguageLevel)
-    @inline
-    def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, default: => T) =
-      languageLevel.collect {
-        case ScalaLanguageLevel.Scala_2_10 => if210
-        case ScalaLanguageLevel.Scala_2_11 => if211
-        case ScalaLanguageLevel.Scala_2_13 => if213
-      }.getOrElse(default)
-
+    val iterNumber = compilationAttemptForFile(srcFile)
     val macroPrinterName = withCompilerVersion("MacroPrinter210", "MacroPrinter211", "MacroPrinter213", "MacroPrinter")
-    val classPrologue = name
-    val objectPrologue =
-      s"""$packStmt import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName
-         |
-         |object $name {
-         |""".stripMargin
-
-    val classRes = new StringBuilder(s"final class $classPrologue { \n")
-    val unitReturnType = " : Unit = "
-
-    val returnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType)
-    val objectRes = new StringBuilder(
-      s"""def main($runPrinterName: java.io.PrintStream) $returnType {
-         |  val $instanceName = new $name
-         |  """.stripMargin
-    )
+    val packageOpt: Option[String] = packageForFile(srcFile)
 
     val sourceBuilder = new ScalaSourceBuilder(
-      classRes, objectRes, iterNumber, srcFile,
-      moduleOpt, document, macroPrinterName, packOpt, objectPrologue
+      iterNumber,
+      srcFile,
+      document,
+      macroPrinterName,
+      packageOpt
     )
 
-    val preDeclarations = mutable.ListBuffer.empty[PsiElement]
-    val postDeclarations = mutable.ListBuffer.empty[PsiElement]
-
-    val root: PsiElement = if (!isForObject(srcFile)) srcFile else {
-      ((null: PsiElement) /: srcFile.getChildren) {
-        case (a, imp: ScImportStmt) =>
-          sourceBuilder.processImport(imp)
-          a
-        case (null, obj: ScObject) =>
-          obj.putCopyableUserData(WORKSHEET_PRE_CLASS_KEY, "+")
-          obj.extendsBlock.templateBody getOrElse srcFile
-        case (null, cl: ScTemplateDefinition) =>
-          cl.putCopyableUserData(WORKSHEET_PRE_CLASS_KEY, "+")
-          preDeclarations += cl
-          null
-        case (a: PsiElement, cl: ScTemplateDefinition) =>
-          postDeclarations += cl
-          a
-        case (a, _) => a
+    val (root, preDeclarations, postDeclarations) =
+      if (isForObject(srcFile)) {
+        rootForObject(srcFile, sourceBuilder)
+      } else {
+        (srcFile, Seq(), Seq())
       }
-    }
 
     val rootChildren = root match {
       case file: PsiFile => file.getChildren
@@ -140,47 +83,80 @@ object WorksheetDefaultSourcePreprocessor {
       case other         => other.getNode.getChildren(null).map(_.getPsi)
     }
 
-    sourceBuilder.process(rootChildren.toIterator, preDeclarations, postDeclarations, languageLevel.getOrElse(ScalaLanguageLevel.getDefault))
+    sourceBuilder.process(rootChildren.toIterable, preDeclarations, postDeclarations)
+  }
+
+  private def languageLevelForFile(srcFile: ScalaFile) = {
+    val moduleOpt  = Option(WorksheetFileSettings(srcFile).getModuleFor)
+    val maybeLevel = moduleOpt.flatMap(_.scalaLanguageLevel)
+    maybeLevel.getOrElse(ScalaLanguageLevel.getDefault)
+  }
+
+  private def compilationAttemptForFile(srcFile: ScalaFile): Int = {
+    val cache = WorksheetCache.getInstance(srcFile.getProject)
+    val prevIterNumber = cache.peakCompilationIteration(srcFile.getViewProvider.getVirtualFile.getCanonicalPath)
+    prevIterNumber + 1
+  }
+
+  private def packageForFile(srcFile: ScalaFile): Option[String] =
+    for {
+      dir <- srcFile.getContainingDirectory.toOption
+      psiPackage <- JavaDirectoryService.getInstance().getPackage(dir).toOption
+      packageName = psiPackage.getQualifiedName
+      if !packageName.trim.isEmpty
+    } yield packageName
+
+  private def rootForObject(srcFile: ScalaFile, sourceBuilder: ScalaSourceBuilder): (PsiElement, Seq[PsiElement], Seq[PsiElement]) = {
+    val preDeclarations  = mutable.ListBuffer.empty[PsiElement]
+    val postDeclarations = mutable.ListBuffer.empty[PsiElement]
+    var root: PsiElement = null
+    srcFile.getChildren.foreach {
+      case imp: ScImportStmt        => sourceBuilder.processImport(imp)
+      case obj: ScObject            => root = obj.extendsBlock.templateBody.getOrElse(srcFile)
+      case cl: ScTemplateDefinition => (if (root == null) preDeclarations else postDeclarations) += cl
+      case _                        =>
+    }
+    (root, preDeclarations, postDeclarations)
   }
 
   private def isForObject(file: ScalaFile): Boolean = {
+    // Eclipse-compatible worksheets proceeds with expressions inside first object found
     val isEclipseMode = ScalaProjectSettings.getInstance(file.getProject).isUseEclipseCompatibility
-
-    @tailrec
-    def isObjectOk(psi: PsiElement): Boolean = psi match {
-      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment | _: ScPackaging =>
-        isObjectOk(psi.getNextSibling)
-      case obj: ScObject =>
-        //isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
-        obj.extendsBlock.templateParents.isEmpty && isObjectOk(obj.getNextSibling)
-      case _: PsiClass if isEclipseMode =>
-        isObjectOk(psi.getNextSibling)
-      case null => true
-      case _ => false
+    val topLevelElements = file.children.filterNot(_.is[ScImportStmt, PsiWhiteSpace, PsiComment, ScPackaging])
+    topLevelElements.forall {
+      case obj: ScObject => obj.extendsBlock.templateParents.isEmpty
+      case _: PsiClass   => isEclipseMode
+      case _             => false
     }
-
-    isObjectOk(file.getFirstChild)
   }
 
+  @inline
+  def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, default: => T)
+                            (implicit languageLevel: ScalaLanguageLevel): T  =
+    languageLevel match {
+      case ScalaLanguageLevel.Scala_2_10 => if210
+      case ScalaLanguageLevel.Scala_2_11 => if211
+      case ScalaLanguageLevel.Scala_2_13 => if213
+      case _                             => default
+    }
 
   private def calcContentLines(document: Document, range: TextRange): Int =
     document.getLineNumber(range.getEndOffset) - document.getLineNumber(range.getStartOffset) + 1
 
   //noinspection HardCodedStringLiteral
-  private class ScalaSourceBuilder(classBuilder: mutable.StringBuilder,
-                                   objectBuilder: mutable.StringBuilder,
-                                   iterNumber: Int, srcFile: ScalaFile,
-                                   moduleOpt: Option[Module],
+  private class ScalaSourceBuilder(iterNumber: Int,
+                                   srcFile: ScalaFile,
                                    document: Document,
                                    tpePrinterName: String,
-                                   packageOpt: Option[String],
-                                   objectPrologue: String) {
-    protected val name = s"A$$A$iterNumber"
-    protected val tempVarName = "$$temp$$"
+                                   packageOpt: Option[String]) {
+
+    protected val className   = s"A$$A$iterNumber"
     protected val instanceName = s"inst$$A$$A"
 
+    protected val tempVarName = "$$temp$$"
+
     protected val eraseClassName: String = s""".replace("$instanceName.", "")"""
-    protected val erasePrefixName: String = s""".stripPrefix("$name$$$name$$")"""
+    protected val erasePrefixName: String = s""".stripPrefix("$className$$$className$$")"""
     protected val plusInfoDef = " + "
 
     protected var assignCount = 0
@@ -188,7 +164,91 @@ object WorksheetDefaultSourcePreprocessor {
     protected val importStmts: ArrayBuffer[String] = mutable.ArrayBuffer[String]()
     protected val importsProcessed: mutable.HashSet[ScImportStmt] = mutable.HashSet[ScImportStmt]()
 
-    private var debugLogEnabled = false
+    private val debugLogEnabled = false
+
+    private val classBuilder = new StringBuilder
+    private val mainMethodBuilder = new StringBuilder
+
+    def process(elements: Iterable[PsiElement],
+                preDeclarations: Iterable[PsiElement],
+                postDeclarations: Iterable[PsiElement])
+               (implicit languageLevel: ScalaLanguageLevel): Either[PsiErrorElement, PreprocessResult] = {
+
+      val (classStart, classEnd) = (
+        s"final class $className { \n",
+        s"\n}"
+      )
+
+      val (mainMethodStart, mainMethodEnd) = {
+        val unitReturnType = ": Unit ="
+        val mainReturnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType)
+        (
+          s"""def main(ignored: java.io.PrintStream)$mainReturnType {
+             |  val $instanceName = new $className
+             |""".stripMargin,
+          s"""  $printMethodName("$END_OUTPUT_MARKER")
+             |}""".stripMargin
+        )
+      }
+
+      classBuilder.append(classStart)
+      insertUntouched(classBuilder, preDeclarations)
+
+      mainMethodBuilder.append(mainMethodStart)
+
+      for (e <- elements) e match {
+        case tpe: ScTypeAlias             => processTypeAlias(tpe)
+        case fun: ScFunction              => processFunDef(fun)
+        case tpeDef: ScTypeDefinition     => processTypeDef(tpeDef)
+        case valDef: ScPatternDefinition  => processValDef(valDef)
+        case varDef: ScVariableDefinition => processVarDef(varDef)
+        case assign: ScAssignment         => processAssign(assign)
+        case imp: ScImportStmt            => if (!processLocalImport(imp)) processImport(imp)
+        case comment: PsiComment          => appendCommentToClass(comment)
+        case _: ScPackaging               => //skip
+        case otherExpr: ScExpression      => processOtherExpr(otherExpr)
+        case _: PsiWhiteSpace             => //skip
+        case error: PsiErrorElement       => return Left(error)
+        case null                         => logError(None)
+        case unknown                      => processUnknownElement(unknown)
+      }
+
+      insertUntouched(classBuilder, postDeclarations)
+      classBuilder.append(classEnd)
+
+      mainMethodBuilder.append(mainMethodEnd)
+
+      val (objectStart, objectEnd) = {
+        val packStmt = packageOpt.map("package " + _)
+        val macroImport = s"import _root_.org.jetbrains.plugins.scala.worksheet.$tpePrinterName"
+        val packageAndImports = packStmt.toSeq :+ macroImport
+        (
+          s"""${packageAndImports.mkString(";")}
+             |
+             |object $className {""".stripMargin,
+          s"""${printArrayText(languageLevel)}
+             |
+             |}""".stripMargin
+        )
+      }
+
+      val codeResult =
+        s"""$objectStart
+           |
+           |${importStmts.mkString(";")}
+           |
+           |${classBuilder.toString()}
+           |
+           |${mainMethodBuilder.toString()}
+           |
+           |$objectEnd
+           |""".stripMargin
+
+      val mainClassName = (packageOpt.toSeq :+ className).mkString(".")
+
+      Right(PreprocessResult(codeResult, mainClassName))
+    }
+
 
     protected def getTypePrinterName: String = tpePrinterName
 
@@ -210,7 +270,7 @@ object WorksheetDefaultSourcePreprocessor {
       writeLog(logMessage)
     }
 
-    protected def getTempVarInfo: String = s"$getTypePrinterName.printDefInfo($$$$temp$$$$)"
+    protected def getTempVarInfo(varName: String): String = s"$getTypePrinterName.printDefInfo($varName)"
 
     protected def getImportInfoString(imp: ScImportStmt): String = {
       val text = imp.getText
@@ -223,18 +283,16 @@ object WorksheetDefaultSourcePreprocessor {
       getTypePrinterName + s".printGeneric({import $instanceName._ ;" + fun.getText.stripPrefix(hadMods) + " })" + eraseClassName
     }
 
-    protected def getObjectPrologue: String = objectPrologue
-
-    protected def getPrintMethodName: String = genericPrintMethodName
+    protected def printMethodName: String = GenericPrintMethodName
 
     protected def processTypeAlias(tpe: ScTypeAlias): Unit =
       withPrecomputedLines(tpe) {
-        objectBuilder.append(withPrint(s"defined type alias ${tpe.name}"))
+        mainMethodBuilder.append(withPrint(s"defined type alias ${tpe.name}"))
       }
 
     protected def processFunDef(fun: ScFunction): Unit =
       withPrecomputedLines(fun) {
-        objectBuilder.append(s"""$getPrintMethodName("${fun.getName}: " + ${getFunDefInfoString(fun)})""").append("\n")
+        mainMethodBuilder.append(s"""$printMethodName("${fun.getName}: " + ${getFunDefInfoString(fun)})""").append("\n")
       }
 
     protected def processTypeDef(tpeDef: ScTypeDefinition): Unit =
@@ -242,10 +300,10 @@ object WorksheetDefaultSourcePreprocessor {
         val keyword = tpeDef match {
           case _: ScClass => "class"
           case _: ScTrait => "trait"
-          case _ => "module" // TODO: change to `object`
+          case _          => "module" // TODO: change to `object`?
         }
 
-        objectBuilder.append(withPrint(s"defined $keyword ${tpeDef.name}"))
+        mainMethodBuilder.append(withPrint(s"defined $keyword ${tpeDef.name}"))
       }
 
     protected def processValDef(valDef: ScPatternDefinition): Unit =
@@ -256,7 +314,7 @@ object WorksheetDefaultSourcePreprocessor {
 
           classBuilder.append(s"def $defName = $pName;$END_GENERATED_MARKER")
 
-          objectBuilder.append(s"""$getPrintMethodName("$pName${prettyPrintType(defName)})""").append("\n")
+          mainMethodBuilder.append(s"""$printMethodName("$pName${prettyPrintType(defName)})""").append("\n")
         }
       }
 
@@ -301,7 +359,7 @@ object WorksheetDefaultSourcePreprocessor {
 
       classBuilder.append(txt).append(";")
       varDef.declaredNames.foreach { pName =>
-        objectBuilder.append(s"""$getPrintMethodName("$pName${prettyPrintType(pName)})""").append("\n")
+        mainMethodBuilder.append(s"""$printMethodName("$pName${prettyPrintType(pName)})""").append("\n")
       }
 
       appendEndPsiLineInfo(lineNum)
@@ -315,8 +373,8 @@ object WorksheetDefaultSourcePreprocessor {
       appendStartPsiLineInfo(lineNums)
 
       classBuilder.append(s"""def $defName = { $END_GENERATED_MARKER${assign.getText}}${insertNlsFromWs(assign)}""")
-      objectBuilder.append(s"""$instanceName.$defName; """)
-      objectBuilder.append(s"""$getPrintMethodName("$pName${prettyPrintType(pName)})""").append("\n")
+      mainMethodBuilder.append(s"""$instanceName.$defName; """)
+      mainMethodBuilder.append(s"""$printMethodName("$pName${prettyPrintType(pName)})""").append("\n")
 
       appendEndPsiLineInfo(lineNums)
 
@@ -348,7 +406,7 @@ object WorksheetDefaultSourcePreprocessor {
 
           appendStartPsiLineInfo(lineNums)
 
-          objectBuilder.append(s";{val $qualifierName = $instanceName.$memberName; $getPrintMethodName(${getImportInfoString(imp)})}").append("\n")
+          mainMethodBuilder.append(s";{val $qualifierName = $instanceName.$memberName; $printMethodName(${getImportInfoString(imp)})}").append("\n")
           classBuilder.append(s"${imp.getText}${insertNlsFromWs(imp)}")
 
           appendEndPsiLineInfo(lineNums)
@@ -357,16 +415,14 @@ object WorksheetDefaultSourcePreprocessor {
     }
 
     def processImport(imp: ScImportStmt): Unit = {
-      if (importsProcessed contains imp) return
+      if (importsProcessed.contains(imp)) return
 
       val lineNums = psiToLineNumbers(imp)
-
       appendStartPsiLineInfo(lineNums)
-
-      objectBuilder.append(s"$getPrintMethodName(${getImportInfoString(imp)})").append("\n")
-
-      importStmts += (imp.getText + insertNlsFromWs(imp))
+      mainMethodBuilder.append(s"$printMethodName(${getImportInfoString(imp)})").append("\n")
       appendEndPsiLineInfo(lineNums)
+
+      importStmts += imp.getText
       importsProcessed += imp
     }
 
@@ -388,69 +444,28 @@ object WorksheetDefaultSourcePreprocessor {
 
       appendStartPsiLineInfo(lineNums)
       classBuilder.append(s"""def $resName = $END_GENERATED_MARKER${expr.getText}${insertNlsFromWs(expr)}""")
-      objectBuilder.append(s"""$getPrintMethodName("res$resCount${prettyPrintType(resName)})""").append("\n")
+      mainMethodBuilder.append(s"""$printMethodName("res$resCount${prettyPrintType(resName)})""").append("\n")
       appendEndPsiLineInfo(lineNums)
 
       resCount += 1
     }
 
-    protected def insertUntouched(exprs: Iterable[PsiElement]): Unit =
-      exprs.foreach(expr => classBuilder.append(expr.getText).append(insertNlsFromWs(expr)))
+    protected def insertUntouched(builder: StringBuilder, exprs: Iterable[PsiElement]): Unit =
+      exprs.foreach { expr =>
+        builder.append(expr.getText).append(insertNlsFromWs(expr))
+      }
 
     protected def processUnknownElement(element: PsiElement): Unit =
       logError(Option(element))
-
-    def process(elements: Iterator[PsiElement],
-                preDeclarations: Iterable[PsiElement],
-                postDeclarations: Iterable[PsiElement],
-                languageLevel: ScalaLanguageLevel): Either[PsiErrorElement, PreprocessResult] = {
-      insertUntouched(preDeclarations)
-
-      for (e <- elements) e match {
-        case tpe: ScTypeAlias             => processTypeAlias(tpe)
-        case fun: ScFunction              => processFunDef(fun)
-        case tpeDef: ScTypeDefinition     => processTypeDef(tpeDef)
-        case valDef: ScPatternDefinition  => processValDef(valDef)
-        case varDef: ScVariableDefinition => processVarDef(varDef)
-        case assign: ScAssignment         => processAssign(assign)
-        case imp: ScImportStmt            => if (!processLocalImport(imp)) processImport(imp)
-        case comment: PsiComment          =>
-          appendCommentToClass(comment)
-        case _: ScPackaging               => //skip
-        case otherExpr: ScExpression      => processOtherExpr(otherExpr)
-        case _: PsiWhiteSpace             => //skip
-        case error: PsiErrorElement       => return Left(error)
-        case null                         => logError(None)
-        case unknown                      => processUnknownElement(unknown)
-      }
-
-      insertUntouched(postDeclarations)
-
-      classBuilder.append("}")
-      objectBuilder.append(
-        s"""$getPrintMethodName("$END_OUTPUT_MARKER")
-           |}
-           |${printArrayText(languageLevel)}
-           |}""".stripMargin
-      )
-
-      val codeResult =
-        s"""$getObjectPrologue${importStmts.mkString(";")}${classBuilder.toString()}
-           |
-           |
-           |${objectBuilder.toString()}""".stripMargin
-      val mainClassName = s"${packageOpt.fold("")(_ + ".")}$name"
-      Right(PreprocessResult(codeResult, mainClassName))
-    }
 
     //kinda utils stuff that shouldn't be overridden
 
     @inline final def withTempVar(callee: String, withInstance: Boolean = true): String = {
       val target = if (withInstance) instanceName + "." else ""
-      s"""{val $tempVarName = $target$callee ; $getTempVarInfo$eraseClassName$plusInfoDef" = " + ( $PRINT_ARRAY_NAME($tempVarName) )$erasePrefixName}"""
+      s"""{val $tempVarName = $target$callee ; ${getTempVarInfo(tempVarName)}$eraseClassName$plusInfoDef" = " + ( $ArrayPrintMethodName($tempVarName) )$erasePrefixName}"""
     }
 
-    @inline final def withPrint(text: String): String = s"""$getPrintMethodName("$text")""" + "\n"
+    @inline final def withPrint(text: String): String = s"""$printMethodName("$text")""" + "\n"
 
     @inline final def withPrecomputedLines(psi: ScalaPsiElement)(body: => Unit): Unit = {
       val lineNum = psiToLineNumbers(psi)
@@ -469,32 +484,24 @@ object WorksheetDefaultSourcePreprocessor {
 
     @inline final def countNewLines(str: String): Int = str.count(_ == '\n')
 
-    @inline final def insertNlsFromWs(psi: PsiElement): String = psi.getNextSibling match {
-      case ws: PsiWhiteSpace =>
-        val c = countNewLines(ws.getText)
-        if (c == 0) ";"
-        else StringUtil.repeat("\n", c)
-      case _ => ";"
+    @inline final def insertNlsFromWs(psi: PsiElement): String = {
+      val newLines = psi.getNextSibling match {
+        case ws: PsiWhiteSpace => countNewLines(ws.getText)
+        case _                 => 0
+      }
+      if (newLines == 0) ";"
+      else "\n" * newLines
     }
 
     @inline final def psiToLineNumbers(psi: PsiElement): String = {
-      var actualPsi = psi
-
-      actualPsi.getFirstChild match {
-        case _: PsiComment =>
-          @tailrec
-          def iter(wsOrComment: PsiElement): PsiElement = wsOrComment match {
-            case ct: PsiComment                            => iter(ct.getNextSibling)
-            case ws: PsiWhiteSpace                         => iter(ws.getNextSibling)
-            case el: PsiElement if el.getTextRange.isEmpty => iter(el.getNextSibling)
-            case a: PsiElement                             => a
-            case _                                         => psi
-          }
-
-          actualPsi = iter(actualPsi.getFirstChild)
-        case _ =>
-      }
-
+      val actualPsi: PsiElement =
+        psi.getFirstChild match {
+          case comment: PsiComment =>
+            val nonEmptyElements = comment.nextSiblings.filterNot(el => el.is[PsiComment, PsiWhiteSpace] || el.getTextLength == 0)
+            nonEmptyElements.headOption.getOrElse(psi)
+          case _ =>
+            psi
+        }
 
       val start = actualPsi.startOffset //actualPsi for start and psi for end - it is intentional
       val end = psi.endOffset
@@ -502,10 +509,10 @@ object WorksheetDefaultSourcePreprocessor {
     }
 
     @inline final def appendStartPsiLineInfo(numberStr: String): Unit =
-      objectBuilder.append(s"""$getPrintMethodName("$START_TOKEN_MARKER$numberStr")""").append("\n")
+      mainMethodBuilder.append(s"""$printMethodName("$START_TOKEN_MARKER$numberStr")""").append("\n")
 
     @inline final def appendEndPsiLineInfo(numberStr: String): Unit =
-      objectBuilder.append(s"""$getPrintMethodName("$END_TOKEN_MARKER$numberStr")""").append("\n")
+      mainMethodBuilder.append(s"""$printMethodName("$END_TOKEN_MARKER$numberStr")""").append("\n")
 
     @inline final def appendDeclaration(psi: ScalaPsiElement): Unit = {
       psi match {
