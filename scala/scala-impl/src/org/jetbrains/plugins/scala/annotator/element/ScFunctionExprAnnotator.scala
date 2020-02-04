@@ -18,6 +18,11 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
       return
     }
 
+    (literal.`type`().toOption, literal.getTypeWithoutImplicits().toOption) match {
+      case (Some(t1), Some(t2)) if t1.equiv(t2) => () // OK
+      case _ => return // no type inferred, or an implicit conversion applied
+    }
+
     var problemWithParameters = false
 
     val (result, parameters) = (literal.result, literal.parameters)
