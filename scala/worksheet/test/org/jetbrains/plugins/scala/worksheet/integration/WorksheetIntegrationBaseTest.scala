@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.AssertionMatchers._
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
@@ -79,6 +79,8 @@ abstract class WorksheetIntegrationBaseTest
     settings.setAutoRunDelay(300)
 
     if (useCompileServer) {
+      ScalaCompileServerSettings.getInstance.USE_DEFAULT_SDK = false
+      ScalaCompileServerSettings.getInstance.COMPILE_SERVER_SDK = getTestProjectJdk.getName
       val result = CompileServerLauncher.ensureServerRunning(project)
       assertTrue("compile server is expected to be running", result)
     }

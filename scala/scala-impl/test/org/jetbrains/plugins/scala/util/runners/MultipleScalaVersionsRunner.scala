@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.util.runners
 
 import java.lang.annotation.Annotation
 
+import com.intellij.pom.java.{LanguageLevel => JdkVersion}
 import junit.extensions.TestDecorator
-import junit.framework
 import junit.framework.{Test, TestCase, TestSuite}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, Scala_2_12, Scala_2_13}
@@ -28,16 +28,24 @@ class MultipleScalaVersionsRunner(myTest: Test, klass: Class[_]) extends JUnit38
 
 private object MultipleScalaVersionsRunner {
 
-  private val DefaultRunScalaVersionsToRun = Seq(
-    Scala_2_10,
-    Scala_2_11,
-    Scala_2_12,
-    Scala_2_13,
+  private val DefaultScalaVersionsToRun = Seq(
+    TestScalaVersion.Scala_2_10,
+    TestScalaVersion.Scala_2_11,
+    TestScalaVersion.Scala_2_12,
+    TestScalaVersion.Scala_2_13,
   )
+
+  private val DefaultJdkVersionToRun = TestJdkVersion.JDK_1_8
 
   private case class ScalaVersionTestSuite(name: String) extends TestSuite(name) {
     def this() = this(null: String)
     def this(version: ScalaVersion) = this(sanitize(s"(scala ${version.minor})"))
+    def this(version: ScalaVersion, jdkVersion: JdkVersion) = this(sanitize(s"(scala ${version.minor} $jdkVersion)"))
+  }
+
+  private case class JdkVersionTestSuite(name: String) extends TestSuite(name) {
+    def this() = this(null: String)
+    def this(version: JdkVersion) = this(sanitize(s"(jdk ${version.toString})"))
   }
 
   def testSuite(klass: Class[_ <: TestCase]): TestSuite = {
@@ -46,61 +54,96 @@ private object MultipleScalaVersionsRunner {
     val suite = new TestSuite
     suite.setName(klass.getName)
 
-    val classVersions = scalaVersionsToRun(klass)
-    assert(classVersions.nonEmpty, "at least one scala version should be specified")
+    val classScalaVersions = scalaVersionsToRun(klass)
+    val classJdkVersions = jdkVersionsToRun(klass)
+    assert(classScalaVersions.nonEmpty, "at least one scala version should be specified")
+    assert(classJdkVersions.nonEmpty, "at least one jdk version should be specified")
 
-    val allTestCases: Seq[(TestCase, ScalaVersion)] = new ScalaVersionAwareTestsCollector(klass, classVersions).collectTests()
+    val allTestCases: Seq[(TestCase, ScalaVersion, JdkVersion)] =
+      new ScalaVersionAwareTestsCollector(klass, classScalaVersions, classJdkVersions).collectTests()
 
-    val childTests = childTestsByVersion(allTestCases)
+    val childTests = childTestsByScalaVersion(allTestCases)
     // val childTests = childTestsByName(allTests)
     childTests.foreach { childTest =>
       suite.addTest(childTest)
     }
 
     suite
-
   }
 
-  private def childTestsByName(testsCases: Seq[(TestCase, ScalaVersion)]): Seq[Test] = {
-    val nameToTests: Map[String, Seq[(TestCase, ScalaVersion)]] = testsCases.groupBy(_._1.getName)
+//  private def childTestsByName(testsCases: Seq[(TestCase, ScalaVersion, JdkVersion)]): Seq[Test] = {
+//    val nameToTests: Map[String, Seq[(TestCase, ScalaVersion)]] = testsCases.groupBy(_._1.getName)
+//
+//    for {
+//      (testName, tests: Seq[(TestCase, ScalaVersion)]) <- nameToTests.toSeq.sortBy(_._1)
+//    } yield {
+//      if (tests.size == 1) tests.head._1
+//      else {
+//        val suite = new framework.TestSuite()
+//        suite.setName(testName)
+//        tests.sortBy(_._2).foreach { case (t, version) =>
+//          t.setName(testName + "." + sanitize(version.minor))
+//          suite.addTest(t)
+//        }
+//        suite
+//      }
+//    }
+//  }
 
-    for {
-      (testName, tests: Seq[(TestCase, ScalaVersion)]) <- nameToTests.toSeq.sortBy(_._1)
-    } yield {
-      if (tests.size == 1) tests.head._1
-      else {
-        val suite = new framework.TestSuite()
-        suite.setName(testName)
-        tests.sortBy(_._2).foreach { case (t, version) =>
-          t.setName(testName + "." + sanitize(version.minor))
-          suite.addTest(t)
-        }
-        suite
-      }
-    }
-  }
+  private def childTestsByScalaVersion(testCases: Seq[(TestCase, ScalaVersion, JdkVersion)]): Seq[Test] = {
+    val scalaVersionToTests: Map[ScalaVersion, Seq[Test]] =
+      testCases.groupBy(_._2).mapValues(_.map(t => (t._1, t._3)))
+        .mapValues(childTestsByJdkVersion)
 
-  private def childTestsByVersion(testsCases: Seq[(TestCase, ScalaVersion)]): Seq[Test] = {
-    val versionToTests: Map[ScalaVersion, Seq[Test]] = testsCases.groupBy(_._2).mapValues(_.map(_._1))
-
-    if (versionToTests.size == 1) versionToTests.head._2
-    else {
+    if (scalaVersionToTests.size == 1) {
+      scalaVersionToTests.head._2
+    } else {
       for {
-        (version, tests) <- versionToTests.toSeq.sortBy(_._1)
+        (version, tests) <- scalaVersionToTests.toSeq.sortBy(_._1)
         if tests.nonEmpty
       } yield {
-        val suite = new ScalaVersionTestSuite(version)
+        val firstTest = tests.head
+        val suite = if (firstTest.isInstanceOf[JdkVersionTestSuite]) {
+          new ScalaVersionTestSuite(version)
+        } else {
+          // if only one jdk version is used, display it in the test name
+          val jdkVersion = firstTest.asInstanceOf[ScalaSdkOwner].testProjectJdkVersion
+          new ScalaVersionTestSuite(version, jdkVersion)
+        }
         tests.foreach(suite.addTest)
         suite
       }
     }
   }
 
-  private def scalaVersionsToRun(klass: Class[_ <: TestCase]): Seq[ScalaVersion] = {
+  private def childTestsByJdkVersion(testCases: Seq[(TestCase, JdkVersion)]): Seq[Test] = {
+    val jdkVersionToTests: Map[JdkVersion, Seq[TestCase]] =
+      testCases.groupBy(_._2).mapValues(_.map(_._1))
+
+    if (jdkVersionToTests.size == 1) jdkVersionToTests.head._2 else {
+      for {
+        (version, tests) <- jdkVersionToTests.toSeq.sortBy(_._1)
+        if tests.nonEmpty
+      } yield {
+        val suite = new JdkVersionTestSuite(version)
+        tests.foreach(suite.addTest)
+        suite
+      }
+    }
+  }
+
+  private def scalaVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestScalaVersion] = {
     val annotation = findAnnotation(klass, classOf[RunWithScalaVersions])
     annotation
-      .map(_.value.map(_.toProductionVersion).toSeq)
-      .getOrElse(DefaultRunScalaVersionsToRun)
+      .map(_.value.toSeq)
+      .getOrElse(DefaultScalaVersionsToRun)
+  }
+
+  private def jdkVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestJdkVersion] = {
+    val annotation = findAnnotation(klass, classOf[RunWithJdkVersions])
+    annotation
+      .map(_.value.toSeq)
+      .getOrElse(Seq(DefaultJdkVersionToRun))
   }
 
   private def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {

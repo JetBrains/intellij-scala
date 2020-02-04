@@ -9,7 +9,7 @@ import scala.collection.immutable.SortedSet
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-trait ScalaSdkOwner extends Test {
+trait ScalaSdkOwner extends Test with InjectableJdk  {
   import ScalaSdkOwner._
 
   implicit final def version: ScalaVersion = {
@@ -52,7 +52,7 @@ trait ScalaSdkOwner extends Test {
       // Need to initialize before test is run because all tests fields can be reset to null
       // (including injectedScalaVersion) after test is finished
       // see HeavyPlatformTestCase.runBare & UsefulTestCase.clearDeclaredFields
-      val scalaVersionMessage = s"### Scala version used: ${version.minor} (configured: $configuredScalaVersion) ###"
+      val scalaVersionMessage = s"### Scala version used: ${version.minor} (configured: $configuredScalaVersion), module jdk: $testProjectJdkVersion ###"
       lazy val logVersion: Unit = System.err.println(scalaVersionMessage) // lazy val to log only once
       val listener = new TestListener {
         override def addError(test: Test, t: Throwable): Unit = logVersion

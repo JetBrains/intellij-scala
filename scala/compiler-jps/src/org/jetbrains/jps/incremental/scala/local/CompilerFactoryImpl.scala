@@ -44,20 +44,23 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
   private val classloaderCache = Some(new ClassLoaderCache(new URLClassLoader(Array())))
 
   def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
-    getScalaInstance(compilerJars).map { scala =>
+    getScalaInstance(compilerJars).map { scalaInstance =>
       val compiledInterfaceJar = getOrCompileInterfaceJar(
         home = sbtData.interfacesHome,
         compilerBridges = sbtData.compilerBridges,
         interfaceJars = Seq(sbtData.sbtInterfaceJar, sbtData.compilerInterfaceJar),
-        scalaInstance = scala,
+        scalaInstance = scalaInstance,
         javaClassVersion = sbtData.javaClassVersion,
         client = Option(client),
         isDotty = compilerJars.exists(_.hasDotty)
       )
 
-      new AnalyzingCompiler(scala,
-        ZincCompilerUtil.constantBridgeProvider(scala, compiledInterfaceJar),
-        ClasspathOptionsUtil.javac(false), _ => (), classloaderCache)
+      new AnalyzingCompiler(
+        scalaInstance,
+        ZincCompilerUtil.constantBridgeProvider(scalaInstance, compiledInterfaceJar),
+        ClasspathOptionsUtil.javac(false), _ => (),
+        classloaderCache
+      )
     }
   }
 
@@ -73,7 +76,7 @@ object CompilerFactoryImpl {
 
   def createScalaInstance(jars: CompilerJars): ScalaInstance = {
     scalaInstanceCache.getOrUpdate(jars) {
-      val paths = jars.library +: jars.compiler +: jars.extra
+      val paths = jars.allJars
 
       def createClassLoader() = {
         val urls = Path.toURLs(paths)
@@ -90,7 +93,6 @@ object CompilerFactoryImpl {
 
       new ScalaInstance(version.getOrElse("unknown"), classLoader, jars.library, jars.compiler, jars.extra.toArray, version)
     }
-
   }
 
   def readScalaVersionIn(classLoader: ClassLoader): Option[String] =

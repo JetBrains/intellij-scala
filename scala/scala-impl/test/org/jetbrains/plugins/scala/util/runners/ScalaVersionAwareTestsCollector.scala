@@ -2,37 +2,43 @@ package org.jetbrains.plugins.scala.util.runners
 
 import java.lang.reflect.{Method, Modifier}
 
+import com.intellij.pom.java.{LanguageLevel => JdkVersion}
 import junit.framework.{Test, TestCase, TestSuite}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.junit.internal.MethodSorter
 
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase], classScalaVersion: Seq[ScalaVersion]) {
+class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
+                                      classScalaVersion: Seq[TestScalaVersion],
+                                      classJdkVersion: Seq[TestJdkVersion]) {
 
-  def collectTests(): Seq[(TestCase, ScalaVersion)] = {
-    val result = ArrayBuffer.empty[(Test, ScalaVersion)]
+  def collectTests(): Seq[(TestCase, ScalaVersion, JdkVersion)] = {
+    val result = ArrayBuffer.empty[(Test, ScalaVersion, JdkVersion)]
 
     val tests = testsFromTestCase(klass)
     tests.foreach {
-      case (test: ScalaSdkOwner, method, version) =>
-        test.injectedScalaVersion = version // should be set before calling test.skip
+      case (test: ScalaSdkOwner, method, scalaVersion, jdkVersion) =>
+        val scalaVersionProd = scalaVersion.toProductionVersion
+        val jdkVersionProd = jdkVersion.toProductionVersion
 
-        if (isScalaVersionSupported(test, method, version)) {
-          result += test -> version
+        test.injectedScalaVersion = scalaVersionProd // !! should be set before calling test.skip
+        test.injectedJdkVersion = jdkVersionProd
+
+        if (isScalaVersionSupported(test, method, scalaVersion) && scalaVersion.supportsJdk(jdkVersion)) {
+          result.append((test, scalaVersionProd, jdkVersionProd))
         }
-      case (warningTest, _, version) =>
-        result += warningTest -> version
+      case (warningTest, _, scalaVersion, jdkVersion) =>
+        result.append((warningTest, scalaVersion.toProductionVersion, jdkVersion.toProductionVersion))
     }
 
-    result.map(t => (t._1.asInstanceOf[TestCase], t._2))
+    result.map(t => (t._1.asInstanceOf[TestCase], t._2, t._3))
   }
 
-  private def isScalaVersionSupported(test: ScalaSdkOwner, method: Method, scalaVersion: ScalaVersion): Boolean = {
-    val supportedVersions    = Option(method.getAnnotation(classOf[SupportedScalaVersions])).map(_.value.map(_.toProductionVersion))
-    val notSupportedVersions = Option(method.getAnnotation(classOf[NotSupportedScalaVersions])).map(_.value.map(_.toProductionVersion))
+  private def isScalaVersionSupported(test: ScalaSdkOwner, method: Method, scalaVersion: TestScalaVersion): Boolean = {
+    val supportedVersions    = Option(method.getAnnotation(classOf[SupportedScalaVersions])).map(_.value)
+    val notSupportedVersions = Option(method.getAnnotation(classOf[NotSupportedScalaVersions])).map(_.value)
     assert(supportedVersions.isEmpty || notSupportedVersions.isEmpty, "both annotations can not go together")
 
     // TODO: later "supported in" mechanism should be unified to only use annotations
@@ -42,8 +48,8 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase], classScalaVer
   }
 
   // warning test or collection of tests (each test method is multiplied by the amount of versions it is run with)
-  private def testsFromTestCase(klass: Class[_]): Seq[(Test, Method, ScalaVersion)] = {
-    def warn(text: String) = Seq((warning(text), null, null))
+  private def testsFromTestCase(klass: Class[_]): Seq[(Test, Method, TestScalaVersion, TestJdkVersion)] = {
+    def warn(text: String) = Seq((warning(text), null, null, null))
 
     try TestSuite.getTestConstructor(klass) catch {
       case _: NoSuchMethodException =>
@@ -57,12 +63,11 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase], classScalaVer
       .takeWhile(_ != null)
       .takeWhile(classOf[Test].isAssignableFrom)
 
-    val existingNames = new mutable.ArrayBuffer[String]
     val tests = for {
-      superClass      <- superClasses
-      method          <- MethodSorter.getDeclaredMethods(superClass)
-      (test, version) <- createTestMethods(klass, method, existingNames)
-    } yield (test, method, version)
+      superClass                       <- superClasses
+      method                           <- MethodSorter.getDeclaredMethods(superClass)
+      (test, scalaVersion, jdkVersion) <- createTestMethods(klass, method)
+    } yield (test, method, scalaVersion, jdkVersion)
 
     if (tests.isEmpty) {
       warn(s"No tests found in ${klass.getName}")
@@ -73,39 +78,56 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase], classScalaVer
 
   private def createTestMethods(
     theClass: Class[_],
-    method: Method,
-    existingNames: mutable.ArrayBuffer[String]
-  ): Seq[(Test, ScalaVersion)] = {
+    method: Method
+  ): Seq[(Test, TestScalaVersion, TestJdkVersion)] = {
     val name = method.getName
-    if (existingNames.contains(name)) return Seq()
 
     if (isTestMethod(method)) {
-      val effectiveVersions = methodEffectiveScalaVersions(method, classScalaVersion)
       val isPublic = isPublicMethod(method)
-      effectiveVersions.map { v =>
+
+      val effectiveScalaVersions = methodEffectiveScalaVersions(method, classScalaVersion)
+      val effectiveJdkVersions = methodEffectiveJdkVersions(method, classJdkVersion)
+      for {
+        scalaVersion <- effectiveScalaVersions
+        jdkVersion <- effectiveJdkVersions
+      } yield {
         val test = if (isPublic) {
           TestSuite.createTest(theClass, name)
         } else {
           warning(s"Test method isn't public: ${method.getName}(${theClass.getCanonicalName})")
         }
-        (test, v)
+        (test, scalaVersion, jdkVersion)
       }
     } else {
       Seq()
     }
   }
 
-  private def methodEffectiveScalaVersions(method: Method, classVersions: Seq[ScalaVersion]): Seq[ScalaVersion] =
+  private def methodEffectiveScalaVersions(method: Method, classVersions: Seq[TestScalaVersion]): Seq[TestScalaVersion] =
     method.getAnnotation(classOf[RunWithScalaVersions]) match {
       case null =>
-        classScalaVersion
+        classVersions
       case annotation =>
         val baseVersions = if (annotation.value.isEmpty) {
-          classScalaVersion
+          classVersions
         } else {
-          annotation.value.map(_.toProductionVersion).toSeq
+          annotation.value.toSeq
         }
-        val extraVersions = annotation.extra.map(_.toProductionVersion).toSeq
+        val extraVersions = annotation.extra.toSeq
+        (baseVersions ++ extraVersions).sorted.distinct
+    }
+
+  private def methodEffectiveJdkVersions(method: Method, classVersions: Seq[TestJdkVersion]): Seq[TestJdkVersion] =
+    method.getAnnotation(classOf[RunWithJdkVersions]) match {
+      case null =>
+        classVersions
+      case annotation =>
+        val baseVersions = if (annotation.value.isEmpty) {
+          classVersions
+        } else {
+          annotation.value.toSeq
+        }
+        val extraVersions = annotation.extra.toSeq
         (baseVersions ++ extraVersions).sorted.distinct
     }
 
@@ -116,7 +138,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase], classScalaVer
       m.getName.startsWith("test") &&
       m.getReturnType == Void.TYPE
 
-  // duplicate from `orgjunit.framework.TestSuite.warning`
+  // duplicate from `org.junit.framework.TestSuite.warning`
   // the method is public in junit 4.12 in but private in `junit.jar` in IDEA jars which leads to a compilation error on TeamCity
   private def warning(message: String) = new TestCase("warning") {
     //noinspection ScalaDeprecation

@@ -11,7 +11,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.testFramework.{CompilerTester, EdtTestUtil, JavaModuleTestCase, PsiTestUtil, VfsTestUtil}
-import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.jetbrains.plugins.scala.base.{InjectableJdk, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
@@ -79,7 +79,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     SourcesLoader(getSourceRootDir.getCanonicalPath)
   ) ++ additionalLibraries
 
-  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
+  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK(testProjectJdkVersion)
 
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
