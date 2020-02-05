@@ -39,10 +39,6 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
   override def createHandler(module: Module): OrderEnumerationHandler = new SbtOrderEnumeratorHandler
 
-  override def isApplicable(project: Project): Boolean = {
-    ModuleManager.getInstance(project).getModules.exists(isApplicable)
-  }
-
   override def isApplicable(module: Module): Boolean = {
     ExternalSystemApiUtil.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
   }
