@@ -6,7 +6,7 @@ import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, Highl
 import com.intellij.codeInsight.daemon.impl.{AnnotationHolderImpl, HighlightInfo, HighlightVisitor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
@@ -23,10 +23,8 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
   private var myAnnotationHolder: AnnotationHolderImpl = _
 
   override def suitableForFile(file: PsiFile): Boolean = {
-    val hasScala = file.hasScalaPsi
-    val shouldInspect = HighlightingLevelManager.getInstance(project).shouldInspect(file)
-
-    hasScala && (shouldInspect || isUnitTestMode)
+    HighlightingLevelManager.getInstance(project).shouldInspect(file) &&
+      ScalaHighlightingMode.isScalaAnnotatorEnabled(file)
   }
 
   override def visit(element: PsiElement): Unit = {

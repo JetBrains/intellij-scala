@@ -8,9 +8,11 @@ import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListe
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.problems.WolfTheProblemSolver
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.externalHighlighters.CompilerErrorsListener.compilerMessageHighlightable
+import org.jetbrains.plugins.scala.settings.ProblemSolverUtils
 
 private class CompilerErrorsListener extends CompilationStatusListener {
 
@@ -23,18 +25,29 @@ private class CompilerErrorsListener extends CompilationStatusListener {
   }
 
   private def compilationFinished(context: CompileContext): Unit = {
-    if (Registry.is("scala.show.compiler.errors.in.editor")) {
-      val project = context.getProject
-      val errorsByFile = context.getMessages(CompilerMessageCategory.ERROR).toSeq
-        .groupBy(_.getVirtualFile)
+    val project = context.getProject
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+      storeMessages(context)
 
-      storeErrors(errorsByFile, project)
-      ExternalHighlighters.updateOpenEditors(errorsByFile)
+      ExternalHighlighters.updateOpenEditors(project, getState(project).currentMessages)
+      informWolf(project)
     }
   }
 
-  private def storeErrors(errorsByFile: Map[VirtualFile, Seq[CompilerMessage]], project: Project): Unit = {
-    ServiceManager.getService(project, classOf[CompilerErrorsListener.State]).errorsByFile = errorsByFile
+  private def storeMessages(context: CompileContext): Unit = {
+    val state = getState(context.getProject)
+
+    state.errorsByFile   = context.getMessages(CompilerMessageCategory.ERROR).toSeq.groupBy(_.getVirtualFile)
+    state.warningsByFile = context.getMessages(CompilerMessageCategory.WARNING).toSeq.groupBy(_.getVirtualFile)
+  }
+
+  private def getState(project: Project) =
+    ServiceManager.getService(project, classOf[CompilerErrorsListener.State])
+
+  private def informWolf(project: Project): Unit = {
+    ProblemSolverUtils.clearAllProblemsFromExternalSource(project, CompilerErrorsListener)
+    val wolf = WolfTheProblemSolver.getInstance(project)
+    getState(project).errorsByFile.keys.foreach(wolf.reportProblemsFromExternalSource(_, CompilerErrorsListener))
   }
 }
 
@@ -42,16 +55,16 @@ private object CompilerErrorsListener {
 
   private class State(project: Project) {
 
-    var errorsByFile: Map[VirtualFile, Seq[CompilerMessage]] = Map.empty
+    var errorsByFile  : Map[VirtualFile, Seq[CompilerMessage]] = Map.empty
+    var warningsByFile: Map[VirtualFile, Seq[CompilerMessage]] = Map.empty
+
+    def currentMessages(file: VirtualFile): Seq[CompilerMessage] =
+      errorsByFile.getOrElse(file, Nil) ++ warningsByFile.getOrElse(file, Nil)
 
     EditorFactory.getInstance().addEditorFactoryListener(new EditorFactoryListener {
       override def editorCreated(event: EditorFactoryEvent): Unit = {
         val editor = event.getEditor
-
-        ExternalHighlighters.scalaFile(editor).foreach { vFile =>
-          val currentErrors = errorsByFile.getOrElse(vFile, Seq.empty)
-          ExternalHighlighters.applyHighlighting(editor, currentErrors)
-        }
+        ExternalHighlighters.applyHighlighting(project, editor, currentMessages)
       }
     }, project)
   }

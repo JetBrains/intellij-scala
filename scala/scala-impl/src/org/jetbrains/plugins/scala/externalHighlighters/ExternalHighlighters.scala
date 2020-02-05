@@ -4,6 +4,7 @@ import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil}
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
@@ -14,35 +15,34 @@ import scala.collection.JavaConverters._
 
 object ExternalHighlighters {
 
-  def updateOpenEditors[T: Highlightable](infosByFile: Map[VirtualFile, Seq[T]]): Unit = {
+  def updateOpenEditors[T: Highlightable](project: Project, infosByFile: VirtualFile => Seq[T]): Unit = {
 
     val editors = EditorFactory.getInstance().getAllEditors
-    for {
-      editor <- editors
-      vFile  <- scalaFile(editor)
-    } {
-      val infos = infosByFile.getOrElse(vFile, Seq.empty)
+      .filter(_.getProject == project)
 
-      applyHighlighting(editor, infos)
+    for (editor <- editors) {
+      applyHighlighting(project, editor, infosByFile)
     }
   }
 
-  def applyHighlighting[T: Highlightable](editor: Editor,
-                                          infos: Seq[T]): Unit = {
+  def applyHighlighting[T: Highlightable](project: Project,
+                                          editor: Editor,
+                                          infosByFile: VirtualFile => Seq[T]): Unit = {
 
-    val document = editor.getDocument
-    val highlightInfos = infos.map(toHighlightInfo(_, editor))
+    for (vFile <- scalaFile(editor)) {
 
-    invokeLater {
+      invokeLater {
+        val highlightInfos = infosByFile(vFile).map(toHighlightInfo(_, editor))
 
-      UpdateHighlightersUtil.setHighlightersToEditor(
-        editor.getProject,
-        document, 0, document.getTextLength,
-        highlightInfos.asJava,
-        editor.getColorsScheme,
-        Pass.EXTERNAL_TOOLS
-      )
-
+        val document = editor.getDocument
+        UpdateHighlightersUtil.setHighlightersToEditor(
+          project,
+          document, 0, document.getTextLength,
+          highlightInfos.asJava,
+          editor.getColorsScheme,
+          Pass.EXTERNAL_TOOLS
+        )
+      }
     }
   }
 

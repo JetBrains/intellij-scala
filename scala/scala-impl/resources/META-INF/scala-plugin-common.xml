@@ -507,6 +507,8 @@
 
         <registryKey key="scala.show.compiler.errors.in.editor" defaultValue="false" restartRequired="false"
                      description="Show errors from scala compiler in the editor"/>
+        <registryKey key="dotty.show.compiler.errors.in.editor" defaultValue="true" restartRequired="false"
+                     description="Show errors from dotty compiler in the editor"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
