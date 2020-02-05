@@ -106,7 +106,10 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     // special handling for sbt projects: run bloopInstall first
     // TODO support other bloop-enabled build tools as well
     val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspaceCreationFile)
-    val sbtMessages = if (SbtProjectImportProvider.canImport(vfile)) {
+    val sbtMessages = if (
+      executionSettings.runBloopInstall &&
+      SbtProjectImportProvider.canImport(vfile)
+    ) {
       runBloopInstall(workspaceCreationFile, reporter)
     } else Success(BuildMessages.empty.status(BuildMessages.OK))
 

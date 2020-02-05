@@ -95,7 +95,7 @@ object BSPCli extends App {
   }
 
   var running = true
-  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), true)
+  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), true, true)
   val bspComm = BspCommunication.forWorkspace(new File(opts.projectPath))
   val resolver = new BspProjectResolver()
   val targets = {

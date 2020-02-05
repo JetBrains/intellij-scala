@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.settings
 
+import java.beans.BeanProperty
 import java.io.File
 import java.util
 
@@ -15,17 +16,19 @@ import com.intellij.util.xmlb.annotations.XCollection
 import javax.swing.JCheckBox
 import org.jetbrains.bsp._
 
-import scala.beans.BeanProperty
-
 class BspProjectSettings extends ExternalProjectSettings {
 
   @BeanProperty
   var buildOnSave = false
 
+  @BeanProperty
+  var runBloopInstall = true
+
   override def clone(): BspProjectSettings = {
     val result = new BspProjectSettings
     copyTo(result)
     result.buildOnSave = buildOnSave
+    result.runBloopInstall = runBloopInstall
     result
   }
 }
@@ -36,25 +39,33 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
   @BeanProperty
   var buildOnSave = false
 
+  @BeanProperty
+  var runBloopInstall = true
+
   private val buildOnSaveCheckBox = new JCheckBox("build automatically on file save")
+  private val runBloopInstallCheckBox = new JCheckBox("export sbt projects to Bloop before import")
 
   override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
     val fillLineConstraints = getFillLineConstraints(1)
     content.add(buildOnSaveCheckBox, fillLineConstraints)
+    content.add(runBloopInstallCheckBox, fillLineConstraints)
   }
 
   override def isExtraSettingModified: Boolean = {
     val initial = getInitialSettings
     buildOnSaveCheckBox.isSelected != initial.buildOnSave
+    runBloopInstallCheckBox.isSelected != initial.runBloopInstall
   }
 
   override def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val initial = getInitialSettings
     buildOnSaveCheckBox.setSelected(initial.buildOnSave)
+    runBloopInstallCheckBox.setSelected(initial.runBloopInstall)
   }
 
   override def applyExtraSettings(settings: BspProjectSettings): Unit = {
     settings.buildOnSave = buildOnSaveCheckBox.isSelected
+    settings.runBloopInstall = runBloopInstallCheckBox.isSelected
   }
 
   override def validate(settings: BspProjectSettings): Boolean = true
@@ -67,10 +78,16 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
 
 
 /** A dummy to satisfy interface constraints of ExternalSystem */
-trait BspProjectSettingsListener extends ExternalSystemSettingsListener[BspProjectSettings]
+trait BspProjectSettingsListener extends ExternalSystemSettingsListener[BspProjectSettings] {
+  def onBuildOnSaveChanged(buildOnSave: Boolean)
+  def onRunBloopInstallChanged(runBloopInstall: Boolean)
+}
 
 class BspProjectSettingsListenerAdapter(listener: ExternalSystemSettingsListener[BspProjectSettings])
-  extends DelegatingExternalSystemSettingsListener[BspProjectSettings](listener) with BspProjectSettingsListener
+  extends DelegatingExternalSystemSettingsListener[BspProjectSettings](listener) with BspProjectSettingsListener {
+  override def onBuildOnSaveChanged(buildOnSave: Boolean): Unit = {}
+  override def onRunBloopInstallChanged(runBloopInstall: Boolean): Unit = {}
+}
 
 
 object BspTopic extends Topic[BspProjectSettingsListener]("bsp-specific settings", classOf[BspProjectSettingsListener])
@@ -93,7 +110,12 @@ class BspSettings(project: Project)
 
   override def copyExtraSettingsFrom(settings: BspSettings): Unit = {}
 
-  override def checkSettings(old: BspProjectSettings, current: BspProjectSettings): Unit = {}
+  override def checkSettings(old: BspProjectSettings, current: BspProjectSettings): Unit = {
+    if(old.buildOnSave != current.buildOnSave)
+      getPublisher.onBuildOnSaveChanged(current.buildOnSave)
+    if(old.runBloopInstall != current.runBloopInstall)
+      getPublisher.onRunBloopInstallChanged(current.runBloopInstall)
+  }
 
   override def getState: BspSettings.State = {
     val state = new BspSettings.State
@@ -168,13 +190,23 @@ object BspLocalSettings {
 class BspLocalSettingsState extends AbstractExternalSystemLocalSettings.State
 
 class BspExecutionSettings(val basePath: File,
-                           val traceBsp: Boolean) extends ExternalSystemExecutionSettings
+                           val traceBsp: Boolean,
+                           val runBloopInstall: Boolean
+                          ) extends ExternalSystemExecutionSettings
 
 object BspExecutionSettings {
 
+  def executionSettingsFor(project: Project, basePath: File): BspExecutionSettings = {
+    val bspSettings = BspSettings.getInstance(project)
+    val projectSettings = bspSettings.getLinkedProjectSettings(basePath.getAbsolutePath)
+    val systemSettings = BspSystemSettings.getInstance
+    new BspExecutionSettings(basePath, systemSettings.getState.traceBsp, projectSettings.runBloopInstall)
+  }
+
   def executionSettingsFor(basePath: File): BspExecutionSettings = {
     val systemSettings = BspSystemSettings.getInstance
-    new BspExecutionSettings(basePath, systemSettings.getState.traceBsp)
+    val defaultProjectSettings = new BspProjectSettings
+    new BspExecutionSettings(basePath, systemSettings.getState.traceBsp, defaultProjectSettings.runBloopInstall)
   }
 }
 
