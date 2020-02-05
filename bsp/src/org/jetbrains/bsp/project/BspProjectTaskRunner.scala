@@ -15,7 +15,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
-import org.jetbrains.bsp.BSP
+import org.jetbrains.bsp.{BSP, BspUtil}
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.project.test.BspTestRunConfiguration
@@ -33,7 +33,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       val moduleType = ModuleType.get(module)
       moduleType match {
         case _ : BspSyntheticModuleType => false
-        case _ => ES.isExternalSystemAwareModule(BSP.ProjectSystemId, module)
+        case _ => BspUtil.isBspModule(module)
       }
     case t: ExecuteRunConfigurationTask => t.getRunProfile match {
       case _: BspTestRunConfiguration => true

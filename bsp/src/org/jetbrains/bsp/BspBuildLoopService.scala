@@ -3,6 +3,7 @@ package org.jetbrains.bsp
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -45,7 +46,7 @@ final class BspBuildLoopService(project: Project) {
     /** Delays compilation just a little bit so that it's less likely that multiple builds are triggered for one
       * set of changes. */
     private var scheduledCompile: ScheduledFuture[_] =
-      AppExecutorUtil.getAppScheduledExecutorService.schedule[Unit](()=>(),0,TimeUnit.NANOSECONDS)
+      AppExecutorUtil.getAppScheduledExecutorService.schedule[Unit](()=>(), 0, TimeUnit.NANOSECONDS)
 
     private def checkCompile(): Unit = {
       val now = System.nanoTime()
@@ -111,4 +112,9 @@ final class BspBuildLoopService(project: Project) {
       case _ => false
     }
   }
+}
+
+object BspBuildLoopService {
+  def getInstance(project: Project): BspBuildLoopService =
+    ServiceManager.getService(project, classOf[BspBuildLoopService])
 }

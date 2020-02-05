@@ -4,7 +4,7 @@ import com.intellij.ide.ApplicationInitializedListener
 import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.util.registry.Registry
 
-class StartupRoutine extends ApplicationInitializedListener {
+class BspStartupRoutine extends ApplicationInitializedListener {
 
   override def componentsInitialized(): Unit = {
 

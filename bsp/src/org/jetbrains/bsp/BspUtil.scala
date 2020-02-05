@@ -5,14 +5,11 @@ import java.net.URI
 import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 
-import ch.epfl.scala.bsp4j.BuildTargetIdentifier
 import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.FileUtil
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
-import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildTaskReporter
 
@@ -58,6 +55,12 @@ object BspUtil {
       Some(bloopDir.getCanonicalFile)
     else None
   }
+
+  def isBspModule(module: Module): Boolean =
+    ExternalSystemApiUtil.isExternalSystemAwareModule(BSP.ProjectSystemId, module)
+
+  def hasBspModule(project: Project): Boolean =
+    ModuleManager.getInstance(project).getModules.forall(isBspModule)
 
   implicit class ResponseErrorExceptionOps(err: ResponseErrorException) {
     def toBspError: BspError = {

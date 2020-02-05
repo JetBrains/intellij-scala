@@ -20,10 +20,9 @@ import org.jetbrains.bsp.protocol.BspCommunicationService
 
 import scala.collection.JavaConverters._
 
-class BspServerWidgetProvider extends StatusBarWidgetProvider{
+class BspServerWidgetProvider extends StatusBarWidgetProvider {
 
   private val IconRunning = org.jetbrains.bsp.Icons.BSP
-
   private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
   private class Widget(project: Project) extends StatusBarWidget {
