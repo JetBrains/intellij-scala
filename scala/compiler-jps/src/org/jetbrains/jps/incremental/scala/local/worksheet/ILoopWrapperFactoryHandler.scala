@@ -145,10 +145,11 @@ object ILoopWrapperFactoryHandler {
 
   // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to increase the version
   case class WrapperVersion(value: Int)
-  val ILoopWrapperImpl      = ("ILoopWrapperImpl", WrapperVersion(4))
-  val ILoopWrapper213_0Impl = ("ILoopWrapper213_0Impl", WrapperVersion(4))
-  val ILoopWrapper213Impl   = ("ILoopWrapper213Impl", WrapperVersion(4))
-  val ILoopWrapper3Impl     = ("ILoopWrapper3Impl", WrapperVersion(0))
+  private val Scala2ILoopWrapperVersion = 5
+  val ILoopWrapperImpl      = ("ILoopWrapperImpl", WrapperVersion(Scala2ILoopWrapperVersion))
+  val ILoopWrapper213_0Impl = ("ILoopWrapper213_0Impl", WrapperVersion(Scala2ILoopWrapperVersion))
+  val ILoopWrapper213Impl   = ("ILoopWrapper213Impl", WrapperVersion(Scala2ILoopWrapperVersion))
+  val ILoopWrapper3Impl     = ("ILoopWrapper3Impl", WrapperVersion(1))
 
   private def findScalaVersionIn(scalaInstance: ScalaInstance): String =
     compilerVersion(scalaInstance.loader).getOrElse("Undefined")
