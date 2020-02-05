@@ -5,7 +5,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
-import com.intellij.openapi.editor.{Editor, EditorFactory}
+import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
@@ -65,10 +65,8 @@ private object CompilerErrorsListener {
     }
 
     override def message(message: CompilerMessage): String = {
-      val lines = message.getMessage.split('\n')
-
-      if (lines.length > 1) lines.dropRight(1).mkString("\n")
-      else message.getMessage
+      val messageText = message.getMessage
+      messageText.trim.stripSuffix(lineText(messageText))
     }
 
     override def range(message: CompilerMessage, editor: Editor): Option[TextRange] = None
@@ -76,20 +74,44 @@ private object CompilerErrorsListener {
     override def offset(message: CompilerMessage, editor: Editor): Option[Int] = {
       message match {
         case message: CompilerMessageImpl =>
-          val line = message.getLine - 1
+          val lineFromMessage = message.getLine - 1
           val column = (message.getColumn - 1).max(0)
-          if (line < 0)
+          if (lineFromMessage < 0)
             return None
 
-          val lineStart = editor.getDocument.getLineStartOffset(line)
+          val lineTextFromMessage = lineText(message.getMessage)
 
-          Some(lineStart + column)
+          val document = editor.getDocument
+
+          //todo: dotc and scalac report different lines in their messages :(
+          val actualLine =
+            Seq(lineFromMessage, lineFromMessage - 1, lineFromMessage + 1)
+              .find { lineNumber =>
+                documentLine(document, lineNumber).contains(lineTextFromMessage)
+              }
+
+          actualLine.map(line => document.getLineStartOffset(line) + column)
         case _ =>
           None
       }
     }
 
     override def virtualFile(t: CompilerMessage): VirtualFile = t.getVirtualFile
+
+    private def lineText(messageText: String): String = {
+      val lastLineSeparator = messageText.trim.lastIndexOf('\n')
+      if (lastLineSeparator > 0) messageText.substring(lastLineSeparator).trim
+      else ""
+    }
+
+    private def documentLine(document: Document, line: Int): Option[String] = {
+      if (line >= 0 && line < document.getLineCount) {
+        val lineStart = document.getLineStartOffset(line)
+        val lineEnd = document.getLineEndOffset(line)
+        Some(document.getText(TextRange.create(lineStart, lineEnd)).trim)
+      }
+      else None
+    }
   }
 
 }
