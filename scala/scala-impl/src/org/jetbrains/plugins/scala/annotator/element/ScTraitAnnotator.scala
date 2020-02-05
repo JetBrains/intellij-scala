@@ -9,7 +9,6 @@ object ScTraitAnnotator extends ElementAnnotator[ScTrait] {
                        (implicit holder: ScalaAnnotationHolder): Unit =
     for {
       constructor <- element.constructor
-      if constructor.getTextLength > 0
       if !constructor.isInScala3Module
     } {
       holder.createErrorAnnotation(constructor, ScalaBundle.message("trait.parameter.require.scala3"))

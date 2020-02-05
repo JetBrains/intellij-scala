@@ -53,7 +53,10 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
       // and as last resort even the class itself (in order to return at least something)
       // But note: a trait will be returned when a trait is instantiated as anonymous class
       // (of course traits cannot have constructors)
-      elementShouldHaveBeenConcreteConstructor = element.isInstanceOf[ScConstructorOwner]
+      // (wrong! they can now in scala 3, that's why we are checking if the element is
+      //  a constructorOwner AND also has a constructor! It will not have one in scala 2)
+      mayBeConstructor = element.asOptionOf[ScConstructorOwner].flatMap(_.constructor)
+      elementShouldHaveBeenConcreteConstructor = mayBeConstructor.isDefined
       if resolveResult.isAccessible && !elementShouldHaveBeenConcreteConstructor
     } yield resolveResult
 
