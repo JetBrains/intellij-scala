@@ -15,7 +15,8 @@ case class CompilerJars(library: File,
   def hasDotty: Boolean =
     containsDotty(extra)
 
-  def allJars: Seq[File] = library +: compiler +: extra
+  def allJars: Seq[File] =
+    library +: compiler +: extra
 }
 
 object CompilerJars extends CompilerJarsFactory {
@@ -24,16 +25,13 @@ object CompilerJars extends CompilerJarsFactory {
 
   case class JarFileWithName(file: File, name: String)
 
-  def hasDotty(files: Seq[File]): Boolean =
-    files.exists(_.getName.startsWith("dotty"))
-
   override def fromFiles(files: Seq[File]): Either[CompilerJarsResolveError, CompilerJars] = {
     val jarFiles = collectJars(files)
     fromFiles(jarFiles)
   }
 
   private[data] def fromFiles(files: Seq[JarFileWithName])(implicit d: DummyImplicit): Either[CompilerJarsResolveError, CompilerJars] = {
-    val compilerPrefix = if (CompilerJars.hasDotty(files.map(_.file))) "dotty" else "scala"
+    val compilerPrefix = if (containsDotty(files.map(_.file))) "dotty" else "scala"
     for {
       library <- find(files, s"$compilerPrefix-library")
       compiler <- find(files, s"$compilerPrefix-compiler")

@@ -22,7 +22,7 @@ class DownloadDottySbtBridgeTask
     val errors = for {
       module <- context.getProject.modules
       if !module.isBuildModule
-      dottyVersion <- getDottyVersion(context, module)
+      dottyVersion <- getDottyVersion(module)
       error <- resolveDottySbtBridge(module, dottyVersion).left.toOption
     } yield error
     errors.foreach(context.addMessage(CompilerMessageCategory.ERROR, _, null, -1, -1))
@@ -32,7 +32,7 @@ class DownloadDottySbtBridgeTask
 
 object DownloadDottySbtBridgeTask {
 
-  private def getDottyVersion(context: CompileContext, module: Module): Option[String] = {
+  private def getDottyVersion(module: Module): Option[String] = {
     val compilerClasspath = module.scalaCompilerClasspath
     if (containsDotty(compilerClasspath)) {
       val urls = compilerClasspath.map(_.toURI.toURL).toSet
