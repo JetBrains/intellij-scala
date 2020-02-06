@@ -1,16 +1,18 @@
-package org.jetbrains.jps
-package incremental
-package scala
+package org.jetbrains.jps.incremental.scala
 
-import _root_.java.io.File
-import _root_.java.util
+import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
+import org.jetbrains.jps.incremental.fs.CompilationRound
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, FSOperations, ModuleBuildTarget, ModuleLevelBuilder}
+import org.jetbrains.plugins.scala.compiler.{CompileOrder, IncrementalityType}
 
-import _root_.scala.collection.JavaConverters._
-import _root_.scala.collection.mutable
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /**
   * Nikolay.Tropin
@@ -20,7 +22,6 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
   import ModuleLevelBuilder._
   import ScalaBuilder._
-  import messages._
 
   override def getPresentableName: String = "Scala IDEA builder"
 
@@ -61,7 +62,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     else {
       val additionalFiles = packageObjectsData.invalidatedPackageObjects(sources).filter(_.exists)
       if (additionalFiles.nonEmpty) {
-        (sources ++ additionalFiles).foreach(f => FSOperations.markDirty(context, fs.CompilationRound.NEXT, f))
+        (sources ++ additionalFiles).foreach(f => FSOperations.markDirty(context, CompilationRound.NEXT, f))
         return ExitCode.ADDITIONAL_PASS_REQUIRED
       }
     }
@@ -73,7 +74,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val successfullyCompiled = mutable.Set.empty[File]
 
-    val compilerName = if (data.CompilerData.hasDotty(modules)) "dotc"
+    val compilerName = if (data.CompilerDataFactory.hasDotty(modules)) "dotc"
     else "scalac"
 
     val client = new local.IdeClientIdea(compilerName, context, modules.map(_.getName).toSeq, outputConsumer,
@@ -96,15 +97,16 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     }
   }
 
-  override def getCompilableFileExtensions: util.List[String] = util.Arrays.asList("scala", "java")
+  override def getCompilableFileExtensions: java.util.List[String] =
+    java.util.Arrays.asList("scala", "java")
 
   private def isDisabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
     val settings = projectSettings(context)
 
-    def wrongIncrType = settings.getIncrementalityType != model.IncrementalityType.IDEA
+    def wrongIncrType = settings.getIncrementalityType != IncrementalityType.IDEA
 
     def wrongCompileOrder = {
-      import model.CompileOrder._
+      import org.jetbrains.plugins.scala.compiler.CompileOrder._
       settings.getCompilerSettings(chunk).getCompileOrder match {
         case JavaThenScala => getCategory == BuilderCategory.SOURCE_PROCESSOR
         case ScalaThenJava | Mixed => getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
@@ -124,7 +126,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val compileOrder = projectSettings(context).getCompilerSettings(chunk).getCompileOrder
     val extensionsToCollect = compileOrder match {
-      case model.CompileOrder.Mixed => List(".scala", ".java")
+      case CompileOrder.Mixed => List(".scala", ".java")
       case _ => List(".scala")
     }
 
@@ -150,6 +152,4 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     if (!result.exists(_.getName.endsWith(".scala"))) Seq.empty
     else result
   }
-
-
 }

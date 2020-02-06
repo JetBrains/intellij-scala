@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compiler
 import java.util
 
 import com.intellij.compiler.server.BuildProcessParametersProvider
-import org.jetbrains.jps.incremental.scala.data.SbtData
+import org.jetbrains.plugins.scala.compiler.data.SbtData
 
 import scala.collection.JavaConverters._
 

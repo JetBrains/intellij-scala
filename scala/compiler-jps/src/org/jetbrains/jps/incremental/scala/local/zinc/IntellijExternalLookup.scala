@@ -4,7 +4,7 @@ import java.io.File
 import java.util.Optional
 
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.data.CompilationData
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc._
 import xsbti.compile._
 

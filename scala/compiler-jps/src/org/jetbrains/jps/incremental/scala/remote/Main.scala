@@ -7,8 +7,10 @@ import java.util.{Base64, Timer, TimerTask}
 
 import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.data.ArgumentsParser
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
+import org.jetbrains.plugins.scala.compiler.data.Arguments
 
 /**
  * Nailgun Nail, used in:
@@ -82,7 +84,7 @@ object Main {
 
   private def decodeArguments(argsEncoded: Seq[String]): Arguments = {
     val args = argsEncoded.map(decodeArgument)
-    Arguments.from(args)
+    ArgumentsParser.parse(args)
   }
 
   private def decodeArgument(argEncoded: String): String = {

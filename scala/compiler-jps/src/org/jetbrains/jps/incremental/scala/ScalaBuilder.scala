@@ -11,6 +11,7 @@ import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 
 import _root_.scala.collection.JavaConverters._
 
@@ -37,8 +38,7 @@ object ScalaBuilder {
       dataFactory = dataFactoryOf(context)
       compilerData <- dataFactory.getCompilerDataFactory.from(context, chunk)
       compilationData <- dataFactory.getCompilationDataFactory.from(sources, allSources, context,  chunk)
-    }
-    yield {
+    } yield {
       scalaLibraryWarning(modules, compilationData, client)
 
       val server = getServer(context)

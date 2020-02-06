@@ -1,4 +1,4 @@
-package org.jetbrains.jps.incremental.scala.data
+package org.jetbrains.plugins.scala.compiler.data
 
 import scala.util.Try
 

@@ -47,7 +47,7 @@ class WorksheetInProcessRunnerFactory {
         val worksheetUrls = (Seq(worksheetArgs.pathToRunners, worksheetArgs.worksheetTemp) ++ worksheetArgs.outputDirs).map(_.toURI.toURL)
         val classpathUrls = worksheetArgs.classpathUrls
         val compilerUrls  = {
-          val jars = Seq(worksheetArgs.compilerJars.library, worksheetArgs.compilerJars.compiler) ++ worksheetArgs.compilerJars.extra
+          val jars = worksheetArgs.compilerJars.allJars
           jars.map(_.getCanonicalPath).map(toUrlSpec)
         }
 

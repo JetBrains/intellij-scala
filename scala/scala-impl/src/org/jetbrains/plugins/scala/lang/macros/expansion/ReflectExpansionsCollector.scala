@@ -9,13 +9,14 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugin.scala.util.{MacroExpansion, Place}
+import org.jetbrains.plugins.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.extensions
 
 import scala.collection.mutable
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
+import org.jetbrains.plugins.scala.util.{MacroExpansion, Place}
 
 /**
   * @author Mikhail Mutcianko

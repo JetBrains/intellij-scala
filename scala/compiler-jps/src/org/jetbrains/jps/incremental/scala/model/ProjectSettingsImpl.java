@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala.model;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
 import org.jetbrains.jps.model.ex.JpsElementBase;
+import org.jetbrains.plugins.scala.compiler.IncrementalityType;
 
 import java.util.HashMap;
 import java.util.Map;

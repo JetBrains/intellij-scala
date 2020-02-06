@@ -51,13 +51,13 @@ class RemoteServerConnector(
     * 5. Code chunk to interpret (iff REPL enabled)
     * 6. "replenabled" - iff/if REPL mode enabled
     */
-  override val worksheetArgs: Array[String] =
+  override val worksheetArgs: Seq[String] =
     makeType match {
       case OutOfProcessServer =>
-        Array.empty[String]
+        Seq.empty[String]
       case _ =>
         val baseArgs = Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
-        baseArgs ++ replArgs.toArray.flatMap(ra => Array(ra.path, ra.codeChunk, "replenabled"))
+        baseArgs ++ replArgs.toSeq.flatMap(ra => Seq(ra.path, ra.codeChunk, "replenabled"))
     }
 
   // TODO: make something more advanced than just `callback: Runnable`: error reporting, Future, Task, etc...
@@ -79,7 +79,7 @@ class RemoteServerConnector(
           runner.buildProcess(argumentsFinal, client)
 
         case NonServer =>
-          val argumentsFinal = "NO_TOKEN" +: arguments
+          val argumentsFinal = NoToken +: arguments
           val argumentsEncoded = argumentsFinal.map { arg =>
             val argFixed = if(arg.isEmpty) "#STUB#" else arg
             Base64.getEncoder.encodeToString(argFixed.getBytes(StandardCharsets.UTF_8))

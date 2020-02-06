@@ -6,9 +6,9 @@ import java.nio.{Buffer, ByteBuffer}
 
 import com.martiansoftware.nailgun.ThreadLocalPrintStream
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.data.CompilerJars
 import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.{ReplArgsJava, WorksheetArgsJava}
-import org.jetbrains.jps.incremental.scala.remote.Arguments
+import org.jetbrains.plugins.scala.compiler.data
+import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilerJars}
 
 import scala.collection.JavaConverters._
 
@@ -53,7 +53,7 @@ object WorksheetServer {
   def convertWorksheetArgsFromJava(javaArgs: WorksheetArgsJava): WorksheetArgs = {
     val replArgs = Option(javaArgs.getReplArgs).map(ReplArgs.fromJava)
 
-    val compilerJars = CompilerJars(
+    val compilerJars = data.CompilerJars(
       javaArgs.getCompLibrary,
       javaArgs.getCompiler,
       javaArgs.getCompExtra.asScala

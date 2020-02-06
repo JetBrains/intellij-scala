@@ -4,10 +4,10 @@ package local
 import java.io.File
 import java.util.Optional
 
-import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
 import org.jetbrains.jps.incremental.scala.local.zinc.{BinaryToSource, _}
-import org.jetbrains.jps.incremental.scala.model.CompileOrder
+import org.jetbrains.plugins.scala.compiler.CompileOrder
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc._
 import xsbti.compile._
 
@@ -58,7 +58,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
     val cs = incrementalCompiler.compilers(javaTools, scalac)
     val setup = incrementalCompiler.setup(
       IntellijEntryLookup(compilationData, fileToStore),
-      /*skip = */ false,
+      skip = false,
       compilationData.cacheFile,
       CompilerCache.fresh,
       incOptions,

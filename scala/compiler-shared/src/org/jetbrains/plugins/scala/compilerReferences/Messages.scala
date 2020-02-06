@@ -1,4 +1,4 @@
-package org.jetbrains.plugin.scala.compilerReferences
+package org.jetbrains.plugins.scala.compilerReferences
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.nio.charset.StandardCharsets
@@ -6,7 +6,7 @@ import java.util.Base64
 import java.util.zip.{DeflaterOutputStream, InflaterInputStream}
 
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
-import org.jetbrains.plugin.scala.compilerReferences.Builder.id
+import Builder.id
 import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import spray.json._

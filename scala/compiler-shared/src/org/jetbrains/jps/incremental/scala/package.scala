@@ -40,6 +40,13 @@ package object scala {
   def containsDotty(files: Iterable[File]): Boolean =
     files.exists(_.getName.startsWith("dotty"))
 
+  // TODO implement a better version comparison
+  def compilerVersionIn(compiler: File, versions: String*): Boolean =
+    compilerVersion(compiler).exists { version => versions.exists(version.startsWith) }
+
+  def compilerVersion(compiler: File): Option[String] =
+    compilerVersion(Set(compiler.toURI.toURL))
+
   def compilerVersion(urls: Set[URL]): Option[String] =
     compilerVersion(new URLClassLoader(urls.toArray, null))
 

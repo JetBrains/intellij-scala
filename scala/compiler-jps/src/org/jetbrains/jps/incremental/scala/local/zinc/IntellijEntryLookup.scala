@@ -3,11 +3,11 @@ package org.jetbrains.jps.incremental.scala.local.zinc
 import java.io.File
 import java.util.Optional
 
-import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.local.DefinesClassCache
 import sbt.internal.inc.Analysis
 import xsbti.compile.{AnalysisStore, CompileAnalysis, DefinesClass, PerClasspathEntryLookup}
 import Utils._
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 
 
 case class IntellijEntryLookup(compilationData: CompilationData, fileToStore: File => AnalysisStore)

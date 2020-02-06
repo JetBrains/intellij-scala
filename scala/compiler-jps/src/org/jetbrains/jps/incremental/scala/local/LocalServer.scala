@@ -7,6 +7,7 @@ import java.util.ServiceLoader
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.scala.data._
+import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, SbtData}
 import xsbti.compile.AnalysisStore
 import sbt.internal.inc.FileAnalysisStore
 
@@ -19,7 +20,10 @@ class LocalServer extends Server {
   private var cachedCompilerFactory: Option[CompilerFactory] = None
   private val lock = new Object()
 
-  def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
+  def compile(sbtData: SbtData,
+              compilerData: CompilerData,
+              compilationData: CompilationData,
+              client: Client): ExitCode = {
     val compiler = try lock.synchronized {
       val compilerFactory = compilerFactoryFrom(sbtData, compilerData)
 

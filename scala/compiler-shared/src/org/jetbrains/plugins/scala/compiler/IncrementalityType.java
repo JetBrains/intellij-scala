@@ -1,4 +1,4 @@
-package org.jetbrains.jps.incremental.scala.model;
+package org.jetbrains.plugins.scala.compiler;
 
 /**
  * @author Pavel Fatin

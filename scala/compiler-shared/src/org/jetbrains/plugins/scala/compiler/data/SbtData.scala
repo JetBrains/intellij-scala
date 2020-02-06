@@ -1,11 +1,11 @@
-package org.jetbrains.jps.incremental.scala
-package data
+package org.jetbrains.plugins.scala.compiler.data
 
 import java.io._
 import java.security.MessageDigest
 import java.util.jar.JarFile
 
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.incremental.scala.using
 
 import scala.io.Source
 import scala.util.{Failure, Success, Try}

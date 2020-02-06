@@ -5,9 +5,9 @@ import java.io.File
 import java.net.URLClassLoader
 
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
-import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
-import org.jetbrains.jps.incremental.scala.model.IncrementalityType
+import org.jetbrains.plugins.scala.compiler.IncrementalityType
+import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, SbtData}
 import sbt.internal.inc._
 import sbt.internal.inc.classpath.ClassLoaderCache
 import sbt.internal.inc.javac.JavaTools

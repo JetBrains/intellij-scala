@@ -6,16 +6,15 @@ import java.net.{URLClassLoader, URLDecoder}
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
 import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.{JavaClientProvider, JavaILoopWrapperFactory}
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.IsolatingClassLoader
-import org.jetbrains.jps.incremental.scala.remote.Arguments
 import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.io.Path
 import sbt.util.{Level, Logger}
 import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 import org.jetbrains.jps.incremental.scala.compilerVersion
+import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilerJars, SbtData}
 
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
@@ -167,7 +166,7 @@ object ILoopWrapperFactoryHandler {
   }
 
   private def createIsolatingClassLoader(compilerJars: CompilerJars): URLClassLoader = {
-    val jars = compilerJars.library +: compilerJars.compiler +: compilerJars.extra
+    val jars = compilerJars.allJars
     val parent = IsolatingClassLoader.scalaStdLibIsolatingLoader(this.getClass.getClassLoader)
     new URLClassLoader(Path.toURLs(jars), parent)
   }
