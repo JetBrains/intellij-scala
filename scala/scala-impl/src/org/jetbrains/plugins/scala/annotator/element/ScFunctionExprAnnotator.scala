@@ -27,13 +27,13 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
     val (result, parameters) = (literal.result, literal.parameters)
 
-    val functionType = literal.expectedType() match {
+    val expectedFunctionType = literal.expectedType() match {
       case Some(t @ FunctionType(_, _)) => Some(t)
       case Some(t) => toSAMType(t, literal)
       case _ => None
     }
 
-    functionType match {
+    expectedFunctionType match {
       case Some(FunctionType(_, expectedParameterTypes)) =>
 
         // Missing parameters
@@ -66,7 +66,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
         // Parameter type mismatch
         parameters.iterator.takeWhile(_ => !problemWithParameters).foreach { parameter =>
           (parameter.expectedParamType, parameter.typeElement.flatMap(_.`type`().toOption)) match {
-            case (Some(expectedType), Some(annotatedType)) if !annotatedType.conforms(expectedType) =>
+            case (Some(expectedType), Some(annotatedType)) if !expectedType.conforms(annotatedType) =>
               val message = s"Type mismatch, expected: ${expectedType.presentableText(parameter)}, actual: ${parameter.typeElement.get.getText}"
               val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(parameter)
               ranges.foreach { range =>
