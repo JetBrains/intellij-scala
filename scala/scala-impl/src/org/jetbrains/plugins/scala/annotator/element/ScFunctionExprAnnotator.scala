@@ -16,31 +16,23 @@ import org.jetbrains.plugins.scala.util.SAMUtil.toSAMType
 object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
   override def annotate(literal: ScFunctionExpr, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
-    if (!typeAware || conformsToExpectedType(literal) || isImplicitlyConverted(literal)) {
+    if (!typeAware || isImplicitlyConverted(literal)) {
       return
     }
 
     val parameters = literal.parameters
 
     val problemWithParameters = expectedFunctionTypeOf(literal).exists {
-      case FunctionType(_, expectedParameterTypes) =>
-        missingParametersIn(literal, parameters, expectedParameterTypes) ||
-          tooManyParametersIn(literal, parameters, expectedParameterTypes) ||
-          parameterTypeMismatchIn(parameters)
+      case FunctionType(_, expectedTypes) =>
+        missingParametersIn(literal, parameters, expectedTypes) ||
+          tooManyParametersIn(literal, parameters, expectedTypes) ||
+          parameterTypeMismatchIn(parameters, expectedTypes)
     } || missingParameterTypeIn(parameters)
 
     if (!problemWithParameters) {
       resultTypeMismatchIn(literal)
     }
   }
-
-  // TODO Always use fine-grained type checking?
-  // Don't type check the parts separately when the whole type is OK (to avoid new errors in unit tests)
-  private def conformsToExpectedType(literal: ScFunctionExpr): Boolean =
-    (literal.expectedType(), literal.`type`().toOption) match {
-      case (Some(expected), Some(actual)) => actual.conforms(expected)
-      case _ => true
-    }
 
   private def isImplicitlyConverted(literal: ScFunctionExpr) =
     (literal.`type`().toOption, literal.getTypeWithoutImplicits().toOption) match {
@@ -49,52 +41,54 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     }
 
   private def expectedFunctionTypeOf(literal: ScFunctionExpr) = literal.expectedType() match {
-    case Some(t@FunctionType(_, _)) => Some(t)
+    case Some(t @ FunctionType(_, _)) => Some(t)
     case Some(t) => toSAMType(t, literal)
     case _ => None
   }
 
-  private def missingParametersIn(literal: ScFunctionExpr, parameters: Seq[ScParameter], expectedParameterTypes: Seq[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
-    val missing = parameters.length < expectedParameterTypes.length
+  private def missingParametersIn(literal: ScFunctionExpr, parameters: Seq[ScParameter], expectedTypes: Seq[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
+    val missing = parameters.length < expectedTypes.length
     if (missing) {
       val startElement = if (parameters.isEmpty) literal.leftParen.getOrElse(literal.params) else parameters.last
-      val errorRange = startElement.nextElementNotWhitespace match {
-        case Some(nextElement) => new TextRange(startElement.getTextRange.getEndOffset - 1, nextElement.getTextOffset + 1)
-        case None => startElement.getTextRange
-      }
-      val message = (if (expectedParameterTypes.length - parameters.length == 1) "Missing parameter: " else "Missing parameters: ") +
-        expectedParameterTypes.drop(parameters.length).map(_.presentableText(literal)).mkString(", ")
+
+      val errorRange = startElement.nextElementNotWhitespace
+        .map(nextElement => new TextRange(startElement.getTextRange.getEndOffset - 1, nextElement.getTextOffset + 1))
+        .getOrElse(startElement.getTextRange)
+
+      val message = (if (expectedTypes.length - parameters.length == 1) "Missing parameter: " else "Missing parameters: ") +
+        expectedTypes.drop(parameters.length).map(_.presentableText(literal)).mkString(", ")
+
       holder.createErrorAnnotation(errorRange, message)
     }
     missing
   }
 
-  private def tooManyParametersIn(literal: ScFunctionExpr, parameters: Seq[ScParameter], expectedParameterTypes: Seq[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
-    val tooMany = parameters.length > expectedParameterTypes.length
+  private def tooManyParametersIn(literal: ScFunctionExpr, parameters: Seq[ScParameter], expectedTypes: Seq[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
+    val tooMany = parameters.length > expectedTypes.length
     if (tooMany) {
       if (!literal.hasParentheses) {
         holder.createErrorAnnotation(parameters.head, "Too many parameters")
       } else {
-        val firstExcessiveParameter = parameters(expectedParameterTypes.length)
+        val firstExcessiveParameter = parameters(expectedTypes.length)
+
         val range = new TextRange(
           firstExcessiveParameter.prevElementNotWhitespace.getOrElse(literal.params).getTextRange.getEndOffset - 1,
           firstExcessiveParameter.getTextOffset + 1)
+
         holder.createErrorAnnotation(range, "Too many parameters")
       }
     }
     tooMany
   }
 
-  private def parameterTypeMismatchIn(parameters: Seq[ScParameter])(implicit holder: ScalaAnnotationHolder): Boolean = {
+  private def parameterTypeMismatchIn(parameters: Seq[ScParameter], expectedTypes: Seq[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
     var typeMismatch = false
-    parameters.iterator.takeWhile(_ => !typeMismatch).foreach { parameter =>
-      (parameter.expectedParamType, parameter.typeElement.flatMap(_.`type`().toOption)) match {
-        case (Some(expectedType), Some(annotatedType)) if !expectedType.conforms(annotatedType) =>
-          val message = s"Type mismatch, expected: ${expectedType.presentableText(parameter)}, actual: ${parameter.typeElement.get.getText}"
-          val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(parameter)
-          ranges.foreach(holder.createErrorAnnotation(_, message).registerFix(ReportHighlightingErrorQuickFix))
-          typeMismatch = true
-        case _ =>
+    parameters.zip(expectedTypes).iterator.takeWhile(_ => !typeMismatch).foreach { case (parameter, expectedType) =>
+      parameter.typeElement.flatMap(_.`type`().toOption).filter(!expectedType.conforms(_)).foreach { _ =>
+        val message = s"Type mismatch, expected: ${expectedType.presentableText(parameter)}, actual: ${parameter.typeElement.get.getText}"
+        val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(parameter)
+        ranges.foreach(holder.createErrorAnnotation(_, message).registerFix(ReportHighlightingErrorQuickFix))
+        typeMismatch = true
       }
     }
     typeMismatch
@@ -116,8 +110,9 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
       case Parent((_: ScParenthesisedExpr | _: ScBlockExpr) && Parent(ta: ScTypedExpression)) => Some(ta)
       case _ => None
     }
+
     typeAscription match {
-      case Some(ta) => ScTypedExpressionAnnotator.doAnnotate(ta)
+      case Some(ascription) => ScTypedExpressionAnnotator.doAnnotate(ascription)
       case None =>
         val inMultilineBlock = literal match {
           case Parent(b: ScBlockExpr) => b.textContains('\n')
