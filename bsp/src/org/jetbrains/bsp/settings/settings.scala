@@ -197,10 +197,12 @@ class BspExecutionSettings(val basePath: File,
 object BspExecutionSettings {
 
   def executionSettingsFor(project: Project, basePath: File): BspExecutionSettings = {
+    if (project == null) executionSettingsFor(basePath)
     val bspSettings = BspSettings.getInstance(project)
-    val projectSettings = bspSettings.getLinkedProjectSettings(basePath.getAbsolutePath)
-    val systemSettings = BspSystemSettings.getInstance
-    new BspExecutionSettings(basePath, systemSettings.getState.traceBsp, projectSettings.runPreImportTask)
+    val bspTraceLog = BspSystemSettings.getInstance.getState.traceBsp
+    val runPreImportTask = Option(bspSettings.getLinkedProjectSettings(basePath.getAbsolutePath)).forall(_.runPreImportTask)
+
+    new BspExecutionSettings(basePath, bspTraceLog, runPreImportTask)
   }
 
   def executionSettingsFor(basePath: File): BspExecutionSettings = {
