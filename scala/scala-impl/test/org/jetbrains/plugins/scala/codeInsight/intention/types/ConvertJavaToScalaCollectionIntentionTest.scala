@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_13}
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
+abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
+  extends ScalaIntentionTestBase {
+
   def familyName: String = ConvertJavaToScalaCollectionIntention.getFamilyName
 
 
@@ -66,8 +69,8 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
         |}
       """
     val resultText =
-      """
-        |import scala.collection.JavaConverters._
+      s"""
+        |import $converters
         |
         |class UsesJavaCollections {
         |  val list = new java.util.HashMap<caret>[String, Int]().asScala
@@ -79,20 +82,20 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
 
   def testIntentionAction_Import_Already_Exists() {
     val text =
-      """
+      s"""
         |import java.util
         |
-        |import scala.collection.JavaConverters._
+        |import $converters
         |
         |class UsesJavaCollections {
         |  val list = new util.HashMap<caret>[String, Int]()
         |}
       """
     val resultText =
-      """
+      s"""
         |import java.util
         |
-        |import scala.collection.JavaConverters._
+        |import $converters
         |
         |class UsesJavaCollections {
         |  val list = new util.HashMap<caret>[String, Int]().asScala
@@ -101,4 +104,18 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
 
     doTest(text, resultText)
   }
+
+
+}
+
+class ConvertJavaToScalaCollectionIntentionTest
+  extends ConvertJavaToScalaCollectionIntentionBaseTest("scala.collection.JavaConverters._") {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version < Scala_2_13
+}
+
+class ConvertJavaToScalaCollectionIntention_2_13Test
+  extends ConvertJavaToScalaCollectionIntentionBaseTest("scala.jdk.CollectionConverters._") {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
 }

@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
 
@@ -61,7 +62,10 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
     def addImport() {
       val importsHolder: ScImportsHolder = Option(PsiTreeUtil.getParentOfType(element, classOf[ScPackaging])).
               getOrElse(element.getContainingFile.asInstanceOf[ScImportsHolder])
-      val path = "scala.collection.JavaConverters._"
+      val path = if (element.newCollectionsFramework) // available since 2.13
+        "scala.jdk.CollectionConverters._"
+      else
+        "scala.collection.JavaConverters._"
       importsHolder.addImportForPath(path)
     }
     def appendAsMethod() {
