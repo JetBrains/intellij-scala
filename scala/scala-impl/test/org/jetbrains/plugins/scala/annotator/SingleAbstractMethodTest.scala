@@ -232,7 +232,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |val s: SAAM = (i: String) => i
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("(i: String) => i", doesNotConform()) :: Nil =>
+      case Error("String => i", typeMismatch()) :: Nil =>
     }
   }
 
@@ -700,7 +700,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
         |def l[T]: MyChangeListener[_ >: T] = (observable: P[_ <: T]) => ()
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("(observable: P[_ <: T]) => ()", doesNotConform()) :: Nil =>
+      case Error("P[_ <: T]", typeMismatch()) :: Nil =>
     }
   }
 
