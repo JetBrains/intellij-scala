@@ -3,14 +3,12 @@ package org.jetbrains.plugins.scala.annotator
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.ScalaVersion.Scala_2_12
 
-// Technically, it's "type mismatch", but we can do better than the scalac.
+// Technically, it's "type mismatch", but we can do better than the scalac, SCL-16904
 // See also: TypeMismatchHighlightingTest
 class ScFunctionExprAnnotatorTest extends ScalaHighlightingTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12 // SAMs
 
   override protected def withHints = true
-
-  // Function literal, SCL-16904
 
   def testNotEnoughParameters1(): Unit = assertErrors(
     "val v: Int => Boolean = () => true",
@@ -68,10 +66,25 @@ class ScFunctionExprAnnotatorTest extends ScalaHighlightingTestBase {
     "val v: (Int, String) => Boolean = (x: String, y: Int) => true",
     Error("String", "Type mismatch, expected: Int, actual: String"))
 
+  def testParameterContravariance1(): Unit = assertErrors(
+    "val v: Any => Boolean = (x: String) => true",
+    Error("String", "Type mismatch, expected: Any, actual: String"))
+
+  def testParameterContravariance2(): Unit = assertErrors(
+    "val v: String => Boolean = (x: Any) => true")
+
   def testResultTypeMismatch(): Unit = assertErrors(
     "val v: Int => String = x => 2",
     Hint("2", ": Int"),
     Error("2", "Expression of type Int doesn't conform to expected type String"))
+
+  def testResultTypeMismatchCovariance1(): Unit = assertErrors(
+    "val v: Int => String = x => new AnyRef {}",
+    Hint("new AnyRef {}", ": AnyRef"),
+    Error("new AnyRef {}", "Expression of type AnyRef doesn't conform to expected type String"))
+
+  def testResultTypeMismatchCovariance2(): Unit = assertErrors(
+    "val v: Int => Any = x => 2")
 
   def testParameterMissingAndResultTypeMismatch(): Unit = assertErrors(
     "val v: (Int, Double) => String = foo => 2)",
