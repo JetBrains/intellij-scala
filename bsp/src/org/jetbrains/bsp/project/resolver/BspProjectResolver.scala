@@ -146,7 +146,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[DataNode[ProjectData]]): Try[DataNode[ProjectData]] =
 
     importState match {
-      case BspTask(_) =>
+      case Active | PreImportTask(_) | BspTask(_) =>
         var retry = false
 
         val res = try {
@@ -185,6 +185,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case Active =>
         importState = Inactive
         listener.onCancel(taskId)
+        true
       case Inactive =>
         false
     }
