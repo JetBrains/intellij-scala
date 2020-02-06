@@ -117,16 +117,15 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case Success(messages) if messages.status == BuildMessages.OK =>
         val projectJob = communication.run(requests(_,_), notifications, reporter, processLogger)
         waitForProjectCancelable(projectJob) match {
-          case Failure(BspTaskCancelled) =>
-            reporter.finishCanceled()
-            null
-          case Failure(err: Exception) =>
-            reporter.finishWithFailure(err)
-            throw err
           case Success(data) =>
             reporter.finish(messages)
             data
-
+          case Failure(BspTaskCancelled) =>
+            reporter.finishCanceled()
+            null
+          case Failure(err: Throwable) =>
+            reporter.finishWithFailure(err)
+            throw err
         }
       case Success(messages) =>
         reporter.finish(messages)

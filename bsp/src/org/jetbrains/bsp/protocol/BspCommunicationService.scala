@@ -57,7 +57,7 @@ class BspCommunicationService extends Disposable {
       }
     )
 
-  @deprecated("Multiple BSP servers per IDEA project are possible. use communicate(File) instead")
+  @deprecated("Multiple BSP servers per IDEA project are possible. use communicate(File) instead", "2020.1")
   private[protocol] def communicate(implicit project: Project): BspCommunication =
     projectPath.map(new File(_))
       .map(communicate)

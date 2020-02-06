@@ -36,8 +36,8 @@ private[resolver] object BspResolverDescriptors {
 
   private[resolver] sealed abstract class ModuleKind
 
-  private[resolver] case class ScalaModule(scalaSdkData: ScalaSdkData) extends ModuleKind
   private[resolver] case class UnspecifiedModule() extends ModuleKind
+  private[resolver] case class ScalaModule(scalaSdkData: ScalaSdkData) extends ModuleKind
 
   private[resolver] case class SbtModule(scalaSdkData: ScalaSdkData,
                                          sbtData: SbtBuildModuleDataBsp

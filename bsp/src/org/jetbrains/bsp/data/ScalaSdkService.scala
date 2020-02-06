@@ -73,43 +73,8 @@ object ScalaSdkService {
         }
 
       if !library.isScalaSdk
-    } setScalaSdk(library, compilerClasspath)(Some(presentation))
-
-    private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {
-      val model = getModifiableRootModel(module)
-      model.inheritSdk()
-      sdk.flatMap(SdkUtils.findProjectSdk).foreach(model.setSdk)
-    }
-
-    private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = {
-      val model = getModifiableRootModel(module)
-      val moduleSdk = Option(model.getSdk)
-      val languageLevel = SdkUtils.javaLanguageLevelFrom(javacOptions)
-        .orElse(moduleSdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
-      languageLevel.foreach { level =>
-        val extension = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
-        extension.setLanguageLevel(level)
-      }
-    }
-
-    private def configureJavacOptions(module: Module, javacOptions: Seq[String]): Unit = {
-      for {
-        targetPos <- Option(javacOptions.indexOf("-target")).filterNot(_ == -1)
-        targetValue <- javacOptions.lift(targetPos + 1)
-        compilerSettings = CompilerConfiguration.getInstance(module.getProject)
-      } {
-        executeProjectChangeAction(compilerSettings.setBytecodeTargetLevel(module, targetValue))
-      }
-    }
-
-    private def showWarning(message: String): Unit = {
-      val notification = new NotificationData("bsp Import", message, NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
-      notification.setBalloonGroup("bsp")
-      if (ApplicationManager.getApplication.isUnitTestMode) {
-        throw NotificationException(notification, BSP.ProjectSystemId)
-      } else {
-        ExternalSystemNotificationManager.getInstance(project).showNotification(BSP.ProjectSystemId, notification)
-      }
+    } {
+      setScalaSdk(library, compilerClasspath)(Some(presentation))
     }
 
   }
