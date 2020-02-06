@@ -112,8 +112,9 @@ private object CompilerErrorsListener {
     override def virtualFile(t: CompilerMessage): VirtualFile = t.getVirtualFile
 
     private def lineText(messageText: String): String = {
-      val lastLineSeparator = messageText.trim.lastIndexOf('\n')
-      if (lastLineSeparator > 0) messageText.substring(lastLineSeparator).trim
+      val trimmed = messageText.trim
+      val lastLineSeparator = trimmed.lastIndexOf('\n')
+      if (lastLineSeparator > 0) trimmed.substring(lastLineSeparator).trim
       else ""
     }
 
