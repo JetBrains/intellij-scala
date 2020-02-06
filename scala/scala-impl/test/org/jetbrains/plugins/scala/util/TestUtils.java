@@ -62,6 +62,12 @@ public class TestUtils {
     return TEST_DATA_PATH;
   }
 
+  public static String findCommunityRoot() throws IOException {
+    // <community-root>/scala/scala-impl/testdata/
+    String testDataPath = getTestDataPath();
+    return java.nio.file.Paths.get(testDataPath, "..", "..", "..").normalize().toString() + "/";
+  }
+
   @NotNull
   public static String findTestDataDir(String pathname) throws IOException {
     return findTestDataDir(new File(pathname), "testdata");
