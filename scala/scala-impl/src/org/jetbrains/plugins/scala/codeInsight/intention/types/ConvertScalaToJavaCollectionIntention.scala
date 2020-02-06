@@ -4,7 +4,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * Converts expression representing scala collection to
- * java equivalent using [[scala.collection.JavaConverters]]
+ * java equivalent using [[scala.collection.JavaConverters]] before Scala 2.13
+ * and [[scala.jdk.CollectionConverters]] since Scala 2.13
  *
  * @author Eugene Platonov
  *         23/07/13
