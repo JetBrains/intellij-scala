@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil.toSAMType
 object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
   override def annotate(literal: ScFunctionExpr, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
-    if (!typeAware || isImplicitlyConverted(literal)) {
+    if (!typeAware || conformsToExpectedType(literal) || isImplicitlyConverted(literal)) {
       return
     }
 
@@ -33,6 +33,14 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
       resultTypeMismatchIn(literal)
     }
   }
+
+  // TODO Always use fine-grained type checking?
+  // Don't type check the parts separately when the whole type is OK (to avoid new errors in unit tests)
+  private def conformsToExpectedType(literal: ScFunctionExpr): Boolean =
+    (literal.expectedType(), literal.`type`().toOption) match {
+      case (Some(expected), Some(actual)) => actual.conforms(expected)
+      case _ => true
+    }
 
   private def isImplicitlyConverted(literal: ScFunctionExpr) =
     (literal.`type`().toOption, literal.getTypeWithoutImplicits().toOption) match {
