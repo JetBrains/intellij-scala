@@ -2,23 +2,18 @@ package org.jetbrains.bsp.data
 
 import java.io.File
 
-import com.intellij.compiler.CompilerConfiguration
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
-import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
+import com.intellij.openapi.externalSystem.service.notification.NotificationData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
-import org.jetbrains.bsp.BSP
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.external.{AbstractImporter, SdkReference, SdkUtils}
+import org.jetbrains.plugins.scala.project.external.AbstractImporter
 
 import scala.collection.JavaConverters._
-import org.jetbrains.sbt.RichOptional
 
 
 class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] {

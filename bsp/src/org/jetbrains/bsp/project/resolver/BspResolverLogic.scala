@@ -17,6 +17,7 @@ import org.jetbrains.bsp.data.{BspMetadata, SbtBuildModuleDataBsp, ScalaSdkData}
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspErrorMessage}
+import org.jetbrains.plugins.scala.project.Version
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -347,7 +348,9 @@ private[resolver] object BspResolverLogic {
           classPath, classPathSources,
           testClassPath, testClassPathSources)
 
-        combined.copy(data = newData)
+        val newModuleKindData = mergeModuleKind(combined.moduleKindData, next.moduleKindData)
+
+        combined.copy(newData, newModuleKindData)
       }
   }
 
@@ -360,6 +363,17 @@ private[resolver] object BspResolverLogic {
   private def mergeFiles(a: Seq[File], b: Seq[File]) =
     (a++b).sortBy(_.getAbsolutePath).distinct
 
+  private def mergeModuleKind(a: ModuleKind, b: ModuleKind) =
+    (a,b) match {
+      case (UnspecifiedModule(), other) => other
+      case (other, UnspecifiedModule()) => other
+      case (ScalaModule(data1), ScalaModule(data2)) =>
+        if (Version(data1.scalaVersion) >= Version(data2.scalaVersion))
+          ScalaModule(data1)
+        else
+          ScalaModule(data2)
+      case (first, _) => first
+    }
 
   private[resolver] def projectNode(projectRootPath: String,
                                     moduleFilesDirectoryPath: String,
