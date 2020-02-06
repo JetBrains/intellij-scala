@@ -232,7 +232,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |val s: SAAM = (i: String) => i
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("String => i", typeMismatch()) :: Nil =>
+      case Error("String", typeMismatch()) :: Nil =>
     }
   }
 
