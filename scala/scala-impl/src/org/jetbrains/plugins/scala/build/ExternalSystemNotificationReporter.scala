@@ -32,25 +32,31 @@ class ExternalSystemNotificationReporter(workingDir: String,
       notifications.onEnd(taskId)
       notifications.onSuccess(taskId)
     }
-    else if (messages.status == BuildMessages.Canceled)
-      notifications.onCancel(taskId)
-    else if (messages.exceptions.nonEmpty)
-      notifications.onFailure(taskId, messages.exceptions.head)
-    else if (messages.errors.nonEmpty) {
+    else if (messages.status == BuildMessages.Canceled) {
+      finishCanceled()
+    }
+    else if (messages.exceptions.nonEmpty) {
+      finishWithFailure(messages.exceptions.head)
+    } else if (messages.errors.nonEmpty) {
       val firstError = messages.errors.head
       val throwable = Option(firstError.getError).getOrElse(new Exception(firstError.getMessage))
-      notifications.onFailure(taskId, throwableToException(throwable))
-    } else if (messages.status == BuildMessages.Indeterminate)
-      notifications.onFailure(taskId, new Exception("task ended in indeterminate state"))
-    else
-      notifications.onFailure(taskId, new Exception("task failed"))
+      finishWithFailure(throwable)
+    } else if (messages.status == BuildMessages.Indeterminate) {
+      finishWithFailure(new Exception("task ended in indeterminate state"))
+    } else {
+      finishWithFailure(new Exception("task failed"))
+    }
   }
 
-  override def finishWithFailure(err: Throwable): Unit =
+  override def finishWithFailure(err: Throwable): Unit = {
     notifications.onFailure(taskId, throwableToException(err))
+    notifications.onEnd(taskId)
+  }
 
-  override def finishCanceled(): Unit =
+  override def finishCanceled(): Unit = {
     notifications.onCancel(taskId)
+    notifications.onEnd(taskId)
+  }
 
   override def warning(message: String, position: Option[FilePosition]): Unit =
     viewManager
