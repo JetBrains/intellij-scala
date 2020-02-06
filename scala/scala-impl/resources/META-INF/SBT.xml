@@ -51,7 +51,6 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtTaskDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtCommandDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
-        <!--<externalProjectDataService implementation="org.jetbrains.plugins.scala.project.migration.ImportedLibrariesService"/>-->
 
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
         <externalSystemViewContributor implementation="org.jetbrains.sbt.project.SbtViewContributor"/>
@@ -90,8 +89,6 @@
         <psi.referenceContributor implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
         <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.SbtNotificationListener"/>
-        <!--<externalSystemTaskNotificationListener-->
-                <!--implementation="org.jetbrains.plugins.scala.project.migration.MigratorsSbtImportListener"/>-->
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
                                 order="first, before liveTemplates" id="sbtCompletionContributor"/>
         <completion.contributor language="Scala"
