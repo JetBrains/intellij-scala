@@ -73,6 +73,10 @@ class ScFunctionExprAnnotatorTest extends ScalaHighlightingTestBase {
   def testParameterContravariance2(): Unit = assertErrors(
     "val v: String => Boolean = (x: Any) => true")
 
+  def testParameterContravariance3(): Unit = assertErrors(
+    "val v: Option[Any] => Boolean = (x: scala.Option[String]) => true", // TODO Why the .scala qualifier is added to the presentation?
+    Error("String", "Type mismatch, expected: Option[Any], actual: scala.Option[String]"))
+
   def testResultTypeMismatch(): Unit = assertErrors(
     "val v: Int => String = x => 2",
     Hint("2", ": Int"),
