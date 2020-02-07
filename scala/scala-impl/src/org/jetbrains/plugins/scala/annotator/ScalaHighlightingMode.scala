@@ -21,7 +21,7 @@ object ScalaHighlightingMode {
   def isScalaAnnotatorEnabled(file: PsiFile): Boolean = {
     val isScalaFile = file.hasScalaPsi
 
-    (isScalaFile && !isShowErrorsFromCompilerEnabled(file)) || isUnitTestMode
+    isScalaFile && (!isShowErrorsFromCompilerEnabled(file) || isUnitTestMode)
   }
 
   def showParserErrors(file: PsiFile): Boolean = {
