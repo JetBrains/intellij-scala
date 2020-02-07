@@ -7,6 +7,7 @@ import com.intellij.util.containers.{ConcurrentLongObjectMap, ContainerUtil}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.extensions.StubBasedExt
 
 import scala.language.implicitConversions
 
@@ -35,14 +36,16 @@ package object params {
 
   private val nameBasedIdBaseline = Long.MaxValue / 2
 
-  private def elementQual(element: ScalaPsiElement): String = {
+  private def elementQual(element: ScalaPsiElement): String =
     element match {
       case t: ScTypeParam => elementQual(t.owner) + "#" + t.name
-      case c: PsiClass => c.qualifiedName
-      case f: ScFunction => elementQual(f.containingClass) + ".." + f.name
-      case _ => ""
+      case c: PsiClass    => c.qualifiedName
+      case f: ScFunction  =>
+        val maybeStub     = f.greenStub
+        val indexInParent = maybeStub.fold(0)(s => s.getParentStub.getChildrenStubs.indexOf(s))
+        elementQual(f.containingClass) + ".." + indexInParent
+      case _              => ""
     }
-  }
 
   def freshTypeParamId(element: PsiNamedElement): Long = {
     val id = typeParameterCounter.getAndIncrement()
