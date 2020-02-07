@@ -38,7 +38,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
 
   private val sourceRoot = filesToCompile.head.getAbsoluteFile.getParentFile
 
-  private val scalaParameters = compilerSettings.toOptions
+  private def scalaParameters: Seq[String] = compilerSettings.toOptions ++ additionalScalaParameters
 
   private val javaParameters = Seq.empty[String]
 
@@ -49,6 +49,8 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
   protected val runnersJar = new File(libCanonicalPath, "runners.jar")
 
   val additionalCp: Seq[File] = compilerClasspath :+ runnersJar :+ compilerSharedJar :+ outputDir
+
+  protected def additionalScalaParameters: Seq[String] = Seq.empty
 
   protected def worksheetArgs: Seq[String] = Seq.empty
 

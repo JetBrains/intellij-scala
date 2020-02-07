@@ -23,7 +23,8 @@ abstract class IdeClient(compilerName: String,
   private var hasErrors = false
   private var lastProgressMessage: String = ""
 
-  def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
+  override def message(msg: Client.ClientMsg): Unit = {
+    val Client.ClientMsg(kind, text, source, line, column) = msg
     if (kind == Kind.ERROR) {
       hasErrors = true
     }

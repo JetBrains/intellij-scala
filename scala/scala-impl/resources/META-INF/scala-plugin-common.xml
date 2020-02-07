@@ -1592,6 +1592,11 @@
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
         </action>
+        <action id="Scala.CompileSelectedFile"
+                internal="true"
+                class="org.jetbrains.plugins.scala.compiler.oneFile.CompileSelectedScalaFileAction"
+                text="Compile Selected Scala File">
+        </action>
     </actions>
 
 </idea-plugin>

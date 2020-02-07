@@ -4,6 +4,7 @@ import java.io.{File, PrintStream}
 import java.util.Base64
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.EncodingEventGeneratingClient._
 
 final class EncodingEventGeneratingClient(out: PrintStream, standalone: Boolean)
@@ -13,15 +14,10 @@ final class EncodingEventGeneratingClient(out: PrintStream, standalone: Boolean)
 
   def hasErrors: Boolean = _hasErrors
 
-  override def error(text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit = {
-    _hasErrors = true
-    super.error(text, source, line, column)
-  }
-
-  override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit = {
-    if (kind == Kind.ERROR)
+  override def message(msg: Client.ClientMsg): Unit = {
+    if (msg.kind == Kind.ERROR)
       _hasErrors = true
-    super.message(kind, text, source, line, column)
+    super.message(msg)
   }
 }
 

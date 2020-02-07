@@ -6,6 +6,8 @@ import java.net.URL
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._
@@ -255,6 +257,10 @@ package object project {
     def baseDir: VirtualFile = LocalFileSystem.getInstance().findFileByPath(project.getBasePath)
 
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
+
+    def selectedDocument: Option[Document] =
+      Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
+        .map(_.getDocument)
   }
 
   implicit class UserDataHolderExt(private val holder: UserDataHolder) extends AnyVal {
