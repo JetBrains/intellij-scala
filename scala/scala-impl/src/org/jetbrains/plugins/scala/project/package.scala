@@ -237,7 +237,10 @@ package object project {
         .settingsForHighlighting(module)
         .flatMap(_.additionalCompilerOptions)
         .reverseIterator
-        .collectFirst { case RootImportSetting(imports) => imports }
+        .collectFirst {
+          case Yimports(imports) if scalaLanguageLevel.exists(_>= Scala_2_13) => imports
+          case YnoPredefOrNoImports(imports)                                  => imports
+        }
 
     private def compilerConfiguration =
       ScalaCompilerConfiguration.instanceIn(module.getProject)
@@ -255,18 +258,25 @@ package object project {
     }
   }
 
-  private object RootImportSetting {
-    private val Yimports   = "-Yimports:"
+  private object Yimports {
+    private val YimportsPrefix = "-Yimports:"
+
+    def unapply(setting: String): Option[Seq[String]] =
+      if (setting.startsWith(YimportsPrefix))
+        Option(setting.substring(YimportsPrefix.length).split(",").map(_.trim))
+      else None
+  }
+
+  private object YnoPredefOrNoImports {
     private val Ynopredef  = "-Yno-predef"
     private val Ynoimports = "-Yno-imports"
 
-    private[this] val importSettingsPrefixes = Seq(Yimports, Ynopredef, Ynoimports)
+    private val importSettingsPrefixes = Seq(Ynopredef, Ynoimports)
 
     def unapply(setting: String): Option[Seq[String]] = {
       val prefix = importSettingsPrefixes.find(setting.startsWith)
 
       prefix.collect {
-        case Yimports   => setting.substring(Yimports.length).split(",").map(_.trim)
         case Ynopredef  => Seq("java.lang", "scala")
         case Ynoimports => Seq.empty
       }
