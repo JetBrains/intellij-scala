@@ -19,7 +19,7 @@ import _root_.scala.collection.JavaConverters._
  * Nikolay.Tropin
  * 11/19/13
  */
-
+// TODO: use a proper naming. Scala builder of what? Strings? Code? Psi trees?
 object ScalaBuilder {
 
   import data._
@@ -34,9 +34,9 @@ object ScalaBuilder {
     context.processMessage(new ProgressMessage("Reading compilation settings..."))
 
     for {
-      sbtData <-  sbtData
-      dataFactory = dataFactoryOf(context)
-      compilerData <- dataFactory.getCompilerDataFactory.from(context, chunk)
+      sbtData         <-  sbtData
+      dataFactory     = dataFactoryOf(context)
+      compilerData    <- dataFactory.getCompilerDataFactory.from(context, chunk)
       compilationData <- dataFactory.getCompilationDataFactory.from(sources, allSources, context,  chunk)
     } yield {
       scalaLibraryWarning(modules, compilationData, client)
@@ -77,11 +77,10 @@ object ScalaBuilder {
     }
   }
 
-  private def cleanLocalServerCache() {
+  private def cleanLocalServerCache(): Unit =
     lock.synchronized {
       cachedServer = None
     }
-  }
 
   private lazy val sbtData = {
     val pluginJpsRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
@@ -89,7 +88,7 @@ object ScalaBuilder {
     SbtData.from(pluginJpsRoot, javaClassVersion)
   }
 
-  private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client) {
+  private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client): Unit = {
     val hasScalaFacet = modules.exists(SettingsManager.getScalaSdk(_).isDefined)
     val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
 
@@ -101,22 +100,20 @@ object ScalaBuilder {
     }
   }
 
-  private def getServer(context: CompileContext): Server = {
-    if (isCompileServerEnabled(context)) {
+  private def getServer(implicit context: CompileContext): Server = {
+    if (isCompileServerEnabled) {
+      Log.info("using remote server")
       cleanLocalServerCache()
-      new remote.RemoteServer(InetAddress.getByName(null), globalSettings(context).getCompileServerPort)
+      new remote.RemoteServer(InetAddress.getByName(null), globalSettings.getCompileServerPort)
     } else {
+      Log.info("using local server")
       localServer
     }
   }
 
-  def isCompileServerEnabled(context: CompileContext): Boolean =
-    globalSettings(context).isCompileServerEnabled && isCompilationFromIDEA(context)
+  def isCompileServerEnabled(implicit context: CompileContext): Boolean =
+    globalSettings.isCompileServerEnabled
 
-  //hack to not run compile server on teamcity; is there a better way?
-  private def isCompilationFromIDEA(context: CompileContext): Boolean =
-    JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null
-
-  private def globalSettings(context: CompileContext) =
+  private def globalSettings(implicit context: CompileContext) =
     SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
 }
