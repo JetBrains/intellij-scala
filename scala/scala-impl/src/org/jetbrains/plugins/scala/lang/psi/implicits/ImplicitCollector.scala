@@ -84,6 +84,11 @@ object ImplicitCollector {
       Seq.empty
     }
   }
+
+  private def visibleNamesCandidates(project: Project, place: PsiElement, state: ImplicitState): Set[ScalaResolveResult] =
+    ImplicitCollector.cache(project)
+      .getVisibleImplicits(place)
+      .map(_.copy(implicitSearchState = Some(state)))
 }
 
 /**
@@ -143,36 +148,15 @@ class ImplicitCollector(place: PsiElement,
         allCandidates.sortWith(mostSpecificUtil.isInMoreSpecificClass)
       }
       else {
-        val tracer = Tracer("ImplicitCollector.collect", "ImplicitCollector.collect")
-        tracer.invocation()
-
-        val implicitCollectorCache = ImplicitCollector.cache(project)
-        implicitCollectorCache.get(place, tp) match {
-          case Some(cached) => return cached
-          case _ =>
-        }
-
-        tracer.calculationStart()
-        try {
-
-          val stackStamp = RecursionManager.markStack()
-
-          val firstCandidates = compatible(visibleNamesCandidates)
-          val result =
+        ImplicitCollector.cache(project)
+          .getOrCompute(place, tp, mayCacheResult = !isExtensionConversion) {
+            val firstCandidates = compatible(visibleNamesCandidates)
             if (firstCandidates.exists(_.isApplicable())) firstCandidates
             else {
               val secondCandidates = compatible(fromTypeCandidates)
               if (secondCandidates.nonEmpty) secondCandidates else firstCandidates
             }
-
-          if (!isExtensionConversion && stackStamp.mayCacheNow())
-            implicitCollectorCache.put(place, tp, result)
-
-          result
-
-        } finally {
-          tracer.calculationEnd()
-        }
+          }
       }
     }
 
@@ -190,12 +174,12 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private def visibleNamesCandidates: Set[ScalaResolveResult] =
-    new ImplicitParametersProcessor(place, withoutPrecedence = false)
-      .candidatesByPlace
+    ImplicitCollector.visibleNamesCandidates(project, place, collectorState)
 
   private def fromTypeCandidates =
     new ImplicitParametersProcessor(place, withoutPrecedence = true)
       .candidatesByType(expandedTp)
+      .map(_.copy(implicitSearchState = Some(collectorState)))
 
   private def compatible(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
     //implicits found without local type inference have higher priority
@@ -221,55 +205,6 @@ class ImplicitCollector(place: PsiElement,
     afterExtensionPredicate
       .filter(_.implicitReason.isInstanceOf[FullInfoResult])
       .toSeq
-  }
-
-  private final class ImplicitParametersProcessor(override val getPlace: PsiElement,
-                                                  override protected val withoutPrecedence: Boolean)
-    extends ImplicitProcessor(getPlace, withoutPrecedence) {
-
-    override protected def execute(namedElement: PsiNamedElement)
-                                  (implicit state: ResolveState): Boolean = {
-
-      if (isImplicit(namedElement) && isAccessible(namedElement, getPlace)) {
-        addResult(new ScalaResolveResult(namedElement, state.substitutorWithThisType,
-          importsUsed =  state.importsUsed,
-          implicitSearchState = Some(collectorState)))
-      }
-
-      true
-    }
-
-    override def candidatesS: Set[ScalaResolveResult] =
-      super.candidatesS.filterNot(c => lowerInFileWithoutType(c) || isContextAncestor(c))
-
-    private def isAccessible(namedElement: PsiNamedElement, place: PsiElement): Boolean = {
-      isPredefPriority || ImplicitProcessor.isAccessible(namedElement, getPlace)
-    }
-
-    private def lowerInFileWithoutType(c: ScalaResolveResult) = {
-      def contextFile(e: PsiElement) = Option(PsiTreeUtil.getContextOfType(e, classOf[PsiFile]))
-
-      def lowerInFile(e: PsiElement) = {
-        val resolveFile = contextFile(e)
-        val placeFile = contextFile(getPlace)
-
-        resolveFile == placeFile && strictlyOrderedByContext(before = getPlace, after = e, placeFile)
-      }
-
-      c.getElement match {
-        case fun: ScFunction if fun.returnTypeElement.isEmpty => lowerInFile(fun)
-        case pattern@ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) if pd.typeElement.isEmpty => lowerInFile(pattern)
-        case _ => false
-      }
-    }
-
-    private def isContextAncestor(c: ScalaResolveResult): Boolean = {
-      val nameContext = ScalaPsiUtil.nameContext(c.element)
-      nameContext match {
-        case _: ScCaseClause if getPlace.betterMonadicForEnabled => false
-        case _                                                   => PsiTreeUtil.isContextAncestor(nameContext, getPlace, false)
-      }
-    }
   }
 
   private def possibleFunctionN(clazz: PsiClass): Option[Int] =
