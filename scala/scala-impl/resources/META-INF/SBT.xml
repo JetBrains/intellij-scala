@@ -4,9 +4,6 @@
 
     <project-components>
         <component>
-            <implementation-class>org.jetbrains.sbt.project.notifications.LegacyProjectFormatNotifier</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.sbt.resolvers.SbtIndexesManager</implementation-class>
         </component>
     </project-components>
