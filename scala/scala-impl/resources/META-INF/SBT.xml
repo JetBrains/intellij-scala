@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-    <module-components>
-        <component>
-            <implementation-class>org.jetbrains.sbt.project.module.SbtModule</implementation-class>
-        </component>
-    </module-components>
 
     <project-components>
         <component>
@@ -57,6 +52,7 @@
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.shell.SbtShellCommunication"/>
         <projectService serviceImplementation="org.jetbrains.sbt.shell.SbtProcessManager"/>
+        <moduleService serviceImplementation="org.jetbrains.sbt.project.module.SbtModule"/>
 
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>

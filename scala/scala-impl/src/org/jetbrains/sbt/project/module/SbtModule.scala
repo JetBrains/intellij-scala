@@ -30,7 +30,7 @@ object SbtModule {
   private val ResolversKey = "sbt.resolvers"
 
   private def getState(module: Module): SbtModuleState =
-    module.getComponent(classOf[SbtModule]).getState
+    module.getService(classOf[SbtModule]).getState
 
   object Build {
 
