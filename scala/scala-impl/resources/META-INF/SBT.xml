@@ -2,12 +2,6 @@
 
 <idea-plugin>
 
-    <project-components>
-        <component>
-            <implementation-class>org.jetbrains.sbt.resolvers.SbtIndexesManager</implementation-class>
-        </component>
-    </project-components>
-
     <extensionPoints>
         <extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>
     </extensionPoints>
@@ -47,6 +41,7 @@
         <projectService serviceImplementation="org.jetbrains.sbt.shell.SbtShellCommunication"/>
         <projectService serviceImplementation="org.jetbrains.sbt.shell.SbtProcessManager"/>
         <projectService serviceImplementation="org.jetbrains.sbt.language.SbtProjectService"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.resolvers.SbtIndexesManager"/>
         <moduleService serviceImplementation="org.jetbrains.sbt.project.module.SbtModule"/>
 
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>

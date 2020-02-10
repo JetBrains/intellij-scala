@@ -2,8 +2,8 @@ package org.jetbrains.sbt.resolvers
 
 import java.io.File
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
@@ -22,16 +22,14 @@ import scala.collection.mutable
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-class SbtIndexesManager(val project: Project) extends ProjectComponent {
+class SbtIndexesManager(val project: Project) extends Disposable {
   import SbtIndexesManager._
 
   private val LOG = Logger.getInstance(classOf[SbtIndexesManager])
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     indexes.values.foreach(_.close())
   }
-
-  override def getComponentName: String = "SbtResolversManager"
 
   private val indexes = new mutable.HashMap[String, ResolverIndex]()
 
@@ -114,7 +112,8 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
 }
 
 object SbtIndexesManager {
-  def getInstance(project: Project): Option[SbtIndexesManager] = Option(project.getComponent(classOf[SbtIndexesManager]))
+  def getInstance(project: Project): Option[SbtIndexesManager] =
+    Option(project.getService(classOf[SbtIndexesManager]))
 
   def cleanUpCorruptedIndex(indexDir: File): Unit = {
     try {
