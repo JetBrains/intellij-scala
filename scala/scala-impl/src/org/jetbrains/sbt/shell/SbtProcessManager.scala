@@ -21,7 +21,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.openapi.ui.MessageType
-import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.{Disposer, SystemInfo}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
 import com.pty4j.unix.UnixPtyProcess
