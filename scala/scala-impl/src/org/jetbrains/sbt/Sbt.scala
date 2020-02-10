@@ -1,5 +1,6 @@
 package org.jetbrains.sbt
 
+import com.intellij.notification.NotificationGroup
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons
@@ -52,4 +53,6 @@ object Sbt {
   val Icon: Icon = Icons.SBT
 
   val FolderIcon: Icon = Icons.SBT_FOLDER
+
+  val balloonNotification: NotificationGroup = NotificationGroup.balloonGroup(Name)
 }

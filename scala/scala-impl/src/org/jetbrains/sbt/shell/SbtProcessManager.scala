@@ -6,6 +6,7 @@ import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.notification.{Notification, NotificationAction, NotificationType}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
@@ -37,7 +38,7 @@ import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSetti
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
-import org.jetbrains.sbt.{JvmMemorySize, SbtUtil}
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtUtil}
 
 import scala.collection.JavaConverters._
 
@@ -47,7 +48,7 @@ import scala.collection.JavaConverters._
   *
   * Created by jast on 2016-11-27.
   */
-final class SbtProcessManager(project: Project) {
+final class SbtProcessManager(project: Project) extends Disposable {
 
   import SbtProcessManager.ProcessData
 
@@ -201,7 +202,7 @@ final class SbtProcessManager(project: Project) {
 
   private def notifyVersionUpgrade(projectSbtVersion: String, upgradedSbtVersion: Version, projectPath: File): Unit = {
     val message = s"Started sbt shell with sbt version ${upgradedSbtVersion.presentation} instead of $projectSbtVersion configured by project."
-    val notification = SbtShellNotifications.notificationGroup.createNotification(message, MessageType.INFO)
+    val notification = Sbt.balloonNotification.createNotification(message, MessageType.INFO)
 
     notification.addAction(new UpdateSbtVersionAction(projectPath))
     notification.addAction(DisableSbtVersionOverrideAction)
@@ -232,7 +233,7 @@ final class SbtProcessManager(project: Project) {
       if (path.isFile) true
       else {
         val badCustomVMNotification =
-          SbtShellNotifications.notificationGroup
+          Sbt.balloonNotification
             .createNotification(s"No JRE found at path ${sbtSettings.vmExecutable}. Using project JDK instead.", NotificationType.WARNING)
         badCustomVMNotification.addAction(ConfigureSbtAction)
         badCustomVMNotification.notify(project)
@@ -258,8 +259,8 @@ final class SbtProcessManager(project: Project) {
       if (projectSdk != null) projectSdk
       else {
         val message = "No project JDK configured, but it is required to run sbt shell."
-        val noProjectSdkNotification = SbtShellNotifications.notificationGroup
-          .createNotification(message, NotificationType.ERROR)
+        val noProjectSdkNotification =
+          Sbt.balloonNotification.createNotification(message, NotificationType.ERROR)
         noProjectSdkNotification.addAction(ConfigureProjectJdkAction)
         noProjectSdkNotification.notify(project)
         throw new RuntimeException(message)
@@ -425,7 +426,7 @@ final class SbtProcessManager(project: Project) {
 
   def sendSigInt(): Unit = processData.foreach(_.processHandler.destroyProcess())
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     destroyProcess()
     SbtShellConsoleView.disposeLastConsoleView(project)
   }

@@ -33,7 +33,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.{SbtNotifications, SbtUtil}
+import org.jetbrains.sbt.{Sbt, SbtUtil}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -81,7 +81,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       // sometimes external system loses information about sbt modules
       // since it is very confusing to users, when build task silently does nothing
       // we detect such cases and suggest project refresh
-      val notification = SbtNotifications.notificationGroup.createNotification(
+      val notification = Sbt.balloonNotification.createNotification(
         "sbt build failed",
         s"Unable to build sbt project corresponding to IDEA module ${project.getName}.",
         NotificationType.ERROR,
