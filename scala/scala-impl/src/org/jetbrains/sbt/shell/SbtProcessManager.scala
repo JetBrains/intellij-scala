@@ -8,7 +8,7 @@ import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -38,6 +38,7 @@ import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
 import org.jetbrains.sbt.{JvmMemorySize, SbtUtil}
+
 import scala.collection.JavaConverters._
 
 /**
@@ -46,7 +47,7 @@ import scala.collection.JavaConverters._
   *
   * Created by jast on 2016-11-27.
   */
-final class SbtProcessManager(project: Project) extends ProjectComponent {
+final class SbtProcessManager(project: Project) {
 
   import SbtProcessManager.ProcessData
 
@@ -442,7 +443,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
 object SbtProcessManager {
 
   def forProject(project: Project): SbtProcessManager = {
-    val pm = project.getComponent(classOf[SbtProcessManager])
+    val pm = ServiceManager.getService(project, classOf[SbtProcessManager])
     if (pm == null) throw new IllegalStateException(s"unable to get component SbtProcessManager for project $project")
     else pm
   }
