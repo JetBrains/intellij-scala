@@ -4,6 +4,8 @@ package bundle
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSorting._
+import org.jetbrains.plugins.scala.util.internal.SortedScalaStringBundle
+import org.jetbrains.plugins.scala.util.internal.SortedScalaStringBundle._
 
 /**
  * If this fails maybe run the main method in [[ScalaBundleSorting]]
@@ -14,7 +16,7 @@ class ScalaBundleSortingTest extends TestCase with AssertionMatchers {
   def testDirectory(info: ModuleInfo): Unit = {
     val ModuleInfo(rootPath, bundlePath, searcher) = info
     val findings = findKeysInModule(rootPath, searcher)
-    val entries = readBundle(bundlePath)
+    val SortedScalaStringBundle(entries) = readBundle(bundlePath)
 
     val keyToFinding = findings.groupBy(_.key)
 

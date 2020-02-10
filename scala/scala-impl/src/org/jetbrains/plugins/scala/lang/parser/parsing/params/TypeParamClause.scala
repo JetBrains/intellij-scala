@@ -33,7 +33,7 @@ object TypeParamClause {
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
       builder.advanceLexer() //Ate
       if (!TypeParam.parse(builder)) {
-        builder error ScalaBundle.message("wrong.parameter")
+        builder error ErrMsg("wrong.parameter")
       }
     }
     builder.getTokenType match {
