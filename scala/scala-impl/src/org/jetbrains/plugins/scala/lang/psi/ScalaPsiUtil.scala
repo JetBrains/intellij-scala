@@ -57,6 +57,7 @@ import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Binding
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType, WorksheetFileSettings}
 
 import scala.annotation.tailrec
 import scala.collection.{Seq, Set, mutable}
@@ -982,7 +983,11 @@ object ScalaPsiUtil {
   }
 
   def isScope(element: PsiElement): Boolean = element match {
-    case worksheetFile: ScalaFile if worksheetFile.isWorksheetFile => false
+    case worksheetFile: ScalaFile if worksheetFile.isWorksheetFile =>
+      //don't annotate clashing definitions on top level of worksheet files and scala files that explicitly allow multiple declarations
+      // exception: worksheets in Plain mode
+      val runType = WorksheetFileSettings(worksheetFile).getRunTypeOpt
+      runType.contains(WorksheetExternalRunType.PlainRunType)
     case multDeclAllowedFile: ScalaFile if multDeclAllowedFile.isMultipleDeclarationsAllowed => false
     case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
          _: ScTypeParamClause | _: ScCaseClause | _: ScFor | _: ScExistentialClause |

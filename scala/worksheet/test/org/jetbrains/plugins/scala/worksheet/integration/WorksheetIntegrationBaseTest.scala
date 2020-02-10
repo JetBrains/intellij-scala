@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -24,6 +24,7 @@ import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
 /*
+  TODO 1: currently all tests with all configs run very long, profile and think where can we optimize them
   TODO 2: check that run / stop buttons are enabled/disabled when evaluation is in process/ended
   TODO 3: test clean action
   TODO 4: test Repl iterative evaluation
@@ -34,6 +35,10 @@ import scala.language.postfixOps
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
+))
+@RunWithJdkVersions(Array(
+  TestJdkVersion.JDK_1_8,
+  TestJdkVersion.JDK_11
 ))
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[WorksheetEvaluationTests]))

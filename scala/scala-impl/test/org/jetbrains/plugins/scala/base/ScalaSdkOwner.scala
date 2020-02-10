@@ -22,7 +22,7 @@ trait ScalaSdkOwner extends Test with InjectableJdk  {
   def injectedScalaVersion: Option[ScalaVersion] = _injectedScalaVersion
   def injectedScalaVersion_=(version: ScalaVersion): Unit = _injectedScalaVersion = Some(version)
 
-  protected def localConfiguredScalaVersion: Option[ScalaVersion] = _injectedScalaVersion
+  protected def localConfiguredScalaVersion: Option[ScalaVersion] = injectedScalaVersion
 
   protected def configuredScalaVersion: Option[ScalaVersion] = localConfiguredScalaVersion.orElse(globalConfiguredScalaVersion)
 
@@ -52,7 +52,13 @@ trait ScalaSdkOwner extends Test with InjectableJdk  {
       // Need to initialize before test is run because all tests fields can be reset to null
       // (including injectedScalaVersion) after test is finished
       // see HeavyPlatformTestCase.runBare & UsefulTestCase.clearDeclaredFields
-      val scalaVersionMessage = s"### Scala version used: ${version.minor} (configured: $configuredScalaVersion), jdk: $testProjectJdkVersion ###"
+      val scalaVersionMessage = {
+        val detail = configuredScalaVersion match {
+          case Some(value) if value != version => s" (configured: $value)"
+          case _                               => ""
+        }
+        s"### Scala version used: ${version.minor}$detail, jdk: $testProjectJdkVersion ###"
+      }
       lazy val logVersion: Unit = System.err.println(scalaVersionMessage) // lazy val to log only once
       val listener = new TestListener {
         override def addError(test: Test, t: Throwable): Unit = logVersion

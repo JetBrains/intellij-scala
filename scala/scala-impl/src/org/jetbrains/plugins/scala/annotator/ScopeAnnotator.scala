@@ -4,7 +4,7 @@ package annotator
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -39,16 +39,9 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
 
   def annotateScope(element: PsiElement)
                    (implicit holder: ScalaAnnotationHolder): Unit = {
-    if (!isScope(element)) return
+    if (!ScalaPsiUtil.isScope(element)) return
 
-    //don't annotate clashing definitions on top level of worksheet files and scala files that explicitly allow multiple declarations
-    element match {
-      case worksheetFile: ScalaFile if worksheetFile.isWorksheetFile => return 
-      case multDeclAllowedFile: ScalaFile if multDeclAllowedFile.isMultipleDeclarationsAllowed => return
-      case _ => 
-    }
-
-    def checkScope(elements: PsiElement*) {
+    def checkScope(elements: PsiElement*): Unit = {
       val Definitions(types, functions, parameterless, fieldLikes, classParameters) = definitionsIn(elements: _*)
 
       val clashes =
@@ -99,7 +92,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       parameterless :::= classParams.filterNot(_.isPrivateThis)
 
       element.children.foreach {
-        _.depthFirst(!isScope(_)).foreach {
+        _.depthFirst(!ScalaPsiUtil.isScope(_)).foreach {
           case e: ScObject =>
             parameterless ::= e
             fieldLike ::= e

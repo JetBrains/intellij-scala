@@ -18,6 +18,7 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.{NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
@@ -60,6 +61,19 @@ class RemoteServerConnector(
         baseArgs ++ replArgs.toSeq.flatMap(ra => Seq(ra.path, ra.codeChunk, "replenabled"))
     }
 
+  override val scalaParameters: Seq[String] = {
+    val options = super.scalaParameters
+    if (module.hasScala3) {
+      val extraOptions = Seq(
+        "-color:never", // by default dotty prints lots of color, can't handle for now
+        "-noindent", "-old-syntax" // do avoid "Line is indented too far to the left" warnings
+      )
+      options.filterNot(_.startsWith("-g:")) ++ extraOptions
+    } else {
+      options
+    }
+  }
+
   // TODO: make something more advanced than just `callback: Runnable`: error reporting, Future, Task, etc...
   // TODO: add logging across all these callbacks in RunWorksheetAction, WorksheetCompiler, RemoteServerConnector...
   // NOTE: for now this method is non-blocking for runType == NonServer and blocking for other run types
@@ -71,7 +85,7 @@ class RemoteServerConnector(
 
     val client = new MyTranslatingClient(project, originalFile, consumer)
 
-    val process = try {
+    val process = {
       val worksheetProcess = makeType match {
         case InProcessServer | OutOfProcessServer =>
           val runner = new RemoteServerRunner(project)
@@ -214,7 +228,7 @@ object RemoteServerConnector {
 
   // Worksheet Integration Tests rely on that this is the main entry point for all compiler messages
   trait CompilerMessagesConsumer {
-    def message(message: CompilerMessage)
+    def message(message: CompilerMessage): Unit
   }
 
   trait CompilerInterface extends CompilerMessagesConsumer {

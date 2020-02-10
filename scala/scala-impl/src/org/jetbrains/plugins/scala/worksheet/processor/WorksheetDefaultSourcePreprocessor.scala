@@ -5,7 +5,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{JavaDirectoryService, PsiElement, PsiErrorElement, PsiFile, _}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
+import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeElement}
@@ -41,7 +41,8 @@ object WorksheetDefaultSourcePreprocessor {
         "WrappedArray"
       else
         "ArraySeq"
-    s"""def $ArrayPrintMethodName(an: Any): String =
+    s"""
+       |def $ArrayPrintMethodName(an: Any): String =
        |  an match {
        |    case arr: Array[_] =>
        |      val a = scala.collection.mutable.$arrayWrapperClass.make(arr)
@@ -59,16 +60,22 @@ object WorksheetDefaultSourcePreprocessor {
     implicit val languageLevel: ScalaLanguageLevel = languageLevelForFile(srcFile)
 
     val iterNumber = compilationAttemptForFile(srcFile)
-    val macroPrinterName = withCompilerVersion("MacroPrinter210", "MacroPrinter211", "MacroPrinter213", "MacroPrinter")
+
+    val macroPrinterName = withCompilerVersion(
+      "MacroPrinter210",
+      "MacroPrinter211",
+      "MacroPrinter213",
+      "MacroPrinter3_22",
+      "MacroPrinter"
+    )
     val packageOpt: Option[String] = packageForFile(srcFile)
 
-    val sourceBuilder = new ScalaSourceBuilder(
-      iterNumber,
-      srcFile,
-      document,
-      macroPrinterName,
-      packageOpt
-    )
+    val sourceBuilder =
+      if (languageLevel == ScalaLanguageLevel.Scala_3_0) {
+        new Scala3SourceBuilder(iterNumber, srcFile, document, packageOpt, macroPrinterName)
+      } else {
+        new Scala2SourceBuilder(iterNumber, srcFile, document, packageOpt, macroPrinterName)
+      }
 
     val (root, preDeclarations, postDeclarations) =
       if (isForObject(srcFile)) {
@@ -106,7 +113,7 @@ object WorksheetDefaultSourcePreprocessor {
       if !packageName.trim.isEmpty
     } yield packageName
 
-  private def rootForObject(srcFile: ScalaFile, sourceBuilder: ScalaSourceBuilder): (PsiElement, Seq[PsiElement], Seq[PsiElement]) = {
+  private def rootForObject(srcFile: ScalaFile, sourceBuilder: ScalaSourceBuilderBase): (PsiElement, Seq[PsiElement], Seq[PsiElement]) = {
     val preDeclarations  = mutable.ListBuffer.empty[PsiElement]
     val postDeclarations = mutable.ListBuffer.empty[PsiElement]
     var root: PsiElement = null
@@ -131,12 +138,13 @@ object WorksheetDefaultSourcePreprocessor {
   }
 
   @inline
-  def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, default: => T)
+  def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, if3: => T, default: => T)
                             (implicit languageLevel: ScalaLanguageLevel): T  =
     languageLevel match {
       case ScalaLanguageLevel.Scala_2_10 => if210
       case ScalaLanguageLevel.Scala_2_11 => if211
       case ScalaLanguageLevel.Scala_2_13 => if213
+      case ScalaLanguageLevel.Scala_3_0  => if3
       case _                             => default
     }
 
@@ -144,20 +152,18 @@ object WorksheetDefaultSourcePreprocessor {
     document.getLineNumber(range.getEndOffset) - document.getLineNumber(range.getStartOffset) + 1
 
   //noinspection HardCodedStringLiteral
-  private class ScalaSourceBuilder(iterNumber: Int,
-                                   srcFile: ScalaFile,
-                                   document: Document,
-                                   tpePrinterName: String,
-                                   packageOpt: Option[String]) {
+  private abstract class ScalaSourceBuilderBase(iterNumber: Int,
+                                                srcFile: ScalaFile,
+                                                document: Document,
+                                                packageOpt: Option[String]) {
 
     protected val className   = s"A$$A$iterNumber"
     protected val instanceName = s"inst$$A$$A"
 
     protected val tempVarName = "$$temp$$"
 
-    protected val eraseClassName: String = s""".replace("$instanceName.", "")"""
+    protected def replaceStr(s: String): String = s"""replace("$s", "")"""
     protected val erasePrefixName: String = s""".stripPrefix("$className$$$className$$")"""
-    protected val plusInfoDef = " + "
 
     protected var assignCount = 0
     protected var resCount = 0
@@ -168,6 +174,16 @@ object WorksheetDefaultSourcePreprocessor {
 
     private val classBuilder = new StringBuilder
     private val mainMethodBuilder = new StringBuilder
+
+    protected def printMethodName: String = GenericPrintMethodName
+
+    protected def extraGlobalImports: Seq[String]
+
+    protected def varTypeInfo(varName: String): String
+
+    protected def importInfoString(imp: ScImportStmt): String
+
+    protected def funDefInfoString(fun: ScFunction): String
 
     def process(elements: Iterable[PsiElement],
                 preDeclarations: Iterable[PsiElement],
@@ -181,7 +197,7 @@ object WorksheetDefaultSourcePreprocessor {
 
       val (mainMethodStart, mainMethodEnd) = {
         val unitReturnType = ": Unit ="
-        val mainReturnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType)
+        val mainReturnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType, unitReturnType)
         (
           s"""def main(ignored: java.io.PrintStream)$mainReturnType {
              |  val $instanceName = new $className
@@ -220,8 +236,8 @@ object WorksheetDefaultSourcePreprocessor {
 
       val (objectStart, objectEnd) = {
         val packStmt = packageOpt.map("package " + _)
-        val macroImport = s"import _root_.org.jetbrains.plugins.scala.worksheet.$tpePrinterName"
-        val packageAndImports = packStmt.toSeq :+ macroImport
+        val imports = extraGlobalImports
+        val packageAndImports = packStmt ++ imports
         (
           s"""${packageAndImports.mkString(";")}
              |
@@ -249,10 +265,14 @@ object WorksheetDefaultSourcePreprocessor {
       Right(PreprocessResult(codeResult, mainClassName))
     }
 
+    // see util methods
+    protected def printVarKeyword: Boolean = false
+    protected def printValKeyword: Boolean = false
+    protected def printLineCommentBeforeTypeDef: Boolean = false
+    protected def printImports: Boolean = true
 
-    protected def getTypePrinterName: String = tpePrinterName
-
-    protected def prettyPrintType(tpeString: String): String = s""": " + ${withTempVar(tpeString)}"""
+    protected final def valPrefix: String = if (printValKeyword) "val " else ""
+    protected final def varPrefix: String = if (printVarKeyword) "var " else ""
 
     // currently used for debug purposes only
     protected def logError(psiElementOpt: Option[PsiElement], message: Option[String] = None): Unit = {
@@ -270,20 +290,15 @@ object WorksheetDefaultSourcePreprocessor {
       writeLog(logMessage)
     }
 
-    protected def getTempVarInfo(varName: String): String = s"$getTypePrinterName.printDefInfo($varName)"
+    protected def prettyPrintTypeWithValue(callee: String): String = {
+      val target = s"$instanceName."
 
-    protected def getImportInfoString(imp: ScImportStmt): String = {
-      val text = imp.getText
-      s"$getTypePrinterName.printImportInfo({$text;})"
+      val varDecl  = s"""val $tempVarName = $target$callee"""
+      val varType  = s"""${varTypeInfo(tempVarName)}.${replaceStr(target)}"""
+      val varValue = s"""$ArrayPrintMethodName($tempVarName)$erasePrefixName"""
+
+      s"""{$varDecl ; $varType + " = " + $varValue }"""
     }
-
-    protected def getFunDefInfoString(fun: ScFunction): String = {
-      val accessModifier = fun.getModifierList.accessModifier
-      val hadMods = accessModifier.map(accessModifierText).getOrElse("")
-      getTypePrinterName + s".printGeneric({import $instanceName._ ;" + fun.getText.stripPrefix(hadMods) + " })" + eraseClassName
-    }
-
-    protected def printMethodName: String = GenericPrintMethodName
 
     protected def processTypeAlias(tpe: ScTypeAlias): Unit =
       withPrecomputedLines(tpe) {
@@ -292,18 +307,20 @@ object WorksheetDefaultSourcePreprocessor {
 
     protected def processFunDef(fun: ScFunction): Unit =
       withPrecomputedLines(fun) {
-        mainMethodBuilder.append(s"""$printMethodName("${fun.getName}: " + ${getFunDefInfoString(fun)})""").append("\n")
+        printInMain(s""""${fun.getName}: " + ${funDefInfoString(fun)}""")
       }
 
     protected def processTypeDef(tpeDef: ScTypeDefinition): Unit =
       withPrecomputedLines(tpeDef) {
         val keyword = tpeDef match {
-          case _: ScClass => "class"
-          case _: ScTrait => "trait"
-          case _          => "module" // TODO: change to `object`?
+          case _: ScEnum   => "enum"
+          case _: ScClass  => "class"
+          case _: ScTrait  => "trait"
+          case _: ScObject => "object"
+          case _           => "module"
         }
-
-        mainMethodBuilder.append(withPrint(s"defined $keyword ${tpeDef.name}"))
+        val commentPrefix = if (printLineCommentBeforeTypeDef) "// " else ""
+        mainMethodBuilder.append(withPrint(s"${commentPrefix}defined $keyword ${tpeDef.name}"))
       }
 
     protected def processValDef(valDef: ScPatternDefinition): Unit =
@@ -313,21 +330,24 @@ object WorksheetDefaultSourcePreprocessor {
           val defName = variableInstanceName(pName)
 
           classBuilder.append(s"def $defName = $pName;$END_GENERATED_MARKER")
-
-          mainMethodBuilder.append(s"""$printMethodName("$pName${prettyPrintType(defName)})""").append("\n")
+          printInMain(s""""$valPrefix$pName: " + ${prettyPrintTypeWithValue(defName)}""")
         }
       }
 
     protected def processVarDef(varDef: ScVariableDefinition): Unit = {
       def writeTypedPatter(p: ScTypedPattern) =
-        p.typePattern map (typed => p.name + ":" + typed.typeElement.getText) getOrElse p.name
+        p.typePattern.map(typed => p.name + ":" + typed.typeElement.getText).getOrElse(p.name)
 
       def typeElement2Types(te: ScTypeElement) = te match {
         case tpl: ScTupleTypeElement => tpl.components
         case other => Seq(other)
       }
 
-      def withOptionalBraces(s: Iterable[String]) = if (s.size == 1) s.head else s.mkString("(", ",", ")")
+      def withOptionalBraces(s: Seq[String]): Option[String] = s match {
+        case Seq()     => None
+        case Seq(head) => Some(head)
+        case seq       => Some(seq.mkString("(", ",", ")"))
+      }
 
       val lineNum = psiToLineNumbers(varDef)
 
@@ -336,30 +356,28 @@ object WorksheetDefaultSourcePreprocessor {
 
       appendStartPsiLineInfo(lineNum)
 
+      // TODO: fix for var a, b = 7 SCL-13307
       val txt = (varDef.typeElement, varDef.expr) match {
         case (Some(tpl: ScTypeElement), Some(expr)) =>
-          val names = withOptionalBraces {
-            typeElement2Types(tpl).zip(varDef.declaredElements).map { case (tpe, el) =>
-              el.name + ": " + tpe.getText
-            }
+          val namesList = typeElement2Types(tpl).zip(varDef.declaredElements).map { case (tpe, el) =>
+            el.name + ": " + tpe.getText
           }
-
-          varDefText(names, expr)
+          val names = withOptionalBraces(namesList)
+          varDefText(names.getOrElse("_"), expr)
         case (_, Some(expr)) =>
-          val names = withOptionalBraces {
-            varDef.declaredElements.map {
-              case tpePattern: ScTypedPattern => writeTypedPatter(tpePattern)
-              case a => a.name
-            }
+          val namesList = varDef.declaredElements.map {
+            case tpePattern: ScTypedPattern => writeTypedPatter(tpePattern)
+            case a                          => a.name
           }
-
-          varDefText(names, expr)
-        case _ => varDef.getText
+          val names = withOptionalBraces(namesList)
+          varDefText(names.getOrElse("_"), expr)
+        case _ =>
+          varDef.getText
       }
 
-      classBuilder.append(txt).append(";")
+      classBuilder.append(txt).append(";\n")
       varDef.declaredNames.foreach { pName =>
-        mainMethodBuilder.append(s"""$printMethodName("$pName${prettyPrintType(pName)})""").append("\n")
+        printInMain(s""""$varPrefix$pName: " + ${prettyPrintTypeWithValue(pName)}""")
       }
 
       appendEndPsiLineInfo(lineNum)
@@ -374,7 +392,7 @@ object WorksheetDefaultSourcePreprocessor {
 
       classBuilder.append(s"""def $defName = { $END_GENERATED_MARKER${assign.getText}}${insertNlsFromWs(assign)}""")
       mainMethodBuilder.append(s"""$instanceName.$defName; """)
-      mainMethodBuilder.append(s"""$printMethodName("$pName${prettyPrintType(pName)})""").append("\n")
+      printInMain(s""""$pName: " + ${prettyPrintTypeWithValue(pName)}""")
 
       appendEndPsiLineInfo(lineNums)
 
@@ -404,12 +422,14 @@ object WorksheetDefaultSourcePreprocessor {
           val memberName = if (el.isInstanceOf[ScValue] || el.isInstanceOf[ScVariable]) //variable to avoid weird errors
           variableInstanceName(qualifierName) else qualifierName
 
-          appendStartPsiLineInfo(lineNums)
+          if (printImports) {
+            appendStartPsiLineInfo(lineNums)
+            mainMethodBuilder.append(s";{val $qualifierName = $instanceName.$memberName; $printMethodName(${importInfoString(imp)})}").append("\n")
+            appendEndPsiLineInfo(lineNums)
+          }
 
-          mainMethodBuilder.append(s";{val $qualifierName = $instanceName.$memberName; $printMethodName(${getImportInfoString(imp)})}").append("\n")
           classBuilder.append(s"${imp.getText}${insertNlsFromWs(imp)}")
 
-          appendEndPsiLineInfo(lineNums)
           true
       }
     }
@@ -418,9 +438,11 @@ object WorksheetDefaultSourcePreprocessor {
       if (importsProcessed.contains(imp)) return
 
       val lineNums = psiToLineNumbers(imp)
-      appendStartPsiLineInfo(lineNums)
-      mainMethodBuilder.append(s"$printMethodName(${getImportInfoString(imp)})").append("\n")
-      appendEndPsiLineInfo(lineNums)
+      if (printImports) {
+        appendStartPsiLineInfo(lineNums)
+        printInMain(importInfoString(imp))
+        appendEndPsiLineInfo(lineNums)
+      }
 
       importStmts += imp.getText
       importsProcessed += imp
@@ -439,12 +461,15 @@ object WorksheetDefaultSourcePreprocessor {
     }
 
     protected def processOtherExpr(expr: ScExpression): Unit = {
-      val resName = s"get$$$$instance$$$$res$resCount"
+      val resName = s"res$resCount"
+      val resMethodName = s"get$$$$instance$$$$$resName"
       val lineNums = psiToLineNumbers(expr)
 
+      // TODO: looks like this resN are not used anywhere and can be dropped (just print the value, except Unit type)
+      classBuilder.append(s"""def $resMethodName = $END_GENERATED_MARKER${expr.getText}${insertNlsFromWs(expr)}""")
+
       appendStartPsiLineInfo(lineNums)
-      classBuilder.append(s"""def $resName = $END_GENERATED_MARKER${expr.getText}${insertNlsFromWs(expr)}""")
-      mainMethodBuilder.append(s"""$printMethodName("res$resCount${prettyPrintType(resName)})""").append("\n")
+      printInMain(s""""$valPrefix$resName: " + ${prettyPrintTypeWithValue(resMethodName)}""")
       appendEndPsiLineInfo(lineNums)
 
       resCount += 1
@@ -460,20 +485,8 @@ object WorksheetDefaultSourcePreprocessor {
 
     //kinda utils stuff that shouldn't be overridden
 
-    @inline final def withTempVar(callee: String, withInstance: Boolean = true): String = {
-      val target = if (withInstance) instanceName + "." else ""
-      s"""{val $tempVarName = $target$callee ; ${getTempVarInfo(tempVarName)}$eraseClassName$plusInfoDef" = " + ( $ArrayPrintMethodName($tempVarName) )$erasePrefixName}"""
-    }
-
-    @inline final def withPrint(text: String): String = s"""$printMethodName("$text")""" + "\n"
-
-    @inline final def withPrecomputedLines(psi: ScalaPsiElement)(body: => Unit): Unit = {
-      val lineNum = psiToLineNumbers(psi)
-      appendStartPsiLineInfo(lineNum)
-      body
-      appendDeclaration(psi)
-      appendEndPsiLineInfo(lineNum)
-    }
+    @inline final def withPrint(content: String): String = withPrintRaw("\"" + content + "\"")
+    @inline final def withPrintRaw(stringLiteral: String): String = s"""$printMethodName($stringLiteral)""" + "\n"
 
     @inline final def variableInstanceName(name: String): String =
       if (name.startsWith("`")) {
@@ -508,11 +521,22 @@ object WorksheetDefaultSourcePreprocessor {
       s"${document.getLineNumber(start)}|${document.getLineNumber(end)}"
     }
 
+    @inline def printInMain(text: String): Unit =
+      mainMethodBuilder.append(withPrintRaw(text))
+
     @inline final def appendStartPsiLineInfo(numberStr: String): Unit =
-      mainMethodBuilder.append(s"""$printMethodName("$START_TOKEN_MARKER$numberStr")""").append("\n")
+      printInMain(s""""$START_TOKEN_MARKER$numberStr"""")
 
     @inline final def appendEndPsiLineInfo(numberStr: String): Unit =
-      mainMethodBuilder.append(s"""$printMethodName("$END_TOKEN_MARKER$numberStr")""").append("\n")
+      printInMain(s""""$END_TOKEN_MARKER$numberStr"""")
+
+    @inline final def withPrecomputedLines(psi: ScalaPsiElement)(body: => Unit): Unit = {
+      val lineNum = psiToLineNumbers(psi)
+      appendStartPsiLineInfo(lineNum)
+      body
+      appendDeclaration(psi)
+      appendEndPsiLineInfo(lineNum)
+    }
 
     @inline final def appendDeclaration(psi: ScalaPsiElement): Unit = {
       psi match {
@@ -524,6 +548,68 @@ object WorksheetDefaultSourcePreprocessor {
       classBuilder.append(psi.getText)
         .append(insertNlsFromWs(psi))
     }
+
+    @inline final def quoted(s: String): String = '"' + s + '"'
+
+    @inline final def accessModifierText(fun: ScFunction): String =
+      fun.getModifierList.accessModifier.map(PresentationUtil.accessModifierText).mkString
+  }
+
+  private class Scala2SourceBuilder(iterNumber: Int,
+                                    srcFile: ScalaFile,
+                                    document: Document,
+                                    packageOpt: Option[String],
+                                    typePrinterName: String)
+    extends ScalaSourceBuilderBase(iterNumber, srcFile, document, packageOpt) {
+
+    override protected def extraGlobalImports: Seq[String] =
+      Seq(s"import _root_.org.jetbrains.plugins.scala.worksheet.$typePrinterName")
+
+    override protected def varTypeInfo(varName: String): String =
+      s"$typePrinterName.printDefInfo($varName)"
+
+    override protected def importInfoString(imp: ScImportStmt): String =
+      s"$typePrinterName.printImportInfo({${imp.getText};})"
+
+    override protected def funDefInfoString(fun: ScFunction): String = {
+      // TODO: do we need that import instanceName at all?
+      s"$typePrinterName.printGeneric({import $instanceName._ ;${fun.getText.stripPrefix(accessModifierText(fun))} }).${replaceStr(instanceName)}"
+    }
+  }
+
+  // TODO: do not display for resN: Unit, e.g. after println(42), () (not only display but do not create a resN for them)
+  // see also dotty.tools.dotc.printing.ReplPrinter
+  // see also dotty.tools.dotc.printing.RefinedPrinter
+  // see quite interesting util method: dotty.tools.dotc.printing.Texts.Text#~~
+  private class Scala3SourceBuilder(iterNumber: Int,
+                                    srcFile: ScalaFile,
+                                    document: Document,
+                                    packageOpt: Option[String],
+                                    typePrinterName: String)
+    extends ScalaSourceBuilderBase(iterNumber, srcFile, document, packageOpt) {
+
+    override protected def extraGlobalImports: Seq[String] =
+      Seq(s"import _root_.org.jetbrains.plugins.scala.worksheet.$typePrinterName")
+
+    override protected def varTypeInfo(varName: String): String =
+      s"$typePrinterName.showType($varName)"
+
+    override protected def importInfoString(imp: ScImportStmt): String =
+      quoted(imp.getText)
+
+    override protected def funDefInfoString(fun: ScFunction): String =
+      s"$typePrinterName.showMethodDefinition({ ${fun.getText.stripPrefix(accessModifierText(fun))} })"
+
+    override protected def processFunDef(fun: ScFunction): Unit =
+      withPrecomputedLines(fun) {
+        printInMain(funDefInfoString(fun))
+      }
+
+    // overridden to make PLAIN output as close to REPL output as possible
+    override protected def printValKeyword: Boolean = true
+    override protected def printVarKeyword: Boolean = true
+    override protected def printLineCommentBeforeTypeDef: Boolean = true
+    override protected def printImports: Boolean = false
   }
 
   def inputLinesRangeFromEnd(encodedLine: String): Option[(Int, Int)] =

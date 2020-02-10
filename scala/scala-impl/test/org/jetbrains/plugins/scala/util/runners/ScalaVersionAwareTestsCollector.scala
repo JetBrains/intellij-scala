@@ -14,8 +14,8 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
                                       classScalaVersion: Seq[TestScalaVersion],
                                       classJdkVersion: Seq[TestJdkVersion]) {
 
-  def collectTests(): Seq[(TestCase, ScalaVersion, JdkVersion)] = {
-    val result = ArrayBuffer.empty[(Test, ScalaVersion, JdkVersion)]
+  def collectTests(): Seq[(TestCase, TestScalaVersion, TestJdkVersion)] = {
+    val result = ArrayBuffer.empty[(Test, TestScalaVersion, TestJdkVersion)]
 
     val tests = testsFromTestCase(klass)
     tests.foreach {
@@ -27,10 +27,10 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
         test.injectedJdkVersion = jdkVersionProd
 
         if (isScalaVersionSupported(test, method, scalaVersion) && scalaVersion.supportsJdk(jdkVersion)) {
-          result.append((test, scalaVersionProd, jdkVersionProd))
+          result.append((test, scalaVersion, jdkVersion))
         }
       case (warningTest, _, scalaVersion, jdkVersion) =>
-        result.append((warningTest, scalaVersion.toProductionVersion, jdkVersion.toProductionVersion))
+        result.append((warningTest, scalaVersion, jdkVersion))
     }
 
     result.map(t => (t._1.asInstanceOf[TestCase], t._2, t._3))
@@ -141,7 +141,6 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
   // duplicate from `org.junit.framework.TestSuite.warning`
   // the method is public in junit 4.12 in but private in `junit.jar` in IDEA jars which leads to a compilation error on TeamCity
   private def warning(message: String) = new TestCase("warning") {
-    //noinspection ScalaDeprecation
     override protected def runTest(): Unit = junit.framework.Assert.fail(message)
   }
 }

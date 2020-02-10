@@ -5,8 +5,8 @@ import java.lang.annotation.Annotation
 import com.intellij.pom.java.{LanguageLevel => JdkVersion}
 import junit.extensions.TestDecorator
 import junit.framework.{Test, TestCase, TestSuite}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{InjectableJdk, ScalaSdkOwner}
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, Scala_2_12, Scala_2_13}
 import org.junit.experimental.categories.Category
 import org.junit.internal.runners.JUnit38ClassRunner
 import org.junit.runner.{Describable, Description}
@@ -39,6 +39,10 @@ private object MultipleScalaVersionsRunner {
   private val DefaultJdkVersionToRun: TestJdkVersion =
     TestJdkVersion.from(InjectableJdk.DefaultJdk)
 
+  // use these vm parameters to specific scala/jdk versions of MultipleScalaVersionsRunner
+  // without changing RunWith* annotations values
+  private def filterScalaVersion = Option(System.getProperty("filter.test.scala.version")).map(TestScalaVersion.valueOf)
+  private def filterJdkVersion = Option(System.getProperty("filter.test.jdk.version")).map(TestJdkVersion.valueOf)
 
   private case class ScalaVersionTestSuite(name: String) extends TestSuite(name) {
     def this() = this(null: String)
@@ -62,8 +66,13 @@ private object MultipleScalaVersionsRunner {
     assert(classScalaVersions.nonEmpty, "at least one scala version should be specified")
     assert(classJdkVersions.nonEmpty, "at least one jdk version should be specified")
 
-    val allTestCases: Seq[(TestCase, ScalaVersion, JdkVersion)] =
-      new ScalaVersionAwareTestsCollector(klass, classScalaVersions, classJdkVersions).collectTests()
+    val allTestCases: Seq[(TestCase, ScalaVersion, JdkVersion)] = {
+      val collected = new ScalaVersionAwareTestsCollector(klass, classScalaVersions, classJdkVersions).collectTests()
+      collected.collect { case (test, sv, jv)
+        if filterScalaVersion.forall(_ == sv) && filterJdkVersion.forall(_ == jv) =>
+        (test, sv.toProductionVersion, jv.toProductionVersion)
+      }
+    }
 
     val childTests = childTestsByScalaVersion(allTestCases)
     // val childTests = childTestsByName(allTests)

@@ -73,7 +73,7 @@ class ILoopWrapperFactoryHandler {
 
   protected def getOrCompileReplLoopFile(sbtData: SbtData, scalaInstance: ScalaInstance, client: Client): (File, Boolean) = {
     val version = findScalaVersionIn(scalaInstance)
-    val isScala3 = isScal3Version(version)
+    val isScala3 = isScala3Version(version)
     val (iLoopWrapperClass, WrapperVersion(wrapperVersion)) =
       if (version.startsWith("2.13.0")) ILoopWrapper213_0Impl
       else if (version.startsWith("2.13")) ILoopWrapper213Impl
@@ -90,7 +90,7 @@ class ILoopWrapperFactoryHandler {
   }
 
   // temp solution while dotty is evolving very fast
-  private def isScal3Version(version: String): Boolean = version.startsWith("0.21") || version.startsWith("0.22")
+  private def isScala3Version(version: String): Boolean = version.matches("""0\.2\d.*""")
 
   private def compileReplLoopFile(scalaInstance: ScalaInstance,
                                   sbtData: SbtData,

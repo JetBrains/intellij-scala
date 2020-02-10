@@ -2,13 +2,11 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.File
-import java.net.{URL, URLClassLoader}
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
-import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilationData, CompilerData, CompilerJars, CompilerJarsFactory, SbtData, ZincData}
+import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
@@ -38,7 +36,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
 
   private val sourceRoot = filesToCompile.head.getAbsoluteFile.getParentFile
 
-  private def scalaParameters: Seq[String] = compilerSettings.toOptions ++ additionalScalaParameters
+  protected def scalaParameters: Seq[String] = compilerSettings.toOptions ++ additionalScalaParameters
 
   private val javaParameters = Seq.empty[String]
 

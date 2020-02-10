@@ -41,6 +41,9 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 
   override def getRunType: WorksheetExternalRunType = getSetting(WORKSHEET_RUN_TYPE, getDefaultSettings.getRunType)
 
+  // TODO: not this method should be optional but WorksheetFileSettings.apply
+  def getRunTypeOpt: Option[WorksheetExternalRunType] = Option(getSetting(WORKSHEET_RUN_TYPE, null: WorksheetExternalRunType))
+
   override def setRunType(runType: WorksheetExternalRunType): Unit = setSetting(WORKSHEET_RUN_TYPE, runType)
 
   override def isInteractive: Boolean = getSetting(IS_AUTORUN, getDefaultSettings.isInteractive)
