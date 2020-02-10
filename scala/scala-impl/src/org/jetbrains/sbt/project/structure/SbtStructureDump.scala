@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
@@ -83,7 +84,7 @@ class SbtStructureDump {
       s"""SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := "$optString""""
     ).mkString("set _root_.scala.collection.Seq(", ",", ")")
 
-    val sbtCommandArgs = ""
+    val sbtCommandArgs = List.empty
 
     val sbtCommands = Seq(
       setCommands,
@@ -106,7 +107,7 @@ class SbtStructureDump {
              vmOptions: Seq[String],
              environment: Map[String, String],
              sbtLauncher: File,
-             sbtCommandLineArgs: String,
+             sbtCommandLineArgs: List[String],
              sbtCommands: String,
              reporter: BuildTaskReporter,
              reportMessage: String,
@@ -115,17 +116,24 @@ class SbtStructureDump {
     val startTime = System.currentTimeMillis()
     // assuming here that this method might still be called without valid project
 
-    val jvmOptions = SbtOpts.loadFrom(directory) ++ JvmOpts.loadFrom(directory) ++ vmOptions
+    val projectSbtVersion = Version(detectSbtVersion(directory, getDefaultLauncher))
+    val sbtVersion = upgradedSbtVersion(projectSbtVersion)
+    val upgradeParam =
+      if (sbtVersion > projectSbtVersion)
+        List(sbtVersionParam(sbtVersion))
+      else List.empty
+
+    val jvmOptions = SbtOpts.loadFrom(directory) ++ JvmOpts.loadFrom(directory) ++ vmOptions ++ upgradeParam
 
     val processCommandsRaw =
-      normalizePath(vmExecutable) +:
-        "-Djline.terminal=jline.UnsupportedTerminal" +:
-        "-Dsbt.log.noformat=true" +:
-        "-Dfile.encoding=UTF-8" +:
-        jvmOptions :+
-        "-jar" :+
-        normalizePath(sbtLauncher) :+
-        sbtCommandLineArgs
+      List(
+        normalizePath(vmExecutable),
+        "-Djline.terminal=jline.UnsupportedTerminal",
+        "-Dsbt.log.noformat=true",
+        "-Dfile.encoding=UTF-8") ++
+      jvmOptions ++
+      List("-jar", normalizePath(sbtLauncher)) ++
+      sbtCommandLineArgs
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 

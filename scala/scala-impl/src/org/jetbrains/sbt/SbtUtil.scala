@@ -259,4 +259,32 @@ object SbtUtil {
   }
 
   private def isInTest: Boolean = ApplicationManager.getApplication.isUnitTestMode
+
+
+  def canUpgradeSbtVersion(sbtVersion: Version): Boolean =
+    sbtVersion >= MayUpgradeSbtVersion &&
+      sbtVersion < SbtUtil.latestCompatibleVersion(sbtVersion)
+
+  def upgradedSbtVersion(sbtVersion: Version): Version =
+    if (canUpgradeSbtVersion(sbtVersion))
+      SbtUtil.latestCompatibleVersion(sbtVersion)
+    else sbtVersion
+
+  def sbtVersionParam(sbtVersion: Version): String =
+    s"-Dsbt.version=$sbtVersion"
+
+  def addPluginCommandSupported(sbtVersion: Version): Boolean =
+    sbtVersion >= AddPluginCommandVersion_1 ||
+      sbtVersion.inRange(AddPluginCommandVersion_013, Version("1.0.0"))
+
+  /** Since version 1.2.0 sbt supports injecting additional plugins to the sbt shell with a command.
+   * This allows injecting plugins without messing with the user's global directory.
+   * https://github.com/sbt/sbt/pull/4211
+   */
+  private val AddPluginCommandVersion_1 = Version("1.2.0")
+  private val AddPluginCommandVersion_013 = Version("0.13.18")
+
+  /** Minimum project sbt version that is allowed version override. */
+  private val MayUpgradeSbtVersion = Version("0.13.0")
+
 }

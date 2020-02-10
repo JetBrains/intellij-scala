@@ -208,7 +208,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val settingsFile = FileUtil.createTempFile(baseDir, "idea-bloop", ".sbt", true)
     FileUtil.writeToFile(settingsFile, injectedSettings)
 
-    val sbtCommandArgs = "early(addPluginSbtFile=\"\"\"" + pluginFilePath + "\"\"\")"
+    val sbtCommandArgs = List(
+      "early(addPluginSbtFile=\"\"\"" + pluginFilePath + "\"\"\")"
+    )
     val sbtCommands = "bloopInstall"
 
     try {

@@ -38,7 +38,6 @@ import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
 import org.jetbrains.sbt.{JvmMemorySize, SbtUtil}
-
 import scala.collection.JavaConverters._
 
 /**
@@ -118,26 +117,23 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
     // to use the plugin injection command, we may have to override older sbt versions where possible
     val shouldUpgradeSbtVersion =
       sbtSettings.allowSbtVersionOverride &&
-        projectSbtVersion >= mayUpgradeSbtVersion &&
-        projectSbtVersion < latestCompatibleSbtVersion
+        canUpgradeSbtVersion(projectSbtVersion)
 
     val upgradedSbtVersion =
       if (shouldUpgradeSbtVersion) latestCompatibleSbtVersion
       else projectSbtVersion
 
     val autoPluginsSupported = upgradedSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
-    val addPluginCommandSupported =
-      upgradedSbtVersion >= addPluginCommandVersion_1 ||
-      upgradedSbtVersion.inRange(addPluginCommandVersion_013, Version("1.0.0"))
+    val addPluginSupported = addPluginCommandSupported(upgradedSbtVersion)
 
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
     vmParams.addAll(buildVMParameters(sbtSettings, workingDir).asJava)
     // don't add runid when using addPluginSbtFile command
-    if (! addPluginCommandSupported)
+    if (! addPluginSupported)
       vmParams.add(s"-Didea.runid=$runid")
     if (shouldUpgradeSbtVersion)
-      vmParams.add(s"-Dsbt.version=$upgradedSbtVersion")
+      vmParams.add(sbtVersionParam(upgradedSbtVersion))
 
     // For details see: https://youtrack.jetbrains.com/issue/SCL-13293#focus=streamItem-27-3323121.0-0
     if(SystemInfo.isWindows)
@@ -156,14 +152,14 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
       val globalSettingsFile = new File(globalPluginsDir, "idea.sbt")
 
       val settingsFile =
-        if (addPluginCommandSupported) FileUtil.createTempFile("idea",".sbt", true)
+        if (addPluginSupported) FileUtil.createTempFile("idea",".sbt", true)
         else globalSettingsFile
 
       // caution! writes injected plugin settings to user's global sbt config if addPlugin command is not supported
       val plugins = injectedPlugins(sbtMajorVersion.presentation)
-      injectSettings(runid, ! addPluginCommandSupported, settingsFile, pluginResolverSetting +: plugins)
+      injectSettings(runid, ! addPluginSupported, settingsFile, pluginResolverSetting +: plugins)
 
-      if (addPluginCommandSupported) {
+      if (addPluginSupported) {
         val settingsPath = settingsFile.getAbsolutePath
         commandLine.addParameter("early(addPluginSbtFile=\"\"\"" + settingsPath + "\"\"\")")
       }
@@ -453,16 +449,6 @@ object SbtProcessManager {
 
   private case class ProcessData(processHandler: ColoredProcessHandler,
                                  runner: SbtShellRunner)
-
-  /** Since version 1.2.0 sbt supports injecting additional plugins to the sbt shell with a command.
-    * This allows injecting plugins without messing with the user's global directory.
-    * https://github.com/sbt/sbt/pull/4211
-    */
-  private val addPluginCommandVersion_1 = Version("1.2.0")
-  private val addPluginCommandVersion_013 = Version("0.13.18")
-
-  /** Minimum project sbt version that is allowed version override. */
-  private val mayUpgradeSbtVersion = Version("0.13.0")
 
   private[shell]
   def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File): Seq[String] = {
