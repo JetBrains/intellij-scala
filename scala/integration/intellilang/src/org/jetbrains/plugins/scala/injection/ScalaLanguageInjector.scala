@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPatternPrefix
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedMacroUtil, Measure, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
@@ -30,10 +30,11 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.{JavaConverters, immutable, mutable}
 
-// TODO: do not accept this parameter
-final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends MultiHostInjector {
+final class ScalaLanguageInjector extends MultiHostInjector {
 
   import ScalaLanguageInjector._
+
+  lazy val myInjectionConfiguration: Configuration = Configuration.getInstance()
 
   override def elementsToInjectIn: ju.List[_ <: Class[_ <: PsiElement]] = ElementsToInjectIn
 
@@ -96,7 +97,7 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
         case l: ScLiteral if l.isString => true
         case _: ScInterpolatedPatternPrefix |
              _: ScInfixExpr => true
-        case r: ScReferenceExpression if r.getText == "+" => true
+        case r: ScReferenceExpression if r.textMatches("+") => true
         case expression => expression.getParent.isInstanceOf[ScInterpolatedStringLiteral]
       }
 
