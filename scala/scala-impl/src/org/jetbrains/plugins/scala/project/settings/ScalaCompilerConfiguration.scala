@@ -18,7 +18,8 @@ import scala.annotation.tailrec
   */
 @State(
   name = "ScalaCompilerConfiguration",
-  storages = Array(new Storage("scala_compiler.xml"))
+  storages = Array(new Storage("scala_compiler.xml")),
+  //reportStatistic = true // TODO: will not be recorded due to state is Element
 )
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] with ModificationTracker {
 

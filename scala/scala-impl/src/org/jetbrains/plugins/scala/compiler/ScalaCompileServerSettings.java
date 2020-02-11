@@ -11,7 +11,8 @@ import java.util.UUID;
  */
 @State(
         name = "ScalaSettings",
-        storages = {@Storage("scala.xml")}
+        storages = {@Storage("scala.xml")},
+        reportStatistic = true
 )
 public class ScalaCompileServerSettings implements PersistentStateComponent<ScalaCompileServerSettings> {
   public boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;

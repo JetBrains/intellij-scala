@@ -21,7 +21,8 @@ import scala.beans.BeanProperty
 
 @State(
   name = "ScalaSbtSettings",
-  storages = Array(new Storage("sbt.xml"))
+  storages = Array(new Storage("sbt.xml")),
+  reportStatistic = true
 )
 class SbtSettings(project: Project)
   extends AbstractExternalSystemSettings[SbtSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtTopic, project)

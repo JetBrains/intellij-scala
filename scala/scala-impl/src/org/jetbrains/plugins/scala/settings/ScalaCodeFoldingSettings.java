@@ -16,7 +16,8 @@ import java.io.File;
 
 @State(
         name = "ScalaCodeFoldingSettings",
-        storages = {@Storage("scala_folding_settings.xml")}
+        storages = {@Storage("scala_folding_settings.xml")},
+        reportStatistic = true
 )
 public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaCodeFoldingSettings>, ExportableComponent {
   private boolean FOLD_ARGUMENT_BLOCK = false;

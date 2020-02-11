@@ -122,7 +122,11 @@ object BspSettings {
 }
 
 
-@State(name = "BspSystemSettings", storages = Array(new Storage("bsp.settings.xml")))
+@State(
+  name = "BspSystemSettings",
+  storages = Array(new Storage("bsp.settings.xml")),
+  reportStatistic = true
+)
 class BspSystemSettings extends PersistentStateComponent[BspSystemSettings.State] {
 
   @BeanProperty
