@@ -15,13 +15,13 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
-import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.project.{Project, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.openapi.ui.MessageType
-import com.intellij.openapi.util.{Disposer, SystemInfo}
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
 import com.pty4j.unix.UnixPtyProcess
@@ -447,6 +447,10 @@ object SbtProcessManager {
     val pm = ServiceManager.getService(project, classOf[SbtProcessManager])
     if (pm == null) throw new IllegalStateException(s"unable to get component SbtProcessManager for project $project")
     else pm
+  }
+
+  private[sbt] def instanceIfCreated(project: Project): Option[SbtProcessManager] = {
+    Option(project.getServiceIfCreated(classOf[SbtProcessManager]))
   }
 
   private case class ProcessData(processHandler: ColoredProcessHandler,

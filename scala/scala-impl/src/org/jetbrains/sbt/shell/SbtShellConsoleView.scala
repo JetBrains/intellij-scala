@@ -7,6 +7,7 @@ import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
 import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
 import com.intellij.openapi.project.Project
@@ -22,8 +23,6 @@ import scala.collection.mutable
   */
 final class SbtShellConsoleView private(project: Project, debugConnection: Option[RemoteConnection])
   extends LanguageConsoleImpl(project, SbtShellLanguage.getID, SbtShellLanguage) {
-
-  Disposer.register(project, this)
 
   def createActionGroup(): ActionGroup = {
     val group = new DefaultActionGroup()
@@ -63,6 +62,12 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
     group
   }
 
+  override def dispose(): Unit = {
+    super.dispose()
+    SbtShellConsoleView.removeConsoleView(project)
+    EditorFactory.getInstance().releaseEditor(getConsoleEditor)
+  }
+
 }
 
 object SbtShellConsoleView {
@@ -90,6 +95,10 @@ object SbtShellConsoleView {
 
   def disposeLastConsoleView(project: Project): Unit = {
     lastConsoleViews.get(project).foreach(_.dispose())
+    lastConsoleViews.remove(project)
+  }
+
+  private def removeConsoleView(project: Project): Option[SbtShellConsoleView] = {
     lastConsoleViews.remove(project)
   }
 

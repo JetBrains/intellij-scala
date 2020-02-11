@@ -6,6 +6,11 @@
         <extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>
     </extensionPoints>
 
+    <applicationListeners>
+        <listener class="org.jetbrains.sbt.project.SbtProjectListener"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </applicationListeners>
+
     <extensions defaultExtensionNs="com.intellij">
         <applicationInitializedListener implementation="org.jetbrains.sbt.settings.StartupRoutine"/>
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
@@ -98,7 +103,7 @@
         <programRunner implementation="org.jetbrains.sbt.runner.SbtDebugProgramRunner" order="first"/>
 
         <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunner"/>
-        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtStartupActivity"/>
+        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectListener"/>
 
         <runAnything.executionProvider implementation="org.jetbrains.sbt.SbtRunAnythingProvider"/>
 
