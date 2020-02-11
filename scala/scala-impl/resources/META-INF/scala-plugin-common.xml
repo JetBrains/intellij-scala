@@ -479,6 +479,8 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
+
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>

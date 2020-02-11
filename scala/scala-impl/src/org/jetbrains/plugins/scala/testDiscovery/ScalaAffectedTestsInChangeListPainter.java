@@ -2,10 +2,12 @@
 package org.jetbrains.plugins.scala.testDiscovery;
 
 import com.intellij.ide.DataManager;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vcs.changes.*;
@@ -13,6 +15,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.Alarm;
 import com.intellij.util.io.PowerStatus;
+import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.EdtInvocationManager;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
@@ -25,19 +28,18 @@ import java.util.stream.Collectors;
 
 import static com.intellij.ui.SimpleTextAttributes.STYLE_UNDERLINE;
 
-public class ScalaAffectedTestsInChangeListPainter implements ChangeListDecorator, ProjectComponent {
+final public class ScalaAffectedTestsInChangeListPainter implements ChangeListDecorator, Disposable {
   private final Project myProject;
-  private final ChangeListManager myChangeListManager;
-  private final ChangeListAdapter myChangeListListener;
   private final Alarm myAlarm;
   private final AtomicReference<Set<String>> myChangeListsToShow = new AtomicReference<>(Collections.emptySet());
 
   private static final String SHOW_AFFECTED_TESTS_IN_CHANGELISTS = "show.affected.tests.in.changelists";
 
-  public ScalaAffectedTestsInChangeListPainter(@NotNull Project project, ChangeListManager changeListManager) {
+  public ScalaAffectedTestsInChangeListPainter(@NotNull Project project) {
     myProject = project;
-    myChangeListManager = changeListManager;
-    myChangeListListener = new ChangeListAdapter() {
+    myAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
+
+    ChangeListListener changeListListener = new ChangeListAdapter() {
       @Override
       public void changeListsChanged() {
         scheduleUpdate();
@@ -58,25 +60,22 @@ public class ScalaAffectedTestsInChangeListPainter implements ChangeListDecorato
         scheduleUpdate();
       }
     };
-    myAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, project);
-    myChangeListManager.addChangeListListener(myChangeListListener);
+
+    MessageBusConnection connection = myProject.getMessageBus().connect();
+    connection.subscribe(ChangeListListener.TOPIC, changeListListener);
+    connection.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
+      @Override
+      public void projectOpened(@NotNull Project project) {
+        if (project == myProject) {
+          DumbService.getInstance(myProject).runWhenSmart(() -> scheduleUpdate());
+        }
+      }
+    });
   }
 
   @Override
-  public void projectOpened() {
-    DumbService.getInstance(myProject).runWhenSmart(() -> scheduleUpdate());
-  }
-
-  @Override
-  public void projectClosed() {
-    disposeComponent();
-  }
-
-  @Override
-  public void disposeComponent() {
-    myAlarm.cancelAllRequests();
+  public void dispose() {
     myChangeListsToShow.set(Collections.emptySet());
-    myChangeListManager.removeChangeListListener(myChangeListListener);
   }
 
   private void scheduleRefresh() {
@@ -113,12 +112,12 @@ public class ScalaAffectedTestsInChangeListPainter implements ChangeListDecorato
     if (!ScalaShowAffectedTestsAction.isEnabled(myProject)) return;
     myAlarm.cancelAllRequests();
     if (!myAlarm.isDisposed()) {
-      myAlarm.addRequest(() -> update(), updateDelay());
+      myAlarm.addRequest(this::update, updateDelay());
     }
   }
 
   private void update() {
-    List<LocalChangeList> changeLists = myChangeListManager.getChangeLists();
+    List<LocalChangeList> changeLists = ChangeListManager.getInstance(myProject).getChangeLists();
     Set<String> result = changeLists.stream()
       .filter(list -> !list.getChanges().isEmpty())
       .map((LocalChangeList list) -> {
