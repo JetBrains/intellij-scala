@@ -28,12 +28,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 import scala.collection.JavaConverters._
 
-private[findUsages] class ScalaCompilerReferenceService(
-  project:        Project,
-  fileDocManager: FileDocumentManager,
-  psiDocManager:  PsiDocumentManager
-) extends ProjectComponent with ModificationTracker {
+final private[findUsages] class ScalaCompilerReferenceService(project: Project) extends ModificationTracker {
   import ScalaCompilerReferenceService._
+
+  initializeReferenceService()
 
   private[this] val compilationCount = new LongAdder
   private[this] val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
@@ -45,8 +43,8 @@ private[findUsages] class ScalaCompilerReferenceService(
     project,
     LanguageCompilerRefAdapter.INSTANCES.flatMap(_.getFileTypes.asScala),
     projectFileIndex,
-    fileDocManager,
-    psiDocManager,
+    FileDocumentManager.getInstance(),
+    PsiDocumentManager.getInstance(project),
     this
   )
 
@@ -189,8 +187,6 @@ private[findUsages] class ScalaCompilerReferenceService(
     }
 
   override def getModificationCount: Long = compilationCount.longValue()
-
-  override def projectOpened(): Unit = initializeReferenceService()
 
   def initializeReferenceService(): Unit =
     if (CompilerIndicesSettings(project).isBytecodeIndexingActive || ApplicationManager.getApplication.isUnitTestMode) {
