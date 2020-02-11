@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent._
 import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport, SettingsDescriptor}
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
-import org.jetbrains.plugins.scala.project.migration.handlers.{ArtifactHandlerComponent, ScalaLibraryMigrationHandler}
+import org.jetbrains.plugins.scala.project.migration.handlers.{ArtifactHandlerService, ScalaLibraryMigrationHandler}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.mutable
@@ -113,7 +113,7 @@ class BundledCodeStoreComponent(project: Project)
     if (!isEnabled(project)) return 
     
     val bundledHandlers = extensionManager.getExtensions(classOf[ScalaLibraryMigrationHandler])
-    val handlerComponent = ArtifactHandlerComponent.getInstance(project)
+    val handlerComponent = ArtifactHandlerService.getInstance(project)
     
     
     newLibrariesCopy.map { c => c flatMap {
