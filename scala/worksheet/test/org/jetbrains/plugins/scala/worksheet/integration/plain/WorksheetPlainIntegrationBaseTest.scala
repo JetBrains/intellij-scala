@@ -394,6 +394,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 
+  // TODO: it flickers in WorksheetPlainCompileOnServerRunLocallyIntegrationTest, but works fine in prod
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
   def testScala3_AllInOne(): Unit = {
     val before =

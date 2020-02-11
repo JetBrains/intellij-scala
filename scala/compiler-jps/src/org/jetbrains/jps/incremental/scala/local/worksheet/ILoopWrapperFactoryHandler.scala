@@ -148,7 +148,7 @@ object ILoopWrapperFactoryHandler {
   val ILoopWrapperImpl      = ("ILoopWrapperImpl", WrapperVersion(Scala2ILoopWrapperVersion))
   val ILoopWrapper213_0Impl = ("ILoopWrapper213_0Impl", WrapperVersion(Scala2ILoopWrapperVersion))
   val ILoopWrapper213Impl   = ("ILoopWrapper213Impl", WrapperVersion(Scala2ILoopWrapperVersion))
-  val ILoopWrapper3Impl     = ("ILoopWrapper3Impl", WrapperVersion(1))
+  val ILoopWrapper3Impl     = ("ILoopWrapper3Impl", WrapperVersion(2))
 
   private def findScalaVersionIn(scalaInstance: ScalaInstance): String =
     compilerVersion(scalaInstance.loader).getOrElse("Undefined")
