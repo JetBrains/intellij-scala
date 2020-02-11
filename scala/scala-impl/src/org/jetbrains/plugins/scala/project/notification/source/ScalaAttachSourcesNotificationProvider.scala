@@ -16,7 +16,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{ActionCallback, Comparing}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
-import com.intellij.ui.{EditorNotificationPanel, EditorNotifications, GuiUtils}
+import com.intellij.ui.{EditorNotificationPanel, GuiUtils}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -24,9 +24,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
  * @author Alexander Podkhalyuzin
  */
 
-//todo: possibly join with AttachSourcesNorificationProvider
+//todo: possibly join with AttachSourcesNotificationProvider
 //todo: differences only in JavaEditorFileSwapper -> ScalaEditorFileSwapper
-class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: EditorNotifications)
+class ScalaAttachSourcesNotificationProvider(myProject: Project)
   extends AttachSourcesNotificationProvider() {
   private val EXTENSION_POINT_NAME: ExtensionPointName[AttachSourcesProvider] =
     new ExtensionPointName[AttachSourcesProvider]("com.intellij.attachSourcesProvider")
