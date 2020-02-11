@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.compiler.data.Arguments
  * Nailgun Nail, used in:
  *
  * @see [[org.jetbrains.plugins.scala.nailgun.NailgunRunner]]<br>
+ *      [[org.jetbrains.plugins.scala.nailgun.NailgunMainLightRunner]]
  *      [[org.jetbrains.plugins.scala.compiler.NonServerRunner]]
  */
 object Main {
@@ -39,7 +40,6 @@ object Main {
     resetShutdownTimer(context)
   }
 
-  // Started by NonServerRunner
   def main(args: Array[String]): Unit = {
     make(args, System.out, -1, standalone = true)
   }

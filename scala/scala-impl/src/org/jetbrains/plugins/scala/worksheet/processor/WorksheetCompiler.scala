@@ -119,7 +119,7 @@ class WorksheetCompiler(
           val error = new AssertionError("Worksheet is expected to be evaluated in REPL mode")
           callback(WorksheetCompilerResult.UnknownError(error))
         } else {
-          WorksheetCompilerLocalEvaluator.executeWorksheet(worksheetFile.getName, worksheetFile, className, outputDir.getAbsolutePath)(callback, printer)(module)
+          WorksheetCompilerLocalEvaluator.executeWorksheet(worksheetFile, className, outputDir.getAbsolutePath)(callback, printer)(module)
         }
       case RemoteServerConnectorResult.CompiledAndEvaluated =>
         callback(WorksheetCompilerResult.CompiledAndEvaluated)

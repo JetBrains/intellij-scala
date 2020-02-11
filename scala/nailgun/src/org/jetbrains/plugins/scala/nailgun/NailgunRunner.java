@@ -27,9 +27,10 @@ import static java.util.Arrays.asList;
  */
 @SuppressWarnings("JavadocReference")
 public class NailgunRunner {
+  public static final String SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main";
+
   private static final String SERVER_ALIAS = "compile-server";
   private static final String SERVER_DESCRIPTION = "Scala compile server";
-  private static final String SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main";
 
   private static final String STOP_ALIAS_START = "stop_";
   private static final String STOP_CLASS_NAME = "com.martiansoftware.nailgun.builtins.NGStop";
@@ -54,7 +55,11 @@ public class NailgunRunner {
     Runtime.getRuntime().addShutdownHook(new ShutdownHook(server));
   }
 
-  private static URLClassLoader constructClassLoader(String classpath) {
+  /**
+   * Extra Uclass loader is required because dotty compiler interfaces (used inside Main during compilation)
+   * casts classloader to a URLClassloader, and in JRE 11 AppClassLoader is not an instance of URLClassloader.
+   */
+  public static URLClassLoader constructClassLoader(String classpath) {
     Function<String, URL> pathToUrl = path -> {
       try {
         return new File(path).toURI().toURL();

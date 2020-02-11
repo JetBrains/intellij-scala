@@ -12,7 +12,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.BaseDataReader
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.remote.{ClientEventProcessor, Event}
+import org.jetbrains.jps.incremental.scala.remote.{ClientEventProcessor, Event, TraceEvent}
 
 import _root_.scala.collection.JavaConverters._
 
@@ -21,18 +21,17 @@ import _root_.scala.collection.JavaConverters._
  */
 class NonServerRunner(project: Project) {
 
-  private val SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main"
+  private val SERVER_CLASS_NAME = "org.jetbrains.plugins.scala.nailgun.MainLightRunner"
 
-  private def classPath(jdk: JDK): String = {
-    val jars = jdk.tools ++ CompileServerLauncher.compilerJars
-    val jarPaths = jars.map(file => FileUtil.toCanonicalPath(file.getPath))
+  private def classPathArg(jars: Seq[File]): String = {
+    val jarPaths = jars.map(_.getPath).map(FileUtil.toCanonicalPath)
     jarPaths.mkString(File.pathSeparator)
   }
 
   private val jvmParameters = CompileServerLauncher.jvmParameters
   
   def buildProcess(args: Seq[String], client: Client): CompilationProcess = {
-    CompileServerLauncher.compilerJars.foreach(p => assert(p.exists(), p.getPath))
+    CompileServerLauncher.compileServerJars.foreach(p => assert(p.exists(), p.getPath))
 
     CompileServerLauncher.compileServerJdk(project) match {
       case None =>
@@ -40,10 +39,14 @@ class NonServerRunner(project: Project) {
       case Some(jdk) =>
         val commands: Seq[String] = {
           val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)
-          (jdkPath +: "-cp" +: classPath(jdk) +: jvmParameters :+ SERVER_CLASS_NAME) ++ args
+          val runnerClassPath = classPathArg(jdk.tools.toSeq :+ PluginJars.scalaNailgunRunnerJar)
+          val mainClassPath = classPathArg(jdk.tools.toSeq ++ CompileServerLauncher.compileServerJars)
+          (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++
+            (SERVER_CLASS_NAME +: "-classpath" +: mainClassPath +: args)
         }
 
         val builder = new ProcessBuilder(commands.asJava)
+        builder.redirectErrorStream(true)
 
         new CompilationProcess {
           var myProcess: Option[Process] = None
@@ -58,9 +61,15 @@ class NonServerRunner(project: Project) {
 
             val eventClient = new ClientEventProcessor(client)
             val listener: String => Unit = (text: String) => {
-              val bytes = Base64.getDecoder.decode(text.getBytes("UTF-8"))
-              val event = Event.fromBytes(bytes)
-              eventClient.process(event)
+              try {
+                val bytes = Base64.getDecoder.decode(text.getBytes("UTF-8"))
+                val event = Event.fromBytes(bytes)
+                eventClient.process(event)
+              } catch {
+                case _: IllegalArgumentException =>
+                  // probably some unexpected text from stderr
+                  eventClient.process(TraceEvent("", text, Array()))
+              }
             }
             val bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream))
             val reader = new MyBase64StreamReader(bufferedReader, listener) //starts threads under the hood
@@ -84,7 +93,7 @@ class NonServerRunner(project: Project) {
               throw ex
           }
 
-          override def stop() {
+          override def stop(): Unit = {
             myProcess.foreach(_.destroy())
             myProcess = None
           }
@@ -111,8 +120,13 @@ class NonServerRunner(project: Project) {
       }
     }
 
-    override def close(): Unit =
+    override def close(): Unit = {
+      if (text.nonEmpty) {
+        onTextAvailable(text.toString())
+        text.clear()
+      }
       reader.close()
+    }
 
     override def readAvailable(): Boolean = {
       var read = false
@@ -127,12 +141,17 @@ class NonServerRunner(project: Project) {
             charBuffer(i) match {
               case '=' if i == 0 && text.isEmpty =>
               case '=' if i == n - 1 || charBuffer.charAt(i + 1) != '=' =>
-                if ( (text.length +1) % 4 == 0 ) text.append('=') else if ( (text.length + 2) % 4 == 0 ) text.append("==")
+                if ((text.length + 1) % 4 == 0) {
+                  text.append('=')
+                } else if ((text.length + 2) % 4 == 0) {
+                  text.append("==")
+                }
                 onTextAvailable(text.toString())
                 text.clear()
               case '\n' if text.nonEmpty && text.startsWith("Listening") => 
                 text.clear()
-              case c => text.append(c) 
+              case c =>
+                text.append(c)
             }
           }
         }

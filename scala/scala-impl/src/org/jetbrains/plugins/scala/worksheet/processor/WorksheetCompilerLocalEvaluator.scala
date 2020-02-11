@@ -3,7 +3,7 @@ package worksheet.processor
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.JavaParameters
-import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
+import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
@@ -14,10 +14,8 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.{EvaluationCallback, WorksheetCompilerResult}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinter
-import org.jetbrains.sbt.project.structure.ListenerAdapter
 
 import scala.util.control.NonFatal
 
@@ -26,7 +24,7 @@ private object WorksheetCompilerLocalEvaluator {
   private val RunnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
 
   // this method is only used when run type is [[org.jetbrains.plugins.scala.worksheet.server.OutOfProcessServer]]
-   def executeWorksheet(name: String, scalaFile: ScalaFile, mainClassName: String, addToCp: String)
+   def executeWorksheet(scalaFile: ScalaFile, mainClassName: String, addToCp: String)
                        (callback: EvaluationCallback, worksheetPrinter: WorksheetEditorPrinter)
                        (implicit module: Module): Unit =
     invokeLater {
@@ -57,7 +55,6 @@ private object WorksheetCompilerLocalEvaluator {
       mainClassName = mainClassName,
       workingDirectory = Option(module.getProject.baseDir).fold("")(_.getPath),
       additionalCp = addToCp,
-      consoleArgs = "",
       worksheetField = file.getVirtualFile.getCanonicalPath
     )
 
@@ -65,7 +62,6 @@ private object WorksheetCompilerLocalEvaluator {
                                mainClassName: String,
                                workingDirectory: String,
                                additionalCp: String,
-                               consoleArgs: String,
                                worksheetField: String): JavaParameters = {
     val project = module.getProject
 
@@ -87,8 +83,6 @@ private object WorksheetCompilerLocalEvaluator {
     params.getClassPath.addRunners()
     params.getClassPath.add(additionalCp)
     params.getProgramParametersList.addParametersString(worksheetField)
-    if (!consoleArgs.isEmpty)
-      params.getProgramParametersList.addParametersString(consoleArgs)
     params.getProgramParametersList.prepend(mainClassName) //IMPORTANT! this must be first program argument
 
     params
@@ -96,7 +90,7 @@ private object WorksheetCompilerLocalEvaluator {
 
   private def processListener(callback: EvaluationCallback, worksheetPrinter: WorksheetEditorPrinter): ProcessAdapter =
     new ProcessAdapter {
-      override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
+      override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
         val isStdOutput = ConsoleViewContentType.getConsoleViewType(outputType) == ConsoleViewContentType.NORMAL_OUTPUT
         if (isStdOutput) {
           val text = event.getText
