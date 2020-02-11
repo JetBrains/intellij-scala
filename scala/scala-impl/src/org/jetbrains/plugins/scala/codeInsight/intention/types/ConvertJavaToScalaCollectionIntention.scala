@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 class ConvertJavaToScalaCollectionIntention extends BaseJavaConvertersIntention("asScala") {
 
-  val targetCollections = Set(
+  override val targetCollections = Set(
     "java.lang.Iterable",
     "java.util.Iterator",
     "java.util.Collection",
@@ -20,11 +20,11 @@ class ConvertJavaToScalaCollectionIntention extends BaseJavaConvertersIntention(
     "java.util.Map"
   )
 
-  val alreadyConvertedPrefixes: Set[String] = Set("scala.collection")
+  override val alreadyConvertedPrefixes: Set[String] = Set("scala.collection")
 
   override def getText: String = ScalaBundle.message("convert.java.to.scala.collection.hint")
 
-  def getFamilyName: String = ConvertJavaToScalaCollectionIntention.getFamilyName
+  override def getFamilyName: String = ConvertJavaToScalaCollectionIntention.getFamilyName
 }
 
 object ConvertJavaToScalaCollectionIntention {

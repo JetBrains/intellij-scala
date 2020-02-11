@@ -28,19 +28,19 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
 
   val alreadyConvertedPrefixes: Set[String]
 
-  def isAvailable(p: Project, e: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(p: Project, e: Editor, element: PsiElement): Boolean = {
     Option(getTargetExpression(element)) exists {
       scExpr =>
-        def properTargetCollection = isProperTargetCollection(scExpr.getTypeAfterImplicitConversion().tr, p)
+        def properTargetCollection = isProperTargetCollection(scExpr.getTypeAfterImplicitConversion().tr)
         def parentNonConvertedCollection = scExpr match {
-          case Parent(parent: ScExpression) => !isAlreadyConvertedCollection(parent.getTypeAfterImplicitConversion().tr, p)
+          case Parent(parent: ScExpression) => !isAlreadyConvertedCollection(parent.getTypeAfterImplicitConversion().tr)
           case _ => true
         }
         properTargetCollection && parentNonConvertedCollection
     }
   }
 
-  def isProperTargetCollection(typeResult: TypeResult, project: Project): Boolean =
+  private def isProperTargetCollection(typeResult: TypeResult): Boolean =
     typeResult.exists {
       scType =>
         scType.extractClass exists {
@@ -50,25 +50,26 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
         }
     }
 
-  def isAlreadyConvertedCollection(typeResult: TypeResult, project: Project): Boolean =
+  private def isAlreadyConvertedCollection(typeResult: TypeResult): Boolean =
     typeResult.exists {
       scType =>
         scType.extractClass exists {
-          psiClass => alreadyConvertedPrefixes.exists(prefix => psiClass.getQualifiedName.startsWith(prefix))
+          psiClass => alreadyConvertedPrefixes.exists(prefix => psiClass.qualifiedName.startsWith(prefix))
         }
     }
 
-  def invoke(p: Project, e: Editor, element: PsiElement) {
-    def addImport() {
-      val importsHolder: ScImportsHolder = Option(PsiTreeUtil.getParentOfType(element, classOf[ScPackaging])).
-              getOrElse(element.getContainingFile.asInstanceOf[ScImportsHolder])
+  override def invoke(p: Project, e: Editor, element: PsiElement): Unit = {
+    def addImport(): Unit = {
+      val importsHolder: ScImportsHolder =
+        Option(PsiTreeUtil.getParentOfType(element, classOf[ScPackaging]))
+          .getOrElse(element.getContainingFile.asInstanceOf[ScImportsHolder])
       val path = if (element.newCollectionsFramework) // available since 2.13
         "scala.jdk.CollectionConverters._"
       else
         "scala.collection.JavaConverters._"
       importsHolder.addImportForPath(path)
     }
-    def appendAsMethod() {
+    def appendAsMethod(): Unit = {
       val expression: ScExpression = getTargetExpression(element)
       val replacement = createExpressionFromText(s"${expression.getText}.$methodName")(expression.getManager)
       CodeEditUtil.replaceChild(expression.getParent.getNode, expression.getNode, replacement.getNode)
@@ -87,7 +88,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
     def allSuperNames(pClasses: List[PsiClass], superNames: Set[String] = Set.empty): Set[String] = {
       pClasses match {
         case Nil => superNames
-        case head :: tail => allSuperNames(head.getSupers.toList ::: tail, superNames + head.getQualifiedName)
+        case head :: tail => allSuperNames(head.getSupers.toList ::: tail, superNames + head.qualifiedName)
       }
     }
     allSuperNames(List(psiClass))
