@@ -15,7 +15,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
-import com.intellij.openapi.project.{Project, ProjectManagerListener, ProjectUtil}
+import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
@@ -24,6 +24,7 @@ import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.util.messages.MessageBusConnection
 import com.pty4j.unix.UnixPtyProcess
 import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
@@ -49,6 +50,14 @@ import scala.collection.JavaConverters._
   * Created by jast on 2016-11-27.
   */
 final class SbtProcessManager(project: Project) extends Disposable {
+
+  private val messageBus: MessageBusConnection = project.getMessageBus.connect
+  messageBus.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
+    override def projectClosing(p: Project): Unit = {
+      if (project == p)
+        SbtProcessManager.instanceIfCreated(project).foreach(_.dispose())
+    }
+  })
 
   import SbtProcessManager.ProcessData
 

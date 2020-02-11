@@ -4,24 +4,19 @@ import com.intellij.ide.actions.ImportModuleAction
 import com.intellij.ide.util.newProjectWizard.AddModuleWizard
 import com.intellij.notification.{Notification, NotificationListener, NotificationType}
 import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
-import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.language.SbtProjectService
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.shell.SbtProcessManager
 
-final class SbtProjectListener extends StartupActivity with ProjectManagerListener {
+final class SbtProjectListener extends StartupActivity {
 
   override def runActivity(project: Project): Unit = {
     showNotificationForUnlinkedSbtProject(project)
     SbtProjectService.getInstance(project)
-  }
-
-  override def projectClosing(project: Project): Unit = {
-    SbtProcessManager.instanceIfCreated(project).foreach(_.dispose())
   }
 
   val ImportDescription = "import"
