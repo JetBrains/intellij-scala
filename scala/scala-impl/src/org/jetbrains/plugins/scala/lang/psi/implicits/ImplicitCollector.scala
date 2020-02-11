@@ -6,11 +6,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, functionTypeNoImplicits}
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -19,10 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
@@ -84,59 +80,6 @@ object ImplicitCollector {
     ImplicitCollector.cache(project)
       .getVisibleImplicits(place)
       .map(_.copy(implicitSearchState = Some(state)))
-
-
-  private[implicits] case class UndefinedFunctionType(scType: ScType, hadDependents: Boolean)
-
-  private def undefinedFunctionType(fun: ScFunction,
-                                    substititor: ScSubstitutor,
-                                    typeFromMacro: Option[ScType]): Option[UndefinedFunctionType] = {
-    val ft = functionTypeNoImplicits(fun)
-
-    ft match {
-      case Some(_funType: ScType) =>
-        val funType = typeFromMacro.getOrElse(_funType)
-
-        val undefineTypeParams = ScalaPsiUtil.undefineMethodTypeParams(fun)
-
-        val substedFunTp = substititor.followed(undefineTypeParams)(funType)
-        val withoutDependents = approximateDependent(substedFunTp, fun.parameters.toSet)
-        val undefinedType = withoutDependents.getOrElse(substedFunTp)
-
-        Some(UndefinedFunctionType(undefinedType, withoutDependents.nonEmpty))
-      case _ =>
-        None
-    }
-  }
-
-  /**
-   * Dependency on an implicit argument is like a dependency on type parameter, thus
-   * before checking implicit return type conformance we have to substitute parameter-dependent
-   * types with `UndefinedType`, otherwise compatibility check is bound to fail.
-   * We also have to verify (after we succesfully found some implicit to be compatible)
-   * that result type with argument-dependent types restored does indeed conform to `tp`.
-   *
-   * @param tpe Return type of an implicit currently undergoing a compatibility check
-   * @return `tpe` with parameter-dependent types replaced with `UndefinedType`s,
-   *         and a mean of reverting this process (useful once type parameters have been inferred
-   *         and dependents need to actually be updated according to argument types)
-   */
-  private def approximateDependent(
-    tpe: ScType,
-    params: Set[ScParameter]
-  ): Option[ScType] = {
-
-    var hasDependents = false
-
-    val updated = tpe.updateRecursively {
-      case original@ScProjectionType(ScDesignatorType(p: ScParameter), _) if params.contains(p) =>
-        hasDependents = true
-        UndefinedType(p, original)
-    }
-
-    if (hasDependents) Some(updated) else None
-  }
-
 
 }
 
@@ -478,35 +421,24 @@ class ImplicitCollector(place: PsiElement,
   }
 
   @Measure
-  def checkFunctionType(
+  private def checkFunctionType(
     c:                ScalaResolveResult,
-    fun:              ScFunction,
-    undefinedFunType: UndefinedFunctionType
+    nonValueFunTypes: NonValueFunctionTypes
   ): Option[ScalaResolveResult] = {
 
-    val subst = c.substitutor
-    val UndefinedFunctionType(ret, hadDependents) = undefinedFunType
-
     def compute(): Option[ScalaResolveResult] = {
-      val typeParameters = fun.typeParameters
-      val implicitClause = fun.effectiveParameterClauses.lastOption.filter(_.isImplicit)
-      if (typeParameters.isEmpty && implicitClause.isEmpty) Some(c.copy(implicitReason = OkResult))
-      else {
-        val methodType = implicitClause.map {
-          li => ScMethodType(ret, li.getSmartParameters, isImplicit = true)(place.elementScope)
-        }.fold(ret)(subst)
+      nonValueFunTypes.methodType match {
+        case None =>
+          Some(c.copy(implicitReason = OkResult))
 
-        val polymorphicTypeParameters = typeParameters.map(TypeParameter(_).update(subst))
-
-        val nonValueType0: ScType =
-          if (polymorphicTypeParameters.isEmpty) methodType
-          else ScTypePolymorphicType(methodType, polymorphicTypeParameters)
-
-        try updateImplicitParameters(c, nonValueType0, implicitClause.isDefined, hadDependents)
-        catch {
-          case _: SafeCheckException =>
-            Some(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = UnhandledResult))
-        }
+        case Some(nonValueType0) =>
+          try {
+            updateImplicitParameters(c, nonValueType0, nonValueFunTypes.hasImplicitClause, nonValueFunTypes.hadDependents)
+          }
+          catch {
+            case _: SafeCheckException =>
+              Some(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = UnhandledResult))
+          }
       }
     }
 
@@ -552,7 +484,6 @@ class ImplicitCollector(place: PsiElement,
     checkFast:              Boolean
   ): Option[ScalaResolveResult] = {
     val fun = c.element.asInstanceOf[ScFunction]
-    val subst = c.substitutor
 
     if (fun.hasTypeParameters && !withLocalTypeInference)
       return None
@@ -560,17 +491,18 @@ class ImplicitCollector(place: PsiElement,
     val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
     val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp)))
 
-    undefinedFunctionType(fun, subst, typeFromMacro) match {
+    val nonValueFunctionTypes = NonValueFunctionTypes(fun, c.substitutor, typeFromMacro)
+    nonValueFunctionTypes.undefinedType match {
 
-      case Some(undefined: UndefinedFunctionType) =>
+      case Some(undefined: ScType) =>
 
         val undefinedConforms =
-          isExtensionConversion && argsConformWeakly(undefined.scType, tp) ||
-            undefined.scType.conforms(tp)
+          isExtensionConversion && argsConformWeakly(undefined, tp) ||
+            undefined.conforms(tp)
 
         if (undefinedConforms) {
           if (checkFast) Some(c)
-          else checkFunctionType(c, fun, undefined)
+          else checkFunctionType(c, nonValueFunctionTypes)
         }
         else {
           reportWrong(c, TypeDoesntConformResult)
