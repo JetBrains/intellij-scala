@@ -30,7 +30,7 @@ import scala.collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-class SbtProjectService(project: Project) extends Disposable {
+final class SbtProjectService(project: Project) extends Disposable {
 
   private val SBT_MAVEN_NOTIFICATION_GROUP = "Unindexed maven repositories for sbt detection"
 

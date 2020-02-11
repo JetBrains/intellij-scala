@@ -15,7 +15,7 @@ import scala.beans.BeanProperty
   name = "SbtLocalSettings",
   storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE))
 )
-class SbtLocalSettings(project: Project)
+final class SbtLocalSettings(project: Project)
   extends AbstractExternalSystemLocalSettings[SbtLocalSettingsState](SbtProjectSystem.Id, project)
   with PersistentStateComponent[SbtLocalSettingsState] {
 

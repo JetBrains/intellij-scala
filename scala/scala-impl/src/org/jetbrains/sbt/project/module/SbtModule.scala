@@ -93,9 +93,9 @@ object SbtModule {
 
 @State(
   name = "SbtModule",
-  storages = Array(new Storage(StoragePathMacros.MODULE_FILE))
+  storages = Array(new Storage(value = StoragePathMacros.MODULE_FILE, roamingType = RoamingType.DISABLED))
 )
-class SbtModule extends PersistentStateComponent[SbtModuleState] {
+final class SbtModule extends PersistentStateComponent[SbtModuleState] {
 
   @BeanProperty
   var myState: SbtModuleState = new SbtModuleState()

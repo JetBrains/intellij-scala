@@ -22,7 +22,7 @@ import scala.collection.mutable
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-class SbtIndexesManager(val project: Project) extends Disposable {
+final class SbtIndexesManager(val project: Project) extends Disposable {
   import SbtIndexesManager._
 
   private val LOG = Logger.getInstance(classOf[SbtIndexesManager])
