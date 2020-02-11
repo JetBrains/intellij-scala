@@ -10,6 +10,7 @@
                                implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition"/>
         <lang.fileViewProviderFactory language="Scala Worksheet"
                                       implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileViewProviderFactory"/>
+        <lang.substitutor language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.ScalaWorksheetLanguageSubstitutor"/>
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.inspections.WorksheetPackageDeclarationInspection"
                          displayName="Worksheet package declaration"

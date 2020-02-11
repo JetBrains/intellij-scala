@@ -21,7 +21,7 @@ final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
 
   private def moduleForFile(file: VirtualFile, project: Project): Module =
     ModuleUtilCore.findModuleForFile(file, project) match {
-      case null   =>
+      case null =>
         if (isScalaScratchFile(file)) {
           scratchFileModule(file, project).orNull
         } else {
@@ -30,13 +30,11 @@ final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
       case module => module
     }
 
-  private def isScalaScratchFile(file: VirtualFile) = {
+  private def isScalaScratchFile(file: VirtualFile): Boolean =
     file.getExtension == "scala" && ScratchUtil.isScratch(file)
-  }
 
-  private def scratchFileModule(file: VirtualFile, project: Project) = {
+  private def scratchFileModule(file: VirtualFile, project: Project): Option[Module] = {
     val moduleName = WorksheetFileSettings.getModuleName(file)
-    val module     = moduleName.map(ModuleManager.getInstance(project).findModuleByName).flatMap(Option(_))
-    module
+    moduleName.map(ModuleManager.getInstance(project).findModuleByName).flatMap(Option(_))
   }
 }
