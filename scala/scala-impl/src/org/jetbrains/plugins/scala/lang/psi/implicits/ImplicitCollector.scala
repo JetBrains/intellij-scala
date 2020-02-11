@@ -4,16 +4,11 @@ package lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.RecursionManager
-import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, strictlyOrderedByContext}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, functionTypeNoImplicits}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -26,13 +21,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
-import org.jetbrains.plugins.scala.project.{ProjectContext, _}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.Set
@@ -89,6 +84,60 @@ object ImplicitCollector {
     ImplicitCollector.cache(project)
       .getVisibleImplicits(place)
       .map(_.copy(implicitSearchState = Some(state)))
+
+
+  private[implicits] case class UndefinedFunctionType(scType: ScType, hadDependents: Boolean)
+
+  private def undefinedFunctionType(fun: ScFunction,
+                                    substititor: ScSubstitutor,
+                                    typeFromMacro: Option[ScType]): Option[UndefinedFunctionType] = {
+    val ft = functionTypeNoImplicits(fun)
+
+    ft match {
+      case Some(_funType: ScType) =>
+        val funType = typeFromMacro.getOrElse(_funType)
+
+        val undefineTypeParams = ScalaPsiUtil.undefineMethodTypeParams(fun)
+
+        val substedFunTp = substititor.followed(undefineTypeParams)(funType)
+        val withoutDependents = approximateDependent(substedFunTp, fun.parameters.toSet)
+        val undefinedType = withoutDependents.getOrElse(substedFunTp)
+
+        Some(UndefinedFunctionType(undefinedType, withoutDependents.nonEmpty))
+      case _ =>
+        None
+    }
+  }
+
+  /**
+   * Dependency on an implicit argument is like a dependency on type parameter, thus
+   * before checking implicit return type conformance we have to substitute parameter-dependent
+   * types with `UndefinedType`, otherwise compatibility check is bound to fail.
+   * We also have to verify (after we succesfully found some implicit to be compatible)
+   * that result type with argument-dependent types restored does indeed conform to `tp`.
+   *
+   * @param tpe Return type of an implicit currently undergoing a compatibility check
+   * @return `tpe` with parameter-dependent types replaced with `UndefinedType`s,
+   *         and a mean of reverting this process (useful once type parameters have been inferred
+   *         and dependents need to actually be updated according to argument types)
+   */
+  private def approximateDependent(
+    tpe: ScType,
+    params: Set[ScParameter]
+  ): Option[ScType] = {
+
+    var hasDependents = false
+
+    val updated = tpe.updateRecursively {
+      case original@ScProjectionType(ScDesignatorType(p: ScParameter), _) if params.contains(p) =>
+        hasDependents = true
+        UndefinedType(p, original)
+    }
+
+    if (hasDependents) Some(updated) else None
+  }
+
+
 }
 
 /**
@@ -430,12 +479,13 @@ class ImplicitCollector(place: PsiElement,
 
   @Measure
   def checkFunctionType(
-    c:             ScalaResolveResult,
-    fun:           ScFunction,
-    ret:           ScType,
-    hadDependents: Boolean = false
+    c:                ScalaResolveResult,
+    fun:              ScFunction,
+    undefinedFunType: UndefinedFunctionType
   ): Option[ScalaResolveResult] = {
+
     val subst = c.substitutor
+    val UndefinedFunctionType(ret, hadDependents) = undefinedFunType
 
     def compute(): Option[ScalaResolveResult] = {
       val typeParameters = fun.typeParameters
@@ -504,71 +554,31 @@ class ImplicitCollector(place: PsiElement,
     val fun = c.element.asInstanceOf[ScFunction]
     val subst = c.substitutor
 
-    val ft = functionTypeNoImplicits(fun)
+    if (fun.hasTypeParameters && !withLocalTypeInference)
+      return None
 
-    ft match {
-      case Some(_funType: ScType) =>
-        val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
-        val funType = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp))) getOrElse _funType
+    val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
+    val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp)))
 
-        if (fun.hasTypeParameters && !withLocalTypeInference)
-          return None
+    undefinedFunctionType(fun, subst, typeFromMacro) match {
 
-        val undefineTypeParams = ScalaPsiUtil.undefineMethodTypeParams(fun)
+      case Some(undefined: UndefinedFunctionType) =>
 
-        val substedFunTp = subst.followed(undefineTypeParams)(funType)
+        val undefinedConforms =
+          isExtensionConversion && argsConformWeakly(undefined.scType, tp) ||
+            undefined.scType.conforms(tp)
 
-        val withoutDependents = approximateDependent(substedFunTp, fun.parameters.toSet)
-        val hadDependents = withoutDependents.nonEmpty
-        val updatedRetType = withoutDependents.getOrElse(substedFunTp)
-
-        if (isExtensionConversion && argsConformWeakly(substedFunTp, tp) || (updatedRetType conforms tp)) {
+        if (undefinedConforms) {
           if (checkFast) Some(c)
-          else checkFunctionType(c, fun, updatedRetType, hadDependents)
+          else checkFunctionType(c, fun, undefined)
         }
         else {
-          substedFunTp match {
-            case FunctionType(ret, params) if params.isEmpty =>
-              if (!ret.conforms(tp)) None
-              else if (checkFast) Some(c)
-              else checkFunctionType(c, fun, ret)
-            case _ =>
-              reportWrong(c, TypeDoesntConformResult)
-          }
+          reportWrong(c, TypeDoesntConformResult)
         }
       case _ =>
         if (!withLocalTypeInference) reportWrong(c, BadTypeResult)
         else None
     }
-  }
-
-  /**
-    * Dependency on an implicit argument is like a dependency on type parameter, thus
-    * before checking implicit return type conformance we have to substitute parameter-dependent
-    * types with `UndefinedType`, otherwise compatibility check is bound to fail.
-    * We also have to verify (after we succesfully found some implicit to be compatible)
-    * that result type with argument-dependent types restored does indeed conform to `tp`.
-    *
-    * @param tpe Return type of an implicit currently undergoing a compatibility check
-    * @return `tpe` with parameter-dependent types replaced with `UndefinedType`s,
-    *         and a mean of reverting this process (useful once type parameters have been inferred
-    *         and dependents need to actually be updated according to argument types)
-    */
-  private[this] def approximateDependent(
-    tpe:    ScType,
-    params: Set[ScParameter]
-  ): Option[ScType] = {
-    import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-
-    var hasDependents = false
-
-    val updated = tpe.updateRecursively {
-      case original @ ScProjectionType(ScDesignatorType(p: ScParameter), _) if params.contains(p) =>
-        hasDependents = true
-        UndefinedType(p, original)
-    }
-
-    if (hasDependents) Some(updated) else None
   }
 
   private def applyExtensionPredicate(cand: ScalaResolveResult): Option[ScalaResolveResult] = {
