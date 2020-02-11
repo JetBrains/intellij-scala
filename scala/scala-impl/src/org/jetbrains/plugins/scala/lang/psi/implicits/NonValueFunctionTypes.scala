@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater.TypeParameterUpdateExt
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 import scala.collection.Set
 
@@ -36,6 +37,7 @@ private object NonValueFunctionTypes {
 
   private case class MethodTypeData(methodType: ScType, hasImplicitClause: Boolean)
 
+  @Measure
   private def computeMethodType(fun: ScFunction,
                                 substitutor: ScSubstitutor,
                                 undefinedTypeData: UndefinedTypeData): Option[MethodTypeData] = {
@@ -64,6 +66,7 @@ private object NonValueFunctionTypes {
     }
   }
 
+  @Measure
   private def computeUndefinedType(fun: ScFunction,
                                    substitutor: ScSubstitutor,
                                    typeFromMacro: Option[ScType]): Option[UndefinedTypeData] = {

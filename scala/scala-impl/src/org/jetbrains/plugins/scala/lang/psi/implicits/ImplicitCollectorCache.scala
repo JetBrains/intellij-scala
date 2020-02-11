@@ -1,14 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
+import java.lang.System.identityHashCode
+
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.Tracer
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
+import org.jetbrains.plugins.scala.util.HashBuilder.toHashBuilder
 
 import scala.collection.{Seq, Set}
 
@@ -21,6 +24,9 @@ class ImplicitCollectorCache(project: Project) {
 
   private val visibleImplicitsMap =
     ContainerUtil.newConcurrentMap[ImplicitSearchScope, Set[ScalaResolveResult]]()
+
+  private val nonValueTypesMap =
+    ContainerUtil.newConcurrentMap[NonValueTypesKey, NonValueFunctionTypes]()
 
   def get(place: PsiElement, tp: ScType): Option[Seq[ScalaResolveResult]] = {
     val scope = ImplicitSearchScope.forElement(place)
@@ -70,15 +76,35 @@ class ImplicitCollectorCache(project: Project) {
     )
   }
 
+  private[implicits] def getNonValueTypes(fun: ScFunction,
+                                          substitutor: ScSubstitutor,
+                                          typeFromMacro: Option[ScType]): NonValueFunctionTypes = {
+
+    val key = NonValueTypesKey(fun, substitutor, typeFromMacro)
+    nonValueTypesMap.computeIfAbsent(key, key => NonValueFunctionTypes(key.fun, key.substitutor, key.typeFromMacro))
+  }
+
   def put(place: PsiElement, tp: ScType, value: Seq[ScalaResolveResult]): Unit = {
     val scope = ImplicitSearchScope.forElement(place)
     map.put((scope, tp), value)
   }
 
-  def size(): Int = map.size() + visibleImplicitsMap.size()
+  def size(): Int = map.size() + visibleImplicitsMap.size() + nonValueTypesMap.size()
 
   def clear(): Unit = {
     map.clear()
     visibleImplicitsMap.clear()
+    nonValueTypesMap.clear()
+  }
+
+  private case class NonValueTypesKey(fun: ScFunction, substitutor: ScSubstitutor, typeFromMacro: Option[ScType]) {
+    override def hashCode(): Int = fun.hashCode() #+ identityHashCode(substitutor) #+ typeFromMacro
+
+    override def equals(obj: Any): Boolean = obj match {
+      case NonValueTypesKey(otherFun, otherSubst, otherType) =>
+        otherFun == fun && (substitutor eq otherSubst) && typeFromMacro == otherType
+      case _ =>
+        false
+    }
   }
 }

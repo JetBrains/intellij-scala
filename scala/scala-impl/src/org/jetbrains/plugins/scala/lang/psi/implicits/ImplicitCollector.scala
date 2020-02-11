@@ -491,7 +491,9 @@ class ImplicitCollector(place: PsiElement,
     val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
     val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp)))
 
-    val nonValueFunctionTypes = NonValueFunctionTypes(fun, c.substitutor, typeFromMacro)
+    val nonValueFunctionTypes =
+      ImplicitCollector.cache(project).getNonValueTypes(fun, c.substitutor, typeFromMacro)
+
     nonValueFunctionTypes.undefinedType match {
 
       case Some(undefined: ScType) =>
