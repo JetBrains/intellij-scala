@@ -482,6 +482,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerService"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl"/>
 
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
@@ -1453,9 +1454,6 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes</implementation-class>

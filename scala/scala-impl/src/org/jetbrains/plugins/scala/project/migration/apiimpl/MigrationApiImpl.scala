@@ -20,8 +20,8 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
   * User: Dmitry.Naydanov
   * Date: 07.09.16.
   */
-class MigrationApiImpl(val project: Project) extends ProjectComponent with MigrationApiService {
-  override def getComponentName: String = "ScalaLibraryMigrationApi"
+// TODO does this need to be a service at all?
+final class MigrationApiImpl(val project: Project) extends MigrationApiService {
 
   override def showPopup(txt: String, title: String, handler: String => Unit): Unit = {
     NotificationUtil.showMessage(
@@ -150,12 +150,12 @@ class MigrationApiImpl(val project: Project) extends ProjectComponent with Migra
 object MigrationApiImpl {
   private val MY_MESSAGE_CONTENT_NAME = "Scala migration messages"
   
-  def getApiInstance(project: Project): MigrationApiService = project.getComponent[MigrationApiImpl](classOf[MigrationApiImpl])
+  def getApiInstance(project: Project): MigrationApiService = project.getService[MigrationApiImpl](classOf[MigrationApiImpl])
 
   def openMessageView(project: Project, content: Content, treeView: CompilerErrorTreeView) {
     val commandProcessor = CommandProcessor.getInstance()
     commandProcessor.executeCommand(project, () => {
-      val messageView = project.getService(classOf[MessageView])
+      val messageView = MessageView.SERVICE.getInstance(project)
       messageView.getContentManager setSelectedContent content
 
       val toolWindow = ToolWindowManager getInstance project getToolWindow ToolWindowId.MESSAGES_WINDOW
