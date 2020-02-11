@@ -6,14 +6,12 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.openapi.roots.{ModuleRootManager, ModuleRootModificationUtil}
-import com.intellij.ui.EditorNotifications
 
 /**
  * @author Pavel Fatin
  */
-//noinspection TypeAnnotation
-final class SetupJdkNotificationProvider(project: Project, notifications: EditorNotifications)
-  extends AbstractNotificationProvider("JDK", project, notifications) {
+final class SetupJdkNotificationProvider(project: Project)
+  extends AbstractNotificationProvider("JDK", project) {
 
   override protected def panelText(kitTitle: String) = s"Project $kitTitle is not defined"
 

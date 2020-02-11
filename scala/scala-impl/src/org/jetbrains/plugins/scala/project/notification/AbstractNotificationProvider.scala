@@ -14,16 +14,18 @@ import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
  * @author adkozlov
  */
 abstract class AbstractNotificationProvider(kitTitle: String,
-                                            project: Project,
-                                            notifications: EditorNotifications)
+                                            project: Project)
   extends EditorNotifications.Provider[EditorNotificationPanel] {
 
   import AbstractNotificationProvider._
 
   override final val getKey: Key[EditorNotificationPanel] = Key.create(kitTitle)
 
-  project.subscribeToModuleRootChanged() { _ =>
-    notifications.updateAllNotifications()
+  {
+    val notifications = EditorNotifications.getInstance(project)
+    project.subscribeToModuleRootChanged() { _ =>
+      notifications.updateAllNotifications()
+    }
   }
 
   protected def panelText(kitTitle: String): String
