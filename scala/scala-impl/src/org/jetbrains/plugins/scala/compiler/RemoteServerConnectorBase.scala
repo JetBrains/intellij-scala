@@ -5,7 +5,6 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
-import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
@@ -21,14 +20,10 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
     this(module, Seq(fileToCompile), outputDir)
   }
 
-  private val libRoot = CompileServerLauncher.libRoot
-
-  private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)
 
   private val sbtData = {
-    val pluginJpsRoot = new File(libRoot, "jps")
     val javaClassVersion = System.getProperty("java.class.version")
-    SbtData.from(pluginJpsRoot, javaClassVersion) match {
+    SbtData.from(PluginJars.jpsRoot, javaClassVersion) match {
       case Left(msg)   => throw new IllegalArgumentException(msg)
       case Right(data) => data
     }
@@ -42,11 +37,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
 
   private val compilerClasspath: Seq[File] = module.scalaCompilerClasspath
 
-  private val compilerSharedJar = new File(libCanonicalPath, "compiler-shared.jar")
-  
-  protected val runnersJar = new File(libCanonicalPath, "runners.jar")
-
-  val additionalCp: Seq[File] = compilerClasspath :+ runnersJar :+ compilerSharedJar :+ outputDir
+  val additionalCp: Seq[File] = compilerClasspath :+ PluginJars.runnersJar :+ PluginJars.compilerSharedJar :+ outputDir
 
   protected def additionalScalaParameters: Seq[String] = Seq.empty
 

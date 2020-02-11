@@ -16,12 +16,8 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.openapi.util.ShutDownTracker
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
-import gnu.trove.TByteArrayList
 import javax.swing.event.HyperlinkEvent
-import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -113,7 +109,7 @@ object CompileServerLauncher {
     settings.COMPILE_SERVER_SDK = jdk.name
     saveSettings()
 
-    compilerJars.partition(_.exists) match {
+    compileServerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
         val (nailgunCpFiles, classpathFiles) = presentFiles.partition(_.getName contains "nailgun")
         val nailgunClasspath = nailgunCpFiles
@@ -171,7 +167,7 @@ object CompileServerLauncher {
   }
 
   // TODO stop server more gracefully
-  def stop() {
+  def stop(): Unit = {
     serverInstance.foreach { it =>
       it.destroyAndWait(0L)
     }
@@ -183,12 +179,12 @@ object CompileServerLauncher {
     }
   }
 
-  def stop(project: Project) {
+  def stop(project: Project): Unit = {
     stop()
 
-    ApplicationManager.getApplication invokeLater (() => {
+    invokeLater {
       CompileServerManager.configureWidget(project)
-    })
+    }
   }
 
   def running: Boolean = serverInstance.exists(_.running)
@@ -214,39 +210,19 @@ object CompileServerLauncher {
     sdk.flatMap(toJdk)
   }
 
-  def compilerJars: Seq[File] = {
-    val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
-    val utilJar = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
-    val trove4jJar = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
-
-    val pluginRoot = libRoot.getCanonicalPath
-    val jpsRoot = new File(pluginRoot, "jps")
-
-    Seq(
-      jpsBuildersJar,
-      utilJar,
-      trove4jJar,
-      new File(pluginRoot, "scala-library.jar"),
-      new File(pluginRoot, "scala-reflect.jar"),
-      new File(pluginRoot, "scala-nailgun-runner.jar"),
-      new File(pluginRoot, "compiler-shared.jar"),
-      new File(jpsRoot, "nailgun.jar"),
-      new File(jpsRoot, "sbt-interface.jar"),
-      new File(jpsRoot, "incremental-compiler.jar"),
-      new File(jpsRoot, "compiler-jps.jar")
-    )
-  }
-
-  def libRoot: File = {
-    if (ApplicationManager.getApplication.isUnitTestMode) new File(System.getProperty("plugin.path"), "lib")
-    else {
-      val jarPath = new File(PathUtil.getJarPathForClass(getClass))
-
-      if (jarPath.getName == "classes") //development mode
-        new File(jarPath.getParentFile, "lib")
-      else jarPath.getParentFile
-    }
-  }
+  def compileServerJars: Seq[File] = Seq(
+    PlatformJars.jpsBuildersJar,
+    PlatformJars.utilJar,
+    PlatformJars.trove4jJar,
+    PluginJars.scalaLibraryJar,
+    PluginJars.scalaReflectJar,
+    PluginJars.scalaNailgunRunnerJar,
+    PluginJars.compilerSharedJar,
+    PluginJars.nailgunJar,
+    PluginJars.sbtInterfaceJar,
+    PluginJars.incrementalCompilerJar,
+    PluginJars.compilerJpsJar,
+  )
 
   def jvmParameters: Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance
@@ -307,14 +283,14 @@ object CompileServerLauncher {
 
 
   class ConfigureLinkListener(project: Project) extends NotificationListener.Adapter {
-    def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
+    override def hyperlinkActivated(notification: Notification, event: HyperlinkEvent): Unit = {
       CompileServerManager.showCompileServerSettingsDialog(project)
       notification.expire()
     }
   }
 
   class ConfigureJDKListener(project: Project) extends NotificationListener.Adapter {
-    def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
+    override def hyperlinkActivated(notification: Notification, event: HyperlinkEvent): Unit = {
       val jdkEntries = project.modulesWithScala.flatMap { module =>
         val rootManager = ModuleRootManager.getInstance(module)
         Option(OrderEntryUtil.findJdkOrderEntry(rootManager, rootManager.getSdk))

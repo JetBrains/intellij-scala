@@ -15,8 +15,8 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
-import org.jetbrains.plugins.scala.compiler.{NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.jps.incremental.scala.DummyClient
+import org.jetbrains.plugins.scala.compiler.{NonServerRunner, PluginJars, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
@@ -57,7 +57,7 @@ class RemoteServerConnector(
       case OutOfProcessServer =>
         Seq.empty[String]
       case _ =>
-        val baseArgs = Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
+        val baseArgs = Array(worksheetClassName, PluginJars.runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
         baseArgs ++ replArgs.toSeq.flatMap(ra => Seq(ra.path, ra.codeChunk, "replenabled"))
     }
 
@@ -232,10 +232,10 @@ object RemoteServerConnector {
   }
 
   trait CompilerInterface extends CompilerMessagesConsumer {
-    def progress(text: String, done: Option[Float])
+    def progress(text: String, done: Option[Float]): Unit
 
-    def worksheetOutput(text: String)
-    def trace(thr: Throwable)
+    def worksheetOutput(text: String): Unit
+    def trace(thr: Throwable): Unit
 
     def isCompiledWithErrors: Boolean
   }

@@ -4,6 +4,7 @@ package testingSupport.test.specs2
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.compiler.PluginJars
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
@@ -46,7 +47,7 @@ class Specs2RunConfiguration(project: Project,
   override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
     modifySetting(SettingMap(), "fullClasspath", "test", "Test",
       "Attributed(new File(\"" + ScalaUtil.runnersPath().replace("\\", "\\\\") + "\"))(AttributeMap.empty)",
-      comm, !_.contains("runners.jar"), shouldRevert = false)
+      comm, !_.contains(PluginJars.runnersJarName), shouldRevert = false)
 
   override def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     testConfigurationData match {
