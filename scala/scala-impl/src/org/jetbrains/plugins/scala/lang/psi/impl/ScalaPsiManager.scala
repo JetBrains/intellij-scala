@@ -74,9 +74,6 @@ class ScalaPsiManager(implicit val project: Project) {
 
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
-  @CachedWithoutModificationCount(ValueWrapper.None, clearCacheOnChange)
-  def inheritorOrThisObjects(td: ScTemplateDefinition): Set[ScObject] = ScalaInheritors.findInheritorObjects(td)
-
   def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     if (dontCacheCompound) StableNodes.build(tp, compoundTypeThisType)
     else getStableSignaturesCached(tp, compoundTypeThisType)

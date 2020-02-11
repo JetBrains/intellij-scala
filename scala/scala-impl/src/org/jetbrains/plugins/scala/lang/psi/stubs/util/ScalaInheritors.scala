@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.mutable.ArrayBuffer
@@ -137,6 +137,7 @@ object ScalaInheritors {
 
   //find objects which may be used to import members of `clazz`
   //if `clazz` is not generic, members in all objects are the same, so we return one that have less methods as it is more specific
+  @CachedInUserData(clazz, ModCount.getBlockModificationCount)
   def findInheritorObjects(clazz: ScTemplateDefinition): Set[ScObject] = {
     val allObjects = allInheritorObjects(clazz)
 

@@ -62,11 +62,11 @@ object GlobalImplicitInstance {
     candidate <- ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)
   } yield candidate
 
-  private[this] def globalInstances(member: ScMember)
-                                   (implicit project: Project): Set[GlobalImplicitInstance] = for {
-    containingClass <- Option(member.containingClass).toSet[ScTemplateDefinition]
-    objectToImport <- ScalaPsiManager.instance.inheritorOrThisObjects(containingClass)
-  } yield GlobalImplicitInstance(objectToImport, member)
+  private[this] def globalInstances(member: ScMember): Set[GlobalImplicitInstance] =
+    for {
+      containingClass <- Option(member.containingClass).toSet[ScTemplateDefinition]
+      objectToImport  <- ScalaInheritors.findInheritorObjects(containingClass)
+    } yield GlobalImplicitInstance(objectToImport, member)
 
   def compatibleInstances(`type`: ScType, elementScope: ElementScope): Set[GlobalImplicitInstance] = {
     implicit val ElementScope(project, scope) = elementScope

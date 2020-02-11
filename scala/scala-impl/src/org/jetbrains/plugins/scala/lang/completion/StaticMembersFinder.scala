@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 private final class StaticMembersFinder(place: ScReferenceExpression, matcher: PrefixMatcher, accessAll: Boolean)
@@ -78,16 +79,15 @@ private object StaticMembersFinder {
     if (prefixMatcher.getPrefix.nonEmpty) Some(new StaticMembersFinder(place, prefixMatcher, accessAll))
     else None
 
-  private def classesToImportFor(m: PsiMember): Seq[PsiClass] = {
+  private def classesToImportFor(m: PsiMember): Iterable[PsiClass] = {
     val cClass = m.containingClass
     if (cClass == null)
       return Seq.empty
 
     if (isStatic(m)) Seq(cClass)
     else {
-      val manager = ScalaPsiManager.instance(m.getProject)
       cClass.asOptionOf[ScTemplateDefinition]
-        .map(manager.inheritorOrThisObjects).getOrElse(Set.empty).toSeq
+        .map(ScalaInheritors.findInheritorObjects).getOrElse(Set.empty)
     }
   }
 
