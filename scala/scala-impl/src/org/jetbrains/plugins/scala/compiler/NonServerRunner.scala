@@ -29,11 +29,12 @@ class NonServerRunner(project: Project) {
   }
 
   private val jvmParameters = CompileServerLauncher.jvmParameters
-  
+
   def buildProcess(args: Seq[String], client: Client): CompilationProcess = {
     CompileServerLauncher.compileServerJars.foreach(p => assert(p.exists(), p.getPath))
 
-    CompileServerLauncher.compileServerJdk(project) match {
+    val jdk = CompileServerLauncher.compileServerJdk(project)
+    jdk match {
       case None =>
         null
       case Some(jdk) =>
@@ -46,7 +47,7 @@ class NonServerRunner(project: Project) {
         }
 
         val builder = new ProcessBuilder(commands.asJava)
-        builder.redirectErrorStream(true)
+        //builder.redirectErrorStream(true)
 
         new CompilationProcess {
           var myProcess: Option[Process] = None
