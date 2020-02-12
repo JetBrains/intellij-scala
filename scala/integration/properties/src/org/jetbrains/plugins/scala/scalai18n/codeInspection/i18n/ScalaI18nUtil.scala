@@ -26,7 +26,7 @@ import scala.collection.mutable
 
 object ScalaI18nUtil {
   def mustBePropertyKey(@NotNull literal: ScLiteral,
-                        @NotNull annotationAttributeValues: mutable.HashMap[String, AnyRef]): Boolean = {
+                        @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean = {
     mayBePropertyKey(literal) && isPassedToAnnotatedParam(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues, null)
   }
 

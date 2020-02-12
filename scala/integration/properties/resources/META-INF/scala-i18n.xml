@@ -8,5 +8,10 @@
                          groupBundle="messages.InspectionsBundle" groupKey="group.names.properties.files"
                          enabledByDefault="true" level="ERROR"
                          implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaInvalidPropertyKeyInspection"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.UntranslatedStringInspection"
+                         bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                         key="internal.string.should.be.in.bundle"
+                         language="Scala" groupPath="Scala" groupName="Internal"
+                         isInternal="true" level="WARNING" enabledByDefault="true" />
     </extensions>
 </idea-plugin>
