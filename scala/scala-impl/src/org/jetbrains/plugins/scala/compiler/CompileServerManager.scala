@@ -7,10 +7,11 @@ import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
@@ -25,16 +26,14 @@ import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 /**
  * @author Pavel Fatin
  */
-final class CompileServerManager(project: Project) extends ProjectComponent {
+final class CompileServerManager(project: Project) extends Disposable {
 
   private val IconRunning = Icons.COMPILE_SERVER
   private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
   private val timer = new Timer(1000, TimerListener)
 
-  override def getComponentName: String = getClass.getSimpleName
-
-  override def projectOpened() {
+  private def init() {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
     configureWidget()
@@ -42,7 +41,7 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
     timer.start()
   }
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
     configureWidget()
@@ -169,7 +168,7 @@ object CompileServerManager {
 
   def configureWidget(project: Project): Unit = {
     if (!project.isDisposed) {
-      val instance = project.getComponent(classOf[CompileServerManager])
+      val instance = project.getService(classOf[CompileServerManager])
       instance.configureWidget()
     }
   }
@@ -180,5 +179,11 @@ object CompileServerManager {
   def enableCompileServer(project: Project): Unit = {
     val settings = ScalaCompileServerSettings.getInstance()
     settings.COMPILE_SERVER_ENABLED = true
+  }
+
+  private final class Startup extends StartupActivity {
+    override def runActivity(project: Project): Unit = {
+      project.getService(classOf[CompileServerManager]).init()
+    }
   }
 }
