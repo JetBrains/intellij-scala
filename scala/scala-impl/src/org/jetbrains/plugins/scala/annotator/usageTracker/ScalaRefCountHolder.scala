@@ -9,9 +9,10 @@ import java.{util => ju}
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, impl}
 import com.intellij.concurrency.JobScheduler
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.{LowMemoryWatcher, Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.util.containers.{ContainerUtil, hash}
@@ -116,7 +117,7 @@ object ScalaRefCountHolder {
     getInstance(element.getContainingFile)
 
   def getInstance(file: PsiFile): ScalaRefCountHolder = file.getProject
-    .getComponent(classOf[ScalaRefCountHolderComponent])
+    .getService(classOf[ScalaRefCountHolderService])
     .getOrCreate(
       file.getName + file.hashCode,
       new ScalaRefCountHolder(file)
@@ -146,15 +147,15 @@ object ScalaRefCountHolder {
   }
 }
 
-final class ScalaRefCountHolderComponent(project: Project) extends ProjectComponent {
+final class ScalaRefCountHolderService(project: Project) extends Disposable {
 
-  import ScalaRefCountHolderComponent._
+  import ScalaRefCountHolderService._
 
   private val autoCleaningMap = Ref.create[TimestampedValueMap[String, ScalaRefCountHolder]]
 
   private var myCleanUpFuture: ScheduledFuture[_] = _
 
-  override def projectOpened(): Unit = {
+  private def init(): Unit = {
     autoCleaningMap.set(new TimestampedValueMap())
 
     myCleanUpFuture = JobScheduler.getScheduler.scheduleWithFixedDelay(
@@ -167,7 +168,7 @@ final class ScalaRefCountHolderComponent(project: Project) extends ProjectCompon
     LowMemoryWatcher.register(cleanupTask(autoCleaningMap), project)
   }
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     if (myCleanUpFuture != null) {
       myCleanUpFuture.cancel(false)
       myCleanUpFuture = null
@@ -187,7 +188,10 @@ final class ScalaRefCountHolderComponent(project: Project) extends ProjectCompon
   }
 }
 
-object ScalaRefCountHolderComponent {
+object ScalaRefCountHolderService {
+
+  def getInstance(project: Project): ScalaRefCountHolderService =
+    project.getService(classOf[ScalaRefCountHolderService])
 
   import concurrent.duration._
 
@@ -237,6 +241,11 @@ object ScalaRefCountHolderComponent {
         case _ =>
       }
     }
+  }
+
+  final private class Startup extends StartupActivity {
+    override def runActivity(project: Project): Unit =
+      getInstance(project).init()
   }
 
 }
