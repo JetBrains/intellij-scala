@@ -9,11 +9,11 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListener
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType}
 import com.intellij.codeInspection.ex.QuickFixWrapper
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.{MarkupModelEx, RangeHighlighterEx}
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.Processor
@@ -30,7 +30,7 @@ import scala.collection.mutable
   * User: Dmitry.Naydanov
   * Date: 03.08.17.
   */
-class AmmoniteScriptWrappersHolder(project: Project) extends ProjectComponent {
+class AmmoniteScriptWrappersHolder(project: Project) {
   import AmmoniteScriptWrappersHolder._
   
   private val file2object = mutable.WeakHashMap.empty[ScalaFile, (ScObject, Long)]
@@ -66,7 +66,7 @@ class AmmoniteScriptWrappersHolder(project: Project) extends ProjectComponent {
     }
   }
 
-  override def projectOpened(): Unit = {
+  private def init(): Unit = {
     project.getMessageBus.connect(project).subscribe(DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC, new DaemonListener {
       override def daemonFinished(): Unit = problemFiles.replaceAll(setMask(SET_DAEMON_MASK))
     })
@@ -113,9 +113,7 @@ class AmmoniteScriptWrappersHolder(project: Project) extends ProjectComponent {
   }
   
   private def incrementImpl(vFile: VirtualFile, mask: Int) {
-    problemFiles.merge(vFile, mask, new BiFunction[Int, Int, Int] {
-      override def apply(t: Int, u: Int): Int = t | u
-    })
+    problemFiles.merge(vFile, mask, (t: Int, u: Int) => t | u)
     
     tryFetching(vFile)
   }
@@ -220,9 +218,15 @@ object AmmoniteScriptWrappersHolder {
     override def apply(t: VirtualFile, u: Int): Int = u & ~mask
   }
   
-  def getInstance(project: Project): AmmoniteScriptWrappersHolder = project.getComponent(classOf[AmmoniteScriptWrappersHolder])
+  def getInstance(project: Project): AmmoniteScriptWrappersHolder =
+    project.getService(classOf[AmmoniteScriptWrappersHolder])
 
   def getWrapperName(from: PsiFile): String = from.getName.stripSuffix("." + WorksheetFileType.getDefaultExtension)
   
-  def getOffsetFix(from: PsiFile): Int = (getWrapperName(from) + "object  {\n").length 
+  def getOffsetFix(from: PsiFile): Int = (getWrapperName(from) + "object  {\n").length
+
+  private final class Startup extends StartupActivity {
+    override def runActivity(project: Project): Unit =
+      getInstance(project).init()
+  }
 }

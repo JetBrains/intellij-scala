@@ -490,6 +490,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder"/>
 
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
@@ -1405,6 +1406,7 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent$Startup"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder$Startup"/>
 
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
@@ -1450,9 +1452,6 @@
     </projectListeners>
 
     <project-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder</implementation-class>
-        </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderComponent</implementation-class>
         </component>
