@@ -80,7 +80,7 @@ object BSPCli extends App {
           set.loadState(bspSettingsState)
           set.asInstanceOf[T]
         }
-        else super.getComponent(interfaceClass)
+        else super.getService(interfaceClass)
       }
     }
     ApplicationManager.setApplication(application, () => {})

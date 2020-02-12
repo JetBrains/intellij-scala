@@ -147,5 +147,5 @@ can be used to configure the notification.""".stripMargin,
 
 object SbtProjectService {
   def getInstance(project: Project): SbtProjectService =
-    ServiceManager.getService(project, classOf[SbtProjectService])
+    project.getService(classOf[SbtProjectService])
 }

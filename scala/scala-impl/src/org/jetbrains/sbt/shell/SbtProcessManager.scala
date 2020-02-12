@@ -453,7 +453,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 object SbtProcessManager {
 
   def forProject(project: Project): SbtProcessManager = {
-    val pm = ServiceManager.getService(project, classOf[SbtProcessManager])
+    val pm = project.getService(classOf[SbtProcessManager])
     if (pm == null) throw new IllegalStateException(s"unable to get component SbtProcessManager for project $project")
     else pm
   }

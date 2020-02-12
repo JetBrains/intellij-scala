@@ -42,7 +42,7 @@ private class CompilerErrorsListener extends CompilationStatusListener {
   }
 
   private def getState(project: Project) =
-    ServiceManager.getService(project, classOf[CompilerErrorsListener.State])
+    project.getService(classOf[CompilerErrorsListener.State])
 
   private def informWolf(project: Project): Unit = {
     ProblemSolverUtils.clearAllProblemsFromExternalSource(project, CompilerErrorsListener)

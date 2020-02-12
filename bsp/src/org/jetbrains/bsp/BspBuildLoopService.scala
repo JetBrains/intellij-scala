@@ -116,5 +116,5 @@ final class BspBuildLoopService(project: Project) {
 
 object BspBuildLoopService {
   def getInstance(project: Project): BspBuildLoopService =
-    ServiceManager.getService(project, classOf[BspBuildLoopService])
+    project.getService(classOf[BspBuildLoopService])
 }

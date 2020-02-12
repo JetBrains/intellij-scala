@@ -21,7 +21,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
   private val descriptors: mutable.Map[EventId, TaskDescriptor] = mutable.Map.empty
 
   private val viewManager =
-    Option(taskId.findProject()).map(ServiceManager.getService(_, classOf[SyncViewManager]))
+    Option(taskId.findProject()).map(_.getService(classOf[SyncViewManager]))
 
   override def start(): Unit = {
     notifications.onStart(taskId, workingDir)
