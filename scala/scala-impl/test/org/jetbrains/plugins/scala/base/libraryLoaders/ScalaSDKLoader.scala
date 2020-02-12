@@ -21,7 +21,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
 
   import DependencyManagerBase._
   import ScalaSDKLoader._
-  import template.Artifact.ScalaCompiler.{versionOf => ScalaCompilerVersion}
+  import template.Artifact
 
   protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
     version match { // TODO maybe refactoring?
@@ -76,6 +76,10 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       compilerClasspath.isEmpty
     )
 
+    val compilerFile = compilerClasspath.find(_.getName.contains("compiler")).getOrElse {
+      fail(s"Local SDK files should contain compiler jar for : $version\n${compilerClasspath.mkString("\n")}").asInstanceOf[Nothing]
+    }
+
     val classesRoots = {
       import scala.collection.JavaConverters._
       compilerClasspath.map(findJarFile).asJava
@@ -90,10 +94,8 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
 
     Disposer.register(module, library)
     inWriteAction {
-      val properties = ScalaLibraryProperties(
-        ScalaCompilerVersion(compilerClasspath.head),
-        compilerClasspath
-      )
+      val version = Artifact.ScalaCompiler.versionOf(compilerFile)
+      val properties = ScalaLibraryProperties(version, compilerClasspath)
 
       val editor = new ExistingLibraryEditor(library, null)
       editor.setType(ScalaLibraryType())

@@ -10,22 +10,23 @@ import java.util.Properties
  * @author Pavel Fatin
  */
 sealed class Artifact(val prefix: String,
-                      val resource: Option[String] = None) {
+                      val propertiesResource: Option[String] = None) {
 
   private val fileNameRegex = (prefix + "-(.*?)(?:-src|-sources|-javadoc)?\\.jar").r
 
-  def versionOf(file: File): Option[String] =
-    externalVersionOf(file.getName)
-      .orElse(internalVersionOf(file.toURI.toString))
+  def versionOf(file: File): Option[String] = {
+    val version = versionFromFileName(file.getName)
+    version.orElse(versionFromPropertyFile(file.toURI.toString))
+  }
 
-  private def externalVersionOf(fileName: String) = fileName match {
+  private def versionFromFileName(fileName: String): Option[String] = fileName match {
     case fileNameRegex(number) => Some(number)
     case _ => None
   }
 
-  private def internalVersionOf(fileUri: String) =
-    resource.flatMap {
-      Artifact.readProperty(fileUri, _)
+  private def versionFromPropertyFile(fileUri: String): Option[String] =
+    propertiesResource.flatMap {
+      Artifact.readProperty(fileUri, _, "version.number")
     }
 }
 
@@ -40,15 +41,14 @@ object Artifact {
     ScalaActors
   )
 
-  private def readProperty(fileUri: String,
-                           resource: String) =
+  private def readProperty(jarFileUri: String, resource: String, property: String) =
     try {
-      val url = new URL(s"jar:$fileUri!/$resource")
+      val url = new URL(s"jar:$jarFileUri!/$resource")
       Option(url.openStream).flatMap { in =>
         using(new BufferedInputStream(in)) { inStream =>
           val properties = new Properties()
           properties.load(inStream)
-          Option(properties.getProperty("version.number"))
+          Option(properties.getProperty(property))
         }
       }
     } catch {
