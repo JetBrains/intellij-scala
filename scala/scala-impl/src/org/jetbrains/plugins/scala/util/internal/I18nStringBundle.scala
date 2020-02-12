@@ -4,14 +4,22 @@ package internal
 
 import java.io._
 
-import org.jetbrains.plugins.scala.util.internal.SortedScalaStringBundle._
+import org.jetbrains.plugins.scala.util.internal.I18nStringBundle._
 
 import scala.io.Source
 import extensions._
 
-case class SortedScalaStringBundle(entries: Seq[Entry]) {
-  def sorted: SortedScalaStringBundle =
-    copy(entries = entries.sortBy(_.path))
+case class I18nStringBundle(entries: Seq[Entry]) {
+  def sorted: I18nStringBundle =
+    copy(entries = entries.sorted)
+
+  def withEntry(entry: Entry): I18nStringBundle = {
+    val (before, after) = entries.partition(entryOrdering.lteq(entry, _))
+    I18nStringBundle(before ++ Seq(entry) ++ after)
+  }
+
+  def isCorrectlySorted: Boolean =
+    this == sorted
 
   def writeTo(bundlePath: String): Unit = {
     val pw = new PrintWriter(new File(bundlePath))
@@ -34,13 +42,18 @@ case class SortedScalaStringBundle(entries: Seq[Entry]) {
   }
 }
 
-object SortedScalaStringBundle {
+object I18nStringBundle {
   val noCategoryPath = "<no-category>"
   val unusedCategoryPath = "<unused>"
 
-  case class Entry(key: String, text: String, path: String, comments: String)
+  implicit val entryOrdering: Ordering[Entry] =
+    Ordering.by((entry: Entry) => entry.isUnused -> entry.path)
 
-  def readBundle(bundlepath: String): SortedScalaStringBundle = {
+  case class Entry(key: String, text: String, path: String, comments: String) {
+    def isUnused: Boolean = path == unusedCategoryPath
+  }
+
+  def readBundle(bundlepath: String): I18nStringBundle = {
     val lines = {
       val source = Source.fromFile(bundlepath)
       try source.getLines().toArray
@@ -76,9 +89,8 @@ object SortedScalaStringBundle {
       i += 1
     }
 
-    new SortedScalaStringBundle(result.result())
+    new I18nStringBundle(result.result())
   }
-
 
   private object NewCategoryLines {
     val prefix = "### "

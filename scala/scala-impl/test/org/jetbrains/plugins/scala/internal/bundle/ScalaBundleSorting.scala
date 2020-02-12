@@ -7,8 +7,8 @@ import java.util.Scanner
 import java.util.regex.Pattern
 
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.internal.SortedScalaStringBundle
-import org.jetbrains.plugins.scala.util.internal.SortedScalaStringBundle._
+import org.jetbrains.plugins.scala.util.internal.I18nStringBundle
+import org.jetbrains.plugins.scala.util.internal.I18nStringBundle._
 
 import scala.io.Source
 
@@ -31,7 +31,7 @@ object ScalaBundleSorting {
     println(s"Process $rootPath ($bundlePath)")
     val findings = findKeysInModule(rootPath, searcher)
     val keyToFinding = findings.groupBy(_.key)
-    val SortedScalaStringBundle(entries) = readBundle(bundlePath)
+    val I18nStringBundle(entries) = readBundle(bundlePath)
     val keyToAmountOfEntries = entries.groupBy(_.key).mapValues(_.size)
 
     val entriesWithPath =
@@ -46,7 +46,7 @@ object ScalaBundleSorting {
           entry
       }
 
-    SortedScalaStringBundle(entriesWithPath)
+    I18nStringBundle(entriesWithPath)
         .sorted
         .writeTo(bundlePath)
     println("Done.")
