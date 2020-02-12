@@ -8,7 +8,7 @@ import org.junit.experimental.categories.Category
   * 01-Aug-17
   */
 @Category(Array(classOf[HighlightingTests]))
-class BetterFilesProjectHighlighingTest extends GithubSbtAllProjectHighlightingTest {
+class BetterFilesProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
   override def githubUsername = "pathikrit"
 
   override def githubRepoName = "better-files"

@@ -477,7 +477,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationService"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService"/>

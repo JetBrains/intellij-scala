@@ -18,10 +18,10 @@ import scala.beans.BeanProperty
   name = "SuggestScalaFmt",
   storages = Array[Storage](new Storage(value = StoragePathMacros.WORKSPACE_FILE))
 )
-final class ScalaFmtSuggesterComponent(private val project: Project)
-  extends PersistentStateComponent[ScalaFmtSuggesterComponent.State] {
+final class ScalaFmtSuggesterService(private val project: Project)
+  extends PersistentStateComponent[ScalaFmtSuggesterService.State] {
 
-  import ScalaFmtSuggesterComponent._
+  import ScalaFmtSuggesterService._
 
   def init(): Unit =
     if (needToSuggestScalafmtFormatter(project)) {
@@ -41,9 +41,9 @@ final class ScalaFmtSuggesterComponent(private val project: Project)
       .nonEmpty
   }
 
-  private var state: ScalaFmtSuggesterComponent.State = new ScalaFmtSuggesterComponent.State()
-  override def getState: ScalaFmtSuggesterComponent.State = state
-  override def loadState(state: ScalaFmtSuggesterComponent.State): Unit = this.state = state
+  private var state: ScalaFmtSuggesterService.State = new ScalaFmtSuggesterService.State()
+  override def getState: ScalaFmtSuggesterService.State = state
+  override def loadState(state: ScalaFmtSuggesterService.State): Unit = this.state = state
 
   private def enableForProject(): Unit = {
     val codeStyleSchemesModel = new CodeStyleSchemesModel(project)
@@ -61,7 +61,7 @@ final class ScalaFmtSuggesterComponent(private val project: Project)
   }
 
   private def dontShow(): Unit = {
-    val newState = new scalafmt.ScalaFmtSuggesterComponent.State()
+    val newState = new scalafmt.ScalaFmtSuggesterService.State()
     newState.enableForCurrentProject = false
     loadState(newState)
   }
@@ -95,10 +95,10 @@ final class ScalaFmtSuggesterComponent(private val project: Project)
   private val dontShowText      = ScalaBundle.message("scalafmt.suggester.continue.using.intellij.formatter")
 }
 
-object ScalaFmtSuggesterComponent {
+object ScalaFmtSuggesterService {
 
-  def instance(implicit project: Project): ScalaFmtSuggesterComponent =
-    project.getService(classOf[ScalaFmtSuggesterComponent])
+  def instance(implicit project: Project): ScalaFmtSuggesterService =
+    project.getService(classOf[ScalaFmtSuggesterService])
 
   class State {
     @BeanProperty
