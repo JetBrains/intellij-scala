@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.project.migration
 
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.model.project.LibraryData
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.startup.StartupActivity
 import org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionBase
 import org.jetbrains.plugins.scala.components.libextensions.{LibraryExtensionsListener, LibraryExtensionsManager}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -19,8 +19,7 @@ import scala.collection.mutable
   * User: Dmitry.Naydanov
   * Date: 14.11.16.
   */
-class BundledCodeStoreComponent(project: Project)
-  extends ProjectComponent {
+final class BundledCodeStoreComponent(project: Project) {
 
   private var oldLibrariesCopy: Option[Seq[Library]] = None
   private var newLibrariesCopy: Option[Seq[LibraryData]] = None
@@ -153,18 +152,15 @@ class BundledCodeStoreComponent(project: Project)
     areInjectorsLoaded = false
   }
   
-  
-  override def projectOpened(): Unit = {
-    project.getMessageBus.connect(project).subscribe(LibraryExtensionsManager.EXTENSIONS_TOPIC, new LibraryExtensionsListener {
-      override def newExtensionsAdded(): Unit = onExtensionsAdded()
-    })
-  }
 
-  override def getComponentName: String = "Scala bundled code store component"
+  project.getMessageBus.connect(project).subscribe(LibraryExtensionsManager.EXTENSIONS_TOPIC, new LibraryExtensionsListener {
+    override def newExtensionsAdded(): Unit = onExtensionsAdded()
+  })
+
 }
 
 object BundledCodeStoreComponent {
-  def getInstance(project: Project): BundledCodeStoreComponent = project.getComponent(classOf[BundledCodeStoreComponent])
+  def getInstance(project: Project): BundledCodeStoreComponent = project.getService(classOf[BundledCodeStoreComponent])
   
   def isEnabled(project: Project): Boolean = isMigratorsEnabled(project) || isInspectionsEnabled(project)
   
@@ -190,4 +186,9 @@ object BundledCodeStoreComponent {
 
   def showExceptionWarning(service: MigrationApiService, ex: Throwable): Unit = showWarning(service, ex.getMessage +
     "\n" + ex.getStackTrace.take(STACKTRACE_FROM_REPORT_CUT_SIZE).mkString("\n"))
+
+  private final class Startup extends StartupActivity {
+    override def runActivity(project: Project): Unit =
+      getInstance(project)
+  }
 }
