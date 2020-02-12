@@ -5,8 +5,9 @@ import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.debugger.{DebuggerManagerEx, SourcePosition}
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.psi.{PsiElement, PsiFile}
 
 import scala.collection.mutable
@@ -15,7 +16,7 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 2014-06-03
  */
-class ScalaEvaluatorCache(project: Project) extends ProjectComponent {
+class ScalaEvaluatorCache(project: Project) extends Disposable {
 
   private val cachedEvaluators = mutable.HashMap[(PsiFile, Int), mutable.HashMap[PsiElement, Evaluator]]()
   private val cachedStamp = mutable.HashMap[PsiFile, Long]()
@@ -24,11 +25,9 @@ class ScalaEvaluatorCache(project: Project) extends ProjectComponent {
     override def sessionDetached(session: DebuggerSession): Unit = clear()
   }
 
-  override def projectOpened(): Unit = {
-    DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
-  }
+  DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     clear()
     DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener)
   }
@@ -77,5 +76,10 @@ class ScalaEvaluatorCache(project: Project) extends ProjectComponent {
 }
 
 object ScalaEvaluatorCache {
-  def getInstance(project: Project): ScalaEvaluatorCache = project.getComponent(classOf[ScalaEvaluatorCache])
+  def getInstance(project: Project): ScalaEvaluatorCache =
+    project.getService(classOf[ScalaEvaluatorCache])
+
+  private final class Startup extends StartupActivity {
+    override def runActivity(project: Project): Unit = ScalaEvaluatorCache.getInstance(project)
+  }
 }
