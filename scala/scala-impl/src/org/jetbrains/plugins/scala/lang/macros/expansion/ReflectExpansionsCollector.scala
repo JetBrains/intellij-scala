@@ -22,18 +22,14 @@ import org.jetbrains.plugins.scala.util.{MacroExpansion, Place}
   * @author Mikhail Mutcianko
   * @since 20.09.16
   */
-class ReflectExpansionsCollector(project: Project) extends ProjectComponent {
+class ReflectExpansionsCollector(project: Project) {
   import ReflectExpansionsCollector._
-
-  override def getComponentName = "ReflectExpansionsCollector"
 
   private val collectedExpansions: mutable.HashMap[Place, MacroExpansion] = mutable.HashMap.empty
   private var parser: ScalaReflectMacroExpansionParser = _
 
 
-  override def projectOpened(): Unit = {
-    deserializeExpansions()
-  }
+  deserializeExpansions()
 
   def getExpansion(elem: PsiElement): Option[MacroExpansion] = {
     val offset = PsiTreeUtil.getParentOfType(elem, classOf[ScAnnotation]) match {
@@ -89,9 +85,10 @@ object ReflectExpansionsCollector {
     FileEditorManager.getInstance(project).getSelectedEditors.filter(_.isValid).foreach { editor =>
       val analyzer = DaemonCodeAnalyzer.getInstance(project)
       val psiManager = PsiManager.getInstance(project)
-      Option(psiManager.findFile(editor.getFile)).map(analyzer.restart(_))
+      Option(psiManager.findFile(editor.getFile)).map(analyzer.restart)
     }
   }
 
-  def getInstance(project: Project): ReflectExpansionsCollector = project.getComponent(classOf[ReflectExpansionsCollector])
+  def getInstance(project: Project): ReflectExpansionsCollector =
+    project.getService(classOf[ReflectExpansionsCollector])
 }

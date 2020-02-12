@@ -489,6 +489,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
 
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
@@ -1449,9 +1450,6 @@
     </projectListeners>
 
     <project-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
-        </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder</implementation-class>
         </component>
