@@ -28,28 +28,39 @@ object ScalaBundleSorting {
 
   def main(args: Array[String]): Unit = for (info <- allModuleInfos) {
     val ModuleInfo(rootPath, bundlePath, searcher) = info
-    println(s"Process $rootPath ($bundlePath)")
+    println(s"Find keys in $rootPath")
     val findings = findKeysInModule(rootPath, searcher)
     val keyToFinding = findings.groupBy(_.key)
+
+    println(s"Read bundle $bundlePath")
     val I18nStringBundle(entries) = readBundle(bundlePath)
     val keyToAmountOfEntries = entries.groupBy(_.key).mapValues(_.size)
 
+    def isEntryInInvalidPath(entry: Entry): Boolean =
+      !keyToFinding.getOrElse(entry.key, Nil).exists(_.relativeFilepath == entry.path)
+
+    println(s"Process unused and invalid entries...")
+    var changed = 0
     val entriesWithPath =
       entries.map {
-        case entry@Entry(key, _, `noCategoryPath`, _) =>
+        case entry if entry.isUnused || isEntryInInvalidPath(entry) =>
           val newCat = keyToFinding
-            .get(key)
+            .get(entry.key)
             .map(_.maxBy(f => keyToAmountOfEntries(f.key)))
             .fold(unusedCategoryPath)(_.relativeFilepath)
+          if (entry.path != newCat)
+            changed += 1
           entry.copy(path = newCat)
         case entry =>
           entry
       }
-
+    println(s"$changed entries changed...")
+    println(s"Write bundle $bundlePath")
     I18nStringBundle(entriesWithPath)
         .sorted
         .writeTo(bundlePath)
     println("Done.")
+    println()
   }
 
   class Searcher {
