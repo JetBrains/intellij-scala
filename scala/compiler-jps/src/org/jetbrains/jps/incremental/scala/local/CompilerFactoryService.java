@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.local;
 
-import org.jetbrains.jps.incremental.scala.data.CompilerData;
-import org.jetbrains.jps.incremental.scala.data.SbtData;
+import org.jetbrains.plugins.scala.compiler.data.CompilerData;
+import org.jetbrains.plugins.scala.compiler.data.SbtData;
 
 public interface CompilerFactoryService {
   boolean isEnabled(CompilerData compilerData);

@@ -10,7 +10,10 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
  * Date: 22.10.11
  */
 
-@State(name = "ScaladocSettings")
+@State(
+        name = "ScaladocSettings",
+        reportStatistic = true
+)
 public class ScaladocSettings implements PersistentStateComponent<ScaladocSettings> {
 
   public String outputDir = null;

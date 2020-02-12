@@ -6,10 +6,10 @@ import java.io.{PrintWriter, StringWriter}
 import java.util.ServiceLoader
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.data.CompilationData
 import sbt.internal.inc.Analysis
-import xsbti.compile.{AnalysisStore, CompileResult, MiniSetup, AnalysisContents}
+import xsbti.compile.{AnalysisContents, AnalysisStore, CompileResult, MiniSetup}
 import Utils._
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 
 import scala.util.Try
 import scala.util.control.NonFatal

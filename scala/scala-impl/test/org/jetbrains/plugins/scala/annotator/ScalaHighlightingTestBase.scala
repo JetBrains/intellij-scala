@@ -19,6 +19,9 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
 
   protected def withHints = false
 
+  def assertErrors(code: String, messages: Message*): Unit =
+    assertEqualsFailable(messages.mkString("\n"), errorsFromScalaCode(code).mkString("\n"))
+
   def errorsFromScalaCode(scalaFileText: String): List[Message] = {
     if (filesCreated) throw new AssertionError("Don't add files 2 times in a single test")
 

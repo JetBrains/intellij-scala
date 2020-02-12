@@ -1,5 +1,4 @@
-package org.jetbrains.jps.incremental.scala
-package local
+package org.jetbrains.jps.incremental.scala.local
 
 import java.io.File
 import java.nio.file.Path
@@ -7,7 +6,8 @@ import java.util
 import java.util.Optional
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerJars}
+import org.jetbrains.jps.incremental.scala.{Client, ZincLogFilter}
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, CompilerArguments}
 import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
@@ -19,7 +19,9 @@ import scala.collection.JavaConverters._
  * Nikolay.Tropin
  * 11/18/13
  */
-class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompiler {
+class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
+  extends AbstractCompiler {
+
   def compile(compilationData: CompilationData, client: Client): Unit = {
     val progress = getProgress(client)
     val reporter = getReporter(client)

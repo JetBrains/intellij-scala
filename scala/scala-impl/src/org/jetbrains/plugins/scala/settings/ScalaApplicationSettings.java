@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
 
 @State(
         name = "ScalaApplicationSettings",
-        storages = {@Storage(ScalaApplicationSettings.STORAGE_FILE_NAME)}
+        storages = {@Storage(ScalaApplicationSettings.STORAGE_FILE_NAME)},
+        reportStatistic = true
 )
 public class ScalaApplicationSettings implements PersistentStateComponent<ScalaApplicationSettings> {
   public static final String STORAGE_FILE_NAME = "scala_config.xml";

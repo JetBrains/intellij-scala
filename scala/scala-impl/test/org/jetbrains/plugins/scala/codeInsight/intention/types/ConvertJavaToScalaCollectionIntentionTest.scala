@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_13}
 
-class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
-  def familyName: String = ConvertJavaToScalaCollectionIntention.getFamilyName
+abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
+  extends ScalaIntentionTestBase {
+
+  override def familyName: String = ConvertJavaToScalaCollectionIntention.getFamilyName
 
 
-  def testIntentionIsAvailable() {
+  def testIntentionIsAvailable(): Unit = {
     checkIntentionIsAvailable(
       """
         |class UsesJavaCollections {
@@ -15,7 +18,7 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
       """)
   }
 
-  def testIntentionIsAvailable_Iterable() {
+  def testIntentionIsAvailable_Iterable(): Unit = {
     checkIntentionIsAvailable(
       """
         |class UsesJavaCollections {
@@ -26,7 +29,7 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
     )
   }
 
-  def testIntentionIsAvailable_Collection() {
+  def testIntentionIsAvailable_Collection(): Unit = {
     checkIntentionIsAvailable(
       """
         |class UsesJavaCollections {
@@ -37,7 +40,7 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
     )
   }
 
-  def testIntentionIsAvailable_Iterator() {
+  def testIntentionIsAvailable_Iterator(): Unit = {
     checkIntentionIsAvailable(
       """
         |class UsesJavaCollections {
@@ -47,7 +50,7 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
     )
   }
 
-  def testIntentionIsNotAvailable() {
+  def testIntentionIsNotAvailable(): Unit = {
     checkIntentionIsNotAvailable(
       """
         |import scala.collection.JavaConverters._
@@ -58,7 +61,7 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
       """)
   }
 
-  def testIntentionAction_Simple() {
+  def testIntentionAction_Simple(): Unit = {
     val text =
       """
         |class UsesJavaCollections {
@@ -66,8 +69,8 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
         |}
       """
     val resultText =
-      """
-        |import scala.collection.JavaConverters._
+      s"""
+        |import $converters
         |
         |class UsesJavaCollections {
         |  val list = new java.util.HashMap<caret>[String, Int]().asScala
@@ -77,22 +80,22 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
-  def testIntentionAction_Import_Already_Exists() {
+  def testIntentionAction_Import_Already_Exists(): Unit = {
     val text =
-      """
+      s"""
         |import java.util
         |
-        |import scala.collection.JavaConverters._
+        |import $converters
         |
         |class UsesJavaCollections {
         |  val list = new util.HashMap<caret>[String, Int]()
         |}
       """
     val resultText =
-      """
+      s"""
         |import java.util
         |
-        |import scala.collection.JavaConverters._
+        |import $converters
         |
         |class UsesJavaCollections {
         |  val list = new util.HashMap<caret>[String, Int]().asScala
@@ -101,4 +104,18 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
 
     doTest(text, resultText)
   }
+
+
+}
+
+class ConvertJavaToScalaCollectionIntentionTest
+  extends ConvertJavaToScalaCollectionIntentionBaseTest("scala.collection.JavaConverters._") {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version < Scala_2_13
+}
+
+class ConvertJavaToScalaCollectionIntention_2_13Test
+  extends ConvertJavaToScalaCollectionIntentionBaseTest("scala.jdk.CollectionConverters._") {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
 }

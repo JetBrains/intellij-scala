@@ -26,7 +26,7 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Public member"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.public.member"/>
             </properties>
           </component>
           <component id="3ff57" class="javax.swing.JCheckBox" binding="myProtectedMember">
@@ -35,7 +35,7 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Protected member"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.protected.member"/>
             </properties>
           </component>
           <component id="92903" class="javax.swing.JCheckBox" binding="myLocalDefinition">
@@ -43,7 +43,7 @@
               <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Local definition"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.local.definition"/>
             </properties>
           </component>
           <component id="a5b9b" class="javax.swing.JCheckBox" binding="myFunctionParameter">
@@ -51,7 +51,7 @@
               <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Function literal parameter"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.function.literal.parameter"/>
             </properties>
           </component>
           <component id="b17e4" class="javax.swing.JCheckBox" binding="myUnderscoerParameter">
@@ -59,7 +59,7 @@
               <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Underscore parameter"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.underscore.parameter"/>
             </properties>
           </component>
           <component id="960b5" class="javax.swing.JCheckBox" binding="myPrivateMember">
@@ -67,7 +67,7 @@
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Private member"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.private.member"/>
             </properties>
           </component>
           <component id="3554f" class="com.intellij.ui.TitledSeparator">
@@ -75,7 +75,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Use for"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.use.for"/>
             </properties>
           </component>
         </children>
@@ -96,7 +96,7 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Constant (final val)"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.constant.final.val"/>
             </properties>
           </component>
           <component id="19a57" class="javax.swing.JCheckBox" binding="myMemberOfAnonymousClass">
@@ -104,7 +104,7 @@
               <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Member of anonymous class"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.member.of.anonymous.class"/>
             </properties>
           </component>
           <component id="74dac" class="javax.swing.JCheckBox" binding="myMemberOfPrivateClass">
@@ -112,7 +112,7 @@
               <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Member of private class"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.member.of.private.class"/>
             </properties>
           </component>
           <component id="37134" class="javax.swing.JCheckBox" binding="myStableType">
@@ -121,8 +121,8 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Type is stable*"/>
-              <toolTipText value="&lt;html&gt;&lt;body&gt;When right-hand side is:&lt;br&gt; Literal: &lt;code&gt;123&lt;/code&gt;, &lt;code&gt;&quot;string&quot;&lt;/code&gt;, etc. (excluding &lt;code&gt;null&lt;/code&gt;)&lt;br&gt; Unit expression: &lt;code&gt;()&lt;/code&gt;&lt;br&gt; Object creation: &lt;code&gt;new Foo(...)&lt;/code&gt; (excluding one with refinement: &lt;code&gt;new Foo() {}&lt;/code&gt;)&lt;br&gt; Factory method call: &lt;code&gt;Foo(...)&lt;/code&gt; (calling &lt;code&gt;apply(...)&lt;/code&gt; on companion object)&lt;br&gt; Empty collection: &lt;code&gt;Seq.empty[Int]&lt;/code&gt;, &lt;code&gt;Map.empty[Int, String]&lt;/code&gt;, etc.&lt;br&gt; Java enum constant: &lt;code&gt;Enum.VALUE&lt;/code&gt;&lt;br&gt; An exception: &lt;code&gt;throw Exception()&lt;/code&gt; &lt;/body&gt;&lt;/html&gt;"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.type.is.stable"/>
+              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.type.is.stable.tooltip"/>
             </properties>
           </component>
           <hspacer id="49b13">
@@ -137,7 +137,7 @@
               <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="In test sources"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.in.test.sources"/>
             </properties>
           </component>
           <component id="4eb3a" class="javax.swing.JCheckBox" binding="myDialectSources">
@@ -145,8 +145,8 @@
               <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="In Scala dialect sources*"/>
-              <toolTipText value="*.sbt, *.sc, etc."/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.in.scala.dialect.sources"/>
+              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.in.scala.dialect.sources.tooltip"/>
             </properties>
           </component>
           <grid id="43d6d" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -170,7 +170,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <text value="Member of:"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.member.of"/>
                 </properties>
               </component>
             </children>
@@ -190,7 +190,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <text value="Type matches:"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.type.matches"/>
                 </properties>
               </component>
               <component id="b9b96" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="myTypes" custom-create="true">
@@ -206,7 +206,7 @@
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Except when"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.except.when"/>
             </properties>
           </component>
           <grid id="70322" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -224,7 +224,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <text value="Annotated with:"/>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.annotated.with"/>
                 </properties>
               </component>
               <component id="7a09" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="myAnnotations" custom-create="true">
@@ -257,7 +257,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Enforce for"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.enforce.for"/>
             </properties>
           </component>
           <component id="331e0" class="javax.swing.JCheckBox" binding="myImplicitModifier">
@@ -266,7 +266,7 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Implicit definition"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.implicit.definition"/>
             </properties>
           </component>
           <component id="d8e04" class="javax.swing.JCheckBox" binding="myUnitType">
@@ -275,7 +275,7 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Unit type"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.unit.type"/>
             </properties>
           </component>
           <component id="d134d" class="javax.swing.JCheckBox" binding="myStructuralType">
@@ -284,8 +284,8 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Accidental structural type*"/>
-              <toolTipText value="&lt;html&gt;Enforces type annotations for values, which have structural type inferred, e.g.&lt;br&gt;&#10;&lt;pre&gt;&lt;code&gt;&#10;val foo = Runnable {&#10;  override def run(): Unit = ()&#10;  def helper(): Unit = ()&#10;} // foo has inferred type Runnable { def helper(): Unit } &#10;&lt;/code&gt;&lt;/pre&gt;&lt;/html&gt;"/>
+              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.accidental.structural.type"/>
+              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="type.annotations.panel.accidental.structural.type.tooltip"/>
             </properties>
           </component>
         </children>

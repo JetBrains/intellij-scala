@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 
 case class GlobalImplicitConversion(containingObject: ScObject, function: ScFunction) {
 
@@ -26,7 +27,7 @@ object GlobalImplicitConversion {
 
     def containingObjects(function: ScFunction): Set[ScObject] =
       Option(function.containingClass).fold(Set.empty[ScObject]) {
-        ScalaPsiManager.instance.inheritorOrThisObjects(_)
+        ScalaInheritors.findInheritorObjects
       }
 
     for {

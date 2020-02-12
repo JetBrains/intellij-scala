@@ -14,7 +14,7 @@ class ScalaVersion protected(val languageLevel: ScalaLanguageLevel,
   def minor: String = major + "." + minorSuffix
 
   override def compare(that: ScalaVersion): Int =
-    ScalaVersion.scalaVersionOrdering.compare(this, that)
+    (languageLevel, project.Version(minor)) compare (that.languageLevel, project.Version(that.minor))
 
   def withMinor(newMinorSuffix: String): ScalaVersion = new ScalaVersion(languageLevel, newMinorSuffix)
   def withMinor(newMinorSuffix: Int): ScalaVersion = withMinor(newMinorSuffix.toString)
@@ -33,10 +33,6 @@ class ScalaVersion protected(val languageLevel: ScalaLanguageLevel,
 
 //noinspection TypeAnnotation
 object ScalaVersion {
-
-  implicit val scalaVersionOrdering: Ordering[ScalaVersion] =
-    Ordering[project.Version].on[ScalaVersion] { v => project.Version(v.minor) }
-
   import org.jetbrains.plugins.scala
 
   // duplicated here to refer with `ScalaVersion.` prefix

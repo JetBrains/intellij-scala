@@ -111,7 +111,8 @@ abstract class AbstractCompiler extends Compiler {
       val messageWithLineAndPointer = {
         val pos = problem.position()
         val indent = pos.pointerSpace.toOption.map("\n" + _ + "^").getOrElse("")
-        s"${problem.message()}\n${pos.lineContent}\n$indent"
+        val message = ansiColorCodePattern.replaceAllIn(problem.message(), "")
+        s"$message\n${pos.lineContent}\n$indent"
       }
       logInClient(messageWithLineAndPointer, problem.position(), kind)
     }
@@ -123,5 +124,7 @@ abstract class AbstractCompiler extends Compiler {
       client.message(kind, msg, source, line, column)
     }
   }
+
+  private val ansiColorCodePattern = "\\u001B\\[[\\d*]*m".r
 }
 

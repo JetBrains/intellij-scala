@@ -13,18 +13,17 @@ import com.intellij.util.xmlb.XmlSerializer;
 import com.intellij.util.xmlb.annotations.OptionTag;
 import com.intellij.util.xmlb.annotations.Property;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 28.07.2008
- */
+
 public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public ScalaCodeStyleSettings() {
     super("ScalaCodeStyleSettings", null);
@@ -52,9 +51,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
       ALIGN_TO_EXTENDS
   };
   public static final String[] EXTENDS_ALIGN_STRING = new String[]{
-      "Do not align",
-      "On first token",
-      "Align to 'extends'"
+      ScalaBundle.message("wrapping.and.braces.panel.extends.do.not.align"),
+      ScalaBundle.message("wrapping.and.braces.panel.extends.on.first.token"),
+      ScalaBundle.message("wrapping.and.braces.panel.extends.align.to.extends")
   };
   public int ALIGN_EXTENDS_WITH = DO_NOT_ALIGN;
 
@@ -117,7 +116,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   /**
    * NOTE! This setting is inferred:
-   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent#inferBestScaladocAsteriskAlignStyle(CodeStyleSettings)}
+   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferService#inferBestScaladocAsteriskAlignStyle(CodeStyleSettings)}
    */
   public boolean USE_SCALADOC2_FORMATTING = false;
 
@@ -151,7 +150,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   //multiline strings support
   public boolean MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true;
   public boolean MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES = false;
-  public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = true;
+  public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = false;
 
   /**
    * @deprecated This field is left for migration only. Use {@link #MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE} and {@link #MULTILINE_STRING_INSERT_MARGIN_ON_ENTER}
@@ -171,7 +170,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE = true;
 
   public boolean supportMultilineString() {
-    return MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE | MULTILINE_STRING_INSERT_MARGIN_ON_ENTER;
+    return MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE | MULTILINE_STRING_INSERT_MARGIN_ON_ENTER | MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE;
   }
 
   @Deprecated
@@ -211,7 +210,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public Set<String> TYPE_ANNOTATION_EXCLUDE_MEMBER_OF = asSet("scala.App", "junit.framework.TestCase");
   public Set<String> TYPE_ANNOTATION_EXCLUDE_ANNOTATED_WITH = asSet("junit.framework.Test", "org.junit.Test");
-  public Set<String> TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES = asSet("sbt.*", "slick.*");
+  @NonNls public Set<String> TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES = asSet("sbt.*", "slick.*");
 
   //scaladoc formatting
   public boolean ENABLE_SCALADOC_FORMATTING = true;
@@ -240,6 +239,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public enum TrailingCommaMode {TRAILING_COMMA_KEEP, TRAILING_COMMA_REMOVE_WHEN_MULTILINE, TRAILING_COMMA_ADD_WHEN_MULTILINE}
 
   public TrailingCommaMode TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_KEEP;
+  /** used via reflection in {@link org.jetbrains.plugins.scala.lang.formatting.settings.TrailingCommaPanel#scopeFields} */
   public boolean TRAILING_COMMA_ARG_LIST_ENABLED = true;
   public boolean TRAILING_COMMA_PARAMS_ENABLED = true;
   public boolean TRAILING_COMMA_TUPLE_ENABLED = false;
@@ -250,6 +250,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public String IMPLICIT_VALUE_CLASS_PREFIX = "";
   public String IMPLICIT_VALUE_CLASS_SUFFIX = DEFAULT_IMPLICIT_VALUE_CLASS_SUFFIX;
+  @NonNls
   public static final String DEFAULT_IMPLICIT_VALUE_CLASS_SUFFIX = "Ops";
 
   //global
@@ -294,6 +295,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   private String[] ALWAYS_USED_IMPORTS = new String[0];
 
+  @NonNls
   private String[] IMPORTS_WITH_PREFIX = new String[]{
       "exclude:scala.collection.mutable.ArrayBuffer",
       "exclude:scala.collection.mutable.ListBuffer",
@@ -448,6 +450,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     this.IMPORT_LAYOUT = importLayout;
   }
 
+  //TODO: if decide to i18 be careful to separate view value from persisted value
   public static final String EXCLUDE_PREFIX = "exclude:";
 
   public static final String BLANK_LINE = "_______ blank line _______";

@@ -72,6 +72,7 @@ private object PsiChange {
   }
 
   final class Replace(private[PsiChange] var original: PsiElement, formatted: PsiElement) extends PsiChange {
+    //noinspection HardCodedStringLiteral
     override def toString: String = s"${original.getTextRange}: ${original.getText} -> ${formatted.getText}"
     override def doApply(nextChange: PsiChange): Int = {
       if (!formatted.isValid || !original.isValid) {

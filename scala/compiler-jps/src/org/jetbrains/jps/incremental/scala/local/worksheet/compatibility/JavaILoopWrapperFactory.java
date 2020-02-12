@@ -1,14 +1,9 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet.compatibility;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper;
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperReporter;
-import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter;
-import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer;
+import org.jetbrains.jps.incremental.scala.local.worksheet.*;
 
-import java.io.File;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.*;
@@ -52,8 +47,9 @@ public class JavaILoopWrapperFactory {
       final File compiler,
       final List<File> extra,
       final List<File> classpath,
-      final OutputStream outStream,
+      final PrintStream outStream,
       final File iLoopFile,
+      final Boolean isScala3,
       final JavaClientProvider clientProvider,
       final ClassLoader classLoader
   ) {
@@ -62,12 +58,13 @@ public class JavaILoopWrapperFactory {
       clientProvider.onProgress("Error: couldn't parse arguments");
       return;
     }
-    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, clientProvider, classLoader);
+    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, isScala3, clientProvider, classLoader);
   }
 
   private void loadReplWrapperAndRun(final WorksheetArgsJava worksheetArgs,
-                                     final OutputStream outStream,
+                                     final PrintStream outStream,
                                      final File iLoopFile,
+                                     final Boolean isScala3,
                                      final JavaClientProvider clientProvider,
                                      final ClassLoader classLoader) {
     ReplArgsJava replArgs = worksheetArgs.getReplArgs();
@@ -78,22 +75,31 @@ public class JavaILoopWrapperFactory {
     ILoopWrapper inst = cache.getOrCreate(
         replArgs.getSessionId(),
         () -> {
-          PrintWriter printWriter = new WorksheetServer.MyUpdatePrintWriter(outStream);
-          ILoopWrapperReporter reporter = new PrintWriterReporter(printWriter);
-          return createILoopWrapper(worksheetArgs, iLoopFile, printWriter, reporter, classLoader);
+          try {
+            return createILoopWrapper(worksheetArgs, iLoopFile, isScala3, outStream, classLoader);
+          } catch (ILoopCreationException e) {
+            clientProvider.onInitializationException(e);
+            return null;
+          }
         },
         ILoopWrapper::shutdown
     );
     if (inst == null) return;
 
-    PrintWriter out = inst.getOutputWriter();
-    if (out instanceof WorksheetServer.MyUpdatePrintWriter) {
+    Flushable out = inst.getOutput();
+    if (out instanceof WorksheetServer.MyUpdatePrintStream) {
+      ((WorksheetServer.MyUpdatePrintStream) out).updateOut(outStream);
+    } else if (out instanceof WorksheetServer.MyUpdatePrintWriter) {
       ((WorksheetServer.MyUpdatePrintWriter) out).updateOut(outStream);
     }
 
     clientProvider.onProgress("Worksheet execution started");
     printService(out, REPL_START);
-    out.flush();
+    try {
+      out.flush();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
     String code = new String(Base64.getDecoder().decode(replArgs.getCodeChunk()), StandardCharsets.UTF_8);
     String[] statements = code.split(Pattern.quote("\n$\n$\n"));
@@ -121,6 +127,20 @@ public class JavaILoopWrapperFactory {
     printService(out, REPL_LAST_CHUNK_PROCESSED);
   }
 
+  private void printService(final Flushable out, final String txt) {
+    if (out instanceof WorksheetServer.MyUpdatePrintStream) {
+      printService(((WorksheetServer.MyUpdatePrintStream) out), txt);
+    } else if (out instanceof WorksheetServer.MyUpdatePrintWriter) {
+      printService(((WorksheetServer.MyUpdatePrintWriter) out), txt);
+    }
+  }
+
+  private void printService(final PrintStream out, final String txt) {
+    out.println();
+    out.println(txt);
+    out.flush();
+  }
+
   private void printService(final PrintWriter out, final String txt) {
     out.println();
     out.println(txt);
@@ -129,9 +149,9 @@ public class JavaILoopWrapperFactory {
 
   private ILoopWrapper createILoopWrapper(final WorksheetArgsJava worksheetArgs,
                                           final File iLoopFile,
-                                          final PrintWriter out,
-                                          final ILoopWrapperReporter reporter,
-                                          final ClassLoader classLoader) {
+                                          final Boolean isScala3,
+                                          final PrintStream out,
+                                          final ClassLoader classLoader) throws ILoopCreationException {
     final URLClassLoader loader;
     final Class<?> clazz;
 
@@ -146,8 +166,8 @@ public class JavaILoopWrapperFactory {
               : iLoopFile.getName().substring(idxDash + 1, idxDot);
 
       clazz = loader.loadClass("org.jetbrains.jps.incremental.scala.local.worksheet." + className);
-    } catch (MalformedURLException | ClassNotFoundException ignored) {
-      return null;
+    } catch (MalformedURLException | ClassNotFoundException ex) {
+      throw new ILoopCreationException(ex);
     }
 
     List<File> classpath = new ArrayList<>();
@@ -167,12 +187,29 @@ public class JavaILoopWrapperFactory {
     List<String> scalaOptions = worksheetArgs.getScalaOptions();
 
     try {
-      Constructor<?> constructor = clazz.getConstructor(PrintWriter.class, ILoopWrapperReporter.class, List.class, List.class);
-      ILoopWrapper inst = (ILoopWrapper) constructor.newInstance(out, reporter, classpathStrings, scalaOptions);
+      final ILoopWrapper inst;
+      if (!isScala3) {
+        PrintWriter printWriter = new WorksheetServer.MyUpdatePrintWriter(out);
+        ILoopWrapperReporter reporter = new PrintWriterReporter(printWriter);
+        Constructor<?> constructor = clazz.getConstructor(PrintWriter.class, ILoopWrapperReporter.class, List.class, List.class);
+        inst = (ILoopWrapper) constructor.newInstance(printWriter, reporter, classpathStrings, scalaOptions);
+      } else {
+        PrintStream printStream = new WorksheetServer.MyUpdatePrintStream(out);
+        Constructor<?> constructor = clazz.getConstructor(PrintStream.class, List.class, List.class);
+        inst = (ILoopWrapper) constructor.newInstance(printStream, classpathStrings, scalaOptions);
+      }
+
       inst.init();
+
       return inst;
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      return null;
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+      throw new ILoopCreationException(ex);
+    }
+  }
+
+  private static class ILoopCreationException extends Exception {
+    public ILoopCreationException(Throwable cause) {
+      super(cause);
     }
   }
 

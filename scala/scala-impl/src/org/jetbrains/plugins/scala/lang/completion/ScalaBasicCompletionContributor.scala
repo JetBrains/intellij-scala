@@ -4,6 +4,7 @@ package completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
@@ -12,23 +13,23 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{adjustTypes, nameContext}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScReferenceExpressionImpl, ScReferenceImpl}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
 
 import scala.annotation.tailrec
 import scala.collection.{JavaConverters, mutable}
@@ -39,7 +40,6 @@ import scala.collection.{JavaConverters, mutable}
   */
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
-  import ScalaAfterNewCompletionContributor._
   import ScalaBasicCompletionContributor._
   import ScalaCompletionUtil._
 
@@ -57,25 +57,20 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         val maybePosition = (isInSimpleString, isInInterpolatedString) match {
           case (true, true) => return
           case (true, _) =>
-            Some(("s" + dummyPosition.getText, dummyPosition, parameters.getPosition))
+            Some(("s" + dummyPosition.getText, dummyPosition))
           case (_, true) =>
-            (dummyPosition.getContext, parameters.getPosition.getParent) match {
-              case (interpolated: ScInterpolated, dummyInterpolated: ScInterpolated) =>
-                splitInterpolatedString(interpolated, parameters.getOffset, dummyInterpolated) match {
-                  case Some((first, second, third)) =>
-                    Some((s"$first{$second}$third", interpolated, dummyInterpolated))
-                  case _ => return
-                }
+            val context = dummyPosition.getContext
+            splitInterpolatedString(context, parameters.getOffset) match {
+              case Some(text) => Some((text, context))
               case _ => return
             }
           case _ => None
         }
 
-        val position = maybePosition match {
-          case Some((text, projectContext, offsetContext)) =>
-            ScalaPsiElementFactory.createExpressionFromText(text, projectContext.getContext)
+        val position = maybePosition.fold(dummyPosition) {
+          case (text, offsetContext) =>
+            createExpressionFromText(text, offsetContext.getContext)
               .findElementAt(parameters.getOffset - offsetContext.getTextRange.getStartOffset + 1)
-          case _ => dummyPosition
         }
 
         result.restartCompletionWhenNothingMatches()
@@ -97,68 +92,33 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
         position.getContext match {
           case reference: ScReferenceImpl =>
-            object ValidItem {
-
-              private val isInTypeElement = getContextOfType(position, classOf[ScTypeElement]) != null
-              private val maybeExpectedTypes = expectedTypeAfterNew(position)(context)
-
-              def unapply(item: ScalaLookupItem): Option[ScalaLookupItem] = item.element match {
-                case definition: ScTypeDefinition if filterDuplications(definition, item.isInImport) => None
-                case clazz: PsiClass if isExcluded(clazz) ||
-                  classNameCompletion ||
-                  (lookingForAnnotations && !clazz.isAnnotationType) => None
-                case clazz: PsiClass =>
-                  maybeExpectedTypes.map {
-                    _.apply(clazz, createRenamePair(item).toMap)
-                  }.orElse(Some(item))
-                case _ if lookingForAnnotations => None
-                case _: ScFun | _: ScClassParameter => Some(item)
-                case parameter: ScParameter if !item.isNamedParameter =>
-                  validLocalDefinitionItem(item, parameter)
-                case pattern@(_: ScBindingPattern |
-                              _: ScFieldId) =>
-                  ScalaPsiUtil.nameContext(pattern) match {
-                    case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal =>
-                      validLocalDefinitionItem(item, valueOrVariable)
-                    case ScCaseClause(Some(pattern), _, _) =>
-                      validLocalDefinitionItem(item, pattern)
-                    case patterned: ScPatterned =>
-                      validLocalDefinitionItem(item, patterned)
-                    case _ => Some(item)
-                  }
-                case _ => Some(item)
-              }
-
-              private def filterDuplications(definition: ScTypeDefinition, isInImport: Boolean) =
-                definition.baseCompanionModule.isDefined &&
-                  (definition match {
-                    case _: ScObject => isInTypeElement
-                    case _ => isInImport
-                  })
-
-              private def validLocalDefinitionItem(item: ScalaLookupItem, ancestor: ScalaPsiElement) =
-                if (isAncestor(ancestor, position, true)) {
-                  None
-                } else {
-                  item.isLocalVariable = true
-                  Some(item)
-                }
-            }
-
             val processor = new PostProcessor(
               reference,
               isInSimpleString,
               isInInterpolatedString,
               parameters.getInvocationCount
             )
-            reference.doResolve(processor)
-            val defaultLookupElements = processor.lookupElements.flatMap {
-              case ValidItem(item) => Some(item)
-              case _ => None
-            } ++ prefixedThisAndSupers(reference)
+
+            import ScalaAfterNewCompletionContributor._
+            lazy val maybeExpectedTypes = expectedTypeAfterNew(position)(context)
+            val defaultLookupElements = processor.lookupElements.filter {
+              case ScalaLookupItem(_, clazz: PsiClass) =>
+                !classNameCompletion &&
+                  (!lookingForAnnotations || clazz.isAnnotationType)
+              case _ => !lookingForAnnotations
+            }.map {
+              case ScalaLookupItem(item, clazz: PsiClass) =>
+                maybeExpectedTypes.fold(item) { function =>
+                  function(clazz, createRenamePair(item).toMap)
+                }
+              case item => item
+            }
 
             import JavaConverters._
             result.addAllElements(defaultLookupElements.asJava)
+
+            ProgressManager.checkCanceled()
+            result.addAllElements(prefixedThisAndSupers(reference).asJava)
 
             if (!defaultLookupElements.exists(prefixMatcher.prefixMatches)
               && !classNameCompletion
@@ -166,11 +126,12 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
               ScalaClassNameCompletionContributor.completeClassName(dummyPosition, result)(parameters, context)
             }
 
+            ProgressManager.checkCanceled()
             //adds runtime completions for evaluate expression in debugger
             for {
               qualifierCastType <- qualifierCastType(reference)
               canonicalText = qualifierCastType.canonicalText
-              newReference <- createReferenceWithQualifierType(canonicalText)(reference.getContext, reference)
+              newReference <- createReferenceWithQualifierType(canonicalText, reference)
 
               processor = new PostProcessor(
                 newReference,
@@ -181,25 +142,17 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
               ) {
 
                 private val lookupStrings = mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
-                private val decorator = insertHandlerDecorator(s".asInstanceOf[$canonicalText]")
+                private val decorator = insertHandlerDecorator(canonicalText)
 
-                override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] =
-                  super.validLookupElement(result).filter {
-                    // TODO support renamed classes
-                    case ValidItem(item) => lookupStrings.add(item.getLookupString)
-                    case _ => false
-                  }.map {
-                    case item: ScalaLookupItem => LookupElementDecorator.withInsertHandler(item, decorator)
-                  }
+                override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = for {
+                  element <- super.validLookupElement(result)
+                  if lookupStrings.add(element.getLookupString) // TODO support renamed classes
+                } yield LookupElementDecorator.withInsertHandler(element, decorator)
               }
-            } {
-              newReference.doResolve(processor)
-              val runtimeLookupElements = processor.lookupElements
-              result.addAllElements(runtimeLookupElements.asJava)
-            }
+            } result.addAllElements(processor.lookupElements.asJava)
           case _ =>
         }
-        if (position.getNode.getElementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
+        if (position.getNode.getElementType == DOC_TAG_VALUE_TOKEN) result.stopHere()
       }
     })
 
@@ -211,7 +164,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaBasicCompletionContributor {
 
-  private class PostProcessor(override val getPlace: ScReference,
+  import ScalaTokenTypes._
+
+  private class PostProcessor(override val getPlace: ScReferenceImpl,
                               private val isInSimpleString: Boolean,
                               private val isInInterpolatedString: Boolean,
                               private val invocationCount: Int,
@@ -226,26 +181,72 @@ object ScalaBasicCompletionContributor {
 
     private val containingClass = Option(getContextOfType(getPlace, classOf[PsiClass]))
     private val isInImport = getContextOfType(getPlace, classOf[ScImportStmt]) != null
+    private val isInTypeElement = getContextOfType(getPlace, classOf[ScTypeElement]) != null
     private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReference]
 
-    def lookupElements: Seq[LookupElement] = lookupElements_
+    final def lookupElements: Seq[LookupElement] = {
+      ProgressManager.checkCanceled()
+      getPlace.doResolve(this)
+
+      ProgressManager.checkCanceled()
+      lookupElements_
+    }
 
     override protected final def postProcess(resolveResult: ScalaResolveResult): Unit = {
       lookupElements_ ++= validLookupElement(resolveResult)
     }
 
     protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = result.element match {
-      case element if isAccessible(element, result.isNamedParameter) =>
-        result.getLookupElement(
-          qualifierType = qualifierType,
-          isInImport = isInImport,
-          containingClass = containingClass,
-          isInStableCodeReference = isInStableCodeReference,
-          isInSimpleString = isInSimpleString,
-          isInInterpolatedString = isInInterpolatedString
-        )
+      case element if element.isValid && isAccessible(element, result.isNamedParameter) =>
+        isApplicable(element, result.isNamedParameter).map { isLocalVariable =>
+          result.getLookupElement(
+            qualifierType = qualifierType,
+            isInImport = isInImport,
+            containingClass = containingClass,
+            isInStableCodeReference = isInStableCodeReference,
+            isLocalVariable = isLocalVariable,
+            isInSimpleString = isInSimpleString,
+            isInInterpolatedString = isInInterpolatedString
+          ).get
+        }
       case _ => None
     }
+
+    private def isApplicable(element: PsiNamedElement,
+                             isNamedParameter: Boolean): Option[Boolean] = element match {
+      case clazz: PsiClass if completion.isExcluded(clazz) => None
+      case definition: ScTypeDefinition if filterDuplications(definition) => None
+      case _: ScClassParameter => Some(false)
+      case parameter: ScParameter if !isNamedParameter =>
+        isValidLocalDefinition(parameter)
+      case pattern@(_: ScBindingPattern |
+                    _: ScFieldId) =>
+        val context = nameContext(pattern) match {
+          case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal => valueOrVariable
+          case ScCaseClause(Some(pattern), _, _) => pattern
+          case patterned: ScPatterned => patterned
+          case _ => null
+        }
+
+        context match {
+          case null => Some(false)
+          case _ => isValidLocalDefinition(context)
+        }
+      case _ => Some(false)
+    }
+
+    private def filterDuplications(definition: ScTypeDefinition) =
+      definition.baseCompanionModule.isDefined &&
+        (definition match {
+          case _: ScObject => isInTypeElement
+          case _ => isInImport
+        })
+
+    private def isValidLocalDefinition(element: PsiElement): Option[Boolean] =
+      if (isAncestor(element, getPlace, true))
+        None
+      else
+        Some(true)
 
     private def isAccessible(element: PsiNamedElement,
                              isNamedParameter: Boolean): Boolean =
@@ -258,17 +259,17 @@ object ScalaBasicCompletionContributor {
         })
   }
 
-  private def splitInterpolatedString(interpolated: ScInterpolated,
-                                      offset: Int,
-                                      context: ScInterpolated): Option[(String, String, String)] =
-    interpolatedStringBounds(interpolated, offset, context) match {
-      case Some((origin, bound)) =>
-        val text = interpolated.getText
-        Some((
-          text.substring(0, origin),
-          text.substring(origin, bound),
-          text.substring(bound)
-        ))
+  private def splitInterpolatedString(context: PsiElement,
+                                      offset: Int): Option[String] =
+    context match {
+      case interpolated: ScInterpolated =>
+        interpolatedStringBounds(interpolated, offset).map {
+          case (origin, bound) =>
+            val text = interpolated.getText
+            text.substring(0, origin) +
+              "{" + text.substring(origin, bound) + "}" +
+              text.substring(bound)
+        }
       case _ => None
     }
 
@@ -276,44 +277,45 @@ object ScalaBasicCompletionContributor {
     case null => (true, true)
     case node =>
       node.getElementType match {
-        case ScalaTokenTypes.tIDENTIFIER | ScalaDocTokenType.DOC_TAG_VALUE_TOKEN => (false, false)
-        case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING => (true, false)
-        case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING => (false, true)
-        case _ => (true, true)
+        case `tIDENTIFIER` |
+             DOC_TAG_VALUE_TOKEN =>
+          (false, false)
+        case `tSTRING` |
+             `tMULTILINE_STRING` =>
+          (true, false)
+        case `tINTERPOLATED_STRING` |
+             `tINTERPOLATED_MULTILINE_STRING` =>
+          (false, true)
+        case _ =>
+          (true, true)
       }
   }
 
   def interpolatedStringBounds(interpolated: ScInterpolated,
-                               offset: Int,
-                               context: ScInterpolated): Option[(Int, Int)] =
+                               offset: Int): Option[(Int, Int)] =
     interpolated.getInjections.reverseIterator
       .find(_.getTextRange.getEndOffset <= offset)
-      .collect {
-        case expression if !expression.isInstanceOf[ScBlock] =>
-          val range = expression.getTextRange
-          (range.getStartOffset, range.getEndOffset)
-      }.flatMap {
-      case (rangeStartOffset, rangeEndOffset) =>
+      .filterNot(_.isInstanceOf[ScBlock])
+      .map(_.getTextRange)
+      .flatMap { range =>
         val stringText = interpolated.getText
 
         val startOffset = interpolated.getTextRange.getStartOffset
-        val pointPosition = rangeEndOffset - startOffset
+        val pointPosition = range.getEndOffset - startOffset
 
         tokenizeLiteral(stringText.substring(pointPosition), interpolated.quoteLength).flatMap { tokenEnd =>
-          tokenEnd + pointPosition match {
-            case endPoint if endPoint >= startOffset - context.getTextRange.getStartOffset =>
-              Some(rangeStartOffset - startOffset, endPoint)
-            case _ => None
-          }
+          val endPoint = tokenEnd + pointPosition
+          if (endPoint >= 0) Some(range.getStartOffset - startOffset, endPoint)
+          else None
         }
-    }
+      }
 
   private def tokenizeLiteral(text: String, quoteLength: Int) = text.charAt(0) match {
     case '.' =>
       val lexer = new ScalaLexer()
       lexer.start(text, 1, text.length - quoteLength)
       lexer.getTokenType match {
-        case ScalaTokenTypes.tIDENTIFIER => Some(lexer.getTokenEnd)
+        case `tIDENTIFIER` => Some(lexer.getTokenEnd)
         case _ => None
       }
     case _ => None
@@ -328,23 +330,21 @@ object ScalaBasicCompletionContributor {
     case _ => None
   }
 
-  private def createReferenceWithQualifierType(canonicalText: String)
-                                              (context: PsiElement, child: PsiElement): Option[ScReferenceExpression] = {
+  private def createReferenceWithQualifierType(canonicalText: String,
+                                               reference: ScReference) = {
     val text =
       s"""{
          |  val xxx: $canonicalText = null
          |  xxx.xxx
          |}""".stripMargin
-    ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, child) match {
-      case block: ScBlock => block.exprs.lastOption.collect {
-        case expression: ScReferenceExpression => expression
-      }
+    createExpressionWithContextFromText(text, reference.getContext, reference) match {
+      case block: ScBlock => block.exprs.lastOption.filterByType[ScReferenceExpressionImpl]
       case _ => None
     }
   }
 
-  private def insertHandlerDecorator(text: String): InsertHandlerDecorator[ScalaLookupItem] =
-    (context: InsertionContext, decorator: LookupElementDecorator[ScalaLookupItem]) => {
+  private def insertHandlerDecorator(text: String): InsertHandlerDecorator[LookupElement] =
+    (context: InsertionContext, decorator: LookupElementDecorator[LookupElement]) => {
       val document = context.getEditor.getDocument
       context.commitDocument()
 
@@ -352,10 +352,10 @@ object ScalaBasicCompletionContributor {
       findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReference], false) match {
         case null =>
         case ScReference.qualifier(qualifier) =>
-          document.insertString(qualifier.getTextRange.getEndOffset, text)
+          document.insertString(qualifier.getTextRange.getEndOffset, s".asInstanceOf[$text]")
           context.commitDocument()
 
-          ScalaPsiUtil.adjustTypes(file)
+          adjustTypes(file)
           PsiDocumentManager.getInstance(file.getProject).doPostponedOperationsAndUnblockDocument(document)
           context.getEditor.getCaretModel.moveToOffset(context.getTailOffset)
         case _ =>

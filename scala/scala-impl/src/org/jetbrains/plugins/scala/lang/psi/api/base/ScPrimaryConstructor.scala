@@ -30,9 +30,9 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   def getClassNameText: String
 
-  def parameterList: ScParameters
+  override def parameterList: ScParameters
 
-  def parameters : Seq[ScClassParameter] = parameterList.clauses.flatMap(_.unsafeClassParameters)
+  override def parameters : Seq[ScClassParameter] = parameterList.clauses.flatMap(_.unsafeClassParameters)
 
   override def containingClass: ScTypeDefinition = getParent.asInstanceOf[ScTypeDefinition]
 
@@ -48,7 +48,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
   @CachedInUserData(this, ModCount.getBlockModificationCount)
-  def effectiveParameterClauses: Seq[ScParameterClause] = {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
 
@@ -80,7 +80,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
         ScParameterizedType(designatorType, typeParameters.map(TypeParameterType(_)))
       }
     })
-    if (clauses.isEmpty) return ScMethodType(returnType, Seq.empty, false)
+    if (clauses.isEmpty) return ScMethodType(returnType, Seq.empty, isImplicit = false)
     val res = clauses.foldRight[ScType](returnType){(clause: ScParameterClause, tp: ScType) =>
       ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
     }

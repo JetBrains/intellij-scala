@@ -4,10 +4,9 @@ package daemon
 
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightingLevelManager}
 import com.intellij.codeInsight.daemon.impl.{AnnotationHolderImpl, HighlightInfo, HighlightVisitor}
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
-import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
@@ -19,29 +18,17 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
  */
 final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
 
-  override def order: Int = 0
-
   private var myHolder: HighlightInfoHolder = _
   private var myRefCountHolder: ScalaRefCountHolder = _
   private var myAnnotationHolder: AnnotationHolderImpl = _
 
-  override def suitableForFile(file: PsiFile): Boolean = file.hasScalaPsi
+  override def suitableForFile(file: PsiFile): Boolean = {
+    HighlightingLevelManager.getInstance(project).shouldInspect(file) &&
+      ScalaHighlightingMode.isScalaAnnotatorEnabled(file)
+  }
 
   override def visit(element: PsiElement): Unit = {
-    if (DumbService.getInstance(project).isDumb) return
-
-    val file = element.getContainingFile
-    if (file == null) return
-
-    val manager = HighlightingLevelManager.getInstance(project)
-
-    if (manager.shouldHighlight(file)) {
-      highlighter.AnnotatorHighlighter.highlightElement(element, new ScalaAnnotationHolderAdapter(myAnnotationHolder))
-    }
-
-    if (isUnitTestMode || manager.shouldInspect(file)) {
-      ScalaAnnotator(project).annotate(element, myAnnotationHolder)
-    }
+    ScalaAnnotator(project).annotate(element, myAnnotationHolder)
 
     myAnnotationHolder.forEach { annotation =>
       myHolder.add(HighlightInfo.fromAnnotation(annotation))

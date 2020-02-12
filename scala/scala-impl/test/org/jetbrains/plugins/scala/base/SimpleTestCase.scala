@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala
 package base
 
+import com.intellij.lang.Language
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiComment, PsiElement, PsiFileFactory, PsiWhiteSpace}
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.testFramework.fixtures._
-import org.intellij.lang.annotations.Language
+import org.intellij.lang.annotations.{Language => InputLanguage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -39,13 +40,19 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
     super.tearDown()
   }
 
-  def parseText(@Language("Scala") s: String, enableEventSystem: Boolean = false): ScalaFile = {
+  def parseText(@InputLanguage("Scala")s: String, lang: Language): ScalaFile = {
+    PsiFileFactory.getInstance(fixture.getProject)
+      .createFileFromText("foo.scala", lang, s)
+      .asInstanceOf[ScalaFile]
+  }
+
+  def parseText(@InputLanguage("Scala") s: String, enableEventSystem: Boolean = false): ScalaFile = {
     PsiFileFactory.getInstance(fixture.getProject)
       .createFileFromText("foo.scala", ScalaFileType.INSTANCE, s, System.currentTimeMillis(), enableEventSystem)
       .asInstanceOf[ScalaFile]
   }
 
-  def parseText(@Language("Scala") s: String, caretMarker: String): (ScalaFile, Int) = {
+  def parseText(@InputLanguage("Scala") s: String, caretMarker: String): (ScalaFile, Int) = {
     val trimmed = s.trim
     val caretPos = trimmed.indexOf(caretMarker)
     (parseText(trimmed.replaceAll(caretMarker, "")), caretPos)
@@ -69,7 +76,7 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
     title + root.children.map(toString(_, level + 1)).mkString
   }
 
-  implicit class ScalaCode(@Language("Scala") private val s: String) {
+  implicit class ScalaCode(@InputLanguage("Scala") private val s: String) {
     def stripComments: String =
       s.replaceAll("""(?s)/\*.*?\*/""", "")
               .replaceAll("""(?m)//.*$""", "")

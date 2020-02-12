@@ -30,6 +30,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.{JavaConverters, immutable, mutable}
 
+// TODO: do not accept this parameter
 final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends MultiHostInjector {
 
   import ScalaLanguageInjector._

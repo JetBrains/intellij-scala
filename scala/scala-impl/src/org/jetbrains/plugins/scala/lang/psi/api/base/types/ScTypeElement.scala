@@ -25,7 +25,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
     s"$typeName: $text"
   }
 
-  def `type`(): TypeResult = getType
+  override def `type`(): TypeResult = getType
 
   @CachedWithRecursionGuard(this, Failure("Recursive type of type element"),
     ModCount.getBlockModificationCount)
@@ -43,7 +43,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
     _analog
   }
 
-  def analog_=(te: ScTypeElement) {
+  def analog_=(te: ScTypeElement): Unit = {
     _analog = Some(te)
   }
 
@@ -87,7 +87,7 @@ object ScTypeElement {
 trait ScDesugarizableTypeElement extends ScTypeElement {
   def desugarizedText: String
 
-  def computeDesugarizedType = Option(typeElementFromText(desugarizedText))
+  def computeDesugarizedType: Option[ScTypeElement] = Option(typeElementFromText(desugarizedText))
 
   def typeElementFromText: String => ScTypeElement = createTypeElementFromText(_, getContext, this)
 

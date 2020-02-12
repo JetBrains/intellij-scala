@@ -65,6 +65,14 @@ object SimpleExpr {
         builder.advanceLexer() //Ate _
         newMarker = simpleMarker.precede
         simpleMarker.done(ScalaElementType.PLACEHOLDER_EXPR)
+      case `SpliceStart` =>
+        newMarker = simpleMarker.precede
+        simpleMarker.drop()
+        Spliced.parse(builder, inType = false)
+      case `QuoteStart` =>
+        newMarker = simpleMarker.precede
+        simpleMarker.drop()
+        Quoted.parse(builder)
       case `tLPARENTHESIS` =>
         state = true
         builder.advanceLexer()
@@ -119,7 +127,7 @@ object SimpleExpr {
         simpleMarker.drop()
     }
     @tailrec
-    def subparse(marker: PsiBuilder.Marker) {
+    def subparse(marker: PsiBuilder.Marker): Unit = {
       builder.getTokenType match {
         case `tUNDER` if !builder.newlineBeforeCurrentToken =>
           if (state) {

@@ -6,7 +6,7 @@ import java.nio.file._
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.incremental.scala.SettingsManager
-import org.jetbrains.jps.incremental.scala.data.CompilationData
+import org.jetbrains.jps.incremental.scala.data.CompilerDataFactory
 
 import scala.collection.JavaConverters._
 
@@ -46,8 +46,8 @@ object CompilerOptionsStore {
     // The below items don't guarantee 100% correctness (we might skip Zinc compilation when in fact it was necessary)
     // It's heuristic aimed at being accurate for the common usecases and not incuring too big of an overhead
     // especially for small compilations
-    val javaOpts = "javaOpts: " + CompilationData.javaOptionsFor(context, chunk).mkString(" ")
-    val scalaOpts = "scalaOpts: " + CompilationData.scalaOptionsFor(compilerSettings, chunk).mkString(" ") +
+    val javaOpts = "javaOpts: " + CompilerDataFactory.javaOptionsFor(context, chunk).mkString(" ")
+    val scalaOpts = "scalaOpts: " + CompilerDataFactory.scalaOptionsFor(compilerSettings, chunk).mkString(" ") +
       compilerSettings.getSbtIncrementalOptions.productIterator.mkString(" ") +
       compilerSettings.getCompileOrder
     val stringifiedOpts = Array(scalaOpts, javaOpts).mkString("\n")

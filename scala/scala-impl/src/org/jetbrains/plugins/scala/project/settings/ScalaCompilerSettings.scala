@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.settings
 
-import org.jetbrains.jps.incremental.scala.data.SbtIncrementalOptions
+import org.jetbrains.plugins.scala.compiler.data.SbtIncrementalOptions
 import org.jetbrains.plugins.scala.project.{CompileOrder, DebuggingInfoLevel}
 
 /**

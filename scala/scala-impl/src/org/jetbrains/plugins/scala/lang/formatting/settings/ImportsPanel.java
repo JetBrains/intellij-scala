@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBList;
@@ -9,6 +8,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsUtil;
 import org.jetbrains.plugins.scala.util.JListCompatibility;
 
@@ -19,11 +19,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-/**
- * @author Alefas
- * @since 21/05/14.
- */
-@SuppressWarnings(value = "unchecked")
 public final class ImportsPanel extends ScalaCodeStylePanelBase {
 
     private JPanel contentPanel;
@@ -39,40 +34,41 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     private JPanel importLayoutPanel;
     private JCheckBox doNotChangePathCheckBox;
     private JPanel myAlwaysUsedImportsPanel;
-    private JBList referencesWithPrefixList;
-    private DefaultListModel myReferencesWithPrefixModel;
-    private JBList alwaysUsedImportsList;
-    private DefaultListModel alwaysUsedImportsModel;
-    private JBList importLayoutTable;
-    private DefaultListModel myImportLayoutModel;
+    private final DefaultListModel<String> myReferencesWithPrefixModel;
+    private final DefaultListModel<String> alwaysUsedImportsModel;
+    private final DefaultListModel<String> myImportLayoutModel;
 
     public ImportsPanel(@NotNull CodeStyleSettings settings) {
-        super(settings, "Imports");
+        super(settings, ScalaBundle.message("imports.panel.title"));
         classCountSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
 
-        referencesWithPrefixList = new JBList();
-        myReferencesWithPrefixModel = new DefaultListModel();
+        JBList<String> referencesWithPrefixList = new JBList<>();
+        myReferencesWithPrefixModel = new DefaultListModel<>();
         referencesWithPrefixList.setModel(myReferencesWithPrefixModel);
         JPanel panel = ScalaProjectSettingsUtil.getPatternListPanel(contentPanel,
                 new JListCompatibility.JListContainer(referencesWithPrefixList),
-                "Add pattern to use appropriate classes only with prefix", "Use References With Prefix:");
+                ScalaBundle.message("imports.panel.add.pattern.to.use.appropriate.classes.only.with.prefix"),
+                ScalaBundle.message("imports.panel.use.references.with.prefix"));
         myImportsWithPrefixPanel.add(panel, BorderLayout.CENTER);
-        referencesWithPrefixList.getEmptyText().setText("No imports with prefix");
+        referencesWithPrefixList.getEmptyText().setText(ScalaBundle.message("imports.panel.no.imports.with.prefix"));
 
-        myImportLayoutModel = new DefaultListModel();
-        importLayoutTable = new JBList(myImportLayoutModel);
+        myImportLayoutModel = new DefaultListModel<>();
+        JBList<String> importLayoutTable = new JBList<>(myImportLayoutModel);
         panel = ScalaProjectSettingsUtil.getUnsortedPatternListPanel(contentPanel,
-                new JListCompatibility.JListContainer(importLayoutTable), "Add package name", "Import Layout Manager");
+                new JListCompatibility.JListContainer(importLayoutTable),
+                ScalaBundle.message("imports.panel.add.package.name"),
+                ScalaBundle.message("imports.panel.import.layout.manager"));
         importLayoutPanel.add(panel, BorderLayout.CENTER);
 
-        alwaysUsedImportsList = new JBList();
-        alwaysUsedImportsModel = new DefaultListModel();
+        JBList<String> alwaysUsedImportsList = new JBList<>();
+        alwaysUsedImportsModel = new DefaultListModel<>();
         alwaysUsedImportsList.setModel(alwaysUsedImportsModel);
         panel = ScalaProjectSettingsUtil.getPatternListPanel(contentPanel,
                 new JListCompatibility.JListContainer(alwaysUsedImportsList),
-                "Add import to always mark it as used", "Always mark as used");
+                ScalaBundle.message("imports.panel.add.import.to.always.mark.it.as.used"),
+                ScalaBundle.message("imports.panel.always.mark.as.used"));
         myAlwaysUsedImportsPanel.add(panel, BorderLayout.CENTER);
-        alwaysUsedImportsList.getEmptyText().setText("Honestly mark imports as unused");
+        alwaysUsedImportsList.getEmptyText().setText(ScalaBundle.message("imports.panel.honestly.mark.imports.as.unused"));
         ButtonGroup sortButtons = new ButtonGroup();
         sortButtons.add(sortLexicographicallyRb);
         sortButtons.add(sortScalastyleRb);
@@ -81,7 +77,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     public String[] getPrefixPackages() {
         String[] prefixPackages = new String[myReferencesWithPrefixModel.size()];
         for (int i = 0; i < myReferencesWithPrefixModel.size(); i++) {
-            prefixPackages[i] = (String) myReferencesWithPrefixModel.elementAt(i);
+            prefixPackages[i] = myReferencesWithPrefixModel.elementAt(i);
         }
         Arrays.sort(prefixPackages);
         return prefixPackages;
@@ -90,7 +86,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     public String[] getAlwaysUsedImports() {
         String[] alwaysUsedImports = new String[alwaysUsedImportsModel.size()];
         for (int i = 0; i < alwaysUsedImportsModel.size(); i++) {
-            alwaysUsedImports[i] = (String) alwaysUsedImportsModel.elementAt(i);
+            alwaysUsedImports[i] = alwaysUsedImportsModel.elementAt(i);
         }
         Arrays.sort(alwaysUsedImports);
         return alwaysUsedImports;
@@ -99,13 +95,13 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     public String[] getImportLayout() {
         String[] importLayout = new String[myImportLayoutModel.size()];
         for (int i = 0; i < myImportLayoutModel.size(); i++) {
-            importLayout[i] = (String) myImportLayoutModel.elementAt(i);
+            importLayout[i] = myImportLayoutModel.elementAt(i);
         }
         return importLayout;
     }
 
     @Override
-    public void apply(CodeStyleSettings settings) throws ConfigurationException {
+    public void apply(CodeStyleSettings settings) {
         if (!isModified(settings)) return;
 
         ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
@@ -145,8 +141,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
                 sortScalastyleRb.isSelected()) return true;
         if (!Arrays.deepEquals(scalaCodeStyleSettings.getImportsWithPrefix(), getPrefixPackages())) return true;
         if (!Arrays.deepEquals(scalaCodeStyleSettings.getAlwaysUsedImports(), getAlwaysUsedImports())) return true;
-        if (!Arrays.deepEquals(scalaCodeStyleSettings.getImportLayout(), getImportLayout())) return true;
-        return false;
+        return !Arrays.deepEquals(scalaCodeStyleSettings.getImportLayout(), getImportLayout());
     }
 
     @Nullable
@@ -220,26 +215,26 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         contentPanel.add(spacer1, new GridConstraints(9, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         addImportStatementInCheckBox = new JCheckBox();
         addImportStatementInCheckBox.setSelected(false);
-        this.$$$loadButtonText$$$(addImportStatementInCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "add.import.statement.in.closest.block"));
+        this.$$$loadButtonText$$$(addImportStatementInCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.add.import.statement.in.closest.block"));
         contentPanel.add(addImportStatementInCheckBox, new GridConstraints(1, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         addFullQualifiedImportsCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(addFullQualifiedImportsCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "add.fully.qualified.imports"));
+        this.$$$loadButtonText$$$(addFullQualifiedImportsCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.add.fully.qualified.imports"));
         contentPanel.add(addFullQualifiedImportsCheckBox, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sortImportsCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(sortImportsCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "sort.imports.for.optimize.imports"));
+        this.$$$loadButtonText$$$(sortImportsCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.sort.imports.for.optimize.imports"));
         contentPanel.add(sortImportsCheckBox, new GridConstraints(4, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         importTheShortestPathCheckBox = new JCheckBox();
         importTheShortestPathCheckBox.setSelected(true);
-        this.$$$loadButtonText$$$(importTheShortestPathCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "use.the.shortest.path.already.imported"));
+        this.$$$loadButtonText$$$(importTheShortestPathCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.use.the.shortest.path.when.trying.to.import.reference.with.already.imported.name"));
         contentPanel.add(importTheShortestPathCheckBox, new GridConstraints(7, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         collectImportsWithTheCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(collectImportsWithTheCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "merge.imports.with.the.same.prefix"));
+        this.$$$loadButtonText$$$(collectImportsWithTheCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.merge.imports.with.the.same.prefix.into.one.statement"));
         contentPanel.add(collectImportsWithTheCheckBox, new GridConstraints(6, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 5, new Insets(0, 0, 0, 0), -1, -1));
         contentPanel.add(panel1, new GridConstraints(0, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "class.count.to.use.wildcard.import"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.class.count.to.use.import.with"));
         panel1.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         classCountSpinner = new JSpinner();
         panel1.add(classCountSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -255,7 +250,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel2.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel3.setBorder(IdeBorderFactory.PlainSmallWithIndent.createTitledBorder(BorderFactory.createEtchedBorder(), this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "classes.to.use.only.with.prefix"), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panel3.setBorder(IdeBorderFactory.PlainSmallWithIndent.createTitledBorder(BorderFactory.createEtchedBorder(), this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.classes.to.use.only.with.prefix"), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         myImportsWithPrefixPanel = new JPanel();
         myImportsWithPrefixPanel.setLayout(new BorderLayout(0, 0));
         panel3.add(myImportsWithPrefixPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -265,26 +260,26 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         final JPanel panel5 = new JPanel();
         panel5.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel4.add(panel5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel5.setBorder(IdeBorderFactory.PlainSmallWithIndent.createTitledBorder(BorderFactory.createEtchedBorder(), this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "import.layout"), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panel5.setBorder(IdeBorderFactory.PlainSmallWithIndent.createTitledBorder(BorderFactory.createEtchedBorder(), this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.import.layout"), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         importLayoutPanel = new JPanel();
         importLayoutPanel.setLayout(new BorderLayout(0, 0));
         panel5.add(importLayoutPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel6 = new JPanel();
         panel6.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel4.add(panel6, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel6.setBorder(IdeBorderFactory.PlainSmallWithIndent.createTitledBorder(BorderFactory.createEtchedBorder(), this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.always.marked.as.used"), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panel6.setBorder(IdeBorderFactory.PlainSmallWithIndent.createTitledBorder(BorderFactory.createEtchedBorder(), this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.imports.always.marked.as.used"), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         myAlwaysUsedImportsPanel = new JPanel();
         myAlwaysUsedImportsPanel.setLayout(new BorderLayout(0, 0));
         panel6.add(myAlwaysUsedImportsPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         doNotChangePathCheckBox = new JCheckBox();
         doNotChangePathCheckBox.setSelected(true);
-        this.$$$loadButtonText$$$(doNotChangePathCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "do.not.change.path.for.local.imports"));
+        this.$$$loadButtonText$$$(doNotChangePathCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.do.not.change.path.during.optimize.imports.for.local.imports"));
         contentPanel.add(doNotChangePathCheckBox, new GridConstraints(3, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sortScalastyleRb = new JRadioButton();
-        this.$$$loadButtonText$$$(sortScalastyleRb, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scalastyle.consistent"));
+        this.$$$loadButtonText$$$(sortScalastyleRb, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.scalastyle.consistent"));
         contentPanel.add(sortScalastyleRb, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sortLexicographicallyRb = new JRadioButton();
-        this.$$$loadButtonText$$$(sortLexicographicallyRb, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "lexicographically"));
+        this.$$$loadButtonText$$$(sortLexicographicallyRb, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "imports.panel.lexicographically"));
         contentPanel.add(sortLexicographicallyRb, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer5 = new Spacer();
         contentPanel.add(spacer5, new GridConstraints(5, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));

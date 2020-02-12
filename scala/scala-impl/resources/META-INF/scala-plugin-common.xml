@@ -56,6 +56,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <annotator language="JAVA"
                    implementationClass="org.jetbrains.plugins.scala.annotator.template.SealedJavaInheritance"/>
+        <annotator language="Scala"
+                   implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator"/>
         <statusBarWidgetProvider implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetProvider"/>
 
         <breadcrumbsInfoProvider
@@ -144,8 +146,7 @@
                                       implementationClass="org.jetbrains.plugins.scala.lang.psi.ScFileViewProviderFactory"/>
         <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
         <lang.parserDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition"/>
-        <lang.parserDefinition language="ScalaDoc"
-                               implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
+        <lang.parserDefinition language="ScalaDoc" implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
         <lang.substitutor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor"/>
         <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
         <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
@@ -174,10 +175,6 @@
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
-
-        <toolWindow id="WorksheetResultsToolWindow" anchor="bottom" canCloseContents="false"
-                    factoryClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowFactory"
-                    conditionClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowCondition"/>
 
         <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false"
                     factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory"/>
@@ -479,6 +476,11 @@
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerErrorsListener$State"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferService"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationService"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
@@ -505,6 +507,8 @@
 
         <registryKey key="scala.show.compiler.errors.in.editor" defaultValue="false" restartRequired="false"
                      description="Show errors from scala compiler in the editor"/>
+        <registryKey key="dotty.show.compiler.errors.in.editor" defaultValue="true" restartRequired="false"
+                     description="Show errors from dotty compiler in the editor"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
@@ -1389,6 +1393,7 @@
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ImplicitHintsAdviser"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
+        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
     </extensions>
@@ -1404,6 +1409,15 @@
                   class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
+        <!-- Formatter listeners-->
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtReformatOnFileSaveTask"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleProjectListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCacheProjectListener"/>
     </applicationListeners>
 
     <projectListeners>
@@ -1436,9 +1450,6 @@
             <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent</implementation-class>
         </component>
         <component>
@@ -1448,9 +1459,6 @@
             <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes</implementation-class>
         </component>
         <component>
@@ -1458,21 +1466,6 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ReformatOnFileSaveTask</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter</implementation-class>
@@ -1598,6 +1591,11 @@
                 class="org.jetbrains.plugins.scala.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
+        </action>
+        <action id="Scala.CompileSelectedFile"
+                internal="true"
+                class="org.jetbrains.plugins.scala.compiler.oneFile.CompileSelectedScalaFileAction"
+                text="Compile Selected Scala File">
         </action>
     </actions>
 

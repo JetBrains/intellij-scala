@@ -113,6 +113,41 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
     assertThat(actualTargetFileNames, equalTo(expectedTargetFileNames))
   }
 
+  def testDeleteTargetFilesForInvalidSources(): Unit = {
+    val all@Seq(first, _) = initBuildProject(
+      new SourceFile(
+        name = "First",
+        classes = Set("First"),
+        code =
+          """
+            |class First
+            |""".stripMargin
+      ),
+      new SourceFile(
+        name = "Second",
+        classes = Set("Second"),
+        code =
+          """
+            |class Second
+            |""".stripMargin
+      )
+    )
+
+    first.writeCode(
+      classes = Set.empty,
+      code =
+        """
+          |clas First1 // should not compile
+          |""".stripMargin
+    )
+    compiler.make()
+    refreshVfs()
+
+    val actualTargetFileNames = targetFileNames
+    val expectedTargetFileNames = all.flatMap(_.expectedTargetFileNames).toSet
+    assertThat(actualTargetFileNames, equalTo(expectedTargetFileNames))
+  }
+
   private def initBuildProject(sourceFiles: SourceFile*): Seq[SourceFile] = {
     val result = sourceFiles.toSeq
     compiler.rebuild().assertNoProblems()
@@ -185,11 +220,11 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
   }
 }
 
-class IncrementalIdeaCompilationTest
-  extends IncrementalCompilationTestBase(IncrementalityType.IDEA)
-
 class IncrementalSbtCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.SBT)
 
 class IncrementalOnServerCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = true)
+
+class IncrementalIdeaCompilationTest
+  extends IncrementalCompilationTestBase(IncrementalityType.IDEA)

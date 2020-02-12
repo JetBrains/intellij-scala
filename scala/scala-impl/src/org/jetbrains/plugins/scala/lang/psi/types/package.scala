@@ -58,6 +58,7 @@ package object types {
     def isConservativelyCompatible(pt: ScType): ConstraintsResult = {
       def tryConformanceNoParams(fullResults: ConstraintsResult): ConstraintsResult = scType match {
         case ScMethodType(retTpe, ps, _) if ps.isEmpty => retTpe.conforms(pt, ConstraintSystem.empty, checkWeak = true)
+        case FunctionType(retTpe, ps)    if ps.isEmpty => retTpe.conforms(pt, ConstraintSystem.empty, checkWeak = true)
         case _                                         => fullResults
       }
 

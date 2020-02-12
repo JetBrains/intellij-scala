@@ -5,9 +5,9 @@ import java.io.File
 import java.net.URLClassLoader
 
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
-import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
-import org.jetbrains.jps.incremental.scala.model.IncrementalityType
+import org.jetbrains.plugins.scala.compiler.IncrementalityType
+import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, SbtData}
 import sbt.internal.inc._
 import sbt.internal.inc.classpath.ClassLoaderCache
 import sbt.internal.inc.javac.JavaTools
@@ -44,20 +44,23 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
   private val classloaderCache = Some(new ClassLoaderCache(new URLClassLoader(Array())))
 
   def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
-    getScalaInstance(compilerJars).map { scala =>
+    getScalaInstance(compilerJars).map { scalaInstance =>
       val compiledInterfaceJar = getOrCompileInterfaceJar(
         home = sbtData.interfacesHome,
         compilerBridges = sbtData.compilerBridges,
         interfaceJars = Seq(sbtData.sbtInterfaceJar, sbtData.compilerInterfaceJar),
-        scalaInstance = scala,
+        scalaInstance = scalaInstance,
         javaClassVersion = sbtData.javaClassVersion,
         client = Option(client),
         isDotty = compilerJars.exists(_.hasDotty)
       )
 
-      new AnalyzingCompiler(scala,
-        ZincCompilerUtil.constantBridgeProvider(scala, compiledInterfaceJar),
-        ClasspathOptionsUtil.javac(false), _ => (), classloaderCache)
+      new AnalyzingCompiler(
+        scalaInstance,
+        ZincCompilerUtil.constantBridgeProvider(scalaInstance, compiledInterfaceJar),
+        ClasspathOptionsUtil.javac(false), _ => (),
+        classloaderCache
+      )
     }
   }
 
@@ -73,7 +76,7 @@ object CompilerFactoryImpl {
 
   def createScalaInstance(jars: CompilerJars): ScalaInstance = {
     scalaInstanceCache.getOrUpdate(jars) {
-      val paths = jars.library +: jars.compiler +: jars.extra
+      val paths = jars.allJars
 
       def createClassLoader() = {
         val urls = Path.toURLs(paths)
@@ -86,15 +89,11 @@ object CompilerFactoryImpl {
 
       val classLoader = synchronized(classLoadersMap.getOrElse(paths, createClassLoader()))
 
-      val version = readScalaVersionIn(classLoader)
+      val version = compilerVersion(classLoader)
 
       new ScalaInstance(version.getOrElse("unknown"), classLoader, jars.library, jars.compiler, jars.extra.toArray, version)
     }
-
   }
-
-  def readScalaVersionIn(classLoader: ClassLoader): Option[String] =
-    readProperty(classLoader, "compiler.properties", "version.number")
 
   private def getOrCompileInterfaceJar(home: File,
                                        compilerBridges: SbtData.CompilerBridges,

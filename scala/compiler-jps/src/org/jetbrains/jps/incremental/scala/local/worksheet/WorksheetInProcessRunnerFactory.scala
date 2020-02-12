@@ -4,7 +4,7 @@ import java.io.{File, OutputStream, PrintStream}
 import java.lang.reflect.InvocationTargetException
 import java.net.{URL, URLClassLoader}
 
-import com.martiansoftware.nailgun.ThreadLocalPrintStream
+import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer.WorksheetArgs
 import org.jetbrains.jps.incremental.scala.remote.EventGeneratingClient
 
@@ -13,11 +13,8 @@ import org.jetbrains.jps.incremental.scala.remote.EventGeneratingClient
  * Date: 03.12.14.
  */
 class WorksheetInProcessRunnerFactory {
-  trait WorksheetInProcessRunner {
-    def loadAndRun(worksheetArgs: WorksheetArgs, client: EventGeneratingClient)
-  }
 
-  def getRunner(out: OutputStream, standalone: Boolean): WorksheetInProcessRunner = new WorksheetInProcessRunnerImpl(out, standalone)
+  def getRunner(out: OutputStream): WorksheetInProcessRunner = new WorksheetInProcessRunnerImpl(out)
 
   private var classLoader: Option[(Set[URL], Set[URL], URLClassLoader)] = None
 
@@ -39,18 +36,18 @@ class WorksheetInProcessRunnerFactory {
     }
   }
 
-  private class WorksheetInProcessRunnerImpl(out: OutputStream, standalone: Boolean) extends WorksheetInProcessRunner {
+  private class WorksheetInProcessRunnerImpl(out: OutputStream) extends WorksheetInProcessRunner {
     private val TRACE_PREFIX = 21
     private val WORKSHEET = "#worksheet#"
 
-    def loadAndRun(worksheetArgs: WorksheetArgs, client: EventGeneratingClient) {
+    def loadAndRun(worksheetArgs: WorksheetArgs, client: Client): Unit = {
       def toUrlSpec(p: String): URL = new File(p).toURI.toURL
 
       val classLoader: URLClassLoader = {
         val worksheetUrls = (Seq(worksheetArgs.pathToRunners, worksheetArgs.worksheetTemp) ++ worksheetArgs.outputDirs).map(_.toURI.toURL)
         val classpathUrls = worksheetArgs.classpathUrls
         val compilerUrls  = {
-          val jars = Seq(worksheetArgs.compilerJars.library, worksheetArgs.compilerJars.compiler) ++ worksheetArgs.compilerJars.extra
+          val jars = worksheetArgs.compilerJars.allJars
           jars.map(_.getCanonicalPath).map(toUrlSpec)
         }
 

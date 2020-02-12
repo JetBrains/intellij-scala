@@ -64,7 +64,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
 
     private def action(): Unit = {
       if (accessed.compareAndSet(false, true))
-        DumbService.getInstance(project).smartInvokeLater( extensions.toRunnable {
+        DumbService.getInstance(project).smartInvokeLater { () =>
           val allProjectResolvers = ModuleManager.getInstance(project)
             .getModules
             .toSet
@@ -73,7 +73,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
           LibraryExtensionsManager.getInstance(project)
             .searchExtensions(allProjectResolvers)
           accessed.set(false)
-        })
+        }
     }
   }
 

@@ -7,8 +7,11 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -74,10 +77,14 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
     getSupers.filter(_.isInterface)
   }
 
-  def fakeCompanionClass: PsiClass = {
+  override def fakeCompanionClass: PsiClass = {
     new PsiClassWrapper(this, withSuffix(getQualifiedName), withSuffix(getName))
   }
 
   private def withSuffix(name: String) = s"$name$$class"
 
+  override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
+    case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor
+    case _ => this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
+  }
 }

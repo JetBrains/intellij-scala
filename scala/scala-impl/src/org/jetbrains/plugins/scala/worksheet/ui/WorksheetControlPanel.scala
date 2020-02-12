@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.worksheet.ui
 
 import java.awt.Dimension
 
-import com.intellij.openapi.vfs.VirtualFile
 import javax.swing._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.worksheet.actions.InteractiveStatusDisplay
@@ -10,7 +9,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetControlPanel._
 
-class WorksheetControlPanel(private val file: VirtualFile) extends JPanel {
+final class WorksheetControlPanel extends JPanel {
 
   private val statusDisplay = new InteractiveStatusDisplay()
   private val runAction = new RunWorksheetAction()

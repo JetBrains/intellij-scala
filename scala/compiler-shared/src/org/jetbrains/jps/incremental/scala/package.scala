@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental
 import _root_.java.io._
 import _root_.java.net.URL
 import _root_.java.util.Properties
+import _root_.java.net.URLClassLoader
 
 import _root_.scala.language.implicitConversions
 
@@ -35,6 +36,22 @@ package object scala {
   implicit class PipedObject[T](private val v: T) extends AnyVal {
     def |>[R](f: T => R): R = f(v)
   }
+
+  def containsDotty(files: Iterable[File]): Boolean =
+    files.exists(_.getName.startsWith("dotty"))
+
+  // TODO implement a better version comparison
+  def compilerVersionIn(compiler: File, versions: String*): Boolean =
+    compilerVersion(compiler).exists { version => versions.exists(version.startsWith) }
+
+  def compilerVersion(compiler: File): Option[String] =
+    compilerVersion(Set(compiler.toURI.toURL))
+
+  def compilerVersion(urls: Set[URL]): Option[String] =
+    compilerVersion(new URLClassLoader(urls.toArray, null))
+
+  def compilerVersion(loader: ClassLoader): Option[String] =
+    readProperty(loader, "compiler.properties", "version.number")
 
   def readProperty(classLoader: ClassLoader, resource: String, name: String): Option[String] = {
     Option(classLoader.getResourceAsStream(resource))

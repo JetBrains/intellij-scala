@@ -36,6 +36,10 @@ object ScalaTokenType {
   val Inline: ScalaModifierTokenType = ScalaTokenTypes.kINLINE
   val Opaque = new ScalaTokenType("opaque")
 
+  val SpliceStart = new ScalaTokenType("$")
+  val QuoteStart = new ScalaTokenType("'")
+
+
   object IsTemplateDefinition {
 
     private[this] val tokenSet = TokenSet.create(

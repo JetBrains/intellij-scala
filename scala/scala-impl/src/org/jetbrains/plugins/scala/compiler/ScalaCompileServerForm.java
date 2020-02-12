@@ -38,6 +38,7 @@ public class ScalaCompileServerForm implements Configurable {
     private final ProjectSdksModelWithDefault sdkModel;
 
     public static final class SearchFilter {
+        // TODO: will not work with localized IDEA
         public static String USE_COMPILE_SERVER_FOR_SCALA = "use scala compile server";
     }
 

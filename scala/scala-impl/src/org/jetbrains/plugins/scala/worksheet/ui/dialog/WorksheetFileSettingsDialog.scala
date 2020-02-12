@@ -4,23 +4,25 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiFile
 import javax.swing.{JComponent, SwingConstants}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings}
 
 class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(worksheetFile.getProject, true, true) {
+
   private val fileSettings = WorksheetFileSettings(worksheetFile)
   private val projectSettings = WorksheetProjectSettings(worksheetFile.getProject)
-  private val myPanel = new WorksheetAllSettingsForm(worksheetFile, getFileSettingsData, getDefaultSettingsData)
+  private val myPanel = new WorksheetAllSettingsPanel(worksheetFile, getFileSettingsData, getDefaultSettingsData)
   
-  setTitle("Worksheet Settings")
+  setTitle(ScalaBundle.message("worksheet.settings.panel.title"))
   setButtonsAlignment(SwingConstants.CENTER)
   init()
   
-  override def createCenterPanel(): JComponent = myPanel.getMainPanel
+  override def createCenterPanel(): JComponent = myPanel
 
   override def doOKAction(): Unit = {
-    applyFileSettings(myPanel.getFileSettings)
-    applyDefaultSettings(myPanel.getDefaultSettings)
+    applyFileSettings(myPanel.fileSettings)
+    applyDefaultSettings(myPanel.defaultSettings)
     DaemonCodeAnalyzer.getInstance(worksheetFile.getProject).restart(worksheetFile)
     super.doOKAction()
   }

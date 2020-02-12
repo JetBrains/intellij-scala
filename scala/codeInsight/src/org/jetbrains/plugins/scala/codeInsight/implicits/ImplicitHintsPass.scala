@@ -114,7 +114,7 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
   }
 
   override def doApplyInformationToEditor(): Unit = {
-    EditorScrollingPositionKeeper.perform(myEditor, false, regenerateHints())
+    EditorScrollingPositionKeeper.perform(myEditor, false, () => regenerateHints())
 
     if (rootElement == myFile) {
       ImplicitHints.setUpToDate(myEditor, myFile)

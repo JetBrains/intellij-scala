@@ -3,11 +3,11 @@ import java.util.regex.Pattern
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.util.MacroExpansion
 
 import scala.annotation.tailrec
 

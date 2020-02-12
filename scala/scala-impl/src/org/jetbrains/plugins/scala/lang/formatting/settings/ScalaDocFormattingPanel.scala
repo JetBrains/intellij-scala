@@ -1,20 +1,16 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings
 
 import java.awt.BorderLayout
-import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing.{JCheckBox, JComponent, JPanel}
+import java.awt.event.ActionEvent
 
 import com.intellij.application.options.codeStyle.OptionTreeWithPreviewPanel
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.ui.OnePixelDivider
 import com.intellij.psi.codeStyle.{CodeStyleSettings, LanguageCodeStyleSettingsProvider}
 import com.intellij.ui.border.CustomLineBorder
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
+import javax.swing.{JCheckBox, JComponent, JPanel}
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, ScalaLanguage}
 
-/**
-  * @author Roman.Shein
-  *         Date: 13.11.2015
-  */
 class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTreeWithPreviewPanel(settings) {
 
   private var myEnableCheckBox: JCheckBox = _
@@ -26,12 +22,10 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
   override def init(): Unit = {
     super.init()
 
-    myEnableCheckBox = new JCheckBox("Enable scaladoc formatting")
-    myEnableCheckBox.addActionListener(new ActionListener() {
-      override def actionPerformed(e: ActionEvent): Unit = update()
-    })
+    myEnableCheckBox = new JCheckBox(ScalaBundle.message("scaladoc.panel.enable.scaladoc.formatting"))
+    myEnableCheckBox.addActionListener((_: ActionEvent) => update())
 
-    myAsteriskStyleCheckBox = new JCheckBox("Add additional space for leading asterisk")
+    myAsteriskStyleCheckBox = new JCheckBox(ScalaBundle.message("scaladoc.panel.add.additional.space.for.leading.asterisk"))
 
     myPanel.setBorder(new CustomLineBorder(OnePixelDivider.BACKGROUND, 1, 0, 0, 0))
     myScaladocPanel.add(BorderLayout.CENTER, myPanel)
@@ -126,11 +120,12 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
     }
   }
 
-  protected override def getTabTitle: String = "ScalaDoc"
+  protected override def getTabTitle: String = ScalaBundle.message("scaladoc.panel.title")
 }
 
 object ScalaDocFormattingPanel {
-  val BLANK_LINES_GROUP = "Blank lines"
-  val ALIGNMENT_GROUP = "Alignment"
-  val OTHER_GROUP = "Other"
+
+  val BLANK_LINES_GROUP: String = ScalaBundle.message("scaladoc.panel.groups.blank.lines")
+  val ALIGNMENT_GROUP  : String = ScalaBundle.message("scaladoc.panel.groups.alignment")
+  val OTHER_GROUP      : String = ScalaBundle.message("scaladoc.panel.groups.other")
 }

@@ -12,6 +12,7 @@ import org.jetbrains.jps.model.serialization.JpsGlobalExtensionSerializer;
 import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
 import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
 import org.jetbrains.jps.model.serialization.library.JpsLibraryPropertiesSerializer;
+import org.jetbrains.plugins.scala.compiler.IncrementalityType;
 
 import java.util.*;
 

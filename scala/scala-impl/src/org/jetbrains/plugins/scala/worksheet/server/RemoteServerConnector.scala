@@ -15,15 +15,15 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.DummyClient
+import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.{NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 
 private[worksheet]
@@ -51,13 +51,13 @@ class RemoteServerConnector(
     * 5. Code chunk to interpret (iff REPL enabled)
     * 6. "replenabled" - iff/if REPL mode enabled
     */
-  override val worksheetArgs: Array[String] =
+  override val worksheetArgs: Seq[String] =
     makeType match {
       case OutOfProcessServer =>
-        Array.empty[String]
+        Seq.empty[String]
       case _ =>
-        val base = Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
-        replArgs.map(ra => base ++ Array(ra.path, ra.codeChunk, "replenabled")).getOrElse(base)
+        val baseArgs = Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
+        baseArgs ++ replArgs.toSeq.flatMap(ra => Seq(ra.path, ra.codeChunk, "replenabled"))
     }
 
   // TODO: make something more advanced than just `callback: Runnable`: error reporting, Future, Task, etc...
@@ -79,7 +79,7 @@ class RemoteServerConnector(
           runner.buildProcess(argumentsFinal, client)
 
         case NonServer =>
-          val argumentsFinal = "NO_TOKEN" +: arguments
+          val argumentsFinal = NoToken +: arguments
           val argumentsEncoded = argumentsFinal.map { arg =>
             val argFixed = if(arg.isEmpty) "#STUB#" else arg
             Base64.getEncoder.encodeToString(argFixed.getBytes(StandardCharsets.UTF_8))
@@ -152,7 +152,7 @@ object RemoteServerConnector {
   }
 
   private class MyTranslatingClient(project: Project, worksheet: VirtualFile, consumer: CompilerInterface) extends DummyClient {
-    private val endMarker = WorksheetSourceProcessor.END_GENERATED_MARKER
+    private val endMarker = WorksheetDefaultSourcePreprocessor.END_GENERATED_MARKER
 
     override def progress(text: String, done: Option[Float]): Unit =
       consumer.progress(text, done)
@@ -160,7 +160,8 @@ object RemoteServerConnector {
     override def trace(exception: Throwable): Unit =
       consumer.trace(exception)
 
-    override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
+    override def message(msg: Client.ClientMsg): Unit = {
+      val Client.ClientMsg(kind, text, source, line, column) = msg
       val lines = (if(text == null) "" else "").split("\n")
       val linesLength = lines.length
 

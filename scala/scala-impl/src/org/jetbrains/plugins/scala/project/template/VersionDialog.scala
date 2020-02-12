@@ -2,8 +2,11 @@ package org.jetbrains.plugins.scala
 package project
 package template
 
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.ui.Messages
 import javax.swing.JComponent
+import org.apache.ivy.util.MessageLogger
+import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 
 /**
   * @author Pavel Fatin
@@ -31,11 +34,18 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
     if (showAndGet()) {
       val version = myVersion.getSelectedItem.asInstanceOf[String]
 
-      extensions.withProgressSynchronouslyTry(s"Downloading Scala $version") { manager =>
-        createTempSbtProject(version) { text =>
-          Option(manager.getProgressIndicator).foreach(_.setText(text))
+      extensions.withProgressSynchronouslyTry(s"Downloading Scala $version", canBeCanceled = true) { manager =>
+        import DependencyManagerBase._
+        val dependencyManager = new DependencyManagerBase {
+          override def createLogger: MessageLogger = new ProgressIndicatorLogger(manager.getProgressIndicator)
+          override val artifactBlackList: Set[String] = Set.empty
         }
+        val compiler        = "org.scala-lang" % "scala-compiler" % version transitive()
+        val librarySources  = "org.scala-lang" % "scala-library" % version % Types.SRC
+        dependencyManager.resolve(compiler)
+        dependencyManager.resolveSingle(librarySources)
       }.recover {
+        case _: ProcessCanceledException => // downloading aborted by user
         case exception => Messages.showErrorDialog(
           parent,
           exception.getMessage,

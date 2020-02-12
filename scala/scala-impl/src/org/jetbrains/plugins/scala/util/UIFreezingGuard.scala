@@ -24,7 +24,7 @@ class UIFreezingGuard extends ApplicationInitializedListener {
 
   override def componentsInitialized(): Unit = {
     if (pceEnabled) {
-      JobScheduler.getScheduler.scheduleWithFixedDelay(cancelOnUserInput(), periodMs, periodMs, TimeUnit.MILLISECONDS)
+      JobScheduler.getScheduler.scheduleWithFixedDelay(() => cancelOnUserInput(), periodMs, periodMs, TimeUnit.MILLISECONDS)
     }
   }
 

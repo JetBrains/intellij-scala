@@ -6,23 +6,18 @@ import java.util
 import com.intellij.diff.tools.util.BaseSyncScrollable
 import com.intellij.diff.tools.util.SyncScrollSupport.TwosideSyncScrollSupport
 import com.intellij.ide.DataManager
-import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataProvider}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.event.{CaretEvent, CaretListener, VisibleAreaEvent, VisibleAreaListener}
-import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Editor, EditorFactory, VisualPosition}
-import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.psi.{PsiDocumentManager, PsiFileFactory}
 import com.intellij.ui.JBSplitter
 import javax.swing.{JComponent, JLayeredPane}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, StringExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
@@ -31,11 +26,10 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWor
 import org.jetbrains.plugins.scala.worksheet.ui.extensions.JComponentExt
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
 
-import scala.util.Random
-
+//noinspection TypeAnnotation
 object WorksheetEditorPrinterFactory {
 
-  val END_MESSAGE = "Output exceeds cutoff limit.\n"
+  val END_MESSAGE = ScalaBundle.message("worksheet.printers.output.exceeds.cutoff.limit") + "\n"
   val BULK_COUNT = 15
   val IDLE_TIME_MLS = 1000
   val DEFAULT_WORKSHEET_VIEWERS_RATIO = 0.5f
@@ -144,8 +138,8 @@ object WorksheetEditorPrinterFactory {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, DEFAULT_WORKSHEET_VIEWERS_RATIO.toString)
   }
 
-  def createViewer(editor: Editor, virtualFile: VirtualFile): Editor =
-    setupRightSideViewer(editor, virtualFile, getOrCreateViewerEditorFor(editor), modelSync = true)
+  def createViewer(editor: Editor): Editor =
+    setupRightSideViewer(editor, getOrCreateViewerEditorFor(editor), modelSync = true)
 
   def getDefaultUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter = {
     val printer = newDefaultUiFor(editor, scalaFile)
@@ -175,17 +169,17 @@ object WorksheetEditorPrinterFactory {
 
   private def newDefaultUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinterPlain = {
     val viewerEditor = getOrCreateViewerEditorFor(editor)
-    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, viewerEditor)
+    val sideViewer = setupRightSideViewer(editor, viewerEditor)
     new WorksheetEditorPrinterPlain(editor, sideViewer, scalaFile)
   }
 
   private def newIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinterRepl = {
     val viewerEditor = getOrCreateViewerEditorFor(editor)
-    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, viewerEditor)
+    val sideViewer = setupRightSideViewer(editor, viewerEditor)
     new WorksheetEditorPrinterRepl(editor, sideViewer, scalaFile)
   }
 
-  private def setupRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
+  private def setupRightSideViewer(editor: Editor, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent
     val editorContentComponent = editor.getContentComponent
 

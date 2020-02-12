@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerManager, ScalaCompileServerForm}
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
@@ -19,7 +20,7 @@ class WorksheetCompilerErrorReporter(
   log: Logger
 ) {
 
-  private val ConfigErrorHeader = "Worksheet configuration error"
+  private val ConfigErrorHeader = ScalaBundle.message("worksheet.configuration.errors.base")
 
   def reportError(error: WorksheetCompilerError): Unit = error match {
     case WorksheetCompilerResult.PreprocessError(error)            => showCompilationError(error.message, error.position)
@@ -39,7 +40,7 @@ class WorksheetCompilerErrorReporter(
     log.error("Unexpected error occurred during worksheet evaluation", exception)
 
   private def preconditionMessage(precondition: Precondition): String = precondition match {
-    case Precondition.ReplRequiresCompileServerProcess => "Worksheet in REPL mode can only be executed in compile server process"
+    case Precondition.ReplRequiresCompileServerProcess => ScalaBundle.message("worksheet.configuration.errors.repl.is.available.only.in.compile.server.process")
   }
 
   private def showConfigErrorNotification(msg: String): Unit = {
@@ -50,13 +51,13 @@ class WorksheetCompilerErrorReporter(
   private def showReplRequiresCompileServerNotification(message: String): Unit =
     configErrorNotification(message)
       .removeTitle()
-      .addAction(new NotificationAction("Enable compile server") {
+      .addAction(new NotificationAction(ScalaBundle.message("worksheet.configuration.errors.enable.compile.server")) {
         override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
           notification.expire()
           CompileServerManager.enableCompileServer(project)
         }
       })
-      .addAction(new NotificationAction("Configure compile server") {
+      .addAction(new NotificationAction((ScalaBundle.message("worksheet.configuration.errors.configure.compile.server"))) {
         override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
           notification.expire()
           val filter = ScalaCompileServerForm.SearchFilter.USE_COMPILE_SERVER_FOR_SCALA

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings.inference
 
 import java.io.{DataInput, DataOutput}
-import java.util.Collections
 import java.util.regex.Pattern
 
 import com.intellij.application.options.CodeStyle
@@ -17,7 +16,7 @@ import scala.collection.JavaConverters._
 
 // NOTE: low-level imperative style is intentionally used to avoid unnecessary allocations
 // and not to explode indexing time for such a tiny feature
-class ScalaDocAsteriskAlignStyleIndexer extends FileBasedIndexExtension[AsteriskAlignStyle, Integer] {
+final class ScalaDocAsteriskAlignStyleIndexer extends FileBasedIndexExtension[AsteriskAlignStyle, Integer] {
   override val getName: ID[AsteriskAlignStyle, Integer] = ScalaDocAsteriskAlignStyleIndexer.Id
 
   override def getInputFilter: FileBasedIndex.InputFilter = file => {

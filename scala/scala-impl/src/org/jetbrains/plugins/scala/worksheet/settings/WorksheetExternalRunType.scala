@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala.worksheet.settings
 
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.psi.PsiErrorElement
-import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.{NonNls, NotNull}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetDefaultSourcePreprocessor, WorksheetIncrementalSourcePreprocessor}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterFactory}
 
 abstract sealed class WorksheetExternalRunType {
-  def getName: String
+  @NonNls def getName: String
 
   def isReplRunType: Boolean
 
@@ -53,10 +53,11 @@ object WorksheetExternalRunType {
       WorksheetEditorPrinterFactory.getDefaultUiFor(editor, file)
 
     override def process(srcFile: ScalaFile, editor: Editor): Either[WorksheetPreprocessError, WorksheetCompileRunRequest] = {
-      val result = WorksheetSourceProcessor.processDefault(srcFile, editor.getDocument)
+      import WorksheetDefaultSourcePreprocessor.PreprocessResult
+      val result = WorksheetDefaultSourcePreprocessor.preprocess(srcFile, editor.getDocument)
       result
-        .map { case (code, className) => RunCompile(code, className) }
-        .left.map { errorElement => WorksheetPreprocessError(errorElement, Some(editor)) }
+        .map { case PreprocessResult(code, className) => RunCompile(code, className) }
+        .left.map(WorksheetPreprocessError(_, Some(editor)))
     }
   }
 
@@ -69,10 +70,11 @@ object WorksheetExternalRunType {
       WorksheetEditorPrinterFactory.getIncrementalUiFor(editor, file)
 
     override def process(srcFile: ScalaFile, editor: Editor): Either[WorksheetPreprocessError, WorksheetCompileRunRequest] = {
-      val result = WorksheetSourceProcessor.processIncremental(srcFile, editor)
+      val result = WorksheetIncrementalSourcePreprocessor.preprocess(srcFile, editor)
       result
-        .map { code => RunRepl(code) }
-        .left.map { errorElement => WorksheetPreprocessError(errorElement, Some(editor)) }
+        .map(_.commandsEncoded)
+        .map(RunRepl)
+        .left.map(WorksheetPreprocessError(_, Some(editor)))
     }
   }
 }

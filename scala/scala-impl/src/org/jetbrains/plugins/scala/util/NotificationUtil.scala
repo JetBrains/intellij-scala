@@ -6,6 +6,7 @@ import java.net.URL
 import com.intellij.notification._
 import com.intellij.openapi.project.Project
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.annotations.NonNls
 
 import scala.collection.mutable
 
@@ -18,14 +19,14 @@ object NotificationUtil  {
   def builder(project: Project, message: String) = new NotificationBuilder(project, message)
 
   class NotificationBuilder protected[NotificationUtil] (project: Project, message: String) {
-    private var group: String = "scala"
+    private var group: String = "Scala"
     private var title: String = "Warning" // TODO Should be "null"
     private var notificationType: NotificationType = NotificationType.WARNING
     private var displayType: NotificationDisplayType = NotificationDisplayType.BALLOON // TODO Why it's present but not applied?
     private var handler: Handler = IdHandler
     private val actions: mutable.Buffer[NotificationAction] = mutable.Buffer()
 
-    def setGroup(group: String): this.type = {this.group = group; this}
+    def setGroup(@NonNls group: String): this.type = {this.group = group; this}
     def setTitle(title: String): this.type = {this.title = title; this}
     def removeTitle(): this.type = {this.title = null; this}
     def setNotificationType(notificationType: NotificationType): this.type = {this.notificationType = notificationType; this}

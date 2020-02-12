@@ -581,10 +581,7 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   private def assertFeatureEquals(expected: MLFeatureValue, actual: MLFeatureValue): Unit = {
 
     // no equals impl for MLFeatureValue
-    def adapter(value: MLFeatureValue): Any = {
-      val actualValue = Option(value.asBinary()) orElse Option(value.asCategorical()) orElse Option(value.asFloat())
-      actualValue.get
-    }
+    def adapter(value: MLFeatureValue): Any = value.getValue
 
     val adaptedExpected = adapter(expected)
     val adaptedActual = adapter(actual)

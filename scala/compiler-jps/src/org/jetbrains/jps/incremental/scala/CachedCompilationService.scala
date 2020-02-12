@@ -2,8 +2,8 @@ package org.jetbrains.jps.incremental.scala
 
 import java.io.File
 
-import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 
 import scala.util.Try
 

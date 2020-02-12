@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import com.intellij.ide.scratch.{ScratchFileService, ScratchFileServiceImpl, ScratchFileType}
+import com.intellij.ide.scratch.{ScratchFileService, ScratchFileServiceImpl, ScratchUtil}
+import com.intellij.lang.Language
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -14,28 +15,31 @@ import org.jetbrains.plugins.scala.project._
 /** see [[com.intellij.psi.impl.file.impl.ResolveScopeManagerImpl]] */
 class ScalaOutOfSourcesResolveScopeProvider extends ResolveScopeProvider {
 
-  override def getResolveScope(file: VirtualFile, project: Project): GlobalSearchScope =
-    file.getFileType match {
-      case _: ScratchFileType if isScalaScratchFile(file, project) =>
-        val psiFile = PsiManager.getInstance(project).findFile(file)
-        psiFile.scratchFileModule match {
-          case Some(module) if module.getProject == project =>
-            // scratch file created from one project can be opened in another project manually =/
-            GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, /*includeTests=*/ false)
-          case _ =>
-            scalaFileScope(file, project)
-        }
-      case fileType: LanguageFileType if fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) =>
-        scalaFileScope(file, project)
-      case _ =>
-        null
+  /** @return null to rely on [[com.intellij.psi.impl.file.impl.ResolveScopeManagerImpl#getDefaultResolveScope]] logic */
+  override def getResolveScope(file: VirtualFile, project: Project): GlobalSearchScope = {
+    if (isScalaScratchFile(file, project)) {
+      val psiFile = PsiManager.getInstance(project).findFile(file)
+      psiFile.scratchFileModule match {
+        case Some(module) if module.getProject == project =>
+          // scratch file created from one project can be opened in another project manually =/
+          GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, /*includeTests=*/ false)
+        case _ =>
+          scalaFileScope(file, project)
+      }
+    } else {
+      file.getFileType match {
+        case fileType: LanguageFileType if fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) =>
+          scalaFileScope(file, project)
+        case _ =>
+          null
+      }
     }
+  }
 
   private def scalaFileScope(file: VirtualFile, project: Project): GlobalSearchScope =
     if (isExternalScalaFile(file, project)) {
       scopeForExternalScalaFile(file, project)
     } else {
-      /** rely on [[com.intellij.psi.impl.file.impl.ResolveScopeManagerImpl#getDefaultResolveScope]] */
       null
     }
 }
@@ -43,18 +47,14 @@ class ScalaOutOfSourcesResolveScopeProvider extends ResolveScopeProvider {
 object ScalaOutOfSourcesResolveScopeProvider {
 
   private def isScalaScratchFile(file: VirtualFile, project: Project): Boolean = {
-    ScratchFileService.getInstance.getScratchesMapping.getMapping(file) match {
-      case null =>
-        // I have to reference Impl: for some reason ScratchFileService treats scratch files as plain text files
-        // and there is no other way to detect that it is a Scala file
-        // getLanguage returns `Text`
-        // getScratchesMapping.getMapping returns null
-        val substituted = ScratchFileServiceImpl.Substitutor.substituteLanguage(project, file)
-        substituted match {
-          case null => false
-          case lang => lang.isKindOf(ScalaLanguage.INSTANCE)
-        }
-      case lang => lang.isKindOf(ScalaLanguage.INSTANCE)
+    ScratchUtil.isScratch(file) && scratchFileLanguage(file, project).exists(_.isKindOf(ScalaLanguage.INSTANCE))
+  }
+
+  private def scratchFileLanguage(file: VirtualFile, project: Project): Option[Language] = {
+    val fromMapping = Option(ScratchFileService.getInstance.getScratchesMapping.getMapping(file))
+    fromMapping.orElse {
+      val substituted = Option(ScratchFileServiceImpl.Substitutor.substituteLanguage(project, file))
+      substituted
     }
   }
 

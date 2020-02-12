@@ -21,7 +21,8 @@ import java.util.*;
     storages = {
         @Storage(StoragePathMacros.WORKSPACE_FILE),
         @Storage("scala_settings.xml")
-    }
+    },
+    reportStatistic = true
 )
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;

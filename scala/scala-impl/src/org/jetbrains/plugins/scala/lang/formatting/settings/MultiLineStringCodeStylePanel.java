@@ -18,11 +18,6 @@ import java.awt.event.KeyEvent;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
-/**
- * User: Dmitry Naydanov
- * Date: 4/23/12
- */
-@SuppressWarnings(value = "unchecked")
 public final class MultiLineStringCodeStylePanel extends ScalaCodeStylePanelBase {
 
     private JPanel panel1;
@@ -35,7 +30,7 @@ public final class MultiLineStringCodeStylePanel extends ScalaCodeStylePanelBase
     private JCheckBox alignDanglingClosingQuotes;
 
     protected MultiLineStringCodeStylePanel(@NotNull CodeStyleSettings settings) {
-        super(settings, ScalaBundle.message("multi.line.string.settings.panel"));
+        super(settings, ScalaBundle.message("multi.line.string.panel.title"));
 
         ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
         marginIndentSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
@@ -53,15 +48,6 @@ public final class MultiLineStringCodeStylePanel extends ScalaCodeStylePanelBase
             }
         });
         marginCharTextField.addFocusListener(new NonEmptyFieldValidator(marginCharTextField));
-
-        insertMarginChar.addActionListener(e -> {
-            if (insertMarginChar.isSelected()) {
-                processMarginCheckBox.setEnabled(true);
-            } else {
-                processMarginCheckBox.setSelected(false);
-                processMarginCheckBox.setEnabled(false);
-            }
-        });
     }
 
     @Override
@@ -139,22 +125,22 @@ public final class MultiLineStringCodeStylePanel extends ScalaCodeStylePanelBase
         panel1.setLayout(new GridLayoutManager(8, 3, new Insets(0, 0, 0, 0), -1, -1));
         panel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         openingQuotesOnNewCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(openingQuotesOnNewCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.opening.quotes.on.new.line"));
+        this.$$$loadButtonText$$$(openingQuotesOnNewCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.panel.opening.quotes.on.new.line"));
         panel1.add(openingQuotesOnNewCheckBox, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         closingQuotesOnNewLine = new JCheckBox();
-        this.$$$loadButtonText$$$(closingQuotesOnNewLine, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.on.enter.place.closing.quotes.on.new.line"));
+        this.$$$loadButtonText$$$(closingQuotesOnNewLine, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.panel.place.closing.quotes.on.new.line.on.enter.press"));
         panel1.add(closingQuotesOnNewLine, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         insertMarginChar = new JCheckBox();
-        this.$$$loadButtonText$$$(insertMarginChar, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.on.enter.insert.margin.char"));
+        this.$$$loadButtonText$$$(insertMarginChar, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.panel.insert.margin.char.on.enter"));
         panel1.add(insertMarginChar, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.support.margin.char.label"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.panel.margin.char.value"));
         panel1.add(label1, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.margin.char.indent"));
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.panel.margin.char.indent"));
         panel1.add(label2, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         processMarginCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(processMarginCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.process.margin.on.copy.paste"));
+        this.$$$loadButtonText$$$(processMarginCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.panel.process.margin.on.copy.paste"));
         panel1.add(processMarginCheckBox, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         marginIndentSpinner = new JSpinner();
         panel1.add(marginIndentSpinner, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -166,7 +152,7 @@ public final class MultiLineStringCodeStylePanel extends ScalaCodeStylePanelBase
         marginCharTextField.setText("|");
         panel1.add(marginCharTextField, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         alignDanglingClosingQuotes = new JCheckBox();
-        this.$$$loadButtonText$$$(alignDanglingClosingQuotes, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.align.dangling.closing.quotes"));
+        this.$$$loadButtonText$$$(alignDanglingClosingQuotes, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "multi.line.string.panel.align.dangling.closing.quotes"));
         panel1.add(alignDanglingClosingQuotes, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 

@@ -5,7 +5,9 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.incremental.scala.data.SbtIncrementalOptions;
+import org.jetbrains.plugins.scala.compiler.CompileOrder;
+import org.jetbrains.plugins.scala.compiler.IncrementalityType;
+import org.jetbrains.plugins.scala.compiler.data.SbtIncrementalOptions;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 
 import java.util.ArrayList;

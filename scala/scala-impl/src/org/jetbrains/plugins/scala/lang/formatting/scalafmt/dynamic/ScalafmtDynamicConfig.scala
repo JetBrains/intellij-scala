@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.Reflec
 
 import scala.util.Try
 
-//noinspection TypeAnnotation
+//noinspection TypeAnnotation,HardCodedStringLiteral
 class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
                                              private[dynamic] val target: Object, // real config object
                                              private val classLoader: ClassLoader) {

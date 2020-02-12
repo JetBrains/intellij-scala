@@ -8,7 +8,8 @@ import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageH
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugin.scala.compilerReferences.{Builder, Messages}
+import org.jetbrains.plugins.scala.compilerReferences.Builder
+import org.jetbrains.plugins.scala.compilerReferences.{Builder, Messages}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.project.ModuleExt

@@ -9,16 +9,16 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.lang.reflect.Method;
+import java.util.ResourceBundle;
 
-/**
- * User: Dmitry.Naydanov
- * Date: 09.07.14.
- */
+
 public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
 
     private JCheckBox enforceFunctionalSyntaxForCheckBox;
@@ -33,14 +33,14 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
     private JLabel spacesLabel;
     private JPanel myCommenterPanel;
     private JCheckBox reformatOnCompileCheckBox;
-    private CommenterForm myCommenterForm = new CommenterForm(ScalaLanguage.INSTANCE);
-    private TrailingCommaPanel trailingCommaPanel = new TrailingCommaPanel(getSettings());
+    private final CommenterForm myCommenterForm = new CommenterForm(ScalaLanguage.INSTANCE);
+    private final TrailingCommaPanel trailingCommaPanel = new TrailingCommaPanel(getSettings());
     private JPanel trailingCommaInnerPanel;
     private JTextField implicitValueClassPrefix;
     private JTextField implicitValueClassSuffix;
 
     protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
-        super(settings);
+        super(settings, ScalaBundle.message("other.panel.title"));
         $$$setupUI$$$();
         alternateIndentationForParamsSpinner.setModel(new SpinnerNumberModel(4, 1, null, 1));
         resetImpl(settings);
@@ -140,41 +140,41 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         panel1.add(contentPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         contentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         enforceFunctionalSyntaxForCheckBox = new JCheckBox();
-        enforceFunctionalSyntaxForCheckBox.setText("Enforce functional syntax for methods with Unit return type");
+        this.$$$loadButtonText$$$(enforceFunctionalSyntaxForCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "other.panel.enforce.functional.syntax.for.methods.with.unit.return.type"));
         contentPanel.add(enforceFunctionalSyntaxForCheckBox, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         contentPanel.add(spacer1, new GridConstraints(11, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         replaceWithUnicodeSymbolCheckBox = new JCheckBox();
-        replaceWithUnicodeSymbolCheckBox.setText("Replace '=>' with unicode symbol");
+        this.$$$loadButtonText$$$(replaceWithUnicodeSymbolCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "other.panel.replace.with.unicode.symbol"));
         contentPanel.add(replaceWithUnicodeSymbolCheckBox, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         replaceWithUnicodeSymbolCheckBox1 = new JCheckBox();
-        replaceWithUnicodeSymbolCheckBox1.setText("Replace '->' with unicode symbol");
+        this.$$$loadButtonText$$$(replaceWithUnicodeSymbolCheckBox1, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "other.panel.replace.with.unicode.symbol1"));
         contentPanel.add(replaceWithUnicodeSymbolCheckBox1, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         replaceInForGeneratorCheckBox = new JCheckBox();
-        replaceInForGeneratorCheckBox.setText("Replace '<-' in \"for\" generator with unicode symbol");
+        this.$$$loadButtonText$$$(replaceInForGeneratorCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "other.panel.replace.in.for.generator.with.unicode.symbol"));
         contentPanel.add(replaceInForGeneratorCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         replaceLambdaWithGreekLetter = new JCheckBox();
         replaceLambdaWithGreekLetter.setSelected(false);
-        replaceLambdaWithGreekLetter.setText("Kind Projector: Replace 'Lambda' with unicode symbol");
+        this.$$$loadButtonText$$$(replaceLambdaWithGreekLetter, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "other.panel.kind.projector.replace.lambda.with.unicode.symbol"));
         contentPanel.add(replaceLambdaWithGreekLetter, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         alternateParamIndentPanel = new JPanel();
         alternateParamIndentPanel.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
         contentPanel.add(alternateParamIndentPanel, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         alternateIndentationForParamsCheckBox = new JCheckBox();
-        alternateIndentationForParamsCheckBox.setText("Alternate indentation for constructor args and parameter declarations:");
+        this.$$$loadButtonText$$$(alternateIndentationForParamsCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "other.panel.alternate.indentation.for.constructor.args.and.parameter.declarations"));
         alternateIndentationForParamsCheckBox.setVerticalAlignment(1);
         alternateParamIndentPanel.add(alternateIndentationForParamsCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         alternateIndentationForParamsSpinner = new JSpinner();
         alternateParamIndentPanel.add(alternateIndentationForParamsSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(1, -1), new Dimension(2, -1), null, 1, false));
         spacesLabel = new JLabel();
-        spacesLabel.setText("spaces");
+        this.$$$loadLabelText$$$(spacesLabel, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "other.panel.spaces"));
         spacesLabel.setVerticalAlignment(1);
         alternateParamIndentPanel.add(spacesLabel, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         alternateParamIndentPanel.add(spacer2, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         contentPanel.add(myCommenterPanel, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         reformatOnCompileCheckBox = new JCheckBox();
-        reformatOnCompileCheckBox.setText("Reformat on compile");
+        this.$$$loadButtonText$$$(reformatOnCompileCheckBox, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "other.panel.reformat.on.compile"));
         contentPanel.add(reformatOnCompileCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         contentPanel.add(trailingCommaInnerPanel, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
@@ -185,11 +185,83 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         implicitValueClassPrefix = new JTextField();
         panel2.add(implicitValueClassPrefix, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        label1.setText("Implicit value class prefix / suffux");
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "other.panel.implicit.value.class.prefix.suffux"));
         label1.setToolTipText("");
         panel2.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         implicitValueClassSuffix = new JTextField();
         implicitValueClassSuffix.setText("Ops");
         panel2.add(implicitValueClassSuffix, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadLabelText$$$(JLabel component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
 }

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings.inference
 
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.project.Project
+import com.intellij.ide.ApplicationInitializedListener
 import com.intellij.psi.codeStyle.CodeStyleScheme
 import com.intellij.psi.impl.source.codeStyle.CodeStyleSchemesImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -13,9 +12,9 @@ import scala.collection.JavaConverters._
   * @author Roman.Shein
   *         Date: 24.01.2017
   */
-class LegacyCodeStyleSettingsComponent(project: Project) extends ProjectComponent {
+final class LegacyCodeStyleSettingsComponent extends ApplicationInitializedListener {
 
-  override def projectOpened(): Unit = {
+  override def componentsInitialized(): Unit = {
     val codeStyleSchemes: Seq[CodeStyleScheme] = CodeStyleSchemesImpl.getSchemeManager.getAllSchemes.asScala
     codeStyleSchemes.foreach { scheme =>
       val scalaSettings = scheme.getCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -28,6 +27,4 @@ class LegacyCodeStyleSettingsComponent(project: Project) extends ProjectComponen
       }
     }
   }
-
-  override def getComponentName: String = "LegacyCodeStyleSettingsComponent"
 }

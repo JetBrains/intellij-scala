@@ -18,7 +18,7 @@
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Interactive Mode"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="worksheet.settings.panel.interactive.mode"/>
         </properties>
       </component>
       <component id="4f80d" class="javax.swing.JCheckBox" binding="makeProjectBeforeRunCheckBox" default-binding="true">
@@ -26,7 +26,7 @@
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Make project before run"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="worksheet.settings.panel.change.make.button"/>
         </properties>
       </component>
       <component id="a4e80" class="com.intellij.application.options.ModulesComboBox" binding="moduleComboBox" custom-create="true">
@@ -40,7 +40,7 @@
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Use class path of module:"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="worksheet.settings.panel.use.class.path.of.module"/>
         </properties>
       </component>
       <component id="db7e8" class="javax.swing.JComboBox" binding="compilerProfileComboBox">
@@ -54,7 +54,7 @@
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Compiler profile:"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="worksheet.settings.panel.compiler.profile"/>
         </properties>
       </component>
       <component id="d9a15" class="com.intellij.openapi.actionSystem.impl.ActionButton" binding="openCompilerProfileSettingsButton" custom-create="true">
@@ -74,7 +74,7 @@
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Run type:"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="worksheet.settings.panel.run.type"/>
         </properties>
       </component>
     </children>

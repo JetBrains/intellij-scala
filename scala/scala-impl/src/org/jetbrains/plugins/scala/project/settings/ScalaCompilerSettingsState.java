@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.project.settings;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
-import org.jetbrains.jps.incremental.scala.data.SbtIncrementalOptions;
+import org.jetbrains.plugins.scala.compiler.data.SbtIncrementalOptions;
 import org.jetbrains.plugins.scala.project.CompileOrder;
 import org.jetbrains.plugins.scala.project.DebuggingInfoLevel;
 

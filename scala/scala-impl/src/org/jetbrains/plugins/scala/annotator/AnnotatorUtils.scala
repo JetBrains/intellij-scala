@@ -48,7 +48,7 @@ object AnnotatorUtils {
     }
   }
 
-  def shouldIgnoreTypeMismatchIn(e: PsiElement): Boolean = {
+  def shouldIgnoreTypeMismatchIn(e: PsiElement, fromFunctionLiteral: Boolean = false): Boolean = {
     // Don't show type a mismatch error when there's a parser error, SCL-16899
     def hasParserErrors = e.elements.exists(_.isInstanceOf[PsiErrorElement]) ||
       e.getPrevSibling.isInstanceOf[PsiErrorElement] ||
@@ -60,33 +60,22 @@ object AnnotatorUtils {
 
     // Don't show type mismatch for a whole function literal when result type doesn't match, SCL-16901
 
-    def isFunctionLiteralWithResultTypeMismatch = e match {
-      case f: ScFunctionExpr => f.result.exists { result =>
-        result.`type`().exists(t => result.expectedType().exists(!t.conforms(_)))
-      }
+    def isFunctionLiteral = e match {
+      case _: ScFunctionExpr | ScBlock(_: ScFunctionExpr) => true
       case _ => false
     }
 
-    def isResultOfFunctionLiteralInBlock = e match {
-      case Parent(Parent((f: ScFunctionExpr) && Parent(_: ScBlockExpr))) => f.result.contains(e.getParent)
+    def isResultOfFunctionLiteral = e match {
+      case Parent(_: ScFunctionExpr) => true
+      case Parent(Parent((_: ScFunctionExpr) && Parent(_: ScBlockExpr))) => true
       case _ => false
     }
-
-    // TODO This part is a workaround for SCL-16898 (Function literals: don't infer type when parameter type is not known)
 
     def hasUnresolvedReferences = e.elements.exists(_.asOptionOf[ScReference].exists(_.resolve() == null))
 
-    // This might result in false positives (when parameter type is wrongly inferred as Nothing), but it's a lesser evil.
-    def isFunctionLiteralWithMissingParameterType = e match {
-      case f: ScFunctionExpr => f.parameters.exists(_.`type`().exists(_.isNothing))
-      case _ => false
-    }
-
     hasParserErrors ||
-      isFunctionLiteralWithResultTypeMismatch ||
-      isResultOfFunctionLiteralInBlock ||
       hasUnresolvedReferences ||
-      isFunctionLiteralWithMissingParameterType
+      !fromFunctionLiteral && (isFunctionLiteral || isResultOfFunctionLiteral)
   }
 
   //fix for SCL-7176

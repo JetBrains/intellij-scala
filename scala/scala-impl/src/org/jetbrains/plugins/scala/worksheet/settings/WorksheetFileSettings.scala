@@ -31,11 +31,13 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 
   private def getDefaultSettings = WorksheetProjectSettings(project)
 
-  private def getSetting[T](attr: FileAttribute, orDefault: => T)(implicit ev: SerializableInFileAttribute[T]): T =
-    ev.readAttribute(attr, file.getVirtualFile).getOrElse(orDefault)
+  private def getSetting[T](attr: FileAttribute, orDefault: => T)
+                           (implicit ev: SerializableInFileAttribute[T]): T =
+    WorksheetFileSettings.getSetting(file.getVirtualFile, attr, orDefault)
 
-  private def setSetting[T](attr: FileAttribute, value: T)(implicit ev: SerializableInFileAttribute[T]): Unit =
-    ev.writeAttribute(attr, file.getVirtualFile, value)
+  private def setSetting[T](attr: FileAttribute, value: T)
+                           (implicit ev: SerializableInFileAttribute[T]): Unit =
+    WorksheetFileSettings.setSetting(file.getVirtualFile, attr, value)
 
   override def getRunType: WorksheetExternalRunType = getSetting(WORKSHEET_RUN_TYPE, getDefaultSettings.getRunType)
 
@@ -96,6 +98,7 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 }
 
 object WorksheetFileSettings extends WorksheetPerFileConfig {
+
   private val IS_MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
   private val CP_MODULE_NAME = new FileAttribute("ScalaWorksheetModuleForCp", 1, false)
   private val COMPILER_PROFILE = new FileAttribute("ScalaWorksheetCompilerProfile", 1, false)
@@ -154,4 +157,19 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
       override def convertTo(s: String): WorksheetExternalRunType = WorksheetExternalRunType.findRunTypeByName(s).getOrElse(WorksheetExternalRunType.getDefaultRunType)
     }
   }
+
+  import SerializableWorksheetAttributes.SerializableInFileAttribute
+
+  private def getSetting[T](vFile: VirtualFile, attr: FileAttribute, orDefault: => T)
+                           (implicit ev: SerializableInFileAttribute[T]): T =
+    ev.readAttribute(attr, vFile).getOrElse(orDefault)
+
+  private def setSetting[T](vFile: VirtualFile, attr: FileAttribute, value: T)
+                           (implicit ev: SerializableInFileAttribute[T]): Unit =
+    ev.writeAttribute(attr, vFile, value)
+
+  import SerializableWorksheetAttributes.StringFileAttribute
+
+  def getModuleName(file: VirtualFile): Option[String] =
+    Option(getSetting[String](file, CP_MODULE_NAME, null))
 }

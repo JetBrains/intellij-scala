@@ -166,7 +166,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
         Right(value)
       case None =>
         val downloadWriter = reporter.downloadWriter()
-        val progressListener: DownloadProgressListener = downloadWriter.println _
+        val progressListener: DownloadProgressListener = message => downloadWriter.println(message)
         val downloader = new ScalafmtDynamicDownloader(progressListener)
         downloader.download(version)
           .left.map(f => ScalafmtDynamicError.CannotDownload(f.version, Some(f.cause)))

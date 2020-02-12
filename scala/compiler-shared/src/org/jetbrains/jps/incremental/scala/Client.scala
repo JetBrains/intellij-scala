@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala
 import java.io.File
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client.ClientMsg
 
 /**
  * TODO: add documentation with method contracts, currently there are too many methods with vague meaning
@@ -11,15 +12,31 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
  */
 trait Client {
 
-  def message(kind: Kind, text: String, source: Option[File] = None, line: Option[Long] = None, column: Option[Long] = None)
+  def message(msg: ClientMsg): Unit
 
-  def error(text: String, source: Option[File] = None, line: Option[Long] = None, column: Option[Long] = None): Unit =
+  final def message(kind: Kind,
+              text: String,
+              source: Option[File] = None,
+              line: Option[Long] = None,
+              column: Option[Long] = None): Unit =
+    message(ClientMsg(kind, text, source, line, column))
+
+  final def error(text: String,
+                  source: Option[File] = None,
+                  line: Option[Long] = None,
+                  column: Option[Long] = None): Unit =
     message(Kind.ERROR, text, source, line, column)
 
-  def warning(text: String, source: Option[File] = None, line: Option[Long] = None, column: Option[Long] = None): Unit =
+  final def warning(text: String,
+                    source: Option[File] = None,
+                    line: Option[Long] = None,
+                    column: Option[Long] = None): Unit =
     message(Kind.WARNING, text, source, line, column)
 
-  def info(text: String, source: Option[File] = None, line: Option[Long] = None, column: Option[Long] = None): Unit =
+  final def info(text: String,
+                 source: Option[File] = None,
+                 line: Option[Long] = None,
+                 column: Option[Long] = None): Unit =
     message(Kind.INFO, text, source, line, column)
 
   def trace(exception: Throwable)
@@ -33,9 +50,9 @@ trait Client {
   def deleted(module: File)
 
   def isCanceled: Boolean
-  
+
   def worksheetOutput(text: String): Unit = {}
-  
+
   def compilationEnd(): Unit = {}
 
   def processingEnd(): Unit = {}
@@ -44,3 +61,11 @@ trait Client {
   def sourceStarted(source: String): Unit = {}
 }
 
+object Client {
+
+  final case class ClientMsg(kind: Kind,
+                             text: String,
+                             source: Option[File],
+                             line: Option[Long],
+                             column: Option[Long])
+}

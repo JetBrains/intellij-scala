@@ -19,12 +19,12 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  */
 object Block {
 
-  def parse(builder: ScalaPsiBuilder) {
+  def parse(builder: ScalaPsiBuilder): Unit = {
     if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
       var hasSemicolon = false
       var rollbackMarker = builder.mark()
 
-      def updateSemicolon() {
+      def updateSemicolon(): Unit = {
         builder.getTokenType match {
           case ScalaTokenTypes.tSEMICOLON =>
             hasSemicolon = true

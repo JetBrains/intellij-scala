@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDirectory
 import org.jetbrains.plugins.scala.actions.LazyFileTemplateAction
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction._
 
 /**
  * @author Ksenia.Sautina
@@ -16,13 +17,14 @@ import org.jetbrains.plugins.scala.project._
  */
 final class NewScalaWorksheetAction extends LazyFileTemplateAction("Scala Worksheet", WorksheetFileType.getIcon) {
 
-  import NewScalaWorksheetAction._
-
-  override def getAttributesDefaults(dataContext: DataContext): AttributesDefaults =
-    (CommonDataKeys.PSI_ELEMENT.getData(dataContext) match {
+  override def getAttributesDefaults(dataContext: DataContext): AttributesDefaults = {
+    val element = CommonDataKeys.PSI_ELEMENT.getData(dataContext)
+    val attributes = element match {
       case directory: PsiDirectory => suggestIndex(directory.getVirtualFile).headOption
-      case _ => None
-    }).orNull
+      case _                       => None
+    }
+    attributes.orNull
+  }
 
   override def update(event: AnActionEvent): Unit = {
     super.update(event)

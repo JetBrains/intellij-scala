@@ -14,45 +14,49 @@ import sbt.internal.inc.CompileFailed
 class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) extends Client with AutoCloseable {
 
   private val eventGenerator = new AsynchEventGenerator(writeEvent)
-  import eventGenerator.listener
+
+  private def publishEvent(event: Event): Unit =
+    eventGenerator.listener(event)
 
   override def close(): Unit =
     eventGenerator.complete(20, TimeUnit.MINUTES)
 
   override def isCanceled: Boolean = canceled
 
-  override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit =
-    listener(MessageEvent(kind, text, source, line, column))
+  override def message(msg: Client.ClientMsg): Unit = {
+    val Client.ClientMsg(kind, text, source, line, column) = msg
+    publishEvent(MessageEvent(kind, text, source, line, column))
+  }
 
-  override def trace(exception: Throwable) {
+  override def trace(exception: Throwable): Unit = {
     val message = exception match {
       case cf: CompileFailed => cf.toString // CompileFailed always has null message
       case _ => exception.getMessage
     }
-    listener(TraceEvent(exception.getClass.getName, message, exception.getStackTrace))
+    publishEvent(TraceEvent(exception.getClass.getName, message, exception.getStackTrace))
   }
 
   override def progress(text: String, done: Option[Float]): Unit =
-    listener(ProgressEvent(text, done))
+    publishEvent(ProgressEvent(text, done))
 
   override def debug(text: String): Unit =
-    listener(DebugEvent(text))
+    publishEvent(DebugEvent(text))
 
   override def generated(source: File, module: File, name: String): Unit =
-    listener(GeneratedEvent(source, module, name))
+    publishEvent(GeneratedEvent(source, module, name))
 
   override def deleted(module: File): Unit =
-    listener(DeletedEvent(module))
+    publishEvent(DeletedEvent(module))
 
   override def compilationEnd(): Unit =
-    listener(CompilationEndEvent())
+    publishEvent(CompilationEndEvent())
 
   override def processingEnd(): Unit =
-    listener(ProcessingEndEvent())
+    publishEvent(ProcessingEndEvent())
 
   override def worksheetOutput(text: String): Unit =
-    listener(WorksheetOutputEvent(text))
+    publishEvent(WorksheetOutputEvent(text))
 
   override def sourceStarted(source: String): Unit =
-    listener(CompilationStartedInSbt(source))
+    publishEvent(CompilationStartedInSbt(source))
 }

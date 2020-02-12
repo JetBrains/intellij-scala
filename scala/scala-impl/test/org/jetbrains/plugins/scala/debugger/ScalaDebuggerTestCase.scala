@@ -172,7 +172,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
   }
 
   private def setupBreakpoints() {
-    invokeAndWaitInTransaction(getProject) {
+    invokeAndWaitInTransaction {
       breakpoints.foreach {
         case (fileName, line, ordinal) =>
           val ioFile = new File(srcDir, fileName)
@@ -188,7 +188,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
   }
 
   protected def setupLibraryBreakpoint(classQName: String, methodName: String, relativeLineNumber: Int = 1) {
-    invokeAndWaitInTransaction(getProject) {
+    invokeAndWaitInTransaction {
       implicit val project: Project = getProject
       val psiClass = ScalaPsiManager.instance.getCachedClass(GlobalSearchScope.allScope(getProject), classQName)
       val method = psiClass.map(_.getNavigationElement.asInstanceOf[ScTypeDefinition]).flatMap(_.functions.find(_.name == methodName))

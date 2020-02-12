@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces;
 
+import org.jetbrains.annotations.NonNls;
+
 import java.io.PrintWriter;
 import java.nio.file.Path;
 
@@ -39,6 +41,7 @@ public interface ScalafmtReporter {
    * @param defaultVersion the configured default Scalafmt version.
    */
   default void missingVersion(Path config, String defaultVersion) {
+    @NonNls
     String message = String.format(
         "missing setting 'version'. To fix this problem, add the following line to .scalafmt.conf: 'version=%s'.",
         defaultVersion

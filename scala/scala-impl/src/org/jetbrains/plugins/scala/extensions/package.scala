@@ -32,6 +32,7 @@ import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -601,6 +602,8 @@ package object extensions {
     def findContextOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
       Option(getContextOfType(element, clazz))
 
+    def elementAt(offset: Int): Option[PsiElement] = Option(element.findElementAt(offset))
+
     def isAncestorOf(otherElement: PsiElement): Boolean = isAncestor(element, otherElement, true)
 
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
@@ -633,6 +636,17 @@ package object extensions {
     def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(element)
 
     def withNextSiblings: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
+
+    def prevElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.startOffset - 1))
+
+    def nextElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.endOffset))
+
+    def isWhitespace: Boolean = element.isInstanceOf[PsiWhiteSpace]
+
+    // TODO Scala 2.13: use Iterator.unfold to extract prevElements and nextElements methods
+    def prevElementNotWhitespace: Option[PsiElement] = element.prevElement.flatMap(e => if (e.isWhitespace) e.prevElement else Some(e))
+
+    def nextElementNotWhitespace: Option[PsiElement] = element.nextElement.flatMap(e => if (e.isWhitespace) e.nextElement else Some(e))
 
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)
 
@@ -1046,8 +1060,6 @@ package object extensions {
 
   implicit def toProcessor[T](action: T => Boolean): Processor[T] = (t: T) => action(t)
 
-  implicit def toRunnable(action: => Any): Runnable = () => action
-
   implicit def toComputable[T](action: => T): Computable[T] = () => action
 
   implicit def toCallable[T](action: => T): Callable[T] = () => action
@@ -1087,7 +1099,7 @@ package object extensions {
     )
 
   def executeUndoTransparentAction(body: => Any): Unit =
-    CommandProcessor.getInstance().runUndoTransparentAction(body)
+    CommandProcessor.getInstance().runUndoTransparentAction(() => body)
 
   def inWriteAction[T](body: => T): T = ApplicationManager.getApplication match {
     case application if application.isWriteAccessAllowed => body
@@ -1107,7 +1119,7 @@ package object extensions {
   def ifReadAllowed[T](body: => T)(default: => T): T = {
     try {
       val ref = Ref.create[T]
-      ProgressManager.getInstance().executeNonCancelableSection {
+      ProgressManager.getInstance().executeNonCancelableSection { () =>
         ref.set(ApplicationUtil.tryRunReadAction(body))
       }
       ref.get
@@ -1134,12 +1146,12 @@ package object extensions {
     }
   }
 
-  def withProgressSynchronouslyTry[T](title: String)(body: ProgressManager => T): Try[T] = {
+  def withProgressSynchronouslyTry[T](title: String, canBeCanceled: Boolean = false)(body: ProgressManager => T): Try[T] = {
     val manager = ProgressManager.getInstance
     catching(classOf[Exception]).withTry {
       manager.runProcessWithProgressSynchronously(new ThrowableComputable[T, Exception] {
         def compute: T = body(manager)
-      }, title, false, null)
+      }, title, canBeCanceled, null)
     }
   }
 
@@ -1160,7 +1172,9 @@ package object extensions {
     ApplicationManager.getApplication.invokeLater(() => body)
 
   def invokeLater[T](modalityState: ModalityState)(body: => T): Unit =
-    ApplicationManager.getApplication.invokeLater(() => body, modalityState)
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      override def run(): Unit = body
+    }, modalityState)
 
   def invokeAndWait[T](body: => T): T = {
     val result = new AtomicReference[T]()
@@ -1175,15 +1189,13 @@ package object extensions {
       ApplicationManager.getApplication.invokeAndWait(() => body, modalityState)
     }
 
-  def callbackInTransaction(disposable: Disposable)(body: => Unit): Runnable = {
-    TransactionGuard.getInstance().submitTransactionLater(disposable, body)
-  }
+  def invokeLaterInTransaction(disposable: Disposable)(body: => Unit): Unit =
+    TransactionGuard.getInstance().submitTransactionLater(disposable, () => body)
 
-  def invokeAndWaitInTransaction(disposable: Disposable)(body: => Unit): Unit = {
-    TransactionGuard.getInstance().submitTransactionAndWait(disposable, body)
-  }
+  def invokeAndWaitInTransaction(body: => Unit): Unit =
+    TransactionGuard.getInstance().submitTransactionAndWait(() => body)
 
-  private def preservingControlFlow(body: => Unit) {
+  private def preservingControlFlow(body: => Unit): Unit =
     try {
       body
     } catch {
@@ -1192,7 +1204,6 @@ package object extensions {
         case _ => throw e
       }
     }
-  }
 
   /** Create a PartialFunction from a sequence of cases. Workaround for pattern matcher bug */
   def pf[A, B](cases: PartialFunction[A, B]*): PartialFunction[A, B] = new PartialFunction[A, B] {
@@ -1367,7 +1378,7 @@ package object extensions {
 
   implicit final class LoggerExt(private val logger: Logger) extends AnyVal {
 
-    def debugSafe(message: => String): Unit =
+    def debugSafe(@NonNls message: => String): Unit =
       if (logger.isDebugEnabled) {
         logger.debug(message)
       }

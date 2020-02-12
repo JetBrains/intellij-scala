@@ -72,7 +72,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   }
 
   protected def configureFromFileText(fileText: String, fileType: String): PsiFile = {
-    val file = getFixture.configureByText(fileType, normalize(fileText))
+    val file = getFixture.configureByText("Test." + fileType, normalize(fileText))
     assertNotNull(file)
     file
   }

@@ -46,7 +46,7 @@ class WorksheetCompiler(
   private val worksheetVirtual = worksheetFile.getVirtualFile
 
   private def createCompilerTask: CompilerTask =
-    new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
+    new CompilerTask(project, ScalaBundle.message("worksheet.compilation", worksheetFile.getName), false, false, false, false)
 
   private def createWorksheetPrinter: WorksheetEditorPrinter =
     runType.createPrinter(editor, worksheetFile)

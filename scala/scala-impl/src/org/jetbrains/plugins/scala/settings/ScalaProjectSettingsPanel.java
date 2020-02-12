@@ -43,6 +43,10 @@ import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDepende
  * User: Alexander Podkhalyuzin
  * Date: 30.07.2008
  */
+// TODO: cleanup
+//  1) split this panel into multiple per-tab
+//  2) worksheet slider indicator SCL-16341
+//  3) use bundles SCL-16963
 @SuppressWarnings(value = "unchecked")
 public class ScalaProjectSettingsPanel {
 

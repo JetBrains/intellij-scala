@@ -17,7 +17,7 @@ case class Version(presentation: String) extends Ordered[Version] {
   private val essentialGroups: Seq[Group] =
     groups.reverse.dropWhile(_.isNotEssential).reverse
 
-  def compare(other: Version): Int = {
+  override def compare(other: Version): Int = {
     val emptyGroup = Group(Seq.empty, VersionStatus.DEFAULT)
     val (groups1, groups2) = essentialGroups.zipAll(other.essentialGroups, emptyGroup, emptyGroup).unzip
 

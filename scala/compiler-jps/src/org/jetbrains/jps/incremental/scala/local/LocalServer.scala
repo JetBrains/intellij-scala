@@ -6,9 +6,9 @@ import java.util.ServiceLoader
 
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
-import org.jetbrains.jps.incremental.scala.data._
-import xsbti.compile.AnalysisStore
+import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, SbtData}
 import sbt.internal.inc.FileAnalysisStore
+import xsbti.compile.AnalysisStore
 
 import scala.collection.JavaConverters._
 
@@ -16,10 +16,16 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class LocalServer extends Server {
+
+  import LocalServer._
+
   private var cachedCompilerFactory: Option[CompilerFactory] = None
   private val lock = new Object()
 
-  def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
+  override def compile(sbtData: SbtData,
+              compilerData: CompilerData,
+              compilationData: CompilationData,
+              client: Client): ExitCode = {
     val compiler = try lock.synchronized {
       val compilerFactory = compilerFactoryFrom(sbtData, compilerData)
 
@@ -42,9 +48,9 @@ class LocalServer extends Server {
   private def compilerFactoryFrom(sbtData: SbtData, compilerData: CompilerData): CompilerFactory = cachedCompilerFactory.getOrElse {
     val cf = ServiceLoader.load(classOf[CompilerFactoryService])
     val registeredCompilerFactories = cf.iterator().asScala.toList
-    LocalServer.Log.info(s"Registered factories of ${classOf[CompilerFactoryService].getName}: $registeredCompilerFactories")
+    Log.info(s"Registered factories of ${classOf[CompilerFactoryService].getName}: $registeredCompilerFactories")
     val firstEnabledCompilerFactory = registeredCompilerFactories.find(_.isEnabled(compilerData))
-    LocalServer.Log.info(s"First enabled factory (if any): $firstEnabledCompilerFactory")
+    Log.info(s"First enabled factory (if any): $firstEnabledCompilerFactory")
     val factory = new CachingFactory(firstEnabledCompilerFactory.map(_.get(sbtData)).getOrElse(new CompilerFactoryImpl(sbtData)), 10, 600, 10)
     cachedCompilerFactory = Some(factory)
     factory

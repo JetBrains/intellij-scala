@@ -39,7 +39,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     }
   }
 
-  def checkExpressionType(element: ScExpression, typeAware: Boolean)
+  def checkExpressionType(element: ScExpression, typeAware: Boolean, fromFunctionLiteral: Boolean = false)
                          (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
@@ -60,9 +60,9 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     // TODO rename (it's not about size, but about inner / outer expressions)
     def isTooBigToHighlight(expr: ScExpression): Boolean = expr match {
       case _: ScMatch                                => true
-      case bl: ScBlock if bl.lastStatement.isDefined => true
+      case bl: ScBlock if bl.lastStatement.isDefined => !fromFunctionLiteral
       case i: ScIf if i.elseExpression.isDefined     => true
-      case _: ScFunctionExpr                         => expr.getTextRange.getLength > 20 || expr.textContains('\n')
+      case _: ScFunctionExpr                         => !fromFunctionLiteral && (expr.getTextRange.getLength > 20 || expr.textContains('\n'))
       case _: ScTry                                  => true
       case _                                         => false
     }
@@ -88,7 +88,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
 
       registerUsedImports(element, importUsed)
 
-      if (isTooBigToHighlight(element) || isInArgumentPosition(element) || shouldNotHighlight(element)) return
+      if (isTooBigToHighlight(element) || (!fromFunctionLiteral && isInArgumentPosition(element)) || shouldNotHighlight(element)) return
 
       element.expectedTypeEx(fromUnderscore) match {
         case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
@@ -115,7 +115,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
               if (ScMethodType.hasMethodType(element)) {
                 return
               }
-              if (shouldIgnoreTypeMismatchIn(element)) {
+              if (shouldIgnoreTypeMismatchIn(element, fromFunctionLiteral)) {
                 return
               }
               val annotation = {

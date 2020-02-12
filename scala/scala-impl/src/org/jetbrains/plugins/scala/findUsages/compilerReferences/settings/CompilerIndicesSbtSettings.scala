@@ -9,7 +9,8 @@ import scala.beans.BeanProperty
 
 @State(
   name     = "CompilerIndicesSbtSettings",
-  storages = Array(new Storage("compiler_indices_sbt.xml"))
+  storages = Array(new Storage("compiler_indices_sbt.xml")),
+  reportStatistic = true
 )
 class CompilerIndicesSbtSettings extends PersistentStateComponent[CompilerIndicesSbtSettings] {
   @BeanProperty var useManualConfiguration: Boolean = false

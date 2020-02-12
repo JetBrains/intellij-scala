@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
+
   override def preprocessOnCopy(file: PsiFile,
                                 startOffsets: Array[Int],
                                 endOffsets: Array[Int],

@@ -41,7 +41,7 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INST
 
 object InitialScalaBuilder {
 
-  import model.IncrementalityType
+  import org.jetbrains.plugins.scala.compiler.IncrementalityType
 
   import JavaConverters._
 
