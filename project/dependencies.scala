@@ -26,13 +26,12 @@ object Versions {
 
     // ATTENTION: When changing any of these versions,
     // they currently need to be updated in org.jetbrains.plugins.scala.debugger.ScalaVersion
-    // TODO: update all versions
     val latest_2_9 = "2.9.3"
     val latest_2_10 = "2.10.7"
     val latest_2_11 = "2.11.12"
-    val latest_2_12 = "2.12.8"
-    val latest_2_13 = "2.13.0-M4"
-    val latest_3_0 = "0.15.0-RC1"
+    val latest_2_12 = "2.12.10"
+    val latest_2_13 = "2.13.1"
+    val latest_3_0 = "0.21.0-RC1"
     val latest: String = latest_2_12
     /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
     val project = "2.12.7"
