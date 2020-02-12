@@ -14,7 +14,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.util.DocumentUtil
+import com.intellij.util.{DocumentUtil, Processor}
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
@@ -125,14 +125,14 @@ object ScalaUnusedImportPass {
   private def containsErrorsPreventingOptimize(file: PsiFile): Boolean =
     PsiDocumentManager.getInstance(file.getProject).getDocument(file) match {
       case null => true
-      case document =>
+      case document: Document =>
         !DaemonCodeAnalyzerEx.processHighlights(
           document,
           file.getProject,
           HighlightSeverity.ERROR,
           0,
           document.getTextLength,
-          (_: HighlightInfo) => false //todo: only unresolved ref issues?
+          ((_: HighlightInfo) => false) : Processor[_ >: HighlightInfo] //todo: only unresolved ref issues?
         )
 
     }
