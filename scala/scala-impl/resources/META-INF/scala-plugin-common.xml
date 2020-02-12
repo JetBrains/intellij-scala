@@ -486,6 +486,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
 
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
@@ -1398,6 +1399,7 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.CompileServerManager$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache$Startup"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper$Startup"/>
 
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
@@ -1443,9 +1445,6 @@
     </projectListeners>
 
     <project-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper</implementation-class>
-        </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager</implementation-class>
             <loadForDefaultProject/>
