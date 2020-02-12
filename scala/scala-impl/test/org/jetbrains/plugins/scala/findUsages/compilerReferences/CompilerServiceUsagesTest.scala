@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.ShouldBeSearchedInBytecode
-import org.junit.Assert._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
+import org.junit.Assert._
 
 
 class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
@@ -35,8 +35,6 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
       targetFile._1 -> file.getVirtualFile
     }
 
-//    com.intellij.compiler.server.BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
-//    com.intellij.openapi.util.registry.Registry.get("compiler.process.debug.port").setValue(5006)
     buildProject()
     val service = ScalaCompilerReferenceService(getProject)
     val usages  = indicesQuery(service, target).map(_.unwrap)

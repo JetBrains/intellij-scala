@@ -6,11 +6,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.{Disposer, ModificationTracker}
 import com.intellij.psi.search.{ScopeOptimizer, SearchScope}
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
@@ -30,8 +30,6 @@ import scala.collection.JavaConverters._
 
 final private[findUsages] class ScalaCompilerReferenceService(project: Project) extends ModificationTracker {
   import ScalaCompilerReferenceService._
-
-  initializeReferenceService()
 
   private[this] val compilationCount = new LongAdder
   private[this] val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
@@ -193,7 +191,7 @@ final private[findUsages] class ScalaCompilerReferenceService(project: Project) 
       initializedReferenceService
     }
 
-  private lazy val initializedReferenceService = {
+  private lazy val initializedReferenceService: Unit = {
     inTransaction { _ =>
       currentCompilerMode = CompilerMode.forProject(project)
 
@@ -262,6 +260,8 @@ final private[findUsages] class ScalaCompilerReferenceService(project: Project) 
 
   def invalidateIndex(): Unit                    = onIndexCorruption()
   def getDirtyScopeHolder: ScalaDirtyScopeHolder = dirtyScopeHolder
+
+  initializeReferenceService()
 }
 
 object ScalaCompilerReferenceService {
@@ -272,7 +272,13 @@ object ScalaCompilerReferenceService {
   private[compilerReferences] type CompilerIndicesState = (CompilerMode, CompilerIndicesEventPublisher)
 
   def apply(project: Project): ScalaCompilerReferenceService =
-    project.getComponent(classOf[ScalaCompilerReferenceService])
+    project.getService(classOf[ScalaCompilerReferenceService])
+
+  class Startup extends ProjectManagerListener with StartupActivity {
+    // ensure service is initialized with project
+    override def runActivity(project: Project): Unit =
+      ScalaCompilerReferenceService(project)
+  }
 }
 
 class ScalaCompilerReferenceScopeOptimizer extends ScopeOptimizer {
