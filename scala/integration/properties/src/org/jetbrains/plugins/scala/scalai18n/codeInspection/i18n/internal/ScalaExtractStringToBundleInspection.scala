@@ -20,13 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScLit
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.UntranslatedStringInspection._
+import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaExtractStringToBundleInspection._
 import org.jetbrains.plugins.scala.util.internal.I18nStringBundle
 import org.jetbrains.plugins.scala.util.internal.I18nStringBundle.{BundleInfo, BundleUsageInfo, Entry}
 
 import scala.util.matching.Regex
 
-class UntranslatedStringInspection extends AbstractRegisteredInspection {
+class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection {
 
   override protected def problemDescriptor(element: PsiElement,
                                            maybeQuickFix: Option[LocalQuickFix] = None,
@@ -41,7 +41,7 @@ class UntranslatedStringInspection extends AbstractRegisteredInspection {
   }
 }
 
-object UntranslatedStringInspection {
+object ScalaExtractStringToBundleInspection {
   val x = "blub"
   val test = s"test${x}x$x"
 
