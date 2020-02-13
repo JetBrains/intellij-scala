@@ -20,7 +20,7 @@ class ScalaBundleSortingTest extends TestCase with AssertionMatchers {
 
     val keyToFinding = findings.groupBy(_.key)
 
-    val usedEntries = entries.filterNot(_.path == unusedCategoryPath)
+    val usedEntries = entries.filterNot(_.path == unusedPath)
 
     //val undefinedFindings = findings.map(_.key).filterNot(keyToEntry.contains)
     //assert(undefinedFindings.isEmpty, s"Undefined keys(${undefinedFindings.size}): " + undefinedFindings.mkString(", "))

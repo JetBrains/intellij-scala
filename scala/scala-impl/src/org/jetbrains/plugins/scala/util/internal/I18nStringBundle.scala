@@ -49,14 +49,14 @@ case class I18nStringBundle(entries: Seq[Entry]) {
 }
 
 object I18nStringBundle {
-  val noCategoryPath = "<no-category>"
-  val unusedCategoryPath = "<unused>"
+  val noPath = "<no-path>"
+  val unusedPath = "<unused>"
 
   implicit val entryOrdering: Ordering[Entry] =
     Ordering.by((entry: Entry) => entry.isUnused -> entry.path)
 
   case class Entry(key: String, text: String, path: String, comments: String = "") {
-    def isUnused: Boolean = path == unusedCategoryPath
+    def isUnused: Boolean = path == unusedPath
   }
 
   def readBundle(bundlepath: String): I18nStringBundle = {
@@ -67,17 +67,17 @@ object I18nStringBundle {
     }
 
     var comments = ""
-    var path = noCategoryPath
+    var path = noPath
     val result = Seq.newBuilder[Entry]
 
     var i = 0
     while (lines.indices contains i) {
       val line = lines(i)
       line match {
-        case NewCategoryLines(cat) =>
+        case PathHeader(newPath) =>
           if (comments != "")
             throw new Exception(s"Comment might get lost: '$comments'")
-          path = cat
+          path = newPath
 
         case _ if line.startsWith("#") =>
           comments += line + "\n"
@@ -98,12 +98,12 @@ object I18nStringBundle {
     new I18nStringBundle(result.result())
   }
 
-  private object NewCategoryLines {
+  private object PathHeader {
     val prefix = "### "
     def unapply(line: String): Option[String] = {
-      val isNewCategory = line.startsWith(prefix) &&
-        (line.contains('.') && line.contains('/') || line.contains(unusedCategoryPath))
-      isNewCategory.option(line.substring(prefix.length))
+      val isNewPath = line.startsWith(prefix) &&
+        (line.contains('.') && line.contains('/') || line.contains(unusedPath))
+      isNewPath.option(line.substring(prefix.length))
     }
   }
 

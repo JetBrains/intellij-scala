@@ -44,13 +44,13 @@ object ScalaBundleSorting {
     val entriesWithPath =
       entries.map {
         case entry if entry.isUnused || isEntryInInvalidPath(entry) =>
-          val newCat = keyToFinding
+          val newPath = keyToFinding
             .get(entry.key)
             .map(_.maxBy(f => keyToAmountOfEntries(f.key)))
-            .fold(unusedCategoryPath)(_.relativeFilepath)
-          if (entry.path != newCat)
+            .fold(unusedPath)(_.relativeFilepath)
+          if (entry.path != newPath)
             changed += 1
-          entry.copy(path = newCat)
+          entry.copy(path = newPath)
         case entry =>
           entry
       }
