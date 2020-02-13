@@ -24,7 +24,9 @@ import org.jetbrains.bsp.{BspErrorMessage, BspTaskCancelled}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam, upgradedSbtVersion}
 import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectImportProvider}
 
@@ -213,12 +215,20 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     )
     val sbtCommands = "bloopInstall"
 
+    val projectSbtVersion = Version(detectSbtVersion(baseDir, getDefaultLauncher))
+    val sbtVersion = upgradedSbtVersion(projectSbtVersion)
+    val upgradeParam =
+      if (sbtVersion > projectSbtVersion)
+        List(sbtVersionParam(sbtVersion))
+      else List.empty
+
+    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome) ++ upgradeParam
+
     try {
       val dumper = new SbtStructureDump()
       importState = PreImportTask(dumper)
       dumper.runSbt(
-        baseDir, jdkExe,
-        SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome),
+        baseDir, jdkExe, vmArgs,
         Map.empty, sbtLauncher, sbtCommandArgs, sbtCommands,
         reporter,
         "creating Bloop configuration from sbt",
