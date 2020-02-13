@@ -35,16 +35,13 @@ class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection 
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
     Option(element) collect {
       case element@TopmostStringParts(parts) if containsNaturalLangString(parts) && !shouldBeIgnored(element, parts) =>
-        val quickFixes = Array[LocalQuickFix](new MoveToBundleQuickFix(element))
+        val quickFixes = Array[LocalQuickFix](new MoveToBundleQuickFix(element)) ++ maybeQuickFix
         manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, quickFixes, highlightType)
     }
   }
 }
 
 object ScalaExtractStringToBundleInspection {
-  val x = "blub"
-  val test = s"test${x}x$x"
-
   private def containsNaturalLangString(parts: Seq[StringPart]): Boolean =
     parts.exists {
       case Text(s) => isNaturalLangString(s)
@@ -88,7 +85,7 @@ object ScalaExtractStringToBundleInspection {
     }
   }
 
-  private class MoveToBundleQuickFix(_element: ScExpression) extends AbstractFixOnPsiElement("Quickfix on ", _element) {
+  private class MoveToBundleQuickFix(_element: ScExpression) extends AbstractFixOnPsiElement("Extract to bundle", _element) {
     override protected def doApplyFix(element: ScExpression)(implicit project: Project): Unit = {
       val parts = element match {
         case TopmostStringParts(parts) => parts
@@ -96,7 +93,7 @@ object ScalaExtractStringToBundleInspection {
       }
 
       val showErrorDialog = Messages.showErrorDialog(project, _: String, _: String)
-      val BundleUsageInfo(elementPath, srcRoot, resourceRoot, maybeBundlePath) =
+      val BundleUsageInfo(elementPath, srcRoot, _, maybeBundlePath) =
         I18nStringBundle
           .findBundlePathFor(element)
           .getOrElse {
@@ -116,22 +113,25 @@ object ScalaExtractStringToBundleInspection {
 
       val bundle = I18nStringBundle.readBundle(bundlePropertyPath)
       val path = elementPath.substring(srcRoot.length)
-      val (keyBase, text, arguments) = toKeyAndTextAndArgs(parts)
-      val keyCandidates = keyBase +: Stream.from(1).map(keyBase + _)
-      val key = keyCandidates.filter(!bundle.hasKey(_)).head
+      val (key, text, arguments) = toKeyAndTextAndArgs(parts)
       val newEntry = Entry(key, text, path)
 
       // mark bundle file for undo
       val fileUrl = VirtualFileManager.constructUrl(URLUtil.FILE_PROTOCOL, bundlePropertyPath)
-      val vfile  = VirtualFileManager.getInstance().findFileByUrl(fileUrl)
+      val vfile = VirtualFileManager.getInstance().findFileByUrl(fileUrl)
       if (vfile == null) {
         throw new Exception(s"Failed to open bundle file at $bundlePropertyPath")
       }
 
       val outputStream = vfile.getOutputStream(this)
-      bundle
+      try bundle
         .withEntry(newEntry)
         .writeTo(outputStream)
+      finally outputStream.close()
+      // TODO: make undo working
+      //val document = FileDocumentManager.getInstance().getDocument(vfile)
+      //CommandProcessor.getInstance().addAffectedDocuments(project, document);
+      //PsiDocumentManager.getInstance(project).commitDocument(document)
 
 
       // add import
@@ -140,10 +140,10 @@ object ScalaExtractStringToBundleInspection {
           .getOrElse(element.getContainingFile.asInstanceOf[ScImportsHolder])
       importsHolder.addImportForPath(bundleQualifiedClassName)
 
+      // replace string with message call
       val argString =
         if (arguments.isEmpty) ""
         else arguments.mkString(", ", ", ", "")
-      // replace string with message call
       _element.replace(ScalaPsiElementFactory.createExpressionFromText(
         s"""$bundleClassName.message("$key"$argString)"""
       ))
@@ -180,7 +180,11 @@ object ScalaExtractStringToBundleInspection {
       }
       val (keyParts, textParts, arguments) = bindings.unzip3
       val key = convertStringToKey(keyParts.mkString("."))
-      val text = textParts.mkString.replaceAll("\n", "\\\n")
+      val text = {
+        val text = textParts.mkString
+        if (text.length > 100) text.replace("\n", "\\\n")
+        else text.replace("\n", "\\n")
+      }
 
       (key, text, arguments.flatten)
     }

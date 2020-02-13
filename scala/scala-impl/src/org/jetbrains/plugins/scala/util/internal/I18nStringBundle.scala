@@ -18,7 +18,7 @@ case class I18nStringBundle(entries: Seq[Entry]) {
     copy(entries = entries.sorted)
 
   def withEntry(entry: Entry): I18nStringBundle = {
-    val (before, after) = entries.partition(entryOrdering.lteq(entry, _))
+    val (before, after) = entries.partition(entryOrdering.lteq(_, entry))
     I18nStringBundle(before ++ Seq(entry) ++ after)
   }
 
@@ -40,7 +40,7 @@ case class I18nStringBundle(entries: Seq[Entry]) {
           println()
         }
         path = entry.path
-        println("### " + path)
+        println(PathHeader.prefix + path)
       }
       print(entry.comments)
       println(entry.key + "=" + entry.text)
