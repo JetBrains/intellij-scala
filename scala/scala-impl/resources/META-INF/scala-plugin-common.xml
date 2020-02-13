@@ -116,13 +116,7 @@
         <projectConfigurable id="Bytecode Indices" parentId="Scala Compiler"
                              instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesConfigurable"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtSettings"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ApplicationCodeStyleSettingsMigrationService"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor"/>
 
-        <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
         <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
         <fileType name="Scala" language="Scala" extensions="scala"
@@ -461,41 +455,44 @@
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.KindProjectorUtil"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.BetterMonadicForSupport"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
-        <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerErrorsListener$State"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationService"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterService"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerService"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.BetterMonadicForSupport"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.KindProjectorUtil"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
+        <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
+        <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
+                        serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
 
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ApplicationCodeStyleSettingsMigrationService"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor"/>
 
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable"/>
@@ -1406,7 +1403,6 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager$Startup"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService$Startup"/>
 

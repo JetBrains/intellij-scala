@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.bundled
 
-import javax.swing.event.TableModelListener
-import javax.swing.table.TableModel
 import java.util
 
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent
+import javax.swing.event.TableModelListener
+import javax.swing.table.TableModel
 
 import scala.collection.mutable
 
@@ -13,29 +11,25 @@ import scala.collection.mutable
   * User: Dmitry.Naydanov
   * Date: 06.10.16.
   */
-class BundledInspectionsUiTableModel(pathToInspections: util.Map[String, util.ArrayList[String]], 
-                                     disabledIds: util.Set[String], project: Project) extends TableModel {
+class BundledInspectionsUiTableModel(pathToInspections: util.Map[String, util.ArrayList[String]], disabledIds: util.Set[String]) extends TableModel {
   private val rows = {
     val result = mutable.ArrayBuffer[(java.lang.Boolean, String, String, String)]()
 
-    val idsToNames: Map[String, String] = Option(BundledCodeStoreComponent.getInstance(project)) match {
-      case Some(sc) => sc.getLoadedInspections.map(i => (i.getId, i.getName)).toMap
-      case _ => Map.empty
-    }
+    val idsToNames: Map[String, String] = Map.empty
     val it = pathToInspections.entrySet().iterator()
-    
+
     while (it.hasNext) {
       val entry = it.next()
       val jarName = entry.getKey
       val il = entry.getValue.iterator()
-      
+
       while (il.hasNext) {
         val insName = il.next()
-        
-        result.+=((new java.lang.Boolean(!disabledIds.contains(insName)), idsToNames.getOrElse(insName, "No name"), insName, jarName))
+
+        result.+=((java.lang.Boolean.valueOf(!disabledIds.contains(insName)), idsToNames.getOrElse(insName, "No name"), insName, jarName))
       }
     }
-    
+
     result.toArray
   }
   

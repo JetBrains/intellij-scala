@@ -24,7 +24,7 @@ import java.util.*;
     },
     reportStatistic = true
 )
-public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
+public class ScalaProjectSettings implements PersistentStateComponent<ScalaProjectSettings> {
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
   private String[] BASE_PACKAGES = new String[0];
@@ -47,7 +47,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
   private boolean DISABLE_LANGUAGE_INJECTION = false;
-  private boolean DISABLE_I18N = false;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean AOT_COMPLETION = true;
   private boolean PROJECT_VIEW_HIGHLIGHTING = false;
@@ -81,21 +80,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean BREADCRUMBS_VAL_DEF_ENABLED = false;
   private boolean BREADCRUMBS_IF_DO_WHILE_ENABLED = false;
 
-  //MIGRATORS AND BUNDLED INSPECTIONS
-  private boolean BUNDLED_MIGRATORS_SEARCH_ENABLED = false;
-  private boolean BUNDLED_INSPECTIONS_SEARCH_ENABLED = false;
-  private Set<String> BUNDLED_INSPECTION_IDS_DISABLED = new HashSet<String>();
-  private Map<String, ArrayList<String>> BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
-
   // LIBRARY EXTENSIONS
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
-  private boolean LEXT_SHOW_ALL_PROJECTS = false;
 
   //INDEXING
-  public enum Ivy2IndexingMode {Disabled, Metadata, Classes};
+  public enum Ivy2IndexingMode {Disabled, Metadata, Classes}
   private Ivy2IndexingMode IVY2_INDEXING_MODE = Ivy2IndexingMode.Metadata;
 
-  private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
+  private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<>();
 
   {
     INTERPOLATED_INJECTION_MAPPING.put("sql", "SQL");
@@ -126,7 +118,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     return this;
   }
 
-  public void loadState(ScalaProjectSettings scalaProjectSettings) {
+  public void loadState(@NotNull ScalaProjectSettings scalaProjectSettings) {
     XmlSerializerUtil.copyBean(scalaProjectSettings, this);
   }
 
@@ -330,7 +322,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   }
 
   public List<String> getBasePackages() {
-    return new ArrayList<String>(Arrays.asList(BASE_PACKAGES));
+    return new ArrayList<>(Arrays.asList(BASE_PACKAGES));
   }
 
   public String getScalaTestDefaultSuperClass() {
@@ -341,6 +333,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     SCALATEST_DEFAULT_SUPERCLASS = superClassName;
   }
 
+  @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
   public void setBasePackages(List<String> packages) {
     BASE_PACKAGES = packages.toArray(new String[packages.size()]);
   }
@@ -397,7 +390,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     Stats.trigger(FeatureKey.scFileModeSet(mode.name()));
     SC_FILE_MODE = mode;
   }
-  
+
   public void setBreadcrumbsClassEnabled(boolean enabled) {
     BREADCRUMBS_CLASS_ENABLED = enabled;
   }
@@ -446,41 +439,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     return BREADCRUMBS_IF_DO_WHILE_ENABLED;
   }
 
-  public boolean isBundledMigratorsSearchEnabled() {
-    return BUNDLED_MIGRATORS_SEARCH_ENABLED;
-  }
-
-  public boolean isBundledInspectionsSearchEnabled() {
-    return BUNDLED_INSPECTIONS_SEARCH_ENABLED;
-  }
-
-  public Set<String> getBundledInspectionIdsDisabled() {
-    return BUNDLED_INSPECTION_IDS_DISABLED;
-  }
-
-  public Map<String, ArrayList<String>> getBundledLibJarsPathsToInspections() {
-    return BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS;
-  }
-
-  public void setBundledMigratorsSearchEnabled(boolean enabled) {
-    BUNDLED_MIGRATORS_SEARCH_ENABLED = enabled;
-  }
-
-  public void setBundledInspectionsSearchEnabled(boolean enabled) {
-    BUNDLED_INSPECTIONS_SEARCH_ENABLED = enabled;
-  }
-
-  public void setBundledInspectionsIdsDisabled(Set<String> disabled) {
-    BUNDLED_INSPECTION_IDS_DISABLED = disabled;
-  }
-
-  public void setBundledLibJarsPathsToInspections(Map<String, ? extends List<String>> pathToInspections) {
-    BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
-    for (Map.Entry<String, ? extends List<String>> entry : pathToInspections.entrySet()) {
-      BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
-    }
-  }
-
   public boolean isGenerateToStringWithPropertiesNames() {
     return GENERATE_TOSTRING_WITH_FIELD_NAMES;
   }
@@ -505,15 +463,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     this.ENABLE_LIBRARY_EXTENSIONS = ENABLE_LIBRARY_EXTENSIONS;
   }
 
-  public boolean isLextShowAllProjects() {
-    return LEXT_SHOW_ALL_PROJECTS;
-  }
-
-  public void setLextShowAllProjects(boolean LEXT_SHOW_ALL_PROJECTS) {
-    this.LEXT_SHOW_ALL_PROJECTS = LEXT_SHOW_ALL_PROJECTS;
-  }
-
-    public ScalaMetaMode getScalaMetaMode() {
+  public ScalaMetaMode getScalaMetaMode() {
     return scalaMetaMode;
   }
 

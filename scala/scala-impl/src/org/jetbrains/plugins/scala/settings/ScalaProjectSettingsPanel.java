@@ -14,7 +14,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.TitledSeparator;
-import com.intellij.ui.table.JBTable;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -83,9 +82,6 @@ public class ScalaProjectSettingsPanel {
     private JSlider autoRunDelaySlider;
     private JCheckBox customScalatestSyntaxHighlightingCheckbox;
     private JPanel librariesPanel;
-    private JCheckBox migratorsEnabledCheckBox;
-    private JCheckBox jarBundledInspectionsEnabledCheckBox;
-    private JBTable disabledInspectionsTable;
     private JButton updateNowButton;
     private JCheckBox addOverrideToImplementCheckBox;
     private JCheckBox myProjectViewHighlighting;
@@ -222,11 +218,6 @@ public class ScalaProjectSettingsPanel {
         }
         scalaProjectSettings.setGroupPackageObjectWithPackage(myGroupPackageObjectWithPackage.isSelected());
 
-        scalaProjectSettings.setBundledMigratorsSearchEnabled(migratorsEnabledCheckBox.isSelected());
-        scalaProjectSettings.setBundledInspectionsSearchEnabled(jarBundledInspectionsEnabledCheckBox.isSelected());
-        scalaProjectSettings.setBundledInspectionsIdsDisabled(
-                ((BundledInspectionsUiTableModel) disabledInspectionsTable.getModel()).getDisabledIdsWithPreservedOrder()
-        );
         scalaProjectSettings.setScalaMetaMode((ScalaProjectSettings.ScalaMetaMode) scalaMetaMode.getModel().getSelectedItem());
         scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
 
@@ -337,15 +328,6 @@ public class ScalaProjectSettingsPanel {
             if (setting.isModified(scalaProjectSettings)) return true;
         }
 
-        if (scalaProjectSettings.isBundledMigratorsSearchEnabled() != migratorsEnabledCheckBox.isSelected())
-            return true;
-        if (scalaProjectSettings.isBundledInspectionsSearchEnabled() != jarBundledInspectionsEnabledCheckBox.isSelected())
-            return true;
-
-        if (!scalaProjectSettings.getBundledInspectionIdsDisabled().equals(
-                ((BundledInspectionsUiTableModel) disabledInspectionsTable.getModel()).getDisabledIdsWithPreservedOrder()))
-            return true;
-
         if (!scalaProjectSettings.getScalaMetaMode().equals(scalaMetaMode.getModel().getSelectedItem())) return true;
         if (scalaProjectSettings.isMetaTrimMethodBodies() != metaTrimBodies.isSelected()) return true;
 
@@ -426,12 +408,6 @@ public class ScalaProjectSettingsPanel {
 
         setValue(myProjectViewHighlighting, scalaProjectSettings.isProjectViewHighlighting());
         setValue(myGroupPackageObjectWithPackage, scalaProjectSettings.isGroupPackageObjectWithPackage());
-
-        setValue(migratorsEnabledCheckBox, scalaProjectSettings.isBundledMigratorsSearchEnabled());
-        setValue(jarBundledInspectionsEnabledCheckBox, scalaProjectSettings.isBundledInspectionsSearchEnabled());
-        disabledInspectionsTable.setModel(new BundledInspectionsUiTableModel(
-                scalaProjectSettings.getBundledLibJarsPathsToInspections(),
-                scalaProjectSettings.getBundledInspectionIdsDisabled(), myProject));
 
         scTypeSelectionCombobox.setSelectedItem(scalaProjectSettings.getScFileMode());
         trailingCommasComboBox.setSelectedItem(scalaProjectSettings.getTrailingCommasMode());
@@ -733,24 +709,6 @@ public class ScalaProjectSettingsPanel {
         librariesPanel = new JPanel();
         librariesPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel10.add(librariesPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
-        final JPanel panel11 = new JPanel();
-        panel11.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
-        tabbedPane.addTab("Migrators", panel11);
-        migratorsEnabledCheckBox = new JCheckBox();
-        migratorsEnabledCheckBox.setText("Migrators enabled");
-        panel11.add(migratorsEnabledCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer11 = new Spacer();
-        panel11.add(spacer11, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final Spacer spacer12 = new Spacer();
-        panel11.add(spacer12, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        jarBundledInspectionsEnabledCheckBox = new JCheckBox();
-        jarBundledInspectionsEnabledCheckBox.setText("Jar bundled inspections enabled");
-        panel11.add(jarBundledInspectionsEnabledCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JScrollPane scrollPane2 = new JScrollPane();
-        panel11.add(scrollPane2, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        disabledInspectionsTable = new JBTable();
-        disabledInspectionsTable.setGridColor(new Color(-16777216));
-        scrollPane2.setViewportView(disabledInspectionsTable);
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
