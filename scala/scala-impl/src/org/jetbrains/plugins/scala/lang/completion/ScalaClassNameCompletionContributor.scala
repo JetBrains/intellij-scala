@@ -2,19 +2,17 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion._
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi._
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, PrefixPackageToImport, TypeAliasToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getContextOfType
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tMULTILINE_STRING, tSTRING}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{fileContext, getCompanionModule, getContextOfType}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
@@ -25,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticCla
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
@@ -54,8 +52,8 @@ class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
                                   context: ProcessingContext,
                                   result: CompletionResultSet): Unit =
         parameters.getPosition.getNode.getElementType match {
-          case ScalaTokenTypes.tSTRING |
-               ScalaTokenTypes.tMULTILINE_STRING => completeClassName(result)(parameters, context)
+          case `tSTRING` | `tMULTILINE_STRING` =>
+            completeClassName(result)(parameters, context)
           case _ =>
         }
     }
@@ -77,17 +75,19 @@ object ScalaClassNameCompletionContributor {
                                            (implicit parameters: CompletionParameters,
                                             context: ProcessingContext): Boolean = {
     val (position, inString) = dummyPosition.getNode.getElementType match {
-      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
-        val position = dummyPosition
+      case `tSTRING` | `tMULTILINE_STRING` =>
         //It's ok here to use parameters.getPosition
         val offsetInString = parameters.getOffset - parameters.getPosition.getTextRange.getStartOffset + 1
-        val interpolated =
-          ScalaPsiElementFactory.createExpressionFromText("s" + position.getText, position.getContext.getContext)
+        val interpolated = ScalaPsiElementFactory.createExpressionFromText(
+          "s" + dummyPosition.getText,
+          dummyPosition.getContext.getContext
+        )
         (interpolated.findElementAt(offsetInString), true)
       case _ => (dummyPosition, false)
     }
+
     val invocationCount = parameters.getInvocationCount
-    if (!inString && !ScalaPsiUtil.fileContext(position).isInstanceOf[ScalaFile]) return true
+    if (!inString && !fileContext(position).isInstanceOf[ScalaFile]) return true
     val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(position)
     val isInImport = getContextOfType(position, false, classOf[ScImportStmt]) != null
     val stableRefElement = getContextOfType(position, false, classOf[ScStableCodeReference])
@@ -98,95 +98,104 @@ object ScalaClassNameCompletionContributor {
 
     implicit val project: Project = position.getProject
 
-    def addTypeForCompletion(toImport: ElementToImport): Unit = {
-      if (inReadAction(isExcluded(toImport))) return
-
-      val ElementToImport(element, name) = toImport
-
-      val isAccessible = invocationCount >= 2 || (element match {
-        case member: PsiMember => ResolveUtils.isAccessible(member, position, forCompletion = true)
-        case _ => true
-      })
-      if (!isAccessible) return
-
-      if (lookingForAnnotations && !toImport.isAnnotationType) return
-      element match {
-        case _: ScClass | _: ScTrait | _: ScTypeAlias if !isInImport && !onlyClasses => return
-        case _: ScObject if !isInImport && onlyClasses => return
-        case _ =>
+    def createLookupElement(element: PsiNamedElement): Some[ScalaLookupItem] = {
+      val renamed = renamesMap.get(element.name).collect {
+        case (`element`, s) => s
       }
 
-      val maybeLookup = (toImport, maybeExpectedTypes) match {
-        case (ClassToImport(clazz), Some(createLookups)) =>
-          Some(createLookups(clazz, renamesMap))
-        case _ =>
-          val renamed = renamesMap.get(name).collect {
-            case (`element`, s) => s
-          }
-
-          new ScalaResolveResult(element, renamed = renamed).getLookupElement(
-            isClassName = true,
-            isInImport = isInImport,
-            isInStableCodeReference = stableRefElement != null,
-            isInSimpleString = inString
-          )
-      }
-
-      maybeLookup.foreach(result.addElement)
+      new ScalaResolveResult(element, renamed = renamed).getLookupElement(
+        isClassName = true,
+        isInImport = isInImport,
+        isInStableCodeReference = stableRefElement != null,
+        isInSimpleString = inString
+      ).asInstanceOf[Some[ScalaLookupItem]]
     }
+
+    def isApplicable(clazz: PsiClass) = (clazz match {
+      case _: ScClass |
+           _: ScTrait => isInImport || onlyClasses
+      case _: ScObject => isInImport || !onlyClasses
+      case _ => true
+    }) && (!lookingForAnnotations || clazz.isAnnotationType)
+
+    def createLookupElementForClass(clazz: PsiClass): Option[ScalaLookupItem] =
+      if (isValidAndAccessible(clazz, invocationCount)(position) &&
+        isApplicable(clazz) &&
+        !isExcluded(clazz)) {
+        maybeExpectedTypes match {
+          case Some(createLookups) => Some(createLookups(clazz, renamesMap))
+          case _ => createLookupElement(clazz)
+        }
+      } else {
+        None
+      }
+
+    def isValidAlias(alias: ScTypeAlias): Boolean =
+      isValidAndAccessible(alias, invocationCount)(position) &&
+        !Option(alias.containingClass).exists(isExcluded) &&
+        (isInImport || onlyClasses)
+
+    import collection.JavaConverters._
 
     val QualNameToType = StdTypes.instance.QualNameToType
-    for {
-      clazz <- SyntheticClasses.get(project).all.valuesIterator
+    val syntheticLookupElements = for {
+      clazz <- SyntheticClasses.get(project).all.values
       if !QualNameToType.contains(clazz.qualifiedName)
-    } addTypeForCompletion(ClassToImport(clazz))
+
+      lookupElement <- createLookupElementForClass(clazz)
+    } yield lookupElement
+
+    result.addAllElements(syntheticLookupElements.asJava)
 
     val prefixMatcher = result.getPrefixMatcher
-    AllClassesGetter.processJavaClasses(if (lookingForAnnotations) parameters.withInvocationCount(2) else parameters,
-      prefixMatcher, parameters.getInvocationCount <= 1, new Consumer[PsiClass] {
-        def consume(psiClass: PsiClass) {
-          //todo: filter according to position
-          if (psiClass.isInstanceOf[PsiClassWrapper]) return
-          ScalaPsiUtil.getCompanionModule(psiClass).foreach(clazz => addTypeForCompletion(ClassToImport(clazz)))
-          addTypeForCompletion(ClassToImport(psiClass))
+    AllClassesGetter.processJavaClasses(
+      if (lookingForAnnotations) parameters.withInvocationCount(2) else parameters,
+      prefixMatcher,
+      invocationCount <= 1,
+      new Consumer[PsiClass] {
+        override def consume(clazz: PsiClass): Unit = clazz match {
+          case _: PsiClassWrapper =>
+          case _ =>
+            //todo: filter according to position
+            val classes = clazz :: getCompanionModule(clazz).toList
+            classes.flatMap(createLookupElementForClass).foreach(result.addElement)
         }
-      })
-
-    val manager = ScalaPsiManager.instance
-    for {
-      name <- manager.getStableTypeAliasesNames
-      if prefixMatcher.prefixMatches(name)
-      alias <- manager.getStableAliasesByName(name, position.resolveScope)
-    } {
-      addTypeForCompletion(TypeAliasToImport(alias))
-    }
-
-    for {
-      (elem, name) <- renamesMap.values
-      if prefixMatcher.prefixMatches(name)
-      if !prefixMatcher.prefixMatches(elem.name)
-    } {
-      elem match {
-        case clazz: PsiClass => addTypeForCompletion(ClassToImport(clazz))
-        case ta: ScTypeAlias => addTypeForCompletion(TypeAliasToImport(ta))
-        case _ =>
       }
+    )
+
+    if (!lookingForAnnotations) {
+      val manager = ScalaPsiManager.instance
+      val lookupElements = for {
+        name <- manager.getStableTypeAliasesNames
+        if prefixMatcher.prefixMatches(name)
+
+        alias <- manager.getStableAliasesByName(name, position.resolveScope)
+        if isValidAlias(alias)
+      } yield createLookupElement(alias).get
+
+      result.addAllElements(lookupElements.asJava)
     }
+
+    val lookupElements = for {
+      (element, name) <- renamesMap.values
+      if prefixMatcher.prefixMatches(name)
+      if !prefixMatcher.prefixMatches(element.name)
+
+      lookupItem <- element match {
+        case clazz: PsiClass => createLookupElementForClass(clazz)
+        case alias: ScTypeAlias if !lookingForAnnotations && isValidAlias(alias) => createLookupElement(alias)
+        case _ => None
+      }
+    } yield lookupItem
+
+    result.addAllElements(lookupElements.asJava)
 
     if (inString) result.stopHere()
     false
   }
 
-  private[this] def isExcluded(`type`: ElementToImport)
-                              (implicit project: Project): Boolean = `type` match {
-    case ClassToImport(classToImport) =>
-      JavaCompletionUtil.isInExcludedPackage(classToImport, false)
-    case TypeAliasToImport(alias) =>
-      alias.containingClass match {
-        case null => false
-        case containingClass => JavaCompletionUtil.isInExcludedPackage(containingClass, false)
-      }
-    case PrefixPackageToImport(pack) =>
-      JavaProjectCodeInsightSettings.getSettings(project).isExcluded(pack.getQualifiedName)
-  }
+  private[this] def isValidAndAccessible(member: PsiMember,
+                                         invocationCount: Int)
+                                        (implicit place: PsiElement): Boolean =
+    member.isValid && isAccessible(member, invocationCount)
 }
