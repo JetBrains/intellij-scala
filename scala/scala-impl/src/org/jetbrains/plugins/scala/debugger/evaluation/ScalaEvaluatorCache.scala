@@ -7,7 +7,6 @@ import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.debugger.{DebuggerManagerEx, SourcePosition}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupActivity
 import com.intellij.psi.{PsiElement, PsiFile}
 
 import scala.collection.mutable
@@ -78,8 +77,4 @@ class ScalaEvaluatorCache(project: Project) extends Disposable {
 object ScalaEvaluatorCache {
   def getInstance(project: Project): ScalaEvaluatorCache =
     project.getService(classOf[ScalaEvaluatorCache])
-
-  private final class Startup extends StartupActivity {
-    override def runActivity(project: Project): Unit = ScalaEvaluatorCache.getInstance(project)
-  }
 }

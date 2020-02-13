@@ -4,7 +4,6 @@ import java.io._
 import java.util.Properties
 import java.util.jar.JarFile
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -52,7 +51,8 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
     }
   }
 
-  private def hasIndexModeChanged = Ivy2IndexingMode.valueOf(mode).compareTo(ScalaProjectSettings.getInstance(project.project).getIvy2IndexingMode) < 0
+  private def hasIndexModeChanged = Ivy2IndexingMode.valueOf(mode)
+    .compareTo(ScalaProjectSettings.getInstance(project.project).getIvy2IndexingMode) < 0
 
   private def withStorageCheck[T](f: => Set[T]): Set[T] = {
     try     { f }

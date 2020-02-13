@@ -9,7 +9,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
@@ -101,10 +100,6 @@ class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with Eval
 object ScalaEvaluatorCompileHelper {
   def instance(project: Project): ScalaEvaluatorCompileHelper =
     project.getService(classOf[ScalaEvaluatorCompileHelper])
-
-  private final class Startup extends StartupActivity {
-    override def runActivity(project: Project): Unit = instance(project)
-  }
 }
 
 

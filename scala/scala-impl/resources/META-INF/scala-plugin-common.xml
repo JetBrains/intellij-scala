@@ -6,8 +6,7 @@
         <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker"/>
         <extensionPoint name="scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier"/>
         <extensionPoint name="scalaUiWithDependency" interface="org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency"/>
-        <extensionPoint name="scalaLanguageDerivative"
-                        interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative"/>
+        <extensionPoint name="scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative" />
         <extensionPoint name="memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension"/>
         <extensionPoint name="scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor"/>
         <extensionPoint name="scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer"/>
@@ -1401,10 +1400,6 @@
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService$Startup"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.CompileServerManager$Startup"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache$Startup"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper$Startup"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService$Startup"/>
 

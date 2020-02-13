@@ -11,7 +11,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
@@ -32,13 +31,16 @@ final class CompileServerManager(project: Project) extends Disposable {
   private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
   private val timer = new Timer(1000, TimerListener)
+  private var installed = false
 
-  private def init() {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
 
-    configureWidget()
-    timer.setRepeats(true)
-    timer.start()
+  { // init
+    if (! ApplicationManager.getApplication.isUnitTestMode) {
+
+      configureWidget()
+      timer.setRepeats(true)
+      timer.start()
+    }
   }
 
   override def dispose(): Unit = {
@@ -54,7 +56,6 @@ final class CompileServerManager(project: Project) extends Disposable {
 
   private def running: Boolean = launcher.running
 
-  private var installed = false
 
   private def launcher = CompileServerLauncher
 
@@ -179,11 +180,5 @@ object CompileServerManager {
   def enableCompileServer(project: Project): Unit = {
     val settings = ScalaCompileServerSettings.getInstance()
     settings.COMPILE_SERVER_ENABLED = true
-  }
-
-  private final class Startup extends StartupActivity {
-    override def runActivity(project: Project): Unit = {
-      project.getService(classOf[CompileServerManager]).init()
-    }
   }
 }

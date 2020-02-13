@@ -13,7 +13,6 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable, LibraryTablesRegistrar}
-import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.util.lang.UrlClassLoader
@@ -45,6 +44,15 @@ final class LibraryExtensionsManager(project: Project) {
   private val myExtensionInstances  = mutable.HashMap[Class[_], mutable.ArrayBuffer[Any]]()
   private val myLoadedLibraries     = mutable.ArrayBuffer[ExtensionJarData]()
 
+  { // init
+    ApplicationManager.getApplication.getMessageBus
+      .syncPublisher(Notifications.TOPIC)
+      .register(PopupHelper.GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
+    if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions)
+      loadCachedExtensions()
+    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(LibraryListener, project)
+  }
+
   private object XMLNoDTD extends XMLLoader[Elem] {
     override def parser: SAXParser = {
       val f = javax.xml.parsers.SAXParserFactory.newInstance()
@@ -73,15 +81,6 @@ final class LibraryExtensionsManager(project: Project) {
           accessed.set(false)
         }
     }
-  }
-
-  private def init(): Unit = {
-    ApplicationManager.getApplication.getMessageBus
-      .syncPublisher(Notifications.TOPIC)
-      .register(PopupHelper.GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
-    if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions)
-      loadCachedExtensions()
-    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(LibraryListener, project)
   }
 
   def setEnabled(value: Boolean): Unit = {
@@ -236,11 +235,6 @@ object LibraryExtensionsManager {
     private var modCount = 0L
     def incModCount(): Unit = modCount += 1
     override def getModificationCount: Long = modCount
-  }
-
-  private final class Startup extends StartupActivity {
-    override def runActivity(project: Project): Unit =
-      getInstance(project).init()
   }
 
   implicit class LibraryDescriptorExt(private val ld: LibraryDescriptor) extends AnyVal {
