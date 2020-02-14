@@ -6,14 +6,13 @@ package impl
 import java.util
 import java.util.concurrent.ConcurrentMap
 
-import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener, ProjectUtil}
+import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiModificationTrackerImpl, PsiTreeChangeEventImpl}
+import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiModificationTrackerImpl}
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.{ArrayUtil, ObjectUtils}
@@ -22,7 +21,6 @@ import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
@@ -39,14 +37,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithoutModificationCount, ValueWrapper}
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
@@ -318,13 +315,15 @@ class ScalaPsiManager(implicit val project: Project) {
     clearCacheOnRootsChange.foreach(_.clear())
   }
 
+  private val psiChangeListener = ScalaPsiChangeListener(clearOnPsiElementChange, clearOnPsiPropertyChange)
+
   private[impl] def projectOpened(): Unit = {
     project.subscribeToModuleRootChanged() { _ =>
       LOG.debug("Clear caches on root change")
       clearOnRootsChange()
     }
     registerLowMemoryWatcher(project)
-    PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
+    PsiManager.getInstance(project).addPsiTreeChangeListener(psiChangeListener, project)
   }
 
   private val syntheticPackages = ContainerUtil.createConcurrentWeakValueMap[String, AnyRef]()
@@ -367,8 +366,33 @@ class ScalaPsiManager(implicit val project: Project) {
 
     override def incModificationCount(): Unit = {
       psiModTracker.incCounter() //update javaStructureModCount on top-level scala change
+      clearOnTopLevelChange()
       super.incModificationCount()
     }
+  }
+
+  private def clearOnPsiElementChange(psiElement: PsiElement): Unit = {
+    clearOnChange()
+
+    if (psiElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
+      @tailrec
+      def updateModificationCount(element: PsiElement): Unit = element match {
+        case null => TopLevelModificationTracker.incModificationCount()
+        case _: ScalaCodeFragment | _: PsiComment => // do not update on changes in dummy file or comments
+        case owner: ScExpression if BlockModificationTracker.hasStableType(owner) =>
+          BlockModificationTracker.incrementLocalCounter(owner)
+        case _ => updateModificationCount(element.getContext)
+      }
+
+      updateModificationCount(psiElement)
+    } else {
+      NonScalaModificationTracker.incModificationCount()
+    }
+  }
+
+  private def clearOnPsiPropertyChange(): Unit = {
+    clearOnChange()
+    NonScalaModificationTracker.incModificationCount()
   }
 
   val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)
@@ -403,85 +427,6 @@ class ScalaPsiManager(implicit val project: Project) {
   object TermNodesCache   extends SignatureCaches(TermNodes)
   object StableNodesCache extends SignatureCaches(StableNodes)
   object TypeNodesCache   extends SignatureCaches(TypeNodes)
-
-  object CacheInvalidator extends PsiTreeChangeAdapter {
-    @volatile
-    private var topLevelModCount: Long = 0L
-
-    private def fromIdeaInternalFile(event: PsiTreeChangeEvent) = {
-      val virtFile = event.getFile match {
-        case null => event.getOldValue.asOptionOf[VirtualFile]
-        case file =>
-          val fileType = file.getFileType
-          if (fileType == ScalaFileType.INSTANCE || fileType == JavaFileType.INSTANCE) None
-          else Option(file.getVirtualFile)
-      }
-      virtFile.exists(ProjectUtil.isProjectOrWorkspaceFile)
-    }
-
-    private def shouldClear(event: PsiTreeChangeEvent): Boolean = {
-      event match {
-        case impl: PsiTreeChangeEventImpl if impl.isGenericChange => false
-        case _ if fromIdeaInternalFile(event)                     => false
-        case _                                                    => true
-      }
-    }
-
-    private def onPsiChange(event: PsiTreeChangeEvent, psiElement: PsiElement): Unit = {
-      if (!shouldClear(event)) return
-
-      LOG.debug(s"Clear caches on psi change: $event")
-
-      if (psiElement != null && psiElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
-        @tailrec
-        def updateModificationCount(element: PsiElement): Unit = element match {
-          case null => TopLevelModificationTracker.incModificationCount()
-          case _: ScalaCodeFragment | _: PsiComment => // do not update on changes in dummy file or comments
-          case owner: ScExpression if BlockModificationTracker.hasStableType(owner) =>
-            BlockModificationTracker.incrementLocalCounter(owner)
-          case _ => updateModificationCount(element.getContext)
-        }
-
-        updateModificationCount(psiElement)
-      } else {
-        NonScalaModificationTracker.incModificationCount()
-      }
-
-      TopLevelModificationTracker.getModificationCount match {
-        case count if topLevelModCount == count =>
-          clearOnChange()
-        case count =>
-          topLevelModCount = count
-          clearOnTopLevelChange()
-      }
-    }
-
-    override def childRemoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getParent)
-
-    override def childReplaced(event: PsiTreeChangeEvent): Unit = {
-      val parent = event.getParent
-
-      // Ignore changed literals as long as the type is preserved
-      if (!parent.module.exists(_.literalTypesEnabled) && parent.is[ScLiteral] && !parent.is[ScInterpolatedStringLiteral]) {
-        return
-      }
-
-      val changedElement =
-        if (event.getNewChild.getClass == event.getOldChild.getClass)
-          event.getNewChild
-        else parent
-
-      onPsiChange(event, changedElement)
-    }
-
-    override def childAdded(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getChild)
-
-    override def childrenChanged(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getParent)
-
-    override def childMoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getChild)
-
-    override def propertyChanged(event: PsiTreeChangeEvent): Unit = onPsiChange(event, null)
-  }
 
   def clearAllCaches(): Unit = invokeLater {
     doClearAllCaches()
