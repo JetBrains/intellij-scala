@@ -1,25 +1,24 @@
 package org.jetbrains.plugins.scala.settings;
 
-/**
- * @author Ksenia.Sautina
- * @since 4/24/12
- */
-
 import com.intellij.codeInsight.folding.CodeFoldingSettings;
 import com.intellij.codeInsight.folding.JavaCodeFoldingSettings;
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-
 @State(
         name = "ScalaCodeFoldingSettings",
-        storages = {@Storage("scala_folding_settings.xml")},
+        storages = {
+                @Storage("editor.xml"),
+                @Storage(value = "scala_folding_settings.xml", deprecated = true)
+        },
         reportStatistic = true
 )
-public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaCodeFoldingSettings>, ExportableComponent {
+public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaCodeFoldingSettings> {
+
   private boolean FOLD_ARGUMENT_BLOCK = false;
   private boolean FOLD_TEMPLATE_BODIES = false;
   private boolean FOLD_SHELL_COMMENTS = true;
@@ -39,18 +38,8 @@ public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaC
     return this;
   }
 
-  public void loadState(ScalaCodeFoldingSettings scalaCodeFoldingSettings) {
+  public void loadState(@NotNull ScalaCodeFoldingSettings scalaCodeFoldingSettings) {
     XmlSerializerUtil.copyBean(scalaCodeFoldingSettings, this);
-  }
-
-  @NotNull
-  public File[] getExportFiles() {
-    return new File[]{PathManager.getOptionsFile("scala_folding_settings")};
-  }
-
-  @NotNull
-  public String getPresentableName() {
-    return "Code Folding Settings";
   }
 
   public boolean isCollapseFileHeaders() {
