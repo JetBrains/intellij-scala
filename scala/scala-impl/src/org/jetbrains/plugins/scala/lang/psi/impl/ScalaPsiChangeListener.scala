@@ -1,20 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.project.ProjectUtil
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.impl.PsiTreeChangeEventImpl
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiComment, PsiElement, PsiTreeChangeAdapter, PsiTreeChangeEvent, PsiTreeChangeListener}
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.ScalaLanguage
 
 object ScalaPsiChangeListener {
-  def apply(onPsiChange: PsiElement => Unit,
-            onPropertyChange: () => Unit): PsiTreeChangeListener =
-    new DefaultScalaPsiChangeListener(onPsiChange, onPropertyChange)
 
+  def apply(onPsiChange: PsiElement => Unit,
+            onPropertyChange: () => Unit): PsiTreeChangeListener = {
+
+    new ScalaPsiChangeListenerImpl(onPsiChange, onPropertyChange, ScalaPsiEventFilter.defaultFilters)
+  }
 
   private sealed trait EventType
   private object EventType {
@@ -26,27 +21,20 @@ object ScalaPsiChangeListener {
   }
   import EventType._
 
-  private class DefaultScalaPsiChangeListener(onScalaPsiChange: PsiElement => Unit, onNonScalaChange: () => Unit)
+  private class ScalaPsiChangeListenerImpl(onScalaPsiChange: PsiElement => Unit,
+                                           onNonScalaChange: () => Unit,
+                                           filters: Seq[ScalaPsiEventFilter])
     extends PsiTreeChangeAdapter {
-
-    protected def shouldSkip(event: PsiTreeChangeEvent): Boolean = {
-      isGenericChange(event) || isFromIdeaInternalFile(event)
-    }
-
-    protected def shouldSkip(element: PsiElement): Boolean = {
-      // do not update on changes in dummy file or comments
-      PsiTreeUtil.getParentOfType(element, classOf[ScalaCodeFragment], classOf[PsiComment]) != null
-    }
 
     private def onPsiChangeEvent(event: PsiTreeChangeEvent,
                                  eventType: EventType): Unit = {
-      if (shouldSkip(event))
+      if (filters.exists(_.shouldSkip(event)))
         return
 
       val element = extractChangedPsi(event, eventType)
 
       if (element.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
-        if (!shouldSkip(element)) {
+        if (!filters.exists(_.shouldSkip(element))) {
           onScalaPsiChange(element)
         }
       }
@@ -66,24 +54,8 @@ object ScalaPsiChangeListener {
     override def propertyChanged(event: PsiTreeChangeEvent): Unit = onNonScalaChange()
   }
 
-  private def isFromIdeaInternalFile(event: PsiTreeChangeEvent) = {
-    val vFile = event.getFile match {
-      case null => event.getOldValue.asOptionOf[VirtualFile]
-      case file =>
-        val fileType = file.getFileType
-        if (fileType == ScalaFileType.INSTANCE || fileType == JavaFileType.INSTANCE) None
-        else Option(file.getVirtualFile)
-    }
-    vFile.exists(ProjectUtil.isProjectOrWorkspaceFile)
-  }
-
-  private def isGenericChange(event: PsiTreeChangeEvent) = event match {
-    case impl: PsiTreeChangeEventImpl => impl.isGenericChange
-    case _ => false
-  }
-
   private def extractChangedPsi(event: PsiTreeChangeEvent, eventType: EventType): PsiElement = eventType match {
-    case EventType.ChildRemoved    => event.getParent
+    case EventType.ChildRemoved    => event.getChild
     case EventType.ChildAdded      => event.getChild
     case EventType.ChildMoved      => event.getChild
     case EventType.ChildReplaced   => event.getNewChild
