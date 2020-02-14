@@ -375,7 +375,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   }
 
   private def addCommentFolds(comment: PsiComment, processedComments: mutable.Set[PsiElement],
-                              descriptors: java.util.List[FoldingDescriptor]) {
+                              descriptors: java.util.List[FoldingDescriptor]): Unit = {
     if (processedComments.contains(comment) || comment.getTokenType != ScalaTokenTypes.tLINE_COMMENT) {
       return
     }
