@@ -315,7 +315,7 @@ class ScalaPsiManager(implicit val project: Project) {
     clearCacheOnRootsChange.foreach(_.clear())
   }
 
-  private val psiChangeListener = ScalaPsiChangeListener(clearOnPsiElementChange, clearOnPsiPropertyChange)
+  private val psiChangeListener = ScalaPsiChangeListener(clearOnScalaElementChange, clearOnNonScalaChange)
 
   private[impl] def projectOpened(): Unit = {
     project.subscribeToModuleRootChanged() { _ =>
@@ -371,28 +371,22 @@ class ScalaPsiManager(implicit val project: Project) {
     }
   }
 
-  private def clearOnPsiElementChange(psiElement: PsiElement): Unit = {
+  private def clearOnScalaElementChange(psiElement: PsiElement): Unit = {
     clearOnChange()
-
-    if (psiElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
-      @tailrec
-      def updateModificationCount(element: PsiElement): Unit = element match {
-        case null => TopLevelModificationTracker.incModificationCount()
-        case _: ScalaCodeFragment | _: PsiComment => // do not update on changes in dummy file or comments
-        case owner: ScExpression if BlockModificationTracker.hasStableType(owner) =>
-          BlockModificationTracker.incrementLocalCounter(owner)
-        case _ => updateModificationCount(element.getContext)
-      }
-
-      updateModificationCount(psiElement)
-    } else {
-      NonScalaModificationTracker.incModificationCount()
-    }
+    updateScalaModificationCount(psiElement)
   }
 
-  private def clearOnPsiPropertyChange(): Unit = {
+  private def clearOnNonScalaChange(): Unit = {
     clearOnChange()
     NonScalaModificationTracker.incModificationCount()
+  }
+
+  @tailrec
+  private def updateScalaModificationCount(element: PsiElement): Unit = element match {
+    case null => TopLevelModificationTracker.incModificationCount()
+    case owner: ScExpression if BlockModificationTracker.hasStableType(owner) =>
+      BlockModificationTracker.incrementLocalCounter(owner)
+    case _ => updateScalaModificationCount(element.getContext)
   }
 
   val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)
