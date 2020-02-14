@@ -221,7 +221,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
     ScalaAnnotator.isAdvancedHighlightingEnabled(element)
 
   def checkBoundsVariance(toCheck: PsiElement, toHighlight: PsiElement, checkParentOf: PsiElement,
-                          upperV: Variance = Covariant, checkTypeDeclaredSameBracket: Boolean = true, insideParameterized: Boolean = false)
+                          upperV: Variance = Covariant, checkTypeDeclaredSameBracket: Boolean = true)
                          (implicit holder: ScalaAnnotationHolder): Unit = {
     toCheck match {
       case boundOwner: ScTypeBoundsOwner =>
@@ -231,9 +231,8 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
     }
     toCheck match {
       case paramOwner: ScTypeParametersOwner =>
-        val inParameterized = if (paramOwner.isInstanceOf[ScTemplateDefinition]) false else true
         for (param <- paramOwner.typeParameters) {
-          checkBoundsVariance(param, param.nameId, checkParentOf, -upperV, insideParameterized = inParameterized)
+          checkBoundsVariance(param, param.nameId, checkParentOf, -upperV)
         }
       case _ =>
     }
@@ -241,7 +240,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
     def checkAndHighlightBounds(boundOption: Option[ScTypeElement], expectedVariance: Variance) {
       boundOption match {
         case Some(bound) if !childHasAnnotation(Some(bound), "uncheckedVariance") =>
-          checkVariance(bound.calcType, expectedVariance, toHighlight, checkParentOf, checkTypeDeclaredSameBracket, insideParameterized)
+          checkVariance(bound.calcType, expectedVariance, toHighlight, checkParentOf, checkTypeDeclaredSameBracket)
         case _ =>
       }
     }
@@ -337,19 +336,35 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   }
 
   //fix for SCL-807
-  private def checkVariance(typeParam: ScType, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement, checkIfTypeIsInSameBrackets: Boolean = false, insideParameterized: Boolean = false)
-                           (implicit holder: ScalaAnnotationHolder) = {
+  private def checkVariance(typeParam: ScType,
+                            variance: Variance,
+                            toHighlight: PsiElement,
+                            checkParentOf: PsiElement,
+                            checkIfTypeIsInSameBrackets: Boolean = false)
+                           (implicit holder: ScalaAnnotationHolder): ScType = {
 
-    def highlightVarianceError(elementV: Variance, positionV: Variance, name: String) = {
+    def highlightVarianceError(elementV: Variance, positionV: Variance, name: String): Unit = {
       if (positionV != elementV && elementV != Invariant) {
+        val typePName = typeParam.toString
         val pos =
           if (toHighlight.isInstanceOf[ScVariable]) toHighlight.getText + "_="
           else toHighlight.getText
-        val place = if (toHighlight.isInstanceOf[ScFunction]) "method" else "value"
+        val isMethod = toHighlight.isInstanceOf[ScFunction] // "method" else "value"
         val elementVariance = elementV.name
         val posVariance = positionV.name
-        val annotation = holder.createErrorAnnotation(toHighlight,
-          ScalaBundle.message(s"$elementVariance.type.$posVariance.position.of.$place", name, typeParam.toString, pos))
+
+        val message = (elementVariance, posVariance, isMethod) match {
+          case ("covariant", "invariant", true)      => ScalaBundle.message("covariant.type.invariant.position.of.method", name, typePName, pos)
+          case ("covariant", "invariant", false)     => ScalaBundle.message("covariant.type.invariant.position.of.value", name, typePName, pos)
+          case ("covariant", "contravariant", true)  => ScalaBundle.message("covariant.type.contravariant.position.of.method", name, typePName, pos)
+          case ("covariant", "contravariant", false) => ScalaBundle.message("covariant.type.contravariant.position.of.value", name, typePName, pos)
+          case ("contravariant", "invariant", true)  => ScalaBundle.message("contravariant.type.invariant.position.of.method", name, typePName, pos)
+          case ("contravariant", "invariant", false) => ScalaBundle.message("contravariant.type.invariant.position.of.value", name, typePName, pos)
+          case ("contravariant", "covariant", true)  => ScalaBundle.message("contravariant.type.covariant.position.of.method", name, typePName, pos)
+          case ("contravariant", "covariant", false) => ScalaBundle.message("contravariant.type.covariant.position.of.value", name, typePName, pos)
+        }
+
+        val annotation = holder.createErrorAnnotation(toHighlight, message)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
       }
     }

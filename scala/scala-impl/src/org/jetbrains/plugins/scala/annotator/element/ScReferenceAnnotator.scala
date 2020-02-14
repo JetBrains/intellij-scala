@@ -379,11 +379,11 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     
     if (typeAware && resolve.length != 1 && !(refElement.containingScalaFile.exists(_.isMultipleDeclarationsAllowed) && isTopLevelResolve)) {
       val parent = refElement.getParent
-      def addCreateApplyOrUnapplyFix(messageKey: String, fix: ScTypeDefinition => IntentionAction): Boolean = {
+      def addCreateApplyOrUnapplyFix(errorWithRefName: String => String, fix: ScTypeDefinition => IntentionAction): Boolean = {
         val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)
         if (refWithoutArgs != null && refWithoutArgs.multiResolveScala(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
           // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
-          val error = ScalaBundle.message(messageKey, refElement.refName)
+          val error = errorWithRefName(refElement.refName)
           val annotation = holder.createErrorAnnotation(refElement.nameId, error)
           annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
           annotation.registerFix(ReportHighlightingErrorQuickFix)
@@ -404,11 +404,14 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case _: ScMethodCall if resolve.length > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
           holder.createErrorAnnotation(refElement.nameId, error)
-        case mc: ScMethodCall if addCreateApplyOrUnapplyFix("cannot.resolve.apply.method", td => new CreateApplyQuickFix(td, mc)) =>
+        case mc: ScMethodCall if addCreateApplyOrUnapplyFix(
+                                   ScalaBundle.message("cannot.resolve.apply.method", _),
+                                   td => new CreateApplyQuickFix(td, mc)
+                                 ) =>
           return
         case (p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern) =>
-          val messageKey = "cannot.resolve.unapply.method"
-          if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateUnapplyQuickFix(td, p))) return
+          val errorWithRefName: String => String = ScalaBundle.message("cannot.resolve.unapply.method", _)
+          if (addCreateApplyOrUnapplyFix(errorWithRefName, td => new CreateUnapplyQuickFix(td, p))) return
         case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490
         case _ =>
           val error = ScalaBundle.message("cannot.resolve", refElement.refName)

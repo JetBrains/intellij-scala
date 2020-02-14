@@ -25,6 +25,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType, isAncestor}
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -61,7 +62,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 object ScalaRefactoringUtil {
-  def trimSpacesAndComments(editor: Editor, file: PsiFile, trimComments: Boolean = true) {
+  def trimSpacesAndComments(editor: Editor, file: PsiFile, trimComments: Boolean = true): Unit = {
     var start = editor.getSelectionModel.getSelectionStart
     var end = editor.getSelectionModel.getSelectionEnd
     if (start == end) return
@@ -294,7 +295,7 @@ object ScalaRefactoringUtil {
   def getOccurrenceRanges(expression: ScExpression, enclosingContainer: PsiElement): Seq[TextRange] = {
     val element = unparExpr(expression)
 
-    def collectOccurrencesInLiteral(literal: ScLiteral, text: String, result: ArrayBuffer[TextRange]) {
+    def collectOccurrencesInLiteral(literal: ScLiteral, text: String, result: ArrayBuffer[TextRange]): Unit = {
       if (text.isEmpty) return
 
       val litStart = literal.getTextRange.getStartOffset
@@ -483,7 +484,7 @@ object ScalaRefactoringUtil {
                             onChosen: T => Unit,
                             title: String,
                             presentation: T => String,
-                            toHighlight: T => PsiElement) {
+                            toHighlight: T => PsiElement): Unit = {
     class Selection {
       val selectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
@@ -491,7 +492,7 @@ object ScalaRefactoringUtil {
       val textAttributes = new TextAttributes
       textAttributes.setForegroundColor(scheme.getColor(EditorColors.SELECTION_FOREGROUND_COLOR))
       textAttributes.setBackgroundColor(scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR))
-      var selectionHighlighter: RangeHighlighter = null
+      var selectionHighlighter: RangeHighlighter = _
       val markupModel = editor.getMarkupModel
 
       def addHighlighter(): Unit = if (selectionHighlighter == null) {
@@ -510,8 +511,8 @@ object ScalaRefactoringUtil {
     }
     val list = JListCompatibility.createJListFromModel(model)
     JListCompatibility.setCellRenderer(list, new DefaultListCellRendererAdapter {
-      def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
-                                              value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+      override def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
+                                                       value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
         val rendererComponent: Component = getSuperListCellRendererComponent(container.getList, value, index, isSelected, cellHasFocus)
         val element: T = value.asInstanceOf[T]
         val psi = toHighlight(element)
@@ -522,7 +523,7 @@ object ScalaRefactoringUtil {
       }
     })
     list.addListSelectionListener(new ListSelectionListener {
-      def valueChanged(e: ListSelectionEvent) {
+      def valueChanged(e: ListSelectionEvent): Unit = {
         highlighter.dropHighlight()
         val index: Int = list.getSelectedIndex
         if (index < 0) return
@@ -542,7 +543,7 @@ object ScalaRefactoringUtil {
         selection.addHighlighter()
       }
 
-      override def onClosed(event: LightweightWindowEvent) {
+      override def onClosed(event: LightweightWindowEvent): Unit = {
         highlighter.dropHighlight()
         selection.removeHighlighter()
       }
@@ -745,7 +746,7 @@ object ScalaRefactoringUtil {
   def afterExpressionChoosing(file: PsiFile,refactoringName: String)
                              (invokesNext: => Unit)
                              (implicit project: Project, editor: Editor): Unit =
-    invokeOnSelected("choose.expression.for", refactoringName)(invokesNext, (_: ScExpression) => invokesNext) {
+    invokeOnSelected(ScalaBundle.message("choose.expression.for", refactoringName))(invokesNext, (_: ScExpression) => invokesNext) {
       possibleExpressionsToExtract(file, editor.getCaretModel.getOffset).toArray
     }
 
@@ -769,15 +770,14 @@ object ScalaRefactoringUtil {
   def afterTypeElementChoosing(selectedElement: ScTypeElement, refactoringName: String)
                               (invokesNext: ScTypeElement => Unit)
                               (implicit project: Project, editor: Editor): Unit =
-    invokeOnSelected("choose.type.element.for", refactoringName)(invokesNext(selectedElement), invokesNext) {
+    invokeOnSelected(ScalaBundle.message("choose.type.element.for", refactoringName))(invokesNext(selectedElement), invokesNext) {
       getTypeElements(selectedElement).toArray
     }
 
-  private def invokeOnSelected[T <: ScalaPsiElement](messageKey: String,
-                                                           refactoringName: String)
-                                                          (default: => Unit, consumer: T => Unit)
-                                                          (elements: => Array[T])
-                                                          (implicit editor: Editor): Unit = {
+  private def invokeOnSelected[T <: ScalaPsiElement](@Nls message: String)
+                                                    (default: => Unit, consumer: T => Unit)
+                                                    (elements: => Array[T])
+                                                    (implicit editor: Editor): Unit = {
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
 
     if (selectionModel.hasSelection) default
@@ -794,7 +794,7 @@ object ScalaRefactoringUtil {
           selectionModel.selectLineAtCaret()
           default
         case Array(head) => onElement(head)
-        case array => showChooser(editor, array, onElement, ScalaBundle.message(messageKey, refactoringName), getShortText)
+        case array => showChooser(editor, array, onElement, message, getShortText)
       }
     }
   }
@@ -1071,7 +1071,7 @@ object ScalaRefactoringUtil {
   def checkForwardReferences(expr: ScExpression, position: PsiElement): Boolean = {
     var result = true
     val visitor = new ScalaRecursiveElementVisitor() {
-      override def visitReferenceExpression(ref: ScReferenceExpression) {
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
         ref.getParent match {
           case ScInfixExpr(_, `ref`, _) =>
           case ScPostfixExpr(_, `ref`) =>

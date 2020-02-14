@@ -12,9 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-sealed abstract class ScalaPrimaryConstructorMacro(nameKey: String) extends ScalaMacro {
-  override def getPresentableName: String = ScalaCodeInsightBundle.message(nameKey)
-
+sealed abstract class ScalaPrimaryConstructorMacro(override final val getPresentableName: String) extends ScalaMacro {
   protected def parametersText(parameters: ScParameters): Option[String]
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
@@ -42,7 +40,7 @@ sealed abstract class ScalaPrimaryConstructorMacro(nameKey: String) extends Scal
 
 
 object ScalaPrimaryConstructorMacro {
-  final class Params extends ScalaPrimaryConstructorMacro("macro.primaryConstructor.param.instances") {
+  final class Params extends ScalaPrimaryConstructorMacro(ScalaCodeInsightBundle.message("macro.primaryConstructor.param.instances")) {
     override protected def parametersText(parameters: ScParameters): Option[String] = {
       val clauses: Seq[ScParameterClause] = parameters.clauses
       if (clauses.nonEmpty) {
@@ -54,8 +52,8 @@ object ScalaPrimaryConstructorMacro {
     }
 
     private def clauseText(clause: ScParameterClause): String = {
-      val params: Seq[String] = clause.parameters.map { param: ScParameter =>
-        val name = param.getName
+      val params: Seq[String] = clause.parameters.map { (param: ScParameter) =>
+        val name = param.name
         val typ = param.paramType.map(_.getText).getOrElse("Any")
         s"$name: $typ"
       }
@@ -67,7 +65,7 @@ object ScalaPrimaryConstructorMacro {
     }
   }
 
-  final class ParamNames extends ScalaPrimaryConstructorMacro("macro.primaryConstructor.param.names") {
+  final class ParamNames extends ScalaPrimaryConstructorMacro(ScalaCodeInsightBundle.message("macro.primaryConstructor.param.names")) {
     override def calculateResult(expressions: Array[Expression], context: ExpressionContext): Result = {
       val argsVarResult: Option[TextResult] =
         expressions.headOption
@@ -75,7 +73,7 @@ object ScalaPrimaryConstructorMacro {
           .filterByType[TextResult]
 
       argsVarResult
-        .flatMap { args: TextResult =>
+        .flatMap { (args: TextResult) =>
           // ParamNames macro is calculated based on `ARGS` template variable value. User cans change it,
           // so we have to reparse the result in `parseParameterClause` method to extract new parameter names
           createScParametersFromText(s"(${args.toString})", context)
@@ -107,7 +105,7 @@ object ScalaPrimaryConstructorMacro {
     }
   }
 
-  final class ParamTypes extends ScalaPrimaryConstructorMacro("macro.primaryConstructor.param.types") {
+  final class ParamTypes extends ScalaPrimaryConstructorMacro(ScalaCodeInsightBundle.message("macro.primaryConstructor.param.types")) {
     override protected def parametersText(parameters: ScParameters): Option[String] = {
       val firstParamClause = parameters.clauses.headOption.map(_.parameters)
       firstParamClause.map { params: Seq[ScParameter] =>

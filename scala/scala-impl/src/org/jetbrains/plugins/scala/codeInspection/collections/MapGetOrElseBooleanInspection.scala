@@ -13,9 +13,7 @@ class MapGetOrElseBooleanInspection extends OperationOnCollectionInspection {
     Array(MapGetOrElseFalse, MapGetOrElseTrue)
 }
 
-abstract class MapGetOrElseBoolean(defaultValue: String, newMethodName: String, hintKey: String) extends SimplificationType() {
-  def hint: String = InspectionBundle.message(hintKey)
-
+abstract class MapGetOrElseBoolean(defaultValue: String, newMethodName: String, override val hint: String) extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual `.map` (f@returnsBoolean()) `.getOrElse` (literal(`defaultValue`)) if isOption(qual) =>
@@ -25,6 +23,6 @@ abstract class MapGetOrElseBoolean(defaultValue: String, newMethodName: String, 
   }
 }
 
-object MapGetOrElseFalse extends MapGetOrElseBoolean("false", "exists", "map.getOrElse.false.hint")
+object MapGetOrElseFalse extends MapGetOrElseBoolean("false", "exists", InspectionBundle.message("map.getOrElse.false.hint"))
 
-object MapGetOrElseTrue extends MapGetOrElseBoolean("true", "forall", "map.getOrElse.true.hint")
+object MapGetOrElseTrue extends MapGetOrElseBoolean("true", "forall", InspectionBundle.message("map.getOrElse.true.hint"))

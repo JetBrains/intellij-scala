@@ -56,8 +56,8 @@ object ScalaMarkerType {
       case _ => method.findSuperMethods(false).map(e => e: NavigatablePsiElement)
     }) ++ (if (includeSelf) Array(method) else NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY)
 
-    val title           = ScalaBundle.message("navigation.title.super.methods", method.getName)
-    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.methods", method.getName)
+    val title           = ScalaBundle.message("navigation.title.super.methods", method.name)
+    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.methods", method.name)
     navigateToSuperMember(event, superMethods, title, findUsagesTitle)
   }
 
@@ -81,29 +81,29 @@ object ScalaMarkerType {
             val signatures = method.superSignaturesIncludingSelfType
             val maybeClass = extractClassName(signatures)
 
-            val key =
-              if (GutterUtil.isOverrides(element, signatures)) "overrides.method.from.super"
-              else "implements.method.from.super"
+            val msg: String => String  =
+              if (GutterUtil.isOverrides(element, signatures)) ScalaBundle.message("overrides.method.from.super", _)
+              else ScalaBundle.message("implements.method.from.super", _)
 
-            maybeClass.map(ScalaBundle.message(key, _))
+            maybeClass.map(msg)
           case param: ScClassParameter =>
             val signatures = ScalaPsiUtil.superValsSignatures(param, withSelfType = true)
             val maybeClass = extractClassName(signatures)
-            val key =
-              if (GutterUtil.isOverrides(element, signatures)) "overrides.val.from.super"
-              else "implements.val.from.super"
+            val msg: String => String =
+              if (GutterUtil.isOverrides(element, signatures)) ScalaBundle.message("overrides.val.from.super", _)
+              else ScalaBundle.message("implements.val.from.super", _)
 
-            maybeClass.map(ScalaBundle.message(key, _))
+            maybeClass.map(msg)
           case v: ScValueOrVariable =>
-            val bindings   = v.declaredElements.filter(_.name == element.getText)
+            val bindings   = v.declaredElements.filter(e => element.textMatches(e.name))
             val signatures = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
             val maybeClass = extractClassName(signatures)
 
-            val key =
-              if (GutterUtil.isOverrides(element, signatures)) "overrides.val.from.super"
-              else "implements.val.from.super"
+            val msg: String => String =
+              if (GutterUtil.isOverrides(element, signatures)) ScalaBundle.message("overrides.val.from.super", _)
+              else ScalaBundle.message("implements.val.from.super", _)
 
-            maybeClass.map(ScalaBundle.message(key, _))
+            maybeClass.map(msg)
           case ta: ScTypeAlias =>
             val superMembers = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
             val maybeClass   = superMembers.headOption.collect { case ContainingClass(aClass) => aClass }
@@ -121,7 +121,7 @@ object ScalaMarkerType {
           val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.vals", element.getText)
           navigateToSuperMember(event, superMembers, title, findUsagesTitle)
         case v: ScValueOrVariable =>
-          val bindings        = v.declaredElements.filter(_.name == element.getText)
+          val bindings        = v.declaredElements.filter(e => element.textMatches(e.name))
           val signatures      = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
           val superMembers    = signatures.flatMap(sigToNavigatableElement).toArray
           val title           = ScalaBundle.message("navigation.title.super.vals", element.getText)
@@ -131,13 +131,13 @@ object ScalaMarkerType {
           val superElements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val navigatable: Array[NavigatablePsiElement] =
             superElements.collect { case ne: NavigatablePsiElement => ne }.toArray
-          val title           = ScalaBundle.message("navigation.title.super.types", ta.getName)
-          val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.types", ta.getName)
+          val title           = ScalaBundle.message("navigation.title.super.types", ta.name)
+          val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.types", ta.name)
           navigateToSuperMember(event, navigatable, title, findUsagesTitle)
     }
   )
 
-  val overriddenMember = ScalaMarkerType(
+  val overriddenMember: ScalaMarkerType = ScalaMarkerType(
     element =>
       namedParent(element).collect {
         case _: ScMember =>
@@ -153,15 +153,14 @@ object ScalaMarkerType {
           if (overrides.nonEmpty) {
             val name = overrides.headOption.fold("")(_.name)
 
-            val keyBuilder = (isFindUsages: Boolean, isAbstract: Boolean) => {
-              val windowType = if (isFindUsages) "findUsages." else ""
-              val targetType = if (isAbstract) "implementing"  else "overriding"
-              s"navigation.${windowType}title.$targetType.member"
-            }
-
-            val isAbstract      = GutterUtil.isAbstract(member)
-            val title           = ScalaBundle.message(keyBuilder(false, isAbstract), name, overrides.length.toString)
-            val findUsagesTitle = ScalaBundle.message(keyBuilder(true, isAbstract), name)
+            val (title, findUsagesTitle) =
+              if (GutterUtil.isAbstract(member)) {
+                ScalaBundle.message("navigation.title.implementing.member", name, overrides.length.toString) ->
+                  ScalaBundle.message("navigation.findUsages.title.implementing.member", name)
+              } else {
+                ScalaBundle.message("navigation.title.overriding.member", name, overrides.length.toString) ->
+                  ScalaBundle.message("navigation.findUsages.title.overriding.member", name)
+              }
 
             val renderer = new ScCellRenderer
             util.Arrays.sort(overrides.map(e => e: PsiElement).toArray, renderer.getComparator)
@@ -176,7 +175,7 @@ object ScalaMarkerType {
     }
   )
 
-  val subclassedClass = ScalaMarkerType(
+  val subclassedClass: ScalaMarkerType = ScalaMarkerType(
     element =>
       element.parent.collect {
         case _: ScTrait => ScalaBundle.message("trait.has.implementations")
@@ -187,15 +186,15 @@ object ScalaMarkerType {
         case aClass: PsiClass =>
           val inheritors = ClassInheritorsSearch.search(aClass, aClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
           if (inheritors.nonEmpty) {
-            val keyBuilder = (isFindUsages: Boolean, isTrait: Boolean) => {
-              val windowType = if (isFindUsages) "findUsages." else ""
-              val targetType = if (isTrait) "trait"            else "class"
-              s"navigation.${windowType}title.inheritors.$targetType"
-            }
-
-            val isTrait         = aClass.isInstanceOf[ScTrait]
-            val title           = ScalaBundle.message(keyBuilder(false, isTrait), aClass.name, inheritors.length.toString)
-            val findUsagesTitle = ScalaBundle.message(keyBuilder(true, isTrait), aClass.name)
+            val cname = aClass.name
+            val (title, findUsagesTitle) =
+              if (aClass.isInstanceOf[ScTrait]) {
+                ScalaBundle.message("navigation.title.inheritors.trait", cname, inheritors.length.toString) ->
+                  ScalaBundle.message("navigation.findUsages.title.inheritors.trait", cname)
+              } else {
+                ScalaBundle.message("navigation.title.inheritors.class", cname, inheritors.length.toString) ->
+                  ScalaBundle.message("navigation.findUsages.title.inheritors.class", cname)
+              }
 
             val renderer = new PsiClassListCellRenderer
             util.Arrays.sort(inheritors, renderer.getComparator)
@@ -216,7 +215,7 @@ object ScalaMarkerType {
   )
 
   class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
-    def getElementText(element: PsiElement): String = {
+    override def getElementText(element: PsiElement): String = {
       def defaultPresentation: String =
         element.getText.substring(0, math.min(element.getText.length, 20))
 
@@ -246,9 +245,9 @@ object ScalaMarkerType {
       }
     }
 
-    def getContainerText(psiElement: PsiElement, s: String): Null = null
+    override def getContainerText(psiElement: PsiElement, s: String): Null = null
 
-    def getIconFlags: Int = 0
+    override def getIconFlags: Int = 0
 
     override def getIcon(element: PsiElement): Icon =
       element match {

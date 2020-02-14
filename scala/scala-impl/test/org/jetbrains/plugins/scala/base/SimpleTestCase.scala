@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiComment, PsiElement, PsiFileFactory, PsiWhiteSpace}
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.testFramework.fixtures._
 import org.intellij.lang.annotations.{Language => InputLanguage}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -96,10 +97,7 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
     def unapply(s: String): Boolean = s.contains(fragment)
   }
 
-  case class BundleMessagePattern(key: String, params: Any*) {
-
-    private val message = ScalaBundle.message(key, params)
-
+  case class BundleMessagePattern(@Nls message: String) {
     def unapply(text: String): Boolean = text == message
   }
 }

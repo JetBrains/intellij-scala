@@ -9,12 +9,30 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
  * 2014-05-05
  */
 class SimplifiableFoldOrReduceInspection extends OperationOnCollectionInspection {
-  val foldSum = new FoldSimplificationType(this, "fold.sum", "0", "+", "sum")
-  val foldProduct = new FoldSimplificationType(this, "fold.product", "1", "*", "product")
-  val reduceSum = new ReduceSimplificationType(this, "reduce.sum", "+", "sum")
-  val reduceProduct = new ReduceSimplificationType(this,"reduce.product", "*", "product")
-  val reduceMin = new ReduceSimplificationType(this, "reduce.min", "min", "min")
-  val reduceMax = new ReduceSimplificationType(this, "reduce.max", "max", "max")
+  val foldSum = new FoldSimplificationType(this, "0", "+", "sum") {
+    override def hint: String = InspectionBundle.message("fold.sum.hint")
+    override def description: String = InspectionBundle.message("fold.sum.short")
+  }
+  val foldProduct = new FoldSimplificationType(this, "1", "*", "product") {
+    override def hint: String = InspectionBundle.message("fold.product.hint")
+    override def description: String = InspectionBundle.message("fold.product.short")
+  }
+  val reduceSum = new ReduceSimplificationType(this, "+", "sum") {
+    override def hint: String = InspectionBundle.message("reduce.sum.hint")
+    override def description: String = InspectionBundle.message("reduce.sum.short")
+  }
+  val reduceProduct = new ReduceSimplificationType(this,"*", "product") {
+    override def hint: String = InspectionBundle.message("reduce.product.hint")
+    override def description: String = InspectionBundle.message("reduce.product.short")
+  }
+  val reduceMin = new ReduceSimplificationType(this, "min", "min") {
+    override def hint: String = InspectionBundle.message("reduce.min.hint")
+    override def description: String = InspectionBundle.message("reduce.min.short")
+  }
+  val reduceMax = new ReduceSimplificationType(this, "max", "max") {
+    override def hint: String = InspectionBundle.message("reduce.max.hint")
+    override def description: String = InspectionBundle.message("reduce.max.short")
+  }
 
   override def possibleSimplificationTypes: Array[SimplificationType] =
     Array(foldSum, foldProduct, reduceSum, reduceProduct, reduceMax, reduceMin)
@@ -24,14 +42,10 @@ object SimplifiableFoldOrReduceInspection {
 
 }
 
-class FoldSimplificationType(inspection: OperationOnCollectionInspection,
-                             keyPrefix: String,
+abstract class FoldSimplificationType(inspection: OperationOnCollectionInspection,
                              startElem: String,
                              opName: String,
-                             methodName: String) extends SimplificationType(){
-
-  override def hint: String = InspectionBundle.message(keyPrefix + ".hint")
-  override def description: String = InspectionBundle.message(keyPrefix + ".short")
+                             methodName: String) extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
@@ -43,14 +57,9 @@ class FoldSimplificationType(inspection: OperationOnCollectionInspection,
   }
 }
 
-class ReduceSimplificationType(inspection: OperationOnCollectionInspection,
-                               keyPrefix: String,
+abstract class ReduceSimplificationType(inspection: OperationOnCollectionInspection,
                                opName: String,
-                               methodName: String) extends SimplificationType() {
-
-  override def hint: String = InspectionBundle.message(keyPrefix + ".hint")
-  override def description: String = InspectionBundle.message(keyPrefix + ".short")
-
+                               methodName: String) extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.reduce`(binaryOperation(`opName`)) if implicitParameterExistsFor(methodName, qual) =>

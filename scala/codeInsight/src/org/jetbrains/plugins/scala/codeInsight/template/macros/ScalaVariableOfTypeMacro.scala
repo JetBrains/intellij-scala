@@ -16,9 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
-import scala.collection.immutable
-
-sealed abstract class ScalaVariableOfTypeMacro(nameKey: String) extends ScalaMacro {
+sealed abstract class ScalaVariableOfTypeMacro(override final val getPresentableName: String) extends ScalaMacro {
 
   import ScalaVariableOfTypeMacro._
 
@@ -29,16 +27,17 @@ sealed abstract class ScalaVariableOfTypeMacro(nameKey: String) extends ScalaMac
     case _ => null
   }
 
-  def calculateResult(expressions: Array[Expression], context: ExpressionContext): Result = expressions match {
-    case _ if arrayIsValid(expressions) =>
-      implicit val c: ExpressionContext = context
-      val maybeResult = findDefinitions.collectFirst {
-        case (typed, scType) if typeText(expressions, scType) => new TextResult(typed.name)
-      }
+  override def calculateResult(expressions: Array[Expression], context: ExpressionContext): Result =
+    expressions match {
+      case _ if arrayIsValid(expressions) =>
+        implicit val c: ExpressionContext = context
+        val maybeResult = findDefinitions.collectFirst {
+          case (typed, scType) if typeText(expressions, scType) => new TextResult(typed.name)
+        }
 
-      maybeResult.orNull
-    case _ => null
-  }
+        maybeResult.orNull
+      case _ => null
+    }
 
   def calculateLookups(expressions: Array[String],
                        showOne: Boolean = false)
@@ -58,8 +57,6 @@ sealed abstract class ScalaVariableOfTypeMacro(nameKey: String) extends ScalaMac
   }
 
   override def calculateQuickResult(p1: Array[Expression], p2: ExpressionContext): Result = null
-
-  override final def getPresentableName: String = CodeInsightBundle.message(nameKey)
 
   override def getDefaultValue: String = "x"
 
@@ -93,12 +90,12 @@ object ScalaVariableOfTypeMacro {
     * This class provides macros for live templates. Return elements
     * of given class type (or class types).
     */
-  final class RegularVariable extends ScalaVariableOfTypeMacro("macro.variable.of.type") {
+  final class RegularVariable extends ScalaVariableOfTypeMacro(CodeInsightBundle.message("macro.variable.of.type")) {
 
     override def arrayIsValid(array: Array[_]): Boolean = array.nonEmpty
   }
 
-  final class ArrayVariable extends ScalaVariableOfTypeMacro("macro.array.variable") {
+  final class ArrayVariable extends ScalaVariableOfTypeMacro(CodeInsightBundle.message("macro.array.variable")) {
 
     private val expressions = Array("scala.Array")
 
@@ -110,7 +107,7 @@ object ScalaVariableOfTypeMacro {
       super.typeText(this.expressions.map(new TextExpression(_)), `type`)
   }
 
-  final class IterableVariable extends ScalaVariableOfTypeMacro("macro.iterable.variable") {
+  final class IterableVariable extends ScalaVariableOfTypeMacro(CodeInsightBundle.message("macro.iterable.variable")) {
 
     private val expressions = Array(IterableId)
 
