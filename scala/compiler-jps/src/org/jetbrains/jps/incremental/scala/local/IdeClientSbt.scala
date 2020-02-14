@@ -24,7 +24,7 @@ class IdeClientSbt(compilerName: String,
                    modules: Seq[String],
                    consumer: OutputConsumer,
                    sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]])
-        extends IdeClient(compilerName, context, modules, consumer) {
+        extends IdeClient(compilerName, context, modules) {
 
   def generated(source: File, outputFile: File, name: String) {
     invalidateBoundForms(source)

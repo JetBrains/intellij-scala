@@ -4,7 +4,6 @@ import java.io.{File, FileOutputStream}
 import java.nio.charset.StandardCharsets
 
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -13,24 +12,28 @@ import com.intellij.openapi.vfs.VirtualFileWithId
 import org.apache.commons.io.IOUtils
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.using
+import org.jetbrains.plugins.scala.editor.DocumentExt
 
 trait OneFileCompiler {
 
   def compile(project: Project, source: Document): Seq[Client.ClientMsg]
 }
 
-object OneFileCompiler
+class OneFileCompilerImpl
   extends OneFileCompiler {
 
   override def compile(project: Project, source: Document): Seq[Client.ClientMsg] = {
     val result = for {
+
       projectFileIndex <- Option(ProjectFileIndex.SERVICE.getInstance(project))
       if !DumbService.getInstance(project).isDumb
       module <- getModuleOf(source, projectFileIndex)
+      sourceFileOriginal <- source.virtualFile
       sourceFileCopy = copyDocumentContentToFile(source)
       connector = new RemoteServerConnector(
         module = module,
-        sourceFile = sourceFileCopy,
+        sourceFileOriginal = new File(sourceFileOriginal.getCanonicalPath),
+        sourceFileCopy = sourceFileCopy,
         outputDir = None
       )
     } yield connector.compile()
@@ -40,13 +43,14 @@ object OneFileCompiler
   private def getModuleOf(source: Document,
                           projectFileIndex: ProjectFileIndex): Option[Module] =
     for {
-      virtualFile <- Option(FileDocumentManager.getInstance.getFile(source))
+      virtualFile <- source.virtualFile
       if virtualFile.isInstanceOf[VirtualFileWithId]
       module <- Option(projectFileIndex.getModuleForFile(virtualFile))
     } yield module
 
   private def copyDocumentContentToFile(document: Document): File = {
     val file = FileUtil.createTempFile("tmp", "", true)
+    file.deleteOnExit()
     val content = document.getImmutableCharSequence
     using(IOUtils.toInputStream(content, Charset)) { inputStream =>
       using(new FileOutputStream(file)) { outputStream =>

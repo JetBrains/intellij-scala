@@ -4,8 +4,8 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
-import org.jetbrains.plugins.scala.compiler.oneFile.RemoteServerConnector.CollectingMessagesClient
-import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.util.CompilationId
 
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
@@ -13,18 +13,20 @@ import scala.concurrent.{Await, Promise}
 
 /**
  * @param module module that contains specified source file
- * @param sourceFile source file to compile
+ * @param sourceFileOriginal original source file.
+ * @param sourceFileCopy source file copy. Note: This file will be compiled!
  * @param outputDir output directory. If not specified, target files will not be generated.
  */
 private[oneFile]
 class RemoteServerConnector(module: Module,
-                            sourceFile: File,
+                            sourceFileOriginal: File,
+                            sourceFileCopy: File,
                             outputDir: Option[File])
-  extends RemoteServerConnectorBase(module, Seq(sourceFile), outputDir.getOrElse(new File(""))) {
+  extends RemoteServerConnectorBase(module, Seq(sourceFileCopy), outputDir.getOrElse(new File(""))) {
 
   override protected def additionalScalaParameters: Seq[String] = outputDir match {
     case Some(_) => Seq.empty
-    case None => Seq("-Ystop-after:typer")
+    case None => Seq("-Ystop-after:patmat")
   }
 
   /**
@@ -32,7 +34,7 @@ class RemoteServerConnector(module: Module,
    */
   def compile(): Seq[Client.ClientMsg] = {
     val project = module.getProject
-    val client = new CollectingMessagesClient
+    val client = new CompilationClient(CompilationId.generate())
     val compilationProcess = new RemoteServerRunner(project).buildProcess(arguments, client)
     val result = Promise[Seq[Client.ClientMsg]]
     compilationProcess.addTerminationCallback {
@@ -42,18 +44,29 @@ class RemoteServerConnector(module: Module,
     compilationProcess.run()
     Await.result(result.future, Duration.Inf)
   }
-}
 
-object RemoteServerConnector {
+  private def sendEvent(event: CompilerEvent): Unit =
+    module.getProject.getMessageBus
+      .syncPublisher(CompilerEventListener.topic)
+      .eventReceived(event)
 
-  private class CollectingMessagesClient extends DummyClient {
+  private class CompilationClient(compilationId: CompilationId)
+    extends DummyClient {
 
     private val messages = mutable.Buffer[Client.ClientMsg]()
 
-    override def message(msg: Client.ClientMsg): Unit =
-      messages += msg
+    override def message(msg: Client.ClientMsg): Unit = {
+      val fixedMsg = msg.copy(source = Some(sourceFileOriginal))
+      sendEvent(CompilerEvent.MessageEmitted(compilationId, fixedMsg))
+      messages += fixedMsg
+    }
 
     def collectedMessages: Seq[Client.ClientMsg] =
       messages.toList
+
+    override def compilationEnd(sources: Set[File]): Unit =
+      sources.foreach { source =>
+        sendEvent(CompilerEvent.CompilationFinished(compilationId, source))
+      }
   }
 }

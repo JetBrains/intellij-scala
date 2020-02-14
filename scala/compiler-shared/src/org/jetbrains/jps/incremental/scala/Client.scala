@@ -15,10 +15,10 @@ trait Client {
   def message(msg: ClientMsg): Unit
 
   final def message(kind: Kind,
-              text: String,
-              source: Option[File] = None,
-              line: Option[Long] = None,
-              column: Option[Long] = None): Unit =
+                    text: String,
+                    source: Option[File] = None,
+                    line: Option[Long] = None,
+                    column: Option[Long] = None): Unit =
     message(ClientMsg(kind, text, source, line, column))
 
   final def error(text: String,
@@ -53,7 +53,7 @@ trait Client {
 
   def worksheetOutput(text: String): Unit = {}
 
-  def compilationEnd(): Unit = {}
+  def compilationEnd(sources: Set[File]): Unit = {}
 
   def processingEnd(): Unit = {}
 

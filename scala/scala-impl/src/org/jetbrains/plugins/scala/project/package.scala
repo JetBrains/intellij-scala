@@ -6,8 +6,8 @@ import java.net.URL
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.editor.Document
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._

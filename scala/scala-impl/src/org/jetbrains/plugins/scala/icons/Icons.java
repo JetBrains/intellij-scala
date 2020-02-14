@@ -68,7 +68,7 @@ public interface Icons {
     //Console
     Icon SCALA_CONSOLE = getIcon("/org/jetbrains/plugins/scala/images/scala_console.svg");
 
-    // Highlighting (status bar)
+    // ExternalHighlighting (status bar)
     Icon TYPED = getIcon("/org/jetbrains/plugins/scala/images/typed.svg");
     Icon UNTYPED = getIcon("/org/jetbrains/plugins/scala/images/untyped.svg");
 

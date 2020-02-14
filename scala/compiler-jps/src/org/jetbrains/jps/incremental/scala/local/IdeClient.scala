@@ -6,9 +6,10 @@ import java.util
 
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.messages.{CompilerMessage, FileDeletedEvent, ProgressMessage}
+import org.jetbrains.plugins.scala.compiler.CompilerEvent
+import org.jetbrains.plugins.scala.util.CompilationId
 
 
 /**
@@ -17,11 +18,11 @@ import org.jetbrains.jps.incremental.messages.{CompilerMessage, FileDeletedEvent
  */
 abstract class IdeClient(compilerName: String,
                          context: CompileContext,
-                         modules: Seq[String],
-                         consumer: OutputConsumer) extends Client {
+                         modules: Seq[String]) extends Client {
 
   private var hasErrors = false
   private var lastProgressMessage: String = ""
+  protected val compilationId: CompilationId = CompilationId.generate()
 
   override def message(msg: Client.ClientMsg): Unit = {
     val Client.ClientMsg(kind, text, source, line, column) = msg
@@ -33,15 +34,11 @@ abstract class IdeClient(compilerName: String,
 
     val sourcePath = source.map(file => file.getPath)
 
-    val withoutPointer =
-      if (sourcePath.isDefined && line.isDefined && column.isDefined) {
-        val lines = text.split('\n')
-        lines.filterNot(_.trim == "^").mkString("\n")
-      }
-      else text
-    if (LogFilter.shouldLog(kind, text, source, line, column))
-      context.processMessage(new CompilerMessage(name, kind, withoutPointer, sourcePath.orNull,
+    if (LogFilter.shouldLog(kind, text, source, line, column)) {
+      context.processMessage(new CompilerMessage(name, kind, text, sourcePath.orNull,
         -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
+      context.processMessage(CompilerEvent.MessageEmitted(compilationId, msg).toCustomMessage)
+    }
   }
 
   def trace(exception: Throwable) {
