@@ -14,11 +14,9 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tMULTILINE_STRING, tSTRING}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -133,10 +131,10 @@ object ScalaClassNameCompletionContributor {
         place,
         parameters.getInvocationCount,
         isInSimpleString,
-        getContextOfType(place, false, classOf[ScImportStmt]) != null,
+        isInImport(place),
         isInStableCodeReference,
         classesOnly,
-        psiElement.afterLeaf("@").accepts(place)
+        annotationsOnly(place)
       )
     }
   }
@@ -159,7 +157,7 @@ object ScalaClassNameCompletionContributor {
     }
 
     val position = if (isInSimpleString) positionInString(dummyPosition) else dummyPosition
-    if (!isInSimpleString && getContextOfType(position, classOf[ScalaFile]) == null) return true
+    if (!isInScalaContext(position, isInSimpleString)) return true
 
     implicit val project: Project = position.getProject
     implicit val state: CompletionState = CompletionState(position, isInSimpleString)

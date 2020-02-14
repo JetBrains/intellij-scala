@@ -6,8 +6,7 @@ import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
+import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType, isContextAncestor}
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
@@ -16,10 +15,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
@@ -29,16 +30,23 @@ import scala.collection.JavaConverters
 
 package object completion {
 
+  import PlatformPatterns.psiElement
   import ScalaTokenTypes._
 
   private[completion] def identifierPattern =
-    PlatformPatterns.psiElement(tIDENTIFIER)
+    psiElement(tIDENTIFIER)
 
   private[completion] def identifierWithParentPattern(clazz: Class[_ <: ScalaPsiElement]) =
     identifierPattern.withParent(clazz)
 
   private[completion] def identifierWithParentsPattern(classes: Class[_ <: ScalaPsiElement]*) =
     identifierPattern.withParents(classes: _*)
+
+  private[completion] def annotationPattern =
+    psiElement.afterLeaf(psiElement(tAT))
+
+  private[completion] def annotationsOnly(place: PsiElement): Boolean =
+    annotationPattern.accepts(place)
 
   private[completion] def isExcluded(clazz: PsiClass) = inReadAction {
     JavaCompletionUtil.isInExcludedPackage(clazz, false)
@@ -57,6 +65,19 @@ package object completion {
 
   def regardlessAccessibility(invocationCount: Int): Boolean =
     invocationCount >= 2
+
+  def isInImport(place: PsiElement): Boolean =
+    getContextOfType(place, classOf[ScImportStmt]) != null
+
+  def isInTypeElement(place: PsiElement): Boolean =
+    getContextOfType(place, classOf[ScTypeElement]) != null
+
+  def isInScalaContext(place: PsiElement,
+                       isInSimpleString: Boolean,
+                       isInInterpolatedString: Boolean = false): Boolean =
+    isInSimpleString ||
+      isInInterpolatedString ||
+      getContextOfType(place, classOf[ScalaFile]) != null
 
   implicit class CaptureExt(private val pattern: ElementPattern[_ <: PsiElement]) extends AnyVal {
 
@@ -112,7 +133,7 @@ package object completion {
 
     if (originalPosition != null) {
       for {
-        elementContext  <- contextWithStableType(positionInCompletionFile)
+        elementContext <- contextWithStableType(positionInCompletionFile)
         originalContext <- sameInOriginalFile(elementContext, originalPosition)
 
         if !isContextAncestor(elementContext, originalContext, /*strict*/ false)
@@ -304,7 +325,7 @@ package object completion {
       } else null
 
     private def isValid(typeDefinition: ScTypeDefinition) = !typeDefinition.isObject &&
-      (typeDefinition.isLocal || PsiTreeUtil.getParentOfType(typeDefinition, classOf[ScBlockExpr]) != null)
+      (typeDefinition.isLocal || getParentOfType(typeDefinition, classOf[ScBlockExpr]) != null)
   }
 
 }
