@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package folding
+package org.jetbrains.plugins.scala.lang.folding
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.{CustomFoldingBuilder, FoldingDescriptor}
@@ -12,6 +10,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -30,17 +29,10 @@ import org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder
 import scala.collection.JavaConverters._
 import scala.collection._
 
-
-/*
-*
-@author Ilya Sergey
-*/
-
 class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
 
   import ScalaElementType._
   import ScalaFoldingUtil._
-  import lexer.ScalaTokenTypes
 
   private val foldingSettings = ScalaCodeFoldingSettings.getInstance()
 
@@ -48,7 +40,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
                                 document: Document,
                                 descriptors: java.util.List[FoldingDescriptor],
                                 processedComments: mutable.HashSet[PsiElement],
-                                processedRegions: mutable.HashSet[PsiElement]) {
+                                processedRegions: mutable.HashSet[PsiElement]): Unit = {
     val nodeTextRange = node.getTextRange
     if (nodeTextRange.getStartOffset + 1 >= nodeTextRange.getEndOffset) return
 
@@ -247,56 +239,56 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     val parentElementType = parent.getElementType
     if (parentElementType.isInstanceOf[ScStubFileElementType] &&
       node.getTreePrev == null && node.getElementType != PACKAGING &&
-            ScalaCodeFoldingSettings.getInstance().isCollapseFileHeaders) true
+            foldingSettings.isCollapseFileHeaders) true
     else if (parentElementType.isInstanceOf[ScStubFileElementType] &&
       node.getElementType == ImportStatement &&
-            ScalaCodeFoldingSettings.getInstance().isCollapseImports) true
+            foldingSettings.isCollapseImports) true
     else if (parent != null &&
       PATTERN_DEFINITION == parentElementType &&
-            ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks) true
+            foldingSettings.isCollapseMultilineBlocks) true
     else if (parent != null &&
       VARIABLE_DEFINITION == parentElementType &&
-            ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks) true
+            foldingSettings.isCollapseMultilineBlocks) true
     else {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT
-          if ScalaCodeFoldingSettings.getInstance().isCollapseBlockComments && !isWorksheetResults(node) => true
+          if foldingSettings.isCollapseBlockComments && !isWorksheetResults(node) => true
         case ScalaTokenTypes.tLINE_COMMENT
           if !isCustomRegionStart(node.getText) &&
-                  ScalaCodeFoldingSettings.getInstance().isCollapseLineComments && !isWorksheetResults(node) => true
+                  foldingSettings.isCollapseLineComments && !isWorksheetResults(node) => true
         case ScalaTokenTypes.tLINE_COMMENT
           if isCustomRegionStart(node.getText) &&
-                  ScalaCodeFoldingSettings.getInstance().isCollapseCustomRegions => true
+                  foldingSettings.isCollapseCustomRegions => true
         case ScalaDocElementTypes.SCALA_DOC_COMMENT
-          if ScalaCodeFoldingSettings.getInstance().isCollapseScalaDocComments && !isWorksheetResults(node) => true
+          if foldingSettings.isCollapseScalaDocComments && !isWorksheetResults(node) => true
         case TEMPLATE_BODY
-          if ScalaCodeFoldingSettings.getInstance().isCollapseTemplateBodies => true
+          if foldingSettings.isCollapseTemplateBodies => true
         case PACKAGING
-          if ScalaCodeFoldingSettings.getInstance().isCollapsePackagings => true
+          if foldingSettings.isCollapsePackagings => true
         case ImportStatement
-          if ScalaCodeFoldingSettings.getInstance().isCollapseImports => true
+          if foldingSettings.isCollapseImports => true
         case ScalaTokenTypes.tSH_COMMENT
-          if ScalaCodeFoldingSettings.getInstance().isCollapseShellComments && !isWorksheetResults(node) => true
+          if foldingSettings.isCollapseShellComments && !isWorksheetResults(node) => true
         case MATCH_STMT
-          if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
+          if foldingSettings.isCollapseMultilineBlocks => true
         case ScCodeBlockElementType.BlockExpression
-          if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
+          if foldingSettings.isCollapseMultilineBlocks => true
         case SIMPLE_TYPE => true
         case _ if psi.isInstanceOf[ScBlockExpr] &&
           parentElementType == ARG_EXPRS &&
-                ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies => true
+                foldingSettings.isCollapseMethodCallBodies => true
         case _ if parentElementType == FUNCTION_DEFINITION &&
-                ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies &&
+                foldingSettings.isCollapseMethodCallBodies &&
           isMultilineFuncBody(parent.getPsi.asInstanceOf[ScFunctionDefinition])._1 => true
         case _ if psi.isInstanceOf[ScTypeProjection] &&
-                ScalaCodeFoldingSettings.getInstance().isCollapseTypeLambdas => true
+                foldingSettings.isCollapseTypeLambdas => true
         case _ if psi.isInstanceOf[ScTypeElement] &&
-                ScalaCodeFoldingSettings.getInstance().isCollapseTypeLambdas => true
+                foldingSettings.isCollapseTypeLambdas => true
         case _ if psi.isInstanceOf[ScLiteral] &&
           psi.asInstanceOf[ScLiteral].isMultiLineString &&
-                ScalaCodeFoldingSettings.getInstance().isCollapseMultilineStrings => true
+                foldingSettings.isCollapseMultilineStrings => true
         case _ if psi.isInstanceOf[ScArgumentExprList] &&
-                ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
+                foldingSettings.isCollapseMultilineBlocks => true
         case _ => false
       }
     }
@@ -418,7 +410,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
 
   private def addCustomRegionFolds(element: PsiElement, processedRegions: mutable.Set[PsiElement],
                                    descriptors: java.util.List[FoldingDescriptor], isTagRegion: Boolean,
-                                   stack: mutable.Stack[PsiElement]) {
+                                   stack: mutable.Stack[PsiElement]): Unit = {
     var end: PsiElement = null
     var current: PsiElement = element.getNextSibling
     var flag = true
@@ -509,7 +501,7 @@ object TypeLambda {
               cte.refinement match {
                 case Some(ref) =>
                   (ref.holders, ref.types) match {
-                    case (scala.Seq(), scala.Seq(tad: ScTypeAliasDefinitionImpl)) if tad.name == nameId.getText =>
+                    case (scala.Seq(), scala.Seq(tad: ScTypeAliasDefinitionImpl)) if nameId.textMatches(tad.name) =>
                       (tad.typeParametersClause, tad.aliasedTypeElement) match {
                         case (Some(tpc), Some(ate)) =>
                           return Some((nameId.getText, tpc, ate))
