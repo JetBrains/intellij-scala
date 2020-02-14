@@ -6,13 +6,14 @@ import com.intellij.codeInsight.completion._
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tMULTILINE_STRING, tSTRING}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{fileContext, getCompanionModule, getContextOfType}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
@@ -45,7 +46,7 @@ class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
   extend(
     CompletionType.BASIC,
-    psiElement(),
+    psiElement,
     new CompletionProvider[CompletionParameters]() {
 
       override def addCompletions(parameters: CompletionParameters,
@@ -62,6 +63,84 @@ class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaClassNameCompletionContributor {
 
+  private[this] final case class CompletionState(place: PsiElement,
+                                                 invocationCount: Int,
+                                                 isInSimpleString: Boolean,
+                                                 isInImport: Boolean,
+                                                 isInStableCodeReference: Boolean,
+                                                 classesOnly: Boolean,
+                                                 annotationsOnly: Boolean) {
+
+    val renamesMap: RenamesMap = createRenamesMap(place)
+
+    def isValidClass(`class`: PsiClass): Boolean =
+      isValidAndAccessible(`class`) &&
+        (!annotationsOnly || `class`.isAnnotationType) &&
+        isApplicable(`class`) &&
+        !isExcluded(`class`)
+
+    def createLookupItem(`class`: PsiClass,
+                         maybeExpectedTypes: Option[(PsiClass, RenamesMap) => ScalaLookupItem]): ScalaLookupItem =
+      maybeExpectedTypes match {
+        case Some(createLookups) => createLookups(`class`, renamesMap)
+        case _ => createLookupItemImpl(`class`)
+      }
+
+    def isValidAlias(alias: ScTypeAlias): Boolean =
+      !annotationsOnly &&
+        (isInImport || classesOnly) &&
+        isValidAndAccessible(alias) &&
+        !Option(alias.containingClass).exists(isExcluded)
+
+    def createLookupItem(alias: ScTypeAlias): ScalaLookupItem =
+      createLookupItemImpl(alias)
+
+    private[this] def createLookupItemImpl(element: PsiNamedElement): ScalaLookupItem = {
+      val renamed = renamesMap.get(element.name).collect {
+        case (`element`, name) => name
+      }
+
+      new ScalaResolveResult(element, renamed = renamed).getLookupElement(
+        isClassName = true,
+        isInImport = isInImport,
+        isInStableCodeReference = isInStableCodeReference,
+        isInSimpleString = isInSimpleString
+      ).get
+    }
+
+    private[this] def isValidAndAccessible(member: PsiMember): Boolean =
+      member.isValid &&
+        isAccessible(member, invocationCount)(place)
+
+    private[this] def isApplicable(clazz: PsiClass): Boolean = clazz match {
+      case _: ScClass |
+           _: ScTrait => isInImport || classesOnly
+      case _: ScObject => isInImport || !classesOnly
+      case _ => true
+    }
+  }
+
+  private[this] object CompletionState {
+
+    def apply(place: PsiElement, isInSimpleString: Boolean)
+             (implicit parameters: CompletionParameters): CompletionState = {
+      val (isInStableCodeReference, classesOnly) = getContextOfType(place, false, classOf[ScStableCodeReference]) match {
+        case null => (false, false)
+        case codeReference => (true, !codeReference.getContext.isInstanceOf[ScConstructorPattern])
+      }
+
+      CompletionState(
+        place,
+        parameters.getInvocationCount,
+        isInSimpleString,
+        getContextOfType(place, false, classOf[ScImportStmt]) != null,
+        isInStableCodeReference,
+        classesOnly,
+        psiElement.afterLeaf("@").accepts(place)
+      )
+    }
+  }
+
   private def completeClassName(result: CompletionResultSet)
                                (implicit parameters: CompletionParameters,
                                 context: ProcessingContext): Unit =
@@ -74,66 +153,17 @@ object ScalaClassNameCompletionContributor {
   private[completion] def completeClassName(dummyPosition: PsiElement, result: CompletionResultSet)
                                            (implicit parameters: CompletionParameters,
                                             context: ProcessingContext): Boolean = {
-    val (position, inString) = dummyPosition.getNode.getElementType match {
-      case `tSTRING` | `tMULTILINE_STRING` =>
-        //It's ok here to use parameters.getPosition
-        val offsetInString = parameters.getOffset - parameters.getPosition.getTextRange.getStartOffset + 1
-        val interpolated = ScalaPsiElementFactory.createExpressionFromText(
-          "s" + dummyPosition.getText,
-          dummyPosition.getContext.getContext
-        )
-        (interpolated.findElementAt(offsetInString), true)
-      case _ => (dummyPosition, false)
+    val isInSimpleString = dummyPosition.getNode.getElementType match {
+      case `tSTRING` | `tMULTILINE_STRING` => true
+      case _ => false
     }
 
-    val invocationCount = parameters.getInvocationCount
-    if (!inString && !fileContext(position).isInstanceOf[ScalaFile]) return true
-    val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(position)
-    val isInImport = getContextOfType(position, false, classOf[ScImportStmt]) != null
-    val stableRefElement = getContextOfType(position, false, classOf[ScStableCodeReference])
-    val onlyClasses = stableRefElement != null && !stableRefElement.getContext.isInstanceOf[ScConstructorPattern]
-
-    val renamesMap = createRenamesMap(position)
-    val maybeExpectedTypes = expectedTypeAfterNew(dummyPosition)
+    val position = if (isInSimpleString) positionInString(dummyPosition) else dummyPosition
+    if (!isInSimpleString && getContextOfType(position, classOf[ScalaFile]) == null) return true
 
     implicit val project: Project = position.getProject
-
-    def createLookupElement(element: PsiNamedElement): Some[ScalaLookupItem] = {
-      val renamed = renamesMap.get(element.name).collect {
-        case (`element`, s) => s
-      }
-
-      new ScalaResolveResult(element, renamed = renamed).getLookupElement(
-        isClassName = true,
-        isInImport = isInImport,
-        isInStableCodeReference = stableRefElement != null,
-        isInSimpleString = inString
-      ).asInstanceOf[Some[ScalaLookupItem]]
-    }
-
-    def isApplicable(clazz: PsiClass) = (clazz match {
-      case _: ScClass |
-           _: ScTrait => isInImport || onlyClasses
-      case _: ScObject => isInImport || !onlyClasses
-      case _ => true
-    }) && (!lookingForAnnotations || clazz.isAnnotationType)
-
-    def createLookupElementForClass(clazz: PsiClass): Option[ScalaLookupItem] =
-      if (isValidAndAccessible(clazz, invocationCount)(position) &&
-        isApplicable(clazz) &&
-        !isExcluded(clazz)) {
-        maybeExpectedTypes match {
-          case Some(createLookups) => Some(createLookups(clazz, renamesMap))
-          case _ => createLookupElement(clazz)
-        }
-      } else {
-        None
-      }
-
-    def isValidAlias(alias: ScTypeAlias): Boolean =
-      isValidAndAccessible(alias, invocationCount)(position) &&
-        !Option(alias.containingClass).exists(isExcluded) &&
-        (isInImport || onlyClasses)
+    implicit val state: CompletionState = CompletionState(position, isInSimpleString)
+    val maybeExpectedTypes = expectedTypeAfterNew(dummyPosition)
 
     import collection.JavaConverters._
 
@@ -142,60 +172,69 @@ object ScalaClassNameCompletionContributor {
       clazz <- SyntheticClasses.get(project).all.values
       if !QualNameToType.contains(clazz.qualifiedName)
 
-      lookupElement <- createLookupElementForClass(clazz)
-    } yield lookupElement
+      if state.isValidClass(clazz)
+    } yield state.createLookupItem(clazz, maybeExpectedTypes)
 
     result.addAllElements(syntheticLookupElements.asJava)
 
     val prefixMatcher = result.getPrefixMatcher
     AllClassesGetter.processJavaClasses(
-      if (lookingForAnnotations) parameters.withInvocationCount(2) else parameters,
+      if (state.annotationsOnly) parameters.withInvocationCount(2) else parameters,
       prefixMatcher,
-      invocationCount <= 1,
+      parameters.getInvocationCount <= 1,
       new Consumer[PsiClass] {
-        override def consume(clazz: PsiClass): Unit = clazz match {
+        override def consume(`class`: PsiClass): Unit = `class` match {
           case _: PsiClassWrapper =>
           case _ =>
             //todo: filter according to position
-            val classes = clazz :: getCompanionModule(clazz).toList
-            classes.flatMap(createLookupElementForClass).foreach(result.addElement)
+            for {
+              clazz <- `class` :: getCompanionModule(`class`).toList
+              if state.isValidClass(clazz)
+
+              lookupElement = state.createLookupItem(clazz, maybeExpectedTypes)
+            } result.addElement(lookupElement)
         }
       }
     )
 
-    if (!lookingForAnnotations) {
+    if (!state.annotationsOnly) {
       val manager = ScalaPsiManager.instance
       val lookupElements = for {
         name <- manager.getStableTypeAliasesNames
         if prefixMatcher.prefixMatches(name)
 
         alias <- manager.getStableAliasesByName(name, position.resolveScope)
-        if isValidAlias(alias)
-      } yield createLookupElement(alias).get
+        if state.isValidAlias(alias)
+      } yield state.createLookupItem(alias)
 
       result.addAllElements(lookupElements.asJava)
     }
 
     val lookupElements = for {
-      (element, name) <- renamesMap.values
+      (element, name) <- state.renamesMap.values
       if prefixMatcher.prefixMatches(name)
       if !prefixMatcher.prefixMatches(element.name)
 
-      lookupItem <- element match {
-        case clazz: PsiClass => createLookupElementForClass(clazz)
-        case alias: ScTypeAlias if !lookingForAnnotations && isValidAlias(alias) => createLookupElement(alias)
-        case _ => None
+      lookupItem = element match {
+        case clazz: PsiClass if state.isValidClass(clazz) => state.createLookupItem(clazz, maybeExpectedTypes)
+        case alias: ScTypeAlias if state.isValidAlias(alias) => state.createLookupItem(alias)
+        case _ => null
       }
+      if lookupItem != null
     } yield lookupItem
 
     result.addAllElements(lookupElements.asJava)
 
-    if (inString) result.stopHere()
+    if (isInSimpleString) result.stopHere()
     false
   }
 
-  private[this] def isValidAndAccessible(member: PsiMember,
-                                         invocationCount: Int)
-                                        (implicit place: PsiElement): Boolean =
-    member.isValid && isAccessible(member, invocationCount)
+  private[this] def positionInString(place: PsiElement)
+                                    (implicit parameters: CompletionParameters) =
+    ScalaPsiElementFactory.createExpressionFromText(
+      "s" + place.getText,
+      place.getContext.getContext
+    ).findElementAt(
+      parameters.getOffset - parameters.getPosition.getTextRange.getStartOffset + 1
+    )
 }
