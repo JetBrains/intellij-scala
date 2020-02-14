@@ -24,8 +24,6 @@ import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaE
 import org.jetbrains.plugins.scala.util.internal.I18nStringBundle
 import org.jetbrains.plugins.scala.util.internal.I18nStringBundle.{BundleInfo, BundleUsageInfo, Entry}
 
-import scala.util.matching.Regex
-
 class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection {
 
   override protected def problemDescriptor(element: PsiElement,
@@ -50,10 +48,15 @@ object ScalaExtractStringToBundleInspection {
 
   private def isNaturalLangString(string: String): Boolean =
     //string.length > 3 &&
+    hasAtLeastOneLetters(string) &&
     !hasCamelCase(string)
 
-  lazy val camelCaseRegex: Regex = raw"""\p{Lower}\p{Upper}""".r
-  def hasCamelCase(string: String): Boolean =
+  private lazy val letterRegex = raw"""\w""".r
+  private def hasAtLeastOneLetters(string: String): Boolean =
+    letterRegex.findFirstIn(string).isDefined
+
+  private lazy val camelCaseRegex = raw"""\p{Lower}\p{Upper}""".r
+  private def hasCamelCase(string: String): Boolean =
     camelCaseRegex.findFirstIn(string).isDefined
 
   private def shouldBeIgnored(element: PsiElement, parts: Seq[StringPart]): Boolean =
