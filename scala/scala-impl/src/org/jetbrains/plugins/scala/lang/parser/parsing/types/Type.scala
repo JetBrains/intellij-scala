@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
  * Type ::= InfixType '=>' Type
  *        | '(' ['=>' Type] ')' => Type
  *        | TypeParamClause '=>>' Type       (Scala 3+ only)
+ *        | MatchType                        (Scala 3+ only)
  *        | InfixType [ExistentialClause]
  *        | _ SubtypeBounds
  *        | ? SubtypeBounds (Scala 3)
@@ -71,6 +72,9 @@ trait Type {
           typeMarker.done(ScalaElementType.TYPE_LAMBDA)
         case _ => builder.error(ScalaBundle.message("type.lambda.expected"))
       }
+      true
+    } else if (builder.isScala3 && MatchType.parse(builder)) {
+      typeMarker.drop()
       true
     } else if (parseWildcardType(typeMarker, isPattern)) {
       true
