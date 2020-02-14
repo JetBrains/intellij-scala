@@ -38,12 +38,12 @@ object ScalaI18nUtil {
     case _ => false
   }
 
-  def isPassedToAnnotatedParam(@NotNull literal: ScLiteral, annFqn: String,
+  def isPassedToAnnotatedParam(@NotNull element: PsiElement, annFqn: String,
                                @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef],
                                @Nullable nonNlsTargets: mutable.HashSet[PsiModifierListOwner]): Boolean = {
-    literal.getParent match {
+    element.getParent match {
       case argList: ScArgumentExprList =>
-        val idx = argList.exprs.indexOf(literal)
+        val idx = argList.exprs.indexOf(element)
         if (idx == -1) return false
 
         argList.getParent match {

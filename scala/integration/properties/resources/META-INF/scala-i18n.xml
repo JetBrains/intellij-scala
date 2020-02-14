@@ -13,5 +13,10 @@
                          key="internal.string.should.be.in.bundle"
                          language="Scala" groupPath="Scala" groupName="Internal"
                          isInternal="true" level="WARNING" enabledByDefault="true" />
+        <localInspection implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.DynamicPropertyKeyInspection"
+                         bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                         key="internal.only.pass.hardcoded.strings.as.property.keys"
+                         language="Scala" groupPath="Scala" groupName="Internal"
+                         isInternal="true" level="ERROR" enabledByDefault="true" />
     </extensions>
 </idea-plugin>

@@ -158,7 +158,7 @@ object ScalaExtractStringToBundleInspection {
     private val Trimmed = raw"\W*(.*?)\W*".r
     private def convertStringToKey(string: String): String = {
       val maxKeyLength = 60
-      val Trimmed(fullKey) = nonWordSeq.replaceAllIn(string, ".")
+      val Trimmed(fullKey) = nonWordSeq.replaceAllIn(string, ".").toLowerCase
 
       lazy val lastDotIdx = fullKey.lastIndexOf(".", maxKeyLength - 3)
       if (fullKey.length < maxKeyLength) fullKey
