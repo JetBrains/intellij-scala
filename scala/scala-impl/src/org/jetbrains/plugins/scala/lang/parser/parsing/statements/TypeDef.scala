@@ -6,6 +6,7 @@ package statements
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{MatchType, Type}
 
 /**
@@ -32,7 +33,7 @@ object TypeDef {
         faultMarker.rollbackTo()
         return false
     }
-
+    TypeParamClause.parse(builder)
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
@@ -52,7 +53,7 @@ object TypeDef {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer()
 
-            if (!MatchType.parse(builder))
+            if (!MatchType.parse()(builder))
               builder.error(ScalaBundle.message("match.type.expected"))
 
             faultMarker.drop()
