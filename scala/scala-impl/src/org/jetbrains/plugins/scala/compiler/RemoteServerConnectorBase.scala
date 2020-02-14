@@ -6,20 +6,24 @@ import java.io.File
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
 import org.jetbrains.plugins.scala.compiler.data._
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
 //noinspection SameParameterValue
-abstract class RemoteServerConnectorBase(protected val module: Module, filesToCompile: Seq[File], outputDir: File, needCheck: Boolean = true) {
+abstract class RemoteServerConnectorBase(
+  protected val module: Module,
+  filesToCompile: Seq[File],
+  outputDir: File,
+  needCheck: Boolean = true
+) {
 
   implicit def projectContext: ProjectContext = module.getProject
 
   if (needCheck) checkFilesToCompile(filesToCompile)
 
-  def this(module: Module, fileToCompile: File, outputDir: File) = {
+  def this(module: Module, fileToCompile: File, outputDir: File) =
     this(module, Seq(fileToCompile), outputDir)
-  }
-
 
   private val sbtData = {
     val javaClassVersion = System.getProperty("java.class.version")
@@ -41,7 +45,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
 
   protected def additionalScalaParameters: Seq[String] = Seq.empty
 
-  protected def worksheetArgs: Seq[String] = Seq.empty
+  protected def worksheetArgs: Option[WorksheetArgs] = None
 
   private def classpath: Seq[File] = {
     val classesRoots = assemblyClasspath().toSeq map (f => new File(f.getCanonicalPath stripSuffix "!" stripSuffix "!/"))
@@ -74,7 +78,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
         isCompile = false
       )
     ),
-    worksheetFiles = worksheetArgs
+    worksheetArgs = worksheetArgs
   ).asStrings.tail // without token
 
   protected def settings: ScalaCompileServerSettings = ScalaCompileServerSettings.getInstance()

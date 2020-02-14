@@ -57,7 +57,7 @@ trait ScalaSdkOwner extends Test with InjectableJdk  {
           case Some(value) if value != version => s" (configured: $value)"
           case _                               => ""
         }
-        s"### Scala version used: ${version.minor}$detail, jdk: $testProjectJdkVersion ###"
+        s"### scala: ${version.minor}$detail, jdk: $testProjectJdkVersion ###"
       }
       lazy val logVersion: Unit = System.err.println(scalaVersionMessage) // lazy val to log only once
       val listener = new TestListener {

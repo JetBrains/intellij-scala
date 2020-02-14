@@ -6,7 +6,6 @@ import java.nio.file.{Files, Path, Paths}
 import java.util.{Base64, Timer, TimerTask}
 
 import com.martiansoftware.nailgun.NGContext
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.data.ArgumentsParser
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
@@ -51,7 +50,13 @@ object Main {
     System.setOut(System.err)
 
     try {
-      val args: Arguments = decodeArguments(argsEncoded)
+      val args: Arguments = decodeArguments(argsEncoded) match {
+        case Right(a) => a
+        case Left(error) =>
+          client.trace(error)
+          return
+      }
+
 
       // Don't check token in non-server mode
       if (port != -1) {
@@ -65,12 +70,15 @@ object Main {
         }
       }
 
-      if (!worksheetServer.isRepl(args)) {
+      val worksheetArgs = args.worksheetArgs
+      if (!worksheetArgs.exists(_.isRepl)) {
         server.compile(args.sbtData, args.compilerData, args.compilationData, client)
       }
 
-      if (!client.hasErrors) {
-        worksheetServer.loadAndRun(args, client)
+      worksheetArgs match {
+        case Some(wa) if !client.hasErrors=>
+          worksheetServer.loadAndRun(wa, args, client)
+        case _ =>
       }
     } catch {
       case e: Throwable =>
@@ -82,7 +90,7 @@ object Main {
     }
   }
 
-  private def decodeArguments(argsEncoded: Seq[String]): Arguments = {
+  private def decodeArguments(argsEncoded: Seq[String]): Either[ArgumentsParser.ArgumentsParserError, Arguments] = {
     val args = argsEncoded.map(decodeArgument)
     ArgumentsParser.parse(args)
   }

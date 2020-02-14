@@ -5,13 +5,9 @@ import java.lang.reflect.InvocationTargetException
 import java.net.{URL, URLClassLoader}
 
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer.WorksheetArgs
-import org.jetbrains.jps.incremental.scala.remote.EventGeneratingClient
+import org.jetbrains.jps.incremental.scala.local.worksheet.util.IOUtils
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgsPlain
 
-/**
- * User: Dmitry.Naydanov
- * Date: 03.12.14.
- */
 class WorksheetInProcessRunnerFactory {
 
   def getRunner(out: OutputStream): WorksheetInProcessRunner = new WorksheetInProcessRunnerImpl(out)
@@ -40,14 +36,14 @@ class WorksheetInProcessRunnerFactory {
     private val TRACE_PREFIX = 21
     private val WORKSHEET = "#worksheet#"
 
-    def loadAndRun(worksheetArgs: WorksheetArgs, client: Client): Unit = {
+    override def loadAndRun(args: WorksheetArgsPlain, context: WorksheetRunnerContext, client: Client): Unit = {
       def toUrlSpec(p: String): URL = new File(p).toURI.toURL
 
       val classLoader: URLClassLoader = {
-        val worksheetUrls = (Seq(worksheetArgs.pathToRunners, worksheetArgs.worksheetTemp) ++ worksheetArgs.outputDirs).map(_.toURI.toURL)
-        val classpathUrls = worksheetArgs.classpathUrls
+        val worksheetUrls = (Seq(args.pathToRunnersJar, args.worksheetTempFile) ++ args.outputDirs).map(_.toURI.toURL)
+        val classpathUrls = context.classpath.map(_.toURI.toURL)
         val compilerUrls  = {
-          val jars = worksheetArgs.compilerJars.allJars
+          val jars = context.compilerJars.allJars
           jars.map(_.getCanonicalPath).map(toUrlSpec)
         }
 
@@ -55,12 +51,12 @@ class WorksheetInProcessRunnerFactory {
         new URLClassLoader(worksheetUrls.toArray, parent)
       }
 
-      val className = worksheetArgs.compiledClassName
+      val className = args.worksheetClassName
       try {
         val cl = Class.forName(className, true, classLoader)
 
         cl.getDeclaredMethods.find(_.getName == "main").map { method =>
-          WorksheetServer.patchSystemOut(out)
+          IOUtils.patchSystemOut(out)
           method.invoke(null, new PrintStream(out))
         }
       } catch {
@@ -68,7 +64,7 @@ class WorksheetInProcessRunnerFactory {
           out.flush()
 
           val ex = if (userEx.getCause != null) userEx.getCause else userEx
-          val exClean = cleanStackTrace(ex, worksheetArgs.nameForST, className + "$" + className)
+          val exClean = cleanStackTrace(ex, args.originalFileName, className + "$" + className)
           exClean.printStackTrace(new PrintStream(out, false))
         case e: Exception =>
           client.trace(e)
@@ -77,7 +73,8 @@ class WorksheetInProcessRunnerFactory {
       }
     }
 
-    private def cleanStackTrace(e: Throwable, fileName: String, className: String): Throwable = {
+    private def cleanStackTrace(e: Throwable, originalFileName: String, className: String): Throwable = {
+
       def transformElement(original: StackTraceElement): StackTraceElement = {
         val originalClassName = original.getClassName
         val declaringClassName =
@@ -85,7 +82,6 @@ class WorksheetInProcessRunnerFactory {
           else if (originalClassName.startsWith(className + "$"))
             WORKSHEET + "." + originalClassName.substring(className.length + 1)
           else originalClassName
-        val originalFileName = if (fileName == null) original.getFileName else fileName
         new StackTraceElement(declaringClassName, original.getMethodName, originalFileName, original.getLineNumber - 4)
       }
 
@@ -97,7 +93,7 @@ class WorksheetInProcessRunnerFactory {
       val referenceElement = els(length - TRACE_PREFIX)
 
       newTrace(newTrace.length - 1) = {
-        val fileNameFinal = if (fileName == null) referenceElement.getFileName else fileName
+        val fileNameFinal = originalFileName
         val newElement = new StackTraceElement(WORKSHEET, WORKSHEET, fileNameFinal, referenceElement.getLineNumber - 4)
         newElement
       }

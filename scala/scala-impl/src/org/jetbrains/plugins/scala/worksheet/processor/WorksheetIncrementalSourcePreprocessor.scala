@@ -9,7 +9,9 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 
 object WorksheetIncrementalSourcePreprocessor {
 
-  private val REPL_DELIMITER = "\n$\n$\n"
+  /** TODO: duplicated in [[org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.ILoopWrapperFactory]]
+    *  extract to compiler-shared*/
+  private val ReplDelimiter = "\n$\n$\n"
 
   // can consist of code snippets (val x = 42) or native REPL commands (:reset, :help)
   case class PreprocessResult(commandsEncoded: String)
@@ -30,7 +32,7 @@ object WorksheetIncrementalSourcePreprocessor {
     val additionalCommands = if (needToReset) Seq(":reset") else Nil
 
     val replCommands = additionalCommands ++ codeCommands
-    val commands = replCommands.mkString(REPL_DELIMITER)
+    val commands = replCommands.mkString(ReplDelimiter)
     val commandsEncoded = Base64.encode(commands.getBytes)
     Right(PreprocessResult(commandsEncoded))
   }

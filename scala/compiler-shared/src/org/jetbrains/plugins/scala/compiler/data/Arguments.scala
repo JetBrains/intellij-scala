@@ -1,21 +1,19 @@
 package org.jetbrains.plugins.scala.compiler.data
 
-import java.io.File
+import org.jetbrains.plugins.scala.compiler.data.serialization.{SerializationUtils, WorksheetArgsSerializer}
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 
-import com.intellij.openapi.util.io.FileUtil
-
-/**
-  * @author Pavel Fatin
-  */
 case class Arguments(token: String,
                      sbtData: SbtData,
                      compilerData: CompilerData,
                      compilationData: CompilationData,
-                     worksheetFiles: Seq[String]) {
+                     // TODO: separate different kinds of requests: Compile / Run worksheet / Run Repl worksheet / (potentially run tests)
+                     worksheetArgs: Option[WorksheetArgs]) {
 
-  import Arguments._
+  import SerializationUtils._
 
   def asStrings: Seq[String] = {
+
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
 
     val (sourceRoots, outputDirs) = compilationData.outputGroups.unzip
@@ -50,23 +48,11 @@ case class Arguments(token: String,
       incrementalType.name,
       filesToPaths(sourceRoots),
       filesToPaths(outputDirs),
-      sequenceToString(worksheetFiles),
+      sequenceToString(worksheetArgs.map(WorksheetArgsSerializer.serialize).getOrElse(Nil)),
       //sbtIncOptions
       filesToPaths(compilationData.zincData.allSources),
       compilationData.zincData.compilationStartDate.toString,
       compilationData.zincData.isCompile.toString
     )
   }
-}
-
-object Arguments {
-  final val Delimiter = "\n"
-
-  private def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)
-
-  private def filesToPaths(files: Iterable[File]): String = sequenceToString(files.map(fileToPath))
-
-  private def optionToString(s: Option[String]): String = s.getOrElse("")
-
-  private def sequenceToString(strings: Iterable[String]): String = strings.mkString(Delimiter)
 }

@@ -96,33 +96,44 @@ object CompilerDataFactory
       }
   }
 
-  def hasDotty(modules: Set[JpsModule]): Boolean = modules.exists {
-    compilerJarsIn(_).exists(_.hasDotty)
-  }
-
-  def bootCpArgs(modules: Set[JpsModule]): Seq[String] =
-    if (hasDotty(modules)) {
-      Seq("-javabootclasspath", File.pathSeparator)
-    } else {
-      val needBootCp = modules.exists {
-        compilerJarsIn(_).forall {
-          case CompilerJars(_, compiler, _) => compilerVersionIn(compiler, "2.8", "2.9")
-        }
-      }
-      if (needBootCp)
-        Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
-      else
-        Seq.empty
+  def hasDotty(modules: Set[JpsModule]): Boolean =
+    modules.exists {
+      compilerJarsIn(_).exists(_.hasDotty)
     }
 
-  def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Array[String] = {
+  private def hasOldScala(modules: Set[JpsModule]) =
+    hasVersions(modules, "2.8", "2.9")
+
+  //noinspection SameParameterValue
+  private def hasVersions(modules: Set[JpsModule], versions: String*) =
+    modules.exists {
+      compilerJarsIn(_).forall {
+        case CompilerJars(_, compiler, _) => compilerVersionIn(compiler, versions: _*)
+      }
+    }
+
+  def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Seq[String] = {
+    val options = compilerSettings.getCompilerOptions
+    scalaOptionsFor(options, chunk)
+  }
+
+  private def scalaOptionsFor(options: Seq[String], chunk: ModuleChunk): Seq[String] = {
     val modules = chunk.getModules.asScala.toSet
     val hasDotty = CompilerDataFactory.hasDotty(modules)
 
-    val bootCpArgs = CompilerDataFactory.bootCpArgs(modules)
-    val otherArgs = compilerSettings.getCompilerOptions.filterNot(_.startsWith("-g:") && hasDotty) // TODO SCL-16881
-    (bootCpArgs ++ otherArgs).toArray
+    val bootCpArgs = CompilerDataFactory.bootCpArgs(hasDotty, hasOldScala(modules))
+    val otherArgs = options.filterNot(_.startsWith("-g:") && hasDotty) // TODO SCL-16881
+    bootCpArgs ++ otherArgs
   }
+
+  private def bootCpArgs(hasDotty: => Boolean, hasOldScala: => Boolean): Seq[String] =
+    if (hasDotty) {
+      Seq("-javabootclasspath", File.pathSeparator)
+    } else if (hasOldScala) {
+      Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
+    } else {
+      Seq.empty
+    }
 
   def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
     val compilerConfig = {
@@ -145,7 +156,7 @@ object CompilerDataFactory
   }
 
   // TODO JavaBuilder.loadCommonJavacOptions should be public
-  private def addCommonJavacOptions(options: util.ArrayList[String], compilerOptions: JpsJavaCompilerOptions) {
+  private def addCommonJavacOptions(options: util.ArrayList[String], compilerOptions: JpsJavaCompilerOptions): Unit = {
     if (compilerOptions.DEBUGGING_INFO) {
       options.add("-g")
     }

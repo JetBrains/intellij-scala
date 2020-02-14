@@ -16,6 +16,7 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
+import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
 import org.jetbrains.plugins.scala.compiler.{NonServerRunner, PluginJars, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -27,6 +28,7 @@ import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 
+// TODO: split to REPL and PLAIN args, change serialization format
 private[worksheet]
 class RemoteServerConnector(
   module: Module,
@@ -42,23 +44,27 @@ class RemoteServerConnector(
   override protected def compilerSettings: ScalaCompilerSettings =
     WorksheetFileSettings(worksheetPsiFile).getCompilerProfile.getSettings
 
-  /**
-    * Args (for running in compile server process only)
-    * 0. Compiled class name to execute
-    * 1. Path to runners.jar (needed to load MacroPrinter for types)
-    * 2. Output - path to temp file, where processed worksheet code is written
-    * 3. Output dir for compiled worksheet (i.e. for compiled temp file with processed code)
-    * 4. Original worksheet file path. Used as id of REPL session on compile server (iff REPL enabled)
-    * 5. Code chunk to interpret (iff REPL enabled)
-    * 6. "replenabled" - iff/if REPL mode enabled
-    */
-  override val worksheetArgs: Seq[String] =
+  override val worksheetArgs: Option[WorksheetArgs] =
     makeType match {
-      case OutOfProcessServer =>
-        Seq.empty[String]
+      case OutOfProcessServer => None
       case _ =>
-        val baseArgs = Array(worksheetClassName, PluginJars.runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
-        baseArgs ++ replArgs.toSeq.flatMap(ra => Seq(ra.path, ra.codeChunk, "replenabled"))
+        val args = replArgs match {
+          case Some(ra) =>
+            WorksheetArgsRepl(
+              sessionId = ra.path,
+              ra.codeChunk,
+              outputDirs
+            )
+          case None     =>
+            WorksheetArgsPlain(
+              worksheetClassName,
+              PluginJars.runnersJar,
+              worksheet,
+              worksheet.getName,
+              output +: outputDirs,
+            )
+        }
+        Some(args)
     }
 
   override val scalaParameters: Seq[String] = {
@@ -143,9 +149,10 @@ class RemoteServerConnector(
     process.run()
   }
 
-  private def outputDirs: Array[String] = {
+  private def outputDirs: Seq[File] = {
     val modules = ModuleRootManager.getInstance(module).getDependencies :+ module
-    modules.map(CompilerPaths.getModuleOutputPath(_, false))
+    val strings = modules.map(CompilerPaths.getModuleOutputPath(_, false))
+    strings.map(new File(_))
   }
 }
 

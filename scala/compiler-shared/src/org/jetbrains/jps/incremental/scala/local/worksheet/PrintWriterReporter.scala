@@ -4,7 +4,9 @@ import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
-class PrintWriterReporter(printWriter: PrintWriter) extends ILoopWrapperReporter {
+import org.jetbrains.jps.incremental.scala.Client
+
+class PrintWriterReporter(printWriter: PrintWriter, client: Client) extends ILoopWrapperReporter {
 
   import PrintWriterReporter._
 
@@ -17,6 +19,9 @@ class PrintWriterReporter(printWriter: PrintWriter) extends ILoopWrapperReporter
     printWriter.print(reportLine)
     printWriter.flush()
   }
+
+  override def internalDebug(message: String): Unit =
+    client.debug(message)
 }
 
 object PrintWriterReporter {

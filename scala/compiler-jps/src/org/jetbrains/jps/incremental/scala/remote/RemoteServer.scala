@@ -21,7 +21,7 @@ class RemoteServer(val address: InetAddress, val port: Int)
               client: Client): ExitCode = {
     val token = readStringFrom(tokenPathFor(port)).getOrElse("NO_TOKEN")
 
-    val arguments = Arguments(token, sbtData, compilerData, compilationData, Seq.empty).asStrings
+    val arguments = Arguments(token, sbtData, compilerData, compilationData, None).asStrings
 
     try {
       send(serverAlias, arguments, client)

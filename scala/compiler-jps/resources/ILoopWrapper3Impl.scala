@@ -1,23 +1,22 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import java.io.{PrintStream, Flushable}
-
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper3Impl._
+import java.io.{Flushable, PrintStream}
+import java.util
 
 import dotty.tools.repl.ReplDriver
 import dotty.tools.repl.State
-
 import scala.jdk.CollectionConverters._
+
+import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper3Impl._
 
 /**
  * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler
  */
 class ILoopWrapper3Impl(
   myOut: PrintStream,
-  //wrapperReporter: ILoopWrapperReporter, // TODO: use when ReplDriver accepts reporter
-  projectFullCp: java.util.List[String],
-  scalaOptions: java.util.List[String]
+  wrapperReporter: ILoopWrapperReporter, // TODO: use when ReplDriver accepts reporter
+  projectFullCp: util.List[String],
+  scalaOptions: util.List[String]
 ) extends ILoopWrapper {
 
   private var driver: ReplDriverOpen = _
@@ -26,26 +25,19 @@ class ILoopWrapper3Impl(
   override def getOutput: Flushable = myOut
 
   override def init(): Unit = {
-    val classPathString: String = buildClassPathString(projectFullCp)
+    val classPathString: String = projectFullCp.asScala.mkString(";")
 
     // see dotty.tools.dotc.config.ScalaSettings for the list of possible arguments
-    val replArgs = Array(
+    val extraScalaOptions = Seq(
       "-classpath", classPathString,
       "-color:never"
     )
+    val scalaOptionsFinal = (scalaOptions.asScala.toSeq ++ extraScalaOptions).distinct
+    wrapperReporter.internalDebug(scalaOptionsFinal.mkString("\n####\n"))
     val classLoader: Option[ClassLoader] = None
 
-    driver = new ReplDriverOpen(replArgs, myOut, classLoader)
+    driver = new ReplDriverOpen(scalaOptionsFinal.toArray, myOut, classLoader)
     state = driver.initialState
-  }
-
-  private def buildClassPathString(classpathList: java.util.List[String]): String = {
-    val classpathBuilder = new java.lang.StringBuilder
-    classpathList.forEach { path =>
-      classpathBuilder.append(path)
-      classpathBuilder.append(";")
-    }
-    classpathBuilder.toString
   }
 
   override def reset(): Unit = {
@@ -60,7 +52,7 @@ class ILoopWrapper3Impl(
 
   override def processChunk(code: String): Boolean = {
     state = driver.run(code)(state)
-    true // TODO: get the result from the driver
+    true // TODO: get the result from the driver when it implements this
   }
 }
 

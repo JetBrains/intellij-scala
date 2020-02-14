@@ -47,5 +47,5 @@ final class IsolatingClassLoader(parent: ClassLoader, filter: String => Boolean)
 object IsolatingClassLoader {
 
   def scalaStdLibIsolatingLoader(parent: ClassLoader): IsolatingClassLoader =
-    new IsolatingClassLoader(this.getClass.getClassLoader, !_.startsWith("scala"))
+    new IsolatingClassLoader(parent, !_.startsWith("scala"))
 }

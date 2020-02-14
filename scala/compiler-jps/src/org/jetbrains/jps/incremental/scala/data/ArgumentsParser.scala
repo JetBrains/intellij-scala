@@ -2,19 +2,25 @@ package org.jetbrains.jps.incremental.scala.data
 
 import java.io.File
 
+import org.jetbrains.jps.incremental.scala.data.ArgumentsParser.ArgumentsParserError
 import org.jetbrains.jps.incremental.scala.extractor
-import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilationData, CompilerData, CompilerJarsFactory, SbtData, ZincData}
+import org.jetbrains.plugins.scala.compiler.data._
+import org.jetbrains.plugins.scala.compiler.data.serialization.{SerializationUtils, WorksheetArgsSerializer}
 import org.jetbrains.plugins.scala.compiler.{CompileOrder, IncrementalityType}
 
+// TODO: move to compiler-shared
+//  unify with serializers org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer
 trait ArgumentsParser {
 
-  def parse(string: Seq[String]): Arguments
+  def parse(string: Seq[String]): Either[ArgumentsParserError, Arguments]
 }
 
 object ArgumentsParser
   extends ArgumentsParser {
 
-  def parse(strings: Seq[String]): Arguments = strings match {
+  case class ArgumentsParserError(message: String) extends RuntimeException
+
+  override def parse(strings: Seq[String]): Either[ArgumentsParserError, Arguments] = strings match {
     case token +: Seq(
       PathToFile(sbtInterfaceJar),
       PathToFile(compilerInterfaceJar),
@@ -38,11 +44,13 @@ object ArgumentsParser
       incrementalTypeName,
       PathsToFiles(sourceRoots),
       PathsToFiles(outputDirs)
-    ) :+ StringToSequence(worksheetClass)
+    ) :+ StringToSequence(worksheetArgsRaw)
       :+ PathsToFiles(allSources)
       :+ startDate
       :+ StringToBoolean(isCompile)
      =>
+
+      def error(message: String): Left[ArgumentsParserError, Nothing] = Left(ArgumentsParserError(message))
 
       val scalaBridgeSources = SbtData.ScalaSourceJars(
         _2_10 = scalaBridgeSourceJar_2_10,
@@ -58,8 +66,8 @@ object ArgumentsParser
       val compilerJars = compilerJarPaths.map {
         case PathsToFiles(files) =>
           CompilerJarsFactory.fromFiles(files) match {
-            case Left(error)  => throw new RuntimeException(s"Couldn't extract compiler jars from: ${files.mkString(";")}\n" + error.toString)
-            case Right(value) => value
+            case Left(resolveError) => return error(s"Couldn't extract compiler jars from: ${files.mkString(";")}\n" + resolveError.toString)
+            case Right(value)       => value
           }
       }
 
@@ -79,7 +87,16 @@ object ArgumentsParser
 
       val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups, zincData)
 
-      Arguments(token, sbtData, compilerData, compilationData, worksheetClass)
+      // this is actually not the best solution because we can't distinguish between empty sequence and absence of sequence,
+      //  but will do for now, until we refactor communication protocol between client and server
+      val worksheetArgs =
+        if (worksheetArgsRaw.isEmpty) None
+        else WorksheetArgsSerializer.deserialize(worksheetArgsRaw) match {
+          case Right(value) => Option(value)
+          case Left(errors) => return error(s"Couldn't parse worksheet arguments:\n${errors.mkString("\n")}")
+        }
+
+      Right(Arguments(token, sbtData, compilerData, compilationData, worksheetArgs))
   }
 
   private val PathToFile = extractor[String, File] { path: String =>
@@ -87,7 +104,7 @@ object ArgumentsParser
   }
 
   private val PathsToFiles = extractor[String, Seq[File]] { paths: String =>
-    if (paths.isEmpty) Seq.empty else paths.split(Arguments.Delimiter).map(new File(_)).toSeq
+    if (paths.isEmpty) Seq.empty else paths.split(SerializationUtils.Delimiter).map(new File(_)).toSeq
   }
 
   private val StringToOption = extractor[String, Option[String]] { s: String =>
@@ -95,7 +112,7 @@ object ArgumentsParser
   }
 
   private val StringToSequence = extractor[String, Seq[String]] { s: String =>
-    if (s.isEmpty) Seq.empty else s.split(Arguments.Delimiter).toSeq
+    if (s.isEmpty) Seq.empty else s.split(SerializationUtils.Delimiter).toSeq
   }
 
   private val StringToBoolean = extractor[String, Boolean] { s: String =>

@@ -21,7 +21,7 @@ import scala.util.control.NonFatal
 
 private object WorksheetCompilerLocalEvaluator {
 
-  private val RunnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
+  private val RunnerClassName = "org.jetbrains.plugins.scala.worksheet.PlainWorksheetRunner"
 
   // this method is only used when run type is [[org.jetbrains.plugins.scala.worksheet.server.OutOfProcessServer]]
    def executeWorksheet(scalaFile: ScalaFile, mainClassName: String, addToCp: String)

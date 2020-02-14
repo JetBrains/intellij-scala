@@ -65,7 +65,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
   }
 
   private def getScalaInstance(compilerJars: Option[CompilerJars]): Option[ScalaInstance] =
-    compilerJars.map(createScalaInstance)
+    compilerJars.map(getOrCreateScalaInstance)
 }
 
 object CompilerFactoryImpl {
@@ -74,25 +74,26 @@ object CompilerFactoryImpl {
 
   private var classLoadersMap = Map[Seq[File], ClassLoader]()
 
-  def createScalaInstance(jars: CompilerJars): ScalaInstance = {
-    scalaInstanceCache.getOrUpdate(jars) {
-      val paths = jars.allJars
+  def getOrCreateScalaInstance(jars: CompilerJars): ScalaInstance =
+    scalaInstanceCache.getOrUpdate(jars)(createScalaInstance(jars))
 
-      def createClassLoader() = {
-        val urls = Path.toURLs(paths)
-        val newClassloader = new URLClassLoader(urls, sbt.internal.inc.classpath.ClasspathUtilities.rootLoader)
+  private def createScalaInstance(jars: CompilerJars) = {
+    val paths = jars.allJars
 
-        classLoadersMap += paths -> newClassloader
+    def createClassLoader() = {
+      val urls = Path.toURLs(paths)
+      val newClassloader = new URLClassLoader(urls, sbt.internal.inc.classpath.ClasspathUtilities.rootLoader)
 
-        newClassloader
-      }
+      classLoadersMap += paths -> newClassloader
 
-      val classLoader = synchronized(classLoadersMap.getOrElse(paths, createClassLoader()))
-
-      val version = compilerVersion(classLoader)
-
-      new ScalaInstance(version.getOrElse("unknown"), classLoader, jars.library, jars.compiler, jars.extra.toArray, version)
+      newClassloader
     }
+
+    val classLoader = synchronized(classLoadersMap.getOrElse(paths, createClassLoader()))
+
+    val version = compilerVersion(classLoader)
+
+    new ScalaInstance(version.getOrElse("unknown"), classLoader, jars.library, jars.compiler, jars.extra.toArray, version)
   }
 
   private def getOrCompileInterfaceJar(home: File,

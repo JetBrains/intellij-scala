@@ -5,92 +5,70 @@ import java.lang.reflect.InvocationTargetException
 import java.net.{URLClassLoader, URLDecoder}
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.local.worksheet.util.{IOUtils, IsolatingClassLoader}
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
-import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.{JavaClientProvider, JavaILoopWrapperFactory}
-import org.jetbrains.jps.incremental.scala.local.worksheet.util.IsolatingClassLoader
+import org.jetbrains.jps.incremental.scala.{Client, compilerVersion}
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgsRepl
+import org.jetbrains.plugins.scala.compiler.data.{CompilerJars, SbtData}
 import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.io.Path
 import sbt.util.{Level, Logger}
 import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
-import org.jetbrains.jps.incremental.scala.compilerVersion
-import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilerJars, SbtData}
 
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
 
-  private var replFactory: (ClassLoader, JavaILoopWrapperFactory, String) = _
+  private var cachedReplFactory: (ClassLoader, ILoopWrapperFactory, ScalaVersion) = _
 
   def loadReplWrapperAndRun(
-    commonArguments: Arguments,
+    args: WorksheetArgsRepl,
+    replContext: ReplContext,
     out: PrintStream, // the consumed output is delegated to client then encoded and delegated to Nailgun out and sent to the
     client: Client
   ): Unit = try {
-    val compilerJars = commonArguments.compilerData.compilerJars.orNull
-    val scalaInstance = CompilerFactoryImpl.createScalaInstance(compilerJars)
-    val scalaVersion = findScalaVersionIn(scalaInstance)
-    val (iLoopFile, isScala3) = getOrCompileReplLoopFile(commonArguments.sbtData, scalaInstance, client)
+    val compilerJars = replContext.compilerJars
+    val scalaVersion = compilerVersion(compilerJars.compiler).map(ScalaVersion).getOrElse(FallBackScalaVersion)
+    val replWrapper  = getOrCompileReplWrapper(replContext, scalaVersion, client)
 
     // TODO: improve caching, for now we can have only 1 instance with 1 version of scala
-    replFactory match {
+    cachedReplFactory match {
       case (_, _, oldVersion) if oldVersion == scalaVersion =>
       case _ =>
         val loader = createIsolatingClassLoader(compilerJars)
-        val iLoopWrapper = new JavaILoopWrapperFactory
-        replFactory = (loader, iLoopWrapper, scalaVersion)
+        val iLoopWrapper = new ILoopWrapperFactory
+        if (cachedReplFactory != null) {
+          cachedReplFactory._2.clearCaches()
+        }
+        cachedReplFactory = (loader, iLoopWrapper, scalaVersion)
     }
 
     // TODO: extract to bundle carefully,
     //  DynamicBundle isn't available in JSP process, we could pass ADT instead of strings
     client.progress("Running REPL...")
 
-    val (classLoader, iLoopWrapper, _) = replFactory
+    val (classLoader, replFactory, _) = cachedReplFactory
 
-    WorksheetServer.patchSystemOut(out)
-
-    val clientProvider: JavaClientProvider = new JavaClientProvider  {
-      override def onProgress(message: String): Unit = client.progress(message)
-      override def onInitializationException(ex: Exception): Unit = client.trace(ex)
-    }
-    iLoopWrapper.loadReplWrapperAndRun(
-      scalaToJava(commonArguments.worksheetFiles),
-      scalaToJava(commonArguments.compilationData.scalaOptions),
-      commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
-      compilerJars.library,
-      compilerJars.compiler,
-      scalaToJava(compilerJars.extra),
-      scalaToJava(commonArguments.compilationData.classpath),
-      out,
-      iLoopFile,
-      isScala3,
-      clientProvider,
-      classLoader
-    )
+    IOUtils.patchSystemOut(out)
+    replFactory.loadReplWrapperAndRun(args, replContext, out, replWrapper, client, classLoader)
   } catch {
     case e: InvocationTargetException =>
       throw e.getTargetException
   }
 
-  protected def getOrCompileReplLoopFile(sbtData: SbtData, scalaInstance: ScalaInstance, client: Client): (File, Boolean) = {
-    val version = findScalaVersionIn(scalaInstance)
-    val isScala3 = isScala3Version(version)
-    val (iLoopWrapperClass, WrapperVersion(wrapperVersion)) =
-      if (version.startsWith("2.13.0")) ILoopWrapper213_0Impl
-      else if (version.startsWith("2.13")) ILoopWrapper213Impl
-      else if (isScala3) ILoopWrapper3Impl
-      else ILoopWrapperImpl
-    val replLabel = s"repl-wrapper-$version-${sbtData.javaClassVersion}-$wrapperVersion-$iLoopWrapperClass.jar"
+  protected def getOrCompileReplWrapper(replContext: ReplContext, scalaVersion: ScalaVersion, client: Client): ReplWrapperCompiled = {
+    val ReplContext(sbtData, compilerJars, _, _) = replContext
+    val (wrapperClassName, WrapperVersion(wrapperVersion)) = wrapperClassNameFor(scalaVersion)
+    val replLabel = s"repl-wrapper-${scalaVersion.value}-${sbtData.javaClassVersion}-$wrapperVersion-$wrapperClassName.jar"
     val targetFile = new File(sbtData.interfacesHome, replLabel)
 
-    if (!targetFile.exists()) {
-      compileReplLoopFile(scalaInstance, sbtData, iLoopWrapperClass, replLabel, targetFile, client)
+    if (!targetFile.exists) {
+      val scalaInstance = CompilerFactoryImpl.getOrCreateScalaInstance(compilerJars)
+      compileReplLoopFile(scalaInstance, sbtData, wrapperClassName, replLabel, targetFile, client)
     }
 
-    (targetFile, isScala3)
+    ReplWrapperCompiled(targetFile, wrapperClassName, scalaVersion)
   }
 
-  // temp solution while dotty is evolving very fast
-  private def isScala3Version(version: String): Boolean = version.matches("""0\.2\d.*""")
 
   private def compileReplLoopFile(scalaInstance: ScalaInstance,
                                   sbtData: SbtData,
@@ -148,10 +126,24 @@ object ILoopWrapperFactoryHandler {
   val ILoopWrapperImpl      = ("ILoopWrapperImpl", WrapperVersion(Scala2ILoopWrapperVersion))
   val ILoopWrapper213_0Impl = ("ILoopWrapper213_0Impl", WrapperVersion(Scala2ILoopWrapperVersion))
   val ILoopWrapper213Impl   = ("ILoopWrapper213Impl", WrapperVersion(Scala2ILoopWrapperVersion))
-  val ILoopWrapper3Impl     = ("ILoopWrapper3Impl", WrapperVersion(2))
+  val ILoopWrapper3Impl     = ("ILoopWrapper3Impl", WrapperVersion(3))
 
-  private def findScalaVersionIn(scalaInstance: ScalaInstance): String =
-    compilerVersion(scalaInstance.loader).getOrElse("Undefined")
+  private def wrapperClassNameFor(version: ScalaVersion): (String, WrapperVersion) = {
+    val v = version.value
+    if (v.startsWith("2.13.0")) ILoopWrapper213_0Impl
+    else if (v.startsWith("2.13")) ILoopWrapper213Impl
+    else if (version.isScala3) ILoopWrapper3Impl
+    else ILoopWrapperImpl
+  }
+
+  private[worksheet] case class ReplWrapperCompiled(file: File, className: String, version: ScalaVersion)
+
+  private[worksheet] case class ScalaVersion(value: String) {
+    // temp solution while dotty is evolving very fast
+    val isScala3: Boolean = value.matches("""0\.2\d.*""")
+  }
+
+  private val FallBackScalaVersion = ScalaVersion("2.12.0")
 
   private def findContainingJar(clazz: Class[_]): Option[File] = {
     val resource = clazz.getResource(s"/${clazz.getName.replace('.', '/')}.class")
@@ -171,14 +163,6 @@ object ILoopWrapperFactoryHandler {
     new URLClassLoader(Path.toURLs(jars), parent)
   }
 
-  //We need this method as scala std lib converts scala collections to its own wrappers with asJava method
-  private def scalaToJava[T](seq: Seq[T]): java.util.List[T] = {
-    val list = new java.util.ArrayList[T]()
-    seq.foreach(list.add)
-    list
-  }
-
-
   // use for debugging
   private class ClientDelegatingLogger(client: Client) extends Logger {
     override def trace(t: => Throwable): Unit = client.trace(t)
@@ -192,4 +176,9 @@ object ILoopWrapperFactoryHandler {
       case Level.Error          => Kind.ERROR
     }
   }
+
+  case class ReplContext(sbtData: SbtData,
+                         compilerJars: CompilerJars,
+                         classpath: Seq[File],
+                         scalacOptions: Seq[String])
 }

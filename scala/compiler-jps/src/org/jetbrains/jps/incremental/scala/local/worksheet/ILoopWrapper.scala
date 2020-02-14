@@ -11,6 +11,7 @@ trait ILoopWrapper {
   def reset(): Unit
   def processChunk(input: String): Boolean
 
-  /** @return either PrintWriter (Scala 2) or PrintStream (Scala 3) */
+  /** @return either PrintWriter (Scala 2) or PrintStream (Scala 3)
+   *          do not use Either, use only java primitives */
   def getOutput: Flushable
 }

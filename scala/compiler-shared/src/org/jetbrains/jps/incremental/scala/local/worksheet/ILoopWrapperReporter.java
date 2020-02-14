@@ -7,4 +7,6 @@ public interface ILoopWrapperReporter {
                 Integer column,
                 String lineContent,
                 String message);
+
+    void internalDebug(String message);
 }

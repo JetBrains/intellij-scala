@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-/**
- * User: Dmitry Naydanov
- * Date: 1/17/14
- */
-public class MyWorksheetRunner {
+/** used in {@link org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerLocalEvaluator} */
+public class PlainWorksheetRunner {
   private static final int TRACE_PREFIX = 13;
   
   public static void main(String[] args) throws IOException {
@@ -16,15 +13,13 @@ public class MyWorksheetRunner {
     String fileName = args.length > 1? args[1] : null;
     
     try {
-      Class cl = ClassLoader.getSystemClassLoader().loadClass(className); //It's in default package, so name == fqn
-      Object methodArgs = new String[] {};
-      for (Method method : cl.getDeclaredMethods()) {
-        if ("main".equals(method.getName())) method.invoke(null, java.lang.System.out);
+      Class<?> klass = ClassLoader.getSystemClassLoader().loadClass(className); //It's in default package, so name == fqn
+      for (Method method : klass.getDeclaredMethods()) {
+        if ("main".equals(method.getName()))
+          method.invoke(null, java.lang.System.out);
       }
-      
     } catch (InvocationTargetException e) {
-      Throwable newThrowable = 
-          new StackTraceClean(e.getCause() == null? e : e.getCause(), fileName, className + "$" + className).clean();
+      Throwable newThrowable = new StackTraceClean(e.getCause() == null? e : e.getCause(), fileName, className + "$" + className).clean();
       newThrowable.printStackTrace(System.out);
     } catch (Exception e) {
       e.printStackTrace(System.out);
@@ -68,12 +63,12 @@ public class MyWorksheetRunner {
     
     private StackTraceElement transformElement(StackTraceElement original) {
       final String originalClassName = original.getClassName();
-      final String declaringClassName = originalClassName.equals(className) ? WORKSHEET : 
+      final String declaringClassName = originalClassName.equals(className) ? WORKSHEET :
           (originalClassName.startsWith(className + "$")? WORKSHEET + "." + originalClassName.substring(className.length() + 1) : originalClassName);
       final String originalFileName = fileName == null ? original.getFileName() : fileName;
 
       return new StackTraceElement(declaringClassName, original.getMethodName(),
-          originalFileName, original.getLineNumber() - 4); 
+          originalFileName, original.getLineNumber() - 4);
     }
   }
 }
