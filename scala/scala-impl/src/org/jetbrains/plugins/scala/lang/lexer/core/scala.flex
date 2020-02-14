@@ -112,7 +112,7 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 
       return type;
     }
-    
+
     @NotNull
     private IElementType processInsideString(boolean isInsideMultiline) {
         boolean isEscape = yycharat(1) == '$';
@@ -336,7 +336,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
     yybegin(COMMON_STATE);
     return process(tINTERPOLATED_STRING_INJECTION);
   }
-  
+
   [\r\n] {
     yybegin(COMMON_STATE);
     return process(tWRONG_STRING);
@@ -377,12 +377,12 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
       yybegin(COMMON_STATE);
       return process(tINTERPOLATED_STRING_INJECTION);
   }
-  
+
   \" / [^\"] {
     return process(tINTERPOLATED_MULTILINE_STRING);
   }
 
-  [^] {  
+  [^] {
     return process(tWRONG_STRING);
   }
 }
@@ -421,7 +421,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "{"{XML_BEGIN}                          {   if (shouldProcessBracesForInterpolated()) {
                                               nestedString.peek().increase();
                                             }
-                                            
+
                                             yypushback(yylength() - 1);
                                             yybegin(YYINITIAL);
                                             return process(tLBRACE); }
@@ -429,7 +429,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "}"                                     {   if (shouldProcessBracesForInterpolated()) {
                                               InterpolatedStringLevel level = nestedString.peek();
                                               level.decrease();
-                                              
+
                                               if (level.isZero()) {
                                                 yybegin(level.getState());
                                               }
@@ -455,6 +455,8 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 }
 
+"=>>" { return processScala3(TypeLambdaArrow()); }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -465,7 +467,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                         {   return process(kCASE); }
 
 "case"                                  {   return process(kCASE); }
-                                            
+
 "catch"                                 {   return process(kCATCH); }
 "class"                                 {   return process(ClassKeyword()); }
 "def"                                   {   return process(kDEF); }

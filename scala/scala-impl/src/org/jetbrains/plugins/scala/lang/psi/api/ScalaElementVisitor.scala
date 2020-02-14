@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
   private var referencesStack = List.empty[ScReference]
-  
+
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
     if (referencesStack.nonEmpty && referencesStack.head == element) {
       referencesStack = null :: referencesStack.tail

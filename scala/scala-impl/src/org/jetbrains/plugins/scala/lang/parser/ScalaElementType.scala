@@ -224,6 +224,9 @@ object ScalaElementType {
   val SPLICED_BLOCK_TYPE: ScTypeElementType = new ScTypeElementType("spliced block") {
     override def createElement(node: ASTNode) = new ScSplicedBlockImpl(node)
   }
+  val TYPE_LAMBDA: ScTypeElementType = new ScTypeElementType("type lambda") {
+    override def createElement(node: ASTNode): ScTypeElement = new ScTypeLambdaTypeElementImpl(node)
+  }
 
   /** ***********************************************************************************/
   /** ************************************ TYPE PARTS ***********************************/

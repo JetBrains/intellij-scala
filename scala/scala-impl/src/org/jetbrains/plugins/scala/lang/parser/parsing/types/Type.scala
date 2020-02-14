@@ -6,12 +6,14 @@ package types
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 
 /*
  * Type ::= InfixType '=>' Type
  *        | '(' ['=>' Type] ')' => Type
+ *        | TypeParamClause '=>>' Type       (Scala 3+ only)
  *        | InfixType [ExistentialClause]
  *        | _ SubtypeBounds
  *        | ? SubtypeBounds (Scala 3)
@@ -36,7 +38,11 @@ object Type extends Type {
 trait Type {
   protected def infixType: InfixType
 
-  def parse(builder: ScalaPsiBuilder, star: Boolean = false, isPattern: Boolean = false): Boolean = {
+  def parse(
+    builder:   ScalaPsiBuilder,
+    star:      Boolean = false,
+    isPattern: Boolean = false
+  ): Boolean = {
     implicit val b: ScalaPsiBuilder = builder
     val typeMarker = builder.mark
 
@@ -49,10 +55,21 @@ trait Type {
           }
           typeMarker.done(ScalaElementType.TYPE)
         case ScalaTokenTypes.kFOR_SOME =>
-          ExistentialClause parse builder
+          ExistentialClause.parse(builder)
           typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
         case _ =>
           typeMarker.drop()
+      }
+      true
+    } else if (builder.isScala3 && TypeParamClause.parse(builder, mayHaveContextBounds = false)) {
+      builder.getTokenType match {
+        case ScalaTokenType.TypeLambdaArrow =>
+          builder.advanceLexer()
+          if (!parse(builder, isPattern = isPattern)) {
+            builder.error(ScalaBundle.message("wrong.type"))
+          }
+          typeMarker.done(ScalaElementType.TYPE_LAMBDA)
+        case _ => builder.error(ScalaBundle.message("type.lambda.expected"))
       }
       true
     } else if (parseWildcardType(typeMarker, isPattern)) {

@@ -17,8 +17,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object TypeParamClause {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(
+    builder:              ScalaPsiBuilder,
+    mayHaveVariance:      Boolean = true,
+    mayHaveViewBounds:    Boolean = true,
+    mayHaveContextBounds: Boolean = true
+  ): Boolean = {
     val typeMarker = builder.mark
+    val parseTypeParam = () => TypeParam.parse(builder, mayHaveVariance, mayHaveViewBounds, mayHaveContextBounds)
+
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
         builder.advanceLexer() //Ate [
@@ -27,15 +34,19 @@ object TypeParamClause {
         typeMarker.drop()
         return false
     }
-    if (!TypeParam.parse(builder)) {
-      builder error ScalaBundle.message("wrong.parameter")
+
+    if (!parseTypeParam()) {
+      builder.error(ScalaBundle.message("wrong.parameter"))
     }
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
+
+    while (builder.getTokenType == ScalaTokenTypes.tCOMMA &&
+           !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
       builder.advanceLexer() //Ate
-      if (!TypeParam.parse(builder)) {
-        builder error ErrMsg("wrong.parameter")
+      if (!parseTypeParam()) {
+        builder.error(ScalaBundle.message("wrong.parameter"))
       }
     }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tRSQBRACKET =>
         builder.advanceLexer() //Ate ]

@@ -14,31 +14,31 @@ class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLan
 }
 
 object ScalaTokenType {
-
-  val ClassKeyword = new ScalaTokenType("class")
-  val TraitKeyword = new ScalaTokenType("trait")
-  val EnumKeyword = new ScalaTokenType("enum")
+  val ClassKeyword  = new ScalaTokenType("class")
+  val TraitKeyword  = new ScalaTokenType("trait")
+  val EnumKeyword   = new ScalaTokenType("enum")
   val ObjectKeyword = new ScalaTokenType("object")
-  val GivenKeyword = new ScalaTokenType("given")
+  val GivenKeyword  = new ScalaTokenType("given")
 
   val NewKeyword = new ScalaTokenType("new")
 
-  val Long = new ScalaTokenType("long")
+  val Long    = new ScalaTokenType("long")
   val Integer = new ScalaTokenType("integer")
-  val Double = new ScalaTokenType("double")
-  val Float = new ScalaTokenType("float")
+  val Double  = new ScalaTokenType("double")
+  val Float   = new ScalaTokenType("float")
 
   val ExportKeyword = new ScalaTokenType("export")
-  val Then = new ScalaTokenType("then")
+  val Then          = new ScalaTokenType("then")
 
-  val As = new ScalaTokenType("as")
-  val Derives = new ScalaTokenType("derives")
+  val As                             = new ScalaTokenType("as")
+  val Derives                        = new ScalaTokenType("derives")
   val Inline: ScalaModifierTokenType = ScalaTokenTypes.kINLINE
-  val Opaque = new ScalaTokenType("opaque")
+  val Opaque                         = new ScalaTokenType("opaque")
 
   val SpliceStart = new ScalaTokenType("$")
-  val QuoteStart = new ScalaTokenType("'")
+  val QuoteStart  = new ScalaTokenType("'")
 
+  val TypeLambdaArrow = new ScalaTokenType("=>>")
 
   object IsTemplateDefinition {
 
