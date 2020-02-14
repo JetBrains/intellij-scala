@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.lang.macros.evaluator
 
-import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiNamedElement
@@ -34,10 +33,8 @@ import scala.reflect.ClassTag
  * date 19.12.14
  */
 
-class ScalaMacroEvaluator(project: Project) extends ProjectComponent {
+class ScalaMacroEvaluator(project: Project) {
   import ScalaMacroEvaluator._
-
-  override def getComponentName = "ScalaMacroEvaluator"
 
   @Cached(LibraryExtensionsManager.MOD_TRACKER, null)
   private def typingRules:    Map[MacroImpl, ScalaMacroTypeable]    = loadRules(defaultTypeProviders)

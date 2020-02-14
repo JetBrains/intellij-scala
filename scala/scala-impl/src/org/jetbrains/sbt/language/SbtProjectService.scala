@@ -9,7 +9,6 @@ import com.intellij.notification.impl.NotificationsConfigurationImpl
 import com.intellij.notification.{Notification, NotificationDisplayType}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
-import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.options.ex.SingleConfigurableEditor

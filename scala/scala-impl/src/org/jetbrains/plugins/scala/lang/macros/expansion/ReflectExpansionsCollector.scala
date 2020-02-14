@@ -3,13 +3,10 @@ package org.jetbrains.plugins.scala.lang.macros.expansion
 import java.io._
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.util.MacroExpansion
+import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions
 
 import scala.collection.mutable
