@@ -1,0 +1,44 @@
+type A = [+X >: L1 <: U1, -Z] =>> R1
+-----
+ScalaFile
+  ScTypeAliasDefinition: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeLambda: [+X >: L1 <: U1, -Z] =>> R1
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: X
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: L1
+            CodeReferenceElement: L1
+              PsiElement(identifier)('L1')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: U1
+            CodeReferenceElement: U1
+              PsiElement(identifier)('U1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: Z
+          PsiElement(identifier)('-')
+          PsiElement(identifier)('Z')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>>)('=>>')
+      PsiWhiteSpace(' ')
+      SimpleType: R1
+        CodeReferenceElement: R1
+          PsiElement(identifier)('R1')

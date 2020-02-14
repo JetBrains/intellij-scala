@@ -1,0 +1,44 @@
+type A = [X] =>> [Y] =>> (X, Y)
+-----
+ScalaFile
+  ScTypeAliasDefinition: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeLambda: [X] =>> [Y] =>> (X, Y)
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: X
+          PsiElement(identifier)('X')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>>)('=>>')
+      PsiWhiteSpace(' ')
+      TypeLambda: [Y] =>> (X, Y)
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: Y
+            PsiElement(identifier)('Y')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=>>)('=>>')
+        PsiWhiteSpace(' ')
+        TupleType: (X, Y)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Y
+              CodeReferenceElement: Y
+                PsiElement(identifier)('Y')
+          PsiElement())(')')
