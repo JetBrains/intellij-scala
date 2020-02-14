@@ -1,7 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="true" type="JUnit" factoryName="JUnit">
     <module name="scalaCommunity" />
-    <shortenClasspath name="CLASSPATH_FILE" />
+    <shortenClasspath name="ARGS_FILE" />
+    <useClassPathOnly />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
