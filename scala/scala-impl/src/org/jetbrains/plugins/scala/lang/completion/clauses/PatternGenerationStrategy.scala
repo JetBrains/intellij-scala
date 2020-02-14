@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, TypePresentationContext}
 
 sealed trait PatternGenerationStrategy {
   def canBeExhaustive: Boolean
@@ -73,6 +73,17 @@ object PatternGenerationStrategy {
               enumConstants.map(_.getName)
             )
         }
+      case ScCompoundType(Seq(ExtractClass(DirectInheritors(inheritors)), _*), _, _) =>
+        val Inheritors(namedInheritors, isSealed, isExhaustive) = inheritors
+
+        val appropriateNamedInheritors = for {
+          inheritor <- namedInheritors
+          if ScDesignatorType(inheritor).conforms(valueType)
+        } yield inheritor
+
+        new DirectInheritorsGenerationStrategy(
+          Inheritors(appropriateNamedInheritors, isSealed, isExhaustive)
+        )
       case ExtractClass(DirectInheritors(inheritors)) =>
         new DirectInheritorsGenerationStrategy(inheritors)
       case _ =>
