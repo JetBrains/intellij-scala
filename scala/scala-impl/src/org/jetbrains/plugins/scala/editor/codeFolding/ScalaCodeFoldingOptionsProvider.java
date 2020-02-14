@@ -9,16 +9,17 @@ public class ScalaCodeFoldingOptionsProvider extends BeanConfigurable<ScalaCodeF
 
   public ScalaCodeFoldingOptionsProvider() {
     super(ScalaCodeFoldingSettings.getInstance(), "Scala");
-    checkBox("FoldingForAllBlocks", EditorBundle.message("checkbox.add.folding.for.all.blocks"));
+    ScalaCodeFoldingSettings s = getInstance();
 
-    checkBox("CollapseShellComments", EditorBundle.message("checkbox.collapse.shell.comments"));
-    checkBox("CollapseBlockComments", EditorBundle.message("checkbox.collapse.block.comments"));
-    checkBox("CollapseMethodCallBodies", EditorBundle.message("checkbox.collapse.method.call.bodies"));
-    checkBox("CollapseTemplateBodies", EditorBundle.message("checkbox.collapse.template.bodies"));
-    checkBox("CollapseTypeLambdas", EditorBundle.message("checkbox.collapse.type.lambdas"));
-    checkBox("CollapsePackagings", EditorBundle.message("checkbox.collapse.packagings"));
-    checkBox("CollapseMultilineStrings", EditorBundle.message("checkbox.collapse.multiline.strings"));
-    checkBox("CollapseCustomRegions", EditorBundle.message("checkbox.collapse.custom.regions"));
-    checkBox("CollapseMultilineBlocks", EditorBundle.message("checkbox.collapse.multiline.blocks"));
+    checkBox(EditorBundle.message("checkbox.collapse.block.comments"), s::isCollapseBlockComments, s::setCollapseBlockComments);
+    checkBox(EditorBundle.message("checkbox.collapse.shell.comments"), s::isCollapseShellComments, s::setCollapseShellComments);
+    checkBox(EditorBundle.message("checkbox.collapse.method.call.bodies"), s::isCollapseMethodCallBodies, s::setCollapseMethodCallBodies);
+    checkBox(EditorBundle.message("checkbox.collapse.template.bodies"), s::isCollapseTemplateBodies, s::setCollapseTemplateBodies);
+    checkBox(EditorBundle.message("checkbox.collapse.type.lambdas"), s::isCollapseTypeLambdas, s::setCollapseTypeLambdas);
+    checkBox(EditorBundle.message("checkbox.collapse.packagings"), s::isCollapsePackagings, s::setCollapsePackagings);
+    checkBox(EditorBundle.message("checkbox.collapse.multiline.strings"), s::isCollapseMultilineStrings, s::setCollapseMultilineStrings);
+    checkBox(EditorBundle.message("checkbox.collapse.custom.regions"), s::isCollapseCustomRegions, s::setCollapseCustomRegions);
+    checkBox(EditorBundle.message("checkbox.collapse.multiline.blocks"), s::isCollapseMultilineBlocks, s::setCollapseMultilineBlocks);
+    checkBox(EditorBundle.message("checkbox.add.folding.for.all.blocks"), s::isFoldingForAllBlocks, s::setFoldingForAllBlocks);
   }
 }
