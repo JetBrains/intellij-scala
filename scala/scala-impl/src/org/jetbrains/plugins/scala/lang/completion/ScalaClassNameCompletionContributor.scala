@@ -9,8 +9,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor._
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tMULTILINE_STRING, tSTRING}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
@@ -61,6 +59,9 @@ class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaClassNameCompletionContributor {
 
+  import ScalaAfterNewCompletionContributor._
+  import ScalaCompletionUtil._
+
   private[this] final case class CompletionState(place: PsiElement,
                                                  invocationCount: Int,
                                                  isInSimpleString: Boolean,
@@ -78,9 +79,9 @@ object ScalaClassNameCompletionContributor {
         !isExcluded(`class`)
 
     def createLookupItem(`class`: PsiClass,
-                         maybeExpectedTypes: Option[(PsiClass, RenamesMap) => ScalaLookupItem]): ScalaLookupItem =
-      maybeExpectedTypes match {
-        case Some(createLookups) => createLookups(`class`, renamesMap)
+                         maybeConstructor: Option[PropsConstructor]): ScalaLookupItem =
+      maybeConstructor match {
+        case Some(constructor) => constructor(`class`).createLookupElement(renamesMap)
         case _ => createLookupItemImpl(`class`)
       }
 
@@ -120,8 +121,10 @@ object ScalaClassNameCompletionContributor {
 
   private[this] object CompletionState {
 
-    def apply(place: PsiElement, isInSimpleString: Boolean)
-             (implicit parameters: CompletionParameters): CompletionState = {
+    def apply(place: PsiElement,
+              invocationCount: Int,
+              isInSimpleString: Boolean)
+             (context: ProcessingContext): CompletionState = {
       val (isInStableCodeReference, classesOnly) = getContextOfType(place, false, classOf[ScStableCodeReference]) match {
         case null => (false, false)
         case codeReference => (true, !codeReference.getContext.isInstanceOf[ScConstructorPattern])
@@ -129,12 +132,12 @@ object ScalaClassNameCompletionContributor {
 
       CompletionState(
         place,
-        parameters.getInvocationCount,
+        invocationCount,
         isInSimpleString,
         isInImport(place),
         isInStableCodeReference,
         classesOnly,
-        annotationsOnly(place)
+        annotationPattern.accepts(place, context)
       )
     }
   }
@@ -159,9 +162,10 @@ object ScalaClassNameCompletionContributor {
     val position = if (isInSimpleString) positionInString(dummyPosition) else dummyPosition
     if (!isInScalaContext(position, isInSimpleString)) return true
 
+    val invocationCount = parameters.getInvocationCount
     implicit val project: Project = position.getProject
-    implicit val state: CompletionState = CompletionState(position, isInSimpleString)
-    val maybeExpectedTypes = expectedTypeAfterNew(dummyPosition)
+    implicit val state: CompletionState = CompletionState(position, invocationCount, isInSimpleString)(context)
+    val maybeConstructor = expectedTypeAfterNew(dummyPosition, context)
 
     import collection.JavaConverters._
 
@@ -171,7 +175,7 @@ object ScalaClassNameCompletionContributor {
       if !QualNameToType.contains(clazz.qualifiedName)
 
       if state.isValidClass(clazz)
-    } yield state.createLookupItem(clazz, maybeExpectedTypes)
+    } yield state.createLookupItem(clazz, maybeConstructor)
 
     result.addAllElements(syntheticLookupElements.asJava)
 
@@ -179,7 +183,7 @@ object ScalaClassNameCompletionContributor {
     AllClassesGetter.processJavaClasses(
       if (state.annotationsOnly) parameters.withInvocationCount(2) else parameters,
       prefixMatcher,
-      parameters.getInvocationCount <= 1,
+      invocationCount <= 1,
       new Consumer[PsiClass] {
         override def consume(`class`: PsiClass): Unit = `class` match {
           case _: PsiClassWrapper =>
@@ -189,7 +193,7 @@ object ScalaClassNameCompletionContributor {
               clazz <- `class` :: getCompanionModule(`class`).toList
               if state.isValidClass(clazz)
 
-              lookupElement = state.createLookupItem(clazz, maybeExpectedTypes)
+              lookupElement = state.createLookupItem(clazz, maybeConstructor)
             } result.addElement(lookupElement)
         }
       }
@@ -214,7 +218,7 @@ object ScalaClassNameCompletionContributor {
       if !prefixMatcher.prefixMatches(element.name)
 
       lookupItem = element match {
-        case clazz: PsiClass if state.isValidClass(clazz) => state.createLookupItem(clazz, maybeExpectedTypes)
+        case clazz: PsiClass if state.isValidClass(clazz) => state.createLookupItem(clazz, maybeConstructor)
         case alias: ScTypeAlias if state.isValidAlias(alias) => state.createLookupItem(alias)
         case _ => null
       }

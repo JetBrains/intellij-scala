@@ -77,7 +77,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         val prefixMatcher = result.getPrefixMatcher
         //if prefix is capitalized, class name completion is enabled
         val classNameCompletion = shouldRunClassNameCompletion(dummyPosition, prefixMatcher)(parameters)
-        val annotationsOnly = completion.annotationsOnly(position)
+        val annotationsOnly = annotationPattern.accepts(position, context)
 
         position.getContext match {
           case reference: ScReferenceImpl =>
@@ -89,7 +89,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             )
 
             import ScalaAfterNewCompletionContributor._
-            lazy val maybeExpectedTypes = expectedTypeAfterNew(position)(context)
+            val maybeExpectedTypes = expectedTypeAfterNew(position, context)
+
             val defaultLookupElements = processor.lookupElements.filter {
               case ScalaLookupItem(_, clazz: PsiClass) =>
                 !classNameCompletion &&
@@ -97,8 +98,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
               case _ => !annotationsOnly
             }.map {
               case ScalaLookupItem(item, clazz: PsiClass) =>
-                maybeExpectedTypes.fold(item) { function =>
-                  function(clazz, createRenamePair(item).toMap)
+                maybeExpectedTypes.fold(item) { constructor =>
+                  val renamesMap = createRenamePair(item).toMap
+                  constructor(clazz).createLookupElement(renamesMap)
                 }
               case item => item
             }
@@ -203,7 +205,7 @@ object ScalaBasicCompletionContributor {
 
     private def isApplicable(element: PsiNamedElement,
                              isNamedParameter: Boolean): Option[Boolean] = element match {
-      case clazz: PsiClass if completion.isExcluded(clazz) => None
+      case clazz: PsiClass if isExcluded(clazz) => None
       case definition: ScTypeDefinition if filterDuplications(definition) => None
       case _: ScClassParameter => Some(false)
       case parameter: ScParameter if !isNamedParameter =>
@@ -239,7 +241,7 @@ object ScalaBasicCompletionContributor {
 
     private def isAccessible(element: PsiNamedElement,
                              isNamedParameter: Boolean): Boolean =
-      completion.regardlessAccessibility(invocationCount) ||
+      regardlessAccessibility(invocationCount) ||
         (element match {
           case method: FakePsiMethod => !method.name.endsWith("_=") // TODO unify! // don't show _= methods for vars in basic completion
           case _: ScClassParameter if isNamedParameter => true

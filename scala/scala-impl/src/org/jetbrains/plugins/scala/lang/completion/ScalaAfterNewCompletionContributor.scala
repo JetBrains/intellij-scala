@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang
+package org.jetbrains.plugins.scala
+package lang
 package completion
 
 import com.intellij.codeInsight.completion._
@@ -8,23 +9,20 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaLookupItem, T}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{JavaConverters, mutable}
 
@@ -34,26 +32,29 @@ final class ScalaAfterNewCompletionContributor extends ScalaCompletionContributo
 
   extend(
     CompletionType.SMART,
-    afterNewPattern,
+    afterNewKeywordPattern,
     new CompletionProvider[CompletionParameters] {
 
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-        val position = positionFromParameters(parameters)
+      override def addCompletions(parameters: CompletionParameters,
+                                  context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
+        val place = positionFromParameters(parameters)
+        val (definition, types) = expectedTypes(place)
 
-        findNewTemplate(position).foreach { definition =>
-          val propses = expectedTypes(definition).flatMap {
-            collectProps(_) {
-              ResolveUtils.isAccessible(_, definition, forCompletion = true)
-            }(definition.getProject)
-          }
+        val propses = for {
+          expectedType <- types
+          prop <- collectProps(expectedType) {
+            isAccessible(_)(place)
+          }(definition.getProject)
+        } yield prop
 
-          val items = if (propses.nonEmpty) {
-            val renamesMap = createRenamesMap(position)
-            propses.map(_.createLookupElement(renamesMap))
-          } else Seq.empty
+        if (propses.nonEmpty) {
+          val renamesMap = createRenamesMap(place)
 
-          import JavaConverters._
-          result.addAllElements(items.asJava)
+          for {
+            prop <- propses
+            lookupItem = prop.createLookupElement(renamesMap)
+          } result.addElement(lookupItem)
         }
       }
     }
@@ -63,50 +64,39 @@ final class ScalaAfterNewCompletionContributor extends ScalaCompletionContributo
 
 object ScalaAfterNewCompletionContributor {
 
-  private val afterNewPattern = identifierWithParentsPattern(
-    classOf[ScStableCodeReference],
-    classOf[ScSimpleTypeElement],
-    classOf[ScConstructorInvocation],
-    classOf[ScTemplateParents],
-    classOf[ScExtendsBlock],
-    classOf[ScNewTemplateDefinition]
-  )
-
-  def expectedTypeAfterNew(position: PsiElement)
-                          (implicit context: ProcessingContext): Option[(PsiClass, RenamesMap) => ScalaLookupItem] =
+  def expectedTypeAfterNew(place: PsiElement, context: ProcessingContext): Option[PropsConstructor] =
   // todo: probably we need to remove all abstracts here according to variance
-    if (isAfterNew(position)) findNewTemplate(position).map { definition =>
-      (clazz: PsiClass, map: RenamesMap) => {
-        val (actualType, hasSubstitutionProblem) = appropriateType(definition, clazz)
-        LookupElementProps(actualType, hasSubstitutionProblem, clazz).createLookupElement(map)
+    if (afterNewKeywordPattern.accepts(place, context))
+      Some {
+        val (_, types) = expectedTypes(place)
+        (clazz: PsiClass) => {
+          val (actualType, hasSubstitutionProblem) = appropriateType(clazz, types)
+          LookupElementProps(actualType, hasSubstitutionProblem, clazz)
+        }
       }
-    }
-    else None
-
-  def isAfterNew(position: PsiElement)
-                (implicit context: ProcessingContext = new ProcessingContext): Boolean =
-    afterNewPattern.accepts(position, context)
+    else
+      None
 
   def isInTypeElement(position: PsiElement,
                       maybeLocation: Option[CompletionLocation] = None): Boolean =
-    PsiTreeUtil.getParentOfType(position, classOf[ScTypeElement]) != null || {
+    getParentOfType(position, classOf[ScTypeElement]) != null || {
       val context = maybeLocation.fold(new ProcessingContext)(_.getProcessingContext)
-      isAfterNew(position)(context)
+      afterNewKeywordPattern.accepts(position, context)
     }
 
-  def findNewTemplate(position: PsiElement): Option[ScNewTemplateDefinition] =
-    position.findContextOfType(classOf[ScNewTemplateDefinition])
-
-  private def expectedTypes(definition: ScNewTemplateDefinition): Seq[ScType] =
-    definition.expectedTypes().map {
+  private def expectedTypes(place: PsiElement): (ScNewTemplateDefinition, Seq[ScType]) = {
+    val definition = getContextOfType(place, classOf[ScNewTemplateDefinition])
+    (definition, definition.expectedTypes().map {
       case ScAbstractType(_, _, upper) => upper
       case tp => tp
-    }
+    })
+  }
 
-  type RenamesMap = Map[String, (PsiNamedElement, String)]
+  private[completion] type RenamesMap = Map[String, (PsiNamedElement, String)]
+  private[completion] type PropsConstructor = PsiClass => LookupElementProps
 
   def createRenamesMap(element: PsiElement): RenamesMap =
-    PsiTreeUtil.getContextOfType(element, false, classOf[ScReference]) match {
+    getContextOfType(element, false, classOf[ScReference]) match {
       case null => Map.empty
       case ref =>
         ref.getVariants.flatMap {
@@ -121,24 +111,22 @@ object ScalaAfterNewCompletionContributor {
       element.name -> (element, name)
     }
 
-  private[this] def appropriateType(definition: ScNewTemplateDefinition, clazz: PsiClass): (ScType, Boolean) = {
+  private[this] def appropriateType(clazz: PsiClass, types: Seq[ScType]): (ScType, Boolean) = {
     val (designatorType, parameters) = classComponents(clazz)
     val maybeParameter = parameters match {
       case Seq(head) => Some(head)
       case _ => None
     }
 
-    val types = expectedTypes(definition)
-    val maybeAppropriateType = findAppropriateType(types: _*)(designatorType, maybeParameter)(clazz)
-    maybeAppropriateType.getOrElse {
+    findAppropriateType(types, designatorType, maybeParameter).getOrElse {
       (fromParameters(designatorType, maybeParameter), parameters.nonEmpty)
     }
   }
 
-  private case class LookupElementProps(`type`: ScType,
-                                        hasSubstitutionProblem: Boolean,
-                                        clazz: PsiClass,
-                                        substitutor: ScSubstitutor = ScSubstitutor.empty) {
+  private[completion] case class LookupElementProps(`type`: ScType,
+                                                    hasSubstitutionProblem: Boolean,
+                                                    clazz: PsiClass,
+                                                    substitutor: ScSubstitutor = ScSubstitutor.empty) {
 
     def createLookupElement(renamesMap: RenamesMap): ScalaLookupItem = {
       val name = clazz.name
@@ -219,7 +207,7 @@ object ScalaAfterNewCompletionContributor {
     val substitutedInheritors = for {
       clazz <- inheritors
       (designatorType, parameters) = classComponents(clazz)
-      (actualType, hasSubstitutionProblem) <- findAppropriateType(`type`)(designatorType, parameters)
+      (actualType, hasSubstitutionProblem) <- findAppropriateType(Seq(`type`), designatorType, parameters)
     } yield (actualType, hasSubstitutionProblem)
 
     val addedClasses = mutable.HashSet.empty[String]
@@ -265,9 +253,9 @@ object ScalaAfterNewCompletionContributor {
   private[this] def classComponents(clazz: PsiClass): (ScDesignatorType, Seq[PsiTypeParameter]) =
     (ScDesignatorType(clazz), clazz.getTypeParameters)
 
-  private[this] def findAppropriateType(types: ScType*)
-                                       (designatorType: ScDesignatorType, parameters: Traversable[PsiTypeParameter])
-                                       (implicit context: ProjectContext): Option[(ScType, Boolean)] = {
+  private[this] def findAppropriateType(types: Seq[ScType],
+                                        designatorType: ScDesignatorType,
+                                        parameters: Traversable[PsiTypeParameter]): Option[(ScType, Boolean)] = {
     if (types.isEmpty) return None
 
     val undefinedTypes = parameters.map(UndefinedType(_))

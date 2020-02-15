@@ -15,10 +15,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
@@ -45,8 +47,14 @@ package object completion {
   private[completion] def annotationPattern =
     psiElement.afterLeaf(psiElement(tAT))
 
-  private[completion] def annotationsOnly(place: PsiElement): Boolean =
-    annotationPattern.accepts(place)
+  private[completion] def afterNewKeywordPattern = identifierWithParentsPattern(
+    classOf[ScStableCodeReference],
+    classOf[ScSimpleTypeElement],
+    classOf[ScConstructorInvocation],
+    classOf[ScTemplateParents],
+    classOf[ScExtendsBlock],
+    classOf[ScNewTemplateDefinition]
+  )
 
   private[completion] def isExcluded(clazz: PsiClass) = inReadAction {
     JavaCompletionUtil.isInExcludedPackage(clazz, false)
@@ -191,12 +199,9 @@ package object completion {
     }
   }
 
-  private[completion] def definitionByPosition(position: PsiElement, isAfterNew: Boolean) = {
-    position match {
-      case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
-      case _ if isAfterNew => ScalaAfterNewCompletionContributor.findNewTemplate(position)
-      case _ => None
-    }
+  private[completion] def definitionByPosition(place: PsiElement) = place match {
+    case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
+    case _ => Option(getContextOfType(place, classOf[ScNewTemplateDefinition]))
   }
 
   private[this] def requiresSuffix(element: PsiElement) =
@@ -211,8 +216,8 @@ package object completion {
         case defaultSorter if parameters.getCompletionType == CompletionType.SMART => defaultSorter
         case defaultSorter =>
           val position = positionFromParameters(parameters)
-          val isAfterNew = ScalaAfterNewCompletionContributor.isAfterNew(position)
-          val maybeDefinition = definitionByPosition(position, isAfterNew)
+          val isAfterNew = afterNewKeywordPattern.accepts(position)
+          val maybeDefinition = definitionByPosition(position)
 
           defaultSorter
             .weighBefore("liftShorter", new ScalaByTypeWeigher(position))

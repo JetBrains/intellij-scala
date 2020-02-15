@@ -1,14 +1,16 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
+import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsMethodImpl
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi._
 import com.intellij.util.text.NameUtilCore
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScCatchBlock, ScPostfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScTypedDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -146,18 +148,6 @@ package object ml {
       case _ => -1
     }
   }
-
-  private[ml] def isPostfix(maybeElement: Option[PsiElement]): Boolean = {
-    maybeElement.exists { element =>
-      identifierWithParentsPattern(
-        classOf[ScReferenceExpression],
-        classOf[ScPostfixExpr]
-      ).accepts(element)
-    }
-  }
-
-  private[ml] def isInsideCatch(maybeElement: Option[PsiElement]): Boolean =
-    maybeElement.flatMap(_.parentOfType(classOf[ScCatchBlock])).nonEmpty
 
   private[ml] def expectedName(maybeElement: Option[PsiElement]): Option[String] = {
 
