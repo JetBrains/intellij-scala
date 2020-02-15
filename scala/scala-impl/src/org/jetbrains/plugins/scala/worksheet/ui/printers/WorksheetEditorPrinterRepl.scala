@@ -10,6 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter
 import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter.MessageLineParsed
+import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.project
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl.QueuedPsi.PrintChunk
 
@@ -31,6 +32,7 @@ final class WorksheetEditorPrinterRepl private[printers](
 ) extends WorksheetEditorPrinterBase(editor, viewer) {
 
   import WorksheetEditorPrinterRepl._
+  import ReplMessages._
   import processor._
 
   private var lastProcessedLine: Option[Int] = None
@@ -102,24 +104,24 @@ final class WorksheetEditorPrinterRepl private[printers](
     if (!isInited) init()
 
     line.trim match {
-      case REPL_START =>
+      case ReplStart =>
         hasErrors = false
         fetchNewPsi()
         if (lastProcessedLine.isEmpty)
           cleanFoldingsLater()
         clearBuffer()
         false
-      case REPL_LAST_CHUNK_PROCESSED =>
+      case ReplLastChunkProcessed =>
         flushBuffer()
         refreshLastMarker()
         true
 
-      case REPL_CHUNK_START =>
+      case ReplChunkStart =>
         false
-      case REPL_CHUNK_END =>
+      case ReplChunkEnd =>
         flushBuffer()
         false
-      case REPL_CHUNK_COMPILATION_ERROR =>
+      case ReplChunkCompilationError =>
         hasErrors = true
         flushBuffer()
         true
@@ -304,14 +306,6 @@ final class WorksheetEditorPrinterRepl private[printers](
 }
 
 object WorksheetEditorPrinterRepl {
-
-  private val TECHNICAL_MESSAGE_START = "$$worksheet$$"
-
-  private val REPL_START                   = TECHNICAL_MESSAGE_START + "repl$$start$$"
-  private val REPL_CHUNK_START             = TECHNICAL_MESSAGE_START + "repl$$chunk$$start$$"
-  private val REPL_CHUNK_END               = TECHNICAL_MESSAGE_START + "repl$$chunk$$end$$"
-  private val REPL_CHUNK_COMPILATION_ERROR = TECHNICAL_MESSAGE_START + "repl$$chunk$$compilation$$error$$"
-  private val REPL_LAST_CHUNK_PROCESSED    = TECHNICAL_MESSAGE_START + "repl$$last$$chunk$$processed$$"
 
   private val CONSOLE_REPORT_PREFIX = PrintWriterReporter.IJReportPrefix
 

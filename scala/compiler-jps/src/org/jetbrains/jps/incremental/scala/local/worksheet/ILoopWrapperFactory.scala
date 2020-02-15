@@ -13,6 +13,7 @@ import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHa
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgsRepl
 
 import scala.collection.JavaConverters.{collectionAsScalaIterableConverter, seqAsJavaListConverter}
+import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
 
 class ILoopWrapperFactory {
 
@@ -22,13 +23,7 @@ class ILoopWrapperFactory {
 
   private val commands: Map[String, ILoopWrapper => Unit] = Map((":reset", _.reset()))
 
-  private val ReplDelimiter = "\n$\n$\n"
-
-  private val ReplStart                 = "$$worksheet$$repl$$start$$"
-  private val ReplChunkStart            = "$$worksheet$$repl$$chunk$$start$$"
-  private val ReplChunkEnd              = "$$worksheet$$repl$$chunk$$end$$"
-  private val ReplChunkCompilationError = "$$worksheet$$repl$$chunk$$compilation$$error$$"
-  private val ReplLastChunkProcessed    = "$$worksheet$$repl$$last$$chunk$$processed$$"
+  import ReplMessages._
 
   def clearCaches(): Unit = cache.clear()
 
