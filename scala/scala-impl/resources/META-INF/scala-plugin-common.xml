@@ -1440,8 +1440,6 @@
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtReformatOnFileSaveTask"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleProjectListener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCacheProjectListener"/>
     </applicationListeners>
 
     <projectListeners>

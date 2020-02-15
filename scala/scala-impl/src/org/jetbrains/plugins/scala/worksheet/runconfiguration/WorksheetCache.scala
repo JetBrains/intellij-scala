@@ -2,23 +2,27 @@ package org.jetbrains.plugins.scala.worksheet.runconfiguration
 
 import java.io.File
 
-import com.intellij.openapi.editor.impl.EditorImpl
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, EditorFactory}
-import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.CompilerMessagesCollector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
-import scala.collection.mutable
 import scala.collection.JavaConverters._
+import scala.collection.mutable
+import scala.util.{Failure, Try}
 
-final class WorksheetCache {
+final class WorksheetCache extends Disposable {
 
-  private val allViewers = ContainerUtil.createWeakMap[Editor, List[Editor]]()
+  private val allViewers      = ContainerUtil.createWeakMap[Editor, List[Editor]]()
   private val allReplPrinters = ContainerUtil.createWeakMap[Editor, WorksheetEditorPrinter]()
-  private val patchedEditors = ContainerUtil.createWeakMap[Editor, String]()
+  private val patchedEditors  = ContainerUtil.createWeakMap[Editor, String]()
+
+  private val Log: Logger = Logger.getInstance(getClass)
 
   @TestOnly
   private val allCompilerMessagesCollectors = ContainerUtil.createWeakMap[Editor, CompilerMessagesCollector]()
@@ -55,9 +59,11 @@ final class WorksheetCache {
   def addPrinter(inputEditor: Editor, printer: WorksheetEditorPrinter): Unit =
     allReplPrinters.put(inputEditor, printer)
   
-  def removePrinter(inputEditor: Editor): Unit =
-    allReplPrinters.remove(inputEditor)
-  
+  def removePrinter(inputEditor: Editor): Unit = {
+    val removed = allReplPrinters.remove(inputEditor)
+    removed.close()
+  }
+
   def getLastProcessedIncremental(inputEditor: Editor): Option[Int] =
     Option(allReplPrinters.get(inputEditor)).flatMap {
       case in: WorksheetEditorPrinterRepl => in.getLastProcessedLine
@@ -111,19 +117,33 @@ final class WorksheetCache {
       }
     }
 
-  private[runconfiguration] def invalidateViewers() {
+  override def dispose(): Unit = {
+    invalidatePrinters()
+    invalidateViewers()
+  }
+
+  private def logErrors[T](body: => T): Unit =
+    Try(body) match {
+      case Failure(exception) =>
+        Log.error(exception)
+      case _=>
+    }
+
+  private def invalidatePrinters(): Unit = {
+    for {
+      printer <- allReplPrinters.asScala.values
+    } logErrors(printer.close())
+    allReplPrinters.clear()
+  }
+
+  private def invalidateViewers(): Unit = {
     val factory = EditorFactory.getInstance()
     for {
-      editors <- allViewers.values().asScala
-      e <- editors.filter(_.isInstanceOf[EditorImpl])
-      if !e.isDisposed
-    } {
-      try {
-        factory.releaseEditor(e)
-      } catch {
-        case _: Exception => //ignore
-      }
-    }
+      editors <- allViewers.values.asScala
+      editor  <- editors
+      if !editor.isDisposed
+    } logErrors(factory.releaseEditor(editor))
+    allViewers.clear()
   }
 
   private def get(editor: Editor): Editor =
@@ -137,10 +157,4 @@ final class WorksheetCache {
 
 object WorksheetCache {
   def getInstance(project: Project): WorksheetCache = project.getService(classOf[WorksheetCache])
-}
-
-final class WorksheetCacheProjectListener extends ProjectManagerListener {
-
-  override def projectClosing(project: Project): Unit =
-    WorksheetCache.getInstance(project).invalidateViewers()
 }

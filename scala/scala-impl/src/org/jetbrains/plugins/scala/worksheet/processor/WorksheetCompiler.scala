@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
+// TODO: rename/refactor, the class has more responsibilities then to "Compile"
 private[worksheet]
 class WorksheetCompiler(
   module: Module,
