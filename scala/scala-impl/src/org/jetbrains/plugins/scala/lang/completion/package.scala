@@ -56,6 +56,10 @@ package object completion {
     classOf[ScNewTemplateDefinition]
   )
 
+  private[completion] def insideTypePattern =
+    psiElement.inside(classOf[ScTypeElement]) ||
+      afterNewKeywordPattern
+
   private[completion] def isExcluded(clazz: PsiClass) = inReadAction {
     JavaCompletionUtil.isInExcludedPackage(clazz, false)
   }
@@ -316,18 +320,16 @@ package object completion {
 
   private class ScalaByTypeWeigher(position: PsiElement) extends LookupElementWeigher("scalaTypeCompletionWeigher") {
 
-    override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] =
-      if (ScalaAfterNewCompletionContributor.isInTypeElement(position)) {
-        element match {
-          case ScalaLookupItem(_, namedElement) => namedElement match {
-            case typeAlias: ScTypeAlias if typeAlias.isLocal => 1 // localType
-            case typeDefinition: ScTypeDefinition if isValid(typeDefinition) => 1 // localType
-            case _: ScTypeAlias | _: PsiClass => 2 // typeDefinition
-            case _ => 3 // normal
-          }
-          case _ => null
+    override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] = element match {
+      case ScalaLookupItem(_, namedElement) if insideTypePattern.accepts(position) =>
+        namedElement match {
+          case typeAlias: ScTypeAlias if typeAlias.isLocal => 1 // localType
+          case typeDefinition: ScTypeDefinition if isValid(typeDefinition) => 1 // localType
+          case _: ScTypeAlias | _: PsiClass => 2 // typeDefinition
+          case _ => 3 // normal
         }
-      } else null
+      case _ => null
+    }
 
     private def isValid(typeDefinition: ScTypeDefinition) = !typeDefinition.isObject &&
       (typeDefinition.isLocal || getParentOfType(typeDefinition, classOf[ScBlockExpr]) != null)

@@ -10,7 +10,7 @@ import com.intellij.codeInsight.completion.ml.{ContextFeatures, ElementFeaturePr
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NotNullLazyKey
-import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
+import com.intellij.patterns.{ElementPattern, PlatformPatterns}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider._
@@ -78,7 +78,7 @@ object ScalaElementFeatureProvider {
     positionFromParameters(location.getCompletionParameters)
   })
 
-  private val ExpectedTypeAndNameWords = NotNullLazyKey.create[(Array[String],  Array[String]), CompletionLocation]("scala.feature.element.expected.type.and.name.words", location => {
+  private val ExpectedTypeAndNameWords = NotNullLazyKey.create[(Array[String], Array[String]), CompletionLocation]("scala.feature.element.expected.type.and.name.words", location => {
     val position = Position.getValue(location)
 
     val expectedTypeAndName = definitionByPosition(position).flatMap {
@@ -101,14 +101,14 @@ object ScalaElementFeatureProvider {
 
     val contextFeatures = new util.HashMap[String, MLFeatureValue]
 
-    def put(kind: String, pattern: PsiElementPattern.Capture[_ <: PsiElement]): Unit =
+    def put(kind: String, pattern: ElementPattern[_ <: PsiElement]): Unit =
       contextFeatures.put(
         kind,
         MLFeatureValue.binary(pattern.accepts(position, processingContext))
       )
 
     put("postfix", identifierWithParentsPattern(classOf[ScReferenceExpression], classOf[ScPostfixExpr]))
-    contextFeatures.put("type_expected", MLFeatureValue.binary(ScalaAfterNewCompletionContributor.isInTypeElement(position, Some(location))))
+    put("type_expected", insideTypePattern)
     put("after_new", afterNewKeywordPattern)
     put("inside_catch", PlatformPatterns.psiElement.inside(classOf[ScCatchBlock]))
 

@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 package weighter
 
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
@@ -10,11 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 /**
-  * Created by kate
-  * lift fields before methods. threat class params as field.
-  * on 1/18/16
-  */
-class ScalaKindCompletionWeigher extends CompletionWeigher {
+ * Created by kate
+ * lift fields before methods. threat class params as field.
+ * on 1/18/16
+ */
+final class ScalaKindCompletionWeigher extends CompletionWeigher {
+
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
     import KindWeights._
 
@@ -27,23 +30,20 @@ class ScalaKindCompletionWeigher extends CompletionWeigher {
       case _ => member
     }
 
-    positionFromParameters(location.getCompletionParameters) match {
-      case position if ScalaAfterNewCompletionContributor.isInTypeElement(position, Some(location)) => null
-      case _ =>
-        element match {
-          case ScalaLookupItem(_, namedElement) =>
-            namedElement match {
-              case _: ScClassParameter => field
-              case p: ScTypedDefinition =>
-                p.nameContext match {
-                  case m: PsiMember => handleMember(m)
-                  case _ => null
-                }
+    val position = positionFromParameters(location.getCompletionParameters)
+    element match {
+      case ScalaLookupItem(_, namedElement) if !insideTypePattern.accepts(position, location.getProcessingContext) =>
+        namedElement match {
+          case _: ScClassParameter => field
+          case p: ScTypedDefinition =>
+            p.nameContext match {
               case m: PsiMember => handleMember(m)
               case _ => null
             }
+          case m: PsiMember => handleMember(m)
           case _ => null
         }
+      case _ => null
     }
   }
 

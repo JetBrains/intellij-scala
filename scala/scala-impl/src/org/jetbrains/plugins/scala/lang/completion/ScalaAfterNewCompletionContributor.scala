@@ -9,14 +9,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
-import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
+import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaLookupItem, T}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -76,13 +75,6 @@ object ScalaAfterNewCompletionContributor {
       }
     else
       None
-
-  def isInTypeElement(position: PsiElement,
-                      maybeLocation: Option[CompletionLocation] = None): Boolean =
-    getParentOfType(position, classOf[ScTypeElement]) != null || {
-      val context = maybeLocation.fold(new ProcessingContext)(_.getProcessingContext)
-      afterNewKeywordPattern.accepts(position, context)
-    }
 
   private def expectedTypes(place: PsiElement): (ScNewTemplateDefinition, Seq[ScType]) = {
     val definition = getContextOfType(place, classOf[ScNewTemplateDefinition])
