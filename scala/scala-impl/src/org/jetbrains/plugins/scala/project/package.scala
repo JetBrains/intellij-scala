@@ -197,6 +197,9 @@ package object project {
     def betterMonadicForPluginEnabled: Boolean =
       scalaModuleSettings.exists(_.betterMonadicForPluginEnabled)
 
+    def contextAppliedPluginEnabled: Boolean =
+      scalaModuleSettings.exists(_.contextAppliedPluginEnabled)
+
     /**
      * Should we check if it's a Single Abstract Method?
      * In 2.11 works with -Xexperimental
@@ -355,6 +358,8 @@ package object project {
     def kindProjectorPlugin: Option[String] = inThisModuleOrProject(_.kindProjectorPlugin).flatten
 
     def betterMonadicForEnabled: Boolean = isDefinedInModuleOrProject(_.betterMonadicForPluginEnabled)
+
+    def contextAppliedEnabled: Boolean = isDefinedInModuleOrProject(_.contextAppliedPluginEnabled)
 
     def isSAMEnabled: Boolean = isDefinedInModuleOrProject(_.isSAMEnabled)
 
