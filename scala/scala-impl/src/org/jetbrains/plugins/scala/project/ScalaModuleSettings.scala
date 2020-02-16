@@ -67,6 +67,9 @@ private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
   val betterMonadicForPluginEnabled: Boolean =
     compilerPlugins.exists(_.contains("better-monadic-for"))
 
+  val contextAppliedPluginEnabled: Boolean =
+    compilerPlugins.exists(_.contains("context-applied"))
+
   /**
    * Should we check if it's a Single Abstract Method?
    * In 2.11 works with -Xexperimental

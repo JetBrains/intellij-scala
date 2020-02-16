@@ -41,6 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScCompoundTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
@@ -1304,13 +1305,41 @@ object ScalaPsiUtil {
         s"${contextBoundParameterName(typeParameter, typeElement, index)} : (${typeElement.getText})[$name]"
     }
 
-    val clausesTexts = viewsTexts ++ boundsTexts
+    // if the context-applied compiler plugin is active, generate additional implicits params with default values
+    // which are named by the type params with context bounds and combine all bounds as a compound type
+    // to mimick context-applied's behavior
+    val (contextAppliedVirtualBounds, contextAppliedVirtualBoundsTexts) =
+      if (parameterOwner.contextAppliedEnabled &&
+        // context-applied doesn't work inside classes extending AnyVal
+        paramClauses.parentOfType[ScTypeDefinition].forall(_.superTypes.forall(_ != StdTypes.instance(parameterOwner.projectContext).AnyVal))) {
+        val paramNames = paramClauses.getParameters.map(_.getName)
+        val caBounds = for {
+          (typeParameter, name) <- namedTypeParameters
+          if typeParameter.contextBoundTypeElement.nonEmpty
+          // if there's already a param with the name of type param, then skip this type param
+          if !paramNames.contains(name)
+          // reverse is necessary for bounds with common ancestors, resolving ancestor methods to the first bound
+          boundTypes = typeParameter.contextBoundTypeElement.reverse
+          compoundText = boundTypes.map(_.getText + s"[$name]").mkString(" with ")
+          compound = createTypeElementFromText(compoundText)(typeParameter.projectContext)
+        } yield ParameterDescriptor(typeParameter, name, compound, 0)
+
+        val caBoundsTexts = caBounds.map {
+          case ParameterDescriptor(_, name, typeElement, _) =>
+            // default value avoids red squiggles at call site
+            s"$name : ${typeElement.getText} = ???"
+        }
+
+        (caBounds, caBoundsTexts)
+      } else (Nil, Nil)
+
+    val clausesTexts = viewsTexts ++ boundsTexts ++ contextAppliedVirtualBoundsTexts
     if (clausesTexts.isEmpty) return None
 
     val result = createImplicitClauseFromTextWithContext(clausesTexts, paramClauses, isClassParameter)
     result.parameters
       .flatMap(_.typeElement)
-      .zip(views ++ bounds)
+      .zip(views ++ bounds ++ contextAppliedVirtualBounds)
       .foreach {
         case (typeElement, ParameterDescriptor(_, _, context, _)) => context.analog = typeElement
       }
