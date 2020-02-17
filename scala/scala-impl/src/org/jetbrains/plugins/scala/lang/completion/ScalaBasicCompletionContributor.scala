@@ -98,9 +98,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
               case _ => !annotationsOnly
             }.map {
               case ScalaLookupItem(item, clazz: PsiClass) =>
-                maybeExpectedTypes.fold(item) { constructor =>
-                  val renamesMap = createRenamePair(item).toMap
-                  constructor(clazz).createLookupElement(renamesMap)
+                maybeExpectedTypes.fold(item: LookupElement) { constructor =>
+                  constructor(clazz).createLookupElement(item.isRenamed)
                 }
               case item => item
             }

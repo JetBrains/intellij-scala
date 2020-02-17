@@ -3,6 +3,7 @@ package lang
 package completion
 
 import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi._
@@ -78,8 +79,8 @@ object ScalaClassNameCompletionContributor {
         isApplicable(`class`) &&
         !isExcluded(`class`)
 
-    def createLookupItem(`class`: PsiClass,
-                         maybeConstructor: Option[PropsConstructor]): ScalaLookupItem =
+    def createLookupElement(`class`: PsiClass,
+                            maybeConstructor: Option[PropsConstructor]): LookupElement =
       maybeConstructor match {
         case Some(constructor) => constructor(`class`).createLookupElement(renamesMap)
         case _ => createLookupItemImpl(`class`)
@@ -175,7 +176,7 @@ object ScalaClassNameCompletionContributor {
       if !QualNameToType.contains(clazz.qualifiedName)
 
       if state.isValidClass(clazz)
-    } yield state.createLookupItem(clazz, maybeConstructor)
+    } yield state.createLookupElement(clazz, maybeConstructor)
 
     result.addAllElements(syntheticLookupElements.asJava)
 
@@ -193,7 +194,7 @@ object ScalaClassNameCompletionContributor {
               clazz <- `class` :: getCompanionModule(`class`).toList
               if state.isValidClass(clazz)
 
-              lookupElement = state.createLookupItem(clazz, maybeConstructor)
+              lookupElement = state.createLookupElement(clazz, maybeConstructor)
             } result.addElement(lookupElement)
         }
       }
@@ -217,13 +218,13 @@ object ScalaClassNameCompletionContributor {
       if prefixMatcher.prefixMatches(name)
       if !prefixMatcher.prefixMatches(element.name)
 
-      lookupItem = element match {
-        case clazz: PsiClass if state.isValidClass(clazz) => state.createLookupItem(clazz, maybeConstructor)
+      lookupElement = element match {
+        case clazz: PsiClass if state.isValidClass(clazz) => state.createLookupElement(clazz, maybeConstructor)
         case alias: ScTypeAlias if state.isValidAlias(alias) => state.createLookupItem(alias)
         case _ => null
       }
-      if lookupItem != null
-    } yield lookupItem
+      if lookupElement != null
+    } yield lookupElement
 
     result.addAllElements(lookupElements.asJava)
 

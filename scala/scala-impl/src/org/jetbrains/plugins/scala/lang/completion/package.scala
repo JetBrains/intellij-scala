@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
 
+import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.editor.{Document, Editor}
@@ -12,7 +13,6 @@ import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker.contextWithStableType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression,
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -113,6 +113,16 @@ package object completion {
 
     def setStartOffset(offset: Int): Unit = {
       offsetMap.addOffset(CompletionInitializationContext.START_OFFSET, offset)
+    }
+
+    def scheduleAutoPopup(): Unit = {
+      context.setLaterRunnable(() => {
+        AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
+          context.getEditor,
+          CompletionType.BASIC,
+          (_: PsiFile) == context.getFile
+        )
+      })
     }
   }
 
@@ -223,8 +233,12 @@ package object completion {
           val isAfterNew = afterNewKeywordPattern.accepts(position)
           val maybeDefinition = definitionByPosition(position)
 
-          defaultSorter
-            .weighBefore("liftShorter", new ScalaByTypeWeigher(position))
+          val newSorter = if (insideTypePattern.accepts(position))
+            defaultSorter.weighBefore("liftShorter", new ScalaByTypeWeigher())
+          else
+            defaultSorter
+
+          newSorter
             .weighAfter(if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher", new ScalaByExpectedTypeWeigher(maybeDefinition)(position))
       }
 
@@ -318,21 +332,21 @@ package object completion {
     }
   }
 
-  private class ScalaByTypeWeigher(position: PsiElement) extends LookupElementWeigher("scalaTypeCompletionWeigher") {
+  private final class ScalaByTypeWeigher extends LookupElementWeigher("scalaTypeCompletionWeigher") {
 
-    override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] = element match {
-      case ScalaLookupItem(_, namedElement) if insideTypePattern.accepts(position) =>
-        namedElement match {
-          case typeAlias: ScTypeAlias if typeAlias.isLocal => 1 // localType
-          case typeDefinition: ScTypeDefinition if isValid(typeDefinition) => 1 // localType
-          case _: ScTypeAlias | _: PsiClass => 2 // typeDefinition
-          case _ => 3 // normal
-        }
-      case _ => null
+    override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] =
+      element.getPsiElement match {
+        case typeAlias: ScTypeAlias if typeAlias.isLocal => 1 // localType
+        case typeDefinition: ScTypeDefinition if isLocal(typeDefinition) => 1 // localType
+        case _: ScTypeAlias |
+             _: PsiClass => 2 // typeDefinition
+        case _ => 3 // normal
+        case _ => null
+      }
+
+    private def isLocal(typeDefinition: ScTypeDefinition) = typeDefinition match {
+      case _: ScObject => false
+      case _ => typeDefinition.isLocal || getParentOfType(typeDefinition, classOf[ScBlockExpr]) != null
     }
-
-    private def isValid(typeDefinition: ScTypeDefinition) = !typeDefinition.isObject &&
-      (typeDefinition.isLocal || getParentOfType(typeDefinition, classOf[ScBlockExpr]) != null)
   }
-
 }

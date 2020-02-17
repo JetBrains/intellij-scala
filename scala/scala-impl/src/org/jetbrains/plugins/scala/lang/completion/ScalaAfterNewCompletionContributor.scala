@@ -4,7 +4,6 @@ package completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
@@ -13,11 +12,11 @@ import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
-import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaLookupItem, T}
+import org.jetbrains.plugins.scala.lang.completion.lookups.{PresentationExt, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -87,20 +86,18 @@ object ScalaAfterNewCompletionContributor {
   private[completion] type RenamesMap = Map[String, (PsiNamedElement, String)]
   private[completion] type PropsConstructor = PsiClass => LookupElementProps
 
-  def createRenamesMap(element: PsiElement): RenamesMap =
+  private[completion] def createRenamesMap(element: PsiElement): RenamesMap =
     getContextOfType(element, false, classOf[ScReference]) match {
-      case null => Map.empty
+      case null =>
+        Map.empty
       case ref =>
         ref.getVariants.flatMap {
-          case item: ScalaLookupItem => createRenamePair(item)
+          case ScalaLookupItem(item, element) =>
+            item.isRenamed.map { name =>
+              element.name -> (element -> name)
+            }
           case _ => None
         }.toMap
-    }
-
-  def createRenamePair(item: ScalaLookupItem): Option[(String, (PsiNamedElement, String))] =
-    item.isRenamed.map { name =>
-      val element = item.element
-      element.name -> (element, name)
     }
 
   private[this] def appropriateType(clazz: PsiClass, types: Seq[ScType]): (ScType, Boolean) = {
@@ -115,72 +112,66 @@ object ScalaAfterNewCompletionContributor {
     }
   }
 
-  private[completion] case class LookupElementProps(`type`: ScType,
-                                                    hasSubstitutionProblem: Boolean,
-                                                    clazz: PsiClass,
-                                                    substitutor: ScSubstitutor = ScSubstitutor.empty) {
+  private[completion] final case class LookupElementProps(`type`: ScType,
+                                                          hasSubstitutionProblem: Boolean,
+                                                          `class`: PsiClass,
+                                                          substitutor: ScSubstitutor = ScSubstitutor.empty) {
 
-    def createLookupElement(renamesMap: RenamesMap): ScalaLookupItem = {
-      val name = clazz.name
-      val isRenamed = renamesMap.get(name).collect {
-        case (`clazz`, s) => s
-      }
+    def createLookupElement(renamesMap: RenamesMap): LookupElement = {
+      val isRenamed = for {
+        (`class`, name) <- renamesMap.get(`class`.name)
+      } yield name
+      createLookupElement(isRenamed)
+    }
 
-      val isInterface = clazz match {
-        case _: ScTrait => true
-        case _ => clazz.isInterface || clazz.hasModifierPropertyScala("abstract")
-      }
+    def createLookupElement(isRenamed: Option[String]): LookupElement = {
+      val name = `class`.name
+      val renamedPrefix = isRenamed.fold("")(_ + " <= ")
 
-      val typeParameters = `type` match {
-        case ParameterizedType(_, types) => types
-        case _ => Seq.empty
+      val isInterface = `class`.isInterface || `class`.hasAbstractModifier
+      val tailText = if (isInterface) " {...}" else ""
+
+      val typeParametersEvaluator: (ScType => String) => String = `type` match {
+        case ParameterizedType(_, types) => types.map(_).commaSeparated(Model.SquareBrackets)
+        case _ => Function.const("")
       }
 
       val renderer = new LookupElementRenderer[LookupElement] {
 
-        def renderElement(ignore: LookupElement, presentation: LookupElementPresentation) {
-          val tailText = if (isInterface) "{...} " else ""
-          presentation.setTailText(" " + tailText + clazz.getPresentation.getLocationString, true)
+        override def renderElement(ignore: LookupElement,
+                                   presentation: LookupElementPresentation): Unit = {
+          presentation.appendGrayedTailText(tailText)
+          presentation.appendGrayedTailText(" ")
+          presentation.appendGrayedTailText(`class`.getPresentation.getLocationString)
 
-          presentation.setIcon(clazz)
-          presentation.setStrikeout(clazz)
+          presentation.setIcon(`class`)
+          presentation.setStrikeout(`class`)
 
-          val nameText = isRenamed match {
-            case Some(newName) => s"$newName <= $name"
-            case _ => name
-          }
-          val parametersText = typeParameters match {
-            case Seq() => ""
-            case seq => seq.map(substitutor)
-              .map(_.presentableText(clazz))
-              .mkString("[", ", ", "]")
-
-          }
-          presentation.setItemText(nameText + parametersText)
+          val parametersText = typeParametersEvaluator(substitutor.andThen(_.presentableText(`class`)))
+          presentation.setItemText(renamedPrefix + name + parametersText)
         }
       }
 
-      val result = new ScalaLookupItem(clazz, isRenamed.getOrElse(name)) {
+      val insertHandler = new ScalaConstructorInsertHandler(
+        typeParametersEvaluator,
+        hasSubstitutionProblem,
+        isInterface,
+        isRenamed.isDefined,
+        ScalaCodeStyleSettings.getInstance(`class`.getProject).hasImportWithPrefix(`class`.qualifiedName)
+      )
 
-        override def renderElement(presentation: LookupElementPresentation): Unit =
-          renderer.renderElement(this, presentation)
-      }
-      result.isRenamed = isRenamed
-      result.typeParameters = typeParameters
-      result.typeParametersProblem = hasSubstitutionProblem
-      result.prefixCompletion = ScalaCodeStyleSettings.getInstance(clazz.getProject)
-        .hasImportWithPrefix(clazz.qualifiedName)
-      result.setInsertHandler(new ScalaConstructorInsertHandler)
-
-      val maybePolicy = {
+      val policy = {
         import AutoCompletionPolicy._
-        if (ApplicationManager.getApplication.isUnitTestMode) Some(ALWAYS_AUTOCOMPLETE)
-        else if (isInterface) Some(NEVER_AUTOCOMPLETE)
-        else None
+        if (isUnitTestMode) ALWAYS_AUTOCOMPLETE
+        else if (isInterface) NEVER_AUTOCOMPLETE
+        else SETTINGS_DEPENDENT
       }
-      maybePolicy.foreach(result.setAutoCompletionPolicy)
 
-      result
+      LookupElementBuilder
+        .createWithSmartPointer(isRenamed.getOrElse(name), `class`)
+        .withRenderer(renderer)
+        .withInsertHandler(insertHandler)
+        .withAutoCompletionPolicy(policy)
     }
   }
 
