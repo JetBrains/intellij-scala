@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.oneFile
+package org.jetbrains.plugins.scala.externalHighlighters
 
 import java.io.File
 
@@ -7,7 +7,6 @@ import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.util.CompilationId
 
-import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}
 
@@ -17,7 +16,7 @@ import scala.concurrent.{Await, Promise}
  * @param sourceFileCopy source file copy. Note: This file will be compiled!
  * @param outputDir output directory. If not specified, target files will not be generated.
  */
-private[oneFile]
+private[externalHighlighters]
 class RemoteServerConnector(module: Module,
                             sourceFileOriginal: File,
                             sourceFileCopy: File,
@@ -32,14 +31,14 @@ class RemoteServerConnector(module: Module,
   /**
    * Compiles specified file and returns all compiler messages.
    */
-  def compile(): Seq[Client.ClientMsg] = {
+  def compile(): Unit = {
     val project = module.getProject
     val client = new CompilationClient(CompilationId.generate())
     val compilationProcess = new RemoteServerRunner(project).buildProcess(arguments, client)
-    val result = Promise[Seq[Client.ClientMsg]]
+    val result = Promise[Unit]
     compilationProcess.addTerminationCallback {
       case Some(error) => throw error
-      case None => result.success(client.collectedMessages)
+      case None => result.success(())
     }
     compilationProcess.run()
     Await.result(result.future, Duration.Inf)
@@ -53,20 +52,12 @@ class RemoteServerConnector(module: Module,
   private class CompilationClient(compilationId: CompilationId)
     extends DummyClient {
 
-    private val messages = mutable.Buffer[Client.ClientMsg]()
-
     override def message(msg: Client.ClientMsg): Unit = {
       val fixedMsg = msg.copy(source = Some(sourceFileOriginal))
       sendEvent(CompilerEvent.MessageEmitted(compilationId, fixedMsg))
-      messages += fixedMsg
     }
 
-    def collectedMessages: Seq[Client.ClientMsg] =
-      messages.toList
-
     override def compilationEnd(sources: Set[File]): Unit =
-      sources.foreach { source =>
-        sendEvent(CompilerEvent.CompilationFinished(compilationId, source))
-      }
+      sendEvent(CompilerEvent.CompilationFinished(compilationId, sourceFileOriginal))
   }
 }

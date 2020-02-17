@@ -286,6 +286,9 @@ package object project {
         file,
         project
       ) != ScalaLanguage.INSTANCE
+
+    def toDocument: Option[Document] =
+      Option(FileDocumentManager.getInstance.getDocument(file))
   }
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {

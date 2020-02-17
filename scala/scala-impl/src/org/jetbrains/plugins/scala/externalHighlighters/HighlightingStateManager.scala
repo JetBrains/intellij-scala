@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.editor.EditorFactory
@@ -32,7 +33,7 @@ object HighlightingStateManager {
   private class MutableState(project: Project) {
     var state: HighlightingState = Map.empty
 
-    EditorFactory.getInstance().addEditorFactoryListener(new EditorFactoryListener {
+    EditorFactory.getInstance.addEditorFactoryListener(new EditorFactoryListener {
       override def editorCreated(event: EditorFactoryEvent): Unit = {
         val editor = event.getEditor
         ExternalHighlighters.applyHighlighting(project, editor, state)
