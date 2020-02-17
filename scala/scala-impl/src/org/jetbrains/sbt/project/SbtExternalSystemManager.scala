@@ -133,7 +133,7 @@ object SbtExternalSystemManager {
               new File(sdkType.getVMExecutablePath(sdk))
             case _ =>
               // ugh
-              throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
+              throw new ExternalSystemException(SbtBundle.message("sbt.import.noProjectJvmFound"))
           }
         }
     }
@@ -145,7 +145,7 @@ object SbtExternalSystemManager {
         }
     }
     .getOrElse {
-      throw new ExternalSystemException(SbtBundle("sbt.import.noCustomJvmFound"))
+      throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))
     }
 
     // workaround for https://youtrack.jetbrains.com/issue/IDEA-188247

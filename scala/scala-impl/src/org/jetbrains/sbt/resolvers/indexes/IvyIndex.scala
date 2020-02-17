@@ -105,7 +105,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
     val fqNameGavMap = mutable.HashMap.empty[String, mutable.Set[String]]
 
-    def processArtifact(artifact: ArtifactInfo) {
+    def processArtifact(artifact: ArtifactInfo): Unit = {
       progressIndicator foreach { _.checkCanceled() }
       agMap.getOrElseUpdate(artifact.artifactId, mutable.Set.empty) += artifact.groupId
       gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
@@ -123,7 +123,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
     ivyCacheEnumerator.fqNameToArtifacts.foreach(processFqNames)
 
     progressIndicator foreach { _.checkCanceled() }
-    progressIndicator foreach { _.setText2(SbtBundle("sbt.resolverIndexer.progress.saving")) }
+    progressIndicator foreach { _.setText2(SbtBundle.message("sbt.resolverIndexer.progress.saving")) }
 
     def mergeIntoMap(map: PersistentHashMap[String, Set[String]])(element: (String, mutable.Set[String])): Unit= {
       val existingValue = Option(map.get(element._1)).getOrElse(Set.empty)
@@ -199,7 +199,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
     }
   }
 
-  private def ensureIndexDir() {
+  private def ensureIndexDir(): Unit = {
     indexDir.mkdirs()
     if (!indexDir.exists || !indexDir.isDirectory)
       throw CantCreateIndexDirectory(indexDir)
@@ -209,12 +209,12 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
     new PersistentHashMap[String, Set[String]](file, new EnumeratorStringDescriptor, new SetDescriptor)
 
   private[indexes] class SetDescriptor extends DataExternalizer[Set[String]] {
-    def save(s: DataOutput, set: Set[String]) {
+    override def save(s: DataOutput, set: Set[String]): Unit = {
       s.writeLong(set.size)
       set foreach s.writeUTF
     }
 
-    def read(s: DataInput): Set[String] = {
+    override def read(s: DataInput): Set[String] = {
       val count = s.readLong
       var buffer = scala.collection.immutable.HashSet[String]()
       var i = 1L

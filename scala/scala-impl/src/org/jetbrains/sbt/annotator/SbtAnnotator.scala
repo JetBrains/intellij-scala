@@ -51,13 +51,13 @@ final class SbtAnnotator extends Annotator {
 
               message =
               if (expressionType.isNothing || expressionType.isNull) {
-                if (less_13_6) SbtBundle("sbt.annotation.expectedExpressionType")
-                else SbtBundle("sbt.annotation.expectedExpressionTypeSbt0136")
+                if (less_13_6) SbtBundle.message("sbt.annotation.expectedExpressionType")
+                else SbtBundle.message("sbt.annotation.expectedExpressionTypeSbt0136")
               } else if (isTypeAllowed(expression, expressionType, allowedTypes: _*)) {
                 null
               } else {
-                if (less_13_6) SbtBundle("sbt.annotation.expressionMustConform", expressionType)
-                else SbtBundle("sbt.annotation.expressionMustConformSbt0136", expressionType)
+                if (less_13_6) SbtBundle.message("sbt.annotation.expressionMustConform", expressionType)
+                else SbtBundle.message("sbt.annotation.expressionMustConformSbt0136", expressionType)
               }
               if message != null
             } yield message
@@ -67,14 +67,14 @@ final class SbtAnnotator extends Annotator {
                _: PsiWhiteSpace => None
           case _: ScFunctionDefinition |
                _: ScPatternDefinition if sbtVersion > Version("0.13.0") => None
-          case _ => Some(SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
+          case _ => Some(SbtBundle.message("sbt.annotation.sbtFileMustContainOnlyExpressions"))
         }
       } holder.createErrorAnnotation(child, message)
 
       if (sbtVersion < Version("0.13.7")) {
         for {
           expression <- missingBlankLines(children)
-          message = SbtBundle("sbt.annotation.blankLineRequired", sbtVersion)
+          message = SbtBundle.message("sbt.annotation.blankLineRequired", sbtVersion)
         } holder.createErrorAnnotation(expression, message)
       }
     case _ =>

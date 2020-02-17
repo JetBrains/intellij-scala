@@ -122,7 +122,7 @@ object SbtIndexesManager {
     } catch {
       case pce: ProcessCanceledException => throw pce
       case _ : Throwable =>
-        notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedCantBeRemoved", indexDir.getAbsolutePath))
+        notifyWarning(SbtBundle.message("sbt.resolverIndexer.indexDirIsCorruptedCantBeRemoved", indexDir.getAbsolutePath))
     }
   }
 

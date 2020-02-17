@@ -30,12 +30,12 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
   private val modelWrapper = new JListCompatibility.CollectionListModelWrapper(new CollectionListModel[String](Collections.emptyList[String]))
   private val resolvers = Resolvers(getModel.getModule).toSeq
 
-  override def getDisplayName: String = SbtBundle("sbt.settings.sbtModuleSettings")
+  override def getDisplayName: String = SbtBundle.message("sbt.settings.sbtModuleSettings")
 
   override def saveData(): Unit = {}
 
   override def createComponentImpl(): JPanel = {
-    myForm.sbtImportsList.setEmptyText(SbtBundle("sbt.settings.noImplicitImportsFound"))
+    myForm.sbtImportsList.setEmptyText(SbtBundle.message("sbt.settings.noImplicitImportsFound"))
     JListCompatibility.setModel(myForm.sbtImportsList, modelWrapper.getModelRaw)
 
     myForm.updateButton.addActionListener((e: ActionEvent) => {
@@ -49,7 +49,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
   override def reset(): Unit = {
     val module = getModel.getModule
     val moduleSettings = SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(module)
-    myForm.sbtVersionTextField.setText(moduleSettings.map(_.sbtVersion).getOrElse(SbtBundle("sbt.settings.sbtVersionNotDetected")))
+    myForm.sbtVersionTextField.setText(moduleSettings.map(_.sbtVersion).getOrElse(SbtBundle.message("sbt.settings.sbtVersionNotDetected")))
 
     modelWrapper.getModel.replaceAll(Imports(module).asJava)
 
@@ -67,7 +67,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     val selectedRow = Option(myForm.resolversTable.getSelectedRow).filter(_ >= 0).getOrElse(0)
     try {
       val value = myForm.resolversTable.getModel.getValueAt(selectedRow, 2)
-      myForm.updateButton.setEnabled(value != SbtBundle("sbt.settings.resolvers.mavenUnavailable"))
+      myForm.updateButton.setEnabled(value != SbtBundle.message("sbt.settings.resolvers.mavenUnavailable"))
     } catch {
       case _: IndexOutOfBoundsException => myForm.updateButton.setEnabled(false)  // no resolvers in project?
     }
@@ -77,18 +77,18 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
 private class ResolversModel(val resolvers: Seq[SbtResolver], val project:Project) extends AbstractTableModel {
 
   private val columns = Seq(
-    SbtBundle("sbt.settings.resolvers.name"),
-    SbtBundle("sbt.settings.resolvers.url"),
-    SbtBundle("sbt.settings.resolvers.updated")
+    SbtBundle.message("sbt.settings.resolvers.name"),
+    SbtBundle.message("sbt.settings.resolvers.url"),
+    SbtBundle.message("sbt.settings.resolvers.updated")
   )
 
-  def getColumnCount: Int = columns.size
+  override def getColumnCount: Int = columns.size
 
-  def getRowCount: Int = resolvers.size
+  override def getRowCount: Int = resolvers.size
 
   override def getColumnName(columnIndex: Int): String = columns(columnIndex)
 
-  def getValueAt(rowIndex: Int, columnIndex: Int): String = {
+  override def getValueAt(rowIndex: Int, columnIndex: Int): String = {
     val valueOpt = columnIndex match {
       case 0 => resolvers.lift(rowIndex).map(_.name)
       case 1 => resolvers.lift(rowIndex).map(_.root)
@@ -99,9 +99,9 @@ private class ResolversModel(val resolvers: Seq[SbtResolver], val project:Projec
         } yield {
           val ts = index.getUpdateTimeStamp
           if (ts == ResolverIndex.NO_TIMESTAMP)
-            SbtBundle("sbt.settings.resolvers.neverUpdated")
+            SbtBundle.message("sbt.settings.resolvers.neverUpdated")
           else if (ts == ResolverIndex.MAVEN_UNAVALIABLE)
-            SbtBundle("sbt.settings.resolvers.mavenUnavailable")
+            SbtBundle.message("sbt.settings.resolvers.mavenUnavailable")
           else
             DateFormatUtil.formatDate(ts)
         }

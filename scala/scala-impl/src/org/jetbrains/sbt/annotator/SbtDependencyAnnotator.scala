@@ -69,7 +69,7 @@ class SbtDependencyAnnotator extends Annotator {
           indexes.exists(_.searchVersion(info.group, info.artifact).contains(info.version))
       }
       if (!isInRepo) {
-        val annotation = holder.createWeakWarningAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
+        val annotation = holder.createWeakWarningAnnotation(element, SbtBundle.message("sbt.annotation.unresolvedDependency"))
 
         val sbtModule = findBuildModule(module)
         sbtModule.foreach { m =>
@@ -97,7 +97,7 @@ class SbtDependencyAnnotator extends Annotator {
 
 
   private def isOneOrTwoPercents(op: ScReferenceExpression) =
-    op.getText == "%" || op.getText == "%%"
+    op.textMatches("%") || op.textMatches("%%")
 
   private def extractArtifactInfo(from: PsiElement, scalaVersion: Option[String]): Option[ArtifactInfo] = {
     for {
@@ -106,7 +106,7 @@ class SbtDependencyAnnotator extends Annotator {
       ScStringLiteral(version) <- Option(maybeVersion)
       ScStringLiteral(group) <- Option(maybeGroup)
       ScStringLiteral(artifact) <- Option(maybeArtifact)
-      shouldAppendScalaVersion = maybePercents.getText == "%%"
+      shouldAppendScalaVersion = maybePercents.textMatches("%%")
     } yield {
       if (shouldAppendScalaVersion && scalaVersion.isDefined)
         ArtifactInfo(group, artifact + "_" + scalaVersion.get, version)

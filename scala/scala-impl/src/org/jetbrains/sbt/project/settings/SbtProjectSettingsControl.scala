@@ -43,14 +43,14 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     result
   }
 
-  private val resolveClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
-  private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
-  private val useSbtShellForImportCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShellForImport"))
-  private val useSbtShellForBuildCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShellForBuild"))
-  private val remoteDebugSbtShell = new JCheckBox(SbtBundle("sbt.settings.remoteDebug"))
-  private val allowSbtVersionOverride = new JCheckBox(SbtBundle("sbt.settings.allowSbtVersionOverride"))
+  private val resolveClassifiersCheckBox = new JCheckBox(SbtBundle.message("sbt.settings.resolveClassifiers"))
+  private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle.message("sbt.settings.resolveSbtClassifiers"))
+  private val useSbtShellForImportCheckBox = new JCheckBox(SbtBundle.message("sbt.settings.useShellForImport"))
+  private val useSbtShellForBuildCheckBox = new JCheckBox(SbtBundle.message("sbt.settings.useShellForBuild"))
+  private val remoteDebugSbtShell = new JCheckBox(SbtBundle.message("sbt.settings.remoteDebug"))
+  private val allowSbtVersionOverride = new JCheckBox(SbtBundle.message("sbt.settings.allowSbtVersionOverride"))
 
-  override def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int) {
+  override def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int): Unit = {
     val labelConstraints = getLabelConstraints(indentLevel)
     val fillLineConstraints = getFillLineConstraints(indentLevel)
 
@@ -61,7 +61,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     content.add(downloadPanel, fillLineConstraints)
 
     val sbtShellPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
-    val useSbtShellLabel = new JLabel(SbtBundle("sbt.settings.useShell"))
+    val useSbtShellLabel = new JLabel(SbtBundle.message("sbt.settings.useShell"))
     sbtShellPanel.add(useSbtShellLabel)
     sbtShellPanel.add(useSbtShellForImportCheckBox)
     sbtShellPanel.add(useSbtShellForBuildCheckBox)
@@ -91,7 +91,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     }
   }
 
-  def isExtraSettingModified: Boolean = {
+  override def isExtraSettingModified: Boolean = {
     val settings = getInitialSettings
 
     selectedJdkName != settings.jdkName ||
@@ -103,7 +103,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       allowSbtVersionOverride.isSelected != settings.allowSbtVersionOverride
   }
 
-  protected def resetExtraSettings(isDefaultModuleCreation: Boolean) {
+  override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val settings = getInitialSettings
 
     val jdk = settings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance.findJdk(name)))
@@ -119,11 +119,11 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     allowSbtVersionOverride.setSelected(settings.allowSbtVersionOverride)
   }
 
-  override def updateInitialExtraSettings() {
+  override def updateInitialExtraSettings(): Unit = {
     applyExtraSettings(getInitialSettings)
   }
 
-  protected def applyExtraSettings(settings: SbtProjectSettings) {
+  override protected def applyExtraSettings(settings: SbtProjectSettings): Unit = {
     settings.jdk = selectedJdkName.orNull
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
@@ -156,6 +156,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
 
-  def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
+  override def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
 }
 

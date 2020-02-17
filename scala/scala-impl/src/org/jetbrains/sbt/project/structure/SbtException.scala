@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.template.writeLinesTo
  * @author Pavel Fatin
  */
 final class SbtException private(key: String, params: Seq[String])
-  extends RuntimeException(SbtBundle(key, params))
+  extends RuntimeException(SbtBundle.message(key, params))
 
 object SbtException {
 

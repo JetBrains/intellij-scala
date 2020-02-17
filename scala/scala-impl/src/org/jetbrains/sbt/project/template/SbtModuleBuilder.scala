@@ -87,12 +87,12 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
     //noinspection TypeAnnotation
     val step = sdkSettingsStep(settingsStep)
 
-    val resolveClassifiersCheckBox: JCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.sources")))(
+    val resolveClassifiersCheckBox: JCheckBox = applyTo(new JCheckBox(SbtBundle.message("sbt.settings.sources")))(
       _.setToolTipText("Download Scala standard library sources (useful for editing the source code)"),
       _.setSelected(selections.resolveClassifiers)
     )
 
-    val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.sources")))(
+    val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle.message("sbt.settings.sources")))(
       _.setToolTipText("Download sbt sources (useful for editing the project definition)"),
       _.setSelected(selections.resolveSbtClassifiers)
     )
@@ -123,8 +123,8 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
       _.add(resolveClassifiersCheckBox)
     )
 
-    settingsStep.addSettingsField(SbtBundle("sbt.settings.sbt"), sbtVersionPanel)
-    settingsStep.addSettingsField(SbtBundle("sbt.settings.scala"), scalaVersionPanel)
+    settingsStep.addSettingsField(SbtBundle.message("sbt.settings.sbt"), sbtVersionPanel)
+    settingsStep.addSettingsField(SbtBundle.message("sbt.settings.scala"), scalaVersionPanel)
 
     // TODO Remove the label patching when the External System will use the concise and proper labels natively
     Option(sbtVersionPanel.getParent).foreach { parent =>

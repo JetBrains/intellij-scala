@@ -120,12 +120,12 @@ object ModuleExtDataService {
   private def showWarning(version: String, module: String)
                          (implicit project: Project): Unit = {
     val notificationData = new NotificationData(
-      SbtBundle("sbt.notificationGroupTitle"),
-      SbtBundle("sbt.dataService.scalaLibraryIsNotFound", version, module),
+      SbtBundle.message("sbt.notificationGroupTitle"),
+      SbtBundle.message("sbt.dataService.scalaLibraryIsNotFound", version, module),
       NotificationCategory.WARNING,
       NotificationSource.PROJECT_SYNC
     )
-    notificationData.setBalloonGroup(SbtBundle("sbt.notificationGroupName"))
+    notificationData.setBalloonGroup(SbtBundle.message("sbt.notificationGroupName"))
 
     SbtProjectSystem.Id match {
       case systemId if ApplicationManager.getApplication.isUnitTestMode =>
