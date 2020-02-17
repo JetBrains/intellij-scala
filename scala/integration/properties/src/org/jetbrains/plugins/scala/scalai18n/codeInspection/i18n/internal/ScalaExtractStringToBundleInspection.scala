@@ -68,7 +68,7 @@ object ScalaExtractStringToBundleInspection {
     element
       .withParents
       .collect { case holder: ScAnnotationsHolder => holder }
-      .exists(_.hasAnnotation("org.jetbrains.annotations.NonNls"))
+      .exists(_.hasAnnotation(AnnotationUtil.NON_NLS))
 
   private def isTestSource(element: PsiElement): Boolean = {
     //element.getContainingFile.toOption.exists(file => TestSourcesFilter.isTestSources(file.getVirtualFile, element.getProject))

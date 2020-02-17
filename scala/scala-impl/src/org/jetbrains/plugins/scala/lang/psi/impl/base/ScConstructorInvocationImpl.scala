@@ -42,7 +42,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
   override def typeElement: ScTypeElement =
     findNotNullChildByClass(classOf[ScTypeElement])
 
-  def typeArgList: Option[ScTypeArgs] = typeElement match {
+  override def typeArgList: Option[ScTypeArgs] = typeElement match {
     case x: ScParameterizedTypeElement => Some(x.typeArgList)
     case _ => None
   }
@@ -60,7 +60,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
 
   override def toString: String = "ConstructorInvocation"
 
-  def expectedType: Option[ScType] = getContext match {
+  override def expectedType: Option[ScType] = getContext match {
     case parents: ScTemplateParents =>
         if (parents.allTypeElements.length != 1) None
         else {
@@ -77,7 +77,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
       case _ => None
   }
 
-  def newTemplate: Option[ScNewTemplateDefinition] = getContext match {
+  override def newTemplate: Option[ScNewTemplateDefinition] = getContext match {
     case parents: ScTemplateParents =>
       parents.getContext match {
         case e: ScExtendsBlock =>
@@ -99,15 +99,15 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     }
   }
 
-  def shapeType(i: Int): TypeResult = {
+  override def shapeType(i: Int): TypeResult = {
     val seq = shapeMultiType(i)
     if (seq.length == 1) seq.head
     else Failure("Can't resolve type")
   }
 
-  def shapeMultiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = true)
+  override def shapeMultiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = true)
 
-  def multiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = false)
+  override def multiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = false)
 
   private def innerMultiType(i: Int, isShape: Boolean): Array[TypeResult] = {
     def FAILURE = Failure("Can't resolve type")
@@ -202,11 +202,11 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
       .getOrElse(Array.empty)
   }
 
-  def reference: Option[ScStableCodeReference] = {
+  override def reference: Option[ScStableCodeReference] = {
     simpleTypeElement.flatMap(_.reference)
   }
 
-  def simpleTypeElement: Option[ScSimpleTypeElement] = typeElement match {
+  override def simpleTypeElement: Option[ScSimpleTypeElement] = typeElement match {
     case s: ScSimpleTypeElement => Some(s)
     case p: ScParameterizedTypeElement =>
       p.typeElement match {
@@ -216,7 +216,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     case _ => None
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitConstructorInvocation(this)
   }
 
