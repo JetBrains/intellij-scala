@@ -41,7 +41,7 @@ import scala.annotation.tailrec
  * @author Alefas
  * @since 22.03.12
  */
-class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingClass0: Option[PsiClass] = None) extends {
+final class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingClass0: Option[PsiClass] = None) extends {
   val name: String = if (_name != "this") escapeKeyword(_name) else _name
 } with LookupItem[PsiNamedElement](element, name) {
 

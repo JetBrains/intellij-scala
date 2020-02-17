@@ -234,12 +234,14 @@ package object completion {
           val maybeDefinition = definitionByPosition(position)
 
           val newSorter = if (insideTypePattern.accepts(position))
-            defaultSorter.weighBefore("liftShorter", new ScalaByTypeWeigher())
+            defaultSorter.weighBefore("liftShorter", new ScalaByTypeWeigher)
           else
             defaultSorter
 
-          newSorter
-            .weighAfter(if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher", new ScalaByExpectedTypeWeigher(maybeDefinition)(position))
+          newSorter.weighAfter(
+            if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher",
+            new ScalaByExpectedTypeWeigher(maybeDefinition)(position)
+          )
       }
 
       val updatedResultSet = resultSet
