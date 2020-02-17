@@ -102,20 +102,7 @@ object SbtExternalSystemManager {
     jdkInProject.orElse(jdkInImportSettings)
   }
 
-  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File =
-      if (!ApplicationManager.getApplication.isUnitTestMode)
-        getRealVmExecutable(projectJdkName, settings)
-      else
-        getUnitTestVmExecutable
-
-  private def getUnitTestVmExecutable: File = {
-    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
-    val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17 else internalSdk
-    val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
-    new File(sdkType.getVMExecutablePath(sdk))
-  }
-
-  private def getRealVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File = {
+  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File = {
 
     val customPath = settings.getCustomVMPath
     val customVmExecutable =
