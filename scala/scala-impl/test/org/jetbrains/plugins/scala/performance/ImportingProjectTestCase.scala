@@ -7,15 +7,17 @@ import java.util
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
-import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
+import com.intellij.testFramework.VfsTestUtil
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
-import com.intellij.testFramework.{IdeaTestUtil, VfsTestUtil}
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -53,8 +55,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     sbtSettings.setVmParameters(sbtSettings.getVmParameters + s"-Dsbt.ivy.home=$rootDirPath/.ivy_cache")
 
     val settings = new SbtProjectSettings
-    settings.jdk = internalJdkOrDefault.getName
-    settings.setCreateEmptyContentRootDirectories(true)
+    settings.jdk = getJdk.getName
     settings
   }
 
@@ -74,6 +75,8 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   def doBeforeImport(): Unit = {}
 
+  def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_11
+
   override def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()
 
@@ -83,7 +86,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
     extensions.inWriteAction {
-      val jdk = internalJdkOrDefault
+      val jdk = getJdk
 
       val jdkTable = ProjectJdkTable.getInstance
       if (jdkTable.findJdk(jdk.getName) == null) {
@@ -98,6 +101,13 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     super.setUp()
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
     importProject()
+  }
+
+  override def tearDown(): Unit = {
+    inWriteAction {
+      ProjectJdkTable.getInstance().removeJdk(getJdk)
+    }
+    super.tearDown()
   }
 
   protected def findFile(filename: String): VirtualFile = {
@@ -122,6 +132,6 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     file
   }
 
-  private def internalJdkOrDefault =
-    JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+  def getJdk: Sdk = SmartJDKLoader.getOrCreateJDK(jdkLanguageLevel)
+
 }
