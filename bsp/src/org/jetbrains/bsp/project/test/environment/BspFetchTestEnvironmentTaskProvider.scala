@@ -11,6 +11,7 @@ import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfi
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
@@ -46,6 +47,8 @@ case class JvmTestEnvironment(
                              )
 
 class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchTestEnvironmentTask] {
+  private val logger = Logger.getInstance(classOf[BspCommunication])
+
   override def getId: Key[BspFetchTestEnvironmentTask] = BspFetchTestEnvironmentTask.runTaskKey
 
   override def getName: String = "Use BSP environment"
@@ -75,20 +78,30 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
       case config: ModuleBasedConfiguration[_, _]
         if BSP.isBspModule(config.getConfigurationModule.getModule) && BspTesting.isBspRunnerSupportedConfiguration(config) => {
         val module = config.getConfigurationModule.getModule
-        val c = for {
-          potentialTargets <- getBspTargets(module).toRight(BspGetEnvironmentError(s"Could not find potential targets for ${module.getName}"))
-          projectPath <- Option(ES.getExternalProjectPath(module)).toRight(BspGetEnvironmentError(s"Could not extract project path from module ${module.getName}"))
+        val taskResult: Either[BspGetEnvironmentError, Unit] = for {
+          potentialTargets <- getBspTargets(module)
+            .toRight(BspGetEnvironmentError(s"Could not find potential targets for ${module.getName}"))
+          projectPath <- Option(ES.getExternalProjectPath(module))
+            .toRight(BspGetEnvironmentError(s"Could not extract project path from module ${module.getName}"))
           workspaceUri = Paths.get(projectPath).toUri
-          testClasses <- getApplicableClasses(configuration).toRight(BspGetEnvironmentError(s"Could not detect run classes for configuration ${configuration.getName}"))
+          testClasses <- getApplicableClasses(configuration)
+            .toRight(BspGetEnvironmentError(s"Could not detect run classes for configuration ${configuration.getName}"))
           testSources = testClasses.flatMap(class2File(_, module.getProject))
           targetsMatchingSources = fetchTargetIdsFromFiles(testSources, workspaceUri, module.getProject, potentialTargets)
-          chosenTargetId <- task.state.orElse(if (targetsMatchingSources.length == 1) targetsMatchingSources.headOption.map(_.getUri) else None)
+          chosenTargetId <- task.state
+            .orElse(if (targetsMatchingSources.length == 1) targetsMatchingSources.headOption.map(_.getUri) else None)
             .orElse(askUserForTargetId(potentialTargets.map(_.getUri), task))
             .toRight(BspGetEnvironmentError("Could not choose any target ID"))
           testEnvironment = fetchJvmTestEnvironment(new BuildTargetIdentifier(chosenTargetId), workspaceUri, module.getProject)
           _ = config.putUserData(BspFetchTestEnvironmentTask.jvmTestEnvironmentKey, testEnvironment)
         } yield ()
-        c.isRight
+        taskResult match {
+          case Left(value) => {
+            logger.error(s"Error while getting envoronment from BSP: ${value.msg}")
+            false
+          }
+          case Right(_) => true
+        }
       }
       case _ => true
     }
@@ -139,7 +152,8 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     * @param sourceLists List of targets with their sources, that will be searched
     * @return All targets from `sourceLists` that contain any of the sources from `sources`
     */
-  private def filterTargetsContainingSources(sourceLists: Seq[SourcesItem], files: Seq[PsiFile]): Seq[BuildTargetIdentifier] = {
+  private def filterTargetsContainingSources(sourceLists: Seq[SourcesItem],
+                                             files: Seq[PsiFile]): Seq[BuildTargetIdentifier] = {
     val fileUris = files.map(_.getVirtualFile.getPath).map(path => Paths.get(path).toUri.toString)
     sourceLists.filter(_.getSources.asScala.map(_.getUri).exists(fileUris.contains(_))).map(_.getTarget)
   }
@@ -207,7 +221,8 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     }
 
   private def jvmTestEnvironmentBspRequest(targets: Seq[BuildTargetIdentifier])
-                                          (implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[JvmTestEnvironmentResult] =
+                                          (implicit server: BspServer,
+                                           capabilities: BuildServerCapabilities): CompletableFuture[JvmTestEnvironmentResult] =
     server.jvmTestEnvironment(new JvmTestEnvironmentParams(targets.asJava))
 
   private def getFiles(target: Seq[BuildTargetIdentifier])
