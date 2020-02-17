@@ -2,11 +2,58 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.junit.Assert.{assertEquals, assertTrue}
 
 abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase {
-  override def needRetypeLine: Boolean = true
+
+  override protected def changePsiAt(offset: Int): Unit = {
+    retypeLineAt(offset)
+    super.changePsiAt(offset)
+  }
+
+  /**
+   * Retypes line and invokes completion at every character.
+   *
+   * @param offset an offset in the document to invoke completion at.
+   */
+  private def retypeLineAt(offset: Int): Unit = invokeAndWait {
+    val editor = getEditor
+    val caretModel = editor.getCaretModel
+
+    val document = editor.getDocument
+    val lineStart = document.getLineStartOffset(document.getLineNumber(offset))
+
+    val beforeLineStart = document.getText(TextRange.create(0, lineStart))
+    val lineStartText = document.getText(TextRange.create(lineStart, offset))
+    val afterCaret = document.getText(TextRange.create(offset, document.getTextLength))
+
+    if (!hasOpeningBracesOrQuotes(lineStartText)) { //todo: disable typed handlers?
+      inWriteAction {
+        document.setText(beforeLineStart + afterCaret)
+      }
+
+      caretModel.moveToOffset(lineStart)
+
+      val completionHandler = createSynchronousCompletionHandler(autopopup = true)
+
+      for (char <- lineStartText) {
+        myFixture.`type`(char)
+        commitDocumentInEditor()
+
+        completionHandler.invokeCompletion(getProject, editor, 0)
+      }
+
+      caretModel.moveToOffset(offset)
+
+      println("Start of the line was retyped")
+    }
+  }
+
+  private def hasOpeningBracesOrQuotes(text: String): Boolean =
+    "{([<\"\'".exists(text.contains(_))
 }
 
 class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
