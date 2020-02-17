@@ -22,8 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaExtractStringToBundleInspection._
-import org.jetbrains.plugins.scala.util.internal.I18nStringBundle
-import org.jetbrains.plugins.scala.util.internal.I18nStringBundle.{BundleInfo, BundleUsageInfo, Entry}
+import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
+import org.jetbrains.plugins.scala.util.internal.I18nBundleContent.{BundleInfo, BundleUsageInfo, Entry}
 
 class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection {
 
@@ -102,7 +102,7 @@ object ScalaExtractStringToBundleInspection {
 
       val showErrorDialog = Messages.showErrorDialog(project, _: String, _: String)
       val BundleUsageInfo(elementPath, srcRoot, _, maybeBundlePath) =
-        I18nStringBundle
+        I18nBundleContent
           .findBundlePathFor(element)
           .getOrElse {
             val elementPath = element.containingVirtualFile.fold("<memory-only file>")(_.getCanonicalPath)
@@ -119,7 +119,7 @@ object ScalaExtractStringToBundleInspection {
             return
           }
 
-      val bundle = I18nStringBundle.readBundle(bundlePropertyPath)
+      val bundle = I18nBundleContent.read(bundlePropertyPath)
       val path = elementPath.substring(srcRoot.length)
       val (key, text, arguments) = toKeyAndTextAndArgs(parts)
       val newEntry = Entry(key, text, path)

@@ -7,8 +7,8 @@ import java.util.Scanner
 import java.util.regex.Pattern
 
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.internal.I18nStringBundle
-import org.jetbrains.plugins.scala.util.internal.I18nStringBundle._
+import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
+import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 
 import scala.io.Source
 
@@ -33,7 +33,7 @@ object ScalaBundleSorting {
     val keyToFinding = findings.groupBy(_.key)
 
     println(s"Read bundle $bundlePath")
-    val I18nStringBundle(entries) = readBundle(bundlePath)
+    val I18nBundleContent(entries) = read(bundlePath)
     val keyToAmountOfEntries = entries.groupBy(_.key).mapValues(_.size)
 
     def isEntryInInvalidPath(entry: Entry): Boolean =
@@ -56,7 +56,7 @@ object ScalaBundleSorting {
       }
     println(s"$changed entries changed...")
     println(s"Write bundle $bundlePath")
-    I18nStringBundle(entriesWithPath)
+    I18nBundleContent(entriesWithPath)
         .sorted
         .writeTo(bundlePath)
     println("Done.")

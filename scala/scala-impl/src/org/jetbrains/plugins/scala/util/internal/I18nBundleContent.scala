@@ -7,19 +7,19 @@ import java.nio.file.{Path, Paths}
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.util.internal.I18nStringBundle._
+import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 
 import scala.io.Source
 
-case class I18nStringBundle(entries: Seq[Entry]) {
+case class I18nBundleContent(entries: Seq[Entry]) {
   def hasKey(key: String): Boolean = entries.exists(_.key == key)
 
-  def sorted: I18nStringBundle =
+  def sorted: I18nBundleContent =
     copy(entries = entries.sorted)
 
-  def withEntry(entry: Entry): I18nStringBundle = {
+  def withEntry(entry: Entry): I18nBundleContent = {
     val (before, after) = entries.partition(entryOrdering.lteq(_, entry))
-    I18nStringBundle(before ++ Seq(entry) ++ after)
+    I18nBundleContent(before ++ Seq(entry) ++ after)
   }
 
   def isCorrectlySorted: Boolean =
@@ -48,7 +48,7 @@ case class I18nStringBundle(entries: Seq[Entry]) {
   } finally printWriter.close()
 }
 
-object I18nStringBundle {
+object I18nBundleContent {
   val noPath = "<no-path>"
   val unusedPath = "<unused>"
 
@@ -59,9 +59,9 @@ object I18nStringBundle {
     def isUnused: Boolean = path == unusedPath
   }
 
-  def readBundle(bundlepath: String): I18nStringBundle = {
+  def read(bundlePath: String): I18nBundleContent = {
     val lines = {
-      val source = Source.fromFile(bundlepath)
+      val source = Source.fromFile(bundlePath)
       try source.getLines().toArray
       finally source.close()
     }
@@ -95,7 +95,7 @@ object I18nStringBundle {
       i += 1
     }
 
-    new I18nStringBundle(result.result())
+    new I18nBundleContent(result.result())
   }
 
   private object PathHeader {
@@ -112,6 +112,7 @@ object I18nStringBundle {
 
   def findBundlePathFor(path: String): Option[BundleUsageInfo] = for {
     moduleRoot <- {
+        assert(new File(path).isFile, s"Expected file: $path")
         val idx = path.indexOf("/src/")
         if (idx < 0) None
         else Some(path.substring(0, idx + 1 /* include the '/' */))
