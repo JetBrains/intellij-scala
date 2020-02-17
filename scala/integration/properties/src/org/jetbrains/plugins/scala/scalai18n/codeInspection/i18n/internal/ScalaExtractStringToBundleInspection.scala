@@ -4,6 +4,7 @@ package codeInspection
 package i18n
 package internal
 
+import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -32,7 +33,7 @@ class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection 
                                            highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
     Option(element) collect {
-      case element@TopmostStringParts(parts) if containsNaturalLangString(parts) && !shouldBeIgnored(element, parts) =>
+      case element@TopmostStringParts(parts) if containsNaturalLangString(element, parts) && !shouldBeIgnored(element, parts) =>
         val quickFixes = Array[LocalQuickFix](new MoveToBundleQuickFix(element)) ++ maybeQuickFix
         manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, quickFixes, highlightType)
     }
@@ -40,16 +41,20 @@ class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection 
 }
 
 object ScalaExtractStringToBundleInspection {
-  private def containsNaturalLangString(parts: Seq[StringPart]): Boolean =
+  private def containsNaturalLangString(element: PsiElement, parts: Seq[StringPart]): Boolean =
     parts.exists {
-      case Text(s) => isNaturalLangString(s)
+      case Text(s) => isNaturalLangString(element, s)
       case _ => false
     }
 
-  private def isNaturalLangString(string: String): Boolean =
+  private def isNaturalLangString(element: PsiElement, string: String): Boolean =
+    isPassedToNls(element)
     //string.length > 3 &&
-    hasAtLeastOneLetters(string) &&
-    !hasCamelCase(string)
+    //hasAtLeastOneLetters(string) &&
+    //!hasCamelCase(string)
+
+  private def isPassedToNls(element: PsiElement): Boolean =
+    ScalaI18nUtil.isPassedToAnnotated(element, AnnotationUtil.NLS)
 
   private lazy val letterRegex = raw"""\w""".r
   private def hasAtLeastOneLetters(string: String): Boolean =
