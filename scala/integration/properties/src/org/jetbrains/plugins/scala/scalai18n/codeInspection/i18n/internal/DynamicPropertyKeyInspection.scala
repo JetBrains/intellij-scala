@@ -17,7 +17,7 @@ class DynamicPropertyKeyInspection extends AbstractRegisteredInspection {
                                            highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
     def isNonInterpolatedString = element.isInstanceOf[ScStringLiteral] && !element.isInstanceOf[ScInterpolatedStringLiteral]
-    def isPassedToProperty = ScalaI18nUtil.isPassedToAnnotatedParam(element, AnnotationUtil.PROPERTY_KEY, null, null)
+    def isPassedToProperty = ScalaI18nUtil.isPassedToAnnotated(element, AnnotationUtil.PROPERTY_KEY)
 
     (!isNonInterpolatedString && isPassedToProperty)
       .option {

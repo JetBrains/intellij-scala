@@ -49,6 +49,10 @@ object ScConstructorInvocation {
     Option(c).map(it => (it.typeElement, it.arguments))
   }
 
+  object reference {
+    def unapply(c: ScConstructorInvocation): Option[ScStableCodeReference] = c.reference
+  }
+
   object byReference {
     def unapply(ref: ScReference): Option[ScConstructorInvocation] = {
       PsiTreeUtil.getParentOfType(ref, classOf[ScConstructorInvocation]) match {
