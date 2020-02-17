@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[HighlightingTests]))
 class ScalaFiddleEditorProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
+
+  override def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
+
   override def githubUsername = "scalafiddle"
 
   override def githubRepoName = "scalafiddle-editor"
