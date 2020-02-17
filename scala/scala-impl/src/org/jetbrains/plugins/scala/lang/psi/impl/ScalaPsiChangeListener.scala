@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaLanguage
 
@@ -35,7 +36,8 @@ object ScalaPsiChangeListener {
 
       if (element.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
         if (!filters.exists(_.shouldSkip(element))) {
-          onScalaPsiChange(element)
+          val validElement = previousParent(element).getOrElse(element)
+          onScalaPsiChange(validElement)
         }
       }
       else onNonScalaChange()
@@ -55,10 +57,18 @@ object ScalaPsiChangeListener {
   }
 
   private def extractChangedPsi(event: PsiTreeChangeEvent, eventType: EventType): PsiElement = eventType match {
-    case EventType.ChildRemoved    => event.getChild
+    case EventType.ChildRemoved    =>
+      setPreviousParent(event.getChild, event.getParent)
+      event.getChild
     case EventType.ChildAdded      => event.getChild
     case EventType.ChildMoved      => event.getChild
     case EventType.ChildReplaced   => event.getNewChild
     case EventType.ChildrenChanged => event.getParent
   }
+
+  private val previousParentKey: Key[PsiElement] = Key.create("scala.change.previous.parent")
+  private def setPreviousParent(element: PsiElement, parent: PsiElement): Unit = {
+    element.putUserData(previousParentKey, parent)
+  }
+  private def previousParent(element: PsiElement): Option[PsiElement] = Option(element.getUserData(previousParentKey))
 }
