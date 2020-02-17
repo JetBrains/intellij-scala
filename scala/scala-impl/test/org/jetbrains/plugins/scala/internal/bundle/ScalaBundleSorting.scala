@@ -13,18 +13,61 @@ import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 import scala.io.Source
 
 object ScalaBundleSorting {
-  case class ModuleInfo(rootPath: String, bundlePath: String, searcher: Searcher)
+  case class ModuleInfo(rootPath: String, bundlePath: String, searcher: Searcher = new Searcher)
 
-  val scalaImplDir: String = TestUtils.findCommunityRoot() + "scala/scala-impl/"
+  val scalaModDir: String = TestUtils.findCommunityRoot() + "scala/"
+
+  val bspModule: ModuleInfo = ModuleInfo(
+    rootPath = TestUtils.findCommunityRoot() + "bsp/src/",
+    bundlePath = TestUtils.findCommunityRoot() + "bsp/resources/messages/BspBundle.properties",
+  )
+
+  val codeInsightModule: ModuleInfo = ModuleInfo(
+    rootPath = scalaModDir + "codeInsight/src/",
+    bundlePath = scalaModDir + "codeInsight/resources/messages/ScalaCodeInsightBundle.properties",
+  )
+
+  val conversionModule: ModuleInfo = ModuleInfo(
+    rootPath = scalaModDir + "conversion/src/",
+    bundlePath = scalaModDir + "conversion/resources/messages/ScalaConversionBundle.properties",
+  )
+
+  val scalaImplDir: String = scalaModDir + "scala-impl/"
   val scalaImplModule: ModuleInfo = ModuleInfo(
     rootPath = scalaImplDir + "src/",
     bundlePath = scalaImplDir + "resources/org/jetbrains/plugins/scala/ScalaBundle.properties",
-    searcher = new Searcher
+  )
+  val scalaImplModuleErrMsg: ModuleInfo = ModuleInfo(
+    rootPath = scalaImplDir + "src/",
+    bundlePath = scalaImplDir + "resources/org/jetbrains/plugins/scala/editor/EditorBundle.properties",
+  )
+
+  val scalaImplModuleCodeInspection: ModuleInfo = ModuleInfo(
+    rootPath = scalaImplDir + "src/",
+    bundlePath = scalaImplDir + "resources/org/jetbrains/plugins/scala/codeInspection/InspectionBundle.properties",
+  )
+
+  val uastModule: ModuleInfo = ModuleInfo(
+    rootPath = scalaModDir + "uast/src/",
+    bundlePath = scalaModDir + "uast/resources/messages/ScalaUastBundle.properties",
+  )
+
+  val worksheetModule: ModuleInfo = ModuleInfo(
+    rootPath = scalaModDir + "worksheet/src/",
+    bundlePath = scalaModDir + "worksheet/resources/messages/WorksheetBundle.properties",
   )
 
   val allModuleInfos: Seq[ModuleInfo] = Seq(
-    scalaImplModule,
+    bspModule,
+    codeInsightModule,
+    conversionModule,
+    scalaImplModule, scalaImplModuleErrMsg, scalaImplModuleCodeInspection,
+    uastModule,
+    worksheetModule
   )
+
+
+
 
   def main(args: Array[String]): Unit = for (info <- allModuleInfos) {
     val ModuleInfo(rootPath, bundlePath, searcher) = info
