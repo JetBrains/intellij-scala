@@ -128,7 +128,8 @@ object I18nBundleContent {
       relPathWithoutExtension = withoutExtension(relPath)
       qualifiedClassName = relPathWithoutExtension.replaceAll(raw"[/\\]", ".")
       withPropertyEnding = relPathWithoutExtension + ".properties"
-      bundlePath = resourceRoot + withPropertyEnding
+      expectedBundlePath = resourceRoot + withPropertyEnding
+      bundlePath = findBundleFileForClass(resourceRoot, expectedBundlePath, className)
     } yield BundleInfo(bundlePath, bundleClassPath.toString, className, qualifiedClassName)
     BundleUsageInfo(path, srcRoot, resourceRoot, bundlePath)
   }
@@ -151,5 +152,15 @@ object I18nBundleContent {
           }
       }
       .headOption
+  }
+
+  def findBundleFileForClass(resourcePath: String, expectedPath: String, bundleName: String): String = {
+    if (new File(expectedPath).isFile) expectedPath
+    else {
+      // look for resource/messages/<bundleName>.properties
+      val path = resourcePath + "messages/" + bundleName + ".properties"
+      assert(new File(path).isFile, s"Expected Bundle file $expectedPath or $path")
+      path
+    }
   }
 }

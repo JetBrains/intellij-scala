@@ -115,7 +115,7 @@ object ScalaExtractStringToBundleInspection {
       val BundleInfo(bundlePropertyPath, _, bundleClassName, bundleQualifiedClassName) =
         maybeBundlePath
           .getOrElse {
-            showErrorDialog("Couldn't find bundle in " + srcRoot, "No bundle found")
+            showErrorDialog("Couldn't find bundle for " + elementPath, "No bundle found")
             return
           }
 
