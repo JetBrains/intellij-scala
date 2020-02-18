@@ -12,14 +12,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.XmlSerializer
 import javax.swing.Icon
 import org.jdom.Element
-import org.jetbrains.bsp.Icons
+import org.jetbrains.bsp.{BspBundle, Icons}
 import org.jetbrains.bsp.project.test.BspTestConfigurationForm._
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
 class BspTestRunType extends ConfigurationType {
-  override def getDisplayName: String = "BSP test"
+  override def getDisplayName: String = BspBundle.message("bsp.test")
 
   override def getConfigurationTypeDescription: String = getDisplayName
 
@@ -39,7 +39,7 @@ class BspTestRunFactory(t: ConfigurationType) extends ConfigurationFactory(t) {
 
 
 class BspNoMatchingClassException() extends ConfigurationException(
-  "No class is matching with the regex",
+  BspBundle.message("no.class.matches.with.the.regex"),
   s"The test class  was not reported by BSP endpoint buildTarget/scalaTestClasses (try to reimport the project)")
 
 class TestClass(@BeanProperty var target: String, @BeanProperty var classes: j.List[String]) {

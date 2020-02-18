@@ -18,7 +18,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Test kind:"/>
+          <text resource-bundle="messages/BspBundle" key="test.kind"/>
         </properties>
       </component>
       <component id="59926" class="javax.swing.JComboBox" binding="testModeCombobox">
@@ -40,7 +40,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Test classes regex:"/>
+              <text resource-bundle="messages/BspBundle" key="test.classes.regex"/>
             </properties>
           </component>
           <component id="4369e" class="javax.swing.JTextField" binding="testClassNameRegex">
@@ -56,7 +56,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Matched classes:"/>
+              <text resource-bundle="messages/BspBundle" key="matched.classes"/>
             </properties>
           </component>
           <scrollpane id="99ef6" class="com.intellij.ui.components.JBScrollPane">
@@ -80,7 +80,7 @@
             </constraints>
             <properties>
               <icon value="actions/refresh.png"/>
-              <text value="Refresh"/>
+              <text resource-bundle="messages/BspBundle" key="refresh"/>
             </properties>
           </component>
         </children>

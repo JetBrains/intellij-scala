@@ -12,6 +12,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.bsp.BspBundle;
 import org.jetbrains.plugins.scala.util.JListCompatibility;
 import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper;
 import scala.runtime.BoxedUnit;
@@ -20,9 +21,11 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -55,7 +58,7 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
             });
         }
         { // init matched classes list
-            matchedClassesList.setEmptyText("No matched test classes");
+            matchedClassesList.setEmptyText(BspBundle.message("no.matched.test.classes"));
             JListCompatibility.setModel(matchedClassesList, matchedClassesModel.getModelRaw());
             updateMatchedClassesList(Collections.emptyMap());
             testClassNameRegex.getDocument().addDocumentListener(new DocumentAdapter() {
@@ -74,7 +77,8 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         Map<String, List<String>> matched = Collections.emptyMap();
         try {
             matched = calculateMatchedClasses();
-        } catch (PatternSyntaxException ignored) { }
+        } catch (PatternSyntaxException ignored) {
+        }
         updateMatchedClassesList(matched);
     }
 
@@ -202,7 +206,7 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         final Spacer spacer1 = new Spacer();
         mainPanel.add(spacer1, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        label1.setText("Test kind:");
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/BspBundle", "test.kind"));
         mainPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         testModeCombobox = new JComboBox();
         mainPanel.add(testModeCombobox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
@@ -210,12 +214,12 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         testClassFormWrapper.setLayout(new GridLayoutManager(3, 4, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(testClassFormWrapper, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
-        label2.setText("Test classes regex:");
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/BspBundle", "test.classes.regex"));
         testClassFormWrapper.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         testClassNameRegex = new JTextField();
         testClassFormWrapper.add(testClassNameRegex, new GridConstraints(0, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label3 = new JLabel();
-        label3.setText("Matched classes:");
+        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/BspBundle", "matched.classes"));
         testClassFormWrapper.add(label3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JBScrollPane jBScrollPane1 = new JBScrollPane();
         testClassFormWrapper.add(jBScrollPane1, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
@@ -224,8 +228,79 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         jBScrollPane1.setViewportView(matchedClassesList);
         refreshClassesButton = new JButton();
         refreshClassesButton.setIcon(new ImageIcon(getClass().getResource("/actions/refresh.png")));
-        refreshClassesButton.setText("Refresh");
+        this.$$$loadButtonText$$$(refreshClassesButton, this.$$$getMessageFromBundle$$$("messages/BspBundle", "refresh"));
         testClassFormWrapper.add(refreshClassesButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadLabelText$$$(JLabel component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
     }
 
     /**

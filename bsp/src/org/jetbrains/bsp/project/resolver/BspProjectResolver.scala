@@ -20,7 +20,7 @@ import org.jetbrains.bsp.project.resolver.BspResolverLogic._
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.bsp.{BspErrorMessage, BspTaskCancelled}
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
@@ -57,14 +57,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     def requests(implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[DataNode[ProjectData]] = {
       val structureEventId = BuildMessages.randomEventId
-      reporter.startTask(structureEventId, None,"resolving BSP build structure")
+      reporter.startTask(structureEventId, None, BspBundle.message("resolving.bsp.build.structure"))
       val targetsEventId = BuildMessages.randomEventId
-      reporter.startTask(targetsEventId, Some(structureEventId), "build targets")
+      reporter.startTask(targetsEventId, Some(structureEventId), BspBundle.message("build.targets"))
       val targetsRequest = server.workspaceBuildTargets()
 
       val projectNodeFuture: CompletableFuture[DataNode[ProjectData]] =
         targetsRequest.thenCompose { targetsResponse =>
-          reporter.finishTask(targetsEventId, "build targets", new SuccessResultImpl())
+          reporter.finishTask(targetsEventId, BspBundle.message("build.targets"), new SuccessResultImpl())
 
           val targets = targetsResponse.getTargets.asScala.toList
           val td = targetData(targets, isPreviewMode, reporter, structureEventId)
@@ -81,8 +81,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             projectNode(workspace.getCanonicalPath, moduleFilesDirectoryPath, descriptions)
           }
             .reportFinished(reporter, structureEventId,
-              "BSP build structure",
-              "resolving BSP build structure failed")
+              BspBundle.message("bsp.build.structure"),
+              BspBundle.message("resolving.bsp.build.structure.failed"))
         }
 
       projectNodeFuture
@@ -133,7 +133,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         }
       case Success(messages) =>
         reporter.finish(messages)
-        throw BspErrorMessage("import failed")
+        throw BspErrorMessage(BspBundle.message("import.failed"))
       case Failure(x) =>
         reporter.finishWithFailure(x)
         throw x
@@ -231,7 +231,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         baseDir, jdkExe, vmArgs,
         Map.empty, sbtLauncher, sbtCommandArgs, sbtCommands,
         reporter,
-        "creating Bloop configuration from sbt",
+        BspBundle.message("creating.bloop.configuration.from.sbt"),
       )
     } finally {
       settingsFile.delete()
@@ -263,11 +263,11 @@ object BspProjectResolver {
 
       val sourcesEventId = BuildMessages.randomEventId
       val sourcesParams = new SourcesParams(targetIds)
-      val message = "sources"
+      val message = BspBundle.message("sources")
       reporter.startTask(sourcesEventId, Some(parentId), message)
       val sources = bsp.buildTargetSources(sourcesParams)
         .catchBspErrors
-        .reportFinished(reporter, sourcesEventId, message, "request failed: buildTarget/sources")
+        .reportFinished(reporter, sourcesEventId, message, BspBundle.message("request.failed.buildtarget.sources"))
 
       val depSources = if (isDependencySourcesProvider) {
         val eventId = BuildMessages.randomEventId
@@ -276,7 +276,7 @@ object BspProjectResolver {
         reporter.startTask(eventId, Some(parentId), message)
         bsp.buildTargetDependencySources(depSourcesParams)
           .catchBspErrors
-          .reportFinished(reporter, eventId, message, "request failed: buildTarget/dependencySources")
+          .reportFinished(reporter, eventId, message, BspBundle.message("request.failed.buildtarget.dependencysources"))
       } else {
         val emptyResult = new DependencySourcesResult(Collections.emptyList())
         CompletableFuture.completedFuture[Try[DependencySourcesResult]](Success(emptyResult))
@@ -289,7 +289,7 @@ object BspProjectResolver {
         reporter.startTask(eventId, Some(parentId), message)
         bsp.buildTargetResources(resourcesParams)
           .catchBspErrors
-          .reportFinished(reporter, eventId, message, "request failed: buildTarget/resources")
+          .reportFinished(reporter, eventId, message, BspBundle.message("request.failed.buildtarget.resources"))
       } else {
         val emptyResult = new ResourcesResult(Collections.emptyList())
         CompletableFuture.completedFuture[Try[ResourcesResult]](Success(emptyResult))
@@ -307,7 +307,7 @@ object BspProjectResolver {
         val scalacOptionsParams = new ScalacOptionsParams(scalaTargetIds)
         bsp.buildTargetScalacOptions(scalacOptionsParams)
           .catchBspErrors
-          .reportFinished(reporter, eventId, message, "request failed: buildTarget/scalacOptions")
+          .reportFinished(reporter, eventId, message, BspBundle.message("request.failed.buildtarget.scalacoptions"))
 
       } else {
         val emptyResult = new ScalacOptionsResult(Collections.emptyList())

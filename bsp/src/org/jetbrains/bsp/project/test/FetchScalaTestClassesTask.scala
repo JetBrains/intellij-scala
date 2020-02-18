@@ -9,7 +9,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
-import org.jetbrains.bsp.BspErrorMessage
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspJob.CancelCheck
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
@@ -25,10 +25,10 @@ import scala.util.{Failure, Success, Try}
 class FetchScalaTestClassesTask(project: Project,
                                 onOK: java.util.List[ScalaTestClassesItem] => Unit,
                                 onErr: Throwable => Unit
-                               ) extends Task.Modal(project, "Loading", true) {
+                               ) extends Task.Modal(project, BspBundle.message("loading"), true) {
 
   override def run(indicator: ProgressIndicator): Unit = {
-    val text = "Fetching Scala test classes from BSP server"
+    val text = BspBundle.message("fetching.scala.test.classes.from.bsp.server")
     indicator.setText(text)
     val cancelPromise: Promise[Unit] = Promise()
     val cancelCheck = new CancelCheck(cancelPromise, indicator)
@@ -85,6 +85,6 @@ class FetchScalaTestClassesTask(project: Project,
   private def requestTestClasses(params: ScalaTestClassesParams)(bsp: BspServer, capabilities: BuildServerCapabilities):
   CompletableFuture[ScalaTestClassesResult] =
     if (! capabilities.getTestProvider.getLanguageIds.isEmpty) bsp.buildTargetScalaTestClasses(params)
-    else CompletableFuture.failedFuture(BspErrorMessage("server does not support testing"))
+    else CompletableFuture.failedFuture(BspErrorMessage(BspBundle.message("server.does.not.support.testing")))
 
 }

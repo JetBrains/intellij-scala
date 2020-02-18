@@ -100,7 +100,7 @@ object BSPCli extends App {
   val resolver = new BspProjectResolver()
   val targets = {
     println("Resolving build targets...")
-    val task = ExternalSystemTaskId.create(new ProjectSystemId("BSP", "bsp"), ExternalSystemTaskType.RESOLVE_PROJECT, opts.projectPath)
+    val task = ExternalSystemTaskId.create(new ProjectSystemId("BSP", BspBundle.message("bsp")), ExternalSystemTaskType.RESOLVE_PROJECT, opts.projectPath)
     resolver.resolveProjectInfo(task, opts.projectPath, isPreviewMode = false, bspExecSettings, new DummyListener)
     val targets = bspReq(buildTargets)
     println(s"Received ${targets.getTargets.size()} targets:")

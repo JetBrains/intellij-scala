@@ -19,7 +19,7 @@ import com.intellij.task._
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.project.test.BspTestRunConfiguration
-import org.jetbrains.bsp.{BSP, BspUtil}
+import org.jetbrains.bsp.{BSP, BspBundle, BspUtil}
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.extensions
@@ -97,7 +97,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
     bspTask.resultFuture.onComplete { messages =>
 
-      val session = new CompilerTask(project, "Hack: notify completed BSP build", false, false, false, false)
+      val session = new CompilerTask(project, BspBundle.message("hack.notify.completed.bsp.build"), false, false, false, false)
       val scope = new ProjectCompileScope(project)
       val context = new CompileContextImpl(project, session, scope, false, false)
       val pub = project.getMessageBus.syncPublisher(CompilerTopics.COMPILATION_STATUS)

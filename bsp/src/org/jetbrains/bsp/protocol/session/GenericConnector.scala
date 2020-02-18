@@ -5,7 +5,7 @@ import java.io.File
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, BspConnectionMethod, ProcessBsp}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
-import org.jetbrains.bsp.{BspError, BspErrorMessage}
+import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.BuildTaskReporter
 
 class GenericConnector(base: File, compilerOutput: File, capabilities: BspCapabilities, methods: List[ProcessBsp]) extends BspServerConnector() {
@@ -16,7 +16,7 @@ class GenericConnector(base: File, compilerOutput: File, capabilities: BspCapabi
         // TODO check bsp version compatibility
         // TODO check languages compatibility
         Right(prepareBspSession(details))
-    }.getOrElse(Left(BspErrorMessage("no supported connection method for this server")))
+    }.getOrElse(Left(BspErrorMessage(BspBundle.message("no.supported.connection.method.for.this.server"))))
   }
 
   private def prepareBspSession(details: BspConnectionDetails): Builder = {

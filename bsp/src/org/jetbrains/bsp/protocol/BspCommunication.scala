@@ -23,7 +23,7 @@ import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
-import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage, BspUtil}
+import org.jetbrains.bsp.{BSP, BspBundle, BspError, BspErrorMessage, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildTaskReporter
 
 import scala.concurrent.duration._
@@ -54,9 +54,9 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 
     sessionBuilder match {
       case Left(error) =>
-        val procLogMsg = s"bsp connection failed: ${error.getMessage}"
+        val procLogMsg = BspBundle.message("bsp.connection.failed", error.getMessage)
         job.log(procLogMsg)
-        log.warn("bsp connection failed", error)
+        log.warn("BSP connection failed", error)
         Left(error)
       case Right(newSessionBuilder) =>
         newSessionBuilder
@@ -212,7 +212,7 @@ object BspCommunication {
       if (file.canRead) {
         val reader = Source.fromFile(file).bufferedReader()
         Try(gson.fromJson(reader, classOf[BspConnectionDetails]))
-      } else Failure(BspErrorMessage(s"file not readable: $file"))
+      } else Failure(BspErrorMessage(BspBundle.message("file.not.readable", file)))
     }
   }
 

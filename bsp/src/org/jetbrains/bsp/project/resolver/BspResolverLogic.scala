@@ -16,7 +16,7 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, SbtBuildModuleDataBsp, ScalaSdkData}
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
-import org.jetbrains.bsp.{BSP, BspErrorMessage}
+import org.jetbrains.bsp.{BSP, BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.project.Version
 
 import scala.collection.JavaConverters._
@@ -250,7 +250,7 @@ private[resolver] object BspResolverLogic {
       .orElse(moduleBase.map(_.toURI.toString))
       .orElse(sourceRoots.headOption.map(_.directory.toURI.toString))
       .orElse(resourceRoots.headOption.map(_.directory.toURI.toString))
-      .getOrElse(throw BspErrorMessage(s"unable to determine unique module id for module targets: $targets"))
+      .getOrElse(throw BspErrorMessage(BspBundle.message("unable.to.determine.unique.module.id", targets)))
     val moduleName = primaryTarget.flatMap(t => Option(t.getDisplayName)).getOrElse(moduleId)
 
     val dataBasic = ModuleDescriptionData(
@@ -298,14 +298,15 @@ private[resolver] object BspResolverLogic {
                                                          ancestors: Seq[ModuleDescription]): ModuleDescription = {
     // the synthetic module "inherits" most of the "ancestors" data
     val merged = mergeModules(ancestors)
+    val sharedPrefix = "shared:"
     val id = sourceRoots.headOption
       .map { dir =>
         val idPath = allSourcesBase
             .map(_.relativize(dir.directory.toPath))
             .getOrElse(dir.directory.toPath)
-        "shared:" + idPath.toString
+        sharedPrefix + idPath.toString
       }
-      .getOrElse("shared:" + merged.data.id)
+      .getOrElse(sharedPrefix + merged.data.id)
 
     val inheritorData = merged.data.copy(
       id = id,
@@ -477,7 +478,7 @@ private[resolver] object BspResolverLogic {
 
     moduleData.setInheritProjectCompileOutputPath(false)
 
-    val libraryData = new LibraryData(BSP.ProjectSystemId, s"$moduleName dependencies")
+    val libraryData = new LibraryData(BSP.ProjectSystemId, BspBundle.message("modulename.dependencies", moduleName))
     moduleDescriptionData.classpath.foreach { path =>
       libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
     }
@@ -487,7 +488,7 @@ private[resolver] object BspResolverLogic {
     val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
     libraryDependencyData.setScope(DependencyScope.COMPILE)
 
-    val libraryTestData = new LibraryData(BSP.ProjectSystemId, s"$moduleName test dependencies")
+    val libraryTestData = new LibraryData(BSP.ProjectSystemId, BspBundle.message("modulename.test.dependencies", moduleName))
     moduleDescriptionData.testClasspath.foreach { path =>
       libraryTestData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
     }

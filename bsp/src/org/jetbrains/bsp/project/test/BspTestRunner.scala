@@ -18,7 +18,7 @@ import com.intellij.execution.{DefaultExecutionResult, ExecutionResult, Executor
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import jetbrains.buildServer.messages.serviceMessages._
-import org.jetbrains.bsp.BspErrorMessage
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
@@ -84,7 +84,7 @@ class BspTestRunner(
       server.buildTargetTest(params)
     } else {
       val result = new CompletableFuture[TestResult]()
-      result.completeExceptionally(BspErrorMessage("The build server does not support testing"))
+      result.completeExceptionally(BspErrorMessage(BspBundle.message("the.build.server.does.not.support.testing")))
       result
     }
   }

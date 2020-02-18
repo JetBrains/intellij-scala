@@ -4,7 +4,7 @@ import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleConfigurationEditor, ModuleType}
 import com.intellij.openapi.roots.ui.configuration._
 import javax.swing.Icon
-import org.jetbrains.bsp.Icons
+import org.jetbrains.bsp.{BspBundle, Icons}
 import org.jetbrains.bsp.project.BspSyntheticModuleType._
 
 class BspSyntheticModuleType extends ModuleType[EmptyModuleBuilder](Id) {
@@ -18,8 +18,8 @@ object BspSyntheticModuleType {
   def instance: BspSyntheticModuleType = new BspSyntheticModuleType
 
   val Id = "BSP_SYNTHETIC_MODULE"
-  val Name = "bsp synthetic module"
-  val Description = "bsp synthetic modules map the project structure to IntelliJ and do not correspond to targets"
+  val Name: String = BspBundle.message("bsp.synthetic.module")
+  val Description: String = BspBundle.message("bsp.synthetic.module.description")
 
   def unapply(m: Module): Option[Module] =
     if (ModuleType.get(m).isInstanceOf[BspSyntheticModuleType]) Some(m)

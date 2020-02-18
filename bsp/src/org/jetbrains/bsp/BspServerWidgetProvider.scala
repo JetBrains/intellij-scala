@@ -64,10 +64,10 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
         override def consume(event: MouseEvent): Unit = toggleList(event)
       }
 
-      override def getTooltipText: String = "BSP Connection"
+      override def getTooltipText: String = BspBundle.message("bsp.connection")
     }
 
-    private class CloseBspSession(uri: URI) extends AnAction(uri.toString, s"Kill BSP connection at $uri", AllIcons.Actions.Suspend) with DumbAware {
+    private class CloseBspSession(uri: URI) extends AnAction(uri.toString, BspBundle.message("kill.bsp.connection.at.uri", uri), AllIcons.Actions.Suspend) with DumbAware {
       override def update(e: AnActionEvent): Unit = {
         val isAlive = BspCommunicationService.getInstance.isAlive(uri)
         e.getPresentation.setEnabled(isAlive)
@@ -78,7 +78,7 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
       }
     }
 
-    class CloseAllSessions extends AnAction("&Stop all BSP connections", "Stop all BSP connections", AllIcons.Actions.Suspend) with DumbAware {
+    class CloseAllSessions extends AnAction(BspBundle.message("stop.all.bsp.connections"), BspBundle.message("stop.all.bsp.connections"), AllIcons.Actions.Suspend) with DumbAware {
 
       override def update(e: AnActionEvent): Unit = {
         e.getPresentation.setEnabled(connectionsActive)
@@ -100,7 +100,7 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
       val group = new DefaultActionGroup(connectionClosers)
       val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
       val context = DataManager.getInstance.getDataContext(e.getComponent)
-      val title =  s"BSP Connections (${if(connectionsActive) "on" else "off"})"
+      val title = BspBundle.message("bsp.connections", if (connectionsActive) BspBundle.message("bsp.connections.on") else BspBundle.message("bsp.connections.off"))
 
       val popup = JBPopupFactory.getInstance.createActionGroupPopup(title, group, context, mnemonics, true)
       val dimension = popup.getContent.getPreferredSize
