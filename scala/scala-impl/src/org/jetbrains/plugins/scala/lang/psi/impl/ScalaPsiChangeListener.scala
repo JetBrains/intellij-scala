@@ -33,10 +33,10 @@ object ScalaPsiChangeListener {
         return
 
       val element = extractChangedPsi(event, eventType)
+      val validElement = validElementFor(element)
 
-      if (element.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
+      if (validElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
         if (!filters.exists(_.shouldSkip(element))) {
-          val validElement = previousParent(element).getOrElse(element)
           onScalaPsiChange(validElement)
         }
       }
@@ -58,7 +58,7 @@ object ScalaPsiChangeListener {
 
   private def extractChangedPsi(event: PsiTreeChangeEvent, eventType: EventType): PsiElement = eventType match {
     case EventType.ChildRemoved    =>
-      setPreviousParent(event.getChild, event.getParent)
+      setValidElementFor(event.getChild, event.getParent)
       event.getChild
     case EventType.ChildAdded      => event.getChild
     case EventType.ChildMoved      => event.getChild
@@ -66,9 +66,10 @@ object ScalaPsiChangeListener {
     case EventType.ChildrenChanged => event.getParent
   }
 
-  private val previousParentKey: Key[PsiElement] = Key.create("scala.change.previous.parent")
-  private def setPreviousParent(element: PsiElement, parent: PsiElement): Unit = {
-    element.putUserData(previousParentKey, parent)
+  private val validElementKey: Key[PsiElement] = Key.create("scala.change.valid.element")
+  private def setValidElementFor(element: PsiElement, parent: PsiElement): Unit = {
+    element.putUserData(validElementKey, parent)
   }
-  private def previousParent(element: PsiElement): Option[PsiElement] = Option(element.getUserData(previousParentKey))
+  private def validElementFor(element: PsiElement): PsiElement =
+    Option(element.getUserData(validElementKey)).getOrElse(element)
 }
