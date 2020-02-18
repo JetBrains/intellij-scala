@@ -230,6 +230,12 @@ object ScalaElementType {
   val MATCH_TYPE: ScTypeElementType = new ScTypeElementType("match type") {
     override def createElement(node: ASTNode): ScTypeElement = new ScMatchTypeElementImpl(node)
   }
+  val POLY_FUNCTION_TYPE: ScTypeElementType = new ScTypeElementType("poly function type") {
+    override def createElement(node: ASTNode): ScTypeElement = new ScPolyFunctionTypeElementImpl(node)
+  }
+  val DEPENDENT_FUNCTION_TYPE: ScTypeElementType = new ScTypeElementType("dependent function type") {
+    override def createElement(node: ASTNode): ScTypeElement = new ScDependentFunctionTypeElementImpl(node)
+  }
 
   /** ***********************************************************************************/
   /** ************************************ TYPE PARTS ***********************************/

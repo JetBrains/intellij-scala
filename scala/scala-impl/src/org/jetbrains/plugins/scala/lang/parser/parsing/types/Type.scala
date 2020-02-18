@@ -10,12 +10,9 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 
-/*
- * Type ::= InfixType '=>' Type
- *        | '(' ['=>' Type] ')' => Type
- *        | TypeParamClause '=>>' Type       (Scala 3+ only)
- *        | MatchType                        (Scala 3+ only)
- *        | InfixType [ExistentialClause]
+/**
+ * Type ::= [[FunLikeType]]
+ *        | [[TypeParamClause]] '=>>' [[Type]]   (Scala 3+ only)
  *        | _ SubtypeBounds
  *        | ? SubtypeBounds (Scala 3)
  * SubtypeBounds : == [>: Type] [<: Type]
@@ -47,34 +44,19 @@ trait Type {
     implicit val b: ScalaPsiBuilder = builder
     val typeMarker = builder.mark
 
-    if (infixType.parse(builder, star, isPattern)) {
-      builder.getTokenType match {
-        case ScalaTokenTypes.tFUNTYPE =>
-          builder.advanceLexer() //Ate =>
-          if (!parse(builder, isPattern = isPattern)) {
-            builder.error(ScalaBundle.message("wrong.type"))
-          }
-          typeMarker.done(ScalaElementType.TYPE)
-        case ScalaTokenTypes.kFOR_SOME =>
-          ExistentialClause.parse(builder)
-          typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
-        case _ =>
-          typeMarker.drop()
-      }
+    if (FunLikeType.parse(star, isPattern)) {
+      typeMarker.drop()
       true
     } else if (builder.isScala3 && TypeParamClause.parse(builder, mayHaveContextBounds = false)) {
       builder.getTokenType match {
         case ScalaTokenType.TypeLambdaArrow =>
           builder.advanceLexer()
-          if (!parse(builder, isPattern = isPattern)) {
+          if (!parse(builder, star = star, isPattern = isPattern)) {
             builder.error(ScalaBundle.message("wrong.type"))
           }
           typeMarker.done(ScalaElementType.TYPE_LAMBDA)
         case _ => builder.error(ScalaBundle.message("type.lambda.expected"))
       }
-      true
-    } else if (builder.isScala3 && MatchType.parse(builder)) {
-      typeMarker.drop()
       true
     } else if (parseWildcardType(typeMarker, isPattern)) {
       true
