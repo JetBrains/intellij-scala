@@ -108,7 +108,7 @@ class BuildToolWindowReporter(project: Project,
 }
 
 object BuildToolWindowReporter {
-  class CancelBuildAction(cancelToken: Promise[Unit])
+  class CancelBuildAction(cancelToken: Promise[_])
     extends DumbAwareAction("Cancel Build", "Cancel build", AllIcons.Actions.Suspend) {
 
     override def actionPerformed(e: AnActionEvent): Unit = {

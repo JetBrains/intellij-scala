@@ -21,9 +21,12 @@ import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.project.test.BspTestRunConfiguration
 import org.jetbrains.bsp.{BSP, BspUtil}
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
+import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.extensions
 
 import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 
 class BspProjectTaskRunner extends ProjectTaskRunner {
@@ -84,22 +87,37 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     }
     val promiseResult = new AsyncPromise[ProjectTaskRunner.Result]
 
-    promiseResult.onProcessed { _ =>
-      val modules = validTasks.map(_.getModule).toArray
-      val outputRoots = CompilerPaths.getOutputPaths(modules)
-      refreshRoots(project, outputRoots)
+    val bspTask = new BspTask(project, targets, targetsToClean)
+
+    bspTask.resultFuture.foreach { _ =>
+        val modules = validTasks.map(_.getModule).toArray
+        val outputRoots = CompilerPaths.getOutputPaths(modules)
+        refreshRoots(project, outputRoots)
+      }
+
+    bspTask.resultFuture.onComplete { messages =>
 
       val session = new CompilerTask(project, "Hack: notify completed BSP build", false, false, false, false)
       val scope = new ProjectCompileScope(project)
       val context = new CompileContextImpl(project, session, scope, false, false)
       val pub = project.getMessageBus.syncPublisher(CompilerTopics.COMPILATION_STATUS)
-      // Auto-test needs checks if at least one path was process (and this can be any path)
-      pub.fileGenerated("", "")
-      // We can fill errors and warnings numbers as well if build was aborted
-      pub.compilationFinished( /*aborted=*/false, /*errors=*/0, /*warnings=*/0, context)
+
+      messages match {
+        case Success(messages) =>
+          promiseResult.setResult(messages.toTaskRunnerResult)
+
+          // Auto-test needs checks if at least one path was process (and this can be any path)
+          pub.fileGenerated("", "")
+          pub.compilationFinished(
+            messages.status == BuildMessages.Canceled,
+            messages.errors.size, messages.warnings.size, context)
+        case Failure(exception) =>
+          promiseResult.setError(exception)
+          pub.automakeCompilationFinished(1, 0, context)
+      }
     }
 
-    val bspTask = new BspTask(project, targets, targetsToClean, promiseResult)
+
     ProgressManager.getInstance().run(bspTask)
 
     promiseResult

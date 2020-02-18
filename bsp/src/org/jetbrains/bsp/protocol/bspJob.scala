@@ -17,17 +17,11 @@ abstract class BspJob[T] {
 object BspJob {
 
   /** Check both indicator and promise for canceled status to combine different ways of canceling tasks.  */
-  class CancelCheck(promise: Promise[Unit], indicator: ProgressIndicator) {
+  class CancelCheck(promise: Promise[_], indicator: ProgressIndicator) {
 
     def cancel(): Unit = {
       promise.failure(BspTaskCancelled)
       indicator.cancel()
-    }
-
-
-    def complete(): Unit = {
-      promise.success(())
-      // let's just assume indicator stop is handled elsewhere
     }
 
     def isCancelled: Boolean = {
@@ -48,7 +42,6 @@ object BspJob {
         Failure(BspTaskCancelled)
       } else {
         val res = Await.result(job.future, 300.millis)
-        cancelCheck.complete()
         Try(res)
       }
     } catch {
