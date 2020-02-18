@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 class LanguageFeatureInspection extends AbstractInspection("Advanced language features") {
   private val Features = Seq(
     Feature("postfix operator notation", "scala.language", "postfixOps", _.postfixOps, _.postfixOps = true) {
+      // TODO if !e.applicationProblems.exists(_.isInstanceOf[MissedValueParameter]), see TypeMismatchHighlightingTest
       case e: ScPostfixExpr => e.operation
     },
     Feature("reflective call", "scala.language", "reflectiveCalls", _.reflectiveCalls, _.reflectiveCalls = true) {
@@ -83,7 +84,7 @@ private case class Feature(name: String,
       }
     }
   }
-  
+
   private def isFlagImportedFor(e: PsiElement): Boolean = {
     ScalaPsiElementFactory.createReferenceFromText(flagName, e, e).resolve() match {
       case e: ScReferencePattern => Option(e.containingClass).exists(_.qualifiedName == flagQualifier)

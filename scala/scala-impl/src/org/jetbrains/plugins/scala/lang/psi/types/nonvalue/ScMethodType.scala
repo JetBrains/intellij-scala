@@ -4,7 +4,8 @@ package psi
 package types
 package nonvalue
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScMethodCall, ScReferenceExpression, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.annotation.tailrec
 
@@ -53,6 +54,15 @@ object ScMethodType {
   // TODO Actually infer method types
   @tailrec def hasMethodType(e: ScExpression): Boolean = e match {
     case r: ScReferenceExpression => r.bind().exists(_.problems.exists(_.isInstanceOf[MissedParametersClause]))
+    case call: ScMethodCall if !call.getParent.isInstanceOf[ScUnderscoreSection] => call.deepestInvokedExpr match {
+      case method: ScReferenceExpression => method.bind().map(_.element) match {
+        case Some(definition: ScFunctionDefinition) =>
+          definition.parameterListCount > call.argumentListCount
+        case _ => false
+      }
+      case _ => false
+    }
+    case i: MethodInvocation => i.applicationProblems.exists(_.isInstanceOf[MissedValueParameter]) // Infix Expression
     case c: ScGenericCall => hasMethodType(c.referencedExpr)
     case _ => false
   }
