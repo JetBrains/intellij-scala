@@ -82,6 +82,8 @@ trait ScFunction extends ScalaPsiElement with ScMember.WithBaseIconProvider with
 
   def parameterList: ScParameters = paramClauses // TODO merge
 
+  def parameterListCount: Int
+
   def clauses: Option[ScParameters] = Some(paramClauses)
 
   def declaredElements: Seq[ScFunction] = Seq(this)

@@ -27,6 +27,7 @@ class LanguageFeatureInspection extends AbstractInspection("Advanced language fe
 
   private val Features = Seq(
     Feature("postfix operator notation", "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true)) {
+      // TODO if !e.applicationProblems.exists(_.isInstanceOf[MissedValueParameter]), see TypeMismatchHighlightingTest
       case e: ScPostfixExpr => e.operation
     },
     Feature("reflective call", "scala.language", "reflectiveCalls", _.reflectiveCalls, _.copy(reflectiveCalls = true)) {

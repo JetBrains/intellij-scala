@@ -268,6 +268,22 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchUnappliedGenericMethodTypeArgument(): Unit = assertErrors(
     "def f[T](t: T): Int = 1; val v: Int = f[Int]") // TODO missing arguments?
 
+  // TODO Highlight "& ", missing argument
+  // The & is (incorrectly) highlighted by the LanguageFeatureInspection though, so there's at least some highlighting :)
+  def testTypeMismatchUnappliedMethodInfix(): Unit = assertErrors(
+    "object O { def &(i: String): Unit = () }; val v: Int = O &")
+
+  // TODO Highlight ") ", missing argument list
+  def testTypeMismatchUnappliedCurrying(): Unit = assertErrors(
+    "def f(i: Int)(s: String): Unit = (); val v: Int = f(1)")
+
+  // TODO Highlight ") ", missing argument list
+  def testTypeMismatchUnappliedNoExpectedType(): Unit = assertErrors(
+    "def f(i: Int)(s: String): Unit = (); val v = f(1)")
+
+  def testTypeMismatchUnappliedEtaExpansion(): Unit = assertErrors(
+    "def f(i: Int)(s: String): Unit = (); val v = f(1) _")
+
   // TODO Generalize to arbitrary expression
   // TODO The following is a workaround for SCL-16898 (Function literals: don't infer type when parameter type is not known)
 
