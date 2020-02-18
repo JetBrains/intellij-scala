@@ -69,7 +69,9 @@ object ScalaBundleSorting {
 
 
 
-  def main(args: Array[String]): Unit = for (info <- allModuleInfos) {
+  def main(args: Array[String]): Unit = sortAll(allModuleInfos)
+
+  def sortAll(moduleInfos: Seq[ModuleInfo]): Unit = for (info <- moduleInfos) {
     val ModuleInfo(rootPath, bundlePath, searcher) = info
     println(s"Find keys in $rootPath")
     val findings = findKeysInModule(rootPath, searcher)

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 /**
  * If this fails maybe run the main method in [[ScalaBundleSorting]]
  */
-class ScalaBundleSortingTest extends TestCase with AssertionMatchers {
+class ScalaBundleSortingTest extends ScalaBundleSortingTestBase {
   def test_bspModule(): Unit = testDirectory(bspModule)
   def test_codeInsightModule(): Unit = testDirectory(codeInsightModule)
   def test_conversionModule(): Unit = testDirectory(conversionModule)
@@ -19,9 +19,9 @@ class ScalaBundleSortingTest extends TestCase with AssertionMatchers {
   def test_scalaImplModuleCodeInspection(): Unit = testDirectory(scalaImplModuleCodeInspection)
   def test_uastModule(): Unit = testDirectory(uastModule)
   def test_worksheetModule(): Unit = testDirectory(worksheetModule)
+}
 
-
-
+abstract class ScalaBundleSortingTestBase extends TestCase with AssertionMatchers {
   def testDirectory(info: ModuleInfo): Unit = {
     val ModuleInfo(rootPath, bundlePath, searcher) = info
     val findings = findKeysInModule(rootPath, searcher)
