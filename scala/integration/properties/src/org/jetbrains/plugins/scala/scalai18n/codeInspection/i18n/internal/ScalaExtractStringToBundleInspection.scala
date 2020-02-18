@@ -32,11 +32,18 @@ class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection 
                                            descriptionTemplate: String = getDisplayName,
                                            highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
-    Option(element) collect {
+    element match {
       case element@TopmostStringParts(parts) if !shouldBeIgnored(element, parts) =>
+        val isNaturalLang = containsNaturalLangString(element, parts)
 
-        val quickFixes = Array[LocalQuickFix](new MoveToBundleQuickFix(element)) ++ maybeQuickFix
-        manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, quickFixes, if (containsNaturalLangString(element, parts)) highlightType else ProblemHighlightType.INFORMATION)
+        if (isNaturalLang || isOnTheFly) {
+          val quickFixes = Array[LocalQuickFix](new MoveToBundleQuickFix(element)) ++ maybeQuickFix
+          val highlight =
+            if (isNaturalLang) highlightType
+            else ProblemHighlightType.INFORMATION // make quickfix available for all strings
+          Some(manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, quickFixes, highlight))
+        } else None
+      case _ => None
     }
   }
 }
