@@ -47,6 +47,11 @@ object ScalaBundleSorting {
     bundlePath = scalaImplDir + "resources/org/jetbrains/plugins/scala/codeInspection/InspectionBundle.properties",
   )
 
+  val scalaImplModuleSbt: ModuleInfo = ModuleInfo(
+    rootPath = scalaImplDir + "src/",
+    bundlePath = scalaImplDir + "resources/org/jetbrains/sbt/SbtBundle.properties"
+  )
+
   val uastModule: ModuleInfo = ModuleInfo(
     rootPath = scalaModDir + "uast/src/",
     bundlePath = scalaModDir + "uast/resources/messages/ScalaUastBundle.properties",
@@ -61,7 +66,7 @@ object ScalaBundleSorting {
     bspModule,
     codeInsightModule,
     conversionModule,
-    scalaImplModule, scalaImplModuleErrMsg, scalaImplModuleCodeInspection,
+    scalaImplModule, scalaImplModuleErrMsg, scalaImplModuleCodeInspection, scalaImplModuleSbt,
     uastModule,
     worksheetModule
   )
