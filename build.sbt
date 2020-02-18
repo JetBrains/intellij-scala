@@ -80,6 +80,11 @@ lazy val tastyApi =
       packageMethod := PackagingMethod.Skip()
     )
 
+lazy val tastyCompat =
+  newProject("tasty-compat", file("tasty/compat"))
+    .dependsOn(tastyApi % "compile-internal")
+    .settings(scalaVersion := "2.13.1")
+
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
