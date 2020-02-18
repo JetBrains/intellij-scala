@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.editor.EditorFactory

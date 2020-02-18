@@ -518,8 +518,10 @@
                      description="Show errors from scala compiler in the editor"/>
         <registryKey key="dotty.highlighting.compiler.errors.in.editor" defaultValue="true" restartRequired="false"
                      description="Show errors from dotty compiler in the editor"/>
-        <registryKey key="scala.highlighting.compiler.delay.millis" defaultValue="300" restartRequired="false"
-                     description="Delay between runs of the compiler for highlighting, millis"/>
+        <registryKey key="scala.highlighting.compiler.selected.delay.millis" defaultValue="300" restartRequired="false"
+                     description="Delay between runs of the selected file compiler for highlighting, millis"/>
+        <registryKey key="scala.highlighting.compiler.jps.delay.millis" defaultValue="500" restartRequired="false"
+                     description="Delay between runs of the jps compilation for highlighting, millis"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
@@ -1447,15 +1449,12 @@
 
         <listener topic="com.intellij.compiler.server.CustomBuilderMessageHandler"
                   class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>
+
         <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.HighlightingUpdatingCompilerEventListener"/>
-
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterHighlightingCompilerListener"/>
-        <listener topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.ScheduleSaveProjectListener"/>
+                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterExternalHighlightingListenersListener"/>
     </projectListeners>
-
 
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction"
