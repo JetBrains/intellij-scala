@@ -57,7 +57,7 @@ object ScMethodType {
     case call: ScMethodCall if !call.getParent.isInstanceOf[ScUnderscoreSection] => call.deepestInvokedExpr match {
       case method: ScReferenceExpression => method.bind().map(_.element) match {
         case Some(definition: ScFunctionDefinition) =>
-          definition.parameterListCount > call.argumentListCount
+          definition.paramClauses.clauses.takeWhile(!_.isImplicit).length > call.argumentListCount
         case _ => false
       }
       case _ => false
