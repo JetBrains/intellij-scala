@@ -53,8 +53,8 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
 
   override def isExtraSettingModified: Boolean = {
     val initial = getInitialSettings
-    buildOnSaveCheckBox.isSelected != initial.buildOnSave
-    runPreImportTaskCheckBox.isSelected != initial.runPreImportTask
+    buildOnSaveCheckBox.isSelected != initial.buildOnSave ||
+      runPreImportTaskCheckBox.isSelected != initial.runPreImportTask
   }
 
   override def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
