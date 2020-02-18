@@ -1,0 +1,21 @@
+<html>
+<body>
+Replaces an emptiness check of the result of Map.get with a call to Map.contains.
+
+<p>
+    Before:
+<pre>
+map.get(key).nonEmpty
+map.get(key).isEmpty
+</pre>
+
+<br>
+After:
+<pre>
+map.contains(key)
+!map.contains(key)
+</pre>
+</p>
+
+</body>
+</html>
