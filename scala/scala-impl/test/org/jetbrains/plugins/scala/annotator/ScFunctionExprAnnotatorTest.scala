@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.ScalaVersion.Scala_2_12
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12}
 
 // Technically, it's "type mismatch", but we can do better than the scalac, SCL-16904
 // See also: TypeMismatchHighlightingTest
