@@ -3,8 +3,9 @@ package org.jetbrains.bsp.project
 import java.io.File
 import java.nio.file.Paths
 
-import com.intellij.compiler.impl.CompilerUtil
-import com.intellij.openapi.compiler.CompilerPaths
+import com.intellij.compiler.impl.{CompileContextImpl, CompilerUtil, ProjectCompileScope}
+import com.intellij.compiler.progress.CompilerTask
+import com.intellij.openapi.compiler.{CompilerPaths, CompilerTopics}
 import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, ModuleData}
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
@@ -15,10 +16,10 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
-import org.jetbrains.bsp.{BSP, BspUtil}
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.project.test.BspTestRunConfiguration
+import org.jetbrains.bsp.{BSP, BspUtil}
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.extensions
 
@@ -87,6 +88,15 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       val modules = validTasks.map(_.getModule).toArray
       val outputRoots = CompilerPaths.getOutputPaths(modules)
       refreshRoots(project, outputRoots)
+
+      val session = new CompilerTask(project, "Hack: notify completed BSP build", false, false, false, false)
+      val scope = new ProjectCompileScope(project)
+      val context = new CompileContextImpl(project, session, scope, false, false)
+      val pub = project.getMessageBus.syncPublisher(CompilerTopics.COMPILATION_STATUS)
+      // Auto-test needs checks if at least one path was process (and this can be any path)
+      pub.fileGenerated("", "")
+      // We can fill errors and warnings numbers as well if build was aborted
+      pub.compilationFinished( /*aborted=*/false, /*errors=*/0, /*warnings=*/0, context)
     }
 
     val bspTask = new BspTask(project, targets, targetsToClean, promiseResult)
