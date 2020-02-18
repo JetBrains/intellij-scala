@@ -73,6 +73,13 @@ lazy val worksheet = newProject(
   scalaImpl % "test->test;compile->compile"
 )
 
+lazy val tastyApi =
+  newProject("tasty-api", file("tasty/api"))
+    .settings(
+      scalaVersion := "2.13.1",
+      packageMethod := PackagingMethod.Skip()
+    )
+
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
