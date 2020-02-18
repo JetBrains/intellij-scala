@@ -101,6 +101,10 @@ object ScalaExtractStringToBundleInspection {
     }
   }
 
+  // use a global lock when writing to the bundle file.
+  // That way the quickfix works in batch mode
+  private val bundleMutex = new Object
+
   private class MoveToBundleQuickFix(_element: ScExpression) extends AbstractFixOnPsiElement("Extract to bundle", _element) {
     override protected def doApplyFix(element: ScExpression)(implicit project: Project): Unit = {
       val parts = element match {
@@ -127,23 +131,28 @@ object ScalaExtractStringToBundleInspection {
             return
           }
 
-      val bundle = I18nBundleContent.read(bundlePropertyPath)
-      val path = elementPath.substring(srcRoot.length)
-      val (key, text, arguments) = toKeyAndTextAndArgs(parts)
-      val newEntry = Entry(key, text, path)
+      val (key, arguments) = bundleMutex.synchronized {
+        val bundle = I18nBundleContent.read(bundlePropertyPath)
+        val path = elementPath.substring(srcRoot.length)
+        val (key, text, arguments) = toKeyAndTextAndArgs(parts)
+        val newEntry = Entry(key, text, path)
 
-      // mark bundle file for undo
-      val fileUrl = VirtualFileManager.constructUrl(URLUtil.FILE_PROTOCOL, bundlePropertyPath)
-      val vfile = VirtualFileManager.getInstance().findFileByUrl(fileUrl)
-      if (vfile == null) {
-        throw new Exception(s"Failed to open bundle file at $bundlePropertyPath")
+        // mark bundle file for undo
+        val fileUrl = VirtualFileManager.constructUrl(URLUtil.FILE_PROTOCOL, bundlePropertyPath)
+        val vfile = VirtualFileManager.getInstance().findFileByUrl(fileUrl)
+
+        if (vfile == null) {
+          throw new Exception(s"Failed to open bundle file at $bundlePropertyPath")
+        }
+
+        val outputStream = vfile.getOutputStream(this)
+        try bundle
+          .withEntry(newEntry)
+          .writeTo(outputStream)
+        finally outputStream.close()
+
+        (key, arguments)
       }
-
-      val outputStream = vfile.getOutputStream(this)
-      try bundle
-        .withEntry(newEntry)
-        .writeTo(outputStream)
-      finally outputStream.close()
       // TODO: make undo working
       //val document = FileDocumentManager.getInstance().getDocument(vfile)
       //CommandProcessor.getInstance().addAffectedDocuments(project, document);
