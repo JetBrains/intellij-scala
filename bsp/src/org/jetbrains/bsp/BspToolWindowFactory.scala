@@ -4,8 +4,6 @@ import com.intellij.openapi.externalSystem.service.task.ui.AbstractExternalSyste
 import com.intellij.openapi.project.Project
 
 class BspToolWindowFactory extends AbstractExternalSystemToolWindowFactory(BSP.ProjectSystemId) {
-  override def isApplicable(project: Project): Boolean = {
-    // TODO figure out if we should check if it's really a bsp project
-    super.isApplicable(project)
-  }
+  override def isApplicable(project: Project): Boolean =
+    BspUtil.hasBspModule(project)
 }

@@ -3,12 +3,13 @@ package org.jetbrains.sbt.execution
 import java.util
 
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.OrderEnumerationHandler.AddDependencyType
 import com.intellij.openapi.roots.impl.ModuleOrderEnumerator
 import com.intellij.openapi.roots._
 import com.intellij.util.CommonProcessors
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 
 /**
@@ -39,7 +40,6 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
   override def createHandler(module: Module): OrderEnumerationHandler = new SbtOrderEnumeratorHandler
 
-  override def isApplicable(module: Module): Boolean = {
-    ExternalSystemApiUtil.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
-  }
+  override def isApplicable(module: Module): Boolean =
+    SbtUtil.isSbtModule(module)
 }

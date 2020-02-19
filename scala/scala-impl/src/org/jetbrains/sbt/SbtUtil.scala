@@ -11,7 +11,7 @@ import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.util.BooleanFunction
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
@@ -29,6 +29,12 @@ object SbtUtil {
     val globalPlugins = "sbt.global.plugins"
     val globalBase = "sbt.global.base"
   }
+
+  def isSbtModule(module: Module): Boolean =
+    ExternalSystemApiUtil.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
+
+  def hasSbtModule(project: Project): Boolean =
+    ModuleManager.getInstance(project).getModules.exists(isSbtModule)
 
   /** Directory for global sbt plugins given sbt version */
   def globalPluginsDirectory(sbtVersion: Version): File =

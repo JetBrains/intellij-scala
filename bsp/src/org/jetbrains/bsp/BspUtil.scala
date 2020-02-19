@@ -61,7 +61,7 @@ object BspUtil {
     ExternalSystemApiUtil.isExternalSystemAwareModule(BSP.ProjectSystemId, module)
 
   def hasBspModule(project: Project): Boolean =
-    ModuleManager.getInstance(project).getModules.forall(isBspModule)
+    ModuleManager.getInstance(project).getModules.exists(isBspModule)
 
   implicit class ResponseErrorExceptionOps(err: ResponseErrorException) {
     def toBspError: BspError = {

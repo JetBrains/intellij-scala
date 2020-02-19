@@ -10,16 +10,14 @@ import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
 import javax.swing.{Icon, KeyStroke}
-import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.{invokeLater, schedulePeriodicTask}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
-import org.jetbrains.sbt.shell
 import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.scheduleIconUpdate
+import org.jetbrains.sbt.{SbtUtil, shell}
 
 /**
   * Creates the sbt shell toolwindow, which is docked at the bottom of sbt projects.
@@ -27,6 +25,9 @@ import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.scheduleIconUpdate
   * This factory is registered in SBT.xml
   */
 class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
+
+  override def isApplicable(project: Project): Boolean =
+    SbtUtil.hasSbtModule(project)
 
   // called once per project open
   @TraceWithLogger
@@ -52,9 +53,6 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
     SbtProcessManager.forProject(project).initAndRunAsync()
   }
-
-  // don't auto-activate because starting sbt shell is super heavy weight
-  override def isDoNotActivateOnStart: Boolean = true
 
   private def addShortcuts(actionId: String): Unit = {
     val keymapManager = KeymapManager.getInstance()
