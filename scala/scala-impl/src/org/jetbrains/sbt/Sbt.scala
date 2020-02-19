@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 
+import com.intellij.notification.NotificationGroup
 import javax.swing.Icon
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.Version
@@ -9,40 +11,40 @@ import org.jetbrains.plugins.scala.project.Version
  * @author Pavel Fatin
  */
 object Sbt {
-  val Name = "sbt"
+  @NonNls val Name = "sbt"
 
-  val BuildFile = "build.sbt"
+  @NonNls val BuildFile = "build.sbt"
 
-  val PropertiesFile = "build.properties"
+  @NonNls val PropertiesFile = "build.properties"
 
-  val ProjectDirectory = "project"
+  @NonNls val ProjectDirectory = "project"
 
-  val PluginsFile = "plugins.sbt"
+  @NonNls val PluginsFile = "plugins.sbt"
 
-  val TargetDirectory = "target"
+  @NonNls val TargetDirectory = "target"
 
-  val ModulesDirectory = ".idea/modules"
+  @NonNls val ModulesDirectory = ".idea/modules"
 
-  val ProjectDescription = "sbt project"
+  val ProjectDescription: String = SbtBundle.message("sbt.project.description")
 
-  val ProjectLongDescription = "Project backed by sbt"
+  val ProjectLongDescription: String = SbtBundle.message("sbt.project.long.description")
 
-  val BuildModuleSuffix = "-build"
+  @NonNls val BuildModuleSuffix = "-build"
 
-  val BuildModuleName = "sbt module"
+  val BuildModuleName: String = SbtBundle.message("sbt.build.module.name")
 
-  val BuildModuleDescription = "sbt modules are used to mark content roots and to provide libraries for sbt project definitions"
+  val BuildModuleDescription: String = SbtBundle.message("sbt.build.module.description")
 
-  val BuildLibraryName = "sbt-and-plugins"
+  @NonNls val BuildLibraryName = "sbt-and-plugins"
 
-  val UnmanagedLibraryName = "unmanaged-jars"
+  @NonNls val UnmanagedLibraryName = "unmanaged-jars"
 
-  val UnmanagedSourcesAndDocsName = "unmanaged-sources-and-docs"
+  @NonNls val UnmanagedSourcesAndDocsName = "unmanaged-sources-and-docs"
 
-  val DefinitionHolderClasses = Seq("sbt.Plugin", "sbt.Build")
+  @NonNls val DefinitionHolderClasses = Seq("sbt.Plugin", "sbt.Build")
 
   // this should be in sync with sbt.BuildUtil.baseImports
-  val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._", "dsl._")
+  @NonNls val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._", "dsl._")
 
   val LatestVersion: Version = Version(BuildInfo.sbtLatestVersion)
   val Latest_1_0: Version = Version(BuildInfo.sbtLatest_1_0)
@@ -52,4 +54,6 @@ object Sbt {
   val Icon: Icon = Icons.SBT
 
   val FolderIcon: Icon = Icons.SBT_FOLDER
+
+  val balloonNotification: NotificationGroup = NotificationGroup.balloonGroup(Name)
 }

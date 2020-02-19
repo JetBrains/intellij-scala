@@ -20,11 +20,13 @@ import org.jetbrains.bsp.project.resolver.BspResolverLogic._
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.bsp.{BspErrorMessage, BspTaskCancelled}
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam, upgradedSbtVersion}
 import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectImportProvider}
 
@@ -37,7 +39,7 @@ import scala.util.{Failure, Success, Try}
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
 
-  private var importState: ImportState = Inactive
+  @volatile private var importState: ImportState = Inactive
 
   override def resolveProjectInfo(id: ExternalSystemTaskId,
                                   workspaceCreationPath: String,
@@ -55,14 +57,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     def requests(implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[DataNode[ProjectData]] = {
       val structureEventId = BuildMessages.randomEventId
-      reporter.startTask(structureEventId, None,"resolving BSP build structure")
+      reporter.startTask(structureEventId, None, BspBundle.message("bsp.resolver.resolving.build.structure"))
       val targetsEventId = BuildMessages.randomEventId
-      reporter.startTask(targetsEventId, Some(structureEventId), "build targets")
+      reporter.startTask(targetsEventId, Some(structureEventId), BspBundle.message("bsp.resolver.build.targets"))
       val targetsRequest = server.workspaceBuildTargets()
 
       val projectNodeFuture: CompletableFuture[DataNode[ProjectData]] =
         targetsRequest.thenCompose { targetsResponse =>
-          reporter.finishTask(targetsEventId, "build targets", new SuccessResultImpl())
+          reporter.finishTask(targetsEventId, BspBundle.message("bsp.resolver.build.targets"), new SuccessResultImpl())
 
           val targets = targetsResponse.getTargets.asScala.toList
           val td = targetData(targets, isPreviewMode, reporter, structureEventId)
@@ -79,14 +81,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             projectNode(workspace.getCanonicalPath, moduleFilesDirectoryPath, descriptions)
           }
             .reportFinished(reporter, structureEventId,
-              "BSP build structure",
-              "resolving BSP build structure failed")
+              BspBundle.message("bsp.resolver.build.structure"),
+              BspBundle.message("bsp.resolver.resolving.build.structure.failed"))
         }
 
       projectNodeFuture
     }
-
-    val communication = BspCommunication.forWorkspace(new File(workspaceCreationPath))
 
     val notifications: NotificationCallback = {
       case BspNotifications.LogMessage(params) =>
@@ -99,35 +99,41 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       listener.onTaskOutput(id, msg, true)
     }
 
+    importState = Active
+
     reporter.start()
 
-    importState = Active(communication)
 
     // special handling for sbt projects: run bloopInstall first
     // TODO support other bloop-enabled build tools as well
     val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspaceCreationFile)
-    val sbtMessages = if (SbtProjectImportProvider.canImport(vfile)) {
+    val sbtMessages = if (
+      executionSettings.runPreImportTask &&
+      SbtProjectImportProvider.canImport(vfile)
+    ) {
       runBloopInstall(workspaceCreationFile, reporter)
     } else Success(BuildMessages.empty.status(BuildMessages.OK))
+
+    val communication = BspCommunication.forWorkspace(new File(workspaceCreationPath))
+    importState = BspTask(communication)
 
     val result = sbtMessages match {
       case Success(messages) if messages.status == BuildMessages.OK =>
         val projectJob = communication.run(requests(_,_), notifications, reporter, processLogger)
         waitForProjectCancelable(projectJob) match {
-          case Failure(BspTaskCancelled) =>
-            reporter.finishCanceled()
-            null
-          case Failure(err: Exception) =>
-            reporter.finishWithFailure(err)
-            throw err
           case Success(data) =>
             reporter.finish(messages)
             data
-
+          case Failure(BspTaskCancelled) =>
+            reporter.finishCanceled()
+            null
+          case Failure(err: Throwable) =>
+            reporter.finishWithFailure(err)
+            throw err
         }
       case Success(messages) =>
         reporter.finish(messages)
-        throw BspErrorMessage("import failed")
+        throw BspErrorMessage(BspBundle.message("bsp.resolver.import.failed"))
       case Failure(x) =>
         reporter.finishWithFailure(x)
         throw x
@@ -142,7 +148,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[DataNode[ProjectData]]): Try[DataNode[ProjectData]] =
 
     importState match {
-      case Active(_) =>
+      case Active | PreImportTask(_) | BspTask(_) =>
         var retry = false
 
         val res = try {
@@ -167,8 +173,18 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   override def cancelTask(taskId: ExternalSystemTaskId,
                           listener: ExternalSystemTaskNotificationListener): Boolean =
     importState match {
-      case Active(session) =>
+      case PreImportTask(dumper) =>
         listener.beforeCancel(taskId)
+        dumper.cancel()
+        importState = Inactive
+        listener.onCancel(taskId)
+        true
+      case BspTask(session) =>
+        listener.beforeCancel(taskId)
+        importState = Inactive
+        listener.onCancel(taskId)
+        true
+      case Active =>
         importState = Inactive
         listener.onCancel(taskId)
         true
@@ -176,13 +192,61 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         false
     }
 
+
+  private def runBloopInstall(baseDir: File, reporter: BuildTaskReporter) = {
+
+    val jdkType = JavaSdk.getInstance()
+    val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType)
+    val jdkExe = new File(jdkType.getVMExecutablePath(jdk)) // TODO error when none, offer jdk config
+    val jdkHome = Option(jdk.getHomePath).map(new File(_))
+    val sbtLauncher = SbtUtil.getDefaultLauncher
+
+    val injectedPlugins = s"""addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "${BuildInfo.bloopVersion}")"""
+    val pluginFile = FileUtil.createTempFile("idea",".sbt", true)
+    val pluginFilePath = SbtUtil.normalizePath(pluginFile)
+    FileUtil.writeToFile(pluginFile, injectedPlugins)
+
+    val injectedSettings = """bloopExportJarClassifiers in Global := Some(Set("sources"))"""
+    val settingsFile = FileUtil.createTempFile(baseDir, "idea-bloop", ".sbt", true)
+    FileUtil.writeToFile(settingsFile, injectedSettings)
+
+    val sbtCommandArgs = List(
+      "early(addPluginSbtFile=\"\"\"" + pluginFilePath + "\"\"\")"
+    )
+    val sbtCommands = "bloopInstall"
+
+    val projectSbtVersion = Version(detectSbtVersion(baseDir, getDefaultLauncher))
+    val sbtVersion = upgradedSbtVersion(projectSbtVersion)
+    val upgradeParam =
+      if (sbtVersion > projectSbtVersion)
+        List(sbtVersionParam(sbtVersion))
+      else List.empty
+
+    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome) ++ upgradeParam
+
+    try {
+      val dumper = new SbtStructureDump()
+      importState = PreImportTask(dumper)
+      dumper.runSbt(
+        baseDir, jdkExe, vmArgs,
+        Map.empty, sbtLauncher, sbtCommandArgs, sbtCommands,
+        reporter,
+        BspBundle.message("bsp.resolver.creating.bloop.configuration.from.sbt"),
+      )
+    } finally {
+      settingsFile.delete()
+    }
+  }
+
 }
 
 object BspProjectResolver {
 
   private sealed abstract class ImportState
-  private case class Active(communication: BspCommunication) extends ImportState
   private case object Inactive extends ImportState
+  private case object Active extends ImportState
+  private case class PreImportTask(dumper: SbtStructureDump) extends ImportState
+  private case class BspTask(communication: BspCommunication) extends ImportState
 
   private[resolver] def targetData(targets: List[BuildTarget], isPreview: Boolean, reporter: BuildTaskReporter, parentId: EventId)
                                   (implicit bsp: BspServer, capabilities: BuildServerCapabilities):
@@ -199,11 +263,11 @@ object BspProjectResolver {
 
       val sourcesEventId = BuildMessages.randomEventId
       val sourcesParams = new SourcesParams(targetIds)
-      val message = "sources"
+      val message = BspBundle.message("bsp.resolver.sources")
       reporter.startTask(sourcesEventId, Some(parentId), message)
       val sources = bsp.buildTargetSources(sourcesParams)
         .catchBspErrors
-        .reportFinished(reporter, sourcesEventId, message, "request failed: buildTarget/sources")
+        .reportFinished(reporter, sourcesEventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.sources"))
 
       val depSources = if (isDependencySourcesProvider) {
         val eventId = BuildMessages.randomEventId
@@ -212,7 +276,7 @@ object BspProjectResolver {
         reporter.startTask(eventId, Some(parentId), message)
         bsp.buildTargetDependencySources(depSourcesParams)
           .catchBspErrors
-          .reportFinished(reporter, eventId, message, "request failed: buildTarget/dependencySources")
+          .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.dependencysources"))
       } else {
         val emptyResult = new DependencySourcesResult(Collections.emptyList())
         CompletableFuture.completedFuture[Try[DependencySourcesResult]](Success(emptyResult))
@@ -225,7 +289,7 @@ object BspProjectResolver {
         reporter.startTask(eventId, Some(parentId), message)
         bsp.buildTargetResources(resourcesParams)
           .catchBspErrors
-          .reportFinished(reporter, eventId, message, "request failed: buildTarget/resources")
+          .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.resources"))
       } else {
         val emptyResult = new ResourcesResult(Collections.emptyList())
         CompletableFuture.completedFuture[Try[ResourcesResult]](Success(emptyResult))
@@ -243,7 +307,7 @@ object BspProjectResolver {
         val scalacOptionsParams = new ScalacOptionsParams(scalaTargetIds)
         bsp.buildTargetScalacOptions(scalacOptionsParams)
           .catchBspErrors
-          .reportFinished(reporter, eventId, message, "request failed: buildTarget/scalacOptions")
+          .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.scalacoptions"))
 
       } else {
         val emptyResult = new ScalacOptionsResult(Collections.emptyList())
@@ -263,29 +327,4 @@ object BspProjectResolver {
   private def isResourcesProvider(implicit capabilities: BuildServerCapabilities) =
     Option(capabilities.getResourcesProvider).exists(_.booleanValue())
 
-  private def runBloopInstall(baseDir: File, reporter: BuildTaskReporter) = {
-
-    val jdkType = JavaSdk.getInstance()
-    val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType)
-    val jdkExe = new File(jdkType.getVMExecutablePath(jdk)) // TODO error when none, offer jdk config
-    val jdkHome = Option(jdk.getHomePath).map(new File(_))
-    val sbtLauncher = SbtUtil.getDefaultLauncher
-
-    val injectedPlugins = s"""addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "${BuildInfo.bloopVersion}")"""
-    val settingsFile = FileUtil.createTempFile("idea",".sbt", true)
-    val settingsPath = SbtUtil.normalizePath(settingsFile)
-    FileUtil.writeToFile(settingsFile, injectedPlugins)
-
-    val sbtCommandArgs = "early(addPluginSbtFile=\"\"\"" + settingsPath + "\"\"\")"
-    val sbtCommands = "bloopInstall"
-
-    val dumper = new SbtStructureDump()
-    dumper.runSbt(
-      baseDir, jdkExe,
-      SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome),
-      Map.empty, sbtLauncher, sbtCommandArgs, sbtCommands,
-      reporter,
-      "creating Bloop configuration from sbt",
-    )
-  }
 }

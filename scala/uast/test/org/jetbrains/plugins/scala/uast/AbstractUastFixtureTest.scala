@@ -15,6 +15,8 @@ import scala.reflect.ClassTag
 abstract class AbstractUastFixtureTest
   extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  override def runInDispatchThread() = false
+
   override def getTestDataPath: String = super.getTestDataPath + "uast"
 
   def getTestFile(testName: String): File =
@@ -28,10 +30,12 @@ abstract class AbstractUastFixtureTest
     if (!testFile.exists())
       throw new IllegalStateException(s"File does not exist: $testFile")
     val psiFile = myFixture.configureByFile(testFile.getPath)
-    psiFile.convertWithParentTo[UElement]() match {
-      case Some(uFile: UFile) => checkCallback(testName, uFile)
-      case _ =>
-        throw new IllegalStateException(s"Can't get UFile for $testName")
+    extensions.inReadAction {
+      psiFile.convertWithParentTo[UElement]() match {
+        case Some(uFile: UFile) => checkCallback(testName, uFile)
+        case _ =>
+          throw new IllegalStateException(s"Can't get UFile for $testName")
+      }
     }
   }
 }

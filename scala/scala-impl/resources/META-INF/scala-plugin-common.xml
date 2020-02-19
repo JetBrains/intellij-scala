@@ -6,8 +6,7 @@
         <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker"/>
         <extensionPoint name="scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier"/>
         <extensionPoint name="scalaUiWithDependency" interface="org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency"/>
-        <extensionPoint name="scalaLanguageDerivative"
-                        interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative"/>
+        <extensionPoint name="scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative" />
         <extensionPoint name="memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension"/>
         <extensionPoint name="scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor"/>
         <extensionPoint name="scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer"/>
@@ -116,13 +115,7 @@
         <projectConfigurable id="Bytecode Indices" parentId="Scala Compiler"
                              instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesConfigurable"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtSettings"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ApplicationCodeStyleSettingsMigrationService"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor"/>
 
-        <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
         <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
         <fileType name="Scala" language="Scala" extensions="scala"
@@ -456,34 +449,51 @@
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.ServerMediatorTask"/>
 
-        <statusBarWidgetProvider implementation="org.jetbrains.bsp.BspServerWidgetProvider"/>
-
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.KindProjectorUtil"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.BetterMonadicForSupport"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
-        <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerErrorsListener$State"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationService"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.BetterMonadicForSupport"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.KindProjectorUtil"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.HighlightingStateManager$MutableState"/>
+        <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
+        <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
+                        serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
+
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ApplicationCodeStyleSettingsMigrationService"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
+                            serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettingsImpl"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor"/>
 
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable"/>
@@ -505,10 +515,14 @@
         <filetype.stubBuilder filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileStubBuilder"/>
         <filetype.decompiler filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileDecompiler"/>
 
-        <registryKey key="scala.show.compiler.errors.in.editor" defaultValue="false" restartRequired="false"
+        <registryKey key="scala.highlighting.compiler.errors.in.editor" defaultValue="false" restartRequired="false"
                      description="Show errors from scala compiler in the editor"/>
-        <registryKey key="dotty.show.compiler.errors.in.editor" defaultValue="true" restartRequired="false"
+        <registryKey key="dotty.highlighting.compiler.errors.in.editor" defaultValue="true" restartRequired="false"
                      description="Show errors from dotty compiler in the editor"/>
+        <registryKey key="scala.highlighting.compiler.selected.delay.millis" defaultValue="300" restartRequired="false"
+                     description="Delay between runs of the selected file compiler for highlighting, millis"/>
+        <registryKey key="scala.highlighting.compiler.jps.delay.millis" defaultValue="500" restartRequired="false"
+                     description="Delay between runs of the jps compilation for highlighting, millis"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
@@ -560,12 +574,12 @@
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Pattern Matching</category>
+            <category>Scala/pattern matching</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.ConvertToTypedPatternIntention</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Pattern Matching</category>
+            <category>Scala/pattern matching</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.ExpandPatternIntention</className>
         </intentionAction>
 
@@ -590,17 +604,17 @@
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/For Comprehension</category>
+            <category>Scala/for comprehension</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.comprehension.ConvertToCurlyBracesIntention</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/For Comprehension</category>
+            <category>Scala/for comprehension</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.comprehension.ConvertToParenthesesIntention</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/For Comprehension</category>
+            <category>Scala/for comprehension</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.comprehension.DesugarForIntention</className>
         </intentionAction>
 
@@ -696,10 +710,10 @@
                          language="Scala" level="WARNING"
                          enabledByDefault="true"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaPackageNameInspection"
-                         displayName="Package Name Inspection" groupPath="Scala" groupName="General" id="ScalaPackageName"
+                         displayName="Package name inspection" groupPath="Scala" groupName="General" id="ScalaPackageName"
                          shortName="ScalaPackageName" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection"
-                         displayName="Scala Deprecation" groupPath="Scala" groupName="General" shortName="ScalaDeprecation"
+                         displayName="Scala deprecation" groupPath="Scala" groupName="General" shortName="ScalaDeprecation"
                          id="ScalaDeprecation" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecatedIdentifierInspection"
                          displayName="Deprecated identifier" groupPath="Scala" groupName="General" shortName="ScalaDeprecatedIdentifier"
@@ -708,13 +722,13 @@
                          displayName="Deprecated kind-projector syntax" groupPath="Scala" groupName="General" shortName="DeprecatedKindProjectorSyntax"
                          id="DeprecatedKindProjectorSyntax" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
-                         displayName="Case Class Parameter" groupPath="Scala" groupName="General" shortName="CaseClassParam"
+                         displayName="Case class parameter" groupPath="Scala" groupName="General" shortName="CaseClassParam"
                          id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
                          displayName="'var' could be a 'val'" groupPath="Scala" groupName="General" shortName="VarCouldBeVal"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection"
-                         displayName="Unused Symbol" groupPath="Scala" groupName="General" shortName="ScalaUnusedSymbol"
+                         displayName="Unused symbol" groupPath="Scala" groupName="General" shortName="ScalaUnusedSymbol"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.defaultFileTemplateInspection.ScalaDefaultFileTemplateUsageInspection"
                          displayName="Default file template inspection" groupPath="Scala" groupName="General" shortName="ScalaDefaultFileTemplateUsage"
@@ -724,7 +738,7 @@
                          shortName="KindProjectorUseCorrectLambdaKeyword" id="KindProjectorUseCorrectLambdaKeyword"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorSimplifyTypeProjectionInspection"
-                         displayName="Kind Projector: Simplify type" groupPath="Scala" groupName="General"
+                         displayName="Kind Projector: simplify type" groupPath="Scala" groupName="General"
                          shortName="KindProjectorSimplifyTypeProjection" id="KindProjectorSimplifyTypeProjection"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.postfix.PostfixMethodCallInspection"
@@ -744,11 +758,11 @@
                          shortName="FloatLiteralEndingWithDecimalPoint" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ChainedPackageInspection"
-                         displayName="Chained Package Clause Inspection" groupPath="Scala" groupName="General"
+                         displayName="Chained package clause inspection" groupPath="Scala" groupName="General"
                          shortName="ChainedPackage" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection"
-                         displayName="Relative Import" groupPath="Scala" groupName="General"
+                         displayName="Relative import" groupPath="Scala" groupName="General"
                          shortName="RelativeImport" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.VariablePatternShadowInspection"
@@ -760,11 +774,11 @@
                          shortName="TypeParameterShadow" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.valInTraitInspection.AbstractValueInTraitInspection"
-                         displayName="Abstract Value in Trait" groupPath="Scala" groupName="General"
+                         displayName="Abstract value in trait" groupPath="Scala" groupName="General"
                          shortName="AbstractValueInTrait" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.xml.ScalaXmlUnmatchedTagInspection"
-                         displayName="Unmatched Tag" groupPath="Scala" groupName="General" shortName="ScalaXmlUnmatchedTag" level="ERROR"
+                         displayName="Unmatched tag" groupPath="Scala" groupName="General" shortName="ScalaXmlUnmatchedTag" level="ERROR"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.imports.SingleImportInspection"
                          displayName="Unnecessary braces in import inspection"
@@ -860,6 +874,7 @@
                          displayName="View bounds are deprecated" groupPath="Scala" groupName="General"
                          shortName="DeprecatedViewBound" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <!--suppress PluginXmlCapitalization -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection"
                          displayName="Convert expression to Single Abstract Method (SAM)" groupPath="Scala" groupName="General"
                          shortName="ConvertExpressionToSAM" level="WARNING"
@@ -877,7 +892,7 @@
                          shortName="HashCodeUsesVar" level="WEAK WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionInspection"
-                         displayName="Unnecessary Partial Function" groupPath="Scala" groupName="General" shortName="UnnecessaryPartialFunction"
+                         displayName="Unnecessary partial function" groupPath="Scala" groupName="General" shortName="UnnecessaryPartialFunction"
                          id="UnnecessaryPartialFunction" level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection"
@@ -905,46 +920,46 @@
 
         <!--Syntactic simplification inspections (including syntactic sugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection"
-                         displayName="Syntactic Sugar" groupPath="Scala" groupName="Syntactic Simplification"
+                         displayName="Syntactic sugar" groupPath="Scala" groupName="Syntactic simplification"
                          shortName="FunctionTupleSyntacticSugar" level="WARNING"
                          id="FunctionTupleSyntacticSugar" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ScalaUnnecessarySemicolonInspection"
-                         displayName="Scala unnecessary semicolon inspection" groupPath="Scala" groupName="Syntactic Simplification"
+                         displayName="Scala unnecessary semicolon inspection" groupPath="Scala" groupName="Syntactic simplification"
                          shortName="ScalaUnnecessarySemicolon" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.RemoveRedundantReturnInspection"
-                         displayName="Redundant Return" groupPath="Scala" groupName="Syntactic Simplification"
+                         displayName="Redundant return" groupPath="Scala" groupName="Syntactic simplification"
                          shortName="RemoveRedundantReturn" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection"
-                         displayName="Anonymous function convertible to a method value" groupPath="Scala" groupName="Syntactic Simplification"
+                         displayName="Anonymous function convertible to a method value" groupPath="Scala" groupName="Syntactic simplification"
                          shortName="ConvertibleToMethodValue" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection"
-                         displayName="Applied Type Lambda can be simplified" groupPath="Scala" groupName="Syntactic Simplification"
+                         displayName="Applied Type Lambda can be simplified" groupPath="Scala" groupName="Syntactic simplification"
                          shortName="AppliedTypeLambdaCanBeSimplified" id="AppliedTypeLambdaCanBeSimplified"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.RedundantNewCaseClassInspection"
-                         displayName="Redundant New on Case Class" groupPath="Scala" groupName="Syntactic Simplification"
+                         displayName="Redundant new on case class" groupPath="Scala" groupName="Syntactic simplification"
                          shortName="RedundantNewCaseClass"
                          id="RedundantNewCaseClass" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.RedundantDefaultArgumentInspection"
-                         displayName="Argument duplicates corresponding parameter default value" groupPath="Scala" groupName="Syntactic Simplification"
+                         displayName="Argument duplicates corresponding parameter default value" groupPath="Scala" groupName="Syntactic simplification"
                          shortName="RedundantDefaultArgument" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
 
         <!--Syntactic clarification inspections (including syntactic desugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTuplingInspection"
-                         displayName="Auto-tupling" groupPath="Scala" groupName="Syntactic Clarification"
+                         displayName="Auto-tupling" groupPath="Scala" groupName="Syntactic clarification"
                          shortName="AutoTupling" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ConcealedApplyCall"
-                         displayName="Concealed &quot;apply&quot; call" groupPath="Scala" groupName="Syntactic Clarification"
+                         displayName="Concealed &quot;apply&quot; call" groupPath="Scala" groupName="Syntactic clarification"
                          shortName="ConcealedApplyCall" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
         <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection"
-                displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="Syntactic Clarification"
+                displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="Syntactic clarification"
                 shortName="ConvertNullInitializerToUnderscore" level="WARNING"
                 enabledByDefault="true" language="Scala"/>
 
@@ -1105,7 +1120,7 @@
 
         <!--Scalastyle inspection-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
-                         displayName="Scala style inspection" groupPath="Scala" groupName="Code Style"
+                         displayName="Scala style inspection" groupPath="Scala" groupName="Code style"
                          shortName="ScalaStyle"
                          enabledByDefault="true" language="Scala"/>
 
@@ -1277,6 +1292,10 @@
                          displayName="Lift to Get" groupPath="Scala,Collections" groupName="Maps"
                          shortName="MapLift" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetEmptinessCheckInspection"
+                         displayName="Emptiness check on Get to Contains" groupPath="Scala,Collections" groupName="Maps"
+                         shortName="MapGetEmptinessCheck" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--options-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
@@ -1299,6 +1318,7 @@
                          displayName="GetOrElse(null) to orNull" groupPath="Scala,Collections" groupName="Options"
                          shortName="GetOrElseNull" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <!--suppress PluginXmlCapitalization -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToOptionInspection"
                          displayName="Emulated Option(x)" groupPath="Scala,Collections" groupName="Options"
                          shortName="IfElseToOption" level="WARNING"
@@ -1340,10 +1360,10 @@
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
-                         displayName="Tag Unclosed" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnclosedTagWithoutParser" level="WARNING"
+                         displayName="Tag unclosed" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnclosedTagWithoutParser" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocInlinedTagInspection"
-                         displayName="Inlined Tag" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocInlinedTag" level="WARNING"
+                         displayName="Inlined tag" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocInlinedTag" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnbalancedHeaderInspection"
                          displayName="Header tags unbalanced" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnbalancedHeader" level="WARNING"
@@ -1352,7 +1372,7 @@
                          displayName="Unknown tag" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnknownTag" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnknownParameterInspection"
-                         displayName="Unknown Parameter" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnknownParameter" level="WARNING"
+                         displayName="Unknown parameter" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnknownParameter" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection"
                          displayName="Missing tag parameter description" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocMissingParameterDescription"
@@ -1381,7 +1401,7 @@
         <!---->
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.specs2.BuiltinMatcherExistsInspection"
-                         displayName="Specs2 Matchers" shortName="Specs2Matchers" groupName="Specs2" groupPath="Scala,Specs2"
+                         displayName="Specs2 matchers" shortName="Specs2Matchers" groupName="Specs2" groupPath="Scala,Specs2"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <!-- end of inspections -->
 
@@ -1389,6 +1409,10 @@
         <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService$Startup"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder$Startup"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService$Startup"/>
+
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ImplicitHintsAdviser"/>
@@ -1428,52 +1452,14 @@
         <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
                   class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetDumbModeListener"/>
 
-        <listener topic="com.intellij.openapi.compiler.CompilationStatusListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.CompilerErrorsListener"/>
-    </projectListeners>
+        <listener topic="com.intellij.compiler.server.CustomBuilderMessageHandler"
+                  class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>
 
-    <project-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager</implementation-class>
-            <loadForDefaultProject/>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService</implementation-class>
-        </component>
-    </project-components>
+        <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.HighlightingUpdatingCompilerEventListener"/>
+        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterExternalHighlightingListenersListener"/>
+    </projectListeners>
 
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction"
@@ -1485,7 +1471,7 @@
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>
         <action id="Scala.NewScalaWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction"
-                text="Scala Worksheet" description="Create new Scala Worksheet">
+                text="Scala Worksheet" description="Create new Scala worksheet">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
         <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.actions.RunConsoleAction"
@@ -1494,8 +1480,9 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
         </action>
+        <!--suppress PluginXmlCapitalization -->
         <action id="Scala.CreateLightWorksheetAction" class="org.jetbrains.plugins.scala.worksheet.actions.CreateLightWorksheetAction"
-                description="Create light scala worksheet" text="Create light scala worksheet">
+                description="Create Light Scala worksheet" text="Create Light Scala worksheet">
             <keyboard-shortcut first-keystroke="control alt shift X" keymap="$default"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift M"/>
         </action>
@@ -1526,7 +1513,7 @@
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift L"/>
         </action>
         <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.ShowImplicitConversionsAction"
-                text="&amp;Implicit Conversions" description="Show Implicit Conversions">
+                text="&amp;Implicit Conversions" description="Show implicit conversions">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift Q" remove="true"/>
@@ -1534,11 +1521,11 @@
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift Q" remove="true"/>
         </action>
         <action id="Scala.MakeExplicit" class="org.jetbrains.plugins.scala.actions.MakeExplicitAction"
-                text="&amp;Make Explicit" description="Make Explicit">
+                text="&amp;Make Explicit" description="Make explicit">
             <keyboard-shortcut keymap="$default" first-keystroke="alt ENTER"/>
         </action>
         <action id="Scala.Desugar" class="org.jetbrains.plugins.scala.lang.transformation.DesugarCodeAction"
-                text="Desugar Scala code..." description="Desugar Scala code (selection / whole file)">
+                text="Desugar Scala Code..." description="Desugar Scala code (selection / whole file)">
             <add-to-group group-id="CodeMenu" anchor="last"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control alt D" keymap="$default"/>
@@ -1552,7 +1539,7 @@
             <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicits"/>
         </action>
         <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
-                text="Generate Scaladoc" description="Generate Scaladoc">
+                text="Generate Scaladoc" description="Generate scaladoc">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
         <action id="Scala.CreateScalaDocStub" class="org.jetbrains.plugins.scala.editor.documentationProvider.CreateScalaDocStubAction">
@@ -1560,19 +1547,19 @@
             <keyboard-shortcut first-keystroke="ctrl alt L" keymap="Mac OS X"/>
         </action>
         <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction"
-                text="Implicit &amp;Arguments" description="Show Implicit Arguments">
+                text="Implicit &amp;Arguments" description="Show implicit arguments">
             <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
         </action>
         <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction"
-                text="Run Scala Worksheet" description="Run Scala Worksheet">
+                text="Run Scala Worksheet" description="Run Scala worksheet">
             <keyboard-shortcut first-keystroke="control alt W" keymap="$default"/>
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
         </action>
         <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CleanWorksheetAction"
-                text="Clean Scala Worksheet" description="Clean Scala Worksheet">
+                text="Clean Scala Worksheet" description="Clean Scala worksheet">
         </action>
         <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CopyWorksheetAction"
-                text="Copy Scala Worksheet" description="Copy Scala Worksheet">
+                text="Copy Scala Worksheet" description="Copy Scala worksheet">
         </action>
         <action id="Scala.ExtractTrait"
                 class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction" text="_Trait..."
@@ -1591,11 +1578,6 @@
                 class="org.jetbrains.plugins.scala.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
-        </action>
-        <action id="Scala.CompileSelectedFile"
-                internal="true"
-                class="org.jetbrains.plugins.scala.compiler.oneFile.CompileSelectedScalaFileAction"
-                text="Compile Selected Scala File">
         </action>
     </actions>
 

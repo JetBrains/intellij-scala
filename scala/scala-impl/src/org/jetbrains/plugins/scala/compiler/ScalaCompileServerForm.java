@@ -126,14 +126,6 @@ public class ScalaCompileServerForm implements Configurable {
 
         mySettings.COMPILE_SERVER_SHUTDOWN_IDLE = myShutdownServerCheckBox.isSelected();
         mySettings.COMPILE_SERVER_SHUTDOWN_DELAY = (Integer) (myShutdownDelay.getModel().getValue());
-
-        // TODO
-//    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myProject).USE_COMPILE_SERVER;
-//
-//    if (!externalCompiler || !myEnableCompileServer.isSelected()) {
-//      myProject.getComponent(CompileServerLauncher.class).stop();
-//    }
-//    myProject.getComponent(CompileServerManager.class).configureWidget();
     }
 
     @Override

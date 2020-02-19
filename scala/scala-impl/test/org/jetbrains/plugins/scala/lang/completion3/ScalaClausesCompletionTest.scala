@@ -1082,6 +1082,42 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testCompoundType(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  final case class Baz() extends Foo
+         |  trait FooExt extends Foo
+         |}
+         |
+         |import Foo._
+         |(if (true) Left(""): Either[String, Bar] else Left(""): Either[String, Baz]) match {
+         |  case Left(value) =>
+         |  case Right(value) =>
+         |    value m$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  final case class Baz() extends Foo
+         |  trait FooExt extends Foo
+         |}
+         |
+         |import Foo._
+         |(if (true) Left(""): Either[String, Bar] else Left(""): Either[String, Baz]) match {
+         |  case Left(value) =>
+         |  case Right(value) =>
+         |    value match {
+         |      case Bar() => $CARET
+         |      case Baz() =>
+         |    }
+         |}""".stripMargin
+  )
+
   def testInaccessibleInheritors(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo

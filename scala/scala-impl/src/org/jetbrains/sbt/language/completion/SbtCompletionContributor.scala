@@ -48,7 +48,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
 
       // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
       def extractSeqType: Option[ScType] = {
-        if (operator.getText != "+=") return None
+        if (!operator.textMatches("+=")) return None
         operator.`type`() match {
           case Right(ParameterizedType(_, typeArgs)) =>
             typeArgs.last match {
@@ -66,7 +66,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
       }
 
       def getScopeType: Option[ScType] = {
-        if (operator.getText != "in") return None
+        if (!operator.textMatches("in")) return None
         place.elementScope.getCachedClass("sbt.Scope").map {
           ScDesignatorType(_)
         }
@@ -152,7 +152,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
       }
 
       // Get results from parent reference
-      parentRef.getVariants() foreach applyVariant
+      parentRef.getVariants.foreach(applyVariant)
     }
   })
 }

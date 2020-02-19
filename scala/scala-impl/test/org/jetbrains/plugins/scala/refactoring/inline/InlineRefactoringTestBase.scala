@@ -49,25 +49,27 @@ abstract class InlineRefactoringTestBase extends ScalaLightPlatformCodeInsightTe
       element = BaseRefactoringAction.getElementAtCaret(editor, scalaFile)
     }
 
-    var res: String = null
     val firstPsi = scalaFile.findElementAt(0)
     val warning = firstPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => ScalaBundle.message(firstPsi.getText.substring(2).trim)
+      case ScalaTokenTypes.tLINE_COMMENT =>
+        //noinspection DynamicPropertyKey
+        ScalaBundle.message(firstPsi.getText.substring(2).trim)
       case _ => null
     }
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     //start to inline
-    try {
+    val res = try {
       executeWriteActionCommand("Test", UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION) {
         GenericInlineHandler.invoke(element, editor, new ScalaInlineHandler)
       }(getProjectAdapter)
-      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim //getImportStatements.map(_.getText()).mkString("\n")
+      scalaFile.getText.substring(0, lastPsi.getTextOffset).trim //getImportStatements.map(_.getText()).mkString("\n")
     }
     catch {
       case e: RefactoringErrorHintException =>
         assert(e.getMessage == warning, s"Warning should be: $warning, but is: ${e.getMessage}")
         return
-      case e: Exception => assert(assertion = false, message = e.getMessage + "\n" + e.getStackTrace)
+      case e: Exception =>
+        throw new AssertionError(e.getMessage + "\n" + e.getStackTrace)
     }
 
     val text = lastPsi.getText

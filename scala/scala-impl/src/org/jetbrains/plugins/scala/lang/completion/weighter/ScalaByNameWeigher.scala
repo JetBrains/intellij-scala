@@ -1,117 +1,119 @@
-package org.jetbrains.plugins.scala.lang
+package org.jetbrains.plugins.scala
+package lang
 package completion
 package weighter
 
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiClass
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.text.EditDistance
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import com.intellij.psi.util.PsiTreeUtil.getContextOfType
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import com.intellij.util.text.EditDistance.optimalAlignment
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScTypeAlias, ScTypedDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-
 /**
-  * Created by kate
-  * Suggest type by name where type may be appers. Check on full equality of names, includence one to another
-  * or partial alignement
-  * on 3/2/16
-  */
-class ScalaByNameWeigher extends CompletionWeigher {
-  private val MAX_DISTANCE = 4
-  private val textForPositionKey: Key[String] = Key.create("text.for.position")
+ * Created by kate
+ * Suggest type by name where type may be appears. Check on full equality of names, includence one to another
+ * or partial alignment
+ * on 3/2/16
+ */
+final class ScalaByNameWeigher extends CompletionWeigher {
+
+  import ScalaByNameWeigher._
 
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    val position = positionFromParameters(location.getCompletionParameters)
-    val originalPostion = location.getCompletionParameters.getOriginalPosition
-
-    def extractVariableNameFromPosition: Option[String] = {
-      def afterColonType: Option[String] = {
-        val result = position.getContext.getContext.getContext
-        result match {
-          case typedDeclaration: ScTypedDeclaration =>
-            val result = typedDeclaration.declaredElements.headOption.map(_.name)
-            if (result.isDefined) position.putUserData(textForPositionKey, result.get)
-            result
-          case _ => None
-        }
-      }
-
-      //case label name
-      def asBindingPattern: Option[String] = {
-        val result = position.getContext.getContext.getContext.getContext
-        result match {
-          case bp: ScBindingPattern =>
-            val name = bp.name
-            position.putUserData(textForPositionKey, name)
-            Some(name)
-          case _ => None
-        }
-      }
-
-      def afterNew: Option[String] = {
-        val newTemplateDefinition = Option(PsiTreeUtil.getContextOfType(position, classOf[ScNewTemplateDefinition]))
-        val result = newTemplateDefinition.map(_.getContext).flatMap {
-          case patterDef: ScPatternDefinition =>
-            patterDef.bindings.headOption.map(_.name)
-          case assignement: ScAssignment =>
-            assignement.referenceName
-          case _ => None
-        }
-
-        if (result.isDefined) position.putUserData(textForPositionKey, result.get)
-        result
-      }
-
-      Option(originalPostion)
-        .flatMap(_.getUserData(textForPositionKey).toOption)
-        .orElse(asBindingPattern)
-        .orElse(afterColonType)
-        .orElse(afterNew)
-    }
-
+    val parameters = location.getCompletionParameters
+    val position = positionFromParameters(parameters)
 
     def handleByText(name: String): Option[Integer] = {
-      def computeDistance(text: String): Option[Integer] = {
-        // prevent MAX_DISTANCE be more or equals on of comparing strings
-        val maxDist = Math.min(MAX_DISTANCE, Math.ceil(Math.max(text.length, name.length) / 2))
-
-        if (name.toUpperCase == text.toUpperCase) Some(0)
-        // prevent computing distance on long non including strings
-        else if (Math.abs(text.length - name.length) > maxDist) None
-        else {
-          val distance = EditDistance.optimalAlignment(name, text, false)
-          if (distance > maxDist) None else Some(-distance)
-        }
+      val maybeNameAtPosition = parameters.getOriginalPosition match {
+        case null => None
+        case originalPosition => Option(originalPosition.getUserData(TextForPositionKey))
       }
 
-      extractVariableNameFromPosition.flatMap {
-        case "" => None
-        case text if text.length == 1 && text.charAt(0).toUpper == name.charAt(0) => Some(0)
-        case text => computeDistance(text)
+      val maybeName = maybeNameAtPosition match {
+        case None =>
+          val result = asBindingPattern(position)
+            .orElse(afterColonType(position))
+            .orElse(afterNew(position))
+
+          result.foreach {
+            position.putCopyableUserData(TextForPositionKey, _)
+          }
+
+          result
+        case result => result
+      }
+
+      maybeName.filterNot(_.isEmpty).map {
+        case text if text.length == 1 && text(0).toUpper == name(0) => 0
+        case text if text.toUpperCase == name.toUpperCase => 0
+        case text =>
+          computeDistance(name, text) match {
+            case -1 => null
+            case distance => -distance
+          }
       }
     }
 
-    val maybeResult = if (ScalaAfterNewCompletionContributor.isInTypeElement(position, Some(location))) {
-      element match {
-        case ScalaLookupItem(_, namedElement) =>
-          namedElement match {
-            case _: ScTypeAlias |
-                 _: ScTypeDefinition |
-                 _: PsiClass |
-                 _: ScParameter => handleByText(namedElement.getName)
-            case _ => None
-          }
-        case _ => None
-      }
-    } else None
-
-    maybeResult.orNull
+    element.getPsiElement match {
+      case namedElement@(_: ScTypeAlias |
+                         _: ScTypeDefinition |
+                         _: PsiClass |
+                         _: ScParameter)
+        if insideTypePattern.accepts(position, location.getProcessingContext) =>
+        handleByText(namedElement.asInstanceOf[PsiNamedElement].getName).orNull
+      case _ => null
+    }
   }
+}
+
+object ScalaByNameWeigher {
+
+  private[this] val MaxDistance = 4
+  private val TextForPositionKey = Key.create[String]("text.for.position")
+
+  private def computeDistance(name: String, text: String): Int = {
+    // prevent MAX_DISTANCE be more or equals on of comparing strings
+    val maxDist = Math.min(MaxDistance, Math.ceil(Math.max(text.length, name.length) / 2))
+
+    // prevent computing distance on long non including strings
+    if (Math.abs(text.length - name.length) > maxDist)
+      -1
+    else {
+      val distance = optimalAlignment(name, text, false)
+      if (distance > maxDist) -1 else distance
+    }
+  }
+
+  private def afterNew(place: PsiElement): Option[String] =
+    getContextOfType(place, classOf[ScNewTemplateDefinition]) match {
+      case null => None
+      case newTemplateDefinition =>
+        newTemplateDefinition.getContext match {
+          case patterDef: ScPatternDefinition =>
+            patterDef.bindings.headOption.map(_.name)
+          case assignment: ScAssignment =>
+            assignment.referenceName
+          case _ => None
+        }
+    }
+
+  private def afterColonType(place: PsiElement): Option[String] =
+    place.getContext.getContext.getContext match {
+      case typedDeclaration: ScTypedDeclaration =>
+        typedDeclaration.declaredElements.headOption.map(_.name)
+      case _ => None
+    }
+
+  //case label name
+  private def asBindingPattern(place: PsiElement): Option[String] =
+    place.getContext.getContext.getContext.getContext match {
+      case bp: ScBindingPattern => Some(bp.name)
+      case _ => None
+    }
 }

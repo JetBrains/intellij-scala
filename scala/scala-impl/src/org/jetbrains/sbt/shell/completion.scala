@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
+import org.jetbrains.annotations.NonNls
 
 /**
   * Created by jast on 2016-09-28.
@@ -20,15 +21,15 @@ class SbtShellCompletionContributor extends CompletionContributor {
 object SbtShellCompletionProvider extends CompletionProvider[CompletionParameters] {
 
   // TODO just some commonly used builtins for now. later, load all the tasks, settings, commands, projects etc from sbt server and give more complete suggestions based on that!
-  private val tasks = Seq(
+  @NonNls private val tasks = Seq(
     "compile", "test", "console", "clean", "update", "updateClassifiers", "updateSbtClassifiers",
     "products", "publish", "publishLocal", "consoleProject")
 
-  private val settings = Seq("libraryDependencies", "baseDirectory", "sourceDirectory", "unmanagedBase", "target")
+  @NonNls private val settings = Seq("libraryDependencies", "baseDirectory", "sourceDirectory", "unmanagedBase", "target")
 
   // TODO figure out how to use the parsers for InputKeys and Commands to supply their autocompletion to shell
-  private val inputs = Seq("run", "runMain", "testOnly")
-  private val commands = Seq("help", "reload", "plugins", "settings", "project", "projects")
+  @NonNls private val inputs = Seq("run", "runMain", "testOnly")
+  @NonNls private val commands = Seq("help", "reload", "plugins", "settings", "project", "projects")
 
   private val all = tasks ++ settings ++ inputs ++ commands
 

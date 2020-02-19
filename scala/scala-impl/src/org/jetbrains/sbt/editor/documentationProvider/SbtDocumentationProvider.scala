@@ -3,6 +3,7 @@ package org.jetbrains.sbt.editor.documentationProvider
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions.OptionExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -94,16 +95,16 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
       case description :: Nil                     => description //e.g. settingKey[Seq[ModuleID]]("Some description").withRank(BSetting)
     }
 
-  private def descriptionText(element: ScExpression): Option[String] = Some(element).collect {
+  @NonNls private def descriptionText(element: ScExpression): Option[String] = Some(element).collect {
     case ScInfixExpr(left, _, right) => Seq(left, right).map(descriptionText).mkString
     case ScStringLiteral(string)     => string
     case ref: ScReferenceExpression  => s"<i>${ref.getText}</i>"
   }
 
-  private def wrapIntoHtml(description: String): String = s"<br/><b>$description</b>"
+  private def wrapIntoHtml(@Nls description: String): String = s"<br/><b>$description</b>"
 
-  private def appendToScalaDoc(scalaDoc: String, sbtDoc: String): String = {
-    val closingTags = "</body></html>"
+  private def appendToScalaDoc(@Nls scalaDoc: String, @Nls sbtDoc: String): String = {
+    @NonNls val closingTags = "</body></html>"
     val withoutClosingTags = scalaDoc.replace(closingTags, "")
     s"$withoutClosingTags$sbtDoc$closingTags"
   }
@@ -111,5 +112,5 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
 
 private object SbtDocumentationProvider {
 
-  private val SbtKeyTypes = Set("SettingKey", "TaskKey", "InputKey", "AttributeKey").map(_.toLowerCase)
+  @NonNls private val SbtKeyTypes: Set[String] = Set("SettingKey", "TaskKey", "InputKey", "AttributeKey").map(_.toLowerCase)
 }

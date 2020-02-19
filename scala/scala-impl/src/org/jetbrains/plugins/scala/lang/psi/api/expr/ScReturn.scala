@@ -26,6 +26,9 @@ trait ScReturn extends ScExpression {
 }
 
 object ScReturn {
+  def unapply(expr: ScReturn): Option[ScExpression] = expr.expr
 
-  def unapply(statement: ScReturn): Option[ScExpression] = statement.expr
+  object of {
+    def unapply(expr: ScReturn): Option[ScFunctionDefinition] = expr.method
+  }
 }

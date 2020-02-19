@@ -11,6 +11,7 @@ import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.sbt.shell.action._
@@ -63,8 +64,10 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
 
   override def dispose(): Unit = {
     super.dispose()
+    SbtShellConsoleView.removeConsoleView(project)
     EditorFactory.getInstance().releaseEditor(getConsoleEditor)
   }
+
 }
 
 object SbtShellConsoleView {
@@ -92,6 +95,10 @@ object SbtShellConsoleView {
 
   def disposeLastConsoleView(project: Project): Unit = {
     lastConsoleViews.get(project).foreach(_.dispose())
+    lastConsoleViews.remove(project)
+  }
+
+  private def removeConsoleView(project: Project): Option[SbtShellConsoleView] = {
     lastConsoleViews.remove(project)
   }
 

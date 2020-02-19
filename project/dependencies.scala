@@ -4,10 +4,12 @@ object Versions {
   val scalaVersion: String = Scala.project
   val scalaBinaryVersion: String = Scala.binary_2_12
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
+  // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
+  // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.4.0-RC1+2-2d96bcf6"
+  val bloopVersion = "1.4.0-RC1-62-d098adda"
   val zincVersion = "1.1.1"
-  val intellijVersion = "201.5259.8"
+  val intellijVersion = "201.5616.10"
   val bspVersion = "2.0.0-M4"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
@@ -24,13 +26,12 @@ object Versions {
 
     // ATTENTION: When changing any of these versions,
     // they currently need to be updated in org.jetbrains.plugins.scala.debugger.ScalaVersion
-    // TODO: update all versions
     val latest_2_9 = "2.9.3"
     val latest_2_10 = "2.10.7"
     val latest_2_11 = "2.11.12"
-    val latest_2_12 = "2.12.8"
-    val latest_2_13 = "2.13.0-M4"
-    val latest_3_0 = "0.15.0-RC1"
+    val latest_2_12 = "2.12.10"
+    val latest_2_13 = "2.13.1"
+    val latest_3_0 = "0.21.0-RC1"
     val latest: String = latest_2_12
     /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
     val project = "2.12.7"
@@ -51,7 +52,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.3.7"
+    val latest_1_0 = "1.3.8"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
@@ -73,7 +74,7 @@ object Dependencies {
   val sbtStructureExtractor_100: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_1_0)
 
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
-  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_${scalaBinaryVersion}" % bloopVersion
+  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_$scalaBinaryVersion" % bloopVersion
   val jamm: ModuleID = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion

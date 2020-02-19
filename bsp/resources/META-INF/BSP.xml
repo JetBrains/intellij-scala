@@ -32,9 +32,12 @@
                     factoryClass="org.jetbrains.bsp.BspToolWindowFactory" />
 
         <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
-        <applicationInitializedListener implementation="org.jetbrains.bsp.StartupRoutine"/>
+        <applicationInitializedListener implementation="org.jetbrains.bsp.BspStartupRoutine"/>
+        <postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>
 
         <configurationType implementation="org.jetbrains.bsp.project.test.BspTestRunType"/>
+
+        <statusBarWidgetProvider implementation="org.jetbrains.bsp.BspServerWidgetProvider"/>
 
     </extensions>
 

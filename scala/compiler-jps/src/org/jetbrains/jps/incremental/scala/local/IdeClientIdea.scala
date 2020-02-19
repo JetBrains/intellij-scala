@@ -12,6 +12,7 @@ import org.jetbrains.jps.incremental.scala.local.IdeClientIdea.CompilationResult
 import org.jetbrains.jps.incremental.scala.local.PackageObjectsData.packageObjectClassName
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.org.objectweb.asm.ClassReader
+import org.jetbrains.plugins.scala.compiler.CompilerEvent
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection._
@@ -28,7 +29,7 @@ class IdeClientIdea(compilerName: String,
                     mappingsCallback: Callbacks.Backend,
                     successfullyCompiled: mutable.Set[File],
                     packageObjectsData: PackageObjectsData)
-  extends IdeClient(compilerName, context, modules, consumer) {
+  extends IdeClient(compilerName, context, modules) {
 
   private val packageObjectsBaseClasses = ArrayBuffer[PackageObjectBaseClass]()
   private var compilationResults: Seq[CompilationResult] = List.empty
@@ -43,9 +44,12 @@ class IdeClientIdea(compilerName: String,
     compilationResults = compilationResult +: compilationResults
   }
 
-  override def compilationEnd(): Unit = {
+  override def compilationEnd(sources: Predef.Set[File]): Unit = {
     compilationResults.foreach(handleCompilationResult)
     persistPackageObjectData()
+    sources.foreach { source =>
+      context.processMessage(CompilerEvent.CompilationFinished(compilationId, source).toCustomMessage)
+    }
   }
 
   private def handleCompilationResult(compilationResult: CompilationResult): Unit = {

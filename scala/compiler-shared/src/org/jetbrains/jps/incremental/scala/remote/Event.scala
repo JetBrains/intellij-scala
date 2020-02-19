@@ -3,34 +3,20 @@ package remote
 
 import java.io._
 
-import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 /**
  * @author Pavel Fatin
  */
 sealed abstract class Event {
-  def toBytes: Array[Byte] = {
-    val buffer = new ByteArrayOutputStream()
-    val stream = new ObjectOutputStream(buffer)
-    stream.writeObject(this)
-    stream.close()
-    buffer.toByteArray
-  }
+  def toBytes: Array[Byte] =
+    ObjectSerialization.toBytes(this)
 }
 
 object Event {
-  def fromBytes(bytes: Array[Byte]): Event = {
-    val buffer = new ByteArrayInputStream(bytes)
-    val stream = new ObjectInputStream(buffer)
-    val event = stream.readObject().asInstanceOf[Event]
-    if (stream.available > 0) {
-      val excess = FileUtil.loadTextAndClose(stream)
-      throw new IllegalArgumentException("Excess bytes after event deserialization: " + excess)
-    }
-    stream.close()
-    event
-  }
+  def fromBytes(bytes: Array[Byte]): Event =
+    ObjectSerialization.fromBytes(bytes)
 }
 
 @SerialVersionUID(1317094340928824239L)
@@ -51,8 +37,8 @@ case class GeneratedEvent(source: File, module: File, name: String) extends Even
 @SerialVersionUID(-7935816100194567870L)
 case class DeletedEvent(module: File) extends Event
 
-@SerialVersionUID(-2795117544723203396L)
-case class CompilationEndEvent() extends Event
+@SerialVersionUID(2848760871163806524L)
+case class CompilationEndEvent(sources: Set[File]) extends Event
 
 @SerialVersionUID(1L)
 case class ProcessingEndEvent() extends Event

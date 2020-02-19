@@ -108,13 +108,9 @@ abstract class AbstractCompiler extends Compiler {
           Kind.ERROR
       }
 
-      val messageWithLineAndPointer = {
-        val pos = problem.position()
-        val indent = pos.pointerSpace.toOption.map("\n" + _ + "^").getOrElse("")
-        val message = ansiColorCodePattern.replaceAllIn(problem.message(), "")
-        s"$message\n${pos.lineContent}\n$indent"
-      }
-      logInClient(messageWithLineAndPointer, problem.position(), kind)
+      val pos = problem.position
+      val msg = s"${problem.message}\n${pos.lineContent}\n"
+      logInClient(msg, pos, kind)
     }
 
     private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {

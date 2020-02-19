@@ -4,26 +4,26 @@ package project.structure
 import java.io.File
 
 import com.intellij.openapi.application.PathManager
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.project.template.writeLinesTo
 
 /**
  * @author Pavel Fatin
  */
-final class SbtException private(key: String, params: Seq[String])
-  extends RuntimeException(SbtBundle(key, params))
+final class SbtException private(message: String) extends RuntimeException(message)
 
 object SbtException {
 
-  private[this] val WarnRegexp = "^\\[warn]\\s*::\\s*((?!UNRESOLVED DEPENDENCIES).)*".r
+  @NonNls private[this] val WarnRegexp = "^\\[warn]\\s*::\\s*((?!UNRESOLVED DEPENDENCIES).)*".r
 
   def apply(log: Seq[String]): SbtException = {
-    val (key, params) = if (log.exists(_.startsWith("sbt.ResolveException"))) {
-      ("sbt.import.unresolvedDependencies", Seq(handleUnresolvedDeps(log), dumpLog(log)))
+    val message = if (log.exists(_.startsWith("sbt.ResolveException"))) {
+      SbtBundle.message("sbt.import.unresolvedDependencies", handleUnresolvedDeps(log), dumpLog(log))
     } else {
-      ("sbt.import.error", Seq(log.mkString(System.getProperty("line.separator"))))
+      SbtBundle.message("sbt.import.error", log.mkString(System.getProperty("line.separator")))
     }
 
-    new SbtException(key, params)
+    new SbtException(message)
   }
 
   private[this] def handleUnresolvedDeps(log: Seq[String]) =

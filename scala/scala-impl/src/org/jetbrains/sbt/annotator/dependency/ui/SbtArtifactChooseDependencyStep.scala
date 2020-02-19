@@ -1,9 +1,9 @@
 package org.jetbrains.sbt.annotator.dependency.ui
 
 import javax.swing.{Icon, JComponent}
-
 import com.intellij.ide.wizard.Step
 import com.intellij.util.ui.JBUI
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 /**
@@ -14,7 +14,7 @@ private class SbtArtifactChooseDependencyStep(wizard: SbtArtifactSearchWizard, a
   private val panel = new SbtArtifactSearchPanel(wizard, artifactInfoSet)
 
   override def _init(): Unit = {
-    wizard.setTitle("sbt artifact search")
+    wizard.setTitle(SbtBundle.message("sbt.artifact.search"))
     wizard.setSize(JBUI.scale(300), JBUI.scale(400))
     wizard.getContentComponent.updateUI()
   }

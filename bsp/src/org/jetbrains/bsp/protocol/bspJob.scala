@@ -1,13 +1,52 @@
 package org.jetbrains.bsp.protocol
 
-import org.jetbrains.bsp.BspError
+import com.intellij.openapi.progress.ProgressIndicator
+import org.jetbrains.bsp.{BspError, BspTaskCancelled}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.annotation.tailrec
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.util.{Failure, Try}
 
 
 abstract class BspJob[T] {
   def future: Future[T]
   def cancel(): Unit
+}
+
+object BspJob {
+
+  /** Check both indicator and promise for canceled status to combine different ways of canceling tasks.  */
+  class CancelCheck(promise: Promise[_], indicator: ProgressIndicator) {
+
+    def cancel(): Unit = {
+      promise.failure(BspTaskCancelled)
+      indicator.cancel()
+    }
+
+    def isCancelled: Boolean = {
+      // if one is canceled, cancel the other
+      if (!promise.isCompleted && indicator.isCanceled)
+        promise.failure(BspTaskCancelled)
+      else if (!indicator.isCanceled && promise.isCompleted)
+        indicator.cancel()
+
+      promise.isCompleted
+    }
+  }
+
+  @tailrec def waitForJobCancelable[R](job: BspJob[R], cancelCheck: CancelCheck): Try[R] =
+    try {
+      if (cancelCheck.isCancelled) {
+        job.cancel()
+        Failure(BspTaskCancelled)
+      } else {
+        val res = Await.result(job.future, 300.millis)
+        Try(res)
+      }
+    } catch {
+      case _ : TimeoutException => waitForJobCancelable(job, cancelCheck)
+    }
 }
 
 class NonAggregatingBspJob[T,A](job: BspJob[(T,A)]) extends BspJob[T] {

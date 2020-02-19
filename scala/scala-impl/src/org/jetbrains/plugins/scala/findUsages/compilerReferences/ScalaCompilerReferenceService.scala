@@ -6,11 +6,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.{Disposer, ModificationTracker}
 import com.intellij.psi.search.{ScopeOptimizer, SearchScope}
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
@@ -28,11 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 import scala.collection.JavaConverters._
 
-private[findUsages] class ScalaCompilerReferenceService(
-  project:        Project,
-  fileDocManager: FileDocumentManager,
-  psiDocManager:  PsiDocumentManager
-) extends ProjectComponent with ModificationTracker {
+final private[findUsages] class ScalaCompilerReferenceService(project: Project) extends ModificationTracker {
   import ScalaCompilerReferenceService._
 
   private[this] val compilationCount = new LongAdder
@@ -45,8 +41,8 @@ private[findUsages] class ScalaCompilerReferenceService(
     project,
     LanguageCompilerRefAdapter.INSTANCES.flatMap(_.getFileTypes.asScala),
     projectFileIndex,
-    fileDocManager,
-    psiDocManager,
+    FileDocumentManager.getInstance(),
+    PsiDocumentManager.getInstance(project),
     this
   )
 
@@ -190,14 +186,12 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   override def getModificationCount: Long = compilationCount.longValue()
 
-  override def projectOpened(): Unit = initializeReferenceService()
-
   def initializeReferenceService(): Unit =
     if (CompilerIndicesSettings(project).isBytecodeIndexingActive || ApplicationManager.getApplication.isUnitTestMode) {
       initializedReferenceService
     }
 
-  private lazy val initializedReferenceService = {
+  private lazy val initializedReferenceService: Unit = {
     inTransaction { _ =>
       currentCompilerMode = CompilerMode.forProject(project)
 
@@ -266,6 +260,8 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   def invalidateIndex(): Unit                    = onIndexCorruption()
   def getDirtyScopeHolder: ScalaDirtyScopeHolder = dirtyScopeHolder
+
+  initializeReferenceService()
 }
 
 object ScalaCompilerReferenceService {
@@ -276,7 +272,13 @@ object ScalaCompilerReferenceService {
   private[compilerReferences] type CompilerIndicesState = (CompilerMode, CompilerIndicesEventPublisher)
 
   def apply(project: Project): ScalaCompilerReferenceService =
-    project.getComponent(classOf[ScalaCompilerReferenceService])
+    project.getService(classOf[ScalaCompilerReferenceService])
+
+  class Startup extends ProjectManagerListener with StartupActivity {
+    // ensure service is initialized with project
+    override def runActivity(project: Project): Unit =
+      ScalaCompilerReferenceService(project)
+  }
 }
 
 class ScalaCompilerReferenceScopeOptimizer extends ScopeOptimizer {

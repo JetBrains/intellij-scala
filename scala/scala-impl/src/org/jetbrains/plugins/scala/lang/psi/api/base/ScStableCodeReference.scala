@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReference, ScalaResolveResult}
 
 trait ScStableCodeReference extends ScReference with ResolvableStableCodeReference with ScPathElement {
-  def qualifier: Option[ScStableCodeReference] =
+  override def qualifier: Option[ScStableCodeReference] =
     getFirstChild match {case s: ScStableCodeReference => Some(s) case _ => None}
 
   def pathQualifier: Option[ScPathElement] = getFirstChild match {case s: ScPathElement => Some(s) case _ => None}

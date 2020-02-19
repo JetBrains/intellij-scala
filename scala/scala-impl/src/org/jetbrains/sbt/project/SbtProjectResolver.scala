@@ -15,6 +15,7 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, SdkReference}
@@ -27,7 +28,7 @@ import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.structure.{BuildData, ConfigurationData, DependencyData, DirectoryData, JavaData, ProjectData}
-import org.jetbrains.sbt.{structure => sbtStructure}
+import org.jetbrains.sbt.{SbtBundle, structure => sbtStructure}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -68,12 +69,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                             settings: SbtExecutionSettings,
                             projectRoot: File,
                             sbtLauncher: File,
-                            sbtVersion: String,
+                            @NonNls sbtVersion: String,
                             notifications: ExternalSystemTaskNotificationListener): DataNode[ESProjectData] = {
 
-    val importTaskId = s"import:${UUID.randomUUID()}"
+    @NonNls val importTaskId = s"import:${UUID.randomUUID()}"
     val importTaskDescriptor =
-      new TaskOperationDescriptorImpl("import to IntelliJ project model", System.currentTimeMillis(), "project-model-import")
+      new TaskOperationDescriptorImpl(SbtBundle.message("sbt.import.to.intellij.project.model"), System.currentTimeMillis(), "project-model-import")
 
     val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId, notifications)
 
@@ -91,12 +92,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
-          val causeMessage = if (cause != null) cause.getMessage else "unknown cause"
+          val causeMessage = if (cause != null) cause.getMessage else SbtBundle.message("sbt.unknown.cause")
 
           // notify user if project exists already
           val projectOpt = ProjectManager.getInstance().getOpenProjects.find(p => FileUtil.pathsEqual(p.getBasePath, projectRoot.getCanonicalPath))
           projectOpt.foreach { p =>
-            val notification = SbtNotifications.notificationGroup.createNotification(s"sbt import cancelled: $causeMessage", NotificationType.INFORMATION)
+            val notification = Sbt.balloonNotification.createNotification(SbtBundle.message("sbt.import.cancelled", causeMessage), NotificationType.INFORMATION)
             notification.notify(p)
           }
 
@@ -140,10 +141,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val options = dumpOptions(settings)
 
     if (!sbtLauncher.isFile) {
-      val error = s"sbt launcher not found at ${sbtLauncher.getCanonicalPath}"
+      val error = SbtBundle.message("sbt.launcher.not.found", sbtLauncher.getCanonicalPath)
       Failure(new FileNotFoundException(error))
     } else if (!importSupported(sbtVersion)) {
-      val message = s"sbt $sinceSbtVersion+ required. Please update project build.properties."
+      val message = SbtBundle.message("sbt.sincesbtversion.required", sinceSbtVersion)
       Failure(new UnsupportedOperationException(message))
     }
     else usingTempFile("sbt-structure", Some(".xml")) { structureFile =>

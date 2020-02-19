@@ -29,7 +29,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
   override def getLocalSettingsProvider: Function[Project, BspLocalSettings] = BspLocalSettings.getInstance(_)
 
   override def getExecutionSettingsProvider: Function[openapi.util.Pair[Project, String], BspExecutionSettings] =
-    pair => BspExecutionSettings.executionSettingsFor(new File(pair.second))
+    pair => BspExecutionSettings.executionSettingsFor(pair.first, new File(pair.second))
 
   override def getProjectResolverClass: Class[BspProjectResolver] = classOf[BspProjectResolver]
 

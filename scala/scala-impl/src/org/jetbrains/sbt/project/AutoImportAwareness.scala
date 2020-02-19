@@ -5,6 +5,7 @@ import java.util
 
 import com.intellij.openapi.externalSystem.ExternalSystemAutoImportAware
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.project.AutoImportAwareness._
 
@@ -18,13 +19,13 @@ trait AutoImportAwareness extends ExternalSystemAutoImportAware {
     if (isProjectDefinitionFile(project, new File(changedFileOrDirPath))) project.getBasePath
     else null
 
-  override def getAffectedExternalProjectFiles(projectPath: String, project: Project): util.List[File] = {
+  override def getAffectedExternalProjectFiles(@NonNls projectPath: String, project: Project): util.List[File] = {
     val baseDir = new File(projectPath)
     val projectDir = baseDir / Sbt.ProjectDirectory
 
     val files =
-      baseDir / "build.sbt" +:
-        projectDir / "build.properties" +:
+      baseDir / Sbt.BuildFile +:
+        projectDir / Sbt.PropertiesFile +:
         projectDir.ls(name => name.endsWith(".sbt") || name.endsWith(".scala"))
 
     files.asJava

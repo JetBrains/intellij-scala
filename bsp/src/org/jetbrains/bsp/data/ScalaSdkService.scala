@@ -2,23 +2,18 @@ package org.jetbrains.bsp.data
 
 import java.io.File
 
-import com.intellij.compiler.CompilerConfiguration
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
-import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
+import com.intellij.openapi.externalSystem.service.notification.NotificationData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
-import org.jetbrains.bsp.BSP
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.external.{AbstractImporter, SdkReference, SdkUtils}
+import org.jetbrains.plugins.scala.project.external.AbstractImporter
 
 import scala.collection.JavaConverters._
-import org.jetbrains.sbt.RichOptional
 
 
 class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] {
@@ -73,43 +68,8 @@ object ScalaSdkService {
         }
 
       if !library.isScalaSdk
-    } setScalaSdk(library, compilerClasspath)(Some(presentation))
-
-    private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {
-      val model = getModifiableRootModel(module)
-      model.inheritSdk()
-      sdk.flatMap(SdkUtils.findProjectSdk).foreach(model.setSdk)
-    }
-
-    private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = {
-      val model = getModifiableRootModel(module)
-      val moduleSdk = Option(model.getSdk)
-      val languageLevel = SdkUtils.javaLanguageLevelFrom(javacOptions)
-        .orElse(moduleSdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
-      languageLevel.foreach { level =>
-        val extension = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
-        extension.setLanguageLevel(level)
-      }
-    }
-
-    private def configureJavacOptions(module: Module, javacOptions: Seq[String]): Unit = {
-      for {
-        targetPos <- Option(javacOptions.indexOf("-target")).filterNot(_ == -1)
-        targetValue <- javacOptions.lift(targetPos + 1)
-        compilerSettings = CompilerConfiguration.getInstance(module.getProject)
-      } {
-        executeProjectChangeAction(compilerSettings.setBytecodeTargetLevel(module, targetValue))
-      }
-    }
-
-    private def showWarning(message: String): Unit = {
-      val notification = new NotificationData("bsp Import", message, NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
-      notification.setBalloonGroup("bsp")
-      if (ApplicationManager.getApplication.isUnitTestMode) {
-        throw NotificationException(notification, BSP.ProjectSystemId)
-      } else {
-        ExternalSystemNotificationManager.getInstance(project).showNotification(BSP.ProjectSystemId, notification)
-      }
+    } {
+      setScalaSdk(library, compilerClasspath)(Some(presentation))
     }
 
   }

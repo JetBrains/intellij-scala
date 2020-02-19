@@ -10,7 +10,7 @@ import com.intellij.util.IconUtil.getEmptyIcon
 package object lookups {
 
   // TODO extract as a customizable LookupElementRenderer
-  private[completion] implicit class T(private val presentation: LookupElementPresentation) extends AnyVal {
+  private[completion] implicit class PresentationExt(private val presentation: LookupElementPresentation) extends AnyVal {
 
     def setStrikeout(element: PsiNamedElement): Unit =
       presentation.setStrikeout {
@@ -21,6 +21,11 @@ package object lookups {
       if (isReal) element.getIcon(0)
       else getEmptyIcon(false)
     }
+
+    def appendGrayedTailText(text: String): Unit =
+      if (text.nonEmpty) {
+        presentation.appendTailText(text, true)
+      }
 
     private def isReal = presentation.isReal
   }

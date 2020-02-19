@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.modifier.ui;
 
 import com.intellij.openapi.vcs.FileStatus;
+import org.jetbrains.sbt.SbtBundle;
 
 /**
  * @author Roman.Shein
@@ -15,11 +16,11 @@ public enum BuildFileModifiedStatus {
 
   public String getOriginText() {
     switch (this) {
-      case DETECTED: return "Detected";
-      case MODIFIED_AUTOMATICALLY: return "Modified automatically";
-      case MODIFIED_MANUALLY: return "Modified manually";
-      case MODIFIED_BOTH: return "Modified automatically and fixed manually";
-      default: throw new RuntimeException("Unexpected build file status: " + this);
+      case DETECTED: return SbtBundle.message("sbt.build.modified.detected");
+      case MODIFIED_AUTOMATICALLY: return SbtBundle.message("sbt.build.modified.automatically");
+      case MODIFIED_MANUALLY: return SbtBundle.message("sbt.build.modified.manually");
+      case MODIFIED_BOTH: return SbtBundle.message("sbt.build.modified.automatically.and.fixed.manually");
+      default: throw new RuntimeException(SbtBundle.message("sbt.build.modified.unexpected.file.status", this));
     }
   }
 

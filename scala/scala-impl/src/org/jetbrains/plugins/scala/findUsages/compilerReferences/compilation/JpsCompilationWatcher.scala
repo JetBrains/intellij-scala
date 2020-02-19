@@ -8,7 +8,6 @@ import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageH
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.compilerReferences.Builder
 import org.jetbrains.plugins.scala.compilerReferences.{Builder, Messages}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
@@ -83,8 +82,9 @@ private[compilerReferences] class JpsCompilationWatcher(
 
         // noinspection ScalaDeprecation
         // this key is declared private in CompileDriver
-        val key         = Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS")
-        val wasUpToDate = compileContext.getUserData(key) == ExitStatus.UP_TO_DATE
+        val key         = Option(Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS"))
+        val status      = key.flatMap(k => Option(compileContext.getUserData(k)))
+        val wasUpToDate = status.contains(ExitStatus.UP_TO_DATE)
 
         val modules =
           Option(compileContext.getCompileScope)

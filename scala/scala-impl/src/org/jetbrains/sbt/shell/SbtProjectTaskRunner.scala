@@ -33,7 +33,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.{SbtNotifications, SbtUtil}
+import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -81,16 +81,16 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       // sometimes external system loses information about sbt modules
       // since it is very confusing to users, when build task silently does nothing
       // we detect such cases and suggest project refresh
-      val notification = SbtNotifications.notificationGroup.createNotification(
-        "sbt build failed",
-        s"Unable to build sbt project corresponding to IDEA module ${project.getName}.",
+      val notification = Sbt.balloonNotification.createNotification(
+        SbtBundle.message("sbt.shell.sbt.build.failed"),
+        SbtBundle.message("sbt.shell.unable.to.build.sbt.project", project.getName),
         NotificationType.ERROR,
         null
       )
 
       notification.addAction(
         NotificationAction.createSimple(
-          "Refresh sbt project",
+          SbtBundle.message("sbt.shell.refresh.sbt.project"),
           () => ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
         )
       )
@@ -153,7 +153,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 }
 
 private class CommandTask(project: Project, modules: Array[Module], command: String, promise: AsyncPromise[ProjectTaskRunner.Result]) extends
-  Task.Backgroundable(project, "sbt build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+  Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   import CommandTask._
 
@@ -187,8 +187,8 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
         case ErrorWaitForInput =>
           // can only actually happen during reload, but handle it here to be sure
           showShell()
-          report.error("build interrupted", None)
-          messages.addError("ERROR: build interrupted")
+          report.error(SbtBundle.message("sbt.shell.build.interrupted"), None)
+          messages.addError(SbtBundle.message("sbt.shell.error.build.interrupted"))
           messages
         case Output(raw) =>
           val text = raw.trim
@@ -198,14 +198,14 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
             // only report first error until we can get a good mapping message -> error
             if (messages.errors.isEmpty) {
               showShell()
-              report.error("errors in build", None)
+              report.error(SbtBundle.message("sbt.shell.errors.in.build"), None)
             }
             messages.addError(msg)
           } else if (text startsWith WARN_PREFIX) {
             val msg = text.stripPrefix(WARN_PREFIX)
             // only report first warning
             if (messages.warnings.isEmpty) {
-              report.warning("warnings in build", None)
+              report.warning(SbtBundle.message("sbt.shell.warnings.in.build"), None)
             }
             messages.addWarning(msg)
           } else messages
@@ -260,7 +260,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
   // remove this if/when external system handles this refresh on its own
   private def refreshRoots(outputRoots: Array[String], indicator: ProgressIndicator): Unit = {
-    indicator.setText("Synchronizing output directories...")
+    indicator.setText(SbtBundle.message("sbt.shell.synchronizing.output.directories"))
 
     // simply refresh all the source roots to catch any generated files -- this MAY have a performance impact
     // in which case it might be necessary to receive the generated sources directly from sbt and refresh them (see BuildManager)
@@ -280,6 +280,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     val toRefreshFiles = toRefresh.map(new File(_)).asJava
     LocalFileSystem.getInstance().refreshIoFiles(toRefreshFiles, true, true, null)
 
+    //noinspection ScalaExtractStringToBundle
     indicator.setText("")
   }
 }

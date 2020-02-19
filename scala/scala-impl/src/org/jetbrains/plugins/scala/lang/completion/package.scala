@@ -1,25 +1,28 @@
 package org.jetbrains.plugins.scala
 package lang
 
+import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
+import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType, isContextAncestor}
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker.contextWithStableType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
@@ -29,16 +32,33 @@ import scala.collection.JavaConverters
 
 package object completion {
 
+  import PlatformPatterns.psiElement
   import ScalaTokenTypes._
 
   private[completion] def identifierPattern =
-    PlatformPatterns.psiElement(tIDENTIFIER)
+    psiElement(tIDENTIFIER)
 
   private[completion] def identifierWithParentPattern(clazz: Class[_ <: ScalaPsiElement]) =
     identifierPattern.withParent(clazz)
 
   private[completion] def identifierWithParentsPattern(classes: Class[_ <: ScalaPsiElement]*) =
     identifierPattern.withParents(classes: _*)
+
+  private[completion] def annotationPattern =
+    psiElement.afterLeaf(psiElement(tAT))
+
+  private[completion] def afterNewKeywordPattern = identifierWithParentsPattern(
+    classOf[ScStableCodeReference],
+    classOf[ScSimpleTypeElement],
+    classOf[ScConstructorInvocation],
+    classOf[ScTemplateParents],
+    classOf[ScExtendsBlock],
+    classOf[ScNewTemplateDefinition]
+  )
+
+  private[completion] def insideTypePattern =
+    psiElement.inside(classOf[ScTypeElement]) ||
+      afterNewKeywordPattern
 
   private[completion] def isExcluded(clazz: PsiClass) = inReadAction {
     JavaCompletionUtil.isInExcludedPackage(clazz, false)
@@ -57,6 +77,19 @@ package object completion {
 
   def regardlessAccessibility(invocationCount: Int): Boolean =
     invocationCount >= 2
+
+  def isInImport(place: PsiElement): Boolean =
+    getContextOfType(place, classOf[ScImportStmt]) != null
+
+  def isInTypeElement(place: PsiElement): Boolean =
+    getContextOfType(place, classOf[ScTypeElement]) != null
+
+  def isInScalaContext(place: PsiElement,
+                       isInSimpleString: Boolean,
+                       isInInterpolatedString: Boolean = false): Boolean =
+    isInSimpleString ||
+      isInInterpolatedString ||
+      getContextOfType(place, classOf[ScalaFile]) != null
 
   implicit class CaptureExt(private val pattern: ElementPattern[_ <: PsiElement]) extends AnyVal {
 
@@ -80,6 +113,16 @@ package object completion {
 
     def setStartOffset(offset: Int): Unit = {
       offsetMap.addOffset(CompletionInitializationContext.START_OFFSET, offset)
+    }
+
+    def scheduleAutoPopup(): Unit = {
+      context.setLaterRunnable(() => {
+        AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
+          context.getEditor,
+          CompletionType.BASIC,
+          (_: PsiFile) == context.getFile
+        )
+      })
     }
   }
 
@@ -112,7 +155,7 @@ package object completion {
 
     if (originalPosition != null) {
       for {
-        elementContext  <- contextWithStableType(positionInCompletionFile)
+        elementContext <- contextWithStableType(positionInCompletionFile)
         originalContext <- sameInOriginalFile(elementContext, originalPosition)
 
         if !isContextAncestor(elementContext, originalContext, /*strict*/ false)
@@ -170,12 +213,9 @@ package object completion {
     }
   }
 
-  private[completion] def definitionByPosition(position: PsiElement, isAfterNew: Boolean) = {
-    position match {
-      case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
-      case _ if isAfterNew => ScalaAfterNewCompletionContributor.findNewTemplate(position)
-      case _ => None
-    }
+  private[completion] def definitionByPosition(place: PsiElement) = place match {
+    case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
+    case _ => Option(getContextOfType(place, classOf[ScNewTemplateDefinition]))
   }
 
   private[this] def requiresSuffix(element: PsiElement) =
@@ -190,12 +230,18 @@ package object completion {
         case defaultSorter if parameters.getCompletionType == CompletionType.SMART => defaultSorter
         case defaultSorter =>
           val position = positionFromParameters(parameters)
-          val isAfterNew = ScalaAfterNewCompletionContributor.isAfterNew(position)
-          val maybeDefinition = definitionByPosition(position, isAfterNew)
+          val isAfterNew = afterNewKeywordPattern.accepts(position)
+          val maybeDefinition = definitionByPosition(position)
 
-          defaultSorter
-            .weighBefore("liftShorter", new ScalaByTypeWeigher(position))
-            .weighAfter(if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher", new ScalaByExpectedTypeWeigher(maybeDefinition)(position))
+          val newSorter = if (insideTypePattern.accepts(position))
+            defaultSorter.weighBefore("liftShorter", new ScalaByTypeWeigher)
+          else
+            defaultSorter
+
+          newSorter.weighAfter(
+            if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher",
+            new ScalaByExpectedTypeWeigher(maybeDefinition)(position)
+          )
       }
 
       val updatedResultSet = resultSet
@@ -288,23 +334,21 @@ package object completion {
     }
   }
 
-  private class ScalaByTypeWeigher(position: PsiElement) extends LookupElementWeigher("scalaTypeCompletionWeigher") {
+  private final class ScalaByTypeWeigher extends LookupElementWeigher("scalaTypeCompletionWeigher") {
 
     override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] =
-      if (ScalaAfterNewCompletionContributor.isInTypeElement(position)) {
-        element match {
-          case ScalaLookupItem(_, namedElement) => namedElement match {
-            case typeAlias: ScTypeAlias if typeAlias.isLocal => 1 // localType
-            case typeDefinition: ScTypeDefinition if isValid(typeDefinition) => 1 // localType
-            case _: ScTypeAlias | _: PsiClass => 2 // typeDefinition
-            case _ => 3 // normal
-          }
-          case _ => null
-        }
-      } else null
+      element.getPsiElement match {
+        case typeAlias: ScTypeAlias if typeAlias.isLocal => 1 // localType
+        case typeDefinition: ScTypeDefinition if isLocal(typeDefinition) => 1 // localType
+        case _: ScTypeAlias |
+             _: PsiClass => 2 // typeDefinition
+        case _ => 3 // normal
+        case _ => null
+      }
 
-    private def isValid(typeDefinition: ScTypeDefinition) = !typeDefinition.isObject &&
-      (typeDefinition.isLocal || PsiTreeUtil.getParentOfType(typeDefinition, classOf[ScBlockExpr]) != null)
+    private def isLocal(typeDefinition: ScTypeDefinition) = typeDefinition match {
+      case _: ScObject => false
+      case _ => typeDefinition.isLocal || getParentOfType(typeDefinition, classOf[ScBlockExpr]) != null
+    }
   }
-
 }

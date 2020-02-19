@@ -6,7 +6,7 @@ package api
 
 import java.util.concurrent.atomic.AtomicReference
 
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.Disposable
 import com.intellij.psi.CommonClassNames._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -80,21 +80,21 @@ sealed class ValType(override val name: String)(implicit projectContext: Project
   override def isFinalType = true
 }
 
-class StdTypes(implicit private val projectContext: ProjectContext) extends ProjectComponent {
+class StdTypes(implicit private val projectContext: ProjectContext) extends Disposable {
 
   lazy val Any = new StdType(Name.Any, None)
 
   lazy val AnyRef = new StdType(Name.AnyRef, Some(Any))
 
-  lazy val Null = new StdType(Name.Null, Some(AnyRef)) {
+  lazy val Null: StdType = new StdType(Name.Null, Some(AnyRef)) {
     override def isFinalType = true
   }
 
-  lazy val Nothing = new StdType(Name.Nothing, Some(Any)) {
+  lazy val Nothing: StdType = new StdType(Name.Nothing, Some(Any)) {
     override def isFinalType = true
   }
 
-  lazy val Singleton = new StdType(Name.Singleton, Some(AnyRef)) {
+  lazy val Singleton: StdType = new StdType(Name.Singleton, Some(AnyRef)) {
     override def isFinalType = true
   }
 
@@ -140,7 +140,7 @@ class StdTypes(implicit private val projectContext: ProjectContext) extends Proj
     JAVA_LANG_DOUBLE -> Double
   )
 
-  override def disposeComponent(): Unit = {
+  override def dispose(): Unit = {
     StdTypes.current.compareAndSet(this, null)
   }
 }
@@ -152,7 +152,7 @@ object StdTypes {
     val last = current.get()
     if (last != null && (last.projectContext == pc)) last
     else {
-      val fromContainer = pc.getComponent(classOf[StdTypes])
+      val fromContainer = pc.getService(classOf[StdTypes])
       current.compareAndSet(last, fromContainer)
       fromContainer
     }

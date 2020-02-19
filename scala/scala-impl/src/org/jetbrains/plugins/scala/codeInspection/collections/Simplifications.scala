@@ -3,6 +3,7 @@ package codeInspection.collections
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -67,7 +68,9 @@ object SimplificationBuilder {
 
 
 abstract class SimplificationType {
+  @Nls
   def hint: String
+  @Nls
   def description: String = hint
 
   def getSimplification(expr: ScExpression): Option[Simplification] = None

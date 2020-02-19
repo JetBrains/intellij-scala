@@ -5,7 +5,7 @@ import com.intellij.openapi.project.{Project, ProjectManagerListener}
 class ScalafmtProjectListener extends ProjectManagerListener {
 
   override def projectOpened(project: Project): Unit = {
-    ScalaFmtSuggesterComponent.instance(project).init()
+    ScalaFmtSuggesterService.instance(project).init()
     ScalafmtDynamicConfigService.instanceIn(project).init()
   }
 

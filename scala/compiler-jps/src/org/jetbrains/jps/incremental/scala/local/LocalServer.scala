@@ -41,7 +41,7 @@ class LocalServer extends Server {
       compiler.compile(compilationData, client)
     }
 
-    client.compilationEnd()
+    client.compilationEnd(compilationData.sources.toSet)
     ExitCode.OK
   }
 

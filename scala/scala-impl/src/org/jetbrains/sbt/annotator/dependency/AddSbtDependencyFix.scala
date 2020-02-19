@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, SmartPsiElementPointer}
+import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.ValidSmartPointer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -24,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.resolvers.{ArtifactInfo, SbtResolver}
 import org.jetbrains.sbt.settings.SbtSettings
@@ -49,7 +51,7 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
     case _ => false
   }
 
-  override def getText: String = "Add sbt dependency..."
+  override def getText: String = SbtBundle.message("sbt.add.sbt.dependency")
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (refElement.getElement == null) // pointer has been invalidated due to full reparse
@@ -79,14 +81,14 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
 
       override def run(indicator: ProgressIndicator): Unit = {
         import com.intellij.notification.Notifications.Bus
-        def error(msg: String): Unit = Bus.notify(new Notification(getText, getText, msg, NotificationType.ERROR))
+        def error(@Nls msg: String): Unit = Bus.notify(new Notification(getText, getText, msg, NotificationType.ERROR))
 
         def getDeps: Set[ArtifactInfo] = {
           def doSearch(name: String): Set[ArtifactInfo] = resolver.getIndex(project)
             .map(_.searchArtifactInfo(name)(project))
             .getOrElse(Set.empty)
 
-          indicator.setText("Searching for artifacts...")
+          indicator.setText(SbtBundle.message("sbt.searching.for.artifacts"))
           val fqName = extensions.inReadAction(getReferenceText)
           val artifacts = if (fqName.endsWith("._")) { // search wildcard imports by containing package
             doSearch(fqName.replaceAll("_$", "")) match {
@@ -106,7 +108,7 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
         }
 
         def getPlaces: Seq[DependencyPlaceInfo] = {
-          indicator.setText("Finding SBT dependency declarations...")
+          indicator.setText(SbtBundle.message("sbt.finding.sbt.dependency.declarations"))
           val depPlaces = extensions.inReadAction(
             for {
               sbtFile <- sbtFileOpt
@@ -120,19 +122,19 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
         indicator.setIndeterminate(true)
 
         resolver.getIndex(project).foreach {
-          indicator.setText("Updating dependency index...")
+          indicator.setText(SbtBundle.message("sbt.updating.dependency.index"))
           _.doUpdate(Some(indicator))
         }
 
         val deps = getDeps
         if (deps.isEmpty) {
-          error("No dependencies found for given import")
+          error(SbtBundle.message("sbt.no.dependencies.found.for.given.import"))
           return
         }
 
         val places = getPlaces
         if (places.isEmpty) {
-          error("No places to add a dependency found")
+          error(SbtBundle.message("sbt.no.places.to.add.a.dependency.found"))
           return
         }
 
@@ -190,6 +192,7 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
   private def containsModuleName(proj: ScPatternDefinition, moduleName: String): Boolean =
     proj.getText.contains("\"" + moduleName + "\"")
 
+  @NonNls
   private def getReferenceText: String = {
     val importExpr = PsiTreeUtil.getParentOfType(refElement.getElement, classOf[ScImportExpr])
     if (importExpr.selectors.size > 1 || importExpr.selectors.exists(_.isAliasedImport))
@@ -198,7 +201,7 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
       importExpr.getText
   }
 
-  override def getFamilyName = "Add sbt dependencies"
+  override def getFamilyName: String = SbtBundle.message("sbt.add.sbt.dependencies")
 
   override def startInWriteAction(): Boolean = false
 

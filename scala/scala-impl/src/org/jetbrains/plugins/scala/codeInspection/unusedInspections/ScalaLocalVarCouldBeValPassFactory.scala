@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.unusedInspections
 
-import com.intellij.codeHighlighting.{Pass, TextEditorHighlightingPass, TextEditorHighlightingPassFactory, TextEditorHighlightingPassFactoryRegistrar, TextEditorHighlightingPassRegistrar}
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.codeHighlighting._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile

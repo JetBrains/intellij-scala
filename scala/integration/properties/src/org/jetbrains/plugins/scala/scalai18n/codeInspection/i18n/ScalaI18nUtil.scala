@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
+package org.jetbrains.plugins.scala
+package scalai18n
+package codeInspection
+package i18n
 
 import java.text.MessageFormat
 
@@ -12,11 +15,13 @@ import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScParenthesisedExpr, ScReturn}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 /**
@@ -26,8 +31,8 @@ import scala.collection.mutable
 
 object ScalaI18nUtil {
   def mustBePropertyKey(@NotNull literal: ScLiteral,
-                        @NotNull annotationAttributeValues: mutable.HashMap[String, AnyRef]): Boolean = {
-    mayBePropertyKey(literal) && isPassedToAnnotatedParam(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues, null)
+                        @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean = {
+    mayBePropertyKey(literal) && isPassedToAnnotated(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues)
   }
 
   private def mayBePropertyKey(literal: ScLiteral): Boolean = literal match {
@@ -38,74 +43,89 @@ object ScalaI18nUtil {
     case _ => false
   }
 
-  def isPassedToAnnotatedParam(@NotNull literal: ScLiteral, annFqn: String,
-                               @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef],
-                               @Nullable nonNlsTargets: mutable.HashSet[PsiModifierListOwner]): Boolean = {
-    literal.getParent match {
+  @tailrec
+  def isPassedToAnnotated(@NotNull element: PsiElement, annFqn: String,
+                          @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean = {
+    element.getParent match {
       case argList: ScArgumentExprList =>
-        val idx = argList.exprs.indexOf(literal)
+        val idx = argList.exprs.indexOf(element)
         if (idx == -1) return false
 
         argList.getParent match {
           case ScMethodCall(ResolvesTo(method: PsiMethod), _) =>
-            isMethodParameterAnnotatedWith(method, idx, null, annFqn, annotationAttributeValues, nonNlsTargets)
+            isMethodParameterAnnotatedWith(method, idx, annFqn, annotationAttributeValues)
+          case ScConstructorInvocation.reference(ResolvesTo(method: PsiMethod)) =>
+            isMethodParameterAnnotatedWith(method, idx, annFqn, annotationAttributeValues)
           case _ =>
             false
         }
+      case ScReturn.of(method) => isMethodReturnAnnotatedWith(method, annFqn, annotationAttributeValues)
+      case f: ScFunctionDefinition => isMethodReturnAnnotatedWith(f, annFqn, annotationAttributeValues)
+      case parenthesised: ScParenthesisedExpr =>
+        isPassedToAnnotated(parenthesised, annFqn, annotationAttributeValues)
       case _ => false
     }
   }
 
-  def isMethodParameterAnnotatedWith(method: PsiMethod, idx: Int, @Nullable myProcessed: mutable.HashSet[PsiMethod],
-                                     annFqn: String, @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef],
-                                     @Nullable nonNlsTargets: mutable.HashSet[PsiModifierListOwner]): Boolean = {
-    var processed = myProcessed
-    if (processed != null) {
-      if (processed.contains(method)) return false
-    }
-    else {
-      processed = new mutable.HashSet[PsiMethod]
-    }
-    processed.add(method)
-    val params = method.parameters
-    var param: PsiParameter = null
-    if (idx >= params.length) {
-      if (params.isEmpty) {
-        return false
-      }
-      val lastParam: PsiParameter = params.last
-      if (lastParam.isVarArgs) {
-        param = lastParam
-      }
-      else {
-        return false
-      }
-    }
-    else {
-      param = params(idx)
-    }
-    val annotation: PsiAnnotation = AnnotationUtil.findAnnotation(param, annFqn)
-    if (annotation != null) {
-      if (annotationAttributeValues != null) {
-        val parameterList: PsiAnnotationParameterList = annotation.getParameterList
-        val attributes: Array[PsiNameValuePair] = parameterList.getAttributes
-        for (attribute <- attributes) {
-          val name: String = attribute.getName
-          if (annotationAttributeValues.contains(name)) {
-            annotationAttributeValues.put(name, attribute.getValue)
-          }
-        }
-      }
+  def isMethodReturnAnnotatedWith(method: PsiMethod,
+                                  annFqn: String,
+                                  @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null,
+                                  alreadyProcessed: mutable.HashSet[PsiMethod] = mutable.HashSet.empty): Boolean = {
+    if (alreadyProcessed.contains(method))
+      return false
+    alreadyProcessed += method
+    for (annotation <- AnnotationUtil.findAnnotation(method, annFqn).toOption) {
+      addToAnnotationAttributeValues(annotation, annotationAttributeValues)
       return true
-    }
-    if (nonNlsTargets != null) {
-      nonNlsTargets.add(param)
     }
     val superMethods: Array[PsiMethod] = method.findSuperMethods
     for (superMethod <- superMethods) {
-      if (isMethodParameterAnnotatedWith(superMethod, idx, processed, annFqn, annotationAttributeValues, null)) return true
+      if (isMethodReturnAnnotatedWith(superMethod, annFqn, annotationAttributeValues, alreadyProcessed))
+        return true
     }
     false
+  }
+
+  def isMethodParameterAnnotatedWith(method: PsiMethod,
+                                     idx: Int,
+                                     annFqn: String,
+                                     @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef],
+                                     alreadyProcessed: mutable.HashSet[PsiMethod] = mutable.HashSet.empty): Boolean = {
+    if (alreadyProcessed.contains(method))
+      return false
+    alreadyProcessed.add(method)
+    val params = method.parameters
+    def varArgsParam = params.lastOption.filter(_.isVarArgs)
+    val param: PsiParameter =
+      params
+        .lift(idx)
+        .orElse(varArgsParam)
+        .getOrElse(return false)
+    val annotation: PsiAnnotation = AnnotationUtil.findAnnotation(param, annFqn)
+    if (annotation != null) {
+      addToAnnotationAttributeValues(annotation, annotationAttributeValues)
+      return true
+    }
+    val superMethods: Array[PsiMethod] = method.findSuperMethods
+    for (superMethod <- superMethods) {
+      if (isMethodParameterAnnotatedWith(superMethod, idx, annFqn, annotationAttributeValues, alreadyProcessed))
+        return true
+    }
+    false
+  }
+
+  private def addToAnnotationAttributeValues(annotation: PsiAnnotation,
+                                             @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef]): Unit = {
+    if (annotationAttributeValues != null) {
+      val parameterList: PsiAnnotationParameterList = annotation.getParameterList
+      val attributes: Array[PsiNameValuePair] = parameterList.getAttributes
+      for (attribute <- attributes) {
+        val name: String = attribute.getName
+        if (annotationAttributeValues.contains(name)) {
+          annotationAttributeValues.put(name, attribute.getValue)
+        }
+      }
+    }
   }
 
   def isPropertyRef(expression: ScLiteral, key: String, resourceBundleName: String): Boolean = {

@@ -13,9 +13,11 @@ import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk, SdkTypeI
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.{io, text}
 import javax.swing._
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 /**
@@ -87,13 +89,13 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
     //noinspection TypeAnnotation
     val step = sdkSettingsStep(settingsStep)
 
-    val resolveClassifiersCheckBox: JCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.sources")))(
-      _.setToolTipText("Download Scala standard library sources (useful for editing the source code)"),
+    val resolveClassifiersCheckBox: JCheckBox = applyTo(new JCheckBox(SbtBundle.message("sbt.settings.sources")))(
+      _.setToolTipText(SbtBundle.message("sbt.download.scala.standard.library.sources")),
       _.setSelected(selections.resolveClassifiers)
     )
 
-    val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.sources")))(
-      _.setToolTipText("Download sbt sources (useful for editing the project definition)"),
+    val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle.message("sbt.settings.sources")))(
+      _.setToolTipText(SbtBundle.message("sbt.download.sbt.sources")),
       _.setSelected(selections.resolveSbtClassifiers)
     )
 
@@ -123,8 +125,8 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
       _.add(resolveClassifiersCheckBox)
     )
 
-    settingsStep.addSettingsField(SbtBundle("sbt.settings.sbt"), sbtVersionPanel)
-    settingsStep.addSettingsField(SbtBundle("sbt.settings.scala"), scalaVersionPanel)
+    settingsStep.addSettingsField(SbtBundle.message("sbt.settings.sbt"), sbtVersionPanel)
+    settingsStep.addSettingsField(SbtBundle.message("sbt.settings.scala"), scalaVersionPanel)
 
     // TODO Remove the label patching when the External System will use the concise and proper labels natively
     Option(sbtVersionPanel.getParent).foreach { parent =>
@@ -213,7 +215,7 @@ object SbtModuleBuilder {
 
   import Sbt._
 
-  private val Scala3RequiredSbtPlugins =
+  @NonNls private val Scala3RequiredSbtPlugins =
     """addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.3.3")
       |""".stripMargin
 
@@ -246,10 +248,10 @@ object SbtModuleBuilder {
   }
 
   private def createProjectTemplateIn(root: File,
-                                      name: String,
-                                      scalaVersion: String,
-                                      sbtVersion: String,
-                                      sbtPlugins: String): Unit = {
+                                      @NonNls name: String,
+                                      @NonNls scalaVersion: String,
+                                      @NonNls sbtVersion: String,
+                                      @NonNls sbtPlugins: String): Unit = {
     val buildFile = root / BuildFile
     val projectDir = root / ProjectDirectory
 

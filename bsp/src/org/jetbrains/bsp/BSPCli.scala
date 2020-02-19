@@ -9,7 +9,6 @@ import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j._
 import com.intellij.mock.{MockApplication, MockLocalFileSystem}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.vfs.impl.VirtualFileManagerImpl
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
@@ -80,7 +79,7 @@ object BSPCli extends App {
           set.loadState(bspSettingsState)
           set.asInstanceOf[T]
         }
-        else super.getComponent(interfaceClass)
+        else super.getService(interfaceClass)
       }
     }
     ApplicationManager.setApplication(application, () => {})
@@ -95,12 +94,12 @@ object BSPCli extends App {
   }
 
   var running = true
-  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), true)
+  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), true, true)
   val bspComm = BspCommunication.forWorkspace(new File(opts.projectPath))
   val resolver = new BspProjectResolver()
   val targets = {
     println("Resolving build targets...")
-    val task = ExternalSystemTaskId.create(new ProjectSystemId("BSP", "bsp"), ExternalSystemTaskType.RESOLVE_PROJECT, opts.projectPath)
+    val task = ExternalSystemTaskId.create(BSP.ProjectSystemId, ExternalSystemTaskType.RESOLVE_PROJECT, opts.projectPath)
     resolver.resolveProjectInfo(task, opts.projectPath, isPreviewMode = false, bspExecSettings, new DummyListener)
     val targets = bspReq(buildTargets)
     println(s"Received ${targets.getTargets.size()} targets:")

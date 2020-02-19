@@ -3,7 +3,9 @@ package org.jetbrains.plugins.scala
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
@@ -22,6 +24,9 @@ package object editor {
 
     def lineEndOffset(offset: Int): Int =
       document.getLineEndOffset(document.getLineNumber(offset))
+
+    def virtualFile: Option[VirtualFile] =
+      Option(FileDocumentManager.getInstance().getFile(document))
   }
 
   implicit class EditorExt(private val editor: Editor) extends AnyVal {
@@ -42,6 +47,11 @@ package object editor {
     }
 
     def inDocComment(offset: Int): Boolean = isTokenType(offset - 1, _.isInstanceOf[ScalaDocElementType])
+
+    def scalaFile: Option[VirtualFile] =
+      Option(editor.getDocument)
+        .flatMap(_.virtualFile)
+        .filter(vFile => vFile.getExtension == ScalaFileType.INSTANCE.getDefaultExtension)
 
     private def isTokenType(offset: Int, predicate: IElementType => Boolean): Boolean = {
       if (0 <= offset && offset < editor.getDocument.getTextLength) {

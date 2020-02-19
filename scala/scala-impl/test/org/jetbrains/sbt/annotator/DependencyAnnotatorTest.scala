@@ -28,14 +28,14 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
     doTest(Seq.empty)
 
   def testAnnotateUnresolvedDep(): Unit = {
-    val msg = SbtBundle("sbt.annotation.unresolvedDependency")
+    val msg = SbtBundle.message("sbt.annotation.unresolvedDependency")
     doTest(Seq(Warning("\"org.jetbrains\"", msg),
       Warning("\"unknown-lib\"", msg),
       Warning("\"0.0.0\"", msg)))
   }
 
   def testAnnotateUnresolvedDepWithDynamicVersion(): Unit = {
-    val msg = SbtBundle("sbt.annotation.unresolvedDependency")
+    val msg = SbtBundle.message("sbt.annotation.unresolvedDependency")
     doTest(Seq(Warning("\"org.jetbrains\"", msg),
       Warning("\"unknown-lib\"", msg),
       Warning("\"latest.release\"", msg)))
@@ -66,13 +66,13 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
     FileUtil.delete(ResolverIndex.getIndexDirectory(root))
   }
 
-  private def doTest(messages: Seq[Message]) {
+  private def doTest(messages: Seq[Message]): Unit = {
     val element = loadTestFile()
     val mock = new AnnotatorHolderMock(element)
     val annotator = new SbtDependencyAnnotator
 
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitLiteral(lit: ScLiteral) {
+      override def visitLiteral(lit: ScLiteral): Unit = {
         annotator.annotate(lit)(mock)
         super.visitLiteral(lit)
       }

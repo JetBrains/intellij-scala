@@ -14,14 +14,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{adjustTypes, nameContext}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
@@ -75,20 +72,12 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
         result.restartCompletionWhenNothingMatches()
 
-        if (!(isInSimpleString ||
-          isInInterpolatedString ||
-          getContextOfType(position, classOf[ScalaFile]) != null)) {
-          return
-        }
+        if (!isInScalaContext(position, isInSimpleString, isInInterpolatedString)) return
 
         val prefixMatcher = result.getPrefixMatcher
         //if prefix is capitalized, class name completion is enabled
         val classNameCompletion = shouldRunClassNameCompletion(dummyPosition, prefixMatcher)(parameters)
-        val lookingForAnnotations: Boolean =
-          position.getContainingFile.findElementAt(position.getTextOffset - 1) match {
-            case null => false
-            case element => element.getNode.getElementType == ScalaTokenTypes.tAT
-          }
+        val annotationsOnly = annotationPattern.accepts(position, context)
 
         position.getContext match {
           case reference: ScReferenceImpl =>
@@ -100,16 +89,17 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             )
 
             import ScalaAfterNewCompletionContributor._
-            lazy val maybeExpectedTypes = expectedTypeAfterNew(position)(context)
+            val maybeExpectedTypes = expectedTypeAfterNew(position, context)
+
             val defaultLookupElements = processor.lookupElements.filter {
               case ScalaLookupItem(_, clazz: PsiClass) =>
                 !classNameCompletion &&
-                  (!lookingForAnnotations || clazz.isAnnotationType)
-              case _ => !lookingForAnnotations
+                  (!annotationsOnly || clazz.isAnnotationType)
+              case _ => !annotationsOnly
             }.map {
               case ScalaLookupItem(item, clazz: PsiClass) =>
-                maybeExpectedTypes.fold(item) { function =>
-                  function(clazz, createRenamePair(item).toMap)
+                maybeExpectedTypes.fold(item: LookupElement) { constructor =>
+                  constructor(clazz).createLookupElement(item.isRenamed)
                 }
               case item => item
             }
@@ -122,7 +112,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
             if (!defaultLookupElements.exists(prefixMatcher.prefixMatches)
               && !classNameCompletion
-              && (lookingForAnnotations || shouldRunClassNameCompletion(dummyPosition, prefixMatcher, checkInvocationCount = false)(parameters))) {
+              && (annotationsOnly || shouldRunClassNameCompletion(dummyPosition, prefixMatcher, checkInvocationCount = false)(parameters))) {
               ScalaClassNameCompletionContributor.completeClassName(dummyPosition, result)(parameters, context)
             }
 
@@ -180,8 +170,8 @@ object ScalaBasicCompletionContributor {
     private val lookupElements_ = mutable.ArrayBuffer.empty[LookupElement]
 
     private val containingClass = Option(getContextOfType(getPlace, classOf[PsiClass]))
-    private val isInImport = getContextOfType(getPlace, classOf[ScImportStmt]) != null
-    private val isInTypeElement = getContextOfType(getPlace, classOf[ScTypeElement]) != null
+    private val isInImport = completion.isInImport(getPlace)
+    private val isInTypeElement = completion.isInTypeElement(getPlace)
     private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReference]
 
     final def lookupElements: Seq[LookupElement] = {
@@ -214,7 +204,7 @@ object ScalaBasicCompletionContributor {
 
     private def isApplicable(element: PsiNamedElement,
                              isNamedParameter: Boolean): Option[Boolean] = element match {
-      case clazz: PsiClass if completion.isExcluded(clazz) => None
+      case clazz: PsiClass if isExcluded(clazz) => None
       case definition: ScTypeDefinition if filterDuplications(definition) => None
       case _: ScClassParameter => Some(false)
       case parameter: ScParameter if !isNamedParameter =>
@@ -250,7 +240,7 @@ object ScalaBasicCompletionContributor {
 
     private def isAccessible(element: PsiNamedElement,
                              isNamedParameter: Boolean): Boolean =
-      completion.regardlessAccessibility(invocationCount) ||
+      regardlessAccessibility(invocationCount) ||
         (element match {
           case method: FakePsiMethod => !method.name.endsWith("_=") // TODO unify! // don't show _= methods for vars in basic completion
           case _: ScClassParameter if isNamedParameter => true

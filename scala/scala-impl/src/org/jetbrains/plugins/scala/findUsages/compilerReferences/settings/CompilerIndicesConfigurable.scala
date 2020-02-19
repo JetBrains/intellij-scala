@@ -38,10 +38,10 @@ object CompilerIndicesConfigurable {
       ApplicationManagerEx.getApplicationEx.restart(true)
 
   private def showRestartDialog(): Int = {
-    val action = IdeBundle.message(
-      if (ApplicationManagerEx.getApplicationEx.isRestartCapable) "ide.restart.action"
-      else                                                        "ide.shutdown.action"
-    )
+    val canRestart = ApplicationManagerEx.getApplicationEx.isRestartCapable
+    val action =
+      if (canRestart) IdeBundle.message("ide.restart.action")
+      else IdeBundle.message("ide.shutdown.action")
     val message = ScalaBundle.message("scala.compiler.indices.restart.required.message", action)
     val title   = ScalaBundle.message("scala.compiler.indices.restart.required.title")
 

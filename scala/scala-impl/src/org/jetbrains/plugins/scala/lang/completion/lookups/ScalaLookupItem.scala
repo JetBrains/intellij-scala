@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala
-package lang.completion.lookups
+package lang
+package completion
+package lookups
 
-import com.intellij.codeInsight.AutoPopupController
-import com.intellij.codeInsight.completion.{CompletionType, InsertionContext}
+import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupItem}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -10,7 +11,6 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction.getI
 import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, PrefixPackageToImport, TypeAliasToImport}
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.InsertionContextExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem.createReferenceToReplace
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -25,9 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelect
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -41,7 +41,7 @@ import scala.annotation.tailrec
  * @author Alefas
  * @since 22.03.12
  */
-class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingClass0: Option[PsiClass] = None) extends {
+final class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingClass0: Option[PsiClass] = None) extends {
   val name: String = if (_name != "this") escapeKeyword(_name) else _name
 } with LookupItem[PsiNamedElement](element, name) {
 
@@ -61,8 +61,6 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var elementToImport: Option[PsiNamedElement] = None
   var classToImport: Option[PsiClass] = None
   var someSmartCompletion: Boolean = false
-  var typeParametersProblem: Boolean = false
-  var typeParameters: Seq[ScType] = Seq.empty
   var bold: Boolean = false
   var etaExpanded: Boolean = false
   var prefixCompletion: Boolean = false
@@ -291,8 +289,10 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
           }
           ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
           newRef.bindToElement(element)
-          if (element.isInstanceOf[ScObject] && isInStableCodeReference) {
-            ScalaLookupItem.scheduleAutoPopup(context)
+          element match {
+            case _: ScObject if isInStableCodeReference =>
+              context.scheduleAutoPopup()
+            case _ =>
           }
         case None =>
           element match {
@@ -346,17 +346,6 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 }
 
 object ScalaLookupItem {
-
-  def scheduleAutoPopup(implicit context: InsertionContext): Unit = {
-    val InsertionContextExt(editor, _, file, project) = context
-    context.setLaterRunnable(() => {
-      AutoPopupController.getInstance(project).scheduleAutoPopup(
-        editor,
-        CompletionType.BASIC,
-        (_: PsiFile) == file
-      )
-    })
-  }
 
   @tailrec
   def delegate(element: LookupElement): LookupElement = element match {

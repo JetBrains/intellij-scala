@@ -11,9 +11,8 @@ import com.intellij.ui.EditorNotifications
 /**
  * @author Pavel Fatin
  */
-//noinspection TypeAnnotation
-final class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorNotifications)
-  extends AbstractNotificationProvider(ScalaBundle.message("sdk.title"), project, notifications) {
+final class SetupScalaSdkNotificationProvider(project: Project)
+  extends AbstractNotificationProvider(ScalaBundle.message("sdk.title"), project) {
 
   override protected def panelText(kitTitle: String): String = s"No $kitTitle in module"
 

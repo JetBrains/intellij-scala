@@ -4,8 +4,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, isUnitTestMode}
+
+import scala.concurrent.duration._
 
 object ScalaHighlightingMode {
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
@@ -30,11 +32,24 @@ object ScalaHighlightingMode {
     !shouldSkip
   }
 
-  private def showDotcErrors: Boolean = Registry.is("dotty.show.compiler.errors.in.editor")
+  def compilationDelay: FiniteDuration =
+    nonNegativeDuration("scala.highlighting.compiler.selected.delay.millis")
 
-  private def showScalacErrors: Boolean = Registry.is("scala.show.compiler.errors.in.editor")
+  def compilationJpsDelay: FiniteDuration =
+    nonNegativeDuration("scala.highlighting.compiler.jps.delay.millis")
 
-  private def hasDotty(project: Project) = project.modulesWithScala.exists(_.hasScala3)
+  private def nonNegativeDuration(key: String): FiniteDuration =
+    Seq(Registry.get(key).asInteger, 0).max.millis
 
-  private def isScala3File(file: PsiFile) = file.getLanguage == Scala3Language.INSTANCE
+  private def showDotcErrors: Boolean =
+    Registry.is("dotty.highlighting.compiler.errors.in.editor")
+
+  private def showScalacErrors: Boolean =
+    Registry.is("scala.highlighting.compiler.errors.in.editor")
+
+  private def hasDotty(project: Project) =
+    project.modulesWithScala.exists(_.hasScala3)
+
+  private def isScala3File(file: PsiFile) =
+    file.getLanguage == Scala3Language.INSTANCE
 }

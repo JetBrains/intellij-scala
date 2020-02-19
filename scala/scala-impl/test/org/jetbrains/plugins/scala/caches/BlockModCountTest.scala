@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.caches
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
@@ -63,7 +64,15 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private def message(description: String, caretOffset: Int, psiOffset: Int) = {
     val elementAtCaret = getFile.findElementAt(caretOffset)
     val psiElement = getFile.findElementAt(psiOffset)
-    s"$description at `${psiElement.getText}` if there was change at `${elementAtCaret.getText}`"
+    s"""$description at `${psiElement.getText}` in `${lineText(psiOffset)}`
+       |if there was change at `${elementAtCaret.getText}` in `${lineText(caretOffset)}`""".stripMargin
+  }
+
+  private def lineText(offset: Int): String = {
+    val document = getEditor.getDocument
+    val line = document.getLineNumber(offset)
+    val range = TextRange.create(document.getLineStartOffset(line), document.getLineEndOffset(line))
+    document.getText(range)
   }
 
   private def modificationCount(element: PsiElement): Long =

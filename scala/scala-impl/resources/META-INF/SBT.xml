@@ -1,26 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-    <module-components>
-        <component>
-            <implementation-class>org.jetbrains.sbt.project.module.SbtModule</implementation-class>
-        </component>
-    </module-components>
-
-    <project-components>
-        <component>
-            <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.sbt.project.notifications.LegacyProjectFormatNotifier</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.sbt.resolvers.SbtIndexesManager</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.sbt.shell.SbtProcessManager</implementation-class>
-        </component>
-    </project-components>
 
     <extensionPoints>
         <extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>
@@ -51,7 +31,6 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtTaskDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtCommandDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
-        <!--<externalProjectDataService implementation="org.jetbrains.plugins.scala.project.migration.ImportedLibrariesService"/>-->
 
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
         <externalSystemViewContributor implementation="org.jetbrains.sbt.project.SbtViewContributor"/>
@@ -60,6 +39,10 @@
         <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.shell.SbtShellCommunication"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.shell.SbtProcessManager"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.language.SbtProjectService"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.resolvers.SbtIndexesManager"/>
+        <moduleService serviceImplementation="org.jetbrains.sbt.project.module.SbtModule"/>
 
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
@@ -90,8 +73,6 @@
         <psi.referenceContributor implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
         <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.SbtNotificationListener"/>
-        <!--<externalSystemTaskNotificationListener-->
-                <!--implementation="org.jetbrains.plugins.scala.project.migration.MigratorsSbtImportListener"/>-->
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
                                 order="first, before liveTemplates" id="sbtCompletionContributor"/>
         <completion.contributor language="Scala"
@@ -117,7 +98,7 @@
         <programRunner implementation="org.jetbrains.sbt.runner.SbtDebugProgramRunner" order="first"/>
 
         <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunner"/>
-        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtStartupActivity"/>
+        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectListener"/>
 
         <runAnything.executionProvider implementation="org.jetbrains.sbt.SbtRunAnythingProvider"/>
 

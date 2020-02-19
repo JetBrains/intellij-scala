@@ -4,8 +4,8 @@ package project.structure
 import java.util
 
 import com.intellij.serialization.PropertyMapping
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{ParsedValue, SeqStringParsedValue, StringParsedValue}
-import org.jetbrains.sbt.RichSeq
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -54,11 +54,11 @@ object Play2Keys {
       keys foreach {
         case str: StringXmlKey =>
           map.put(str.name, str.values.map {
-            case (k, v) => (k, new StringParsedValue(v))
+            case (k, v) => (k, StringParsedValue(v))
           })
         case seqStr: SeqStringXmlKey =>
           map.put(seqStr.name, seqStr.values map {
-            case (k, v) => (k, new SeqStringParsedValue(v))
+            case (k, v) => (k, SeqStringParsedValue(v))
           })
         case _ =>
       }
@@ -91,22 +91,22 @@ object Play2Keys {
 
     class StringParsedKey(name: String) extends ParsedKey[String](name) {
       override def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, String)] = {
-        in(allKeys) map {
-          case vs => vs.toSeq flatMap {
-            case (projectName, projectValue: StringParsedValue) => Some((projectName, projectValue.parsed))
-            case _ => None
-          }
+        in(allKeys) map { vs =>
+            vs.toSeq flatMap {
+              case (projectName, projectValue: StringParsedValue) => Some((projectName, projectValue.parsed))
+              case _ => None
+            }
         } getOrElse Seq.empty
       }
     }
 
-    class SeqStringParsedKey(name: String) extends ParsedKey[Seq[String]](name) {
+    class SeqStringParsedKey(@NonNls name: String) extends ParsedKey[Seq[String]](name) {
       override def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, Seq[String])] = {
-        in(allKeys) map {
-          case vs => vs.toSeq flatMap {
-            case (projectName, projectValue: SeqStringParsedValue) => Some((projectName, projectValue.parsed.asScala))
-            case _ => None
-          }
+        in(allKeys) map { vs =>
+            vs.toSeq flatMap {
+              case (projectName, projectValue: SeqStringParsedValue) => Some((projectName, projectValue.parsed.asScala))
+              case _ => None
+            }
         } getOrElse Seq.empty
       }
     }
@@ -119,7 +119,6 @@ object Play2Keys {
     val ROUTES_IMPORT = new SeqStringParsedKey("playRoutesImports")
 
     val TEST_OPTIONS = new StringParsedKey("testOptions")
-//    val TEMPLATE_FORMATS = "playTemplatesFormats"
 
     val PLAY_CONF_DIR = new StringParsedKey("playConf")
     val SOURCE_DIR = new StringParsedKey("sourceDirectory")

@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 package ml
 
 import java.util
@@ -8,17 +10,18 @@ import com.intellij.codeInsight.completion.ml.{ContextFeatures, ElementFeaturePr
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NotNullLazyKey
+import com.intellij.patterns.{ElementPattern, PlatformPatterns}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider._
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isKeyword
 
 final class ScalaElementFeatureProvider extends ElementFeatureProvider {
 
-  override def getName: String = "scala"
+  override def getName: String = ScalaLowerCase
 
   override def calculateFeatures(element: LookupElement, location: CompletionLocation, contextFeatures: ContextFeatures): util.Map[String, MLFeatureValue] = {
 
@@ -75,13 +78,14 @@ object ScalaElementFeatureProvider {
     positionFromParameters(location.getCompletionParameters)
   })
 
-  private val ExpectedTypeAndNameWords = NotNullLazyKey.create[(Array[String],  Array[String]), CompletionLocation]("scala.feature.element.expected.type.and.name.words", location => {
+  private val ExpectedTypeAndNameWords = NotNullLazyKey.create[(Array[String], Array[String]), CompletionLocation]("scala.feature.element.expected.type.and.name.words", location => {
     val position = Position.getValue(location)
-    val expressionOption = definitionByPosition(position, ScalaAfterNewCompletionContributor.isAfterNew(position))
 
-    val expectedTypeAndName = expressionOption
-      .flatMap(_.expectedTypeEx())
-      .map { case (expectedType, typeElement) => expectedType -> expectedName(typeElement) }
+    val expectedTypeAndName = definitionByPosition(position).flatMap {
+      _.expectedTypeEx()
+    }.map {
+      case (expectedType, typeElement) => expectedType -> expectedName(typeElement)
+    }
 
     val expectedType = expectedTypeAndName.map(_._1)
     val expetedName = expectedTypeAndName.flatMap(_._2).orElse(expectedName(Option(position)))
@@ -91,15 +95,22 @@ object ScalaElementFeatureProvider {
 
   private val Context = NotNullLazyKey.create[util.HashMap[String, MLFeatureValue], CompletionLocation]("scala.feature.element.context", location => {
     val position = Position.getValue(location)
-
-    val contextFeatures = new util.HashMap[String, MLFeatureValue]
+    val processingContext = location.getProcessingContext
 
     // theses features should be moved to context after IntellijIdeaRulezzz fix
 
-    contextFeatures.put("postfix", MLFeatureValue.binary(isPostfix(Option(position))))
-    contextFeatures.put("type_expected", MLFeatureValue.binary(ScalaAfterNewCompletionContributor.isInTypeElement(position, Some(location))))
-    contextFeatures.put("after_new", MLFeatureValue.binary(ScalaAfterNewCompletionContributor.isAfterNew(position)))
-    contextFeatures.put("inside_catch", MLFeatureValue.binary(isInsideCatch(Option(position))))
+    val contextFeatures = new util.HashMap[String, MLFeatureValue]
+
+    def put(kind: String, pattern: ElementPattern[_ <: PsiElement]): Unit =
+      contextFeatures.put(
+        kind,
+        MLFeatureValue.binary(pattern.accepts(position, processingContext))
+      )
+
+    put("postfix", identifierWithParentsPattern(classOf[ScReferenceExpression], classOf[ScPostfixExpr]))
+    put("type_expected", insideTypePattern)
+    put("after_new", afterNewKeywordPattern)
+    put("inside_catch", PlatformPatterns.psiElement.inside(classOf[ScCatchBlock]))
 
     contextFeatures
   })

@@ -20,8 +20,20 @@ final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
     element.getParent match {
       case function: ScFunctionDefinition if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         val references = function.recursiveReferencesGrouped
-        if (references.tailRecursionOnly) createLineMarkerInfo(TAIL_RECURSION, "method.is.tail.recursive", function.nameId)
-        else if (!references.noRecursion) createLineMarkerInfo(RECURSION, "method.is.recursive", function.nameId)
+        if (references.tailRecursionOnly) {
+          createLineMarkerInfo(
+            TAIL_RECURSION,
+            ScalaBundle.message("method.is.tail.recursive", _),
+            function.nameId
+          )
+        }
+        else if (!references.noRecursion) {
+          createLineMarkerInfo(
+            RECURSION,
+            ScalaBundle.message("method.is.recursive", _),
+            function.nameId
+          )
+        }
         else null
       case _ => null
     }
@@ -31,12 +43,12 @@ final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
 }
 
 object RecursiveCallLineMarkerProvider {
-  private def createLineMarkerInfo(icon: Icon, key: String, element: PsiElement): LineMarkerInfo[PsiElement] =
+  private def createLineMarkerInfo(icon: Icon, psiElemToTooltip: String => String, element: PsiElement): LineMarkerInfo[PsiElement] =
     new LineMarkerInfo(
       element,
       element.getTextRange,
       icon,
-      (e: PsiElement) => ScalaBundle.message(key, e.getText),
+      (e: PsiElement) => psiElemToTooltip(e.getText),
       null,
       Alignment.LEFT
     )

@@ -48,8 +48,8 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
   override def deleted(module: File): Unit =
     publishEvent(DeletedEvent(module))
 
-  override def compilationEnd(): Unit =
-    publishEvent(CompilationEndEvent())
+  override def compilationEnd(sources: Set[File]): Unit =
+    publishEvent(CompilationEndEvent(sources))
 
   override def processingEnd(): Unit =
     publishEvent(ProcessingEndEvent())

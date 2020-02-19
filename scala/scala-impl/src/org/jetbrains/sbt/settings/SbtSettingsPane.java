@@ -14,6 +14,7 @@ import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.jetbrains.sbt.SbtBundle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +35,7 @@ public class SbtSettingsPane {
     private JPanel myContentPanel;
     private JrePathEditor myJrePathEditor;
 
-    private Project myProject;
+    private final Project myProject;
 
     public SbtSettingsPane(Project project) {
 
@@ -57,7 +58,10 @@ public class SbtSettingsPane {
     // TODO: this is a workaround to fix SCL-8059 non-working "..." buttons
     // Investigation needed to find out why path listeners are being removed.
     public void setPathListeners() {
-        myLauncherPath.addBrowseFolderListener("Choose a Custom Launcher", "Choose sbt-launch.jar", null,
+        myLauncherPath.addBrowseFolderListener(
+                SbtBundle.message("sbt.settings.choose.custom.launcher"),
+                SbtBundle.message("sbt.settings.choose.sbt.launch.jar"),
+                null,
                 FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
     }
 

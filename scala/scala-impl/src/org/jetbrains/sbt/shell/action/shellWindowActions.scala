@@ -22,6 +22,7 @@ import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import javax.swing.{Icon, KeyStroke}
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellToolWindowFactory}
 
@@ -41,7 +42,7 @@ class StartAction(project: Project) extends DumbAwareAction {
 
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Execute)
-  templatePresentation.setText("Start sbt shell") // TODO i18n / language-bundle
+  templatePresentation.setText(SbtBundle.message("sbt.shell.start"))
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
@@ -57,10 +58,10 @@ class StartAction(project: Project) extends DumbAwareAction {
     val presentation = e.getPresentation
     if (shellAlive(project)) {
       presentation.setIcon(AllIcons.Actions.Restart)
-      presentation.setText("Restart sbt shell")
+      presentation.setText(SbtBundle.message("sbt.shell.restart"))
     } else {
       presentation.setIcon(AllIcons.Actions.Execute)
-      presentation.setText("Start sbt shell")
+      presentation.setText(SbtBundle.message("sbt.shell.start"))
     }
   }
 
@@ -70,7 +71,7 @@ class StopAction(project: Project) extends DumbAwareAction {
   copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_STOP_PROGRAM))
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Suspend)
-  templatePresentation.setText("Stop sbt shell") // TODO i18n / language-bundle
+  templatePresentation.setText(SbtBundle.message("sbt.shell.stop"))
   templatePresentation.setDescription(null: String)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
@@ -91,7 +92,7 @@ class StopAction(project: Project) extends DumbAwareAction {
 class ExecuteTaskAction(console: LanguageConsoleView, task: String, icon: Option[Icon]) extends DumbAwareAction {
 
   getTemplatePresentation.setIcon(icon.orNull)
-  getTemplatePresentation.setText(s"Execute $task")
+  getTemplatePresentation.setText(SbtBundle.message("sbt.shell.execute.task", task))
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     // TODO execute with indicator
@@ -110,7 +111,8 @@ class EOFAction(project: Project) extends DumbAwareAction {
 
   private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.TraceOver) // TODO sensible icon
-  templatePresentation.setText("Ctrl+D EOF")
+  templatePresentation.setText(SbtBundle.message("sbt.shell.ctrl.d.eof"))
+  //noinspection ScalaExtractStringToBundle
   templatePresentation.setDescription("")
 
   private val ctrlD = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK)
@@ -136,14 +138,14 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
   private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.StartDebugger)
   if (remoteConnection.isDefined) {
-    templatePresentation.setText("Attach debugger to sbt shell")
+    templatePresentation.setText(SbtBundle.message("sbt.shell.attach.debugger"))
     templatePresentation.setEnabled(false)
   } else {
-    templatePresentation.setText("Enable sbt shell debugging in sbt settings and restart shell to attach debugging")
+    templatePresentation.setText(SbtBundle.message("sbt.shell.enable.debugging.in.sbt.settings"))
   }
 
   private val configType = new RemoteConfigurationType
-  private val configName = "Debug sbt shell"
+  private val configName = SbtBundle.message("sbt.shell.debug")
 
   override def setSelected(e: AnActionEvent, toSet: Boolean): Unit = {
     val active = isSelected(e)

@@ -7,7 +7,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.content.{ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 
 /**
   * User: Dmitry.Naydanov
@@ -76,7 +75,6 @@ object WorksheetCompilerUtil {
         }
 
       contentManager.setSelectedContent(currentContent)
-      MigrationApiImpl.openMessageView(project, currentContent, treeError)
 
       onShow()
     }

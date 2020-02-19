@@ -1,13 +1,19 @@
 package org.jetbrains.plugins.scala
 package hierarchy
 
+
 import com.intellij.ide.hierarchy.HierarchyBrowser
 import com.intellij.ide.hierarchy.`type`.JavaTypeHierarchyProvider
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-class ScalaTypeHierarchyProvider extends JavaTypeHierarchyProvider {
 
+
+/**
+ * User: Alexander Podkhalyuzin
+ * Date: 09.06.2009
+ */
+class ScalaTypeHierarchyProvider extends JavaTypeHierarchyProvider {
   override def createHierarchyBrowser(target: PsiElement): HierarchyBrowser = {
     target match {
       case clazz: ScTypeDefinition =>

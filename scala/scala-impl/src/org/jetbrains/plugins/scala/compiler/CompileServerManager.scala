@@ -7,9 +7,9 @@ import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.IconLoader
@@ -25,24 +25,25 @@ import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 /**
  * @author Pavel Fatin
  */
-final class CompileServerManager(project: Project) extends ProjectComponent {
+final class CompileServerManager(project: Project) extends Disposable {
 
   private val IconRunning = Icons.COMPILE_SERVER
   private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
   private val timer = new Timer(1000, TimerListener)
+  private var installed = false
 
-  override def getComponentName: String = getClass.getSimpleName
 
-  override def projectOpened() {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
+  { // init
+    if (! ApplicationManager.getApplication.isUnitTestMode) {
 
-    configureWidget()
-    timer.setRepeats(true)
-    timer.start()
+      configureWidget()
+      timer.setRepeats(true)
+      timer.start()
+    }
   }
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
     configureWidget()
@@ -55,7 +56,6 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
 
   private def running: Boolean = launcher.running
 
-  private var installed = false
 
   private def launcher = CompileServerLauncher
 
@@ -169,7 +169,7 @@ object CompileServerManager {
 
   def configureWidget(project: Project): Unit = {
     if (!project.isDisposed) {
-      val instance = project.getComponent(classOf[CompileServerManager])
+      val instance = project.getService(classOf[CompileServerManager])
       instance.configureWidget()
     }
   }

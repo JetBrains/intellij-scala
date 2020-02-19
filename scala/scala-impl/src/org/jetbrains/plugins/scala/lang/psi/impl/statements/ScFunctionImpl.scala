@@ -179,6 +179,8 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   def hasParameterClause: Boolean = ScFunctionImpl.hasParameterClauseImpl(this)
 
+  def parameterListCount: Int = paramClauses.clauses.length
+
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def effectiveParameterClauses: Seq[ScParameterClause] = {
     val maybeOwner = if (isConstructor) {

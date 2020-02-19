@@ -129,17 +129,17 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     virtualFile
   )
 
-  protected def changePsiAt(offset: Int): Unit = {
-    invokeAndWait {
-      getEditor.getCaretModel.moveToOffset(offset)
-      myFixture.`type`('a')
-      commitDocument()
-      myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
-      commitDocument()
-    }
+  protected def changePsiAt(offset: Int): Unit = invokeAndWait {
+    getEditor.getCaretModel.moveToOffset(offset)
+    myFixture.`type`('a')
+    commitDocumentInEditor()
+    myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
+    commitDocumentInEditor()
   }
 
-  private def commitDocument(): Unit = PsiDocumentManager.getInstance(getProject).commitDocument(getEditor.getDocument)
+  protected final def commitDocumentInEditor(): Unit =
+    PsiDocumentManager.getInstance(getProject)
+      .commitDocument(getEditor.getDocument)
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {

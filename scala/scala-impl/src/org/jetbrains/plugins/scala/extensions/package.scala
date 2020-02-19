@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala
 import java.io.Closeable
 import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
+import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
 import java.util.regex.Pattern
@@ -1207,9 +1208,9 @@ package object extensions {
 
   /** Create a PartialFunction from a sequence of cases. Workaround for pattern matcher bug */
   def pf[A, B](cases: PartialFunction[A, B]*): PartialFunction[A, B] = new PartialFunction[A, B] {
-    def isDefinedAt(x: A): Boolean = cases.exists(_.isDefinedAt(x))
+    override def isDefinedAt(x: A): Boolean = cases.exists(_.isDefinedAt(x))
 
-    def apply(v1: A): B = {
+    override def apply(v1: A): B = {
       val it = cases.iterator
       while (it.hasNext) {
         val caze = it.next()
@@ -1386,5 +1387,12 @@ package object extensions {
 
   implicit class HighlightInfoExt(private val info: HighlightInfo) extends AnyVal {
     def range: TextRange = TextRange.create(info.startOffset, info.endOffset)
+  }
+
+  implicit class PathExt(private val path: Path) extends AnyVal {
+    def parents: Iterator[Path] =
+      withParents.drop(1)
+    def withParents: Iterator[Path] =
+      Iterator.iterate(path)(_.getParent).takeWhile(_ != null)
   }
 }

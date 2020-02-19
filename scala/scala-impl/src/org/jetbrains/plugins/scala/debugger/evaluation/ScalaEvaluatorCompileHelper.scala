@@ -5,8 +5,8 @@ import java.io.File
 
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -23,7 +23,7 @@ import scala.collection.mutable.ListBuffer
  * Nikolay.Tropin
  * 2014-10-07
  */
-class ScalaEvaluatorCompileHelper(project: Project) extends ProjectComponent with EvaluatorCompileHelper {
+class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with EvaluatorCompileHelper {
 
   private val tempFiles = mutable.Set[File]()
 
@@ -43,13 +43,11 @@ class ScalaEvaluatorCompileHelper(project: Project) extends ProjectComponent wit
     }
   }
 
-  override def projectOpened(): Unit = {
-    if (!ApplicationManager.getApplication.isUnitTestMode) {
-      DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
-    }
+  if (!ApplicationManager.getApplication.isUnitTestMode) {
+    DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
   }
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener)
   }
 
@@ -100,7 +98,8 @@ class ScalaEvaluatorCompileHelper(project: Project) extends ProjectComponent wit
 }
 
 object ScalaEvaluatorCompileHelper {
-  def instance(project: Project): ScalaEvaluatorCompileHelper = project.getComponent(classOf[ScalaEvaluatorCompileHelper])
+  def instance(project: Project): ScalaEvaluatorCompileHelper =
+    project.getService(classOf[ScalaEvaluatorCompileHelper])
 }
 
 

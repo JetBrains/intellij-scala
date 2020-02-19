@@ -20,10 +20,8 @@
                            order="first"/>
     </extensions>
 
-    <project-components>
-    </project-components>
-
     <actions>
+        <!--suppress PluginXmlCapitalization -->
         <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"
                 text="Convert to Scala" description="Convert Java to Scala">
             <add-to-group group-id="RefactoringMenu" anchor="last"/>

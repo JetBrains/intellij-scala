@@ -134,7 +134,7 @@ class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
       PsiTestUtil.removeSourceRoot(getModuleAdapter, rootDirBefore)
     }
     settings.MOVE_COMPANION = moveCompanionOld
-    getProjectAdapter.getComponent(classOf[PostprocessReformattingAspect]).doPostponedFormatting()
+    PostprocessReformattingAspect.getInstance(getProjectAdapter).doPostponedFormatting()
     PlatformTestUtil.assertDirectoriesEqual(rootDirAfter, rootDirBefore)
   }
 

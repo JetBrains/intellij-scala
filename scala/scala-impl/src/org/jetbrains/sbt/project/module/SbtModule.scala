@@ -5,6 +5,7 @@ import java.net.URI
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.module.Module
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 import scala.beans.BeanProperty
@@ -17,20 +18,20 @@ object SbtModule {
 
   // substitution of dollars is necessary because IDEA will interpret a string in the form of $something$ as a path variable
   // and warn the user of "undefined path variables" (SCL-10691)
-  private val SubstitutePrefix = "SUB:"
-  private val SubstituteDollar = "DOLLAR"
+  @NonNls private val SubstitutePrefix = "SUB:"
+  @NonNls private val SubstituteDollar = "DOLLAR"
 
   @Deprecated
-  private val ImportsKey = "sbt.imports"
+  @NonNls private val ImportsKey = "sbt.imports"
 
   @Deprecated
-  private val Delimiter = ", "
+  @NonNls private val Delimiter = ", "
 
   @Deprecated
-  private val ResolversKey = "sbt.resolvers"
+  @NonNls private val ResolversKey = "sbt.resolvers"
 
   private def getState(module: Module): SbtModuleState =
-    module.getComponent(classOf[SbtModule]).getState
+    module.getService(classOf[SbtModule]).getState
 
   object Build {
 
@@ -93,9 +94,9 @@ object SbtModule {
 
 @State(
   name = "SbtModule",
-  storages = Array(new Storage(StoragePathMacros.MODULE_FILE))
+  storages = Array(new Storage(value = StoragePathMacros.MODULE_FILE, roamingType = RoamingType.DISABLED))
 )
-class SbtModule extends PersistentStateComponent[SbtModuleState] {
+final class SbtModule extends PersistentStateComponent[SbtModuleState] {
 
   @BeanProperty
   var myState: SbtModuleState = new SbtModuleState()

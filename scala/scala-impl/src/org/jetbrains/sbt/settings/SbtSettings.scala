@@ -21,13 +21,12 @@ import scala.beans.BeanProperty
 
 @State(
   name = "ScalaSbtSettings",
-  storages = Array(new Storage("sbt.xml")),
+  storages = Array(new Storage(value = "sbt.xml", roamingType = RoamingType.DISABLED)),
   reportStatistic = true
 )
-class SbtSettings(project: Project)
+final class SbtSettings(project: Project)
   extends AbstractExternalSystemSettings[SbtSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtTopic, project)
   with PersistentStateComponent[SbtSettings.State] {
-
 
   @BeanProperty var customLauncherEnabled: Boolean = false
   @BeanProperty var customLauncherPath: String = ""

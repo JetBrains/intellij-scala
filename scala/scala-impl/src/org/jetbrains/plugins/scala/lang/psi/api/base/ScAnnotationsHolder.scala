@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
+import scala.annotation.tailrec
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 10.01.2009
@@ -31,7 +33,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
   override def hasAnnotation(qualifiedName: String): Boolean = annotations(qualifiedName).nonEmpty
 
   def annotations(qualifiedName: String): Seq[ScAnnotation] = {
-    @scala.annotation.tailrec
+    @tailrec
     def acceptType(scType: ScType): Boolean = scType match {
       case ScDesignatorType(clazz: PsiClass) =>
         clazz.qualifiedName == qualifiedName
@@ -50,7 +52,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
     annotations.filter(checkTypeName)
   }
 
-  def addAnnotation(qualifiedName: String): PsiAnnotation = {
+  override def addAnnotation(qualifiedName: String): PsiAnnotation = {
     val container = findChildByClassScala(classOf[ScAnnotations])
 
     val added = container.add(createAnAnnotation(qualifiedName))
@@ -60,10 +62,11 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
     added.asInstanceOf[PsiAnnotation]
   }
 
-  def findAnnotation(qualifiedName: String): PsiAnnotation =
+  override def findAnnotation(qualifiedName: String): PsiAnnotation =
     annotations(qualifiedName).headOption.orNull
 
   def findAnnotationNoAliases(qualifiedName: String): PsiAnnotation = {
+    @tailrec
     def sameName(te: ScTypeElement): Boolean = te match {
       case simple: ScSimpleTypeElement =>
         simple.reference exists {
@@ -77,7 +80,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
     annotations.find(hasSameName).orNull
   }
 
-  def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix
+  override def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix
 
-  def psiAnnotations: Array[PsiAnnotation] = annotations.toArray
+  override def psiAnnotations: Array[PsiAnnotation] = annotations.toArray
 }

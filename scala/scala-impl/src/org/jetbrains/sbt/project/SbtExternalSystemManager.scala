@@ -5,21 +5,20 @@ import java.io.File
 
 import com.intellij.diagnostic.PluginException
 import com.intellij.execution.configurations.SimpleJavaParameters
-import com.intellij.openapi.application.{ApplicationManager, PathManager}
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectSystemId}
 import com.intellij.openapi.externalSystem.util._
 import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemManager}
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, JdkUtil, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Pair, SystemInfo}
-import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.util.Function
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.android.sdk.AndroidSdkType
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
@@ -102,25 +101,12 @@ object SbtExternalSystemManager {
     jdkInProject.orElse(jdkInImportSettings)
   }
 
-  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File =
-      if (!ApplicationManager.getApplication.isUnitTestMode)
-        getRealVmExecutable(projectJdkName, settings)
-      else
-        getUnitTestVmExecutable
-
-  private def getUnitTestVmExecutable: File = {
-    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
-    val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17 else internalSdk
-    val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
-    new File(sdkType.getVMExecutablePath(sdk))
-  }
-
-  private def getRealVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File = {
+  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File = {
 
     val customPath = settings.getCustomVMPath
     val customVmExecutable =
       if (settings.customVMEnabled && JdkUtil.checkForJre(customPath)) {
-        val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
+        @NonNls val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
         Some(new File(customPath) / "bin" / javaExe)
       } else None
 
@@ -133,7 +119,7 @@ object SbtExternalSystemManager {
               new File(sdkType.getVMExecutablePath(sdk))
             case _ =>
               // ugh
-              throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
+              throw new ExternalSystemException(SbtBundle.message("sbt.import.noProjectJvmFound"))
           }
         }
     }
@@ -145,7 +131,7 @@ object SbtExternalSystemManager {
         }
     }
     .getOrElse {
-      throw new ExternalSystemException(SbtBundle("sbt.import.noCustomJvmFound"))
+      throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))
     }
 
     // workaround for https://youtrack.jetbrains.com/issue/IDEA-188247
@@ -171,10 +157,10 @@ object SbtExternalSystemManager {
       }.getOrElse(Map.empty)
 
   private def getVmOptions(settings: SbtSettings.State, jreHome: Option[File]): Seq[String] = {
-    val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
+    @NonNls val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
 
-    val maxHeapSizeString = settings.getMaximumHeapSize.trim
-    val maxHeapOptions =
+    @NonNls val maxHeapSizeString = settings.getMaximumHeapSize.trim
+    @NonNls val maxHeapOptions =
       if (maxHeapSizeString.nonEmpty) {
         val maxHeapSize =
           JvmMemorySize.parse(maxHeapSizeString + "M")
@@ -247,8 +233,8 @@ object SbtExternalSystemManager {
       options.exists(_.startsWith(s"$prefix="))
   }
 
-  object DefaultOptions {
-    case class JvmOption(key: String, value: String)
+  private[project] object DefaultOptions {
+    final case class JvmOption(@NonNls key: String, @NonNls value: String)
 
     val fileEncoding: JvmOption = JvmOption("-Dfile.encoding", "UTF-8")
     val maxPermSize: JvmOption = JvmOption("-XX:MaxPermSize", "256M")

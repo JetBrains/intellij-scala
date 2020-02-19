@@ -63,20 +63,21 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
       override def isVisible: Boolean = true
 
       // TODO move to the implemenation of testing support
-      override def getComparator: Comparator[_] = new Comparator[AnyRef] {
-        override def compare(o1: AnyRef, o2: AnyRef): Int =
-          (o1, o2) match {
-            case (_: Test, _: Test) => 0
-            case (_, _: Test) => -1
-            case (_: Test, _) => 1
-            case _ => SorterUtil.getStringPresentation(o1).compareToIgnoreCase(SorterUtil.getStringPresentation(o2))
-          }
-      }
+      override def getComparator: Comparator[_] =
+        (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
+          case (_: Test, _: Test) => 0
+          case (_, _: Test) => -1
+          case (_: Test, _) => 1
+          case _ => SorterUtil.getStringPresentation(o1).compareToIgnoreCase(SorterUtil.getStringPresentation(o2))
+        }
 
       override def getName: String = "ALPHA_SORTER_IGNORING_TEST_NODES"
 
-      override def getPresentation: ActionPresentation = new ActionPresentationData(IdeBundle.message("action.sort" +
-          ".alphabetically"), IdeBundle.message("action.sort.alphabetically"), AllIcons.ObjectBrowser.Sorted)
+      override def getPresentation: ActionPresentation = new ActionPresentationData(
+        IdeBundle.message("action.sort.alphabetically"),
+        IdeBundle.message("action.sort.alphabetically"),
+        AllIcons.ObjectBrowser.Sorted
+      )
     }
     res(1) = new Sorter() {
       override def isVisible: Boolean = false

@@ -7,13 +7,11 @@ import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable, LibraryTablesRegistrar}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.JarFileSystem
@@ -22,7 +20,6 @@ import com.intellij.util.messages.Topic
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.libextensions.ui._
-import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.module.SbtModule
@@ -34,7 +31,7 @@ import scala.util.{Failure, Success, Try}
 import scala.xml.factory.XMLLoader
 import scala.xml.{Elem, SAXParser}
 
-class LibraryExtensionsManager(project: Project) extends ProjectComponent {
+final class LibraryExtensionsManager(project: Project) {
   import LibraryExtensionsManager._
 
   private val EXT_JARS_KEY = "extensionJars"
@@ -46,6 +43,15 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
 
   private val myExtensionInstances  = mutable.HashMap[Class[_], mutable.ArrayBuffer[Any]]()
   private val myLoadedLibraries     = mutable.ArrayBuffer[ExtensionJarData]()
+
+  { // init
+    ApplicationManager.getApplication.getMessageBus
+      .syncPublisher(Notifications.TOPIC)
+      .register(PopupHelper.GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
+    if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions)
+      loadCachedExtensions()
+    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(LibraryListener, project)
+  }
 
   private object XMLNoDTD extends XMLLoader[Elem] {
     override def parser: SAXParser = {
@@ -75,15 +81,6 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
           accessed.set(false)
         }
     }
-  }
-
-  override def projectOpened(): Unit = {
-    ApplicationManager.getApplication.getMessageBus
-      .syncPublisher(Notifications.TOPIC)
-      .register(PopupHelper.GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
-    if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions)
-      loadCachedExtensions()
-    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(LibraryListener, project)
   }
 
   def setEnabled(value: Boolean): Unit = {
@@ -168,7 +165,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
         val ExtensionDescriptor(interface, impl, _, _, _) = e
         val myInterface = classLoader.loadClass(interface)
         val myImpl = classLoader.loadClass(defaultPackage + impl)
-        val myInstance = myImpl.newInstance()
+        val myInstance = myImpl.getConstructor().newInstance()
         classBuffer.getOrElseUpdate(myInterface, mutable.ArrayBuffer.empty) += myInstance
       }
     }
@@ -177,7 +174,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
         myExtensionInstances.getOrElseUpdate(k, mutable.ArrayBuffer.empty) ++= v
     }
 
-    myLoadedLibraries    +=  ExtensionJarData(descriptor, jarFile, classBuffer.toMap)
+    myLoadedLibraries +=  ExtensionJarData(descriptor, jarFile, classBuffer.toMap)
   }
 
   private def saveCachedExtensions(): Unit = {
@@ -230,11 +227,12 @@ object LibraryExtensionsManager {
   private[libextensions] val MANIFEST_PATH      = "META-INF/intellij-compat.xml"
   private[libextensions] val PROPS_NAME         = "intellij-compat.json"
 
-  def getInstance(project: Project): LibraryExtensionsManager = project.getComponent(classOf[LibraryExtensionsManager])
+  def getInstance(project: Project): LibraryExtensionsManager =
+    project.getService(classOf[LibraryExtensionsManager])
 
   //noinspection TypeAnnotation
   val MOD_TRACKER = new ModificationTracker {
-    private var modCount = 0l
+    private var modCount = 0L
     def incModCount(): Unit = modCount += 1
     override def getModificationCount: Long = modCount
   }

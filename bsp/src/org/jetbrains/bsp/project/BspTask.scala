@@ -12,34 +12,33 @@ import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.task.ProjectTaskRunner
 import mercator._
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
+import org.jetbrains.bsp.BspBundle
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.{BspTarget, TextCollector}
+import org.jetbrains.bsp.protocol.BspJob.CancelCheck
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
-import org.jetbrains.concurrency.AsyncPromise
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
+import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, BuildToolWindowReporter, IndicatorReporter}
 
-import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.concurrent.duration._
-import scala.concurrent.{Await, TimeoutException}
+import scala.concurrent.{Future, Promise}
 import scala.util.control.NonFatal
-import scala.util.{Failure, Try}
 
 class BspTask[T](project: Project,
                  targets: Iterable[BspTarget],
-                 targetsToClean: Iterable[BspTarget],
-                 promise: AsyncPromise[ProjectTaskRunner.Result]
+                 targetsToClean: Iterable[BspTarget]
                 )
-    extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+    extends Task.Backgroundable(project, BspBundle.message("bsp.task.build"), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
-  private val report = new BuildToolWindowReporter(project, bspTaskId, "bsp build")
+  private val resultPromise: Promise[BuildMessages] = Promise()
+  private val report = new BuildToolWindowReporter(
+    project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise))
 
   private val diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
@@ -71,6 +70,16 @@ class BspTask[T](project: Project,
     report.log(message)
   }
 
+  def resultFuture: Future[BuildMessages] = resultPromise.future
+
+  override def onThrowable(error: Throwable): Unit = {
+    resultPromise.failure(error)
+  }
+
+  override def onCancel(): Unit = {
+    resultPromise.failure(new ProcessCanceledException())
+  }
+
   override def run(indicator: ProgressIndicator): Unit = {
     val reportIndicator = new IndicatorReporter(indicator)
 
@@ -91,8 +100,10 @@ class BspTask[T](project: Project,
         processLog(report))
     }
 
+    val cancelToken = new CancelCheck(resultPromise, indicator)
+
     val combinedMessages = buildJobs
-      .traverse(waitForJobCancelable(_, indicator))
+      .traverse(BspJob.waitForJobCancelable(_, cancelToken))
       .map { compileResults =>
         val updatedMessages = compileResults.map(r => messagesWithStatus(report, reportIndicator, r._1, r._2))
         updatedMessages.fold(BuildMessages.empty) { (m1, m2) => m1.combine(m2) }
@@ -107,7 +118,7 @@ class BspTask[T](project: Project,
       .getOrElse{
         BuildMessages.empty
           .status(BuildMessages.Error)
-          .addError(s"Build failed: unknown reason")
+          .addError(BspBundle.message("bsp.task.build.failed.unknown.reason"))
       }
 
 
@@ -125,7 +136,7 @@ class BspTask[T](project: Project,
       reportIndicator.finish(combinedMessages)
     }
 
-    promise.setResult(combinedMessages.toTaskRunnerResult)
+    resultPromise.success(combinedMessages)
   }
 
   private def messagesWithStatus(report: BuildTaskReporter,
@@ -167,31 +178,18 @@ class BspTask[T](project: Project,
     }
   }
 
-
-  @tailrec private def waitForJobCancelable[R](job: BspJob[R], indicator: ProgressIndicator): Try[R] =
-    try {
-      indicator.checkCanceled()
-      val res = Await.result(job.future, 300.millis)
-      Try(res)
-    } catch {
-      case _ : TimeoutException => waitForJobCancelable(job, indicator)
-      case cancel : ProcessCanceledException =>
-        job.cancel()
-        Failure(cancel)
-    }
-
   private def buildRequests(targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget])
                            (implicit server: BspServer, capabilities: BuildServerCapabilities) = {
     if (targetsToClean.isEmpty) compileRequest(targets)
     else {
       cleanRequest(targetsToClean)
       .exceptionally { err =>
-        new CleanCacheResult(s"server does not support cleaning build cache (${err.getMessage})", false)
+        new CleanCacheResult(BspBundle.message("bsp.task.server.does.not.support.cleaning.build.cache", err.getMessage), false)
       }
       .thenCompose { cleaned =>
         if (cleaned.getCleaned) compileRequest(targets)
         else {
-          report.error("targets not cleaned, rebuild cancelled: " + cleaned.getMessage, None)
+          report.error(BspBundle.message("bsp.task.targets.not.cleaned", cleaned.getMessage), None)
           val res = new CompileResult(StatusCode.CANCELLED)
           val future = new CompletableFuture[CompileResult]()
           future.complete(res)
@@ -309,7 +307,7 @@ class BspTask[T](project: Project,
       case StatusCode.ERROR =>
         new FailureResultImpl(params.getMessage, null)
       case otherCode =>
-        new FailureResultImpl(s"unknown status code $otherCode", null)
+        new FailureResultImpl(BspBundle.message("bsp.task.unknown.status.code", otherCode), null)
     }
 
     report.finishTask(id, params.getMessage, result, time)
@@ -317,6 +315,7 @@ class BspTask[T](project: Project,
 }
 
 object BspTask {
+
   private class TextCollector extends ColoredTextAcceptor {
     private val builder = StringBuilder.newBuilder
 

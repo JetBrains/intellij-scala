@@ -133,6 +133,7 @@ object RunWorksheetAction {
     Log.debugSafe(s"worksheet file: ${vFile.getPath}")
 
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
+
     if (viewer != null && !WorksheetFileSettings.isRepl(file)) {
       invokeAndWait(ModalityState.any()) {
         inWriteAction {
@@ -177,7 +178,7 @@ object RunWorksheetAction {
     if (makeBeforeRun) {
       val compilerNotification: CompileStatusNotification =
         (aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) => {
-          val finishedWithError = aborted && errors != 0
+          val finishedWithError = aborted || errors != 0
           if (!finishedWithError) {
             runnable()
           } else {

@@ -12,8 +12,8 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
 
   import IntegerLiteralCheckTest._
 
-  private val OverflowIntPattern = BundleMessagePattern("integer.literal.is.out.of.range")
-  private val OverflowLongPattern = BundleMessagePattern("long.literal.is.out.of.range")
+  private val OverflowIntPattern = BundleMessagePattern(ScalaBundle.message("integer.literal.is.out.of.range"))
+  private val OverflowLongPattern = BundleMessagePattern(ScalaBundle.message("long.literal.is.out.of.range"))
 
   def testFine(): Unit = {
     val intStrings = (PredefinedInts ++ randomInts)
@@ -87,7 +87,7 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
 
   private object OptionalWarning {
 
-    private val LowerCaseLongMarkerPattern = BundleMessagePattern("lowercase.long.marker")
+    private val LowerCaseLongMarkerPattern = BundleMessagePattern(ScalaBundle.message("lowercase.long.marker"))
 
     def unapply(list: List[Message]): Boolean = list match {
       case Nil => true

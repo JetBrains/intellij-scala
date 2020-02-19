@@ -2,9 +2,10 @@ package org.jetbrains.sbt
 package project.structure
 
 import java.io.File
-import scala.collection.JavaConverters._
 
+import scala.collection.JavaConverters._
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.annotations.NonNls
 
 /**
   * Support for the .sbtopts file loaded by the sbt launcher script as alternative to command line options.
@@ -19,11 +20,11 @@ object SbtOpts {
       Seq.empty
   }
 
-  private val noShareOpts  = "-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory=project/.boot -Dsbt.ivy.home=project/.ivy"
-  private val noGlobalOpts = "-Dsbt.global.base=project/.sbtboot"
-  private val debuggerOpts = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address="
+  @NonNls private val noShareOpts  = "-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory=project/.boot -Dsbt.ivy.home=project/.ivy"
+  @NonNls private val noGlobalOpts = "-Dsbt.global.base=project/.sbtboot"
+  @NonNls private val debuggerOpts = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address="
 
-  private val sbtToJdkOpts: Map[String, String] = Map(
+  @NonNls private val sbtToJdkOpts: Map[String, String] = Map(
     "-sbt-boot" -> "-Dsbt.boot.directory=",
     "-sbt-dir" -> "-Dsbt.global.base=",
     "-ivy" -> "-Dsbt.ivy.home=",
