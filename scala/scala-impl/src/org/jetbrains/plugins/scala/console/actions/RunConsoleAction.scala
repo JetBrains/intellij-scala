@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.extensions.inReadAction
@@ -18,6 +19,8 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 class RunConsoleAction extends AnAction with RunConsoleAction.RunActionBase[ScalaConsoleConfigurationType] {
+
+  override protected def getNewSettingName: String = ScalaBundle.message("scala.console.actions.scala.repl")
 
   override def update(e: AnActionEvent): Unit = {
     if (e.getProject == null || e.getProject.isDisposed) return
@@ -38,12 +41,11 @@ class RunConsoleAction extends AnAction with RunConsoleAction.RunActionBase[Scal
 
   override protected def getMyConfigurationType: ScalaConsoleConfigurationType =
     ConfigurationTypeUtil.findConfigurationType(classOf[ScalaConsoleConfigurationType])
-
-  override protected def getNewSettingName: String = "Scala REPL"
 }
 
 object RunConsoleAction {
-  private def runFromSetting(setting: RunnerAndConfigurationSettings, runManagerEx: RunManagerEx, project: Project) {
+
+  private def runFromSetting(setting: RunnerAndConfigurationSettings, runManagerEx: RunManagerEx, project: Project): Unit = {
     val configuration = setting.getConfiguration
     runManagerEx.setTemporaryConfiguration(setting)
     val runExecutor = DefaultRunExecutor.getRunExecutorInstance

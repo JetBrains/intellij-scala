@@ -9,23 +9,18 @@ import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
- * @author Ksenia.Sautina
- * @since 7/25/12
- */
-
 class SendSelectionToConsoleAction extends AnAction {
 
-  override def update(e: AnActionEvent) {
+  override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
     presentation.setIcon(Icons.SCALA_CONSOLE)
 
-    def enable() {
+    def enable(): Unit = {
       presentation.setEnabled(true)
       presentation.setVisible(true)
     }
 
-    def disable() {
+    def disable(): Unit = {
       presentation.setEnabled(false)
       presentation.setVisible(false)
     }
@@ -68,7 +63,7 @@ class SendSelectionToConsoleAction extends AnAction {
     }
   }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     val editor = CommonDataKeys.EDITOR.getData(context)
     val project = CommonDataKeys.PROJECT.getData(context)
@@ -79,7 +74,7 @@ class SendSelectionToConsoleAction extends AnAction {
     if (console != null) sendSelection(console, selectedText)
   }
 
-  def sendSelection(console: ScalaLanguageConsole, text: String) {
+  def sendSelection(console: ScalaLanguageConsole, text: String): Unit = {
     val consoleEditor = console.getConsoleEditor
     val controller = ScalaConsoleInfo.getController(console.getProject)
     val processHandler = ScalaConsoleInfo.getProcessHandler(console.getProject)

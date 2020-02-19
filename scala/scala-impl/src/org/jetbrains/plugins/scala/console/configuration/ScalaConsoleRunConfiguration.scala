@@ -19,6 +19,7 @@ import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.JlineResolveResult._
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
 import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaLanguageConsoleView}
@@ -48,7 +49,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
 
   private def getModule: Option[Module] = Option(getConfigurationModule.getModule)
 
-  private def requireModule: Module = getModule.getOrElse(throw new ExecutionException("Module is not specified"))
+  private def requireModule: Module = getModule.getOrElse(throw new ExecutionException(ScalaBundle.message("scala.console.config.module.is.not.specified")))
 
   override protected def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
 
@@ -151,16 +152,14 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     }
 
   private def showJLineMissingNotification(module: Module): Unit = {
-    val message = {
+    val message: String = {
       import JLineFinder.JLineJarName
       import ScalaLanguageConsoleView.ScalaConsole
-      val sdkName = module.scalaSdk.safeMap(_.getName).getOrElse("<unknown sdk>")
-      s"""$ScalaConsole requires $JLineJarName to run
-         |Please add it to `$sdkName` compiler classpath
-         |""".stripMargin.trim.replaceAll("\n", "<br>")
+      val sdkName = module.scalaSdk.safeMap(_.getName).getOrElse(ScalaBundle.message("scala.console.config.unknown.sdk"))
+      ScalaBundle.message("scala.console.config.scala.console.requires.jline", ScalaConsole, JLineJarName, sdkName).replaceAll("\n", "<br>")
     }
 
-    val goToSdkSettingsAction = new NotificationAction("&Configure Scala SDK classpath") {
+    val goToSdkSettingsAction = new NotificationAction(ScalaBundle.message("scala.console.configure.scala.sdk.classpath")) {
       override def startInTransaction: Boolean = true
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
         notification.expire()

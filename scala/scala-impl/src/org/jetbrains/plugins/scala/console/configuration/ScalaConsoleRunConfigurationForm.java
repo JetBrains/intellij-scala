@@ -10,14 +10,13 @@ import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.Method;
+import java.util.ResourceBundle;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 10.02.2009
- */
 @SuppressWarnings(value = "unchecked")
 public class ScalaConsoleRunConfigurationForm {
 
@@ -27,20 +26,18 @@ public class ScalaConsoleRunConfigurationForm {
   private TextFieldWithBrowseButton workingDirectoryField;
   private JComboBox moduleComboBox;
 
-  private ConfigurationModuleSelector myModuleSelector;
+  private final ConfigurationModuleSelector myModuleSelector;
 
   public ScalaConsoleRunConfigurationForm(final Project project,
                                           final ScalaConsoleRunConfiguration configuration) {
     myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
     myModuleSelector.reset(configuration);
     moduleComboBox.setEnabled(true);
-    javaOptionsEditor.setName("VM options");
-    javaOptionsEditor.setDialogCaption("VM options editor");
+    javaOptionsEditor.setName(ScalaBundle.message("scala.console.config.vm.options"));
     javaOptionsEditor.setText("-Djline.terminal=NONE");
-    consoleArgsEditor.setName("Console arguments");
-    consoleArgsEditor.setDialogCaption("Console arguments editor");
+    consoleArgsEditor.setName(ScalaBundle.message("scala.console.config.console.arguments"));
     consoleArgsEditor.setText("-usejavacp");
-    addFileChooser("Choose Working Directory", workingDirectoryField, project);
+    addFileChooser(ScalaBundle.message("scala.console.config.test.run.config.choose.working.directory"), workingDirectoryField, project);
     VirtualFile baseDir = project.getBaseDir();
     String path = baseDir != null ? baseDir.getPath() : "";
     workingDirectoryField.setText(path);
@@ -120,27 +117,71 @@ public class ScalaConsoleRunConfigurationForm {
     final Spacer spacer1 = new Spacer();
     myPanel.add(spacer1, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final JLabel label1 = new JLabel();
-    label1.setText("VM options:");
+    this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scala.console.config.vm.options"));
     myPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     javaOptionsEditor = new RawCommandLineEditor();
     javaOptionsEditor.setText("-Djline.terminal=NONE");
     myPanel.add(javaOptionsEditor, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label2 = new JLabel();
-    label2.setText("Console arguments:");
+    this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scala.console.config.console.arguments"));
     myPanel.add(label2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     consoleArgsEditor = new RawCommandLineEditor();
     consoleArgsEditor.setText("-usejavacp");
     myPanel.add(consoleArgsEditor, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label3 = new JLabel();
-    label3.setText("Working directory:");
+    this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scala.console.config.working.directory"));
     myPanel.add(label3, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     workingDirectoryField = new TextFieldWithBrowseButton();
     myPanel.add(workingDirectoryField, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label4 = new JLabel();
-    label4.setText("Use classpath and SDK of module:");
+    this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "scala.console.config.use.classpath.and.sdk.of.module"));
     myPanel.add(label4, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     moduleComboBox = new JComboBox();
     myPanel.add(moduleComboBox, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+  }
+
+  private static Method $$$cachedGetBundleMethod$$$ = null;
+
+  private String $$$getMessageFromBundle$$$(String path, String key) {
+    ResourceBundle bundle;
+    try {
+      Class<?> thisClass = this.getClass();
+      if ($$$cachedGetBundleMethod$$$ == null) {
+        Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+        $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+      }
+      bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+    } catch (Exception e) {
+      bundle = ResourceBundle.getBundle(path);
+    }
+    return bundle.getString(key);
+  }
+
+  /**
+   * @noinspection ALL
+   */
+  private void $$$loadLabelText$$$(JLabel component, String text) {
+    StringBuffer result = new StringBuffer();
+    boolean haveMnemonic = false;
+    char mnemonic = '\0';
+    int mnemonicIndex = -1;
+    for (int i = 0; i < text.length(); i++) {
+      if (text.charAt(i) == '&') {
+        i++;
+        if (i == text.length()) break;
+        if (!haveMnemonic && text.charAt(i) != '&') {
+          haveMnemonic = true;
+          mnemonic = text.charAt(i);
+          mnemonicIndex = result.length();
+        }
+      }
+      result.append(text.charAt(i));
+    }
+    component.setText(result.toString());
+    if (haveMnemonic) {
+      component.setDisplayedMnemonic(mnemonic);
+      component.setDisplayedMnemonicIndex(mnemonicIndex);
+    }
   }
 
   /**
@@ -149,4 +190,5 @@ public class ScalaConsoleRunConfigurationForm {
   public JComponent $$$getRootComponent$$$() {
     return myPanel;
   }
+
 }
