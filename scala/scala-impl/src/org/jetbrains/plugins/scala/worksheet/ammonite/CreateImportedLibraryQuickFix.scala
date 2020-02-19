@@ -3,37 +3,32 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 import com.intellij.codeInspection.LocalQuickFixOnPsiElement
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.{LibraryTable, LibraryTablesRegistrar}
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ModuleStructureConfigurable
 import com.intellij.openapi.roots.ui.configuration.projectRoot.daemon.ModuleProjectStructureElement
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 29.08.17.
-  */
 class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends LocalQuickFixOnPsiElement(myPsi) {
-  override def getText: String = "Create library from jar..."
+  override def getText: String = ScalaBundle.message("ammonite.create.library.from.jar")
 
   override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
     def selectLibName(stableExpr: ScStableCodeReference, table: LibraryTable): String = {
       val refName = AmmoniteUtil.extractLibInfo(stableExpr).map(AmmoniteUtil.convertLibName).getOrElse(stableExpr.refName)
       var name = refName
       var count = 2
-      
+
       while (table.getLibraryByName(name) != null) { //weird, but possible
         name = s"$refName ($count)"
         count += 1
       }
-        
+
       name
     }
-    
-    
+
+
     myPsi match {
       case stableExpr: ScStableCodeReference =>
         AmmoniteUtil.findJarRoot(stableExpr).foreach {
@@ -62,9 +57,9 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
                   )
               }
             }
-            
+
         }
-      case _ => 
+      case _ =>
     }
   }
 

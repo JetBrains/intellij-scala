@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration
 
 import java.io.{File, IOException}
+
 import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
 import javax.swing.{BoxLayout, JComponent, JPanel}
-
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters.TextConsoleBuilderImpl
@@ -20,13 +20,10 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.RawCommandLineEditor
 import org.jdom.Element
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder
 import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.{AmmNotFoundException, MyEditor}
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 12.09.17.
-  */
 class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) extends
   RunConfigurationBase[Element](project, factory, AmmoniteRunConfiguration.AMMONITE_RUN_NAME) {
 
@@ -229,7 +226,7 @@ object AmmoniteRunConfiguration {
 
     private def createFileBrowser: TextFieldWithBrowseButton = {
       val fileBrowser = new TextFieldWithBrowseButton()
-      fileBrowser.addBrowseFolderListener("Select...", "", null, new FileChooserDescriptor(true, false, true, true, false, false))
+      fileBrowser.addBrowseFolderListener(ScalaBundle.message("ammonite.config.select"), null, null, new FileChooserDescriptor(true, false, true, true, false, false))
       fileBrowser
     }
   }

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerProfilesPanel
 import scala.collection.JavaConverters._
 
 class ShowCompilerProfileSettingsButton(form: WorksheetSettingsSetForm)
-  extends AnAction(ScalaBundle.message("worksheet.show.compiler.profiles.settings"), "", AllIcons.General.Settings) {
+  extends AnAction(ScalaBundle.message("worksheet.show.compiler.profiles.settings"), null, AllIcons.General.Settings) {
 
   override def actionPerformed(anActionEvent: AnActionEvent): Unit = {
     val project = anActionEvent.getProject

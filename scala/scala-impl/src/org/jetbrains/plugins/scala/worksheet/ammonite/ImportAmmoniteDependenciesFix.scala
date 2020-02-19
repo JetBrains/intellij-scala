@@ -40,10 +40,10 @@ object ImportAmmoniteDependenciesFix {
            (implicit project: Project): Unit = {
     val manager = ProgressManager.getInstance
 
-    val task = new Task.Backgroundable(project, "Adding dependencies", false) {
+    val task = new Task.Backgroundable(project, ScalaBundle.message("ammonite.adding.dependencies.title"), false) {
 
       override def run(indicator: ProgressIndicator): Unit = {
-        indicator.setText("Ammonite: loading list of versions...")
+        indicator.setText(ScalaBundle.message("ammonite.loading.list.of.versions"))
 
         val (forScala, predicate) = ScalaUtil.getScalaVersion(file)
           .fold(
@@ -60,7 +60,7 @@ object ImportAmmoniteDependenciesFix {
 
         val (scalaVersion, ammoniteVersion) = detectAmmoniteVersion(forScala)
 
-        indicator.setText("Ammonite: extracting info from SBT...")
+        indicator.setText(ScalaBundle.message("ammonite.extracting.info.from.sbt"))
 
         val files = mutable.ListBuffer.empty[File]
         val e = new AmmoniteUtil.RegexExtractor
@@ -77,7 +77,7 @@ object ImportAmmoniteDependenciesFix {
               case _ =>
             }
           case mre"[success]$_" =>
-            indicator.setText("Ammonite: adding dependencies...")
+            indicator.setText(ScalaBundle.message("ammonite.adding.dependencies"))
 
             ScalaUtil.getModuleForFile(file.getVirtualFile).foreach { module =>
               invokeLater {
@@ -130,7 +130,7 @@ object ImportAmmoniteDependenciesFix {
     ProgressIndicatorProvider.getGlobalProgressIndicator match {
       case null => new BackgroundableProcessIndicator(
         project,
-        "Ammonite",
+        ScalaBundle.message("ammonite.config.display.name"),
         PerformInBackgroundOption.ALWAYS_BACKGROUND,
         null,
         null,
