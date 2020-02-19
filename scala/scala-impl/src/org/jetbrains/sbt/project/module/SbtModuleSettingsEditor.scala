@@ -54,7 +54,8 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     modelWrapper.getModel.replaceAll(Imports(module).asJava)
 
     myForm.resolversTable.setModel(new ResolversModel(resolvers, state.getProject))
-    myForm.resolversTable.setRowSelectionInterval(0, 0)
+    if (myForm.resolversTable.getRowCount > 0)
+      myForm.resolversTable.setRowSelectionInterval(0, 0)
     myForm.resolversTable.getColumnModel.getColumn(0).setPreferredWidth(50)
     myForm.resolversTable.getColumnModel.getColumn(1).setPreferredWidth(400)
     myForm.resolversTable.getColumnModel.getColumn(2).setPreferredWidth(30)
