@@ -80,11 +80,11 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
   private class ScalaPsiSearchHelper(project: Project)
     extends PsiSearchHelperImpl(project) {
 
-    override def processFilesWithText(scope: GlobalSearchScope,
-                                      searchContext: Short,
-                                      caseSensitively: Boolean,
-                                      text: String,
-                                      processor: Processor[_ >: VirtualFile]): Boolean = {
+    override def processCandidateFilesForText(scope: GlobalSearchScope,
+                                              searchContext: Short,
+                                              caseSensitively: Boolean,
+                                              text: String,
+                                              processor: Processor[_ >: VirtualFile]): Boolean = {
       if (!ScalaNamesValidator.isIdentifier(text)) return true
 
       val entries = ju.Collections.singletonList(new IdIndexEntry(text, caseSensitively))
