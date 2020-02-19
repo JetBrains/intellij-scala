@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.action.ExternalSystemNodeAction
 import com.intellij.openapi.externalSystem.model.{ExternalSystemDataKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.view.ModuleNode
 import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtNamedKey, SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import SbtNodeAction._
@@ -48,29 +48,43 @@ abstract class SbtCommandAction extends SbtNodeAction[SbtCommandData](classOf[Sb
   * Created by jast on 2017-02-13.
   */
 class RunTaskAction extends SbtTaskAction {
+  setText(SbtBundle.message("sbt.shell.action.run.task"))
+  setDescription(SbtBundle.message("sbt.shell.action.run.task.description"))
   override def buildCmd(project: String, key: String): String = scopedKey(project,key)
 }
 
 class ShowTaskAction extends SbtTaskAction {
+  setText(SbtBundle.message("sbt.shell.action.show.task"))
+  setDescription(SbtBundle.message("sbt.shell.action.show.task.description"))
   override def buildCmd(project: String, key: String): String = s"show ${scopedKey(project,key)}"
 }
 
 class InspectTaskAction extends SbtTaskAction {
+  setText(SbtBundle.message("sbt.shell.action.inspect.task"))
+  setDescription(SbtBundle.message("sbt.shell.action.inspect.task.description"))
   override def buildCmd(project: String, key: String): String = s"inspect ${scopedKey(project,key)}"
 }
 
 class ShowSettingAction extends SbtSettingAction {
+  setText(SbtBundle.message("sbt.shell.action.show.setting"))
+  setDescription(SbtBundle.message("sbt.shell.action.show.setting.description"))
   override def buildCmd(project: String, key: String): String = scopedKey(project,key)
 }
 
 class InspectSettingAction extends SbtSettingAction {
+  setText(SbtBundle.message("sbt.shell.action.inspect.setting"))
+  setDescription(SbtBundle.message("sbt.shell.action.inspect.setting.description"))
   override def buildCmd(project: String, key: String): String = s"inspect ${scopedKey(project,key)}"
 }
 
 class RunCommandAction extends SbtCommandAction {
+  setText(SbtBundle.message("sbt.shell.action.run.command"))
+  setDescription(SbtBundle.message("sbt.shell.action.run.command.description"))
   override def buildCmd(project: String, key: String): String = s";project $project; $key"
 }
 
 class SbtHelpAction extends SbtNodeAction[SbtNamedKey](classOf[SbtNamedKey]) {
+  setText(SbtBundle.message("sbt.shell.action.help"))
+  setDescription(SbtBundle.message("sbt.shell.action.help.description"))
   override def buildCmd(project: String, key: String): String = s"help $key"
 }
