@@ -33,7 +33,7 @@ object CacheTracker {
     cache
   }
 
-  def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String)(cache: Cache): Cache = {
+  def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: => String, name: => String)(cache: Cache): Cache = {
     if (isEnabled) track(cacheTypeId, name, cache, alwaysTrack = false)
     cache
   }

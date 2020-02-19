@@ -20,7 +20,7 @@ import scala.reflect.macros.whitebox
  * Author: Svyatoslav Ilinskiy
  * Date: 9/18/15.
  */
-class Cached(dependencyItem: Object, psiElement: Any) extends StaticAnnotation {
+class Cached(dependencyItem: Object, psiElement: Any, trackedExpressions: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro Cached.cachedImpl
 }
 
@@ -32,18 +32,18 @@ object Cached {
 
     def abort(message: String) = c.abort(c.enclosingPosition, message)
 
-    def parameters: (Tree, Tree) = {
+    def parameters: (Tree, Tree, Seq[Tree]) = {
       c.prefix.tree match {
-        case q"new Cached(..$params)" if params.length == 2 =>
-          val Seq(depItem, psiElement, _*) = params.map(_.asInstanceOf[c.universe.Tree])
+        case q"new Cached(..$params)" if params.length >= 2 =>
+          val Seq(depItem, psiElement, tracked @ _*) = params.map(_.asInstanceOf[c.universe.Tree])
           val modTracker = modCountParamToModTracker(c)(depItem, psiElement)
-          (modTracker, psiElement)
+          (modTracker, psiElement, tracked)
         case _ => abort("Wrong parameters")
       }
     }
 
     //annotation parameters
-    val (modTracker, psiElement) = parameters
+    val (modTracker, psiElement, trackedExprs) = parameters
 
     annottees.toList match {
       case (dd@DefDef(mods, nameTerm, tpParams, paramss, retTp, rhs)) :: Nil =>
@@ -56,7 +56,7 @@ object Cached {
         val tracerName = generateTermName(name, "$tracer")
         val cacheName = withClassName(nameTerm)
 
-        val keyId = c.freshName(name + "$cacheKey")
+        val keyId = stringLiteral(name + "$cacheKey")
 
         val mapAndCounterRef = generateTermName(name, "$mapAndCounter")
         val timestampedDataRef = generateTermName(name,  "$valueAndCounter")
@@ -119,7 +119,7 @@ object Cached {
 
              val currModCount = $modTracker.getModificationCount()
 
-             val $tracerName = $internalTracer($keyId, $cacheName)
+             val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
              $tracerName.invocation()
 
              val key = (..$paramNames)
@@ -191,7 +191,7 @@ object Cached {
 
                val currModCount = $modTracker.getModificationCount()
 
-               val $tracerName = $internalTracer($keyId, $cacheName)
+               val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
                $tracerName.invocation()
 
                val timestamped = $timestampedDataRef.get

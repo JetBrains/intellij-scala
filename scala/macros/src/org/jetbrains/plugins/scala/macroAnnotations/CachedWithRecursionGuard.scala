@@ -16,7 +16,7 @@ import scala.reflect.macros.whitebox
  * Author: Svyatoslav Ilinskiy, Nikolay.Tropin
  * Date: 9/28/15.
  */
-class CachedWithRecursionGuard(element: Any, defaultValue: => Any, dependecyItem: Object) extends StaticAnnotation {
+class CachedWithRecursionGuard(element: Any, defaultValue: => Any, dependecyItem: Object, tracked: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithRecursionGuard.cachedWithRecursionGuardImpl
 }
 
@@ -26,16 +26,16 @@ object CachedWithRecursionGuard {
     import c.universe._
     implicit val x: c.type = c
 
-    def parameters: (Tree, Tree, Tree) = c.prefix.tree match {
-      case q"new CachedWithRecursionGuard(..$params)" if params.length == 3 =>
-        (params.head, params(1), modCountParamToModTracker(c)(params(2), params.head))
+    def parameters: (Tree, Tree, Tree, Seq[Tree]) = c.prefix.tree match {
+      case q"new CachedWithRecursionGuard(..$params)" if params.length >= 3 =>
+        (params.head, params(1), modCountParamToModTracker(c)(params(2), params.head), params.drop(3))
       case _ => abort("Wrong annotation parameters!")
     }
 
-    val (element, defaultValue, modTracker) = parameters
+    val (element, defaultValue, modTracker, trackedExprs) = parameters
 
     annottees.toList match {
-      case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+      case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
         preventCacheModeParameter(c)(paramss)
         if (retTp.isEmpty) {
           abort("You must specify return type")
@@ -53,9 +53,10 @@ object CachedWithRecursionGuard {
         val elementType = psiElementType
 
         //generated names
-        val keyId = c.freshName(name.toString + "$cacheKey")
+        val name = c.freshName(termName)
+        val keyId = stringLiteral(name + "$cacheKey")
         val tracerName = generateTermName(name.toString, "$tracer")
-        val cacheName = withClassName(name)
+        val cacheName = withClassName(termName)
         val guard = generateTermName(name.toString, "guard")
         val defValueName = generateTermName(name.toString, "defaultValue")
         val elemName = generateTermName(name.toString, "element")
@@ -100,7 +101,7 @@ object CachedWithRecursionGuard {
           val $keyVarName = ${getOrCreateKey(c, hasParams)(q"$keyId", dataType, resultType)}
           def $defValueName: $resultType = $defaultValue
 
-          val $tracerName = $internalTracer($keyId, $cacheName)
+          val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
           $tracerName.invocation()
 
           val $holderName = $getOrCreateCachedHolder
@@ -120,7 +121,7 @@ object CachedWithRecursionGuard {
           }
           """
 
-        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
+        val updatedDef = DefDef(mods, termName, tpParams, paramss, retTp, updatedRhs)
 
         debug(updatedDef)
 

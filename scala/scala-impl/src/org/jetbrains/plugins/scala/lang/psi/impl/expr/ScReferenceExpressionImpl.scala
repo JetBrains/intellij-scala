@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, Measure, ModCount}
 
 import scala.collection.mutable
 
@@ -60,6 +60,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     maybeAssignment = Some(statement)
   }
 
+  @Measure(refName, incomplete)
   override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
     maybeAssignment.fold(multiResolveImpl(incomplete)) {
       _.resolveAssignment.toArray

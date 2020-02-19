@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.caches.stats.Tracer.{currentTracers, root, roundToMillis}
 
-class Tracer(val id: String, val name: String) {
+class Tracer private (val id: String, val name: String) {
 
   private val invocationCounter       = new AtomicInteger(0)
   private val actualCounter           = new AtomicInteger(0)
@@ -114,6 +114,21 @@ object Tracer {
     override def getCurrentData: Nothing = ???
   }
 
+  class DoubleTracer(first: Tracer, second: Tracer) {
+    def invocation(): Unit = {
+      first.invocation()
+      second.invocation()
+    }
+    def calculationStart(): Unit = {
+      first.calculationStart()
+      second.calculationStart()
+    }
+    def calculationEnd(): Unit = {
+      first.calculationEnd()
+      second.calculationEnd()
+    }
+  }
+
   private val tracingProperty = System.getProperty("internal.profiler.tracing") == "true"
 
   final val BEFORE_CACHE_READ: Int = 0
@@ -136,6 +151,10 @@ object Tracer {
   def apply(id: String, name: String): Tracer =
     if (isEnabled) tracersMap.computeIfAbsent(id, new Tracer(_, name))
     else NoOp
+
+  def apply(id: String, name: String, secondId: => String, secondName: => String): DoubleTracer = {
+    new DoubleTracer(Tracer(id, name), Tracer(secondId, secondName))
+  }
 
   def clearAll(): Unit =
     tracersMap.clear()

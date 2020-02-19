@@ -76,10 +76,40 @@ object CachedMacroUtil {
     tq"_root_.com.intellij.openapi.util.Key"
   }
 
-  def internalTracer(implicit c: whitebox.Context): c.universe.Tree = {
+  private def internalTracer(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     q"_root_.org.jetbrains.plugins.scala.caches.stats.Tracer"
   }
+
+  def internalTracerInstance(c: whitebox.Context)(cacheKey: c.universe.Tree, cacheName: c.universe.Tree, trackedExprs: Seq[c.universe.Tree]): c.universe.Tree = {
+    implicit val ctx: c.type = c
+    import c.universe.Quasiquote
+
+    if (trackedExprs.nonEmpty) {
+      val tracingSuffix = expressionsWithValuesText(c)(trackedExprs)
+      val tracingKeyId = q"$cacheKey + $tracingSuffix"
+      val tracingKeyName = q"$cacheName + $tracingSuffix"
+      q"$internalTracer($cacheKey, $cacheName, $tracingKeyId, $tracingKeyName)"
+    }
+    else q"$internalTracer($cacheKey, $cacheName)"
+
+
+  }
+
+  private def expressionsWithValuesText(c: whitebox.Context)(trees: Seq[c.universe.Tree]): c.universe.Tree = {
+    import c.universe.Quasiquote
+
+    val textTrees = trees.map(p => q"""" " + ${p.toString} + " == " + $p.toString""")
+    val concatenation = textTrees match {
+      case Seq(t) => q"$t"
+      case ts     =>
+        def concat(t1: c.universe.Tree, t2: c.universe.Tree) = q"""$t1 + "," + $t2"""
+        q"${ts.reduce((t1, t2) => concat(t1, t2))}"
+    }
+
+    concatenation
+  }
+
 
   def recursionGuardFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote

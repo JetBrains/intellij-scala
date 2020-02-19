@@ -20,7 +20,8 @@ import scala.reflect.macros.whitebox
   * Date: 10/20/15.
   */
 class CachedWithoutModificationCount(valueWrapper: ValueWrapper,
-                                     addToBuffer: ArrayBuffer[_ <: java.util.Map[_ <: Any , _ <: Any]]*) extends StaticAnnotation {
+                                     addToBuffer: ArrayBuffer[_ <: java.util.Map[_ <: Any , _ <: Any]],
+                                     tracked: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithoutModificationCount.cachedWithoutModificationCountImpl
 }
 
@@ -30,7 +31,7 @@ object CachedWithoutModificationCount {
     import c.universe._
     implicit val x: c.type = c
 
-    def parameters: (ValueWrapper, List[Tree]) = {
+    def parameters: (ValueWrapper, Tree, Seq[Tree]) = {
       @tailrec
       def valueWrapperParam(valueWrapper: Tree): ValueWrapper = valueWrapper match {
         case q"valueWrapper = $v" => valueWrapperParam(v)
@@ -41,29 +42,30 @@ object CachedWithoutModificationCount {
       c.prefix.tree match {
         case q"new CachedWithoutModificationCount(..$params)" if params.nonEmpty =>
           val valueWrapper = valueWrapperParam(params.head)
-          val buffers: List[Tree] = params.drop(1)
-          (valueWrapper, buffers)
+          val buffers = params(1)
+          (valueWrapper, buffers, params.drop(2))
         case _ => abort("Wrong parameters")
       }
     }
 
     //annotation parameters
-    val (valueWrapper, buffersToAddTo) = parameters
+    val (valueWrapper, bufferToAddTo, trackedExprs) = parameters
 
     annottees.toList match {
-      case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+      case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
         preventCacheModeParameter(c)(paramss)
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
         //generated names
-        val cacheVarName = c.freshName(name)
+        val name = c.freshName(termName)
+        val cacheName = withClassName(termName)
+        val cacheVarName = name
         val mapName = generateTermName(name.toString, "map")
         val computedValue = generateTermName(name.toString, "computedValue")
         val tracerName = generateTermName(name.toString, "$tracer")
-        val cacheName = withClassName(name)
 
-        val keyId = c.freshName(name.toString + "cacheKey")
+        val keyId = stringLiteral(name + "cacheKey")
 
         //DefDef parameters
         val flatParams = paramss.flatten
@@ -77,13 +79,12 @@ object CachedWithoutModificationCount {
           case ValueWrapper.SofterReference => tq"_root_.com.intellij.util.SofterReference[$retTp]"
         }
 
-        val addToBuffers = buffersToAddTo.map { buffer =>
-          q"$buffer += $mapName"
-        }
+        val addToBuffers = q"$bufferToAddTo += $mapName"
+
         val fields = if (hasParameters) {
           q"""
             private val $mapName = new java.util.concurrent.ConcurrentHashMap[(..${flatParams.map(_.tpt)}), $wrappedRetTp]()
-            ..$addToBuffers
+            $addToBuffers
           """
         } else {
           q"""
@@ -126,7 +127,7 @@ object CachedWithoutModificationCount {
           q"""
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
 
-            val $tracerName = $internalTracer($keyId, $cacheName)
+            val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
             $tracerName.invocation()
 
             val resultFromCache = $getFromCache
@@ -148,7 +149,7 @@ object CachedWithoutModificationCount {
             else resultFromCache
           """
 
-        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, functionContents)
+        val updatedDef = DefDef(mods, termName, tpParams, paramss, retTp, functionContents)
         val res =
           q"""
           ..$fields

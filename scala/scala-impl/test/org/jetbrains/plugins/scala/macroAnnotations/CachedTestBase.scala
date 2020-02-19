@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
-import com.intellij.mock.MockPsiManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiModificationTrackerImpl
