@@ -14,6 +14,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Computable, Pair => IdeaPair}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.util.{PathUtil, Function => IdeaFunction}
+import annotations.NonNls
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -24,33 +25,30 @@ import scala.reflect.ClassTag
  * @author Pavel Fatin
  */
 package object sbt {
-  implicit def toIdeaFunction1[A, B](f: A => B): IdeaFunction[A, B] = new IdeaFunction[A, B] {
-    def fun(a: A): B = f(a)
-  }
+  implicit def toIdeaFunction1[A, B](f: A => B): IdeaFunction[A, B] =
+    (a: A) => f(a)
 
-  implicit def toIdeaPredicate[A](f: A => Boolean): IdeaFunction[A, JavaBoolean] = new IdeaFunction[A, JavaBoolean] {
-    def fun(a: A): JavaBoolean = JavaBoolean.valueOf(f(a))
-  }
+  implicit def toIdeaPredicate[A](f: A => Boolean): IdeaFunction[A, JavaBoolean] =
+    (a: A) => JavaBoolean.valueOf(f(a))
 
-  implicit def toIdeaFunction2[A, B, C](f: (A, B) => C): IdeaFunction[IdeaPair[A, B], C] = new IdeaFunction[IdeaPair[A, B], C] {
-    def fun(pair: IdeaPair[A, B]): C = f(pair.getFirst, pair.getSecond)
-  }
+  implicit def toIdeaFunction2[A, B, C](f: (A, B) => C): IdeaFunction[IdeaPair[A, B], C] =
+    (pair: IdeaPair[A, B]) => f(pair.getFirst, pair.getSecond)
 
   implicit class RichFile(private val file: File) {
 
-    def /(path: String): File = new File(file, path)
+    def /(@NonNls path: String): File = new File(file, path)
 
     def `<<`: File = <<(1)
 
     def `<<`(level: Int): File = RichFile.parent(file, level)
 
-    def name: String = file.getName
+    @NonNls def name: String = file.getName
 
-    def path: String = file.getPath
+    @NonNls def path: String = file.getPath
 
-    def absolutePath: String = file.getAbsolutePath
+    @NonNls def absolutePath: String = file.getAbsolutePath
 
-    def canonicalPath: String = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
+    @NonNls def canonicalPath: String = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
 
     def canonicalFile: File = new File(canonicalPath)
 
@@ -95,11 +93,11 @@ package object sbt {
   }
 
   implicit class RichVirtualFile(private val entry: VirtualFile) extends AnyVal {
-    def containsDirectory(name: String): Boolean = find(name).exists(_.isDirectory)
+    def containsDirectory(@NonNls name: String): Boolean = find(name).exists(_.isDirectory)
 
-    def containsFile(name: String): Boolean = find(name).exists(_.isFile)
+    def containsFile(@NonNls name: String): Boolean = find(name).exists(_.isFile)
 
-    def find(name: String): Option[VirtualFile] = Option(entry.findChild(name))
+    def find(@NonNls name: String): Option[VirtualFile] = Option(entry.findChild(name))
 
     def isFile: Boolean = !entry.isDirectory
   }
@@ -177,7 +175,7 @@ package object sbt {
     }
   }
 
-  def usingTempFile[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
+  def usingTempFile[T](@NonNls prefix: String, suffix: Option[String] = None)(block: File => T): T = {
     val file = FileUtil.createTempFile(prefix, suffix.orNull, true)
     try {
       block(file)
@@ -188,7 +186,7 @@ package object sbt {
 
   private val NameWithExtension = """(.+)(\..+?)""".r
 
-  private def parse(fileName: String): (String, String) = fileName match {
+  private def parse(@NonNls fileName: String): (String, String) = fileName match {
     case NameWithExtension(name, extension) => (name, extension)
     case name => (name, "")
   }
@@ -199,7 +197,7 @@ package object sbt {
     })
   }
 
-  def isIdeaPluginEnabled(id: String): Boolean = {
+  def isIdeaPluginEnabled(@NonNls id: String): Boolean = {
     import plugins.scala.extensions.ToNullSafe
     PluginId.findId(id).nullSafe
       .map(PluginManagerCore.getPlugin)

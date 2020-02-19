@@ -4,6 +4,7 @@ package annotator
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleType}
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -37,7 +38,7 @@ class SbtDependencyAnnotator extends Annotator {
     }
 
   private def doAnnotate(element: PsiElement, holder: ScalaAnnotationHolder): Unit = {
-    def moduleByName(name: String) = ModuleManager.getInstance(element.getProject).getModules.find(_.getName == name)
+    def moduleByName(@NonNls name: String) = ModuleManager.getInstance(element.getProject).getModules.find(_.getName == name)
 
     def findBuildModule(module: Option[Module]): Option[Module] = module match {
       case Some(SbtModuleType(_)) => module
@@ -115,7 +116,7 @@ class SbtDependencyAnnotator extends Annotator {
     }
   }
 
-  private def isDynamicVersion(version: String): Boolean =
+  private def isDynamicVersion(@NonNls version: String): Boolean =
     version.startsWith("latest") || version.endsWith("+") || "[]()".exists(version.contains(_))
 }
 

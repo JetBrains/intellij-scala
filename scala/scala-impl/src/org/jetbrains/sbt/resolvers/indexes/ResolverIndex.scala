@@ -4,8 +4,8 @@ import java.io.File
 
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.progress.ProgressIndicator
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
@@ -32,10 +32,10 @@ trait ResolverIndex {
 
 object ResolverIndex {
   val DEFAULT_INDEXES_DIR: File = new File(PathManager.getSystemPath) / "sbt" / "indexes"
-  val CURRENT_INDEX_VERSION = "6"
+  @NonNls val CURRENT_INDEX_VERSION = "6"
   val NO_TIMESTAMP: Int = -1
   val MAVEN_UNAVALIABLE: Int = -2
-  val FORCE_UPDATE_KEY = "ivy.index.force.update" // disable index building in tests for performance reasons, use this to override
+  @NonNls val FORCE_UPDATE_KEY = "ivy.index.force.update" // disable index building in tests for performance reasons, use this to override
   def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)
 
   val indexesDir: File = {
@@ -47,19 +47,19 @@ object ResolverIndex {
   }
 
   object Paths {
-    val PROPERTIES_FILE = "index.properties"
-    val ARTIFACT_TO_GROUP_FILE = "artifact-to-group.map"
-    val GROUP_TO_ARTIFACT_FILE = "group-to-artifact.map"
-    val GROUP_ARTIFACT_TO_VERSION_FILE = "group-artifact-to-version.map"
-    val FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE = "fqname-to-group-artifact-version.map"
+    @NonNls val PROPERTIES_FILE = "index.properties"
+    @NonNls val ARTIFACT_TO_GROUP_FILE = "artifact-to-group.map"
+    @NonNls val GROUP_TO_ARTIFACT_FILE = "group-to-artifact.map"
+    @NonNls val GROUP_ARTIFACT_TO_VERSION_FILE = "group-artifact-to-version.map"
+    @NonNls val FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE = "fqname-to-group-artifact-version.map"
   }
 
   object Keys {
-    val VERSION = "version"
-    val ROOT = "root"
-    val UPDATE_TIMESTAMP = "update-timestamp"
-    val KIND = "kind"
-    val IVY_MODE = "ivy-index-mode"
+    @NonNls val VERSION = "version"
+    @NonNls val ROOT = "root"
+    @NonNls val UPDATE_TIMESTAMP = "update-timestamp"
+    @NonNls val KIND = "kind"
+    @NonNls val IVY_MODE = "ivy-index-mode"
   }
 
 }

@@ -27,6 +27,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.util.messages.MessageBusConnection
 import com.pty4j.unix.UnixPtyProcess
 import com.pty4j.{PtyProcess, WinSize}
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
@@ -39,7 +40,7 @@ import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSetti
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtUtil}
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil}
 
 import scala.collection.JavaConverters._
 
@@ -65,9 +66,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   @volatile private var processData: Option[ProcessData] = None
 
-  private def repoPath = normalizePath(getRepoDir)
+  @NonNls private def repoPath: String = normalizePath(getRepoDir)
 
-  private def pluginResolverSetting: String =
+  @NonNls private def pluginResolverSetting: String =
     raw"""resolvers += Resolver.file("intellij-scala-plugin", file(raw"$repoPath"))(Resolver.ivyStylePatterns)"""
 
   /** Plugins injected into user's global sbt build. */
@@ -210,7 +211,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   private def notifyVersionUpgrade(projectSbtVersion: String, upgradedSbtVersion: Version, projectPath: File): Unit = {
-    val message = s"Started sbt shell with sbt version ${upgradedSbtVersion.presentation} instead of $projectSbtVersion configured by project."
+    val message = SbtBundle.message("sbt.shell.started.sbt.shell.with.sbt.version", upgradedSbtVersion.presentation, projectSbtVersion)
     val notification = Sbt.balloonNotification.createNotification(message, MessageType.INFO)
 
     notification.addAction(new UpdateSbtVersionAction(projectPath))
@@ -218,7 +219,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     notification.notify(project)
   }
 
-  private object DisableSbtVersionOverrideAction extends NotificationAction("Disable version override") {
+  private object DisableSbtVersionOverrideAction extends NotificationAction(SbtBundle.message("sbt.shell.disable.version.override")) {
     override def actionPerformed(anActionEvent: AnActionEvent, notification: Notification): Unit = {
       SbtProjectSettings.forProject(project)
         .foreach(_.setAllowSbtVersionOverride(false))
@@ -227,7 +228,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   private class UpdateSbtVersionAction(projectPath: File)
-    extends NotificationAction(s"Update sbt version") {
+    extends NotificationAction(SbtBundle.message("sbt.shell.update.sbt.version")) {
     override def actionPerformed(anActionEvent: AnActionEvent, notification: Notification): Unit = {
       val propertiesFile = SbtUtil.sbtBuildPropertiesFile(projectPath)
       val vFile = VfsUtil.findFileByIoFile(propertiesFile, true)
@@ -243,14 +244,14 @@ final class SbtProcessManager(project: Project) extends Disposable {
       else {
         val badCustomVMNotification =
           Sbt.balloonNotification
-            .createNotification(s"No JRE found at path ${sbtSettings.vmExecutable}. Using project JDK instead.", NotificationType.WARNING)
+            .createNotification(SbtBundle.message("sbt.shell.no.jre.found.at.path", sbtSettings.vmExecutable), NotificationType.WARNING)
         badCustomVMNotification.addAction(ConfigureSbtAction)
         badCustomVMNotification.notify(project)
         false
       }
     }
 
-  private object ConfigureSbtAction extends NotificationAction("&Configure sbt VM") {
+  private object ConfigureSbtAction extends NotificationAction(SbtBundle.message("sbt.shell.configure.sbt.jvm")) {
 
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
       // External system handles the Configurable name for sbt settings
@@ -267,7 +268,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     configuredSdk.getOrElse {
       if (projectSdk != null) projectSdk
       else {
-        val message = "No project JDK configured, but it is required to run sbt shell."
+        val message = SbtBundle.message("sbt.shell.no.project.jdk.configured")
         val noProjectSdkNotification =
           Sbt.balloonNotification.createNotification(message, NotificationType.ERROR)
         noProjectSdkNotification.addAction(ConfigureProjectJdkAction)
@@ -277,7 +278,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
-  private object ConfigureProjectJdkAction extends NotificationAction("&Configure project jdk") {
+  private object ConfigureProjectJdkAction extends NotificationAction(SbtBundle.message("sbt.shell.configure.project.jdk")) {
 
     // copied from ShowStructureSettingsAction
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
@@ -334,10 +335,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     */
   private def injectSettings(runid: String, guardSettings: Boolean, settingsFile: File, settings: Seq[String]): Unit = {
     val header =
-      """// Generated by IntelliJ-IDEA Scala plugin.
-        |// Adds settings when starting sbt from IDEA.
-        |// Manual changes to this file will be lost.
-      """.stripMargin.trim
+      SbtBundle.message("sbt.shell.inject.settings.comment").stripMargin.trim
     val settingsString = settings.mkString("scala.collection.Seq(\n",",\n","\n)")
 
     // any idea-specific settings should be added conditional on sbt being started from idea

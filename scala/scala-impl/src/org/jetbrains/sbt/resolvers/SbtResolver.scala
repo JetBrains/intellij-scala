@@ -7,6 +7,7 @@ import com.intellij.diagnostic.PluginException
 import com.intellij.openapi.project.Project
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.idea.maven.indices.MavenIndicesManager
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.indexes.{FakeMavenIndex, MavenProxyIndex, ResolverIndex}
 
 /**
@@ -24,7 +25,7 @@ sealed trait SbtResolver extends Serializable {
 object SbtResolver {
   def localCacheResolver(localCachePath: Option[String]): SbtResolver = {
     val defaultPath = System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)
-    new SbtIvyResolver("Local cache", localCachePath getOrElse defaultPath)
+    new SbtIvyResolver(SbtBundle.message("sbt.local.cache"), localCachePath getOrElse defaultPath)
   }
 
   private val DELIMITER = "|"

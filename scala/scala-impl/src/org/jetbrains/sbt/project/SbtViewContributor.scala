@@ -6,6 +6,7 @@ import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
 import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor}
 import com.intellij.util.containers.MultiMap
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtViewContributor._
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
 
@@ -66,31 +67,31 @@ private object SbtViewContributor {
   class SbtTasksGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtTasks)) {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
-      setNameAndTooltip(getName, "sbt tasks defined in this project")
+      setNameAndTooltip(getName, SbtBundle.message("sbt.tasks.defined.in.this.project"))
       // presentation.setIcon(sbtIcon) TODO
     }
 
-    override def getName: String = "sbt tasks"
+    override def getName: String = SbtBundle.message("sbt.tasks")
   }
 
   class SbtSettingsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtSettings)) {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
-      setNameAndTooltip(getName, "sbt settings defined in this project")
+      setNameAndTooltip(getName, SbtBundle.message("sbt.settings.defined.in.this.project"))
       // presentation.setIcon(sbtIcon) TODO
     }
 
-    override def getName: String = "sbt settings"
+    override def getName: String = SbtBundle.message("sbt.settings")
   }
 
   class SbtCommandsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtCommands)) {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
-      setNameAndTooltip(getName, "Named sbt commands defined in this project")
+      setNameAndTooltip(getName, SbtBundle.message("sbt.named.sbt.commands.defined.in.this.project"))
       // presentation.setIcon(sbtIcon) TODO
     }
 
-    override def getName: String = "sbt commands"
+    override def getName: String = SbtBundle.message("sbt.commands")
   }
 
   class SbtTaskViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtTaskData])

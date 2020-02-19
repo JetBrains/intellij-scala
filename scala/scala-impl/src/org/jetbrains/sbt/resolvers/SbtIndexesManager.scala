@@ -118,7 +118,6 @@ object SbtIndexesManager {
   def cleanUpCorruptedIndex(indexDir: File): Unit = {
     try {
       FileUtil.delete(indexDir)
-//      notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedAndRemoved", indexDir.getAbsolutePath))
     } catch {
       case pce: ProcessCanceledException => throw pce
       case _ : Throwable =>

@@ -3,6 +3,8 @@ package resolvers
 
 import java.io.{File, FilenameFilter}
 
+import org.jetbrains.annotations.NonNls
+
 import scala.xml.XML
 
 /**
@@ -14,12 +16,12 @@ class SbtIvyCacheIndexer(val cacheDir: File) {
   def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
 
   private val ivyFileFilter = new FilenameFilter {
-    override def accept(dir: File, name: String): Boolean = name.endsWith(".xml")
+    override def accept(dir: File, @NonNls name: String): Boolean = name.endsWith(".xml")
   }
 
   private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
     if (!dir.isDirectory)
-      throw new InvalidRepository(dir.getAbsolutePath)
+      throw InvalidRepository(dir.getAbsolutePath)
     val artifactsHere = dir.listFiles(ivyFileFilter).flatMap(extractArtifact).toStream
     artifactsHere ++ dir.listFiles.toStream.filter(_.isDirectory).flatMap(listArtifacts)
   }

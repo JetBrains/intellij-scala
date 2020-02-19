@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, Buil
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.control.NonFatal
 
 class BspTask[T](project: Project,

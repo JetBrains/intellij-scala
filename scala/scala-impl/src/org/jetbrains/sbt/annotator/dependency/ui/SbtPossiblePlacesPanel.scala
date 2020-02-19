@@ -19,6 +19,7 @@ import javax.swing.event._
 import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.sbt.SbtBundle
 
 import scala.collection.JavaConverters.asJavaCollectionConverter
 
@@ -79,7 +80,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
     inWriteAction {
       myCurEditor.getDocument.setText {
         if (dep.isDefined) tmpFile.getText
-        else "// Could not generate dependency string, please report this issue"
+        else SbtBundle.message("sbt.could.not.generate.dependency.string")
       }
     }
 

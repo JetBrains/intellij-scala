@@ -96,16 +96,16 @@ final class SbtMavenDependencyCompletionContributor extends CompletionContributo
         }
 
       place.parentOfType(classOf[ScInfixExpr], strict = false).foreach {
-        case ScInfixExpr(_, oper, _) if oper.getText == "+=" || oper.getText == "++=" => // empty completion from scratch
+        case ScInfixExpr(_, oper, _) if oper.textMatches("+=") || oper.textMatches("++=") => // empty completion from scratch
           completeGroup(cleanText)
         case ScInfixExpr(lop, oper, ScStringLiteral(artifact)) if lop == place.getContext && isValidOp(oper) =>
-          val versionSuffix = if (oper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.getVersion}" else ""
+          val versionSuffix = if (oper.textMatches("%%")) s"_${place.scalaLanguageLevelOrDefault.getVersion}" else ""
           completeGroup(artifact + versionSuffix)
         case ScInfixExpr(ScStringLiteral(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
-          completeArtifact(group, stripVersion = oper.getText == "%%")
+          completeArtifact(group, stripVersion = oper.textMatches("%%"))
         case ScInfixExpr(ScInfixExpr(llop, loper, lrop), oper, rop)
-          if rop == place.getContext && oper.getText == "%" && isValidOp(loper) =>
-          val versionSuffix = if (loper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.getVersion}" else ""
+          if rop == place.getContext && oper.textMatches("%") && isValidOp(loper) =>
+          val versionSuffix = if (loper.textMatches("%%")) s"_${place.scalaLanguageLevelOrDefault.getVersion}" else ""
           for {
             ScStringLiteral(group) <- Option(llop)
             ScStringLiteral(artifact) <- Option(lrop)

@@ -31,7 +31,7 @@ import scala.collection.JavaConverters._
  */
 final class SbtProjectService(project: Project) extends Disposable {
 
-  private val SBT_MAVEN_NOTIFICATION_GROUP = "Unindexed maven repositories for sbt detection"
+  private val SBT_MAVEN_NOTIFICATION_GROUP = SbtBundle.message("sbt.unindexed.maven.repositories.for.sbt.detection")
 
   setupMavenIndexes()
 
@@ -68,12 +68,9 @@ final class SbtProjectService(project: Project) extends Disposable {
         .filter(idx => idx.getUpdateTimestamp == -1 && sbtRepos.contains(idx.getRepositoryPathOrUrl))
 
       if (unindexedRepos.isEmpty) return
-      val title = s"<b>${unindexedRepos.length} Unindexed maven repositories found</b>"
+      val title = SbtBundle.message("sbt.unindexed.maven.repositories.found", unindexedRepos.length.toString)
       val message =
-        s"""
-          |If you want to use dependency completion, click
-          |<b><a href="#open">here</a></b>, select required repositories and press "Update" button. <a href="#disable">Disable...</a>
-          """.stripMargin
+        SbtBundle.message("sbt.unindexed.maven.repositories.found.message").stripMargin
       val notificationData = createIndexerNotification(title, message)
       ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notificationData)
     }
@@ -128,11 +125,9 @@ final class SbtProjectService(project: Project) extends Disposable {
     notificationData.setListener(
       "#disable", (notification: Notification, e: HyperlinkEvent) => {
         val result: Int = Messages.showYesNoDialog(project,
-          s"""Notification will be disabled for all projects
-Settings | Appearance & Behavior | Notifications | $SBT_MAVEN_NOTIFICATION_GROUP
-can be used to configure the notification.""".stripMargin,
-          "Unindexed Maven Repositories sbt Detection",
-          "Disable Notification",
+          SbtBundle.message("sbt.notification.will.be.disabled.for.all.projects", SBT_MAVEN_NOTIFICATION_GROUP).stripMargin,
+          SbtBundle.message("sbt.unindexed.maven.repositories.sbt.detection"),
+          SbtBundle.message("sbt.disable.notification"),
           CommonBundle.getCancelButtonText,
           Messages.getWarningIcon)
         if (result == Messages.YES) {

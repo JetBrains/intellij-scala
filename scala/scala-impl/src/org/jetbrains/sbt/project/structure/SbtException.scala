@@ -4,17 +4,17 @@ package project.structure
 import java.io.File
 
 import com.intellij.openapi.application.PathManager
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.project.template.writeLinesTo
 
 /**
  * @author Pavel Fatin
  */
-final class SbtException private(message: String)
-  extends RuntimeException(message)
+final class SbtException private(message: String) extends RuntimeException(message)
 
 object SbtException {
 
-  private[this] val WarnRegexp = "^\\[warn]\\s*::\\s*((?!UNRESOLVED DEPENDENCIES).)*".r
+  @NonNls private[this] val WarnRegexp = "^\\[warn]\\s*::\\s*((?!UNRESOLVED DEPENDENCIES).)*".r
 
   def apply(log: Seq[String]): SbtException = {
     val message = if (log.exists(_.startsWith("sbt.ResolveException"))) {

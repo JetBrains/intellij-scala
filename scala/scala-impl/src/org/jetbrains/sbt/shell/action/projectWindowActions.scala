@@ -9,12 +9,13 @@ import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtNamedKey, SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import SbtNodeAction._
+import org.jetbrains.annotations.NonNls
 
 import scala.collection.JavaConverters._
 
 abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSystemNodeAction[T](c) {
 
-  protected def buildCmd(projectId: String, key: String): String
+  @NonNls protected def buildCmd(@NonNls projectId: String, @NonNls key: String): String
 
   override def perform(project: Project, projectSystemId: ProjectSystemId, externalData: T, e: AnActionEvent): Unit = {
      //noinspection ScalaUnusedSymbol (unused `n` is necessary for compile to succeed)
@@ -28,7 +29,6 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
        SbtUtil.makeSbtProjectId(sbtModuleData)
      }
 
-
     val comms = SbtShellCommunication.forProject(e.getProject)
     val projectPart = projectScope.getOrElse("")
     val keyPart = externalData.name
@@ -37,7 +37,7 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
 }
 
 object SbtNodeAction {
-  def scopedKey(project:String, key: String): String = if (project.nonEmpty) s"$project/$key" else key
+  @NonNls def scopedKey(@NonNls project:String, @NonNls key: String): String = if (project.nonEmpty) s"$project/$key" else key
 }
 
 abstract class SbtTaskAction extends SbtNodeAction[SbtTaskData](classOf[SbtTaskData])

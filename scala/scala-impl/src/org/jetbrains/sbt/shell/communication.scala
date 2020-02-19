@@ -5,6 +5,7 @@ import java.util.concurrent._
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
@@ -30,7 +31,7 @@ final class SbtShellCommunication(project: Project) {
     command(cmd, StringBuilder.newBuilder, messageAggregator, showShell).map(_.toString())
 
   /** Queue an sbt command for execution in the sbt shell. */
-  def command[A](cmd: String,
+  def command[A](@NonNls cmd: String,
                  default: A,
                  eventHandler: EventAggregator[A],
                  showShell: Boolean): Future[A] = {
@@ -201,7 +202,7 @@ class SbtShellReadyListener(whenReady: => Unit, whenWorking: => Unit) extends Li
 
 private[shell] object SbtProcessUtil {
 
-  val IDEA_PROMPT_MARKER = "[IJ]"
+  private val IDEA_PROMPT_MARKER = "[IJ]"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
   def promptReady(line: String): Boolean =

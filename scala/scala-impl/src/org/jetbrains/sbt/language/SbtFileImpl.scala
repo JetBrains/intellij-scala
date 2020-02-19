@@ -5,6 +5,7 @@ import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, searches}
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -42,7 +43,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
   @Cached(ModCount.getModificationCount, this)
   private def syntheticFile: Option[ScalaFile] = {
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
-    val imports = importsFor(targetModule).map {
+    @NonNls val imports = importsFor(targetModule).map {
       // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
       case "Keys._" => "sbt.Keys._"
       case "Build._" => "sbt.Build._"

@@ -9,6 +9,7 @@ import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.jetbrains.sbt.SbtBundle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,7 +33,7 @@ public class SbtRunConfigurationForm {
         environmentVariables.setEnvs(configuration.environmentVariables());
         workingDirField.setText(configuration.getWorkingDir());
         FileChooserDescriptor folderDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-        workingDirField.addBrowseFolderListener("Choose Working Directory", null, project, folderDescriptor);
+        workingDirField.addBrowseFolderListener(SbtBundle.message("sbt.runner.choose.working.directory"), null, project, folderDescriptor);
 
         setCustomOptionsEnabled(!useSbtShellCheckBox.isSelected());
         useSbtShellCheckBox.addChangeListener(e -> setCustomOptionsEnabled(!useSbtShellCheckBox.isSelected()));

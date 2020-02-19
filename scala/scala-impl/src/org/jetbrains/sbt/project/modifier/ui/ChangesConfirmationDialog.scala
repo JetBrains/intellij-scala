@@ -1,14 +1,14 @@
 package org.jetbrains.sbt.project.modifier.ui
 
 import java.awt.BorderLayout
-import javax.swing.{JComponent, JPanel}
 
 import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
 import com.intellij.openapi.project.{Project => IJProject}
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.util.Getter
 import com.intellij.openapi.vcs.changes.Change
 import com.intellij.openapi.vfs.VirtualFile
+import javax.swing.{JComponent, JPanel}
+import org.jetbrains.sbt.SbtBundle
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -25,7 +25,7 @@ import scala.collection.mutable
 class ChangesConfirmationDialog private (val project: IJProject, private val changes: List[BuildFileChange], var myChangesBrowser: BuildFileChangeBrowser,
                                          val fileStatusMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)], val canExcludeChanges: Boolean = false) extends DialogWrapper(project) {
 
-  setTitle("sbt build file changes")
+  setTitle(SbtBundle.message("sbt.build.file.changes"))
   init()
 
   def selectedChanges: List[BuildFileChange] = {

@@ -26,7 +26,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     val result = new JdkComboBox(model)
 
-    val button = new JButton("Ne\u001Bw...")
+    val button = new JButton(SbtBundle.message("sbt.settings.new"))
 
     val addToTable = new Condition[Sdk] {
       override def value(sdk: Sdk): Boolean = {
@@ -57,7 +57,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val downloadPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
     downloadPanel.add(resolveClassifiersCheckBox)
     downloadPanel.add(resolveSbtClassifiersCheckBox)
-    content.add(new JLabel("Download:"), labelConstraints)
+    content.add(new JLabel(SbtBundle.message("sbt.settings.download")), labelConstraints)
     content.add(downloadPanel, fillLineConstraints)
 
     val sbtShellPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
@@ -75,7 +75,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     content.add(optionPanel, fillLineConstraints)
 
     if (context == Context.Wizard) {
-      val label = new JLabel("Project \u001BJDK:")
+      val label = new JLabel(SbtBundle.message("sbt.settings.project.jdk"))
       label.setLabelFor(jdkComboBox)
 
       val jdkPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))

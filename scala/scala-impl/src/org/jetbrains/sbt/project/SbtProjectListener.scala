@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.{Sbt, SbtBundle}
 import org.jetbrains.sbt.language.SbtProjectService
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -26,10 +26,11 @@ final class SbtProjectListener extends StartupActivity {
       project.getUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT) != java.lang.Boolean.TRUE &&
       SbtProjectImportProvider.canImport(project.baseDir)
     ) {
-      val message = s"""<a href="$ImportDescription">Import sbt project</a>"""
+      val messageText = SbtBundle.message("sbt.import.sbt.project")
+      val message = s"""<a href="$ImportDescription">$messageText</a>"""
 
       Sbt.balloonNotification
-        .createNotification("sbt project detected", message, NotificationType.INFORMATION, notificationListener(project))
+        .createNotification(SbtBundle.message("sbt.project.detected"), message, NotificationType.INFORMATION, notificationListener(project))
         .notify(project)
     }
 

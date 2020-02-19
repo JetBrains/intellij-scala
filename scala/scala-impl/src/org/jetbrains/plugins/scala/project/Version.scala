@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala
 package project
 
+import org.jetbrains.annotations.NonNls
+
 import scala.Ordering.Implicits._
 
 /**
  * @author Pavel Fatin
  */
 // TODO Make universal (it seems that this class is now used in lots of places ourside the "proect" package).
-case class Version(presentation: String) extends Ordered[Version] {
+case class Version(@NonNls presentation: String) extends Ordered[Version] {
 
   import Version._
 
