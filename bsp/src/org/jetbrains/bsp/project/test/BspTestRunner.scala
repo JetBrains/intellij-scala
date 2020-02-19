@@ -84,7 +84,7 @@ class BspTestRunner(
       server.buildTargetTest(params)
     } else {
       val result = new CompletableFuture[TestResult]()
-      result.completeExceptionally(BspErrorMessage(BspBundle.message("the.build.server.does.not.support.testing")))
+      result.completeExceptionally(BspErrorMessage(BspBundle.message("bsp.test.build.server.does.not.support.testing")))
       result
     }
   }

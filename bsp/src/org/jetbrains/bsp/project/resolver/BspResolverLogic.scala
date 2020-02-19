@@ -250,7 +250,7 @@ private[resolver] object BspResolverLogic {
       .orElse(moduleBase.map(_.toURI.toString))
       .orElse(sourceRoots.headOption.map(_.directory.toURI.toString))
       .orElse(resourceRoots.headOption.map(_.directory.toURI.toString))
-      .getOrElse(throw BspErrorMessage(BspBundle.message("unable.to.determine.unique.module.id", targets)))
+      .getOrElse(throw BspErrorMessage(BspBundle.message("bsp.resolver.unable.to.determine.unique.module.id", targets)))
     val moduleName = primaryTarget.flatMap(t => Option(t.getDisplayName)).getOrElse(moduleId)
 
     val dataBasic = ModuleDescriptionData(
@@ -478,7 +478,7 @@ private[resolver] object BspResolverLogic {
 
     moduleData.setInheritProjectCompileOutputPath(false)
 
-    val libraryData = new LibraryData(BSP.ProjectSystemId, BspBundle.message("modulename.dependencies", moduleName))
+    val libraryData = new LibraryData(BSP.ProjectSystemId, BspBundle.message("bsp.resolver.modulename.dependencies", moduleName))
     moduleDescriptionData.classpath.foreach { path =>
       libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
     }
@@ -488,7 +488,7 @@ private[resolver] object BspResolverLogic {
     val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
     libraryDependencyData.setScope(DependencyScope.COMPILE)
 
-    val libraryTestData = new LibraryData(BSP.ProjectSystemId, BspBundle.message("modulename.test.dependencies", moduleName))
+    val libraryTestData = new LibraryData(BSP.ProjectSystemId, BspBundle.message("bsp.resolver.modulename.test.dependencies", moduleName))
     moduleDescriptionData.testClasspath.foreach { path =>
       libraryTestData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
     }

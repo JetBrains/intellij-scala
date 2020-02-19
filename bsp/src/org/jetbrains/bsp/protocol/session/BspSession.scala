@@ -64,12 +64,12 @@ class BspSession private(bspIn: InputStream,
       Try(waitForSession(sessionTimeout))
     } catch {
       case to : TimeoutException =>
-        val error = BspConnectionError(BspBundle.message("bsp.server.is.not.responding"), to)
+        val error = BspConnectionError(BspBundle.message("bsp.protocol.bsp.server.is.not.responding"), to)
         logger.warn(error)
         shutdown(Some(error))
         Failure(error)
       case NonFatal(error) =>
-        val msg = BspBundle.message("problem.connecting.to.bsp.server", error.getMessage)
+        val msg = BspBundle.message("bsp.protocol.problem.connecting.to.bsp.server", error.getMessage)
         val bspError = BspException(msg, error)
         logger.warn(bspError)
         shutdown(Some(bspError))
@@ -94,7 +94,7 @@ class BspSession private(bspIn: InputStream,
     } catch {
       case _: TimeoutException => // just carry on
       case NonFatal(error) =>
-        val bspError = BspException(BspBundle.message("problem.executing.bsp.job"), error)
+        val bspError = BspException(BspBundle.message("bsp.protocol.problem.executing.bsp.job"), error)
         logger.error(bspError)
         currentJob.cancelWithError(bspError)
     }
@@ -200,7 +200,7 @@ class BspSession private(bspIn: InputStream,
       val now = System.currentTimeMillis()
       val waited = now - lastProcessOutput
       if (waited > timeout.toMillis)
-        throw BspConnectionError(BspBundle.message("bsp.server.is.not.responding"), to)
+        throw BspConnectionError(BspBundle.message("bsp.protocol.bsp.server.is.not.responding"), to)
       else
         waitForSession(timeout)
   }
@@ -212,7 +212,7 @@ class BspSession private(bspIn: InputStream,
     val resultJob = if (isAlive) {
       job
     } else {
-      new FailedBspSessionJob[T, A](BspException(BspBundle.message("bsp.session.is.not.available"), deathReason.orNull))
+      new FailedBspSessionJob[T, A](BspException(BspBundle.message("bsp.protocol.session.is.not.available"), deathReason.orNull))
     }
     jobs.put(resultJob)
     resultJob

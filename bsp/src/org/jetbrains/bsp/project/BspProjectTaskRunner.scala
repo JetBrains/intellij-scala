@@ -97,7 +97,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
     bspTask.resultFuture.onComplete { messages =>
 
-      val session = new CompilerTask(project, BspBundle.message("hack.notify.completed.bsp.build"), false, false, false, false)
+      val session = new CompilerTask(project, BspBundle.message("bsp.runner.hack.notify.completed.bsp.build"), false, false, false, false)
       val scope = new ProjectCompileScope(project)
       val context = new CompileContextImpl(project, session, scope, false, false)
       val pub = project.getMessageBus.syncPublisher(CompilerTopics.COMPILATION_STATUS)

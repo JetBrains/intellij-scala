@@ -25,10 +25,10 @@ import scala.util.{Failure, Success, Try}
 class FetchScalaTestClassesTask(project: Project,
                                 onOK: java.util.List[ScalaTestClassesItem] => Unit,
                                 onErr: Throwable => Unit
-                               ) extends Task.Modal(project, BspBundle.message("loading"), true) {
+                               ) extends Task.Modal(project, BspBundle.message("bsp.test.loading"), true) {
 
   override def run(indicator: ProgressIndicator): Unit = {
-    val text = BspBundle.message("fetching.scala.test.classes.from.bsp.server")
+    val text = BspBundle.message("bsp.test.fetching.scala.test.classes")
     indicator.setText(text)
     val cancelPromise: Promise[Unit] = Promise()
     val cancelCheck = new CancelCheck(cancelPromise, indicator)
@@ -85,6 +85,6 @@ class FetchScalaTestClassesTask(project: Project,
   private def requestTestClasses(params: ScalaTestClassesParams)(bsp: BspServer, capabilities: BuildServerCapabilities):
   CompletableFuture[ScalaTestClassesResult] =
     if (! capabilities.getTestProvider.getLanguageIds.isEmpty) bsp.buildTargetScalaTestClasses(params)
-    else CompletableFuture.failedFuture(BspErrorMessage(BspBundle.message("server.does.not.support.testing")))
+    else CompletableFuture.failedFuture(BspErrorMessage(BspBundle.message("bsp.test.server.does.not.support.testing")))
 
 }

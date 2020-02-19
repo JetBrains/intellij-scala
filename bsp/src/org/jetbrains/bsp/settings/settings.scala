@@ -42,8 +42,8 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
   @BeanProperty
   var runPreImportTask = true
 
-  private val buildOnSaveCheckBox = new JCheckBox(BspBundle.message("build.automatically.on.file.save"))
-  private val runPreImportTaskCheckBox = new JCheckBox(BspBundle.message("export.sbt.projects.to.bloop.before.import"))
+  private val buildOnSaveCheckBox = new JCheckBox(BspBundle.message("bsp.protocol.build.automatically.on.file.save"))
+  private val runPreImportTaskCheckBox = new JCheckBox(BspBundle.message("bsp.protocol.export.sbt.projects.to.bloop.before.import"))
 
   override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
     val fillLineConstraints = getFillLineConstraints(1)
@@ -90,7 +90,7 @@ class BspProjectSettingsListenerAdapter(listener: ExternalSystemSettingsListener
 }
 
 
-object BspTopic extends Topic[BspProjectSettingsListener](BspBundle.message("bsp.specific.settings"), classOf[BspProjectSettingsListener])
+object BspTopic extends Topic[BspProjectSettingsListener](BspBundle.message("bsp.protocol.specific.settings"), classOf[BspProjectSettingsListener])
 
 @State(
   name = "BspSettings",

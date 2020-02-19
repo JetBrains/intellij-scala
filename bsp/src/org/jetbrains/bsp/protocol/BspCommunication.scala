@@ -54,7 +54,7 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 
     sessionBuilder match {
       case Left(error) =>
-        val procLogMsg = BspBundle.message("bsp.connection.failed", error.getMessage)
+        val procLogMsg = BspBundle.message("bsp.protocol.connection.failed", error.getMessage)
         job.log(procLogMsg)
         log.warn("BSP connection failed", error)
         Left(error)
@@ -212,7 +212,7 @@ object BspCommunication {
       if (file.canRead) {
         val reader = Source.fromFile(file).bufferedReader()
         Try(gson.fromJson(reader, classOf[BspConnectionDetails]))
-      } else Failure(BspErrorMessage(BspBundle.message("file.not.readable", file)))
+      } else Failure(BspErrorMessage(BspBundle.message("bsp.protocol.file.not.readable", file)))
     }
   }
 

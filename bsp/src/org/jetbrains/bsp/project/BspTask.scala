@@ -33,12 +33,12 @@ class BspTask[T](project: Project,
                  targets: Iterable[BspTarget],
                  targetsToClean: Iterable[BspTarget]
                 )
-    extends Task.Backgroundable(project, BspBundle.message("bsp.build"), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+    extends Task.Backgroundable(project, BspBundle.message("bsp.task.build"), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
   private val resultPromise: Promise[BuildMessages] = Promise()
   private val report = new BuildToolWindowReporter(
-    project, bspTaskId, BspBundle.message("bsp.build"), new CancelBuildAction(resultPromise))
+    project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise))
 
   private val diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
@@ -118,7 +118,7 @@ class BspTask[T](project: Project,
       .getOrElse{
         BuildMessages.empty
           .status(BuildMessages.Error)
-          .addError(BspBundle.message("build.failed.unknown.reason"))
+          .addError(BspBundle.message("bsp.task.build.failed.unknown.reason"))
       }
 
 
@@ -184,12 +184,12 @@ class BspTask[T](project: Project,
     else {
       cleanRequest(targetsToClean)
       .exceptionally { err =>
-        new CleanCacheResult(BspBundle.message("server.does.not.support.cleaning.build.cache", err.getMessage), false)
+        new CleanCacheResult(BspBundle.message("bsp.task.server.does.not.support.cleaning.build.cache", err.getMessage), false)
       }
       .thenCompose { cleaned =>
         if (cleaned.getCleaned) compileRequest(targets)
         else {
-          report.error(BspBundle.message("targets.not.cleaned", cleaned.getMessage), None)
+          report.error(BspBundle.message("bsp.task.targets.not.cleaned", cleaned.getMessage), None)
           val res = new CompileResult(StatusCode.CANCELLED)
           val future = new CompletableFuture[CompileResult]()
           future.complete(res)
@@ -307,7 +307,7 @@ class BspTask[T](project: Project,
       case StatusCode.ERROR =>
         new FailureResultImpl(params.getMessage, null)
       case otherCode =>
-        new FailureResultImpl(BspBundle.message("unknown.status.code", otherCode), null)
+        new FailureResultImpl(BspBundle.message("bsp.task.unknown.status.code", otherCode), null)
     }
 
     report.finishTask(id, params.getMessage, result, time)

@@ -16,7 +16,7 @@ class GenericConnector(base: File, compilerOutput: File, capabilities: BspCapabi
         // TODO check bsp version compatibility
         // TODO check languages compatibility
         Right(prepareBspSession(details))
-    }.getOrElse(Left(BspErrorMessage(BspBundle.message("no.supported.connection.method.for.this.server"))))
+    }.getOrElse(Left(BspErrorMessage(BspBundle.message("bsp.protocol.no.supported.connection.method.for.this.server"))))
   }
 
   private def prepareBspSession(details: BspConnectionDetails): Builder = {

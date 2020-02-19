@@ -58,7 +58,7 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
             });
         }
         { // init matched classes list
-            matchedClassesList.setEmptyText(BspBundle.message("no.matched.test.classes"));
+            matchedClassesList.setEmptyText(BspBundle.message("bsp.test.no.matched.test.classes"));
             JListCompatibility.setModel(matchedClassesList, matchedClassesModel.getModelRaw());
             updateMatchedClassesList(Collections.emptyMap());
             testClassNameRegex.getDocument().addDocumentListener(new DocumentAdapter() {
@@ -206,7 +206,7 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         final Spacer spacer1 = new Spacer();
         mainPanel.add(spacer1, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/BspBundle", "test.kind"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/BspBundle", "bsp.test.kind"));
         mainPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         testModeCombobox = new JComboBox();
         mainPanel.add(testModeCombobox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
@@ -214,12 +214,12 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         testClassFormWrapper.setLayout(new GridLayoutManager(3, 4, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(testClassFormWrapper, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/BspBundle", "test.classes.regex"));
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/BspBundle", "bsp.test.classes.regex"));
         testClassFormWrapper.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         testClassNameRegex = new JTextField();
         testClassFormWrapper.add(testClassNameRegex, new GridConstraints(0, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label3 = new JLabel();
-        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/BspBundle", "matched.classes"));
+        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/BspBundle", "bsp.test.matched.classes"));
         testClassFormWrapper.add(label3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JBScrollPane jBScrollPane1 = new JBScrollPane();
         testClassFormWrapper.add(jBScrollPane1, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
@@ -228,7 +228,7 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         jBScrollPane1.setViewportView(matchedClassesList);
         refreshClassesButton = new JButton();
         refreshClassesButton.setIcon(new ImageIcon(getClass().getResource("/actions/refresh.png")));
-        this.$$$loadButtonText$$$(refreshClassesButton, this.$$$getMessageFromBundle$$$("messages/BspBundle", "refresh"));
+        this.$$$loadButtonText$$$(refreshClassesButton, this.$$$getMessageFromBundle$$$("messages/BspBundle", "bsp.test.refresh"));
         testClassFormWrapper.add(refreshClassesButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
