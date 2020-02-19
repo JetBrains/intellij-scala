@@ -2,6 +2,7 @@ package org.jetbrains.bsp.project
 
 import java.io.File
 import java.nio.file.Paths
+import java.util.Collections
 
 import com.intellij.compiler.impl.{CompileContextImpl, CompilerUtil, ProjectCompileScope}
 import com.intellij.compiler.progress.CompilerTask
@@ -127,8 +128,10 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
   private def refreshRoots(project: Project, outputRoots: Array[String]): Unit = {
 
     // simply refresh all the source roots to catch any generated files
-    val info = ProjectDataManager.getInstance().getExternalProjectData(project, BSP.ProjectSystemId, project.getBasePath)
-    val allSourceRoots = ES.findAllRecursively(info.getExternalProjectStructure, ProjectKeys.CONTENT_ROOT)
+    val info = Option(ProjectDataManager.getInstance().getExternalProjectData(project, BSP.ProjectSystemId, project.getBasePath))
+    val allSourceRoots = info
+      .map { info => ES.findAllRecursively(info.getExternalProjectStructure, ProjectKeys.CONTENT_ROOT) }
+      .getOrElse(Collections.emptyList())
     val generatedSourceRoots = allSourceRoots.asScala.flatMap { node =>
       val data = node.getData
       // bsp-side generated sources are still imported as regular sources
