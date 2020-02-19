@@ -8,11 +8,13 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.{InputValidatorEx, Messages}
+import com.intellij.openapi.ui.Messages.InputDialog
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.io.URLUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.format._
@@ -134,7 +136,16 @@ object ScalaExtractStringToBundleInspection {
       val (key, arguments) = bundleMutex.synchronized {
         val bundle = I18nBundleContent.read(bundlePropertyPath)
         val path = elementPath.substring(srcRoot.length)
-        val (key, text, arguments) = toKeyAndTextAndArgs(parts)
+        val (keyProposal, text, arguments) = toKeyAndTextAndArgs(parts)
+
+        val inputDialog = new InputDialog(project, "Key:", "Enter key for new bundle entry", null, keyProposal, new BundleNameInputValidator(bundle))
+        if (!inputDialog.showAndGet()) {
+          return
+        }
+
+        val key = inputDialog.getInputString
+        assert(key != null)
+
         val newEntry = Entry(key, text, path)
 
         // mark bundle file for undo
@@ -213,5 +224,20 @@ object ScalaExtractStringToBundleInspection {
 
       (key, text, arguments.flatten)
     }
+  }
+
+  class BundleNameInputValidator(bundle: I18nBundleContent) extends InputValidatorEx {
+    private val wrongRegex = raw"[^\w\.]+".r
+    @Nullable
+    override def getErrorText(inputString: String): String = inputString match {
+      case "" => "Cannot be empty"
+      case key if key.contains(" ") || key.contains("\t") => "Key cannot contain spaces"
+      case key if wrongRegex.findAllMatchIn(key).nonEmpty => "Invalid characters: " + wrongRegex.findAllMatchIn(key).flatMap(_.toString()).toSet.mkString.sorted
+      case key if bundle.hasKey(key) => "Key already in bundle: " + key
+      case _ => null
+    }
+
+    override def checkInput(inputString: String): Boolean = getErrorText(inputString) == null
+    override def canClose(inputString: String): Boolean = checkInput(inputString)
   }
 }
