@@ -18,7 +18,7 @@ trait ArgumentsParser {
 object ArgumentsParser
   extends ArgumentsParser {
 
-  case class ArgumentsParserError(message: String) extends RuntimeException
+  case class ArgumentsParserError(message: String) extends RuntimeException(message)
 
   override def parse(strings: Seq[String]): Either[ArgumentsParserError, Arguments] = strings match {
     case token +: Seq(
