@@ -4,16 +4,18 @@ package codeInspection
 package i18n
 package internal
 
+import java.util
+
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{BatchQuickFix, InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.ui.{InputValidatorEx, Messages}
 import com.intellij.openapi.ui.Messages.InputDialog
+import com.intellij.openapi.ui.{InputValidatorEx, Messages}
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.util.io.URLUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
@@ -104,11 +106,9 @@ object ScalaExtractStringToBundleInspection {
     }
   }
 
-  // use a global lock when writing to the bundle file.
-  // That way the quickfix works in batch mode
-  private val bundleMutex = new Object
-
-  private class MoveToBundleQuickFix(_element: ScExpression) extends AbstractFixOnPsiElement("Extract to bundle", _element) {
+  private class MoveToBundleQuickFix(_element: ScExpression)
+      extends AbstractFixOnPsiElement("Extract to bundle", _element) with BatchQuickFix[Null] {
+    override def startInWriteAction(): Boolean = false
     override protected def doApplyFix(element: ScExpression)(implicit project: Project): Unit = {
       val parts = element match {
         case TopmostStringParts(parts) => parts
@@ -134,7 +134,6 @@ object ScalaExtractStringToBundleInspection {
             return
           }
 
-      val (key, arguments) = bundleMutex.synchronized {
         val bundle = I18nBundleContent.read(bundlePropertyPath)
         val path = elementPath.substring(srcRoot.length)
         val (keyProposal, text, arguments) = toKeyAndTextAndArgs(parts)
@@ -157,6 +156,9 @@ object ScalaExtractStringToBundleInspection {
           throw new Exception(s"Failed to open bundle file at $bundlePropertyPath")
         }
 
+
+
+      inWriteAction {
         val outputStream = vfile.getOutputStream(this)
         try bundle
           .withEntry(newEntry)
@@ -167,23 +169,20 @@ object ScalaExtractStringToBundleInspection {
         // TODO: make undo working
         //CommandProcessor.getInstance().addAffectedDocuments(project, document);
 
-        (key, arguments)
+        // add import
+        val importsHolder: ScImportsHolder =
+          Option(PsiTreeUtil.getParentOfType(element, classOf[ScPackaging]))
+            .getOrElse(element.getContainingFile.asInstanceOf[ScImportsHolder])
+        importsHolder.addImportForPath(bundleQualifiedClassName)
+
+        // replace string with message call
+        val argString =
+          if (arguments.isEmpty) ""
+          else arguments.mkString(", ", ", ", "")
+        _element.replace(ScalaPsiElementFactory.createExpressionFromText(
+          s"""$bundleClassName.message("$key"$argString)"""
+        ))
       }
-
-
-      // add import
-      val importsHolder: ScImportsHolder =
-        Option(PsiTreeUtil.getParentOfType(element, classOf[ScPackaging]))
-          .getOrElse(element.getContainingFile.asInstanceOf[ScImportsHolder])
-      importsHolder.addImportForPath(bundleQualifiedClassName)
-
-      // replace string with message call
-      val argString =
-        if (arguments.isEmpty) ""
-        else arguments.mkString(", ", ", ", "")
-      _element.replace(ScalaPsiElementFactory.createExpressionFromText(
-        s"""$bundleClassName.message("$key"$argString)"""
-      ))
     }
 
 
@@ -227,6 +226,10 @@ object ScalaExtractStringToBundleInspection {
 
       (key, text, arguments.flatten)
     }
+
+    // find a way to disable batch mode... until then just show this message
+    override def applyFix(project: Project, descriptors: Array[Null], psiElementsToIgnore: util.List[PsiElement], refreshViews: Runnable): Unit =
+      Messages.showErrorDialog(project, "Don' run ExtractStringToBundle inspection in batch mode", "Do not run in batch mode")
   }
 
   class BundleNameInputValidator(bundle: I18nBundleContent) extends InputValidatorEx {
