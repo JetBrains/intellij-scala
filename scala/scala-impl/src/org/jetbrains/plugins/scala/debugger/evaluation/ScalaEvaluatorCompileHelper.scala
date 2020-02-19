@@ -11,7 +11,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -108,17 +108,9 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
 
   private val errors: ListBuffer[String] = ListBuffer[String]()
 
-  private val client: Client = new Client {
-
+  private val client: Client = new DummyClient {
     override def message(msg: Client.ClientMsg): Unit =
       if (msg.kind == Kind.ERROR) errors += msg.text
-
-    override def deleted(module: File): Unit = {}
-    override def progress(text: String, done: Option[Float]): Unit = {}
-    override def isCanceled: Boolean = false
-    override def debug(text: String): Unit = {}
-    override def trace(exception: Throwable): Unit = {}
-    override def generated(source: File, module: File, name: String): Unit = {}
   }
 
   @tailrec

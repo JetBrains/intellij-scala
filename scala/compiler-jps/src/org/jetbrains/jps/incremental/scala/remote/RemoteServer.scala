@@ -33,12 +33,12 @@ class RemoteServer(val address: InetAddress, val port: Int)
         val secondLine = "Trying to compile without it"
         val message = s"$firstLine\n$secondLine"
         client.warning(message)
-        client.debug(s"$firstLine\n${e.toString}\n${e.getStackTrace.mkString("\n")}")
+        client.internalInfo(s"$firstLine\n${e.toString}\n${e.getStackTrace.mkString("\n")}")
         ScalaBuilder.localServer.compile(sbtData, compilerData, compilationData, client)
       case e: UnknownHostException =>
         val message = "Unknown IP address of compile server host: " + address.toString
         client.error(message)
-        client.debug(s"$message\n${e.toString}\n${e.getStackTrace.mkString("\n")}")
+        client.internalInfo(s"$message\n${e.toString}\n${e.getStackTrace.mkString("\n")}")
         ExitCode.ABORT
     }
   }

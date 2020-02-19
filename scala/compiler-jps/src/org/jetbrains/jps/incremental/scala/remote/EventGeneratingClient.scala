@@ -39,7 +39,10 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
   override def progress(text: String, done: Option[Float]): Unit =
     publishEvent(ProgressEvent(text, done))
 
-  override def debug(text: String): Unit =
+  override def internalInfo(text: String): Unit =
+    publishEvent(InfoEvent(text))
+
+  override def internalDebug(text: String): Unit =
     publishEvent(DebugEvent(text))
 
   override def generated(source: File, module: File, name: String): Unit =

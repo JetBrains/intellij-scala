@@ -21,7 +21,7 @@ class PrintWriterReporter(printWriter: PrintWriter, client: Client) extends ILoo
   }
 
   override def internalDebug(message: String): Unit =
-    client.debug(message)
+    client.internalDebug(message)
 }
 
 object PrintWriterReporter {

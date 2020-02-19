@@ -6,6 +6,6 @@ class DebugLoggingReporter(client: Client) extends ILoopWrapperReporter {
 
   override def report(severity: String, line: Integer, column: Integer, lineContent: String, message: String): Unit = ()
 
-  override def internalDebug(message: String): Unit = client.debug(message)
+  override def internalDebug(message: String): Unit = client.internalDebug(message)
 }
 

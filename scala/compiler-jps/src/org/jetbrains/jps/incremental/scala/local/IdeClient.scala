@@ -41,11 +41,10 @@ abstract class IdeClient(compilerName: String,
     }
   }
 
-  def trace(exception: Throwable) {
+  def trace(exception: Throwable): Unit =
     context.processMessage(CompilerMessage.createInternalCompilationError(compilerName, exception))
-  }
 
-  def progress(text: String, done: Option[Float]) {
+  def progress(text: String, done: Option[Float]): Unit = {
     if (text.nonEmpty) {
       val decapitalizedText = text.charAt(0).toLower.toString + text.substring(1)
       lastProgressMessage = "%s: %s [%s]".format(compilerName, decapitalizedText, modules.mkString(", "))
@@ -53,11 +52,13 @@ abstract class IdeClient(compilerName: String,
     context.processMessage(new ProgressMessage(lastProgressMessage, done.getOrElse(-1.0F)))
   }
 
-  def debug(text: String) {
+  def internalInfo(text: String): Unit =
     ScalaBuilder.Log.info(text)
-  }
 
-  def deleted(module: File) {
+  def internalDebug(text: String): Unit =
+    ScalaBuilder.Log.debug(text)
+
+  def deleted(module: File): Unit = {
     val paths = util.Collections.singletonList(FileUtil.toCanonicalPath(module.getPath))
     context.processMessage(new FileDeletedEvent(paths))
   }

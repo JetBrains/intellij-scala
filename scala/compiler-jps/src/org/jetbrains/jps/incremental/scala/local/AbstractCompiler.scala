@@ -25,27 +25,27 @@ abstract class AbstractCompiler extends Compiler {
   def getProgress(client: Client): ClientProgress = new ClientProgress(client)
 
   private class ClientLogger(val client: Client, logFilter: ZincLogFilter) extends Logger {
-    def error(msg: Supplier[String]) {
+    def error(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.ERROR, txt)) client.error(txt)
     }
 
-    def warn(msg: Supplier[String]) {
+    def warn(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.WARNING, txt)) client.warning(txt)
     }
 
-    def info(msg: Supplier[String]) {
+    def info(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.INFO, txt)) client.info(txt)
     }
 
-    def debug(msg: Supplier[String]) {
+    def debug(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(Kind.PROGRESS, txt)) client.debug(txt)
+      if (logFilter.shouldLog(Kind.PROGRESS, txt)) client.internalInfo(txt)
     }
 
-    def trace(exception: Supplier[Throwable]) {
+    def trace(exception: Supplier[Throwable]): Unit = {
       client.trace(exception.get())
     }
   }
@@ -55,7 +55,7 @@ abstract class AbstractCompiler extends Compiler {
     private var lastTimeChecked = System.currentTimeMillis()
     private final val cancelThreshold = 1000L
 
-    def startUnit(phase: String, unitPath: String) {
+    def startUnit(phase: String, unitPath: String): Unit = {
       val unitName = new File(unitPath).getName
       client.progress("Phase " + phase + " on " + unitName)
     }
@@ -78,15 +78,15 @@ abstract class AbstractCompiler extends Compiler {
     private var errorSeen = false
     private var warningSeen = false
 
-    def reset() {
+    def reset(): Unit = {
       entries.clear()
       errorSeen = false
       warningSeen = false
     }
 
-    override def hasErrors(): Boolean = errorSeen
+    override def hasErrors: Boolean = errorSeen
 
-    override def hasWarnings(): Boolean = warningSeen
+    override def hasWarnings: Boolean = warningSeen
 
     override def printSummary(): Unit = {} // Not needed in Intellij-zinc integration
 

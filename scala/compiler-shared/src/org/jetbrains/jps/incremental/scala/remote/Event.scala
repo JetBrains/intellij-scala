@@ -25,8 +25,11 @@ case class MessageEvent(kind: Kind, text: String, source: Option[File], line: Op
 @SerialVersionUID(-6777609711619086870L)
 case class ProgressEvent(text: String, done: Option[Float]) extends Event
 
-@SerialVersionUID(7993329544064571494L)
+@SerialVersionUID(7993329544064571495L)
 case class DebugEvent(text: String) extends Event
+
+@SerialVersionUID(1L)
+case class InfoEvent(text: String) extends Event
 
 @SerialVersionUID(1668649599159817915L)
 case class TraceEvent(exceptionClassName: String, message: String, stackTrace: Array[StackTraceElement]) extends Event

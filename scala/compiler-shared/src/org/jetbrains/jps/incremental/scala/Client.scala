@@ -43,11 +43,13 @@ trait Client {
 
   def progress(text: String, done: Option[Float] = None)
 
-  def debug(text: String)
+  def internalInfo(text: String): Unit
 
-  def generated(source: File, module: File, name: String)
+  def internalDebug(text: String): Unit
 
-  def deleted(module: File)
+  def generated(source: File, module: File, name: String): Unit
+
+  def deleted(module: File): Unit
 
   def isCanceled: Boolean
 
