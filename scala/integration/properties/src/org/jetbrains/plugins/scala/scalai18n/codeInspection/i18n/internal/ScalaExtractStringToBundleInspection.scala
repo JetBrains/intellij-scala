@@ -6,12 +6,13 @@ package internal
 
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.{InputValidatorEx, Messages}
 import com.intellij.openapi.ui.Messages.InputDialog
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.io.URLUtil
 import org.jetbrains.annotations.Nullable
@@ -161,13 +162,13 @@ object ScalaExtractStringToBundleInspection {
           .withEntry(newEntry)
           .writeTo(outputStream)
         finally outputStream.close()
+        val document = FileDocumentManager.getInstance().getDocument(vfile)
+        PsiDocumentManager.getInstance(project).commitDocument(document)
+        // TODO: make undo working
+        //CommandProcessor.getInstance().addAffectedDocuments(project, document);
 
         (key, arguments)
       }
-      // TODO: make undo working
-      //val document = FileDocumentManager.getInstance().getDocument(vfile)
-      //CommandProcessor.getInstance().addAffectedDocuments(project, document);
-      //PsiDocumentManager.getInstance(project).commitDocument(document)
 
 
       // add import
