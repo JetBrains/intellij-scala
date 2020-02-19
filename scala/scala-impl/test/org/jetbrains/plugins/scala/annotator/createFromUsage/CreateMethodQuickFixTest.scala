@@ -13,7 +13,10 @@ class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
 
   override protected val description = s"Cannot resolve symbol $methodName"
 
-  private def doTest(methodUsageText: String, methodDefinitionText: String): Unit = {
+  private def doTest(before: String, after: String): Unit =
+    testQuickFix(before, after, hint)
+
+  private def doCompoundTest(methodUsageText: String, methodDefinitionText: String): Unit = {
     doTestInObject(methodUsageText, methodDefinitionText)
     doTestInClass(methodUsageText, methodDefinitionText)
   }
@@ -32,7 +35,7 @@ class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
          |object Usage {
          |  Bar.$methodUsageText
          |}""".stripMargin
-    testQuickFix(before, after, hint)
+    doTest(before, after)
   }
 
   private def doTestInClass(methodUsageText: String, methodDefinitionText: String): Unit = {
@@ -50,36 +53,91 @@ class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
          |  new Bar().$methodUsageText
          |}""".stripMargin
 
+    doTest(before, after)
+  }
+
+  private def doTestInTopLevel(methodUsageText: String, methodDefinitionText: String): Unit = {
+    val before =
+      s"""$methodUsageText""".stripMargin
+    val after  =
+      s"""$methodDefinitionText
+         |
+         |$methodUsageText""".stripMargin
+
     testQuickFix(before, after, hint)
   }
 
   def testCreateMethod(): Unit = {
     val usage      = """foo(42, "text", Some(true))"""
     val definition = """def foo(i: Int, str: String, someBoolean: Some[Boolean]) = ???"""
-    doTest(usage, definition)
+    doCompoundTest(usage, definition)
   }
 
   def testCreateMethod_WithNamedArguments_All(): Unit = {
     val usage      = """foo(name1 = 42, name2 = "text", name3 = Some(true))"""
     val definition = """def foo(name1: Int, name2: String, name3: Some[Boolean]) = ???"""
-    doTest(usage, definition)
+    doCompoundTest(usage, definition)
   }
 
   def testCreateMethod_WithNamedArguments_SomeInTheBeginning(): Unit = {
     val usage      = """foo(name1 = 42, name2 = "text", Some(true))"""
     val definition = """def foo(name1: Int, name2: String, someBoolean: Some[Boolean]) = ???"""
-    doTest(usage, definition)
+    doCompoundTest(usage, definition)
   }
 
   def testCreateMethod_WithNamedArguments_SomeInTheEnd(): Unit = {
     val usage      = """foo(42, name2 = "text", name3 = Some(true))"""
     val definition = """def foo(i: Int, name2: String, name3: Some[Boolean]) = ???"""
-    doTest(usage, definition)
+    doCompoundTest(usage, definition)
   }
 
   def testCreateMethod_WithNamedArguments_SomeInTheMiddle(): Unit = {
     val usage      = """foo(42, name2 = "text", Some(true))"""
     val definition = """def foo(i: Int, name2: String, someBoolean: Some[Boolean]) = ???"""
-    doTest(usage, definition)
+    doCompoundTest(usage, definition)
+  }
+
+  private val TopLevelUsage  = """foo(42)"""
+  private val TopLevelDefinition  = """def foo(i: Int) = ???"""
+
+  def testTopLevelFirstElementInFile(): Unit = {
+    doTest(
+      s"""$TopLevelUsage""".stripMargin,
+      s"""$TopLevelDefinition
+         |
+         |$TopLevelUsage""".stripMargin)
+  }
+
+  def testTopLevelFirstElementInFile_1(): Unit = {
+    doTest(
+      s"""
+         |$TopLevelUsage""".stripMargin,
+      s"""
+         |$TopLevelDefinition
+         |
+         |$TopLevelUsage""".stripMargin)
+  }
+
+  def testTopLevelInTheMiddle(): Unit = {
+    doTest(
+      s"""val x = 42
+         |$TopLevelUsage""".stripMargin,
+      s"""val x = 42
+         |
+         |$TopLevelDefinition
+         |
+         |$TopLevelUsage""".stripMargin)
+  }
+
+  def testTopLevelInTheMiddle_1(): Unit = {
+    doTest(
+      s"""val x = 42
+         |
+         |$TopLevelUsage""".stripMargin,
+      s"""val x = 42
+         |
+         |$TopLevelDefinition
+         |
+         |$TopLevelUsage""".stripMargin)
   }
 }
