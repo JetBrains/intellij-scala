@@ -2,28 +2,22 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.specs2
 
 import javax.swing.Icon
-
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import com.intellij.openapi.project.DumbAware
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
-
-/**
- * User: Alexander Podkhalyuzin
- * Date: 03.05.2009
- */
 
 class Specs2ConfigurationType extends ConfigurationType with DumbAware {
 
   val confFactory = new Specs2RunConfigurationFactory(this)
 
-  def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
+  override def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
 
-  def getDisplayName: String = "Specs2"
+  override def getDisplayName: String = ScalaBundle.message("specs2.config.display.name")
 
-  def getConfigurationTypeDescription: String = "Specs2 testing framework run configuration"
+  override def getConfigurationTypeDescription: String = ScalaBundle.message("specs2.config.description")
 
-  def getId: String = "Specs2RunConfiguration" //if you want to change id, change it in Android plugin too
+  override def getId: String = "Specs2RunConfiguration" //if you want to change id, change it in Android plugin too
 
-  def getIcon: Icon = Icons.SCALA_TEST
-
+  override def getIcon: Icon = Icons.SCALA_TEST
 }

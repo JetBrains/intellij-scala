@@ -30,6 +30,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.GlobalSearchScope.{EMPTY_SCOPE, moduleScope}
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
@@ -65,9 +67,9 @@ abstract class AbstractTestRunConfiguration(project: Project,
     configurationFactory
   ) with ScalaTestingConfiguration {
 
-  @BeanProperty var testKind: TestKind = TestKind.CLASS
+  @BeanProperty var testKind: TestKind = TestKind.CLAZZ
 
-  def testKind_(kind: TestKind): Unit = testKind = Option(testKind).getOrElse(TestKind.CLASS)
+  def testKind_(kind: TestKind): Unit = testKind = Option(testKind).getOrElse(TestKind.CLAZZ)
 
   var testConfigurationData: TestConfigurationData = new ClassTestData(this)
 
@@ -85,6 +87,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   def reporterClass: String
 
+  @Nls
   def errorMessage: String
 
   override def getTestClassPath: String = testConfigurationData match {
@@ -106,7 +109,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   override def suggestedName: String = generatedName
 
-  def apply(form: TestRunConfigurationForm) {
+  def apply(form: TestRunConfigurationForm): Unit = {
     setModule(form.getModule)
     setTestKind(form.getSelectedKind)
     testConfigurationData = TestConfigurationData.createFromForm(form, this)
@@ -243,9 +246,9 @@ abstract class AbstractTestRunConfiguration(project: Project,
     val suiteClasses = suitePaths.map(getClazz(_, withDependencies = true)).filter(_ != null)
 
     if (suiteClasses.isEmpty) {
-      Left(new RuntimeConfigurationException(errorMessage))
+      Left(exception(errorMessage))
     } else if (suiteClasses.size > 1) {
-      Left(new RuntimeConfigurationException(s"Multiple suite traits detected: $suiteClasses"))
+      Left(exception(ScalaBundle.message("test.run.config.multiple.suite.traits.detected.suiteclasses", suiteClasses)))
     } else {
       Right(suiteClasses.head)
     }
@@ -308,13 +311,15 @@ abstract class AbstractTestRunConfiguration(project: Project,
     }).flatten.toSeq
   }
 
-  protected[test] def classNotFoundError: Nothing = {
-    throw new ExecutionException(s"Test class not found: $getTestClassPath")
-  }
+  protected final def exception(message: String) = new RuntimeConfigurationException(message)
+  protected final def error(message: String) = new RuntimeConfigurationError(message)
+  protected final def executionException(message: String) = new ExecutionException(message)
+
+  protected[test] def classNotFoundError: ExecutionException = executionException(ScalaBundle.message("test.run.config.test.class.not.found.gettestclasspath", getTestClassPath))
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     val module = getModule
-    if (module == null) throw new ExecutionException("Module is not specified")
+    if (module == null) throw new ExecutionException(ScalaBundle.message("test.run.config.module.is.not.specified"))
 
     //noinspection TypeAnnotation
     val state = new JavaCommandLineState(env) with AbstractTestRunConfiguration.TestCommandLinePatcher {
@@ -518,7 +523,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   protected def getClassFileNames(classes: mutable.HashSet[PsiClass]): Seq[String] = classes.map(_.qualifiedName).toSeq
 
-  override def writeExternal(element: Element) {
+  override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
     JavaRunConfigurationExtensionManager.getInstance.writeExternal(this, element)
     XmlSerializer.serializeInto(this, element)
@@ -526,7 +531,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
 
-  override def readExternal(element: Element) {
+  override def readExternal(element: Element): Unit = {
     PathMacroManager.getInstance(getProject).expandPaths(element)
     super.readExternal(element)
     JavaRunConfigurationExtensionManager.getInstance.readExternal(this, element)
@@ -538,7 +543,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   private def migrate(element: Element): Unit = {
     JdomExternalizerMigrationHelper(element) { helper =>
-      helper.migrateString("testKind")(x => testKind = TestKind.fromString(x))
+      helper.migrateString("testKind")(x => testKind = TestKind.parse(x))
     }
   }
 }
@@ -574,9 +579,8 @@ object AbstractTestRunConfiguration extends SuiteValidityChecker {
   private[test] trait TestCommandLinePatcher {
     private var failedTests: Seq[(String, String)] = Seq()
 
-    def setFailedTests(failedTests: Seq[(String, String)]) {
+    def setFailedTests(failedTests: Seq[(String, String)]): Unit =
       this.failedTests = Option(failedTests).map(_.distinct).orNull
-    }
 
     def getFailedTests: Seq[(String, String)] = failedTests
 

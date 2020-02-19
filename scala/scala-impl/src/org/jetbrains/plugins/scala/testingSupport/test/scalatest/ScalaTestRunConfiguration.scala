@@ -34,7 +34,7 @@ class ScalaTestRunConfiguration(project: Project,
 
   override def reporterClass = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter"
 
-  override def errorMessage: String = "ScalaTest is not specified"
+  override def errorMessage: String = ScalaBundle.message("scalatest.config.scalatest.is.not.specified")
 
   override def currentConfiguration: ScalaTestRunConfiguration = ScalaTestRunConfiguration.this
 

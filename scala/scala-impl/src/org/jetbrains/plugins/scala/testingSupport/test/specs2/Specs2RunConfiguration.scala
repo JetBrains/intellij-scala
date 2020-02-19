@@ -4,6 +4,7 @@ package testingSupport.test.specs2
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.PluginJars
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -31,7 +32,7 @@ class Specs2RunConfiguration(project: Project,
 
   override def reporterClass = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Notifier"
 
-  override def errorMessage: String = "Specs2 is not specified"
+  override def errorMessage: String = ScalaBundle.message("spec2.config.specs2.is.not.specified")
 
   override def currentConfiguration: Specs2RunConfiguration = Specs2RunConfiguration.this
 

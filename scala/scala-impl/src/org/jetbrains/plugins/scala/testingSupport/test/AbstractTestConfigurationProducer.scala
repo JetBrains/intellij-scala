@@ -17,6 +17,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import javax.swing.ListCellRenderer
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -244,8 +246,9 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
                   val jbList = new JBList(classesSorted:_*)
                   //scala type system gets confused because someone forgot generics in PsiElementListCellRenderer definition
                   jbList.setCellRenderer(renderer.asInstanceOf[ListCellRenderer[PsiClass]])
-                  JBPopupFactory.getInstance().createListPopupBuilder(jbList).setTitle("Choose executable classes to run " +
-                    (if (psiMethod != null) psiMethod.getName else containingClass.getName)).setMovable(false).
+                  val value = JBPopupFactory.getInstance().createListPopupBuilder(jbList)
+                  val testName = if (psiMethod != null) psiMethod.getName else containingClass.getName
+                  value.setTitle(ScalaBundle.message("test.config.choose.executable.classes.to.run.test", testName)).setMovable(false).
                     setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable() {
                     override def run(): Unit = {
                       val values = jbList.getSelectedValuesList
@@ -259,7 +262,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
                 }
 
                 override protected def runForClass(aClass: PsiClass, psiMethod: PsiMethod, context: ConfigurationContext,
-                                                   performRunnable: Runnable) {
+                                                   performRunnable: Runnable): Unit = {
                   testData.setTestClassPath(aClass.getQualifiedName)
                   config.setName(StringUtil.getShortName(aClass.getQualifiedName) + (testData match {
                     case single: SingleTestData => "." + single.getTestName

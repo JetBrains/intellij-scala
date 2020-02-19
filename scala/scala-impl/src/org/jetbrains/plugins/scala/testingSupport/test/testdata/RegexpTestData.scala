@@ -8,6 +8,7 @@ import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.psi.search.GlobalSearchScopesCore
 import com.intellij.psi.search.searches.AllClassesSearch
 import org.jdom.Element
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
@@ -86,14 +87,17 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
   override def checkSuiteAndTestName: CheckResult =
     for {
       _ <- checkModule
-      _ <- checkRegexps((_, p) => exception(s"Failed to compile pattern $p"), exception("No patterns detected"))
+      _ <- checkRegexps(
+        (_, p) => exception(ScalaBundle.message("test.config.failed.to.compile.pattern", p)),
+        exception(ScalaBundle.message("test.config.no.patterns.detected"))
+      )
     } yield ()
 
   override def getTestMap: Map[String, Set[String]] = {
     val patterns = zippedRegexps
     val classToTests = mutable.Map[String, Set[String]]()
     if (isDumb) {
-      if (testsBuf.isEmpty) throw new ExecutionException("Can't run while indexing: no class names memorized from previous iterations.")
+      if (testsBuf.isEmpty) throw executionException(ScalaBundle.message("test.config.cant.run.while.indexing.no.class.names.memorized.from.previous.iterations"))
       return testsBuf.asScala.map { case (k,v) => k -> v.asScala.toSet }.toMap
     }
 
@@ -105,7 +109,7 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
             input.startsWith("_root_.") && pattern.matcher(input.substring("_root_.".length)).matches)
       } catch {
         case e: PatternSyntaxException =>
-          throw new ExecutionException(s"Failed to compile pattern $patternString", e)
+          throw executionException(ScalaBundle.message("test.config.failed.to.compile.pattern", patternString), e)
       }
     }
 

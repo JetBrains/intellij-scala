@@ -7,6 +7,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiPackage}
 import org.jdom.Element
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -43,7 +44,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     for {
       _ <- myCheckModule
       pack = JavaPsiFacade.getInstance(getProject).findPackage(getTestPackagePath)
-      _ <- check(pack != null, exception("Package doesn't exist"))
+      _ <- check(pack != null, exception(ScalaBundle.message("test.config.package.does.not.exist")))
     } yield ()
 
   private def myCheckModule: CheckResult = searchTest match {
@@ -58,14 +59,14 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
   override def getTestMap: Map[String, Set[String]] = {
     def aMap(seq: Seq[String]) = Map(seq.map(_ -> Set[String]()):_*)
     if (isDumb) {
-      if (classBuf.isEmpty) throw new ExecutionException("Can't run while indexing: no class names memorized from previous iterations.")
+      if (classBuf.isEmpty) throw executionException(ScalaBundle.message("test.config.can.nott.run.while.indexing.no.class.names.memorized.from.previous.iterations"))
       return aMap(classBuf.asScala)
     }
     var classes = ArrayBuffer[PsiClass]()
     val pack = ScPackageImpl(getPackage(getTestPackagePath))
     val scope = getScope(withDependencies = false)
 
-    if (pack == null) config.classNotFoundError
+    if (pack == null) throw config.classNotFoundError
 
     def getClasses(pack: ScPackage): Seq[PsiClass] = {
       val buffer = new ArrayBuffer[PsiClass]
@@ -86,7 +87,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
         classes += cl
     }
     if (classes.isEmpty)
-      throw new ExecutionException(s"Did not find suite classes in package ${pack.getQualifiedName}")
+      throw executionException(ScalaBundle.message("test.config.did.not.find.suite.classes.in.package", pack.getQualifiedName))
     val classFqns = classes.map(_.qualifiedName)
     classBuf = classFqns.asJava
     aMap(classFqns)

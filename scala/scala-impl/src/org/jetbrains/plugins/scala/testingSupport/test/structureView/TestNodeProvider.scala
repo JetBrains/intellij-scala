@@ -11,6 +11,8 @@ import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
@@ -29,12 +31,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationP
 
 import scala.annotation.tailrec
 
-/**
-  * @author Roman.Shein
-  * @since 10.04.2015.
-  */
+
 class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
-  override def getCheckBoxText: String = "Show scala tests" //TODO: get text from bundle
+  override def getCheckBoxText: String = ScalaBundle.message("test.node.provider.show.scala.tests")
 
   override def getShortcut: Array[Shortcut] = Array[Shortcut]()
 
@@ -96,8 +95,8 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
 }
 
 object TestNodeProvider {
-  val ignoredSuffix = " !!! IGNORED !!!"
-  val pendingSuffix = " (pending)"
+  @NonNls val IgnoredSuffix: String = " !!! IGNORED !!!"
+  @NonNls val PendingSuffix: String = " (pending)"
 
   private def getInnerInfixExprs(expr: ScInfixExpr) = {
     expr.getLastChild.getChildren.filter(_.isInstanceOf[ScInfixExpr]).map(_.asInstanceOf[ScInfixExpr])
@@ -186,10 +185,10 @@ object TestNodeProvider {
   }
 
   private def ignoredScalaTestElement(element: PsiElement, name: String, children: Array[TreeElement] = Array()) =
-    new Test(element, name + TestNodeProvider.ignoredSuffix, children, Test.IgnoredStatusId)
+    new Test(element, name + TestNodeProvider.IgnoredSuffix, children, Test.IgnoredStatusId)
 
   private def pendingScalaTestElement(element: PsiElement, name: String, children: Array[TreeElement] = Array()) =
-    new Test(element, name + TestNodeProvider.pendingSuffix, children, Test.PendingStatusId)
+    new Test(element, name + TestNodeProvider.PendingSuffix, children, Test.PendingStatusId)
 
   def getInfixExprTestName(expr: ScInfixExpr): String = expr.getNode.getFirstChildNode.getText
 
@@ -198,7 +197,7 @@ object TestNodeProvider {
     methodExpr != null && checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression], funName, paramNames: _*)
   }
 
-  private def checkScMethodCallApply(expr: ScMethodCall, callerName: String, paramNames: List[String]*): Boolean = {
+  private def checkScMethodCallApply(expr: ScMethodCall, @NonNls callerName: String, @NonNls paramNames: List[String]*): Boolean = {
     val methodExpr = expr.getEffectiveInvokedExpr match {
       case refExpr: ScReferenceExpression => refExpr
       case otherExpr => otherExpr.findFirstChildByType(ScalaElementType.REFERENCE_EXPRESSION)

@@ -18,6 +18,7 @@ import com.intellij.testIntegration.TestRunLineMarkerProvider
 import com.intellij.util.Function
 import javax.swing.Icon
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{inReadAction, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -219,7 +220,7 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   protected def buildLineInfo(url: String, project: Project, isClass: Boolean): RunLineMarkerContributor.Info = {
     val icon = iconFor(url, project, isClass)
     val actions = ExecutorAction.getActions(1)
-    new RunLineMarkerContributor.Info(icon, TooltipProvider, actions: _*)
+    new RunLineMarkerContributor.Info(icon, (_: PsiElement) => ScalaBundle.message("scalatest.gutter.run.test"), actions: _*)
   }
 
   private def iconFor(url: String, project: Project, isClass: Boolean): Icon = {
@@ -241,8 +242,6 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
 }
 
 private object ScalaTestRunLineMarkerProvider {
-
-  private val TooltipProvider: Function[PsiElement, String] = (_: PsiElement) => "Run Test"
 
   private val TestPositionsCalculationStateKey = new Key[TestLocationsCalculationState]("TestPositionsCalculationState")
   private val TestPositionsCalculationDebounceMs: Long = 2000L

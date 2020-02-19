@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
-import com.intellij.execution.ExternalizablePath
+import com.intellij.execution.{ExecutionException, ExternalizablePath}
 import com.intellij.execution.configurations.{RuntimeConfigurationError, RuntimeConfigurationException}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{DumbService, Project}
@@ -8,6 +8,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.xmlb.XmlSerializer
 import org.apache.commons.lang3.StringUtils
 import org.jdom.Element
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
@@ -30,11 +31,13 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
   protected final def getProject: Project = config.getProject
   protected final def checkModule: CheckResult =
     if (getModule != null) Right(())
-    else Left(new RuntimeConfigurationException("Module is not specified"))
+    else Left(exception(ScalaBundle.message("test.run.config.module.is.not.specified")))
 
   protected final def check(condition: Boolean, exception: => RuntimeConfigurationException): CheckResult = Either.cond(condition, (), exception)
   protected final def exception(message: String) = new RuntimeConfigurationException(message)
   protected final def error(message: String) = new RuntimeConfigurationError(message)
+  protected final def executionException(message: String) = new ExecutionException(message)
+  protected final def executionException(message: String, cause: Throwable) = new ExecutionException(message, cause)
 
   protected final def mScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
     if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
@@ -148,7 +151,7 @@ object TestConfigurationData {
 
   private def create(testKind: TestKind, configuration: AbstractTestRunConfiguration) = testKind match {
     case TestKind.ALL_IN_PACKAGE => new AllInPackageTestData(configuration)
-    case TestKind.CLASS          => new ClassTestData(configuration)
+    case TestKind.CLAZZ          => new ClassTestData(configuration)
     case TestKind.TEST_NAME      => new SingleTestData(configuration)
     case TestKind.REGEXP         => new RegexpTestData(configuration)
   }

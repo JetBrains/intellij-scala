@@ -15,8 +15,8 @@ abstract class ScalaTestTestCase extends ScalaTestingTestCase {
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {
     val testsModified: Seq[String] = status match {
       case NormalStatusId  => tests
-      case IgnoredStatusId => tests.map(_ + TestNodeProvider.ignoredSuffix)
-      case PendingStatusId => tests.map(_ + TestNodeProvider.pendingSuffix)
+      case IgnoredStatusId => tests.map(_ + TestNodeProvider.IgnoredSuffix)
+      case PendingStatusId => tests.map(_ + TestNodeProvider.PendingSuffix)
       case unknownStatus   => fail(s"unknown status code: $unknownStatus").asInstanceOf[Nothing]
     }
     super.runFileStructureViewTest(testClassName, status, testsModified: _*)

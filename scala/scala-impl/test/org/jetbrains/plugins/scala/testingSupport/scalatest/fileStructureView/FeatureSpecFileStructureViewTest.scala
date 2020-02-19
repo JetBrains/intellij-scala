@@ -41,5 +41,5 @@ trait FeatureSpecFileStructureViewTest extends ScalaTestTestCase {
   def testFeatureSpecIgnored(): Unit = runTest(IgnoredStatusId, "ignore(\"ignored1\")", "ignore(\"ignored2\")")
 
   def testFeatureSpecIgnoredHierarchy(): Unit = runTest("scenario(\"ignored_inner\")", Some("ignore(\"ignored2\")" +
-    TestNodeProvider.ignoredSuffix))
+    TestNodeProvider.IgnoredSuffix))
 }

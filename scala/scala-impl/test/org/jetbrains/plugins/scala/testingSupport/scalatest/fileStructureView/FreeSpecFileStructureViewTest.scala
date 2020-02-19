@@ -45,8 +45,8 @@ trait FreeSpecFileStructureViewTest extends ScalaTestTestCase {
   }
 
   def testFreeSpecIgnoredHierarchy(): Unit = {
-    runFileStructureViewTest(className, "\"level2_1\"", Some("\"level2\"" + TestNodeProvider.ignoredSuffix))
-    runFileStructureViewTest(className, "\"level2_2\"" + TestNodeProvider.ignoredSuffix, Some("\"level2\"" + TestNodeProvider.ignoredSuffix), IgnoredStatusId)
+    runFileStructureViewTest(className, "\"level2_1\"", Some("\"level2\"" + TestNodeProvider.IgnoredSuffix))
+    runFileStructureViewTest(className, "\"level2_2\"" + TestNodeProvider.IgnoredSuffix, Some("\"level2\"" + TestNodeProvider.IgnoredSuffix), IgnoredStatusId)
   }
 
   def testFreeSpecIgnored(): Unit = {
