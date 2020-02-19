@@ -219,6 +219,8 @@ object ScalaExtractStringToBundleInspection {
       val key = convertStringToKey(keyParts.mkString("."))
       val text = {
         val text = textParts.mkString
+          .replace("'", "''")
+          .replace("\\", "\\\\")
         if (text.length > 100) text.replace("\n", "\\n\\\n")
         else text.replace("\n", "\\n")
       }
