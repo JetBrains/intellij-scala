@@ -22,10 +22,8 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
   private var myRefCountHolder: ScalaRefCountHolder = _
   private var myAnnotationHolder: AnnotationHolderImpl = _
 
-  override def suitableForFile(file: PsiFile): Boolean = {
-    HighlightingLevelManager.getInstance(project).shouldInspect(file) &&
-      ScalaHighlightingMode.isScalaAnnotatorEnabled(file)
-  }
+  override def suitableForFile(file: PsiFile): Boolean =
+    HighlightingLevelManager.getInstance(project).shouldInspect(file)
 
   override def visit(element: PsiElement): Unit = {
     ScalaAnnotator(project).annotate(element, myAnnotationHolder)

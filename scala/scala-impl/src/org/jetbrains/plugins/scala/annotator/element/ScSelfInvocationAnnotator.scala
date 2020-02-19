@@ -29,7 +29,7 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
 
     resolved match {
       case Seq() =>
-        val annotation: Annotation = holder.createErrorAnnotation(element.thisElement,
+        val annotation = holder.createErrorAnnotation(element.thisElement,
           "Cannot find constructor for this call")
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
 

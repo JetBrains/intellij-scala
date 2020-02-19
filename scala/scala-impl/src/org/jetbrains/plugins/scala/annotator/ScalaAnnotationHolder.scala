@@ -19,7 +19,7 @@ trait ScalaAnnotationHolder {
    * @param message the error message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createErrorAnnotation(elt: PsiElement, message: String): Annotation
+  def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation
 
   /**
    * Creates an error annotation with the specified message over the specified AST node.
@@ -28,7 +28,7 @@ trait ScalaAnnotationHolder {
    * @param message the error message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createErrorAnnotation(node: ASTNode, message: String): Annotation
+  def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation
 
   /**
    * Creates an error annotation with the specified message over the specified text range.
@@ -37,7 +37,7 @@ trait ScalaAnnotationHolder {
    * @param message the error message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createErrorAnnotation(range: TextRange, message: String): Annotation
+  def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation
 
   /**
    * Creates a warning annotation with the specified message over the specified PSI element.
@@ -46,7 +46,7 @@ trait ScalaAnnotationHolder {
    * @param message the warning message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createWarningAnnotation(elt: PsiElement, message: String): Annotation
+  def createWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation
 
   /**
    * Creates a warning annotation with the specified message over the specified AST node.
@@ -55,7 +55,7 @@ trait ScalaAnnotationHolder {
    * @param message the warning message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createWarningAnnotation(node: ASTNode, message: String): Annotation
+  def createWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation
 
   /**
    * Creates a warning annotation with the specified message over the specified text range.
@@ -64,7 +64,7 @@ trait ScalaAnnotationHolder {
    * @param message the warning message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createWarningAnnotation(range: TextRange, message: String): Annotation
+  def createWarningAnnotation(range: TextRange, message: String): ScalaAnnotation
 
   /**
    * Creates an annotation with severity {@link HighlightSeverity#WEAK_WARNING} ('weak warning') with the specified
@@ -74,7 +74,7 @@ trait ScalaAnnotationHolder {
    * @param message the info message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createWeakWarningAnnotation(elt: PsiElement, message: String): Annotation
+  def createWeakWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation
 
   /**
    * Creates an annotation with severity {@link HighlightSeverity#WEAK_WARNING} ('weak warning') with the specified
@@ -84,7 +84,7 @@ trait ScalaAnnotationHolder {
    * @param message the info message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createWeakWarningAnnotation(node: ASTNode, message: String): Annotation
+  def createWeakWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation
 
   /**
    * Creates an annotation with severity {@link HighlightSeverity#WEAK_WARNING} ('weak warning') with the specified
@@ -94,7 +94,7 @@ trait ScalaAnnotationHolder {
    * @param message the info message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createWeakWarningAnnotation(range: TextRange, message: String): Annotation
+  def createWeakWarningAnnotation(range: TextRange, message: String): ScalaAnnotation
 
   /**
    * Creates an information annotation (colored highlighting only, with no gutter mark and not participating in
@@ -104,7 +104,7 @@ trait ScalaAnnotationHolder {
    * @param message the information message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createInfoAnnotation(elt: PsiElement, message: String): Annotation
+  def createInfoAnnotation(elt: PsiElement, message: String): ScalaAnnotation
 
   /**
    * Creates an information annotation (colored highlighting only, with no gutter mark and not participating in
@@ -114,7 +114,7 @@ trait ScalaAnnotationHolder {
    * @param message the information message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createInfoAnnotation(node: ASTNode, message: String): Annotation
+  def createInfoAnnotation(node: ASTNode, message: String): ScalaAnnotation
 
   /**
    * Creates an information annotation (colored highlighting only, with no gutter mark and not participating in
@@ -124,7 +124,7 @@ trait ScalaAnnotationHolder {
    * @param message the information message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createInfoAnnotation(range: TextRange, message: String): Annotation
+  def createInfoAnnotation(range: TextRange, message: String): ScalaAnnotation
 
   /**
    * Creates an annotation with the given severity (colored highlighting only, with no gutter mark and not participating in
@@ -135,7 +135,7 @@ trait ScalaAnnotationHolder {
    * @param message  the information message.
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Annotation
+  def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): ScalaAnnotation
 
   /**
    * Creates an annotation with the given severity (colored highlighting only, with no gutter mark and not participating in
@@ -147,7 +147,7 @@ trait ScalaAnnotationHolder {
    * @param htmlTooltip the tooltip to show (usually the message, but escaped as HTML and surrounded by a { @code <html>} tag
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): Annotation
+  def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): ScalaAnnotation
 
   def getCurrentAnnotationSession: AnnotationSession
   def isBatchMode: Boolean

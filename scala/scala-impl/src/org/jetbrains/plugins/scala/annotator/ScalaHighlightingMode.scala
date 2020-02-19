@@ -13,7 +13,7 @@ object ScalaHighlightingMode {
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
     showDotcErrors && hasDotty(project) || showScalacErrors && project.hasScala
 
-  def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean = {
+  private def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean = {
     val isRegularScalaFile = file.getVirtualFile.getExtension == ScalaFileType.INSTANCE.getDefaultExtension
     val enabled = isScala3File(file) && showDotcErrors || showScalacErrors
 

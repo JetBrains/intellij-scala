@@ -60,7 +60,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     else range
   }
 
-  private def adjustTextAttributesOf(annotation: Annotation): Unit = {
+  private def adjustTextAttributesOf(annotation: ScalaAnnotation): Unit = {
     val errorStripeColor = annotation.getTextAttributes.getDefaultAttributes.getErrorStripeColor
     val attributes = new TextAttributes()
     attributes.setEffectType(null)

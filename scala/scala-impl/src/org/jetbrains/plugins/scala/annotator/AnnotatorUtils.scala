@@ -113,7 +113,7 @@ object AnnotatorUtils {
   }
 
   def annotationWithoutHighlighting(te: PsiElement)
-                                   (implicit holder: ScalaAnnotationHolder): Annotation = {
+                                   (implicit holder: ScalaAnnotationHolder): ScalaAnnotation = {
     val teAnnotation = holder.createErrorAnnotation(te, null)
     teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
     val emptyAttr = new TextAttributes()
@@ -144,7 +144,7 @@ object AnnotatorUtils {
                            (implicit holder: ScalaAnnotationHolder): Unit = {
     if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplisitConversions) {
       val range = elementToHighlight.getTextRange
-      val annotation: Annotation = holder.createInfoAnnotation(range, null)
+      val annotation = holder.createInfoAnnotation(range, null)
       annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
       annotation.setAfterEndOfLine(false)
     }

@@ -11,7 +11,7 @@ object ScImportExprAnnotator extends ElementAnnotator[ScImportExpr] {
   override def annotate(element: ScImportExpr, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (element.qualifier == null) {
-      val annotation: Annotation = holder.createErrorAnnotation(element.getTextRange,
+      val annotation = holder.createErrorAnnotation(element.getTextRange,
         ScalaBundle.message("import.expr.should.be.qualified"))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }

@@ -16,46 +16,46 @@ abstract class DelegateAnnotationHolder(session: AnnotationSession)
   protected def transformRange(range: TextRange): TextRange
 
 
-  override def createErrorAnnotation(elt: PsiElement, message: String): Annotation =
+  override def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
     holder.createErrorAnnotation(transformRange(elt.getTextRange), message)
 
-  override def createErrorAnnotation(node: ASTNode, message: String): Annotation =
+  override def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation =
     holder.createErrorAnnotation(transformRange(node.getTextRange), message)
 
-  override def createErrorAnnotation(range: TextRange, message: String): Annotation =
+  override def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation =
     holder.createErrorAnnotation(transformRange(range), message)
 
-  override def createWarningAnnotation(elt: PsiElement, message: String): Annotation =
+  override def createWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
     holder.createWarningAnnotation(transformRange(elt.getTextRange), message)
 
-  override def createWarningAnnotation(node: ASTNode, message: String): Annotation =
+  override def createWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation =
     holder.createWarningAnnotation(transformRange(node.getTextRange), message)
 
-  override def createWarningAnnotation(range: TextRange, message: String): Annotation =
+  override def createWarningAnnotation(range: TextRange, message: String): ScalaAnnotation =
     holder.createWarningAnnotation(transformRange(range), message)
 
-  override def createWeakWarningAnnotation(elt: PsiElement, message: String): Annotation =
+  override def createWeakWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
     holder.createWeakWarningAnnotation(transformRange(elt.getTextRange), message)
 
-  override def createWeakWarningAnnotation(node: ASTNode, message: String): Annotation =
+  override def createWeakWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation =
     holder.createWeakWarningAnnotation(transformRange(node.getTextRange), message)
 
-  override def createWeakWarningAnnotation(range: TextRange, message: String): Annotation =
+  override def createWeakWarningAnnotation(range: TextRange, message: String): ScalaAnnotation =
     holder.createWeakWarningAnnotation(transformRange(range), message)
 
-  override def createInfoAnnotation(elt: PsiElement, message: String): Annotation =
+  override def createInfoAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
     holder.createInfoAnnotation(transformRange(elt.getTextRange), message)
 
-  override def createInfoAnnotation(node: ASTNode, message: String): Annotation =
+  override def createInfoAnnotation(node: ASTNode, message: String): ScalaAnnotation =
     holder.createInfoAnnotation(transformRange(node.getTextRange), message)
 
-  override def createInfoAnnotation(range: TextRange, message: String): Annotation =
+  override def createInfoAnnotation(range: TextRange, message: String): ScalaAnnotation =
     holder.createInfoAnnotation(transformRange(range), message)
 
-  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Annotation =
+  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): ScalaAnnotation =
     holder.createAnnotation(severity, transformRange(range), message)
 
-  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): Annotation =
+  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): ScalaAnnotation =
     holder.createAnnotation(severity, transformRange(range), message, htmlTooltip)
 
 

@@ -562,13 +562,13 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
   }
 
-  private def registerAddFixes(refElement: ScReference, annotation: Annotation, actions: IntentionAction*): Unit = {
+  private def registerAddFixes(refElement: ScReference, annotation: ScalaAnnotation, actions: IntentionAction*): Unit = {
     for (action <- actions) {
       annotation.registerFix(action)
     }
   }
 
-  private def registerCreateFromUsageFixesFor(ref: ScReference, annotation: Annotation): Unit = {
+  private def registerCreateFromUsageFixesFor(ref: ScReference, annotation: ScalaAnnotation): Unit = {
     ref match {
       case (exp: ScReferenceExpression) childOf (_: ScMethodCall) =>
         annotation.registerFix(new CreateMethodQuickFix(exp))

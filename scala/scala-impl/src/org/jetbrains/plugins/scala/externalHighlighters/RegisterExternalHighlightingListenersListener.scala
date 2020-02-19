@@ -19,11 +19,10 @@ class RegisterExternalHighlightingListenersListener(project: Project)
 
   private var listeners: Option[Listeners] = None
 
-  override def selectionChanged(event: FileEditorManagerEvent): Unit =
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-      deregisterListeners()
-      registerListeners(event.getNewFile)
-    }
+  override def selectionChanged(event: FileEditorManagerEvent): Unit = {
+    deregisterListeners()
+    registerListeners(event.getNewFile)
+  }
 
   private def deregisterListeners(): Unit = {
     listeners.foreach(_.deregister())
@@ -36,6 +35,10 @@ class RegisterExternalHighlightingListenersListener(project: Project)
       listeners = Some(newListeners)
       newListeners.register()
     }
+
+  private def ifEnabled(action: => Unit): Unit =
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+      action
 
   private case class Listeners(documentListener: CompilingDocumentListener,
                                psiTreeListener: SavingProjectPsiTreeChangeListener)
@@ -64,7 +67,7 @@ class RegisterExternalHighlightingListenersListener(project: Project)
     private var wasChanged = false
     private val executor = new ExclusiveDelayedExecutor
 
-    final override def documentChanged(event: DocumentEvent): Unit = {
+    final override def documentChanged(event: DocumentEvent): Unit = ifEnabled {
       wasChanged = true
       executor.execute(ScalaHighlightingMode.compilationDelay) {
         compiler.compile(project, event.getDocument)
@@ -85,7 +88,7 @@ class RegisterExternalHighlightingListenersListener(project: Project)
     extends PsiTreeChangeAdapter
       with Registering {
 
-    override def childrenChanged(event: PsiTreeChangeEvent): Unit =
+    override def childrenChanged(event: PsiTreeChangeEvent): Unit = ifEnabled {
       Option(event.getFile.getVirtualFile)
         .filter(_ != selectedFile)
         .foreach { _ =>
@@ -93,6 +96,7 @@ class RegisterExternalHighlightingListenersListener(project: Project)
             invokeAndWait(FileDocumentManager.getInstance.saveAllDocuments())
           }
         }
+    }
 
     override def deregister(): Unit =
       psiManager.removePsiTreeChangeListener(this)

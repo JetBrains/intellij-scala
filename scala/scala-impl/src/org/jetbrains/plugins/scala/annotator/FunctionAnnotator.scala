@@ -114,7 +114,7 @@ trait FunctionAnnotator {
         annotation.registerFix(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
       }
 
-      def redundantReturnExpression(): Annotation = {
+      def redundantReturnExpression(): ScalaAnnotation = {
         val message = ScalaBundle.message("return.expression.is.redundant", usageType.presentableText(usage))
         holder.createWarningAnnotation(usage.asInstanceOf[ScReturn].expr.get, message)
       }

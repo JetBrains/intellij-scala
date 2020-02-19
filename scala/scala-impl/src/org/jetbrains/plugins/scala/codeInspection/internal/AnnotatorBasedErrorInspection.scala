@@ -11,7 +11,7 @@ import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
-import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, ScalaAnnotator}
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotation, ScalaAnnotationHolder, ScalaAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -77,63 +77,63 @@ object AnnotatorBasedErrorInspection {
 
   private class DummyAnnotationHolder(element: PsiElement, holder: ProblemsHolder) extends ScalaAnnotationHolder {
 
-    private val FakeAnnotation = new Annotation(
+    private val FakeAnnotation = new ScalaAnnotation(new Annotation(
       0,
       0,
       HighlightSeverity.WEAK_WARNING,
       "message",
       "tooltip"
-    )
+    ))
 
     override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String,
-                                  htmlTooltip: String): Annotation = FakeAnnotation
+                                  htmlTooltip: String): ScalaAnnotation = FakeAnnotation
 
-    def createAnnotation(severity: HighlightSeverity, range: TextRange, str: String): Annotation = FakeAnnotation
+    def createAnnotation(severity: HighlightSeverity, range: TextRange, str: String): ScalaAnnotation = FakeAnnotation
 
     def isBatchMode: Boolean = false
 
-    def createInfoAnnotation(range: TextRange, message: String): Annotation = FakeAnnotation
+    def createInfoAnnotation(range: TextRange, message: String): ScalaAnnotation = FakeAnnotation
 
-    def createInfoAnnotation(node: ASTNode, message: String): Annotation = FakeAnnotation
+    def createInfoAnnotation(node: ASTNode, message: String): ScalaAnnotation = FakeAnnotation
 
-    def createInfoAnnotation(elt: PsiElement, message: String): Annotation = FakeAnnotation
+    def createInfoAnnotation(elt: PsiElement, message: String): ScalaAnnotation = FakeAnnotation
 
-    def createInformationAnnotation(range: TextRange, message: String): Annotation = FakeAnnotation
+    def createInformationAnnotation(range: TextRange, message: String): ScalaAnnotation = FakeAnnotation
 
-    def createInformationAnnotation(node: ASTNode, message: String): Annotation = FakeAnnotation
+    def createInformationAnnotation(node: ASTNode, message: String): ScalaAnnotation = FakeAnnotation
 
-    def createInformationAnnotation(elt: PsiElement, message: String): Annotation = FakeAnnotation
+    def createInformationAnnotation(elt: PsiElement, message: String): ScalaAnnotation = FakeAnnotation
 
-    def createWarningAnnotation(range: TextRange, message: String): Annotation = {
+    def createWarningAnnotation(range: TextRange, message: String): ScalaAnnotation = {
       holder.registerProblem(element, s"Warning: $message", GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
-    def createWarningAnnotation(node: ASTNode, message: String): Annotation = {
+    def createWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
       holder.registerProblem(element, s"Warning: $message", GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
-    def createWarningAnnotation(elt: PsiElement, message: String): Annotation = {
+    def createWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
       holder.registerProblem(element, s"Warning: $message", GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
-    def createErrorAnnotation(range: TextRange, message: String): Annotation = {
+    def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation = {
       if (message != null) {
         holder.registerProblem(element, s"Error detected: $message", ERROR)
       }
       FakeAnnotation
     }
 
-    def createErrorAnnotation(node: ASTNode, message: String): Annotation = {
+    def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
       if (message != null) {
         holder.registerProblem(element, s"Error detected: $message", ERROR)
       }
       FakeAnnotation
     }
 
-    def createErrorAnnotation(elt: PsiElement, message: String): Annotation = {
+    def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
       if (message != null) {
         holder.registerProblem(element, s"Error detected: $message", ERROR)
       }
@@ -144,11 +144,11 @@ object AnnotatorBasedErrorInspection {
       new AnnotationSession(element.getContainingFile)
     }
 
-    def createWeakWarningAnnotation(p1: TextRange, p2: String): Annotation = FakeAnnotation
+    def createWeakWarningAnnotation(p1: TextRange, p2: String): ScalaAnnotation = FakeAnnotation
 
-    def createWeakWarningAnnotation(p1: ASTNode, p2: String): Annotation = FakeAnnotation
+    def createWeakWarningAnnotation(p1: ASTNode, p2: String): ScalaAnnotation = FakeAnnotation
 
-    def createWeakWarningAnnotation(p1: PsiElement, p2: String): Annotation = FakeAnnotation
+    def createWeakWarningAnnotation(p1: PsiElement, p2: String): ScalaAnnotation = FakeAnnotation
   }
 
 }
