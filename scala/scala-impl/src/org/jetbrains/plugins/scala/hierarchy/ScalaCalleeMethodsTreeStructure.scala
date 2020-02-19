@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.hierarchy
 
 import com.intellij.ide.hierarchy.call.CallHierarchyNodeDescriptor
-import com.intellij.ide.hierarchy.newAPI.{HierarchyNodeDescriptor, HierarchyTreeStructure}
+import com.intellij.ide.hierarchy.{HierarchyNodeDescriptor, HierarchyTreeStructure}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.searches.OverridingMethodsSearch
 import com.intellij.psi.{PsiElement, PsiMethod, _}

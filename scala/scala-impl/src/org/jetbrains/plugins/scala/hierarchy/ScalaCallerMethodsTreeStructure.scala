@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.hierarchy
 
 import com.intellij.ide.hierarchy.call.CallHierarchyNodeDescriptor
-import com.intellij.ide.hierarchy.newAPI.{HierarchyNodeDescriptor, HierarchyTreeStructure}
+import com.intellij.ide.hierarchy.{HierarchyNodeDescriptor, HierarchyTreeStructure}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.SearchScope
@@ -50,7 +50,7 @@ final class ScalaCallerMethodsTreeStructure(project: Project, method: PsiMethod,
           val element: PsiElement = reference.getElement
           val key: PsiMember = PsiTreeUtil.getNonStrictParentOfType(element, classOf[PsiMethod], classOf[PsiClass])
           methodToDescriptorMap synchronized {
-            val d: CallHierarchyNodeDescriptor = methodToDescriptorMap.get(key) match {
+            var d: CallHierarchyNodeDescriptor = methodToDescriptorMap.get(key) match {
               case Some(call) =>
                 if (!call.hasReference(reference)) {
                   call.incrementUsageCount()
