@@ -134,7 +134,7 @@ object ScalaBundleSorting {
 
   def findKeysInModule(path: String, searcher: Searcher): List[Finding] =
     for (file <- allFilesIn(path).toList.sorted; key <- searcher.search(file)) yield {
-      val absoluteFilepath = file.toString
+      val absoluteFilepath = file.toString.replace('\\', '/')
       val relativeFilepath = absoluteFilepath.substring(path.length)
       Finding(relativeFilepath, key)(absoluteFilepath)
     }
