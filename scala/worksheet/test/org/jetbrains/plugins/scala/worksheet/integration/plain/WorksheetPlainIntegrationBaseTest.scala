@@ -279,12 +279,17 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     val viewerStates = runLongEvaluation(leftText)
 
+    def expectedAndActualText =
+      s"""expected:
+         |${rightTextStates.zipWithIndex.map { case (state, idx) => s"$idx: $state" }}
+         |
+         |actual:
+         |${viewerStates.zipWithIndex.map { case (state, idx) => s"$idx: ${state.text}" }}"""
+
     viewerStates.zipAll(rightTextStates, null, null).zipWithIndex
-      .foreach { case ((actualViewerState, expectedTextWithFoldings), idx) =>
-        if (actualViewerState == null)
-          fail(s"expected too many intermediate flushed:\n$expectedTextWithFoldings")
-        if (expectedTextWithFoldings == null)
-          fail(s"unexpected intermediate flush:\n$actualViewerState")
+      .foreach { case ((actualViewerState: ViewerEditorData, expectedTextWithFoldings: String), idx) =>
+        if (actualViewerState == null) fail(s"too few intermediate flushes:\n$expectedAndActualText")
+        if (expectedTextWithFoldings == null) fail(s"unexpected intermediate flushes:\n$expectedAndActualText")
 
         val actualTextWithFoldings = renderViewerData(actualViewerState)
         assertEquals(s"Worksheet output at step $idx differs from expected",
