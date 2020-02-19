@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.{HighlightingCompiler, HighlightingCompilerImpl}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.util.ExclusiveDelayedExecutor
 
 class RegisterExternalHighlightingListenersListener(project: Project)
@@ -89,7 +90,8 @@ class RegisterExternalHighlightingListenersListener(project: Project)
       with Registering {
 
     override def childrenChanged(event: PsiTreeChangeEvent): Unit = ifEnabled {
-      Option(event.getFile.getVirtualFile)
+      Option(event.getFile)
+        .flatMap(_.getVirtualFile.toOption)
         .filter(_ != selectedFile)
         .foreach { _ =>
           saveAllDocumentsExecutor.execute(ScalaHighlightingMode.compilationJpsDelay) {
