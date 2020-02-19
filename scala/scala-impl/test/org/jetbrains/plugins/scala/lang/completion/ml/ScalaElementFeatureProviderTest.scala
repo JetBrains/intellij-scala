@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion.ml
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package ml
 
 import java.util
 
@@ -6,33 +9,33 @@ import com.intellij.codeInsight.completion.ml.{ContextFeatures, ElementFeaturePr
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionLocation, CompletionType}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ml.CompletionItem._
 import org.junit.{Assert, Test}
 
 import scala.collection.mutable
 
 class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  import CompletionItem._
+
   @Test
   def testPostfix(): Unit = {
 
     assertContext("postfix", MLFeatureValue.binary(true))(
-      """object X {
-        |  val a = 1
-        |  a <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val a = 1
+         |  a $CARET
+         |}
+         |""".stripMargin
     )
 
     assertContext("postfix", MLFeatureValue.binary(false))(
-      """object X {
-        |  val a = 1
-        |  a.<caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val a = 1
+         |  a.$CARET
+         |}
+         |""".stripMargin
     )
   }
 
@@ -40,102 +43,102 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   def testInsideCatch(): Unit = {
 
     assertContext("inside_catch", MLFeatureValue.binary(true))(
-      """object X {
-        |  try a
-        |  catch <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  try a
+         |  catch $CARET
+         |}
+         |""".stripMargin
     )
 
     assertContext("inside_catch", MLFeatureValue.binary(false))(
-      """object X {
-        |  try <caret>
-        |  catch b
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  try $CARET
+         |  catch b
+         |}
+         |""".stripMargin
     )
   }
 
   @Test
   def testTypeExpected(): Unit = {
     assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  List[<caret>]
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  List[$CARET]
+         |}
+         |""".stripMargin
     )
 
     assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  type A = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  type A = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  val a: <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val a: $CARET
+         |}
+         |""".stripMargin
     )
 
     assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  class A extends <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  class A extends $CARET
+         |}
+         |""".stripMargin
     )
 
     assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  type A = Int with <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  type A = Int with $CARET
+         |}
+         |""".stripMargin
     )
 
     assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  1 match { case _: <caret> }
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  1 match { case _: $CARET }
+         |}
+         |""".stripMargin
     )
 
     assertContext("type_expected", MLFeatureValue.binary(false))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertContext("type_expected", MLFeatureValue.binary(false))(
-      """object X {
-        |  val a = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val a = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertContext("type_expected", MLFeatureValue.binary(false))(
-      """object X {
-        |  1.<caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  1.$CARET
+         |}
+         |""".stripMargin
     )
   }
 
   @Test
   def testAfterNew(): Unit = {
     assertContext("after_new", MLFeatureValue.binary(true))(
-      """object X {
-        |  new <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  new $CARET
+         |}
+         |""".stripMargin
     )
 
     assertContext("after_new", MLFeatureValue.binary(false))(
-      """object X {
-        |  new java.util.HashMap(<caret>)
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  new java.util.HashMap($CARET)
+         |}
+         |""".stripMargin
     )
   }
 
@@ -143,123 +146,123 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   def testKind(): Unit = {
 
     assertElement("kind", "type", MLFeatureValue.categorical(KEYWORD))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("kind", "Nil", MLFeatureValue.categorical(VALUE))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("kind", "BufferedIterator", MLFeatureValue.categorical(TYPE_ALIAS))(
-      """object X {
-        |  type a = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  type a = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("kind", "a", MLFeatureValue.categorical(VARIABLE))(
-      """object X {
-        |  var a = 1
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  var a = 1
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("kind", "X", MLFeatureValue.categorical(OBJECT))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("kind", "X", MLFeatureValue.categorical(CLASS))(
-      """class X {
-        |  type a = <caret>
-        |}
-        |""".stripMargin
+      s"""class X {
+         |  type a = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("kind", "X", MLFeatureValue.categorical(TRAIT))(
-      """trait X {
-        |  type a = <caret>
-        |}
-        |""".stripMargin
+      s"""trait X {
+         |  type a = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("kind", "int2Integer", MLFeatureValue.categorical(FUNCTION))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("kind", "asInstanceOf", MLFeatureValue.categorical(SYNTHETHIC_FUNCTION))(
-      """object X {
-        |  "" <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  "" $CARET
+         |}
+         |""".stripMargin
     )
 
 
     assertElement("kind", "LinkageError", MLFeatureValue.categorical(EXCEPTION))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("kind", "java", MLFeatureValue.categorical(PACKAGE))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
   }
 
   @Test
   def testSymbolic(): Unit = {
     assertElement("symbolic", "+", MLFeatureValue.binary(true))(
-      """object X {
-        |  Set.empty <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  Set.empty $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("symbolic", "--", MLFeatureValue.binary(true))(
-      """object X {
-        |  Set.empty <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  Set.empty $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("symbolic", "contains", MLFeatureValue.binary(false))(
-      """object X {
-        |  Set.empty <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  Set.empty $CARET
+         |}
+         |""".stripMargin
     )
   }
 
   @Test
   def testUnary(): Unit = {
     assertElement("unary", "unary_+", MLFeatureValue.binary(true))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("unary", "+", MLFeatureValue.binary(false))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
   }
 
@@ -267,17 +270,17 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   def testScala(): Unit = {
 
     assertElement("scala", "List", MLFeatureValue.binary(true))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("scala", "NoSuchMethodError", MLFeatureValue.binary(false))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
   }
 
@@ -285,24 +288,24 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   def testJavaObjectMethod(): Unit = {
 
     assertElement("java_object_method", "equals", MLFeatureValue.binary(true))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("java_object_method", "+", MLFeatureValue.binary(false))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("java_object_method", "to", MLFeatureValue.binary(false))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
   }
 
@@ -310,41 +313,41 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   def testArgumentCount(): Unit = {
 
     assertElement("argument_count", "Nil", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("argument_count", "f", MLFeatureValue.float(0.0))(
-      """object X {
-        |  def f(): Unit = ???
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  def f(): Unit = ???
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("argument_count", "print", MLFeatureValue.float(1.0))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("argument_count", "f", MLFeatureValue.float(2))(
-      """object X {
-        |  val f: (Int, Int) => Double = ???
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val f: (Int, Int) => Double = ???
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("argument_count", "f", MLFeatureValue.float(0))(
-      """object X {
-        |  def f(implicit int: Int): Unit = ???
-        |  <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  def f(implicit int: Int): Unit = ???
+         |  $CARET
+         |}
+         |""".stripMargin
     )
   }
 
@@ -352,104 +355,104 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   def testNameNameDist(): Unit = {
 
     assertElement("name_name_sim", "List", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  val l = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val l = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_name_sim", "List", MLFeatureValue.float(1.0))(
-      """object X {
-        |  val list = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val list = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_name_sim", "ScalaReflectionException", MLFeatureValue.float(1.0))(
-      """object X {
-        |  var scalaReflectionException = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  var scalaReflectionException = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_name_sim", "ind", MLFeatureValue.float(0.6))(
-      """object X {
-        |  val ind = ???
-        |  "".charAt(index = <caret>)
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val ind = ???
+         |  "".charAt(index = $CARET)
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_name_sim", "List", MLFeatureValue.float(0.5))(
-      """object X {
-        |  def byteList = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  def byteList = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_name_sim", "List", MLFeatureValue.float(0.25))(
-      """object X {
-        |  type ByteListTypeName = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  type ByteListTypeName = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_name_sim", "List", MLFeatureValue.float(0.5))(
-      """object X {
-        |  def f(listname: Nothing) = ???
-        |  f(<caret>)
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  def f(listname: Nothing) = ???
+         |  f($CARET)
+         |}
+         |""".stripMargin
     )
 
     // TODO for some reason expectedTypeEx don't return name for non local methods
-//    assertElement("name_name_sim", "requ", MLFeatureValue.float(0.5))(
-//      """object X {
-//        |  val requ = ???
-//        |  require(<caret>)
-//        |}
-//        |""".stripMargin
-//    )
+    //    assertElement("name_name_sim", "requ", MLFeatureValue.float(0.5))(
+    //      s"""object X {
+    //        |  val requ = ???
+    //        |  require($CARET)
+    //        |}
+    //        |""".stripMargin
+    //    )
   }
 
   @Test
   def testNameTypeDist(): Unit = {
 
     assertElement("name_type_sim", "Array", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  type A = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  type A = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_type_sim", "List", MLFeatureValue.float(0.25))(
-      """object X {
-        |  type ByteListTypeName = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  type ByteListTypeName = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_type_sim", "Product12", MLFeatureValue.float(1.0))(
-      """object X {
-        |  def f(product11: <caret>)
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  def f(product11: $CARET)
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_type_sim", "List", MLFeatureValue.float(1.0))(
-      """object X {
-        |  val list: <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val list: $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("name_type_sim", "a", MLFeatureValue.float(0.5))(
-      """object X {
-        |  val a: List[Int] = ???
-        |  def f(listname: Nothing) = ???
-        |  f(<caret>)
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val a: List[Int] = ???
+         |  def f(listname: Nothing) = ???
+         |  f($CARET)
+         |}
+         |""".stripMargin
     )
   }
 
@@ -457,82 +460,82 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   def testTypeNameDist(): Unit = {
 
     assertElement("type_name_sim", "Array", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  val a = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val a = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("type_name_sim", "integral", MLFeatureValue.float(0.375))(
-      """object X {
-        |  val integral = ???
-        |  val b: Int = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val integral = ???
+         |  val b: Int = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("type_name_sim", "index", MLFeatureValue.float(0.4))(
-      """object X {
-        |  val index = ???
-        |  "".charAt(<caret>)
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val index = ???
+         |  "".charAt($CARET)
+         |}
+         |""".stripMargin
     )
 
     // TODO for some reason expectedTypeEx don't return any type for overloading
-//    assertElement("name_name_sim", "requ", MLFeatureValue.float(0.5))(
-//      """object X {
-//        |  val string = ???
-//        |  "".indexOf(<caret>)
-//        |}
-//        |""".stripMargin
-//    )
+    //    assertElement("name_name_sim", "requ", MLFeatureValue.float(0.5))(
+    //      s"""object X {
+    //        |  val string = ???
+    //        |  "".indexOf($CARET)
+    //        |}
+    //        |""".stripMargin
+    //    )
   }
 
   @Test
   def testTypeTypeDist(): Unit = {
 
     assertElement("type_type_sim", "integer", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  type I = Int
-        |  val integer: Int = ???
-        |  val anotherInteger: I = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  type I = Int
+         |  val integer: Int = ???
+         |  val anotherInteger: I = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("type_type_sim", "a", MLFeatureValue.float(0.5))(
-      """object X {
-        |  val a: Option[Int] = ???
-        |  var b: Int with Double = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val a: Option[Int] = ???
+         |  var b: Int with Double = $CARET
+         |}
+         |""".stripMargin
     )
 
     assertElement("type_type_sim", "a", MLFeatureValue.float(1.0))(
-      """object X {
-        |  val a: Option[Int] = ???
-        |  def f(o: Option[Int]) = ???
-        |  f(<caret>)
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val a: Option[Int] = ???
+         |  def f(o: Option[Int]) = ???
+         |  f($CARET)
+         |}
+         |""".stripMargin
     )
 
     assertElement("type_type_sim", "a", MLFeatureValue.float(1.0))(
-      """object X {
-        |  val a: Option[Int] = ???
-        |  val b: Int = <caret>
-        |}
-        |""".stripMargin
+      s"""object X {
+         |  val a: Option[Int] = ???
+         |  val b: Int = $CARET
+         |}
+         |""".stripMargin
     )
   }
 
-  private def assertContext(name: String, expected: MLFeatureValue)(fileText : String): Unit = {
+  private def assertContext(name: String, expected: MLFeatureValue)(fileText: String): Unit = {
     val elementsFeatures = computeElementsFeatures(fileText)
     assertFeatureEquals(expected, elementsFeatures.head._2.get(name))
   }
 
-  private def assertElement(name: String, element: String, expected: MLFeatureValue)(fileText : String): Unit = {
+  private def assertElement(name: String, element: String, expected: MLFeatureValue)(fileText: String): Unit = {
     val elementFeatures = computeElementsFeatures(fileText)
     assertFeatureEquals(expected, elementFeatures(element).get(name))
   }
@@ -544,7 +547,7 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
 
       val elements = mutable.Map.empty[String, util.Map[String, MLFeatureValue]]
 
-      override def getName: String = "scala"
+      override def getName: String = ScalaLowerCase
 
       override def calculateFeatures(element: LookupElement, location: CompletionLocation, contextFeatures: ContextFeatures): util.Map[String, MLFeatureValue] = {
         val result = original.calculateFeatures(element, location, contextFeatures)

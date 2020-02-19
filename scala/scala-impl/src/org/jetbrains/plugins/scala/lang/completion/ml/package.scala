@@ -4,7 +4,8 @@ package completion
 
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsMethodImpl
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.{InheritanceUtil, PsiTreeUtil}
+import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import com.intellij.util.text.NameUtilCore
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
@@ -31,27 +32,29 @@ package object ml {
 
   private[ml] def isSymbolic(name: String): Boolean = name.exists(c => !c.isLetterOrDigit && c != '$')
 
-  private[ml] def extractWords(names: Iterable[String], maxWords: Int = MaxWords): Array[String] = {
+  private[ml] def extractWords(name: String,
+                               maxWords: Int = MaxWords): Array[String] =
+    if (isMeaningful(name)) {
+      val wordsIterator = for {
+        namePart <- NonNamePattern.split(name).iterator
+        if isMeaningful(namePart)
+        word <- NameUtilCore.nameToWords(namePart).iterator
+        if isMeaningful(word)
+      } yield word
 
-    val wordsIterator = for {
-      name <- names.iterator if isMeaningful(name)
-      namePart <- NonNamePattern.split(name).iterator if isMeaningful(namePart)
-      word <- NameUtilCore.nameToWords(namePart).iterator if isMeaningful(word)
-    } yield word
+      wordsIterator
+        .take(maxWords)
+        .map(_.toLowerCase)
+        .toArray
+    } else {
+      EMPTY_STRING_ARRAY
+    }
 
-    wordsIterator
-      .take(maxWords)
-      .map(_.toLowerCase)
-      .toArray
-  }
-
-  private[ml] def extractWords(maybeType: Option[ScType]): Array[String] = {
-
-    val typesSortedByRelevance = maybeType match {
-      case Some(FunctionType(returnType, argTypes)) => returnType +: argTypes
-      case Some(PartialFunctionType(returnType, argType)) => Seq(returnType, argType)
-      case Some(scType) => Seq(scType)
-      case _ => Seq.empty
+  private[ml] def extractWords(`type`: ScType): Array[String] = {
+    val typesSortedByRelevance = `type` match {
+      case FunctionType(returnType, argTypes) => returnType +: argTypes
+      case PartialFunctionType(returnType, argType) => Seq(returnType, argType)
+      case _ => Seq(`type`)
     }
 
     val words = mutable.Set.empty[String]
@@ -70,9 +73,14 @@ package object ml {
     words.toArray
   }
 
-  private[ml] def wordsSimilarity(expected: Array[String], actual: Array[String]): Option[Double] = {
-    val similarity = if (actual.nonEmpty) expected.map(word => actual.map(relativePrefixMatch(word, _)).max).sum else 0
-    if (expected.nonEmpty) Some(similarity / expected.length) else None
+  private[ml] def wordsSimilarity(expected: Array[String],
+                                  actual: Array[String]): Double = expected.length match {
+    case 0 => -1
+    case length =>
+      val similarity = if (actual.isEmpty) 0
+      else expected.map(word => actual.map(relativePrefixMatch(word, _)).max).sum
+
+      similarity / length
   }
 
   private def relativePrefixMatch(str1: String, str2: String): Double = {
@@ -99,25 +107,18 @@ package object ml {
     word.length > 2 && word != "get" && word != "set" && !isSymbolic(word)
   }
 
-  private[ml] def isJavaObjectMethod(maybeElement: Option[PsiElement]): Boolean = maybeElement.exists {
+  private[ml] def isJavaObjectMethod(element: PsiElement): Boolean = element match {
     case methodImpl: ClsMethodImpl =>
-      Option(methodImpl.getContainingClass).exists(_.qualifiedNameOpt.contains(CommonClassNames.JAVA_LANG_OBJECT))
+      Option(methodImpl.getContainingClass)
+        .exists(CommonClassNames.JAVA_LANG_OBJECT == _.getQualifiedName)
     case _ => false
   }
 
-  private[ml] def elementKind(maybeElement: Option[PsiElement]): Option[CompletionItem] = {
+  private[ml] def elementKind(element: PsiElement): CompletionItem = {
     import CompletionItem._
 
-    @tailrec
-    def isException(psiClass: PsiClass, depth: Int = 5): Boolean = {
-      depth >= 0 && psiClass.qualifiedNameOpt.contains(CommonClassNames.JAVA_LANG_THROWABLE) || {
-        val superClass = psiClass.getSuperClass
-        superClass != null && isException(superClass, depth - 1)
-      }
-    }
-
-    maybeElement.collectFirst {
-      case c: PsiClass if isException(c) => EXCEPTION
+    element match {
+      case c: PsiClass if InheritanceUtil.isInheritor(c, CommonClassNames.JAVA_LANG_THROWABLE) => EXCEPTION
       case _: ScPackage => PACKAGE
       case _: ScObject => OBJECT
       case _: ScTrait => TRAIT
@@ -135,60 +136,49 @@ package object ml {
       case _: PsiMethod => FUNCTION
       case f: PsiField if f.getModifierList.hasModifierProperty(PsiModifier.FINAL) => VALUE
       case _: PsiField => VARIABLE
+      case _ => UNKNOWN
     }
   }
 
-  private[ml] def argumentCount(maybeElement: Option[PsiElement]): Option[Int] = {
-    maybeElement.map {
-      case function: ScFunction => function.paramClauses.clauses.headOption.filterNot(_.isImplicit).map(_.parameters.size).getOrElse(0)
-      case method: PsiMethod => method.getParameterList.getParametersCount
-      case syntheticFunction: ScSyntheticFunction => syntheticFunction.paramClauses.headOption.map(_.size).getOrElse(0)
-      case Typeable(FunctionType(_, argumentTypes)) => argumentTypes.size
-      case Typeable(PartialFunctionType(_, _)) => 1
-      case _ => -1
-    }
+  private[ml] def argumentsCount(element: PsiElement): Int = element match {
+    case function: ScFunction => function.paramClauses.clauses.headOption.filterNot(_.isImplicit).map(_.parameters.size).getOrElse(0)
+    case method: PsiMethod => method.getParameterList.getParametersCount
+    case syntheticFunction: ScSyntheticFunction => syntheticFunction.paramClauses.headOption.map(_.size).getOrElse(0)
+    case Typeable(FunctionType(_, argumentTypes)) => argumentTypes.size
+    case Typeable(PartialFunctionType(_, _)) => 1
+    case _ => -1
   }
 
-  private[ml] def expectedName(maybeElement: Option[PsiElement]): Option[String] = {
-
-    maybeElement
-      .flatMap { element =>
-        findParendIfRightChild(element, Array(
-          classOf[ScTypedDeclaration],
-          classOf[ScTypeAliasDefinition],
-          classOf[ScAssignment],
-          classOf[ScPatternDefinition],
-          classOf[ScVariableDefinition],
-          classOf[ScFunctionDefinition],
-          classOf[ScBindingPattern],
-          classOf[ScParameter]
-        ))
-      }
-      .flatMap {
-        case typedDeclaration: ScTypedDeclaration => typedDeclaration.declaredElements.headOption.map(_.name)
-        case typeAliasDefinition: ScTypeAliasDefinition => Option(typeAliasDefinition.name)
-        case assignment: ScAssignment => assignment.referenceName
-        case valDefinition: ScPatternDefinition => valDefinition.bindings.headOption.map(_.name)
-        case varDefinition: ScVariableDefinition => varDefinition.bindings.headOption.map(_.name)
-        case defDefinition: ScFunctionDefinition => Option(defDefinition.name)
-        case bindingPattern: ScBindingPattern => Option(bindingPattern.name)
-        case parameter: ScParameter => Option(parameter.name)
-        case _ => None
-      }
-  }
-
-  private def findParendIfRightChild(element: PsiElement, parentClasses: Array[Class[_ <: PsiElement]]): Option[PsiElement] = {
-    val parent = PsiTreeUtil.getParentOfType(element, parentClasses: _*)
-
+  private[ml] def expectedName(element: PsiElement): Option[String] = {
     @tailrec
     def isRightAncestor(child: PsiElement, parent: PsiElement): Boolean = {
-      val currentParrent = child.getParent
-      if (currentParrent.getLastChild ne child) false
-      else if (currentParrent eq parent) true
-      else isRightAncestor(currentParrent, parent)
+      val currentParent = child.getParent
+      if (currentParent.getLastChild ne child) false
+      else if (currentParent eq parent) true
+      else isRightAncestor(currentParent, parent)
     }
 
-    Option(parent).filter(isRightAncestor(element, _))
+    PsiTreeUtil.getParentOfType(
+      element,
+      classOf[ScTypedDeclaration],
+      classOf[ScTypeAliasDefinition],
+      classOf[ScAssignment],
+      classOf[ScPatternDefinition],
+      classOf[ScVariableDefinition],
+      classOf[ScFunctionDefinition],
+      classOf[ScBindingPattern],
+      classOf[ScParameter]
+    ) match {
+      case declaration: ScTypedDeclaration if isRightAncestor(element, declaration) => declaration.declaredElements.headOption.map(_.name)
+      case typeAlias: ScTypeAliasDefinition if isRightAncestor(element, typeAlias) => Option(typeAlias.name)
+      case assignment: ScAssignment if isRightAncestor(element, assignment) => assignment.referenceName
+      case value: ScPatternDefinition if isRightAncestor(element, value) => value.bindings.headOption.map(_.name)
+      case variable: ScVariableDefinition if isRightAncestor(element, variable) => variable.bindings.headOption.map(_.name)
+      case function: ScFunctionDefinition if isRightAncestor(element, function) => Option(function.name)
+      case bindingPattern: ScBindingPattern if isRightAncestor(element, bindingPattern) => Option(bindingPattern.name)
+      case parameter: ScParameter if isRightAncestor(element, parameter) => Option(parameter.name)
+      case _ => None
+    }
   }
 
   private class TypeNamesExtractor(maxWords: Int) extends ScalaTypeVisitor {
@@ -228,7 +218,7 @@ package object ml {
     override def visitAbstractType(a: ScAbstractType): Unit = ()
 
     private def add(name: String): Unit = {
-      result ++= extractWords(Some(name), maxWords - result.size)
+      result ++= extractWords(name, maxWords - result.size)
     }
 
     private def visit(`type`: ScType): Unit = {

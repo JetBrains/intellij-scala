@@ -12,9 +12,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.patterns.{ElementPattern, PlatformPatterns}
 import com.intellij.psi.PsiElement
+import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider._
-import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
+import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher.computeType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isKeyword
@@ -28,45 +29,51 @@ final class ScalaElementFeatureProvider extends ElementFeatureProvider {
     implicit val position: PsiElement = Position.getValue(location)
     implicit val project: Project = location.getProject
 
-    val scalaLookupItem = element match {
-      case ScalaLookupItem(item, _) => Some(item)
-      case _ => None
-    }
+    val psiElement = element.getPsiElement
+    val lookupString = element.getLookupString
 
-    val maybeElement = scalaLookupItem.map(_.element)
-    val maybeName = scalaLookupItem.map(_.name)
-
-    val (expectedTypeWords, expectedNameWords) = ExpectedTypeAndNameWords.getValue(location)
-
-    val calculateWords = expectedTypeWords.nonEmpty || expectedNameWords.nonEmpty
-
-    val nameWords = if (calculateWords) extractWords(maybeName) else Array.empty[String]
-
-    val maybeType = scalaLookupItem
-      .filter(_ => calculateWords)
-      .flatMap(item => ScalaByExpectedTypeWeigher.computeType(item.element, item.substitutor))
-
-    val typeWords = extractWords(maybeType)
-
-    val kind = elementKind(maybeElement).getOrElse {
+    val kind = MLFeatureValue.categorical {
       element.getObject match {
+        case psiElement: PsiElement => elementKind(psiElement)
         case string: String if isKeyword(string) => CompletionItem.KEYWORD
         case _ => CompletionItem.UNKNOWN
       }
     }
 
     val features = new util.HashMap[String, MLFeatureValue](Context.getValue(location))
+    features.put("kind", kind)
 
-    features.put("kind", MLFeatureValue.categorical(kind))
-    features.put("symbolic", MLFeatureValue.binary(maybeName.exists(isSymbolic)))
-    features.put("unary", MLFeatureValue.binary(maybeName.exists(_.startsWith("unary_"))))
-    features.put("scala", MLFeatureValue.binary(scalaLookupItem.exists(_.element.isInstanceOf[ScalaPsiElement])))
-    features.put("java_object_method", MLFeatureValue.binary(isJavaObjectMethod(maybeElement)))
-    features.put("argument_count", MLFeatureValue.float(argumentCount(maybeElement).getOrElse(-1)))
-    features.put("name_name_sim", MLFeatureValue.float(wordsSimilarity(expectedNameWords, nameWords).getOrElse(-1.0)))
-    features.put("name_type_sim", MLFeatureValue.float(wordsSimilarity(expectedNameWords, typeWords).getOrElse(-1.0)))
-    features.put("type_name_sim", MLFeatureValue.float(wordsSimilarity(expectedTypeWords, nameWords).getOrElse(-1.0)))
-    features.put("type_type_sim", MLFeatureValue.float(wordsSimilarity(expectedTypeWords, typeWords).getOrElse(-1.0)))
+    def putBinary(kind: String, value: Boolean): Unit =
+      features.put(kind, MLFeatureValue.binary(value))
+
+    putBinary("symbolic", isSymbolic(lookupString))
+    putBinary("unary", lookupString.startsWith("unary_"))
+    putBinary("scala", psiElement.isInstanceOf[ScalaPsiElement])
+    putBinary("java_object_method", isJavaObjectMethod(psiElement))
+
+    val (expectedTypeWords, expectedNameWords) = ExpectedTypeAndNameWords.getValue(location)
+
+    val (actualTypeWords, actualNameWords) =
+      if (expectedTypeWords.isEmpty && expectedNameWords.isEmpty) {
+        (EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY)
+      } else {
+        val maybeTypeWords = element match {
+          case ScalaLookupItem(item, psiElement) =>
+            computeType(psiElement, item.substitutor).map(extractWords)
+          case _ => None
+        }
+
+        (maybeTypeWords.getOrElse(EMPTY_STRING_ARRAY), extractWords(lookupString))
+      }
+
+    def putFloat(kind: String, value: Double): Unit =
+      features.put(kind, MLFeatureValue.float(value))
+
+    putFloat("argument_count", argumentsCount(psiElement))
+    putFloat("name_name_sim", wordsSimilarity(expectedNameWords, actualNameWords))
+    putFloat("name_type_sim", wordsSimilarity(expectedNameWords, actualTypeWords))
+    putFloat("type_name_sim", wordsSimilarity(expectedTypeWords, actualNameWords))
+    putFloat("type_type_sim", wordsSimilarity(expectedTypeWords, actualTypeWords))
 
     features
   }
@@ -84,13 +91,23 @@ object ScalaElementFeatureProvider {
     val expectedTypeAndName = definitionByPosition(position).flatMap {
       _.expectedTypeEx()
     }.map {
-      case (expectedType, typeElement) => expectedType -> expectedName(typeElement)
+      case (expectedType, maybeTypeElement) => expectedType -> maybeTypeElement
     }
 
-    val expectedType = expectedTypeAndName.map(_._1)
-    val expetedName = expectedTypeAndName.flatMap(_._2).orElse(expectedName(Option(position)))
+    val expectedTypeWords = expectedTypeAndName.fold(EMPTY_STRING_ARRAY) {
+      case (expectedType, _) => extractWords(expectedType)
+    }
 
-    extractWords(expectedType) -> extractWords(expetedName)
+    val expectedNameWords = expectedTypeAndName.flatMap {
+      case (_, Some(typeElement)) => expectedName(typeElement)
+      case _ => None
+    }.orElse {
+      expectedName(position)
+    }.fold(EMPTY_STRING_ARRAY) {
+      extractWords(_)
+    }
+
+    expectedTypeWords -> expectedNameWords
   })
 
   private val Context = NotNullLazyKey.create[util.HashMap[String, MLFeatureValue], CompletionLocation]("scala.feature.element.context", location => {

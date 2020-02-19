@@ -41,11 +41,23 @@ import scala.annotation.tailrec
  * @author Alefas
  * @since 22.03.12
  */
-final class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingClass0: Option[PsiClass] = None) extends {
-  val name: String = if (_name != "this") escapeKeyword(_name) else _name
-} with LookupItem[PsiNamedElement](element, name) {
+final class ScalaLookupItem private(val element: PsiNamedElement,
+                                    override val getLookupString: String,
+                                    private val containingClass: PsiClass)
+  extends LookupItem[PsiNamedElement](element, getLookupString) {
 
   private implicit val project: ProjectContext = element.projectContext
+
+  def this(element: PsiNamedElement,
+           name: String,
+           maybeContainingClass: Option[PsiClass] = None) = this(
+    element,
+    name match {
+      case ScalaKeyword.THIS => name
+      case _ => escapeKeyword(name)
+    },
+    maybeContainingClass.orElse(element.containingClassOfNameContext).orNull
+  )
 
   var isClassName: Boolean = false
   var isRenamed: Option[String] = None
@@ -72,20 +84,19 @@ final class ScalaLookupItem(val element: PsiNamedElement, _name: String, contain
 
   def isNamedParameterOrAssignment: Boolean = isNamedParameter || isAssignment
 
-  val containingClass: PsiClass =
-    containingClass0.orElse(element.containingClassOfNameContext).orNull
-
-  override def equals(o: Any): Boolean = {
-    if (!super.equals(o)) return false
-    o match {
-      case s: ScalaLookupItem => if (isNamedParameter != s.isNamedParameter || containingClass != s.containingClass) return false
-      case _ =>
-    }
-    true
-  }
+  override def equals(o: Any): Boolean = super.equals(o) &&
+    (o match {
+      case s: ScalaLookupItem => isNamedParameter == s.isNamedParameter && containingClass == s.containingClass
+      case _ => true
+    })
 
   override def hashCode(): Int =
     super.hashCode() #+ isNamedParameter #+ containingClass
+
+  val containingClassName: String = containingClass match {
+    case null => null
+    case clazz => clazz.name
+  }
 
   override def renderElement(presentation: LookupElementPresentation): Unit = {
     if (isNamedParameter) {
@@ -103,10 +114,10 @@ final class ScalaLookupItem(val element: PsiNamedElement, _name: String, contain
 
     var itemText: String =
       if (isRenamed.nonEmpty)
-        s"$name <= ${element.name}"
-      else if (isClassName && shouldImport && containingClass != null)
-        s"${containingClass.name}.$name"
-      else name
+        s"$getLookupString <= ${element.name}"
+      else if (isClassName && shouldImport && containingClassName != null)
+        s"$containingClassName.$getLookupString"
+      else getLookupString
 
     if (someSmartCompletion) itemText = "Some(" + itemText + ")"
     presentation.setItemText(itemText)
@@ -132,7 +143,7 @@ final class ScalaLookupItem(val element: PsiNamedElement, _name: String, contain
           presentationString(alias.aliasedType.getOrAny, substitutor)
         case param: ScParameter =>
           presentationString(param.getRealParameterType.getOrAny, substitutor)
-        case t: ScTemplateDefinition if name == "this" || name.endsWith(".this") =>
+        case t: ScTemplateDefinition if getLookupString == "this" || getLookupString.endsWith(".this") =>
           t.getTypeWithProjections(thisProjections = true) match {
             case Right(tp) =>
               tp.presentableText(element)
@@ -197,9 +208,8 @@ final class ScalaLookupItem(val element: PsiNamedElement, _name: String, contain
       if (!isOverloadedForClassName) presentationString(params, substitutor)
       else "(...)"
     val containingClassText: String = {
-      if (isClassName && containingClass != null) {
-        if (shouldImport) " " + containingClass.getPresentation.getLocationString
-        else " in " + containingClass.name + " " + containingClass.getPresentation.getLocationString
+      if (isClassName && containingClassName != null) {
+        s"${if (shouldImport) "" else " in " + containingClassName} ${containingClass.getPresentation.getLocationString}"
       } else ""
     }
     withTypeParamsText + paramsText + containingClassText
@@ -313,7 +323,7 @@ final class ScalaLookupItem(val element: PsiNamedElement, _name: String, contain
                     val elem = scalaFile.findElementAt(context.getStartOffset + shift)
 
                     def qualifyReference(ref: ScReferenceExpression): Unit = {
-                      val newRef = createExpressionFromText(s"${containingClass.name}.${ref.getText}")(containingClass.getManager)
+                      val newRef = createExpressionFromText(s"$containingClassName.${ref.getText}")(containingClass.getManager)
                         .asInstanceOf[ScReferenceExpression]
                       ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
                       newRef.qualifier.get.asInstanceOf[ScReferenceExpression].bindToElement(containingClass)

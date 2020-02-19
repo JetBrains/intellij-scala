@@ -94,7 +94,7 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
 
   override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] =
     getParametersVariants.map { element =>
-      new ScalaLookupItem(element, element.name, None)
+      new ScalaLookupItem(element, element.name)
     }
 
   override def isSoft: Boolean = !isParamTag

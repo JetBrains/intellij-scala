@@ -226,7 +226,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     val actual = completeBasic(3).toSet
       .filterBy[ScalaLookupItem]
       .map { lookup =>
-        s"${lookup.containingClass.name}.${lookup.getLookupString}"
+        s"${lookup.containingClassName}.${lookup.getLookupString}"
       }
 
     val expected = Set(

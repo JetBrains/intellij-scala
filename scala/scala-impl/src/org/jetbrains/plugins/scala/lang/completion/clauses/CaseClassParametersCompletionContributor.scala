@@ -80,7 +80,7 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
         override def weigh(element: LookupElement): Comparable[_] = element match {
           case ScalaLookupItem(item, namedElement) =>
             namedElement match {
-              case parameter: ScParameter if parameter.name == item.name /*not equals when name computed by type*/ =>
+              case parameter: ScParameter if parameter.name == item.getLookupString /*not equals when name computed by type*/ =>
                 position - parameters.indexOf(parameter) match {
                   case 0 => -1
                   case diff => diff.abs
