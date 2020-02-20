@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, Ru
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
-
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_10,
@@ -71,9 +70,9 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
     refreshVfs()
     val Seq(firstTsAfter, secondTsAfter, thirdTsAfter) = sources.map(_.targetTimestamps)
 
-    assertThat("First not recompiled", firstTsAfter, everyValueGreaterThanIn(firstTsBefore))
-    assertThat("First not recompiled", secondTsAfter, everyValueGreaterThanIn(secondTsBefore))
-    assertThat("Third recompiled", thirdTsAfter, equalTo(thirdTsBefore))
+    assertThat("First recompiled", firstTsAfter, everyValueGreaterThanIn(firstTsBefore))
+    assertThat("Second recompiled", secondTsAfter, everyValueGreaterThanIn(secondTsBefore))
+    assertThat("Third not recompiled", thirdTsAfter, equalTo(thirdTsBefore))
   }
 
   def testDeleteOldTargetFiles(): Unit = {
@@ -148,19 +147,24 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
     assertThat(actualTargetFileNames, equalTo(expectedTargetFileNames))
   }
 
-  private def initBuildProject(sourceFiles: SourceFile*): Seq[SourceFile] = {
-    val result = sourceFiles.toSeq
-    compiler.rebuild().assertNoProblems()
+  protected def initBuildProject(sourceFiles: SourceFile*): Seq[SourceFile] =
+    initBuildProject(sourceFiles.toSeq, allowWarnings = false)
+
+  protected def initBuildProjectAllowWarnings(sourceFiles: SourceFile*): Seq[SourceFile] =
+    initBuildProject(sourceFiles.toSeq, allowWarnings = true)
+
+  private def initBuildProject(sourceFiles: Seq[SourceFile], allowWarnings: Boolean): Seq[SourceFile] = {
+    compiler.rebuild().assertNoProblems(allowWarnings)
 
     val actualTargetFileNames = targetFileNames
-    val expectedTargetFileNames = result.flatMap(_.expectedTargetFileNames).toSet
+    val expectedTargetFileNames = sourceFiles.flatMap(_.expectedTargetFileNames).toSet
     assertThat("Failed initial compilation",
       actualTargetFileNames, equalTo(expectedTargetFileNames)
     )
-    result
+    sourceFiles
   }
 
-  private def refreshVfs(): Unit =
+  protected def refreshVfs(): Unit =
     VfsUtil.markDirtyAndRefresh(false, true, true, targetDir)
 
   private def targetDir: VirtualFile =
@@ -169,8 +173,17 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
   private def targetFileNames: Set[String] =
     targetDir.getChildren.map(_.getName).toSet
 
-  private class SourceFile private(name: String)
-                                  (implicit version: ScalaVersion) {
+  protected def classFileNames(className: String)
+                            (implicit version: ScalaVersion): Set[String] = {
+    val suffixes = version match {
+      case Scala_3_0 => Set("class", "tasty")
+      case _ => Set("class")
+    }
+    suffixes.map(suffix => s"$className.$suffix")
+  }
+
+  protected class SourceFile private(name: String)
+                                    (implicit version: ScalaVersion) {
 
     private var classes: Set[String] = Set.empty
 
@@ -195,16 +208,8 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
     private def sourceFile: Option[VirtualFile] =
       Option(getSourceRootDir.findChild(sourceFileName))
 
-    def expectedTargetFileNames: Set[String] = {
-      val suffixes = version match {
-        case Scala_3_0 => Set("class", "tasty")
-        case _ => Set("class")
-      }
-      for {
-        suffix <- suffixes
-        targetName <- classes
-      } yield s"$targetName.$suffix"
-    }
+    def expectedTargetFileNames: Set[String] =
+      classes.flatMap(classFileNames)
 
     private def targetFiles: Set[VirtualFile] = {
       val targetFileNames = expectedTargetFileNames
@@ -220,11 +225,55 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
   }
 }
 
-class IncrementalSbtCompilationTest
-  extends IncrementalCompilationTestBase(IncrementalityType.SBT)
-
 class IncrementalOnServerCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = true)
 
 class IncrementalIdeaCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA)
+
+class IncrementalSbtCompilationTest
+  extends IncrementalCompilationTestBase(IncrementalityType.SBT) {
+
+  def testRecompileOnlyAffectedFilesScalaSpecific(): Unit = {
+    val sources = initBuildProjectAllowWarnings(
+      new SourceFile(
+        name = "MySealed",
+        classes = Set("MySealed", "MyClassA", "MyClassB"),
+        code =
+          """
+            |sealed trait MySealed
+            |class MyClassA extends MySealed
+            |class MyClassB extends MySealed
+            |""".stripMargin
+      ),
+      new SourceFile(
+        name = "MyApp",
+        classes = Set("MyApp"),
+        code =
+          """
+            |class MyApp {
+            |  (null: MySealed) match {
+            |    case _: MyClassA =>
+            |  }
+            |}
+            |""".stripMargin
+      )
+    )
+    val Seq(sealedTsBefore, appTsBefore) = sources.map(_.targetTimestamps)
+    sources.head.writeCode(
+      classes = Set("MySealed", "MyClassA"),
+      code =
+        """
+          |sealed trait MySealed
+          |class MyClassA extends MySealed
+          |""".stripMargin
+    )
+    compiler.make().assertNoProblems()
+    refreshVfs()
+    val Seq(sealedTsAfter, appTsAfter) = sources.map(_.targetTimestamps)
+
+    val sealedTsBeforeWithoutB = sealedTsBefore -- classFileNames("MyClassB")
+    assertThat("Sealed recompiled", sealedTsAfter, everyValueGreaterThanIn(sealedTsBeforeWithoutB))
+    assertThat("App recompiled", appTsAfter, everyValueGreaterThanIn(appTsBefore))
+  }
+}

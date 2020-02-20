@@ -8,8 +8,9 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
 import org.jetbrains.jps.incremental.fs.CompilationRound
-import org.jetbrains.jps.incremental.{FSOperations, CompileContext}
+import org.jetbrains.jps.incremental.{CompileContext, FSOperations}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
+import org.jetbrains.plugins.scala.compiler.CompilerEvent
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -34,6 +35,11 @@ class IdeClientSbt(compilerName: String,
     val compiledClass = new LazyCompiledClass(outputFile, source, name)
     consumer.registerCompiledClass(target, compiledClass)
   }
+
+  override def compilationEnd(sources: Set[File]): Unit =
+    sources.foreach { source =>
+      context.processMessage(CompilerEvent.CompilationFinished(compilationId, source).toCustomMessage)
+    }
 
   // TODO Expect JPS compiler in UI-designer to take generated class events into account
   private val FormsToCompileKey = catching(classOf[ClassNotFoundException], classOf[NoSuchFieldException]).opt {
