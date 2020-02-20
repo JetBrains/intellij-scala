@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 
 abstract class VarargPatternSyntaxTestBase extends ScalaAnnotatorQuickFixTestBase
 
+// Scala2
 class VarargPatternSyntaxTest extends VarargPatternSyntaxTestBase {
 
   override protected val description = "':' syntax in vararg pattern requires Scala 3.0"
@@ -49,7 +51,16 @@ class VarargPatternSyntaxTest extends VarargPatternSyntaxTestBase {
     )
 }
 
-class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxTestBase {
+// Scala3
+abstract class VarargPatternSyntaxScala3TestBase extends VarargPatternSyntaxTestBase {
+
+  override def setUp(): Unit = {
+    super.setUp()
+    Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
+  }
+}
+
+class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
 
   override protected val description = "'@' syntax in vararg pattern has been deprecated since Scala 3.0"
 
@@ -95,7 +106,7 @@ class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxTestBase {
     )
 }
 
-class VarargShortPatternSyntaxScala3Test extends VarargPatternSyntaxTestBase {
+class VarargShortPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
 
   override protected val description = "Short _* pattern syntax has been deprecated since Scala 3.0"
 

@@ -34,11 +34,15 @@ object ScalaHighlightingMode {
   private def nonNegativeDuration(key: String): FiniteDuration =
     Seq(Registry.get(key).asInteger, 0).max.millis
 
+  final val ShowDotcErrorsKey = "dotty.highlighting.compiler.errors.in.editor"
+
   private def showDotcErrors: Boolean =
-    Registry.is("dotty.highlighting.compiler.errors.in.editor")
+    Registry.is(ShowDotcErrorsKey)
+
+  final val ShowScalacErrorsKey = "scala.highlighting.compiler.errors.in.editor"
 
   private def showScalacErrors: Boolean =
-    Registry.is("scala.highlighting.compiler.errors.in.editor")
+    Registry.is(ShowScalacErrorsKey)
 
   private def hasDotty(project: Project) =
     project.modulesWithScala.exists(_.hasScala3)

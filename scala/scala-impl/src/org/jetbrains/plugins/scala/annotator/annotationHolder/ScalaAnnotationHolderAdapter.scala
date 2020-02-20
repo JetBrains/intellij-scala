@@ -74,5 +74,7 @@ class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaA
     }
 
   private def ?(msg: String): String =
-    if (showCompilerErrors) null else msg
+    Option(msg)
+      .filterNot(_ => showCompilerErrors)
+      .orNull
 }
