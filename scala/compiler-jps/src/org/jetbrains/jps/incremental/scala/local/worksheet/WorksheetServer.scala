@@ -75,7 +75,7 @@ object WorksheetServer {
       newBuffer.put(buffer.array())
       val old = buffer
       buffer = newBuffer
-      old.clear()
+      clearBuffer(old)
     }
 
     override def close(): Unit =
@@ -87,9 +87,13 @@ object WorksheetServer {
       val worksheetOutputText = new String(buffer.array(), 0, buffer.position())
       client.worksheetOutput(worksheetOutputText)
 
-      // ATTENTION: do not delete this cast to Buffer!
-      // it is required to be run on JDK 8 in case plugin is built with JDK 11, see SCL-16277 for the details
-      buffer.asInstanceOf[Buffer].clear()
+      clearBuffer(buffer)
     }
+  }
+
+  // ATTENTION: use this method to clear buffer, do not delete this to Buffer!
+  // it is required to be run on JDK 8 in case plugin is built with JDK 11, see SCL-16277 for the details
+  private def clearBuffer(buffer: Buffer): Unit = {
+    buffer.clear()
   }
 }
