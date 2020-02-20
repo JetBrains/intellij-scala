@@ -95,11 +95,11 @@ class RemoteServerConnector(
       val worksheetProcess = makeType match {
         case InProcessServer | OutOfProcessServer =>
           val runner = new RemoteServerRunner(project)
-          val argumentsFinal = arguments
+          val argumentsFinal = argumentsRaw
           runner.buildProcess(argumentsFinal, client)
 
         case NonServer =>
-          val argumentsFinal = NoToken +: arguments
+          val argumentsFinal = NoToken +: argumentsRaw
           val argumentsEncoded = argumentsFinal.map { arg =>
             val argFixed = if(arg.isEmpty) "#STUB#" else arg
             Base64.getEncoder.encodeToString(argFixed.getBytes(StandardCharsets.UTF_8))

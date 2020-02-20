@@ -34,7 +34,7 @@ class RemoteServerConnector(module: Module,
   def compile(): Unit = {
     val project = module.getProject
     val client = new CompilationClient(CompilationId.generate())
-    val compilationProcess = new RemoteServerRunner(project).buildProcess(arguments, client)
+    val compilationProcess = new RemoteServerRunner(project).buildProcess(argumentsRaw, client)
     val result = Promise[Unit]
     compilationProcess.addTerminationCallback {
       case Some(error) => throw error

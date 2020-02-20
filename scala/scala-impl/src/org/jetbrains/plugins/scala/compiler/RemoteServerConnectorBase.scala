@@ -54,7 +54,9 @@ abstract class RemoteServerConnectorBase(
 
   protected final val NoToken = "NO_TOKEN"
 
-  protected def arguments: Seq[String] = Arguments(
+  protected def argumentsRaw: Seq[String] = arguments.asStrings.tail // without token
+
+  private def arguments = Arguments(
     token = NoToken,
     sbtData = sbtData,
     compilerData = CompilerData(
@@ -79,7 +81,7 @@ abstract class RemoteServerConnectorBase(
       )
     ),
     worksheetArgs = worksheetArgs
-  ).asStrings.tail // without token
+  )
 
   protected def settings: ScalaCompileServerSettings = ScalaCompileServerSettings.getInstance()
 
