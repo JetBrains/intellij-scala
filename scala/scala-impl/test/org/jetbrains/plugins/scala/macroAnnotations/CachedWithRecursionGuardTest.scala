@@ -92,14 +92,6 @@ class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
       }
     }
 
-    checkTracer("Elem.rec", totalCount = 4, actualCount = 3) {
-      val elem = new Elem
-      // rec(2) ~> rec(1) ~> rec(0)
-      elem.rec(2)
-      // rec(2) cached
-      elem.rec(2)
-    }
-
     checkTracer("Elem.rec int == 2", totalCount = 2, actualCount = 1) {
       val elem = new Elem
       elem.rec(2)

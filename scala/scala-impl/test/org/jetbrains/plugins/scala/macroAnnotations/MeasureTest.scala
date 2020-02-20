@@ -27,15 +27,6 @@ class MeasureTest extends ScalaFixtureTestCase {
       def currentTime(): Long = System.currentTimeMillis()
     }
 
-    checkTracer("Foo.currentTime", totalCount = 4, actualCount = 4) {
-      val foo = new Foo("bar")
-      foo.currentTime()
-      foo.currentTime()
-
-      new Foo("lol").currentTime()
-      new Foo("lol").currentTime()
-    }
-
     checkTracer("Foo.currentTime name == bar", totalCount = 2, actualCount = 2) {
       val foo = new Foo("bar")
       foo.currentTime()
@@ -52,12 +43,6 @@ class MeasureTest extends ScalaFixtureTestCase {
 
       @Measure(name, arg)
       def bar(arg: Int): Long = System.currentTimeMillis()
-    }
-
-    checkTracer("Foo.bar", totalCount = 2, actualCount = 2) {
-      val foo = new Foo("bar")
-      foo.bar(1)
-      foo.bar(2)
     }
 
     checkTracer("Foo.bar name == bar, arg == 1", totalCount = 1, actualCount = 1) {

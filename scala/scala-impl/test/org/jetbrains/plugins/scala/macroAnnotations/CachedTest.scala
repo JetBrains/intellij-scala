@@ -105,14 +105,6 @@ class CachedTest extends CachedTestBase {
       foo.bar
     }
 
-    checkTracer("Foo.bar", totalCount = 3, actualCount = 1) {
-      val foo = new Foo
-      foo.bar
-      foo.bar
-      foo.myVar = 1
-      foo.bar
-    }
-
   }
 
 }
