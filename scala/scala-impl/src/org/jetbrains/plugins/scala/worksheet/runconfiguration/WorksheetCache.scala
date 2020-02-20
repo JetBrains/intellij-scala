@@ -61,7 +61,9 @@ final class WorksheetCache extends Disposable {
   
   def removePrinter(inputEditor: Editor): Unit = {
     val removed = allReplPrinters.remove(inputEditor)
-    removed.close()
+    if (removed != null) {
+      removed.close()
+    }
   }
 
   def getLastProcessedIncremental(inputEditor: Editor): Option[Int] =
