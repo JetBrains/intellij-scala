@@ -3,7 +3,6 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.Annotation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
 object ScImportExprAnnotator extends ElementAnnotator[ScImportExpr] {

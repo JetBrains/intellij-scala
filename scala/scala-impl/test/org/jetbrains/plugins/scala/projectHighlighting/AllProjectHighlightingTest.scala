@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package projectHighlighting
 
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.lang.annotation.{Annotation, HighlightSeverity}
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}

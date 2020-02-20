@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.template.kindOf

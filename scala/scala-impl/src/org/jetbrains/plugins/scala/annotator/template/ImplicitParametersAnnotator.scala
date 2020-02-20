@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
-import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement

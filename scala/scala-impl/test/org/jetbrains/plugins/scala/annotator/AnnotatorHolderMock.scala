@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.ASTNode
-import com.intellij.lang.annotation.{Annotation, AnnotationSession, HighlightSeverity}
+import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiFile}
 

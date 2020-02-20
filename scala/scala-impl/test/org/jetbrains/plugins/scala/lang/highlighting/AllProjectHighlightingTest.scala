@@ -5,7 +5,6 @@ package highlighting
 import java.io.File
 import java.util
 
-import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase

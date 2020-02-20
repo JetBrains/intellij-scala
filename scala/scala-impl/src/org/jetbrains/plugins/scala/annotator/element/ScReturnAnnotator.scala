@@ -3,7 +3,6 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.Annotation
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.types.api

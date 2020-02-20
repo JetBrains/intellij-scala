@@ -12,8 +12,8 @@ import scala.language.implicitConversions
 
 class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaAnnotationHolder {
 
-  private val isAnnotationVisible =
-    ScalaHighlightingMode.isScalaAnnotatorEnabled(innerHolder.getCurrentAnnotationSession.getFile)
+  private val showCompilerErrors =
+    ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(innerHolder.getCurrentAnnotationSession.getFile)
 
   override def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
     innerHolder.createErrorAnnotation(elt, ?(message))
@@ -64,7 +64,7 @@ class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaA
     innerHolder.isBatchMode
 
   private implicit def annotation2ScalaAnnotation(annotation: Annotation): ScalaAnnotation =
-    if (isAnnotationVisible) {
+    if (showCompilerErrors) {
       new ScalaAnnotation(annotation)
     } else {
       annotation.setHighlightType(ProblemHighlightType.INFORMATION)
@@ -74,5 +74,5 @@ class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaA
     }
 
   private def ?(msg: String): String =
-    if (isAnnotationVisible) msg else null
+    if (showCompilerErrors) null else msg
 }
