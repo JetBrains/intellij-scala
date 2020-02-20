@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.caches.stats
 
+import java.awt.event.{FocusEvent, FocusListener}
 import java.util.Comparator
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
-import com.intellij.ui.TableViewSpeedSearch
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.table.TableView
+import com.intellij.ui.{SpeedSearchComparator, TableViewSpeedSearch}
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import javax.swing.JTable
+import org.jetbrains.plugins.scala.extensions.invokeLater
 
 import scala.collection.JavaConverters.enumerationAsScalaIteratorConverter
 
@@ -50,7 +53,8 @@ class DataByIdTableModel[Data](dataById: DataById[Data],
 
   extends ListTableModel[String](columnInfos: _*) {
 
-  private var currentFilter: String => Boolean = Function.const(true)
+  private val comparator = new SpeedSearchComparator(false)
+  private var currentPattern: String = ""
 
   private def rowText(id: String): String = {
     columnInfos.map(_.valueOf(id)).mkString(" ")
@@ -71,16 +75,26 @@ class DataByIdTableModel[Data](dataById: DataById[Data],
     table
   }
 
-  def registerSpeedSearch(table: TableView[String]): Unit =
-    new TableViewSpeedSearch(table) {
+  def registerSpeedSearch(table: TableView[String]): Unit = {
+    val speedSearch = new TableViewSpeedSearch(table) {
       override def getItemText(id: String): String = rowText(id)
 
       override def onSearchFieldUpdated(pattern: String): Unit = {
-        currentFilter = (text: String) => {
-          pattern.isEmpty || !isPopupActive ||
-            getComparator.matchingDegree(pattern, text) > 0
-        }
+        currentPattern = pattern
       }
+    }
+
+    table.addFocusListener(new FocusListener {
+      override def focusGained(e: FocusEvent): Unit = restorePopup(speedSearch)
+
+      override def focusLost(e: FocusEvent): Unit = restorePopup(speedSearch)
+    })
+  }
+
+  private def restorePopup(speedSearch: TableViewSpeedSearch[String]): Unit = {
+    if (StringUtil.isNotEmpty(currentPattern)) invokeLater {
+      speedSearch.showPopup(currentPattern)
+    }
   }
 
   def clear(): Unit = {
@@ -88,7 +102,10 @@ class DataByIdTableModel[Data](dataById: DataById[Data],
     setItems(new java.util.ArrayList())
   }
 
-  def refresh(data: java.util.List[Data]): Unit = refresh(data, currentFilter)
+  def refresh(data: java.util.List[Data]): Unit = {
+    val pattern = currentPattern
+    refresh(data, text => pattern.isEmpty || comparator.matchingDegree(pattern, text) > 0)
+  }
 
   private def refresh(data: java.util.List[Data], filter: String => Boolean): Unit = {
     def matches(id: String): Boolean = filter(rowText(id))
