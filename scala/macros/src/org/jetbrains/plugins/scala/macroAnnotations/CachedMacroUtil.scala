@@ -86,6 +86,14 @@ object CachedMacroUtil {
     import c.universe.Quasiquote
 
     if (trackedExprs.nonEmpty) {
+
+      if (!expressionTracersEnabled(c)) {
+        val message =
+          """Expression tracers are enabled only for debug and tests purposes.
+            |Please remove additional expressions from macro annotations:""".stripMargin
+        abort(message)
+      }
+
       val tracingSuffix = expressionsWithValuesText(c)(trackedExprs)
       val tracingKeyId = q"$cacheKey + $tracingSuffix"
       val tracingKeyName = q"$cacheName + $tracingSuffix"
@@ -108,6 +116,12 @@ object CachedMacroUtil {
     }
 
     concatenation
+  }
+
+  //expression tracing may have unlimited performance overhead
+  //to prevent it's accidental usage in production, compilation will fail on teamcity
+  private def expressionTracersEnabled(c: whitebox.Context): Boolean = {
+    System.getProperty("idea.is.internal") == "true" || c.settings.contains("enable-expression-tracers")
   }
 
   def recursionGuardFQN(implicit c: whitebox.Context): c.universe.Tree = {

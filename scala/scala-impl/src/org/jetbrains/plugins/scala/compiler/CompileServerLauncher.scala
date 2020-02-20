@@ -135,11 +135,20 @@ object CompileServerLauncher {
         val shutdownDelayArg = if (settings.COMPILE_SERVER_SHUTDOWN_IDLE && shutdownDelay >= 0) {
           Seq(s"-Dshutdown.delay=$shutdownDelay")
         } else Nil
+        val isInternalProperty = if (isInternalMode) Seq("-Didea.is.internal=true") else Nil
 
         val extraJvmParameters = CompileServerVmOptionsProvider.implementations.flatMap(_.vmOptionsFor(project))
 
-        val commands = jdk.executable.canonicalPath +: "-cp" +: nailgunClasspath +: jvmParameters ++: shutdownDelayArg ++:
-          extraJvmParameters ++: ngRunnerFqn +: freePort.toString +: id.toString +: classpath +: Nil
+        val commands =
+          jdk.executable.canonicalPath +:
+            "-cp" +: nailgunClasspath +:
+            jvmParameters ++:
+            shutdownDelayArg ++:
+            isInternalProperty ++:
+            extraJvmParameters ++:
+            ngRunnerFqn +:
+            freePort.toString +:
+            id.toString +: classpath +: Nil
 
         val builder = new ProcessBuilder(commands.asJava)
 

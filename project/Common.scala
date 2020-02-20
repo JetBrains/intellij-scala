@@ -31,7 +31,8 @@ object Common {
       intellijInternalPlugins += "java",
       pathExcludeFilter := excludePathsFromPackage,
       testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
-      testFrameworks in Test := (testFrameworks in Test).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest")))
+      testFrameworks in Test := (testFrameworks in Test).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest"))),
+      scalacOptions in Test += "-Xmacro-settings:enable-expression-tracers"
     )
 
   def excludePathsFromPackage(path: java.nio.file.Path): Boolean = {
