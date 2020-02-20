@@ -20,11 +20,11 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 
 class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Convert to typed pattern"
+  override def getFamilyName: String = ScalaBundle.message("convert.to.typed.pattern")
 
-  override def getText: String = getFamilyName
+  override def getText: String = ScalaBundle.message("convert.to.typed.pattern")
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case Parent((_: ScStableCodeReference) && Parent(_: ScConstructorPattern)) => true
         
@@ -32,7 +32,7 @@ class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val codeRef = element.getParent.asInstanceOf[ScStableCodeReference]
     val constrPattern = codeRef.getParent.asInstanceOf[ScConstructorPattern]
     val name = codeRef.bind() match {

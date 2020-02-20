@@ -18,10 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 * 2014-03-17
 */
 class ImportStableMemberIntention extends PsiElementBaseIntentionAction {
+  override def getFamilyName: String = ScalaBundle.message("family.name.import.member.with.stable.path")
+
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val refAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReference])
     if (refAtCaret == null) return false
-    setText(s"Import ${refAtCaret.refName}")
+    setText(ScalaBundle.message("import.stable.member", refAtCaret.refName))
     checkReference(refAtCaret)
   }
 
@@ -40,13 +42,7 @@ class ImportStableMemberIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def getFamilyName: String = ImportStableMemberIntention.familyName
-
   private def checkReference(ref: ScReference): Boolean = {
     !isInImport(ref) && resolvesToStablePath(ref) && hasQualifier(ref)
   }
-}
-
-object ImportStableMemberIntention {
-  val familyName = "Import member with stable path"
 }

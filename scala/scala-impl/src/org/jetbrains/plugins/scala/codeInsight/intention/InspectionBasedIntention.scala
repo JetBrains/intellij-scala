@@ -19,7 +19,7 @@ class InspectionBasedIntention(family: String, text: String, inspection: LocalIn
     findProblemFrom(element).foreach { descriptor =>
       val fixes = descriptor.getFixes
 
-      if (fixes.length > 0) {
+      if (fixes.nonEmpty) {
         val fix = fixes.apply(0).asInstanceOf[LocalQuickFix]
         fix.applyFix(project, descriptor)
       }

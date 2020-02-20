@@ -4,6 +4,7 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
@@ -16,11 +17,11 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
  */
 
 class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Convert to curly braces"
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.to.curly.braces")
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case e @ Parent(_: ScFor) =>
         List(ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS).contains(e.getNode.getElementType) &&
@@ -29,7 +30,7 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     implicit val ctx: ProjectContext = project
 
     val statement = element.getParent.asInstanceOf[ScFor]

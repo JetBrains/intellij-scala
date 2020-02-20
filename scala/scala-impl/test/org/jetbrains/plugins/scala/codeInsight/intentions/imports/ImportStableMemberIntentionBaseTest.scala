@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight.intentions.imports
 
-import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBase {
-  override def familyName: String = ImportStableMemberIntention.familyName
+  override def familyName: String = ScalaBundle.message("family.name.import.member.with.stable.path")
 
   def testParameterizedDef() {
     val text =

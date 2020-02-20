@@ -17,15 +17,15 @@ import scala.annotation.tailrec
   */
 
 class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Import additional identifiers"
+  override def getFamilyName: String = ScalaBundle.message("family.name.import.additional.identifiers")
 
-  override def getText = "Import additional identifiers from qualifier"
+  override def getText: String = ScalaBundle.message("import.additional.identifiers.from.qualifier")
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     check(project, editor, element).isDefined
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     if (!element.isValid) return
     check(project, editor, element).foreach(_.apply())
   }

@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.intentions.imports
 
-import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase {
-  override def familyName: String = ImportAllMembersIntention.familyName
+  override def familyName: String = ScalaBundle.message("family.name.import.all.members")
 
   def testParameterizedDef() {
     val text =

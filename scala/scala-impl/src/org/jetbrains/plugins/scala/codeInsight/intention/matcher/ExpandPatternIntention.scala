@@ -23,18 +23,18 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
   */
 // TODO avoid name clashes, avoid more FQNs with adjustTypes.
 class ExpandPatternIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = "Expand to Constructor pattern"
+  override def getFamilyName: String = ScalaBundle.message("family.name.expand.to.constructor.pattern")
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     findReferencePattern(element) match {
       case Some((_, newPatternText)) =>
-        setText("Expand to: " + StringUtils.abbreviate(newPatternText, 25))
+        setText(ScalaBundle.message("expand.to.new.pattern", StringUtils.abbreviate(newPatternText, 25)))
         true
       case _ => false
     }
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     findReferencePattern(element) match {
       case Some((origPattern, newPatternText)) =>
         PsiDocumentManager.getInstance(project).commitAllDocuments()

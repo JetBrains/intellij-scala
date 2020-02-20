@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 
 /** Converts type element `@@[A, B]` to `(A @@ B)` */
 class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Use Infix Type Syntax"
+  override def getFamilyName: String = ScalaBundle.message("family.name.use.infix.type.syntax")
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case Parent((ref: ScStableCodeReference) && Parent(Parent(param: ScParameterizedTypeElement)))
        if param.typeArgList.typeArgs.size == 2 && !ref.refName.forall(_.isLetterOrDigit)  => true
@@ -28,7 +28,7 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     if (element == null || !element.isValid) return
     val paramTypeElement: ScParameterizedTypeElement = PsiTreeUtil.getParentOfType(element, classOf[ScParameterizedTypeElement], false)
     val Seq(targ1, targ2) = paramTypeElement.typeArgList.typeArgs

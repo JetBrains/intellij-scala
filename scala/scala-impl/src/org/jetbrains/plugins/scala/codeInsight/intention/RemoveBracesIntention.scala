@@ -23,14 +23,14 @@ final class RemoveBracesIntention extends PsiElementBaseIntentionAction {
 
   import RemoveBracesIntention._
 
-  def getFamilyName = "Remove braces"
+  override def getFamilyName: String = ScalaBundle.message("family.name.remove.braces")
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     check(element).isDefined && IntentionAvailabilityChecker.checkIntention(this, element)
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     if (element == null || !element.isValid) return
     check(element).foreach(_.apply())
   }
