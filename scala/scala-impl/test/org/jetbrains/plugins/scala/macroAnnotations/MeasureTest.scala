@@ -4,7 +4,6 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 
 class MeasureTest extends ScalaFixtureTestCase {
 
-
   def testTracing(): Unit = {
     class Foo {
       @Measure

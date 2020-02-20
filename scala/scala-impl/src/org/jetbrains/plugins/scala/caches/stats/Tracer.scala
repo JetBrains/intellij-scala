@@ -114,21 +114,6 @@ object Tracer {
     override def getCurrentData: Nothing = ???
   }
 
-  class DoubleTracer(first: Tracer, second: Tracer) {
-    def invocation(): Unit = {
-      first.invocation()
-      second.invocation()
-    }
-    def calculationStart(): Unit = {
-      first.calculationStart()
-      second.calculationStart()
-    }
-    def calculationEnd(): Unit = {
-      first.calculationEnd()
-      second.calculationEnd()
-    }
-  }
-
   private val tracingProperty = System.getProperty("internal.profiler.tracing") == "true"
 
   final val BEFORE_CACHE_READ: Int = 0
@@ -151,10 +136,6 @@ object Tracer {
   def apply(id: String, name: String): Tracer =
     if (isEnabled) tracersMap.computeIfAbsent(id, new Tracer(_, name))
     else NoOp
-
-  def apply(id: String, name: String, secondId: => String, secondName: => String): DoubleTracer = {
-    new DoubleTracer(Tracer(id, name), Tracer(secondId, secondName))
-  }
 
   def clearAll(): Unit =
     tracersMap.clear()

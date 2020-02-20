@@ -89,7 +89,7 @@ object CachedMacroUtil {
       val tracingSuffix = expressionsWithValuesText(c)(trackedExprs)
       val tracingKeyId = q"$cacheKey + $tracingSuffix"
       val tracingKeyName = q"$cacheName + $tracingSuffix"
-      q"$internalTracer($cacheKey, $cacheName, $tracingKeyId, $tracingKeyName)"
+      q"$internalTracer($tracingKeyId, $tracingKeyName)"
     }
     else q"$internalTracer($cacheKey, $cacheName)"
 
@@ -109,7 +109,6 @@ object CachedMacroUtil {
 
     concatenation
   }
-
 
   def recursionGuardFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote

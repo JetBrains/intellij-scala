@@ -60,7 +60,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     maybeAssignment = Some(statement)
   }
 
-  @Measure(refName, incomplete)
   override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
     maybeAssignment.fold(multiResolveImpl(incomplete)) {
       _.resolveAssignment.toArray
