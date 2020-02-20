@@ -19,7 +19,7 @@ class ScalaDocUnknownTagInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      override def visitTag(s: ScDocTag) {
+      override def visitTag(s: ScDocTag): Unit = {
         val tagNameElement = s.getFirstChild
         assert(tagNameElement != null)
         assert(tagNameElement.getNode.getElementType == ScalaDocTokenType.DOC_TAG_NAME)
@@ -32,13 +32,13 @@ class ScalaDocUnknownTagInspection extends LocalInspectionTool {
              tagNameElement.getNextSibling.getNextSibling.getNode.getElementType != ScalaDocTokenType.DOC_TAG_VALUE_TOKEN))
         {
           holder.registerProblem(holder.getManager.createProblemDescriptor(tagNameElement,
-            "Missing Tag Parameter", true, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
+            InspectionBundle.message("missing.tag.parameter"), true, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
         }
       }
     }
   }
 
-  override def getDisplayName: String = "Unknown scaladoc tag"
+  override def getDisplayName: String = InspectionBundle.message("unknown.scaladoc.tag")
 }
 
 

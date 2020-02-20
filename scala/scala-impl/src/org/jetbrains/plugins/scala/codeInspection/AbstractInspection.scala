@@ -3,13 +3,14 @@ package codeInspection
 
 import com.intellij.codeInspection._
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.annotations.{Nls, Nullable}
 
 /**
   * @author Pavel Fatin
   *         use [[org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection]] instead
   */
 @deprecated("use org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection instead")
-abstract class AbstractInspection protected(customDisplayName: String = null) extends LocalInspectionTool {
+abstract class AbstractInspection protected(@Nullable @Nls customDisplayName: String = null) extends LocalInspectionTool {
 
   override final def getDisplayName: String = customDisplayName match {
     case null => AbstractInspection.byClassName(this)

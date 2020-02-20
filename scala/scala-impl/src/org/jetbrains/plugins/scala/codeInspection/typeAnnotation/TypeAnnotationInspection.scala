@@ -62,7 +62,7 @@ object TypeAnnotationInspection {
     }
   }
 
-  private class MakePrivateQuickFix(element: ScModifierListOwner) extends AbstractFixOnPsiElement("Make private", element) {
+  private class MakePrivateQuickFix(element: ScModifierListOwner) extends AbstractFixOnPsiElement(InspectionBundle.message("quickfix.make.private"), element) {
 
     override protected def doApplyFix(element: ScModifierListOwner)
                                      (implicit project: Project): Unit = {
@@ -70,12 +70,12 @@ object TypeAnnotationInspection {
     }
   }
 
-  private class LearnWhyQuickFix extends LocalQuickFixBase("Learn Why...") {
+  private class LearnWhyQuickFix extends LocalQuickFixBase(InspectionBundle.message("learn.why")) {
     override def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
       DesktopUtils.browse("https://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/")
   }
 
-  private class ModifyCodeStyleQuickFix extends LocalQuickFixBase("Modify Code Style...") {
+  private class ModifyCodeStyleQuickFix extends LocalQuickFixBase(InspectionBundle.message("quickfix.modify.code.style")) {
     override def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
       TypeAnnotationUtil.showTypeAnnotationsSettings(project)
   }

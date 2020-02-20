@@ -12,6 +12,7 @@ import com.intellij.psi._
 import com.intellij.refactoring.PackageWrapper
 import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
 import com.intellij.refactoring.util.RefactoringMessageUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring.move.saveMoveDestination
@@ -51,12 +52,13 @@ final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
 
   override def startInWriteAction(): Boolean = false
 
-  override def getFamilyName: String = "Move File To Package"
+  override def getFamilyName: String = InspectionBundle.message("fimaly.name.move.file.to.package")
 }
 
 object ScalaMoveToPackageQuickFix {
+  @Nls
   def hint(fileName: String, packageName: String): String = {
-    val packageText = if (packageName.nonEmpty) s"Package $packageName" else "Default Package"
-    s"Move File $fileName To $packageText"
+    if (packageName.isEmpty) InspectionBundle.message("move.file.to.default.package", fileName)
+    else InspectionBundle.message("move.file.to.package.with.packagename", fileName, packageName)
   }
 }

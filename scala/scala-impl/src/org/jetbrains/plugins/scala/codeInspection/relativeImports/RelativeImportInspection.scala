@@ -4,7 +4,7 @@ package codeInspection.relativeImports
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiPackage}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -18,7 +18,7 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alefas
  * @since 14.09.12
  */
-class RelativeImportInspection extends AbstractInspection("Relative Import") {
+class RelativeImportInspection extends AbstractInspection(InspectionBundle.message("display.name.relative.import")) {
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
@@ -26,13 +26,13 @@ class RelativeImportInspection extends AbstractInspection("Relative Import") {
       val q = qual(expr.qualifier)
       val resolve = q.multiResolveScala(false)
       for (result <- resolve) {
-        def applyProblem(qualifiedName: String) {
+        def applyProblem(qualifiedName: String): Unit = {
           val fixes = new ArrayBuffer[LocalQuickFix]()
           if (!ScalaCodeStyleSettings.getInstance(q.getProject).isAddFullQualifiedImports) {
             fixes += new EnableFullQualifiedImports()
           }
           fixes += new MakeFullQualifiedImportFix(q, qualifiedName)
-          holder.registerProblem(q, "Relative import detected", fixes: _*)
+          holder.registerProblem(q, InspectionBundle.message("relative.import.detected"), fixes: _*)
         }
         result.element match {
           case p: PsiPackage if p.getQualifiedName.contains(".") =>
@@ -56,7 +56,7 @@ object RelativeImportInspection {
 private class EnableFullQualifiedImports extends LocalQuickFix {
   override def getName: String = getFamilyName
 
-  override def getFamilyName: String = "Enable full qualified imports"
+  override def getFamilyName: String = InspectionBundle.message("family.name.enable.full.qualified.imports")
 
   override def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
     ScalaCodeStyleSettings.getInstance(project).setAddFullQualifiedImports(true)

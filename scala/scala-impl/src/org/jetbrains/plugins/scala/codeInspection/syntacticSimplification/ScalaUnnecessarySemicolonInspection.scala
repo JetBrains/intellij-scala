@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -24,7 +24,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
       def endOffset(element: PsiElement): Int = element.getTextRange.getEndOffset
       def shiftInNewFile(offset: Int, semicolonOffset: Int): Int = offset + (if (offset > semicolonOffset) 1 else 0)
 
-      override def visitElement(element: PsiElement) {
+      override def visitElement(element: PsiElement): Unit = {
         if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
           val file = element.getContainingFile
           val nextLeaf = file.findElementAt(endOffset(element))
@@ -36,7 +36,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
             var elem1 = file.findElementAt(offset - 1)
             var elem2 = newFile.findElementAt(offset - 1)
             while (elem1 != null && endOffset(elem1) <= offset && elem2 != null) {
-              if (elem1.getText != elem2.getText) return
+              if (!elem1.textMatches(elem2.getText)) return
               if (elem1.getNode.getElementType != elem2.getNode.getElementType) return
               elem1 = elem1.getParent
               elem2 = elem2.getParent
@@ -47,7 +47,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
             elem1 = file.findElementAt(whitespaceOffset)
             elem2 = newFile.findElementAt(whitespaceOffset - 1)
             while (elem1 != null && startOffset(elem1) >= whitespaceOffset && elem2 != null) {
-              if (elem1.getText != elem2.getText) return
+              if (!elem1.textMatches(elem2.getText)) return
               if (elem1.getNode.getElementType != elem2.getNode.getElementType) return
               elem1 = elem1.getParent
               elem2 = elem2.getParent
@@ -55,7 +55,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
             if (elem2 == null) return
             if (shiftInNewFile(startOffset(elem2), offset) > startOffset(elem1) ||
                     shiftInNewFile(endOffset(elem2), offset) < endOffset(elem1)) return
-            holder.registerProblem(holder.getManager.createProblemDescriptor(element, "Unnecessary semicolon", true,
+            holder.registerProblem(holder.getManager.createProblemDescriptor(element, InspectionBundle.message("unnecessary.semicolon"), true,
               ProblemHighlightType.LIKE_UNUSED_SYMBOL, isOnTheFly, new RemoveSemicolonFix(element)))
           }
         }
@@ -72,7 +72,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
   }
 }
 
-class RemoveSemicolonFix(element: PsiElement) extends AbstractFixOnPsiElement("Remove unnecessary semicolon", element) {
+class RemoveSemicolonFix(element: PsiElement) extends AbstractFixOnPsiElement(InspectionBundle.message("remove.unnecessary.semicolon"), element) {
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {

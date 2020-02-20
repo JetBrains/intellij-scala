@@ -13,7 +13,7 @@ class EqualityToSameElementsInspection extends OperationOnCollectionInspection {
 
 object ArrayEquality extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.equals.with.sameElements")
-  override def description: String = "For arrays"
+  override def description: String = InspectionBundle.message("config.description.for.arrays")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case left `==` right if arraysOrSeqAndArray(left, right) =>
@@ -32,7 +32,7 @@ object ArrayEquality extends SimplificationType {
 
 object IteratorsEquality extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.equals.with.sameElements")
-  override def description: String = "For iterators"
+  override def description: String = InspectionBundle.message("config.description.for.iterators")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case left `==` right if iterators(left, right) =>

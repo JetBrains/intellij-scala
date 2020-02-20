@@ -68,7 +68,7 @@ object AnnotatorBasedErrorInspection {
     if (highlightInfoHolder.hasErrorResults) {
       holder.registerProblem(
         element,
-        "Error detected",
+        InspectionBundle.message("error.detected"),
         ERROR,
         null: TextRange
       )
@@ -105,37 +105,37 @@ object AnnotatorBasedErrorInspection {
     def createInformationAnnotation(elt: PsiElement, message: String): ScalaAnnotation = FakeAnnotation
 
     def createWarningAnnotation(range: TextRange, message: String): ScalaAnnotation = {
-      holder.registerProblem(element, s"Warning: $message", GENERIC_ERROR_OR_WARNING)
+      holder.registerProblem(element, InspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
     def createWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
-      holder.registerProblem(element, s"Warning: $message", GENERIC_ERROR_OR_WARNING)
+      holder.registerProblem(element, InspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
     def createWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
-      holder.registerProblem(element, s"Warning: $message", GENERIC_ERROR_OR_WARNING)
+      holder.registerProblem(element, InspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
     def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation = {
       if (message != null) {
-        holder.registerProblem(element, s"Error detected: $message", ERROR)
+        holder.registerProblem(element, InspectionBundle.message("error.detected.with.message", message), ERROR)
       }
       FakeAnnotation
     }
 
     def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
       if (message != null) {
-        holder.registerProblem(element, s"Error detected: $message", ERROR)
+        holder.registerProblem(element, InspectionBundle.message("error.detected.with.message", message), ERROR)
       }
       FakeAnnotation
     }
 
     def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
       if (message != null) {
-        holder.registerProblem(element, s"Error detected: $message", ERROR)
+        holder.registerProblem(element, InspectionBundle.message("error.detected.with.message", message), ERROR)
       }
       FakeAnnotation
     }

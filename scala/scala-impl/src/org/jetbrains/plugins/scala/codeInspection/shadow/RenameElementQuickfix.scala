@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.refactoring.actions.RenameElementAction
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.extensions._
 
@@ -20,7 +21,7 @@ import scala.collection.{JavaConverters, mutable}
  * User: Alefas
  * Date: 06.02.12
  */
-class RenameElementQuickfix(myRef: PsiElement, name: String) extends AbstractFixOnPsiElement(name, myRef) {
+class RenameElementQuickfix(myRef: PsiElement, @Nls name: String) extends AbstractFixOnPsiElement(name, myRef) {
 
   override protected def doApplyFix(element: PsiElement)
                                    (implicit project: Project): Unit = {

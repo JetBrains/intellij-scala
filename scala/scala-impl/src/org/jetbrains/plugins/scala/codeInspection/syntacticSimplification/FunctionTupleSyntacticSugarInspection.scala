@@ -42,10 +42,10 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
                       val referredElement = ref.bind().map(_.getElement)
                       referredElement match {
                         case Some(QualifiedName(FunctionN(n))) if te.typeArgList.typeArgs.length == (n.toInt + 1) =>
-                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
+                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, InspectionBundle.message("syntactic.sugar.could.be.used"),
                             new FunctionTypeSyntacticSugarQuickFix(te), ProblemHighlightType.WEAK_WARNING, false))
                         case Some(QualifiedName(TupleN(n))) if (te.typeArgList.typeArgs.length == n.toInt) && n.toInt != 1 =>
-                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
+                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, InspectionBundle.message("syntactic.sugar.could.be.used"),
                             new TupleTypeSyntacticSugarQuickFix(te), ProblemHighlightType.WEAK_WARNING, false))
                         case _ =>
                       }

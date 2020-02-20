@@ -11,6 +11,7 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 
@@ -24,7 +25,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
 
   def collectAnnotations(unusedImports: Seq[ImportUsed], annotationHolder: AnnotationHolder): Seq[Annotation] = {
     unusedImports.filterNot(_.isAlwaysUsed).flatMap {
-      imp: ImportUsed => {
+      (imp: ImportUsed) => {
         val psiOption: Option[PsiElement] = imp match {
           case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) =>
             val impSt = expr.getParent.asInstanceOf[ScImportStmt]
@@ -40,7 +41,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
         val qName = imp.qualName
 
         psiOption.toSeq.flatMap { psi =>
-          val annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
+          val annotation = annotationHolder.createWarningAnnotation(psi, InspectionBundle.message("unused.import.statement"))
           annotation setHighlightType ProblemHighlightType.LIKE_UNUSED_SYMBOL
           getFixes.foreach(annotation.registerFix)
           qName.foreach(name => annotation.registerFix(new MarkImportAsAlwaysUsed(name)))
@@ -50,7 +51,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
     }
   }
 
-  protected def highlightAll(highlights: util.Collection[HighlightInfo]) {
+  protected def highlightAll(highlights: util.Collection[HighlightInfo]): Unit = {
     UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, document, 0,
       file.getTextLength, highlights, getColorsScheme, getId)
   }

@@ -77,7 +77,7 @@ private case class Feature(name: String,
       if (!isEnabled(profile.getSettings)) {
         findIn.lift(e).foreach { it =>
           if (!isFlagImportedFor(it)) {
-            holder.registerProblem(it, s"Advanced language feature: $name",
+            holder.registerProblem(it, InspectionBundle.message("advanced.language.feature", name),
               new ImportFeatureFlagFix(it, name, s"$flagQualifier.$flagName"),
               new EnableFeatureFix(profile, it, name, enable))
           }

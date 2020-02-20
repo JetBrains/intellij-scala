@@ -33,7 +33,7 @@ import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -1065,7 +1065,7 @@ package object extensions {
 
   implicit def toCallable[T](action: => T): Callable[T] = () => action
 
-  def startCommand(commandName: String = null)
+  def startCommand(@Nls commandName: String = null)
                   (body: => Unit)
                   (implicit project: Project): Unit =
     CommandProcessor.getInstance().executeCommand(

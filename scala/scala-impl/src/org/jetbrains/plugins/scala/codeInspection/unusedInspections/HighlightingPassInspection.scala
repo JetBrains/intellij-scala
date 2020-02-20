@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.unusedInspections
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.annotations.Nls
 
 /**
   * Created by Svyatoslav Ilinskiy on 13.07.16.
@@ -26,6 +27,6 @@ trait HighlightingPassInspection extends LocalInspectionTool {
 }
 
 case class ProblemInfo(element: PsiElement,
-                       message: String,
+                       @Nls message: String,
                        highlightingType: ProblemHighlightType,
                        fixes: Seq[LocalQuickFixAndIntentionActionOnPsiElement])

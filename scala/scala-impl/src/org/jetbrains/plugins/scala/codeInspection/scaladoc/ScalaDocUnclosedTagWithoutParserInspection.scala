@@ -22,11 +22,11 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getDisplayName: String = "Unclosed Tag"
+  override def getDisplayName: String = InspectionBundle.message("display.name.unclosed.tag")
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      override def visitWikiSyntax(s: ScDocSyntaxElement) {
+      override def visitWikiSyntax(s: ScDocSyntaxElement): Unit = {
         val firstElementType = s.getFirstChild.getNode.getElementType
         if (!ScaladocSyntaxElementType.canClose(firstElementType,
           s.getLastChild.getNode.getElementType) &&

@@ -32,7 +32,7 @@ class ChainedPackageInspection extends LocalInspectionTool {
         } yield manager.createProblemDescriptor(
           file,
           range,
-          "Package declaration could use chained package clauses",
+          InspectionBundle.message("package.declaration.could.use.chained.package.clauses"),
           ProblemHighlightType.WEAK_WARNING,
           false,
           quickFix
@@ -49,14 +49,14 @@ class ChainedPackageInspection extends LocalInspectionTool {
 object ChainedPackageInspection {
 
   private class UseChainedPackageQuickFix(myFile: ScalaFile, basePackage: String)
-    extends AbstractFixOnPsiElement(s"Use chained package clauses: package $basePackage; package ...", myFile) {
+    extends AbstractFixOnPsiElement(InspectionBundle.message("use.chained.package.clauses.like", basePackage), myFile) {
 
     override protected def doApplyFix(file: ScalaFile)
                                      (implicit project: Project): Unit = {
       file.setPackageName(file.getPackageName)
     }
 
-    override def getFamilyName = "Use chained package clauses"
+    override def getFamilyName: String = InspectionBundle.message("use.chained.package.clauses")
   }
 
   private def findBasePackageByName(packageName: String)

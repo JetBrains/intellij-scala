@@ -17,11 +17,11 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
 class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool {
 
-  override def getDisplayName: String = "Missing Parameter Description"
+  override def getDisplayName: String = InspectionBundle.message("display.name.missing.parameter.description")
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      override def visitTag(s: ScDocTag) {
+      override def visitTag(s: ScDocTag): Unit = {
         if (!ScalaDocMissingParameterDescriptionInspection.OurTags.contains(s.name) || s.getValueElement == null) {
           return
         }

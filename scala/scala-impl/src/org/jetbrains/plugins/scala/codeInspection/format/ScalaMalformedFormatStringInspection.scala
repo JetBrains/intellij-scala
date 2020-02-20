@@ -4,7 +4,7 @@ package codeInspection.format
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.format.Injection._
 import org.jetbrains.plugins.scala.format.{Injection, Span, _}
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
@@ -56,7 +56,7 @@ class ScalaMalformedFormatStringInspection extends AbstractInspection {
         inspect(part, holder)
   }
 
-  private def inspect(part: StringPart, holder: ProblemsHolder) {
+  private def inspect(part: StringPart, holder: ProblemsHolder): Unit = {
     part match {
       case injection @ Injection(exp, Some(Specifier(Span(element, start, end), format))) =>
         implicit val tpc: TypePresentationContext = TypePresentationContext(element)
@@ -64,27 +64,25 @@ class ScalaMalformedFormatStringInspection extends AbstractInspection {
           case Some(Inapplicable) =>
             for (argumentType <- injection.expressionType) {
               holder.registerProblem(element, new TextRange(start, end),
-                "Format specifier %s cannot be used for an argument %s (%s)".format(
-                  format, exp.getText, argumentType.presentableText))
+                InspectionBundle.message("format.specifier.cannot.be.used.for.an.argument", format, exp.getText, argumentType.presentableText))
               holder.registerProblem(exp,
-                "Argument %s (%s) cannot be used for a format specifier %s".format(
-                  exp.getText, argumentType.presentableText, format))
+                InspectionBundle.message("argument.cannot.be.used.for.a.format.specifier", exp.getText, argumentType.presentableText, format))
             }
           case Some(Malformed) =>
-            holder.registerProblem(element, new TextRange(start, end), "Malformed format specifier")
+            holder.registerProblem(element, new TextRange(start, end), InspectionBundle.message("malformed.format.specifier"))
           case _ =>
         }
 
       case UnboundSpecifier(Specifier(Span(element, start, end), format)) =>
         holder.registerProblem(element, new TextRange(start, end),
-          "No argument for a format specifier %s".format(format))
+          InspectionBundle.message("no.argument.for.a.format.specifier", format))
 
       case UnboundPositionalSpecifier(Specifier(Span(element, start, end), _), position) =>
         holder.registerProblem(element, new TextRange(start, end),
-          "No argument at position %d".format(position))
+          InspectionBundle.message("no.argument.at.position", position.toString))
 
       case UnboundExpression(argument) =>
-        holder.registerProblem(argument, "No format specifer for an argument %s".format(argument.getText),
+        holder.registerProblem(argument, InspectionBundle.message("no.format.specifer.for.an.argument", argument.getText),
           ProblemHighlightType.LIKE_UNUSED_SYMBOL)
 
       case _ =>

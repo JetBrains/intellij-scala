@@ -10,7 +10,7 @@ abstract class ScalaUnusedSymbolInspectionTestBase extends ScalaQuickFixTestBase
     classOf[ScalaUnusedSymbolInspection]
 
   override protected val description: String =
-    ScalaUnusedSymbolInspection.Annotation
+    ScalaUnusedSymbolInspection.annotationDescription
 
   val hint = DeleteUnusedElementFix.Hint
 }

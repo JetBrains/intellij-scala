@@ -13,7 +13,7 @@ import scala.language.implicitConversions
  * Nikolay.Tropin
  * 5/21/13
  */
-case class Simplification(exprToReplace: SmartPsiElementPointer[ScExpression], replacementText: String, hint: String, rangeInParent: TextRange)
+case class Simplification(exprToReplace: SmartPsiElementPointer[ScExpression], replacementText: String, @Nls hint: String, rangeInParent: TextRange)
 
 class SimplificationBuilder private[collections] (val exprToReplace: ScExpression) {
   private var rangeInParent: TextRange = {
@@ -51,7 +51,7 @@ class SimplificationBuilder private[collections] (val exprToReplace: ScExpressio
     this
   }
 
-  def withHint(s: String): SimplificationBuilder = {
+  def withHint(@Nls s: String): SimplificationBuilder = {
     this.hint = s
     this
   }

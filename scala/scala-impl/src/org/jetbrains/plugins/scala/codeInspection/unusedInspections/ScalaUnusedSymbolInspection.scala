@@ -5,6 +5,7 @@ package unusedInspections
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection._
 import org.jetbrains.plugins.scala.extensions._
@@ -23,7 +24,7 @@ import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def isEnabledByDefault: Boolean = true
 
-  override def getDisplayName: String = "Unused Symbol"
+  override def getDisplayName: String = InspectionBundle.message("display.name.unused.symbol")
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
     if (isOnTheFly) {
@@ -66,7 +67,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     elements.flatMap {
       case named: ScNamedElement =>
         if (!isElementUsed(named, isOnTheFly)) {
-          Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspection.Annotation, ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new DeleteUnusedElementFix(named))))
+          Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspection.annotationDescription, ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new DeleteUnusedElementFix(named))))
         } else Seq.empty
       case _ => Seq.empty
     }
@@ -83,9 +84,10 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 }
 
 object ScalaUnusedSymbolInspection {
-  val Annotation = "Declaration is never used"
+  @Nls
+  val annotationDescription: String = InspectionBundle.message("declaration.is.never.used")
 
-  val ShortName: String = "ScalaUnusedSymbol"
+  val shortName: String = "ScalaUnusedSymbol"
 
   private def isOverridingParameter(param: ScClassParameter): Boolean = {
     param.hasModifierProperty(ScalaModifier.OVERRIDE) || superValsSignatures(param).nonEmpty
