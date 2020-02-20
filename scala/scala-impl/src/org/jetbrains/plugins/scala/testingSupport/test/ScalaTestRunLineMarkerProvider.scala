@@ -153,7 +153,9 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
       DumbService.getInstance(project).runWhenSmart { () =>
         executeOnPooledThread {
           inReadAction {
-            doCalculateTestLocationsAndRestart(definition)
+            if (definition.isValid) {
+              doCalculateTestLocationsAndRestart(definition)
+            }
           }
         }
       }
@@ -173,20 +175,19 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   }
 
   private def doCalculateTestLocationsAndRestart(definition: ScTypeDefinition): Unit = try {
-    val modCount = CachesUtil.fileModCount(definition.getContainingFile)
+    val file = definition.getContainingFile
+    val fileModCount = CachesUtil.fileModCount(file)
     val testLocations: Option[Seq[PsiElement]] =
       for {
         module    <- definition.module
         locations <- ScalaTestTestLocationsFinder.calculateTestLocations(definition, module)
       } yield locations
 
-    definition.putUserData(TestPositionsCalculationStateKey, Calculated(testLocations, modCount, System.currentTimeMillis()))
+    definition.putUserData(TestPositionsCalculationStateKey, Calculated(testLocations, fileModCount, System.currentTimeMillis()))
 
-    val file    = definition.getContainingFile
     val project = definition.getProject
     if (file != null && !project.isDisposed) {
       // TODO: can we restart only a single highlighting pass (LineMarkersPass or even only TestRunLineMarkerProvider)?
-      // TODO: can we restart only for a single class?
       DaemonCodeAnalyzer.getInstance(project).restart(file)
     }
   } catch {
