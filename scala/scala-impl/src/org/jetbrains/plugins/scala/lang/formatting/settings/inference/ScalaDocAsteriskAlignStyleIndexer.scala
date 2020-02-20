@@ -38,14 +38,16 @@ final class ScalaDocAsteriskAlignStyleIndexer extends FileBasedIndexExtension[As
 
     ScalaDocStartRegex.findAllMatchIn(fileText).foreach { regMatch =>
       val nextNewLineIdx = StringUtils.indexOf(fileText, '\n', regMatch.end)
-      leadAsteriskMatcher.region(nextNewLineIdx, fileTextLength)
-      if (leadAsteriskMatcher.lookingAt) {
-        val indentSizeDocStart = indentSize(fileText, regMatch.start + 1, tabSize)
-        val indentSizeNextLine = indentSize(fileText, nextNewLineIdx + 1, tabSize)
-        indentSizeNextLine - indentSizeDocStart match {
-          case 1 => alignsByColumnTwo += 1
-          case 2 => alignsByColumnThree += 1
-          case _ =>
+      if (nextNewLineIdx > 0) {
+        leadAsteriskMatcher.region(nextNewLineIdx, fileTextLength)
+        if (leadAsteriskMatcher.lookingAt) {
+          val indentSizeDocStart = indentSize(fileText, regMatch.start + 1, tabSize)
+          val indentSizeNextLine = indentSize(fileText, nextNewLineIdx + 1, tabSize)
+          indentSizeNextLine - indentSizeDocStart match {
+            case 1 => alignsByColumnTwo += 1
+            case 2 => alignsByColumnThree += 1
+            case _ =>
+          }
         }
       }
     }
