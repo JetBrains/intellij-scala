@@ -12,7 +12,7 @@ import org.jetbrains.annotations.PropertyKey;
  */
 public class InspectionBundle extends DynamicBundle {
   @NonNls
-  private static final String BUNDLE = "org.jetbrains.plugins.scala.codeInspection.InspectionBundle";
+  private static final String BUNDLE = "messages.ScalaInspectionBundle";
 
   private static final InspectionBundle INSTANCE = new InspectionBundle();
 

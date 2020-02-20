@@ -21,7 +21,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.indices.settings.enable.cb"/>
+              <text resource-bundle="messages/ScalaBundle" key="scala.compiler.indices.settings.enable.cb"/>
             </properties>
           </component>
           <component id="c4a44" class="javax.swing.JButton" binding="deleteButton">
@@ -29,7 +29,7 @@
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.indices.settings.invalidate.button"/>
+              <text resource-bundle="messages/ScalaBundle" key="scala.compiler.indices.settings.invalidate.button"/>
             </properties>
           </component>
         </children>
@@ -47,7 +47,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="sbt.compilation.listener"/>
+              <text resource-bundle="messages/ScalaBundle" key="sbt.compilation.listener"/>
             </properties>
           </component>
           <grid id="f8d8a" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -64,7 +64,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.indices.sbt.automatic"/>
+                  <text resource-bundle="messages/ScalaBundle" key="scala.compiler.indices.sbt.automatic"/>
                 </properties>
               </component>
               <component id="26cb4" class="javax.swing.JRadioButton" binding="manualConfigButton">
@@ -72,7 +72,7 @@
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.indices.sbt.manual"/>
+                  <text resource-bundle="messages/ScalaBundle" key="scala.compiler.indices.sbt.manual"/>
                 </properties>
               </component>
               <grid id="7f218" binding="manualConfigPanel" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -90,7 +90,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="port.number"/>
+                      <text resource-bundle="messages/ScalaBundle" key="port.number"/>
                     </properties>
                   </component>
                   <component id="90b9b" class="com.intellij.ui.PortField" binding="portSelector">
@@ -118,7 +118,7 @@
                         <properties>
                           <editable value="false"/>
                           <rows value="1"/>
-                          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.indices.sbt.plugin.text"/>
+                          <text resource-bundle="messages/ScalaBundle" key="scala.compiler.indices.sbt.plugin.text"/>
                         </properties>
                       </component>
                       <component id="9b057" class="com.intellij.ui.components.JBLabel">
@@ -127,7 +127,7 @@
                         </constraints>
                         <properties>
                           <componentStyle value="SMALL"/>
-                          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="add.line.to.plugins.sbt"/>
+                          <text resource-bundle="messages/ScalaBundle" key="add.line.to.plugins.sbt"/>
                         </properties>
                       </component>
                     </children>
@@ -162,7 +162,7 @@
                           <componentStyle value="SMALL"/>
                           <enabled value="true"/>
                           <fontColor value="NORMAL"/>
-                          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="add.line.to.build.sbt"/>
+                          <text resource-bundle="messages/ScalaBundle" key="add.line.to.build.sbt"/>
                         </properties>
                       </component>
                     </children>
@@ -200,7 +200,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="implicit.definitions"/>
+                  <text resource-bundle="messages/ScalaBundle" key="implicit.definitions"/>
                 </properties>
               </component>
               <component id="5cb5f" class="com.intellij.ui.components.JBCheckBox" binding="applyMethodCB">
@@ -209,7 +209,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="apply.unapply.methods"/>
+                  <text resource-bundle="messages/ScalaBundle" key="apply.unapply.methods"/>
                 </properties>
               </component>
               <component id="fda16" class="com.intellij.ui.components.JBCheckBox" binding="samTypesCB">
@@ -218,7 +218,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="sam.types"/>
+                  <text resource-bundle="messages/ScalaBundle" key="sam.types"/>
                 </properties>
               </component>
               <component id="d3e3e" class="com.intellij.ui.components.JBCheckBox" binding="forCompMethodCB">
@@ -227,7 +227,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="for.comprehension.methods"/>
+                  <text resource-bundle="messages/ScalaBundle" key="for.comprehension.methods"/>
                 </properties>
               </component>
             </children>
@@ -237,7 +237,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="use.indices.to.search"/>
+              <text resource-bundle="messages/ScalaBundle" key="use.indices.to.search"/>
             </properties>
           </component>
         </children>

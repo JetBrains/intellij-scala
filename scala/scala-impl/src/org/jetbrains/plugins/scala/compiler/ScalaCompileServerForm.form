@@ -22,7 +22,7 @@
             </constraints>
             <properties>
               <enabled value="true"/>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="jvm.options"/>
+              <text resource-bundle="messages/ScalaBundle" key="jvm.options"/>
             </properties>
           </component>
           <component id="c2f5a" class="com.intellij.ui.RawCommandLineEditor" binding="myCompilationServerJvmParameters">
@@ -33,7 +33,7 @@
               </grid>
             </constraints>
             <properties>
-              <dialogCaption resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="compile.server.jvm.command.line.parameters"/>
+              <dialogCaption resource-bundle="messages/ScalaBundle" key="compile.server.jvm.command.line.parameters"/>
               <enabled value="true"/>
             </properties>
           </component>
@@ -44,7 +44,7 @@
             <properties>
               <enabled value="true"/>
               <labelFor value="9ea43"/>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="jvm.maximum.heap.size.mb"/>
+              <text resource-bundle="messages/ScalaBundle" key="jvm.maximum.heap.size.mb"/>
             </properties>
           </component>
           <component id="91057" class="javax.swing.JTextField" binding="myCompilationServerMaximumHeapSize">
@@ -61,7 +61,7 @@
               <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="compile.server.description"/>
+              <text resource-bundle="messages/ScalaBundle" key="compile.server.description"/>
             </properties>
           </component>
           <component id="979cd" class="javax.swing.JLabel">
@@ -69,7 +69,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="jdk"/>
+              <text resource-bundle="messages/ScalaBundle" key="jdk"/>
             </properties>
           </component>
           <grid id="76924" binding="mySdkPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
@@ -89,7 +89,7 @@
           <grid row="0" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="compile.server.use.for.scala"/>
+          <text resource-bundle="messages/ScalaBundle" key="compile.server.use.for.scala"/>
         </properties>
       </component>
       <grid id="32076" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -105,7 +105,7 @@
               <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="compile.server.new.project.restart"/>
+              <text resource-bundle="messages/ScalaBundle" key="compile.server.new.project.restart"/>
             </properties>
           </component>
         </children>
@@ -126,7 +126,7 @@
           <grid row="5" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="compile.server.use.project.home"/>
+          <text resource-bundle="messages/ScalaBundle" key="compile.server.use.project.home"/>
         </properties>
       </component>
       <component id="94b5e" class="javax.swing.JLabel">
@@ -135,7 +135,7 @@
         </constraints>
         <properties>
           <font/>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="advanced.settings"/>
+          <text resource-bundle="messages/ScalaBundle" key="advanced.settings"/>
         </properties>
       </component>
       <grid id="618e2" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -151,7 +151,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="compile.server.shutdown.if.idle.for"/>
+              <text resource-bundle="messages/ScalaBundle" key="compile.server.shutdown.if.idle.for"/>
             </properties>
           </component>
           <hspacer id="5e9c4">
@@ -173,7 +173,7 @@
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="minutes"/>
+              <text resource-bundle="messages/ScalaBundle" key="minutes"/>
             </properties>
           </component>
         </children>

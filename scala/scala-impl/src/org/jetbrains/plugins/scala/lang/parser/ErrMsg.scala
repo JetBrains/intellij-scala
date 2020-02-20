@@ -10,6 +10,6 @@ import org.jetbrains.annotations.PropertyKey
 
 object ErrMsg{
   //noinspection DynamicPropertyKey
-  def apply(@PropertyKey(resourceBundle = "org.jetbrains.plugins.scala.ScalaBundle") msg: String): String =
+  def apply(@PropertyKey(resourceBundle = "messages.ScalaBundle") msg: String): String =
     ScalaBundle.message(msg)
 }

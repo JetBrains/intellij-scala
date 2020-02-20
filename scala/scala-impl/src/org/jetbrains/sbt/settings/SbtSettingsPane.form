@@ -18,7 +18,7 @@
           <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.settings.sbtLauncher"/>
+          <text resource-bundle="messages/SbtBundle" key="sbt.settings.sbtLauncher"/>
         </properties>
       </component>
       <grid id="3ea53" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -34,7 +34,7 @@
               <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.settings.bundled"/>
+              <text resource-bundle="messages/SbtBundle" key="sbt.settings.bundled"/>
             </properties>
           </component>
           <component id="ee93b" class="javax.swing.JRadioButton" binding="myCustomButton">
@@ -42,7 +42,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.settings.custom.launcher"/>
+              <text resource-bundle="messages/SbtBundle" key="sbt.settings.custom.launcher"/>
             </properties>
           </component>
           <component id="2afad" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="myLauncherPath">
@@ -78,7 +78,7 @@
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.settings.jvm"/>
+          <text resource-bundle="messages/SbtBundle" key="sbt.settings.jvm"/>
         </properties>
       </component>
       <grid id="1881b" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -95,7 +95,7 @@
             </constraints>
             <properties>
               <labelFor value="3bd0"/>
-              <text resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.settings.maxHeapSize"/>
+              <text resource-bundle="messages/SbtBundle" key="sbt.settings.maxHeapSize"/>
             </properties>
           </component>
           <component id="2ec67" class="javax.swing.JLabel">
@@ -103,7 +103,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.settings.vmParams"/>
+              <text resource-bundle="messages/SbtBundle" key="sbt.settings.vmParams"/>
             </properties>
           </component>
           <component id="3bd0" class="javax.swing.JTextField" binding="myMaximumHeapSize">
@@ -124,7 +124,7 @@
               </grid>
             </constraints>
             <properties>
-              <dialogCaption resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.settings.vmParams"/>
+              <dialogCaption resource-bundle="messages/SbtBundle" key="sbt.settings.vmParams"/>
               <enabled value="true"/>
             </properties>
           </component>

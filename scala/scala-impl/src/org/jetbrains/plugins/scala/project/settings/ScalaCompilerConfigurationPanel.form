@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="f7b40"/>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="incrementality.type"/>
+          <text resource-bundle="messages/ScalaBundle" key="incrementality.type"/>
         </properties>
       </component>
       <component id="f7b40" class="javax.swing.JComboBox" binding="myIncrementalityType">

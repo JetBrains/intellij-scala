@@ -35,21 +35,21 @@ object ScalaBundleSorting {
   val scalaImplDir: String = scalaModDir + "scala-impl/"
   val scalaImplModule: ModuleInfo = ModuleInfo(
     rootPath = scalaImplDir + "src/",
-    bundlePath = scalaImplDir + "resources/org/jetbrains/plugins/scala/ScalaBundle.properties",
+    bundlePath = scalaImplDir + "resources/messages/ScalaBundle.properties",
   )
   val scalaImplModuleErrMsg: ModuleInfo = ModuleInfo(
     rootPath = scalaImplDir + "src/",
-    bundlePath = scalaImplDir + "resources/org/jetbrains/plugins/scala/editor/EditorBundle.properties",
+    bundlePath = scalaImplDir + "resources/messages/ScalaEditorBundle.properties",
   )
 
   val scalaImplModuleCodeInspection: ModuleInfo = ModuleInfo(
     rootPath = scalaImplDir + "src/",
-    bundlePath = scalaImplDir + "resources/org/jetbrains/plugins/scala/codeInspection/InspectionBundle.properties",
+    bundlePath = scalaImplDir + "resources/messages/ScalaInspectionBundle.properties",
   )
 
   val scalaImplModuleSbt: ModuleInfo = ModuleInfo(
     rootPath = scalaImplDir + "src/",
-    bundlePath = scalaImplDir + "resources/org/jetbrains/sbt/SbtBundle.properties"
+    bundlePath = scalaImplDir + "resources/messages/SbtBundle.properties"
   )
 
   val uastModule: ModuleInfo = ModuleInfo(

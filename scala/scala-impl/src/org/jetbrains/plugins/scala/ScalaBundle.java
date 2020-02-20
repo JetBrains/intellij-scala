@@ -28,7 +28,7 @@ import org.jetbrains.annotations.PropertyKey;
  */
 public class ScalaBundle extends DynamicBundle {
   @NonNls
-  private static final String BUNDLE = "org.jetbrains.plugins.scala.ScalaBundle";
+  private static final String BUNDLE = "messages.ScalaBundle";
 
   private static final ScalaBundle INSTANCE = new ScalaBundle();
 

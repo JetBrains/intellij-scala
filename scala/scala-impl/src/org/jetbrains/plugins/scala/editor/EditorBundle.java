@@ -17,7 +17,7 @@ import java.util.ResourceBundle;
  */
 public class EditorBundle extends DynamicBundle {
   @NonNls
-  private static final String BUNDLE = "org.jetbrains.plugins.scala.editor.EditorBundle";
+  private static final String BUNDLE = "messages.ScalaEditorBundle";
 
   private static final EditorBundle INSTANCE = new EditorBundle();
 

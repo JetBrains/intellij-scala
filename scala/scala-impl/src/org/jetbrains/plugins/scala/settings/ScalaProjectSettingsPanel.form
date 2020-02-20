@@ -189,7 +189,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="collection.type.highlighting.option"/>
+                      <text resource-bundle="messages/ScalaBundle" key="collection.type.highlighting.option"/>
                     </properties>
                   </component>
                   <component id="d31fa" class="javax.swing.JComboBox" binding="collectionHighlightingChooser">
@@ -313,8 +313,8 @@
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.meta.settings.annot212"/>
-                  <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.meta.settings.annot212Tooltip"/>
+                  <text resource-bundle="messages/ScalaBundle" key="scala.meta.settings.annot212"/>
+                  <toolTipText resource-bundle="messages/ScalaBundle" key="scala.meta.settings.annot212Tooltip"/>
                 </properties>
               </component>
               <component id="6965a" class="javax.swing.JComboBox" binding="scalaMetaMode">
@@ -327,7 +327,7 @@
                     <item value="Disabled"/>
                     <item value="Manual"/>
                   </model>
-                  <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.meta.settings.modeOptionsTooltip"/>
+                  <toolTipText resource-bundle="messages/ScalaBundle" key="scala.meta.settings.modeOptionsTooltip"/>
                 </properties>
               </component>
               <component id="1a591" class="javax.swing.JCheckBox" binding="metaTrimBodies">
@@ -335,8 +335,8 @@
                   <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.meta.settings.trimBodiesCap"/>
-                  <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.meta.settings.trimBodiesTooltip"/>
+                  <text resource-bundle="messages/ScalaBundle" key="scala.meta.settings.trimBodiesCap"/>
+                  <toolTipText resource-bundle="messages/ScalaBundle" key="scala.meta.settings.trimBodiesTooltip"/>
                 </properties>
               </component>
               <component id="4b2ad" class="javax.swing.JComboBox" binding="ivy2IndexingModeCBB">
@@ -349,7 +349,7 @@
                     <item value="Metadata"/>
                     <item value="Classes"/>
                   </model>
-                  <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="project.settings.sbt.index.ivy2.mode.hint"/>
+                  <toolTipText resource-bundle="messages/ScalaBundle" key="project.settings.sbt.index.ivy2.mode.hint"/>
                 </properties>
               </component>
               <component id="b7dc6" class="javax.swing.JLabel">
@@ -357,8 +357,8 @@
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="project.settings.sbt.index.ivy2.mode"/>
-                  <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="project.settings.sbt.index.ivy2.mode.hint"/>
+                  <text resource-bundle="messages/ScalaBundle" key="project.settings.sbt.index.ivy2.mode"/>
+                  <toolTipText resource-bundle="messages/ScalaBundle" key="project.settings.sbt.index.ivy2.mode.hint"/>
                 </properties>
               </component>
             </children>

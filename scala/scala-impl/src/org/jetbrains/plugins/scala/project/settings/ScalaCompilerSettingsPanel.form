@@ -31,7 +31,7 @@
               <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="additional.compiler.options"/>
+              <text resource-bundle="messages/ScalaBundle" key="additional.compiler.options"/>
             </properties>
           </component>
           <component id="6935" class="com.intellij.ui.RawCommandLineEditor" binding="myAdditionalCompilerOptions">
@@ -50,7 +50,7 @@
             </constraints>
             <properties>
               <labelFor value="6a7f2"/>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="debugging.info.level"/>
+              <text resource-bundle="messages/ScalaBundle" key="debugging.info.level"/>
             </properties>
           </component>
           <component id="6a7f2" class="javax.swing.JComboBox" binding="myDebuggingInfoLevel">
@@ -64,8 +64,8 @@
               <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="enable.warnings"/>
-              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="enable.warnings.tooltip"/>
+              <text resource-bundle="messages/ScalaBundle" key="enable.warnings"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="enable.warnings.tooltip"/>
             </properties>
           </component>
           <component id="747de" class="javax.swing.JCheckBox" binding="myDeprecationWarnings">
@@ -73,8 +73,8 @@
               <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="deprecation.warnings"/>
-              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="deprecation.warnings.tooltip"/>
+              <text resource-bundle="messages/ScalaBundle" key="deprecation.warnings"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="deprecation.warnings.tooltip"/>
             </properties>
           </component>
           <component id="4fd68" class="javax.swing.JCheckBox" binding="myUncheckedWarnings">
@@ -82,8 +82,8 @@
               <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="unchecked.warnings"/>
-              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="unchecked.warnings.tooltip"/>
+              <text resource-bundle="messages/ScalaBundle" key="unchecked.warnings"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="unchecked.warnings.tooltip"/>
             </properties>
           </component>
           <component id="b1551" class="javax.swing.JCheckBox" binding="myOptimiseBytecode">
@@ -91,8 +91,8 @@
               <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="optimise.bytecode"/>
-              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="optimise.bytecode.tooltip"/>
+              <text resource-bundle="messages/ScalaBundle" key="optimise.bytecode"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="optimise.bytecode.tooltip"/>
             </properties>
           </component>
           <component id="ced9b" class="javax.swing.JCheckBox" binding="myExplainTypeErrors">
@@ -100,8 +100,8 @@
               <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="explain.type.errors"/>
-              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="explain.type.errors.tooltip"/>
+              <text resource-bundle="messages/ScalaBundle" key="explain.type.errors"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="explain.type.errors.tooltip"/>
             </properties>
           </component>
           <grid id="54c63" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -118,7 +118,7 @@
                 </constraints>
                 <properties>
                   <labelFor value="53647"/>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="compile.order"/>
+                  <text resource-bundle="messages/ScalaBundle" key="compile.order"/>
                 </properties>
               </component>
               <component id="53647" class="javax.swing.JComboBox" binding="myCompileOrder">
@@ -134,7 +134,7 @@
               <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="options"/>
+              <text resource-bundle="messages/ScalaBundle" key="options"/>
             </properties>
           </component>
           <component id="f37ca" class="javax.swing.JCheckBox" binding="myDynamics">
@@ -142,7 +142,7 @@
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.dynamics"/>
+              <text resource-bundle="messages/ScalaBundle" key="feature.dynamics"/>
             </properties>
           </component>
           <component id="e3735" class="javax.swing.JCheckBox" binding="myPostfixOps">
@@ -150,7 +150,7 @@
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.postfix.notation"/>
+              <text resource-bundle="messages/ScalaBundle" key="feature.postfix.notation"/>
             </properties>
           </component>
           <component id="77105" class="javax.swing.JCheckBox" binding="myHigherKinds">
@@ -158,7 +158,7 @@
               <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.higher.kinded.types"/>
+              <text resource-bundle="messages/ScalaBundle" key="feature.higher.kinded.types"/>
             </properties>
           </component>
           <component id="5881a" class="javax.swing.JCheckBox" binding="myExistentials">
@@ -166,7 +166,7 @@
               <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.existential.types"/>
+              <text resource-bundle="messages/ScalaBundle" key="feature.existential.types"/>
             </properties>
           </component>
           <component id="2b540" class="com.intellij.ui.TitledSeparator">
@@ -174,7 +174,7 @@
               <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="features"/>
+              <text resource-bundle="messages/ScalaBundle" key="features"/>
             </properties>
           </component>
           <component id="6a997" class="javax.swing.JCheckBox" binding="myFeatureWarnings">
@@ -182,8 +182,8 @@
               <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.warnings"/>
-              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.warnings.tooltip"/>
+              <text resource-bundle="messages/ScalaBundle" key="feature.warnings"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="feature.warnings.tooltip"/>
             </properties>
           </component>
           <component id="787ba" class="javax.swing.JCheckBox" binding="myImplicitConversions">
@@ -191,7 +191,7 @@
               <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.implicit.conversions"/>
+              <text resource-bundle="messages/ScalaBundle" key="feature.implicit.conversions"/>
             </properties>
           </component>
           <component id="edb7c" class="javax.swing.JCheckBox" binding="myMacros">
@@ -199,7 +199,7 @@
               <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.macros"/>
+              <text resource-bundle="messages/ScalaBundle" key="feature.macros"/>
             </properties>
           </component>
           <component id="a0ff7" class="javax.swing.JCheckBox" binding="myReflectiveCalls">
@@ -207,7 +207,7 @@
               <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.reflective.calls"/>
+              <text resource-bundle="messages/ScalaBundle" key="feature.reflective.calls"/>
             </properties>
           </component>
           <component id="a70f4" class="javax.swing.JCheckBox" binding="myContinuations">
@@ -215,7 +215,7 @@
               <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="enable.continuations"/>
+              <text resource-bundle="messages/ScalaBundle" key="enable.continuations"/>
             </properties>
           </component>
           <component id="74733" class="javax.swing.JCheckBox" binding="mySpecialization" default-binding="true">
@@ -223,8 +223,8 @@
               <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="enable.specialization"/>
-              <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="enable.specialization.tooltip"/>
+              <text resource-bundle="messages/ScalaBundle" key="enable.specialization"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="enable.specialization.tooltip"/>
             </properties>
           </component>
           <component id="5ed87" class="javax.swing.JCheckBox" binding="myExperimental">
@@ -232,7 +232,7 @@
               <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="feature.experimental.features"/>
+              <text resource-bundle="messages/ScalaBundle" key="feature.experimental.features"/>
             </properties>
           </component>
         </children>
@@ -242,7 +242,7 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="compiler.plugins"/>
+          <text resource-bundle="messages/ScalaBundle" key="compiler.plugins"/>
         </properties>
       </component>
     </children>

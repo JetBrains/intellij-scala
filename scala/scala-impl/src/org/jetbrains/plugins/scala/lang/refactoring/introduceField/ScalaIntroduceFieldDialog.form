@@ -98,7 +98,7 @@
               <horizontalAlignment value="2"/>
               <horizontalTextPosition value="11"/>
               <margin top="0" left="0" bottom="0" right="0"/>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="specify.return.type.explicitly"/>
+              <text resource-bundle="messages/ScalaBundle" key="specify.return.type.explicitly"/>
             </properties>
           </component>
           <grid id="1802d" binding="myLinkContainer" layout-manager="BorderLayout" hgap="0" vgap="0">

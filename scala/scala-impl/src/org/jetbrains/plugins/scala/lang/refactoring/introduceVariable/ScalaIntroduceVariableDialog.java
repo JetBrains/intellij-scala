@@ -327,7 +327,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         mySpecifyTypeChb.setHorizontalTextPosition(11);
         mySpecifyTypeChb.setInheritsPopupMenu(false);
         mySpecifyTypeChb.setMargin(new Insets(0, 0, 0, 0));
-        this.$$$loadButtonText$$$(mySpecifyTypeChb, this.$$$getMessageFromBundle$$$("org/jetbrains/plugins/scala/ScalaBundle", "specify.return.type.explicitly"));
+        this.$$$loadButtonText$$$(mySpecifyTypeChb, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "specify.return.type.explicitly"));
         panel3.add(mySpecifyTypeChb);
         myLinkContainer = new JPanel();
         myLinkContainer.setLayout(new BorderLayout(0, 0));

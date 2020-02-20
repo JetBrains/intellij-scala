@@ -8,7 +8,7 @@ import org.jetbrains.annotations.PropertyKey;
 
 public class SbtBundle extends DynamicBundle {
     @NonNls
-    private static final String BUNDLE = "org.jetbrains.sbt.SbtBundle";
+    private static final String BUNDLE = "messages.SbtBundle";
 
     private static final SbtBundle INSTANCE = new SbtBundle();
 

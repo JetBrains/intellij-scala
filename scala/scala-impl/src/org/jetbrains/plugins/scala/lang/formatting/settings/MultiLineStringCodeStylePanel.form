@@ -15,7 +15,7 @@
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.panel.opening.quotes.on.new.line"/>
+          <text resource-bundle="messages/ScalaBundle" key="multi.line.string.panel.opening.quotes.on.new.line"/>
         </properties>
       </component>
       <component id="a4cd0" class="javax.swing.JCheckBox" binding="closingQuotesOnNewLine">
@@ -23,7 +23,7 @@
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.panel.place.closing.quotes.on.new.line.on.enter.press"/>
+          <text resource-bundle="messages/ScalaBundle" key="multi.line.string.panel.place.closing.quotes.on.new.line.on.enter.press"/>
         </properties>
       </component>
       <component id="5de9a" class="javax.swing.JCheckBox" binding="insertMarginChar">
@@ -31,7 +31,7 @@
           <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.panel.insert.margin.char.on.enter"/>
+          <text resource-bundle="messages/ScalaBundle" key="multi.line.string.panel.insert.margin.char.on.enter"/>
         </properties>
       </component>
       <component id="19a4e" class="javax.swing.JLabel">
@@ -39,7 +39,7 @@
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.panel.margin.char.value"/>
+          <text resource-bundle="messages/ScalaBundle" key="multi.line.string.panel.margin.char.value"/>
         </properties>
       </component>
       <component id="4fa32" class="javax.swing.JLabel">
@@ -47,7 +47,7 @@
           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.panel.margin.char.indent"/>
+          <text resource-bundle="messages/ScalaBundle" key="multi.line.string.panel.margin.char.indent"/>
         </properties>
       </component>
       <component id="a55cc" class="javax.swing.JCheckBox" binding="processMarginCheckBox">
@@ -55,7 +55,7 @@
           <grid row="4" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.panel.process.margin.on.copy.paste"/>
+          <text resource-bundle="messages/ScalaBundle" key="multi.line.string.panel.process.margin.on.copy.paste"/>
         </properties>
       </component>
       <component id="1df32" class="javax.swing.JSpinner" binding="marginIndentSpinner">
@@ -87,7 +87,7 @@
           <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.panel.align.dangling.closing.quotes"/>
+          <text resource-bundle="messages/ScalaBundle" key="multi.line.string.panel.align.dangling.closing.quotes"/>
         </properties>
       </component>
     </children>
