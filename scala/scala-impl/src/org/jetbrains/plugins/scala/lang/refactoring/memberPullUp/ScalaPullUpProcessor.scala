@@ -8,6 +8,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.usageView.{UsageInfo, UsageViewDescriptor}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
@@ -170,12 +171,12 @@ final class ScalaPullUpProcessor(project: Project,
   }
 
   private class PullUpUsageViewDescriptor extends UsageViewDescriptor {
-    def getProcessedElementsHeader: String = "Pull up members from"
+    def getProcessedElementsHeader: String = ScalaBundle.message("pull.up.members.from")
 
     def getElements: Array[PsiElement] = Array[PsiElement](sourceClass)
 
     def getCodeReferencesText(usagesCount: Int, filesCount: Int): String =
-      s"Class to pull up members to ${targetClass.name}"
+      ScalaBundle.message("class.to.pull.up.members.to.class", targetClass.name)
 
     def getCommentReferencesText(usagesCount: Int, filesCount: Int): String = null
   }

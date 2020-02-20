@@ -2,13 +2,15 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
 import java.awt.event.{ItemEvent, ItemListener}
+
 import javax.swing._
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * Nikolay.Tropin
  * 2014-09-05
  */
-class DefaultValuesUsagePanel(labelText: String = "Default values:") extends JPanel {
+class DefaultValuesUsagePanel(labelText: String = ScalaBundle.message("default.values")) extends JPanel {
   private val myRbModifyCalls: JRadioButton = new JRadioButton
   private val myRbAddDefaultArg: JRadioButton = new JRadioButton
 
@@ -19,8 +21,8 @@ class DefaultValuesUsagePanel(labelText: String = "Default values:") extends JPa
     setLayout(boxLayout)
 
     add(new JLabel(labelText))
-    myRbAddDefaultArg.setText("Add to definition")
-    myRbModifyCalls.setText("Modify method calls")
+    myRbAddDefaultArg.setText(ScalaBundle.message("add.to.definition"))
+    myRbModifyCalls.setText(ScalaBundle.message("modify.method.calls"))
     myRbAddDefaultArg.setMnemonic('d')
     myRbModifyCalls.setMnemonic('m')
     myRbModifyCalls.setSelected(true)

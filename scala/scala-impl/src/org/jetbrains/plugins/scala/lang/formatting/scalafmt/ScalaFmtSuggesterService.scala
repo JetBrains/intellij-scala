@@ -88,7 +88,7 @@ final class ScalaFmtSuggesterService(private val project: Project)
 
   @NonNls private val Br = "<br/>"
 
-  @NonNls private val EnableRef   = "enable"
+  @NonNls private val EnableRef   = "bytecode.indices.enable"
   @NonNls private val DontShowRef = "dont show"
 
   private val enableProjectText = ScalaBundle.message("scalafmt.suggester.use.scalafmt.formatter")

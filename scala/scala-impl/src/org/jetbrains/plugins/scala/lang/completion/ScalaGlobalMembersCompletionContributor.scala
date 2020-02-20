@@ -8,6 +8,7 @@ import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -91,7 +92,7 @@ object ScalaGlobalMembersCompletionContributor {
 
   private def hintString: Option[String] =
     Option(ActionManager.getInstance.getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)).map { action =>
-      "To import a method statically, press " + KeymapUtil.getFirstKeyboardShortcutText(action)
+      ScalaBundle.message("to.import.method.statically.press.hotkey", KeymapUtil.getFirstKeyboardShortcutText(action))
     }
 
   private def qualifier(refExpr: ScReferenceExpression) = refExpr.qualifier.orElse(desugaredQualifier(refExpr))

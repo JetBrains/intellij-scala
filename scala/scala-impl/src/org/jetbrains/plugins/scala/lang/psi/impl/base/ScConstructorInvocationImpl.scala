@@ -6,6 +6,7 @@ package base
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -102,7 +103,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
   override def shapeType(i: Int): TypeResult = {
     val seq = shapeMultiType(i)
     if (seq.length == 1) seq.head
-    else Failure("Can't resolve type")
+    else Failure(ScalaBundle.message("can.t.resolve.type"))
   }
 
   override def shapeMultiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = true)
@@ -110,7 +111,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
   override def multiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = false)
 
   private def innerMultiType(i: Int, isShape: Boolean): Array[TypeResult] = {
-    def FAILURE = Failure("Can't resolve type")
+    def FAILURE = Failure(ScalaBundle.message("can.t.resolve.type"))
     def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
                               subst: ScSubstitutor, s: ScSimpleTypeElement,
                               ref: ScStableCodeReference): TypeResult = {
@@ -125,7 +126,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
         case fun: ScMethodLike =>
           fun.nestedMethodType(i, Some(tp), subst).getOrElse(return FAILURE)
         case method: PsiMethod =>
-          if (i > 0) return Failure("Java constructors only have one parameter section")
+          if (i > 0) return Failure(ScalaBundle.message("java.constructors.only.have.one.parameter.section"))
           val methodType = method.methodTypeProvider(elementScope).methodType(Some(tp))
           subst(methodType)
       }
@@ -194,7 +195,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
             case _ =>
           }
           buffer.toArray
-        case _ => Array(Failure("Hasn't reference"))
+        case _ => Array(Failure(ScalaBundle.message("has.no.reference")))
       }
     }
 

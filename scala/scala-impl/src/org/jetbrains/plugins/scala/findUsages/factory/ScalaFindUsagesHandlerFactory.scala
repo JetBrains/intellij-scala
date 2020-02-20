@@ -91,7 +91,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
       val searchForSuperInstead =
         if (supers.nonEmpty)
-          Messages.showYesNoCancelDialog(e.getProject, message, "Warning", Messages.getQuestionIcon)
+          Messages.showYesNoCancelDialog(e.getProject, message, ScalaBundle.message("title.warning"), Messages.getQuestionIcon)
         else NO
 
       searchForSuperInstead match {

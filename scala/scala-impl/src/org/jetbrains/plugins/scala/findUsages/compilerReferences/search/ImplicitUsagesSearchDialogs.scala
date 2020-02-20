@@ -22,7 +22,7 @@ private object ImplicitUsagesSearchDialogs {
     extends DialogWrapper(project, canBeParent) {
 
     private[this] val settingsLink =
-      new LinkLabel[AnyRef](ScalaBundle.message("scala.compiler.indices.settings.navigate"), null) {
+      new LinkLabel[AnyRef](ScalaBundle.message("bytecode.indices.settings.navigate"), null) {
         setListener({
           case (_, _) =>
             close(DialogWrapper.CLOSE_EXIT_CODE)
@@ -31,10 +31,10 @@ private object ImplicitUsagesSearchDialogs {
       }
 
     private[this] val description = new JLabel(
-      s"""|<html>Searching for $usageType usages requires bytecode indices to be enabled.<br>
-          |Do you want to enable bytecode indexing (takes effect after IDEA restart)?</html>""".stripMargin)
+      s"""<html>${ScalaBundle.message("bytecode.indices.must.be.enabled.1", usageType)}<br>
+        ${ScalaBundle.message("bytecode.indices.must.be.enabled.2")}</html>""".stripMargin)
 
-    setTitle("Enable Bytecode Indexing")
+    setTitle(ScalaBundle.message("bytecode.indices.enable.indexing"))
     setResizable(false)
     init()
 
@@ -47,14 +47,14 @@ private object ImplicitUsagesSearchDialogs {
     override def createActions(): Array[Action] = {
       def enableCompilerIndices(): Unit = CompilerIndicesSettings(project).setIndexingEnabled(true)
 
-      val enable = new DialogWrapperAction("Enable") {
+      val enable = new DialogWrapperAction(ScalaBundle.message("bytecode.indices.enable")) {
         override def doAction(e: ActionEvent): Unit = {
           enableCompilerIndices()
           close(DialogWrapper.OK_EXIT_CODE)
         }
       }
 
-      val enableAndRestart = new DialogWrapperAction("Enable and restart") {
+      val enableAndRestart = new DialogWrapperAction(ScalaBundle.message("bytecode.indices.enable.and.restart")) {
         override def doAction(e: ActionEvent): Unit = {
           enableCompilerIndices()
           ApplicationManagerEx.getApplicationEx.restart(true)
@@ -74,7 +74,7 @@ private object ImplicitUsagesSearchDialogs {
 
     private[this] val shouldCompileCB = {
       val checkBox = new JBCheckBox(
-        "Pre-compile modules in use scope before searching",
+        ScalaBundle.message("bytecode.indices.precompile"),
         !CompilerIndicesSbtSettings().useManualConfiguration)
       checkBox.setMnemonic('P')
       checkBox
@@ -82,15 +82,15 @@ private object ImplicitUsagesSearchDialogs {
 
     def shouldCompile: Boolean = shouldCompileCB.isSelected
 
-    setTitle(ScalaBundle.message("find.usages.compiler.indices.dialog.title", title))
+    setTitle(ScalaBundle.message("bytecode.indices.find.usages", title))
     setResizable(false)
     init()
 
     override def createCenterPanel(): JComponent = {
       val firstLine = {
         val settingsLink = {
-          val link = new HyperlinkLabel("bytecode")
-          link.setToolTipText("Settings | Bytecode Indices")
+          val link = new HyperlinkLabel(ScalaBundle.message("bytecode.indices.bytecode"))
+          link.setToolTipText(ScalaBundle.message("bytecode.indices.settings"))
           link.addHyperlinkListener(_ => ShowSettingsUtil.getInstance().showSettingsDialog(element.getProject, classOf[CompilerIndicesConfigurable]))
 
           val linkPanel = new JPanel()
@@ -102,9 +102,9 @@ private object ImplicitUsagesSearchDialogs {
         }
 
         val line = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0))
-        line.add(new JLabel("This search relies on the "))
+        line.add(new JLabel(ScalaBundle.message("bytecode.indices.required") + " "))
         line.add(settingsLink)
-        line.add(new JLabel(", which is not up-to-date."))
+        line.add(new JLabel(ScalaBundle.message("bytecode.indices.outdated")))
         line
       }
 
@@ -112,7 +112,7 @@ private object ImplicitUsagesSearchDialogs {
         .createFormBuilder()
         .addComponent(firstLine)
         .addVerticalGap(1)
-        .addComponent(new JLabel("Results may be incomplete without a compilation."))
+        .addComponent(new JLabel(ScalaBundle.message("bytecode.indices.incomplete")))
         .addVerticalGap(1)
         .addComponent(shouldCompileCB)
         .getPanel

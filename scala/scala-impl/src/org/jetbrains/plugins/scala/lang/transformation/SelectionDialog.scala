@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.lang.transformation
 
 import java.awt.Dimension
+
 import javax.swing._
 import javax.swing.tree.{DefaultTreeCellRenderer, TreeNode}
-
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.profile.codeInspection.ui.table.ThreeStateCheckBoxRenderer
 import com.intellij.ui.treeStructure.treetable.{ListTreeTableModel, TreeColumnInfo, TreeTable}
 import com.intellij.util.ui.ColumnInfo
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.transformation.annotations._
 import org.jetbrains.plugins.scala.lang.transformation.calls._
 import org.jetbrains.plugins.scala.lang.transformation.conversions.MakeBoxingExplicit
@@ -106,7 +107,7 @@ class SelectionDialog {
     init()
 
     protected def createCenterPanel = {
-      val rightColumn = new ColumnInfo[Node, java.lang.Boolean]("Enabled") {
+      val rightColumn = new ColumnInfo[Node, java.lang.Boolean](ScalaBundle.message("column.enabled")) {
         override def getColumnClass = classOf[Boolean]
 
         override def isCellEditable(item: Node) = true
@@ -119,7 +120,7 @@ class SelectionDialog {
         }
       }
 
-      val model = new ListTreeTableModel(root, Array(new TreeColumnInfo("Transformation"), rightColumn)) {
+      val model = new ListTreeTableModel(root, Array(new TreeColumnInfo(ScalaBundle.message("column.transformation")), rightColumn)) {
         override def setValueAt(aValue: Any, node: Any, column: Int) {
           super.setValueAt(aValue, node, column)
 

@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.usages.impl.rules.UsageType._
 import com.intellij.usages.impl.rules.{UsageType, UsageTypeProviderEx}
 import com.intellij.usages.{PsiElementUsageTarget, UsageTarget}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -106,24 +107,24 @@ object ScalaUsageTypeProvider {
   }
 
   implicit def stringToUsageType(name: String): UsageType = new UsageType(name)
-  val Extractor: UsageType                 = "Extractor"
-  val ClassTypedPattern: UsageType         = "Typed Pattern"
-  val TypedStatement: UsageType            = "Typed Statement"
-  val MethodApply: UsageType               = "Method `apply`"
-  val ThisReference: UsageType             = "This Reference"
-  val AccessModifier: UsageType            = "Access Modifier"
-  val PackageClause: UsageType             = "Package Clause"
-  val FunctionExpression: UsageType        = "Function expression"
-  val NamedParameter: UsageType            = "Named parameter"
-  val PrefixInterpolatedString: UsageType  = "Interpolated string prefix"
-  val ParameterInPattern: UsageType        = "Parameter in pattern"
-  val SelfType: UsageType                  = "Self type"
-  val TypeBound: UsageType                 = "Type bound"
-  val TypeAlias: UsageType                 = "Type alias"
-  val SecondaryConstructor: UsageType      = "Secondary constructor"
-  val ImplicitConversionOrParam: UsageType = "Implicit Conversion/Parameter"
-  val UnresolvedImplicit: UsageType        = "Unresolved Implicit Conversion/Parameter"
-  val SAMImplementation: UsageType         = "SAM interface implementation"
+  val Extractor: UsageType                 = ScalaBundle.message("usage.extractor")
+  val ClassTypedPattern: UsageType         = ScalaBundle.message("usage.typed.pattern")
+  val TypedStatement: UsageType            = ScalaBundle.message("usage.typed.statement")
+  val MethodApply: UsageType               = ScalaBundle.message("usage.method.apply")
+  val ThisReference: UsageType             = ScalaBundle.message("usage.this.reference")
+  val AccessModifier: UsageType            = ScalaBundle.message("usage.access.modifier")
+  val PackageClause: UsageType             = ScalaBundle.message("usage.package.clause")
+  val FunctionExpression: UsageType        = ScalaBundle.message("usage.function.expression")
+  val NamedParameter: UsageType            = ScalaBundle.message("usage.named.parameter")
+  val PrefixInterpolatedString: UsageType  = ScalaBundle.message("usage.interpolated.string.prefix")
+  val ParameterInPattern: UsageType        = ScalaBundle.message("usage.parameter.in.pattern")
+  val SelfType: UsageType                  = ScalaBundle.message("usage.self.type")
+  val TypeBound: UsageType                 = ScalaBundle.message("usage.type.bound")
+  val TypeAlias: UsageType                 = ScalaBundle.message("usage.type.alias")
+  val SecondaryConstructor: UsageType      = ScalaBundle.message("usage.secondary.constructor")
+  val ImplicitConversionOrParam: UsageType = ScalaBundle.message("usage.implicit.conversion.parameter")
+  val UnresolvedImplicit: UsageType        = ScalaBundle.message("usage.unresolved.implicit.conversion.parameter")
+  val SAMImplementation: UsageType         = ScalaBundle.message("usage.sam.interface.implementation")
 
   private def usageType(element: PsiElement, original: PsiElement): Option[UsageType] =
     Option(nullableUsageType(element, original))

@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -287,11 +288,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         ScalaPsiUtil.nameContext(refPatt) match {
           case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, this, true) => pd.declaredType match {
             case Some(t) => t
-            case None => return Failure("No declared type found")
+            case None => return Failure(ScalaBundle.message("no.declared.type.found"))
           }
           case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, this, true) => vd.declaredType match {
             case Some(t) => t
-            case None => return Failure("No declared type found")
+            case None => return Failure(ScalaBundle.message("no.declared.type.found"))
           }
           case _ =>
             val result = refPatt.`type`()
@@ -419,7 +420,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(clazz: ScClass, s) if clazz.isCase =>
         val constructor =
           clazz.constructor
-            .getOrElse(return Failure("Case Class hasn't primary constructor"))
+            .getOrElse(return Failure(ScalaBundle.message("case.class.has.no.primary.constructor")))
         constructor.polymorphicType(s)
       case ScalaResolveResult(clazz: ScTypeDefinition, s) if clazz.typeParameters.nonEmpty =>
         s(ScParameterizedType(ScalaType.designator(clazz),
@@ -544,7 +545,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }.getOrElse(Seq.empty)
   }
 
-  private def resolveFailure = Failure("Cannot resolve expression")
+  private def resolveFailure = Failure(ScalaBundle.message("cannot.resolve.expression"))
 
   @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
   private[this] def multiResolveImpl(incomplete: Boolean): Array[ScalaResolveResult] =

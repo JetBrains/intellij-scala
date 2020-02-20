@@ -8,6 +8,7 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -49,7 +50,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
   override def `type`(): TypeResult = {
     typePattern match {
       case Some(tp) =>
-        if (tp.typeElement == null) return Failure("No type element for type pattern")
+        if (tp.typeElement == null) return Failure(ScalaBundle.message("no.type.element.for.type.pattern"))
         val typeElementType: TypeResult =
           tp.typeElement.`type`().map {
             case tp: ScExistentialType =>
@@ -101,7 +102,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
             }
           case _ => typeElementType
         }
-      case None => Failure("No type pattern")
+      case None => Failure(ScalaBundle.message("no.type.pattern"))
     }
   }
 

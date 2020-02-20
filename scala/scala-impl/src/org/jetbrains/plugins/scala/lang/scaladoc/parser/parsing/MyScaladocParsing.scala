@@ -6,6 +6,7 @@ package parsing
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.PsiBuilderExt
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
@@ -52,10 +53,10 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     
     builder.getTokenType match {
       case DOC_LINK_CLOSE_TAG =>
-        scaladocError(builder, "Closing link tag before opening")
+        scaladocError(builder, ScalaBundle.message("closing.link.tag.before.opening"))
         builder.advanceLexer()
       case DOC_INNER_CLOSE_CODE_TAG =>
-        scaladocError(builder, "Closing code tag before opening")
+        scaladocError(builder, ScalaBundle.message("closing.code.tag.before.opening"))
         builder.advanceLexer()
       case _: ScaladocSyntaxElementType =>
         parseWikiSyntax
@@ -71,7 +72,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
            DOC_COMMENT_START | DOC_COMMENT_END | DOC_MACROS =>
         builder.advanceLexer()
       case badToken @ _ =>
-        System.out.println("Error: " + badToken)
+        System.out.println(ScalaBundle.message("error.bad.token", badToken))
         builder.advanceLexer()
     }
     
@@ -88,9 +89,9 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     setFlag(tokenType.getFlagConst)
     if (!isEndOfComment) builder.advanceLexer()
 
-    def closedBy(message: String = "new paragraph") {
+    def closedBy(message: String = ScalaBundle.message("new.paragraph")) {
       marker.done(tokenType)
-      scaladocError(builder, "Wiki syntax element closed by " + message)
+      scaladocError(builder, ScalaBundle.message("wiki.syntax.element.closed.by.message", message))
       clearFlag(tokenType.getFlagConst)
     }
 
@@ -110,7 +111,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
         if (!set.contains(tt)) builder.advanceLexer()
       }
       
-      if (isEndOfComment) builder.error("Open syntax element") else builder.advanceLexer()
+      if (isEndOfComment) builder.error(ScalaBundle.message("open.syntax.element")) else builder.advanceLexer()
     }
     
     tokenType match {
@@ -139,7 +140,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
             parseWikiSyntax
           } else {
             if (tokenText.length > builder.getTokenText.length) {
-              scaladocError(builder, "Header closed by opening new one")
+              scaladocError(builder, ScalaBundle.message("header.closed.by.opening.new.one"))
             } else {
               builder.advanceLexer()
             }
@@ -163,7 +164,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
             marker.done(tokenType)
             return true
           } else {
-            scaladocError(builder, "Closing link element before opening one")
+            scaladocError(builder, ScalaBundle.message("closing.link.element.before.opening.one"))
           }
         case a: ScaladocSyntaxElementType if a == DOC_MONOSPACE_TAG || tokenType != DOC_MONOSPACE_TAG =>
           if (tokenType == a) { //
@@ -173,7 +174,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
             return true
           } else if (isSetFlag(a.getFlagConst)) {
             builder.advanceLexer()
-            scaladocError(builder, "Cross tags")
+            scaladocError(builder, ScalaBundle.message("cross.tags"))
           } else {
             parseWikiSyntax
             if (hasClosingElementsInWikiSyntax) {
@@ -182,7 +183,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
             }
           }
         case DOC_INNER_CODE_TAG if canHaveTags =>
-          closedBy("Inner code tag")
+          closedBy(ScalaBundle.message("inner.code.tag"))
           return true
         case DOC_INLINE_TAG_START
           if builder.lookAhead(DOC_INLINE_TAG_START, DOC_TAG_NAME) && canHaveTags =>
@@ -211,7 +212,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     }
     
     if (!canClose(builder.getTokenType)) {
-      scaladocError(builder, "No closing element")
+      scaladocError(builder, ScalaBundle.message("no.closing.element"))
     }
     marker.done(tokenType)
     true
@@ -220,7 +221,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
   private def parseInnerCode(implicit builder: PsiBuilder): Boolean = {
     val marker = builder.mark()
     if (isEndOfComment) {
-      scaladocError(builder, "Unclosed code tag")
+      scaladocError(builder, ScalaBundle.message("unclosed.code.tag"))
       marker.done(DOC_INNER_CODE_TAG)
       return true
     }
@@ -230,7 +231,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
       builder.advanceLexer()
     }
     if (isEndOfComment) {
-      scaladocError(builder, "Unclosed code tag")
+      scaladocError(builder, ScalaBundle.message("unclosed.code.tag"))
     } else {
       builder.advanceLexer()
     }
@@ -251,9 +252,9 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     val tagName = builder.getTokenText
     assert(builder.getTokenType eq DOC_TAG_NAME, s"$tagName  ${builder.getTokenType}  ${builder.getCurrentOffset}")
 
-    if (!isEndOfComment) builder.advanceLexer() else scaladocError(builder, "Unexpected end of tag body")
+    if (!isEndOfComment) builder.advanceLexer() else scaladocError(builder, ScalaBundle.message("unexpected.end.of.tag.body"))
     
-    if (isInInlinedTag) scaladocError(builder, "Inline tag") else {
+    if (isInInlinedTag) scaladocError(builder, ScalaBundle.message("inline.tag")) else {
       tagName match {
         case THROWS_TAG => 
           if (!isEndOfComment) {
@@ -262,11 +263,11 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
           val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
           StableId.parse(psiBuilder, forImport = true, DOC_TAG_VALUE_TOKEN)
         case PARAM_TAG | TYPE_PARAM_TAG | DEFINE_TAG =>
-          if (!builder.lookAhead(builder.getTokenType, DOC_TAG_VALUE_TOKEN)) scaladocError(builder, "Missing tag param")
+          if (!builder.lookAhead(builder.getTokenType, DOC_TAG_VALUE_TOKEN)) scaladocError(builder, ScalaBundle.message("missing.tag.param"))
         case tag if allTags.contains(tag) =>
           //do nothing
         case _ =>
-          scaladocError(builder, "unknown tag")
+          scaladocError(builder, ScalaBundle.message("unknown.tag"))
       }
     }
     

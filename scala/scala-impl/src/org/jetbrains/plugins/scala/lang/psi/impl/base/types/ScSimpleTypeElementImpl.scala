@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
@@ -44,7 +45,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   override def getTypeNoConstructor: TypeResult = innerNonValueType(inferValueType = true, noConstructor = true)
 
-  @CachedWithRecursionGuard(this, Failure("Recursive non value type of type element"),
+  @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.non.value.type.of.type.element")),
     ModCount.getBlockModificationCount)
   override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult =
     innerNonValueType(inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
@@ -352,9 +353,9 @@ object ScSimpleTypeElementImpl {
       case Some(ScalaResolveResult(MacroDef(f), _)) =>
         val macroEvaluator = ScalaMacroEvaluator.getInstance(f.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(f, MacroContext(ref, None))
-        return typeFromMacro.map(Right(_)).getOrElse(Failure("Unknown macro in type position"))
+        return typeFromMacro.map(Right(_)).getOrElse(Failure(ScalaBundle.message("unknown.macro.in.type.position")))
       case Some(r@ScalaResolveResult(n: PsiNamedElement, _)) => (n, r.fromType)
-      case _ => return Failure("Cannot resolve reference")
+      case _ => return Failure(ScalaBundle.message("cannot.resolve.ref"))
     }
 
     def makeProjection(`type`: ScType, superReference: Boolean = false) =
@@ -416,7 +417,7 @@ object ScSimpleTypeElementImpl {
                                 function: ScTemplateDefinition => ScType)
                                (path: ScPathElement = thisReference) =
     fromTemplate(thisReference.refTemplate,
-      "Cannot find template for this reference",
+      ScalaBundle.message("cannot.find.template.for.this.reference"),
       path,
       function)
 
@@ -424,7 +425,7 @@ object ScSimpleTypeElementImpl {
                                  function: ScTemplateDefinition => ScType)
                                 (path: ScPathElement = superReference) =
     fromTemplate(superReference.drvTemplate,
-      "Cannot find enclosing container",
+      ScalaBundle.message("cannot.find.enclosing.container"),
       path,
       function)
 

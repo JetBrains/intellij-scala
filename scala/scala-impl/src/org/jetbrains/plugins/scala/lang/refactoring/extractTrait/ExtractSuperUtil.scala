@@ -14,6 +14,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.RefactoringMessageUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
@@ -55,7 +56,7 @@ object ExtractSuperUtil {
           }
           NavigationUtil.getPsiElementPopup(classes, new PsiClassListCellRenderer() {
             override def getElementText(element: PsiClass): String = super.getElementText(element).replace("$", "")
-          }, "Choose class", processor, selection).showInBestPositionFor(editor)
+          }, ScalaBundle.message("choose.class"), processor, selection).showInBestPositionFor(editor)
       }
     }
     catch {
@@ -122,12 +123,12 @@ object ExtractSuperUtil {
 
   def checkPackage(targetPackageName: String, targetClassName: String, sourceClass: PsiClass): String = {
     val pckg: PsiPackage = JavaPsiFacade.getInstance(sourceClass.getProject).findPackage(targetPackageName)
-    if (pckg == null) return s"Cannot find package with name: $targetPackageName"
+    if (pckg == null) return ScalaBundle.message("cannot.find.package.with.name", targetPackageName)
     
     val dirs: Array[PsiDirectory] = pckg.getDirectories
-    if (dirs.length == 0) return s"Cannot find directory for package: $targetPackageName"
+    if (dirs.length == 0) return ScalaBundle.message("cannot.find.directory.for.package", targetPackageName)
     
-    if (pckg.containsClassNamed(targetClassName)) return s"Class with name $targetClassName already exists in the package $targetPackageName"
+    if (pckg.containsClassNamed(targetClassName)) return ScalaBundle.message("class.already.exists.in.package", targetClassName, targetPackageName)
     
     val dir: PsiDirectory = ExtractSuperUtil.getDirUnderSameSourceRoot(sourceClass, dirs)
     val cantCreateFile: String = RefactoringMessageUtil.checkCanCreateFile(dir, targetClassName + ".scala")

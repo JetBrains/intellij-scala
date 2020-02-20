@@ -49,7 +49,7 @@ object PatDef {
         builder.checkedAdvanceLexer()
 
         if (!Expr.parse(builder)) {
-          builder.error(ErrMsg("expr.expected"))
+          builder.error(ErrMsg("expression.expected"))
         }
 
         patDefMarker.drop()

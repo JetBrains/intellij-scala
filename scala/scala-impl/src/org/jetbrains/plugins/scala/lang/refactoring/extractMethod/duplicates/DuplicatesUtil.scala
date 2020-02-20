@@ -16,6 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.ui.ReplacePromptDialog
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
@@ -121,7 +122,7 @@ object DuplicatesUtil {
     def showDuplicatesDialog(): Int = {
       val message = RefactoringBundle.message("0.has.detected.1.code.fragments.in.this.file.that.can.be.replaced.with.a.call.to.extracted.method",
         ApplicationNamesInfo.getInstance.getProductName, Int.box(duplicates.size))
-      Messages.showYesNoDialog(project, message, "Process Duplicates", Messages.getQuestionIcon)
+      Messages.showYesNoDialog(project, message, ScalaBundle.message("process.duplicates"), Messages.getQuestionIcon)
     }
 
     if (ApplicationManager.getApplication.isUnitTestMode) {

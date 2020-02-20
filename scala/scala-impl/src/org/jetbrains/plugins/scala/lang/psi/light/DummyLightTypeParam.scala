@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.{PsiElement, PsiTypeParameterListOwner}
-import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -29,7 +29,7 @@ class DummyLightTypeParam(override val name: String)(implicit pc: ProjectContext
 
   override def hasTypeParameters = false
 
-  override def getContainingFileName: String = "No containing file"
+  override def getContainingFileName: String = ScalaBundle.message("no.containing.file")
 
   override def typeParameterText: String = name
 

@@ -10,6 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -378,7 +379,7 @@ object Compatibility {
             problems :::= doNoNamed(extractExpression(assign)).reverse
           } else {
             if (!checkNames) {
-              val internalProblem = InternalApplicabilityProblem("Found named parameter which were not supposed to be checked")
+              val internalProblem = InternalApplicabilityProblem(ScalaBundle.message("found.chekced.named.parameter"))
               return ConformanceExtResult(Seq(internalProblem), constraintAccumulator, defaultParameterUsed, matched)
             }
             used(index) = true
@@ -416,7 +417,7 @@ object Compatibility {
                   }
                 }
               case _ =>
-                return ConformanceExtResult(Seq(IncompleteCallSyntax("Assignment missing right side")), constraintAccumulator, defaultParameterUsed, matched)
+                return ConformanceExtResult(Seq(IncompleteCallSyntax(ScalaBundle.message("assignment.missing.right.side"))), constraintAccumulator, defaultParameterUsed, matched)
             }
           }
         case expr: Expression =>
@@ -551,7 +552,7 @@ object Compatibility {
 
         checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)
       case unknown =>
-        val problem = InternalApplicabilityProblem(s"Cannot handle compatibility for $unknown")
+        val problem = InternalApplicabilityProblem(ScalaBundle.message("cannot.handle.compatibility.for", unknown))
         LOG.error(problem.toString)
         ConformanceExtResult(Seq(problem))
     }

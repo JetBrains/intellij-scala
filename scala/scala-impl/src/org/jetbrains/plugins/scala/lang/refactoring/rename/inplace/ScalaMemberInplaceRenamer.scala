@@ -14,6 +14,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.refactoring.rename.inplace.{MemberInplaceRenamer, VariableInplaceRenamer}
 import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
 
@@ -43,7 +44,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   protected override def getCommandName: String = {
     if (myInitialName != null) RefactoringBundle.message("renaming.command.name", myInitialName)
-    else "Rename"
+    else ScalaBundle.message("rename")
   }
 
   override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] =
@@ -147,10 +148,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
         val after = text.subSequence(offset, offset + 50)
         val aroundCaret = before + "<caret>" + after
         val message =
-          s"""Could not perform inplace rename:
-             |element to rename: $element ${element.getName}
-             |substituted: $subst
-             |around caret: $aroundCaret""".stripMargin
+          ScalaBundle.message("could.not.perform.inplace.rename", element, element.getName, subst, aroundCaret).stripMargin
         throw new Throwable(message, t)
     }
   }

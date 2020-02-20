@@ -4,6 +4,7 @@ package lang.refactoring.changeSignature
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.changeSignature.{ChangeInfo, JavaChangeInfo, OverriderUsageInfo}
 import com.intellij.util.containers.MultiMap
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -24,7 +25,7 @@ private[changeSignature] object ConflictsUtil {
   def addJavaOverriderConflicts(info: OverriderUsageInfo, change: ChangeInfo, map: ConflictsMap): Unit = {
     change match {
       case sc: ScalaChangeInfo if sc.newParameters.exists(p => p.isByName && p.scType.isInstanceOf[ValType]) =>
-        val message = s"This method has java overriders, by-name parameters of value classes cannot be used."
+        val message = ScalaBundle.message("by.name.parameters.cannot.be.used")
         map.putValue(info.getOverridingMethod, message)
       case _ =>
     }
@@ -43,8 +44,7 @@ private[changeSignature] object ConflictsUtil {
 
       if (!isSimple) {
         val className = member.containingClass.qualifiedName
-        val message = s"Method is overridden in a composite $kind in $className. " +
-                "Converting it to function definition is not supported."
+        val message = ScalaBundle.message("method.is.overridden.in.composite.kind.in.class", kind, className)
 
         result.putValue(bp, message)
       }
@@ -54,8 +54,7 @@ private[changeSignature] object ConflictsUtil {
   def addClassParameterConflicts(cp: ScClassParameter, change: ChangeInfo, result: ConflictsMap): Unit = {
     if (change.getNewParameters.nonEmpty) {
       val className = cp.containingClass.qualifiedName
-      val message = s"Method is overridden by class parameter of $className. " +
-              "Converting it to a function definition is not supported."
+      val message = ScalaBundle.message("method.is.overridden.by.class.parameter.of.class", className)
       result.putValue(cp, message)
     }
   }
@@ -65,7 +64,7 @@ private[changeSignature] object ConflictsUtil {
       case jc: JavaChangeInfo if jc.isParameterSetOrOrderChanged || jc.isParameterTypesChanged =>
         jc.getMethod match {
           case ScPrimaryConstructor.ofClass(clazz) if clazz.isCase =>
-            val message = "Updating of usages of generated `unapply` methods is not supported"
+            val message = ScalaBundle.message("updating.of.usages.of.generated.unapply")
             result.putValue(p.pattern, message)
           case _ =>
         }

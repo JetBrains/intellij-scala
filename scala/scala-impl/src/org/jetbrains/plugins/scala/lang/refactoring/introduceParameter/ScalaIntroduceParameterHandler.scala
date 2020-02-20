@@ -14,6 +14,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.util.CommonRefactoringUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -134,7 +135,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
       elems match {
         case seq if showNotPossibleWarnings(seq, REFACTORING_NAME) => None
         case seq if haveReturnStmts(seq) =>
-          showErrorHint("Refactoring is not supported: selection contains return statement", REFACTORING_NAME)
+          showErrorHint(ScalaBundle.message("refactoring.is.not.supported.contains.return"), REFACTORING_NAME)
           None
         case seq => Some((exprWithTypes, seq))
       }
@@ -271,7 +272,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
     val validEnclosingMethods: Seq[ScMethodLike] = getEnclosingMethods(element)
     if (validEnclosingMethods.size > 1 && !ApplicationManager.getApplication.isUnitTestMode) {
       showChooser[ScMethodLike](editor, validEnclosingMethods.toArray, action,
-        s"Choose function for $REFACTORING_NAME", getTextForElement, toHighlight)
+        ScalaBundle.message("choose.function.for.refactoring", REFACTORING_NAME), getTextForElement, toHighlight)
     }
     else if (validEnclosingMethods.size == 1 || ApplicationManager.getApplication.isUnitTestMode) {
       action(validEnclosingMethods.head)

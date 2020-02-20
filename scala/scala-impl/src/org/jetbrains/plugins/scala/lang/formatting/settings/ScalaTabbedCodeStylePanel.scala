@@ -112,7 +112,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
       new GridConstraints(row, col, 1, 1, ANCHOR_CENTER, fill, HSizePolicy, VSizePolicy, null, null, null, 0, false)
 
     val formatterSelectorPanel = new JPanel(new GridLayoutManager(1, 3, new Insets(0, 10, 0, 0), -1, -1))
-    formatterSelectorPanel.add(new JBLabel(ScalaBundle.message("scala.root.code.style.panel.formatter") + ":"), constraint(0, 0, FILL_BOTH, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    formatterSelectorPanel.add(new JBLabel(ScalaBundle.message("scala.root.code.style.panel.formatter")), constraint(0, 0, FILL_BOTH, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     formatterSelectorPanel.add(formatterSelectorComboBox, constraint(0, 1, FILL_HORIZONTAL, CAN_SHRINK_AND_GROW, SIZEPOLICY_FIXED))
     formatterSelectorPanel.add(new Spacer, constraint(0, 2, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
 

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.transformation
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -26,7 +27,7 @@ class DesugarCodeAction extends AnAction {
 
     val selection = editor.getSelectionModel
 
-    val title = s"Desugar Scala code (${selection.hasSelection.fold("selection", "file")})"
+    val title = ScalaBundle.message("desugar.scala.code.in.scope", selection.hasSelection.fold(ScalaBundle.message("scope.selection"), ScalaBundle.message("scope.file")))
 
     new SelectionDialog().show(title).filter(_.nonEmpty).foreach { transformers =>
       inWriteCommandAction {

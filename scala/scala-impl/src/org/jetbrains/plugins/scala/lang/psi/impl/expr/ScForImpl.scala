@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -66,7 +67,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
       case e => Some(e)
     } match {
       case Some(newExpr) => newExpr.getNonValueType()
-      case None => Failure("Cannot create expression")
+      case None => Failure(ScalaBundle.message("cannot.create.expression"))
     }
   }
 

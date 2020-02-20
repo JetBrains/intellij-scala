@@ -32,7 +32,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScT
           case ScDesignatorType(_: PsiPackage) => ScalaType.designator(elem)
           case t => ScProjectionType(t, elem)
         }
-      case _ => Failure("Cannot Resolve reference")
+      case _ => Failure(ScalaBundle.message("cannot.resolve.reference"))
     }
   }
 

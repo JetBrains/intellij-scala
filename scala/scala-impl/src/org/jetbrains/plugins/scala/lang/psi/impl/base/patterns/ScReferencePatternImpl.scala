@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -44,7 +45,7 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
   override def `type`(): TypeResult = {
     this.expectedType match {
       case Some(x) => Right(x)
-      case _ => Failure("Cannot define expected type")
+      case _ => Failure(ScalaBundle.message("cannot.define.expected.type"))
     }
   }
 

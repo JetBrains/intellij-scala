@@ -135,7 +135,7 @@ object CompilerIndicesReferencesSearcher {
   private[this] val indexingFinishedCondition = lock.newCondition()
 
   private[this] def showProgressIndicator(project: Project): Unit = {
-    val awaitIndexing = task(project, ScalaBundle.message("scala.compiler.indices.progress.title")) { _ =>
+    val awaitIndexing = task(project, ScalaBundle.message("bytecode.indices.progress.title")) { _ =>
       lock.locked(indexingFinishedCondition.awaitUninterruptibly())
     }
     ProgressManager.getInstance().run(awaitIndexing)
@@ -249,8 +249,8 @@ object CompilerIndicesReferencesSearcher {
   }
 
   private[this] def showIndexingInProgressDialog(project: Project): Unit = {
-    val message = "Find Usages via bytecode indices is unavailable during compilation."
-    Messages.showInfoMessage(project, message, "Indexing In Progress")
+    val message = ScalaBundle.message("bytecode.indices.unavailable")
+    Messages.showInfoMessage(project, message, ScalaBundle.message("bytecode.indices.in.progress"))
   }
 
   private[this] def showRebuildSuggestionDialog(

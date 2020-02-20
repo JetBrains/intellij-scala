@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.refactoring.HelpID
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -78,7 +79,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
             runRefactoring(ifc, settings)
           }
         } else {
-          showErrorHint("Cannot create field from this expression")
+          showErrorHint(ScalaBundle.message("cannot.create.field.from.this.expression"))
         }
     }
   }
@@ -93,7 +94,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val aClass = ifc.aClass
     val checkAnchor: PsiElement = anchorForNewDeclaration(expression, occurrencesToReplace, aClass)
     if (checkAnchor == null) {
-      showErrorHint("Cannot find place for the new field")
+      showErrorHint(ScalaBundle.message("cannot.find.place.for.the.new.field"))
       return
     }
     implicit val projectContext: ProjectContext = aClass.projectContext

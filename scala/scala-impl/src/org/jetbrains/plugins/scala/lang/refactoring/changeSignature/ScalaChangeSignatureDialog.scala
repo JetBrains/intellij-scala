@@ -26,6 +26,7 @@ import javax.swing._
 import javax.swing.border.MatteBorder
 import javax.swing.event.{ChangeEvent, HyperlinkEvent}
 import javax.swing.table.TableCellEditor
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -88,7 +89,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   protected def createDefaultArgumentPanel(): JPanel = {
     val optionsPanel = new JPanel(new BorderLayout())
-    val label = new JLabel("Default value:")
+    val label = new JLabel(ScalaBundle.message("parameter.label.default.value"))
     defaultValuesUsagePanel = new DefaultValuesUsagePanel("")
   
     val holder = new JPanel()
@@ -359,7 +360,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
 
   protected def createAddClauseButton(): AnActionButton = {
-    val addClauseButton = new AnActionButton("Add parameter clause", null, Icons.ADD_CLAUSE) {
+    val addClauseButton = new AnActionButton(ScalaBundle.message("change.signature.add.parameter.clause"), null, Icons.ADD_CLAUSE) {
       override def actionPerformed(e: AnActionEvent): Unit = {
         val table = parametersTable
         val editedColumn = editingColumn(table)
@@ -382,7 +383,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
 
   protected def createRemoveClauseButton(): AnActionButton = {
-    val removeClauseButton = new AnActionButton("Remove parameter clause", null, Icons.REMOVE_CLAUSE) {
+    val removeClauseButton = new AnActionButton(ScalaBundle.message("change.signature.remove.parameter.clause"), null, Icons.REMOVE_CLAUSE) {
       override def actionPerformed(e: AnActionEvent): Unit = {
         val table = parametersTable
         val editedColumn = editingColumn(table)

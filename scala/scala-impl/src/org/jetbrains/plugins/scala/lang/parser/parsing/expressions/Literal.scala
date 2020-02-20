@@ -78,7 +78,7 @@ object Literal {
            `tMULTILINE_STRING` =>
         advanceAndMarkDone(StringLiteral)
       case `tWRONG_STRING` =>
-        advanceAndMarkDone(StringLiteral, "Wrong string literal")
+        advanceAndMarkDone(StringLiteral, ScalaBundle.message("wrong.string.literal"))
       case tokenType =>
         matchNumber(tokenType)
     }

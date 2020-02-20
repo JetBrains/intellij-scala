@@ -6,6 +6,7 @@ package processor
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -350,8 +351,7 @@ object MethodResolveProcessor {
         result.copy(problems)
       } else {
         val problem = InternalApplicabilityProblem(
-          "not all type parameters are defined. typeargs=[" + typeArgElements.mkString(", ") +
-            "] and classTypeParams=[" + classTypeParameters.mkString(", ") + "]"
+          ScalaBundle.message("not.all.type.parameters.are.defined", typeArgElements.mkString(", "), classTypeParameters.mkString(", "))
         )
         LOG.warn(problem.toString)
         problems += problem

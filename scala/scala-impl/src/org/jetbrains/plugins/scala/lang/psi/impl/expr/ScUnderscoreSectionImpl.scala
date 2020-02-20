@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -54,7 +55,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
               case Some(`typed`) =>
                 typed.typeElement match {
                   case Some(te) => return te.`type`()
-                  case _        => return Failure("Typed statement is not complete for underscore section")
+                  case _        => return Failure(ScalaBundle.message("typed.statement.is.not.complete.for.underscore.section"))
                 }
               case _ => return typed.`type`()
             }
@@ -62,7 +63,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
         }
 
         overExpr match {
-          case None                     => Failure("No type inferred")
+          case None                     => Failure(ScalaBundle.message("no.type.inferred"))
           case Some(expr: ScExpression) =>
             val unders      = ScUnderScoreSectionUtil.underscores(expr)
             var startOffset = if (expr.getTextRange != null) expr.getTextRange.getStartOffset else 0
@@ -77,12 +78,12 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
 
             val idx = unders.indexWhere(_.getTextRange.getStartOffset == startOffset)
             idx match {
-              case -1 => Failure("Failed to found corresponging underscore section")
+              case -1 => Failure(ScalaBundle.message("failed.to.found.corresponging.underscore.section"))
               case i =>
                 expr.expectedType(fromUnderscore = false) match {
                   case Some(functionLikeType(_, _, params)) =>
                     val param               = params.lift(i)
-                    val failure: TypeResult = Failure("Could not infer type of underscore section")
+                    val failure: TypeResult = Failure(ScalaBundle.message("could.not.infer.type.of.underscore.section"))
 
                     param.fold(failure) {
                       case FullyAbstractType() => failure

@@ -11,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
 import com.intellij.psi.search.searches.SuperMethodsSearch
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.jetbrains.plugins.scala.editor.EditorBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -83,14 +84,14 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
     if (!containingFile.isInstanceOf[ScalaFile]) {
       if (element.isInstanceOf[ScalaPsiElement])
-        debugMessage("Asked to build doc for a scala element, but it is in non scala file (1)", element)
+        debugMessage(EditorBundle.message("doc.is.not.in.scala.file"), element)
 
       return null
     }
 
     val elementWithDoc = getElementWithDoc(element)
     if (elementWithDoc == null) {
-      debugMessage("No actual doc owner found for element (2)", element)
+      debugMessage(EditorBundle.message("no.doc.owner.for.element"), element)
       return null
     }
 

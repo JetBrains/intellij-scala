@@ -4,6 +4,7 @@ import java.nio.file.attribute.FileTime
 import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamic.{FormatResult, _}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.{DownloadProgressListener, DownloadSuccess}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{ReflectionException, ScalafmtConfigException, ScalafmtException}
@@ -69,11 +70,11 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
     case ScalafmtDynamicError.ConfigParseError(configPath, cause) =>
       reporter.error(configPath, cause.getMessage)
     case ScalafmtDynamicError.ConfigDoesNotExist(configPath) =>
-      reporter.error(configPath, "file does not exist")
+      reporter.error(configPath, ScalaBundle.message("file.does.not.exist"))
     case ScalafmtDynamicError.ConfigMissingVersion(configPath) =>
       reporter.missingVersion(configPath, defaultVersion)
     case ScalafmtDynamicError.CannotDownload(version, cause) =>
-      val message = s"failed to resolve Scalafmt version '$version'"
+      val message = ScalaBundle.message("failed.to.resolve.scalafmt.version", version)
       cause match {
         case Some(value) =>
           reporter.error(config, ScalafmtException(message, value))

@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.{ClassfileParser, CompiledScalaFile}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexerFailure._
@@ -107,7 +108,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
     }
 
   private final class IndexCompilationInfoTask(info: CompilationInfo, callback: () => Unit)
-      extends Task.Backgroundable(project, "Indexing classfiles ...", true) {
+      extends Task.Backgroundable(project, ScalaBundle.message("bytecode.indices.indexing"), true) {
 
     private[this] def processInfo(progressIndicator: ProgressIndicator): Unit = {
       val start = System.currentTimeMillis()

@@ -2,15 +2,16 @@ package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import java.awt.event.MouseEvent
 import java.awt.{BorderLayout, Color, Font, Toolkit}
+
 import javax.swing.border.MatteBorder
 import javax.swing.{JComponent, JPanel, JTable}
-
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorFontType}
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.ui.EditorTextField
 import com.intellij.util.ui.table.JBTableRowEditor._
 import com.intellij.util.ui.table.{JBTableRow, JBTableRowEditor}
+import org.jetbrains.plugins.scala.ScalaBundle
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -52,7 +53,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
     myNameEditor.addDocumentListener(signatureUpdater)
     myNameEditor.setPreferredWidth(table.getWidth / 3)
     myNameEditor.addDocumentListener(new this.RowEditorChangeListener(0))
-    add(createLabeledPanel("Name:", myNameEditor), BorderLayout.WEST)
+    add(createLabeledPanel(ScalaBundle.message("parameter.label.name"), myNameEditor), BorderLayout.WEST)
   }
 
   def addTypeEditor() {
@@ -63,7 +64,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
       }
     })
     myTypeEditor.addDocumentListener(new this.RowEditorChangeListener(1))
-    add(createLabeledPanel("Type:", myTypeEditor), BorderLayout.CENTER)
+    add(createLabeledPanel(ScalaBundle.message("parameter.label.type"), myTypeEditor), BorderLayout.CENTER)
   }
 
   def getColumnWidth(letters: Int): Int = {
@@ -84,7 +85,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
         item.parameter.defaultValue = myDefaultValueEditor.getText.trim
       }
     })
-    additionalPanel.add(createLabeledPanel("Default value:", myDefaultValueEditor), BorderLayout.WEST)
+    additionalPanel.add(createLabeledPanel(ScalaBundle.message("parameter.label.default.value"), myDefaultValueEditor), BorderLayout.WEST)
   }
 
   def getValue: JBTableRow = {

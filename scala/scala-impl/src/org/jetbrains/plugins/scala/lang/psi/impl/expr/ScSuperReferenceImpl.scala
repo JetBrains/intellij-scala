@@ -9,6 +9,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -159,7 +160,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     case None => ResolveUtils.enclosingTypeDef(this).map(_.extendsBlock.superTypes)
   }
 
-  protected override def innerType = Failure("Cannot infer type of `super' expression")
+  protected override def innerType = Failure(ScalaBundle.message("cannot.infer.type.of.super.expression"))
 
   override def toString = "SuperReference"
 }

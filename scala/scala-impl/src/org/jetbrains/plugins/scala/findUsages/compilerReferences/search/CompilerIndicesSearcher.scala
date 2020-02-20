@@ -49,9 +49,9 @@ abstract class CompilerIndicesSearcher[Target, Result, Params](reqireReadAction:
     if (filesToNotify.nonEmpty) {
       Notifications.Bus.notify(
         new Notification(
-          ScalaBundle.message("find.usages.compiler.indices.dialog.title"),
-          "Usages Invalidated",
-          s"Some usages in the following files may have been invalidated, due to external changes: ${filesToNotify.mkString(",")}.",
+          ScalaBundle.message("bytecode.indices.find.usages"),
+          ScalaBundle.message("bytecode.indices.invalidated.title"),
+          ScalaBundle.message("bytecode.indices.invalidated.message", filesToNotify.mkString(",")),
           NotificationType.WARNING
         )
       )

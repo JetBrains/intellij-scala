@@ -5,7 +5,7 @@ import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.psi._
 import com.intellij.refactoring.RefactoringActionHandler
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenamer
@@ -36,7 +36,7 @@ object ScalaInplaceTypeAliasIntroducer {
           PsiDocumentManager.getInstance(myProject).commitDocument(document)
         }
       }
-    }, "Introduce Type Alias", null)
+    }, ScalaBundle.message("command.introduce.type.alias"), null)
   }
 }
 
@@ -45,7 +45,7 @@ class ScalaInplaceTypeAliasIntroducer(element: ScNamedElement)
   extends ScalaMemberInplaceRenamer(element, element, editor, element.getName, element.getName) {
 
   override def setAdvertisementText(text: String): Unit = {
-    myAdvertisementText = "Press ctrl + alt + v" + " to show dialog with more options"
+    myAdvertisementText = ScalaBundle.message("press.hotkey.to.show.more.options")
   }
 
   override def startsOnTheSameElement(handler: RefactoringActionHandler, element: PsiElement): Boolean = {

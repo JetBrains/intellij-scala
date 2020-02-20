@@ -101,7 +101,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   //noinspection HardCodedStringLiteral
   private def updateScalafmtVersionLabel(version: String, isDefault: Boolean = false): Unit = {
     if (scalafmtVersionLabel == null) return
-    scalafmtVersionLabel.setText(version + (if (isDefault) s" (${ScalaBundle.message("scalafmt.default.label")})" else ""))
+    scalafmtVersionLabel.setText(version + (if (isDefault) s" (${ScalaBundle.message("scalafmt.default")})" else ""))
   }
 
   private def ensureScalafmtResolved(configFile: VirtualFile): Unit = {
@@ -286,7 +286,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 
     val configPathTextField = new JBTextField
     //noinspection HardCodedStringLiteral
-    configPathTextField.getEmptyText.setText(ScalaBundle.message("scalafmt.default.label") + ": " + DefaultConfigFilePath)
+    configPathTextField.getEmptyText.setText(ScalaBundle.message("scalafmt.default.path", DefaultConfigFilePath))
     externalFormatterSettingsPath = new TextFieldWithBrowseButton(configPathTextField)
     resetConfigBrowserFolderListener()
 

@@ -51,7 +51,7 @@ object VarDcl {
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer()
-            builder.error("Expected expression")
+            builder.error(ScalaBundle.message("expression.expected"))
           case _ =>
         }
         true

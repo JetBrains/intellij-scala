@@ -16,6 +16,7 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.util.PlatformIcons
 import com.intellij.util.containers.ContainerUtil
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiModifierListOwnerExt, PsiTypeExt, TraversableExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -68,7 +69,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if (n == null) {
       val stub = getGreenStub
       if (stub == null) {
-        val message = s"Both stub and name identifier node are null for ${getClass.getSimpleName} \n$getText"
+        val message = ScalaBundle.message("both.stub.and.name.identifier.node.are.null", getClass.getSimpleName, getText)
         throw new NullPointerException(message)
       }
       return createIdentifier(getGreenStub.getName).getPsi
@@ -162,7 +163,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
           case Some(f: ScFunction) => f.definedReturnType
           case Some(m: PsiMethod) =>
             Right(m.getReturnType.toScType())
-          case _ => Failure("No defined return type")
+          case _ => Failure(ScalaBundle.message("no.defined.return.type"))
         }
     }
   }

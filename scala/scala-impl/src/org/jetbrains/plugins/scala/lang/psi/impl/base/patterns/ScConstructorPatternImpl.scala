@@ -7,6 +7,7 @@ package patterns
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -77,7 +78,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             fun.paramClauses.clauses.head.parameters.head.`type`().map(subst)
           case _ => Right(Nothing)
         }
-      case _ => Failure("Cannot resolve symbol")
+      case _ => Failure(ScalaBundle.message("cannot.resolve.symbol"))
     }
   }
 

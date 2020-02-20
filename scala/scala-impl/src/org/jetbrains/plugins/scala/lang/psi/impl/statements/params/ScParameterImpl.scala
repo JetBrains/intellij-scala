@@ -7,6 +7,7 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -86,11 +87,11 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
         paramStub.typeText match {
           case None if paramStub.getParentStub != null && paramStub.getParentStub.getParentStub != null &&
             paramStub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub[_]] =>
-            Failure("Cannot infer type")
-          case None => Failure("Wrong Stub problem") //shouldn't be
+            Failure(ScalaBundle.message("cannot.infer.type"))
+          case None => Failure(ScalaBundle.message("wrong.stub.problem")) //shouldn't be
           case Some(_: String) => paramStub.typeElement match {
             case Some(te) => te.`type`()
-            case None => Failure("Wrong type element")
+            case None => Failure(ScalaBundle.message("wrong.type.element"))
           }
         }
     }

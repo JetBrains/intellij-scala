@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
@@ -26,7 +27,7 @@ class ImplicitConversionData private (element: PsiNamedElement,
   def isCompatible(fromType: ScType, place: PsiElement): Either[String, (ScType, ScSubstitutor)] = {
     // to prevent infinite recursion
     if (PsiTreeUtil.isContextAncestor(element.nameContext, place, false))
-      return Left("Conversion is not available in it's own definition")
+      return Left(ScalaBundle.message("conversion.is.not.available.in.it.s.own.definition"))
 
     ProgressManager.checkCanceled()
 
@@ -124,10 +125,10 @@ class ImplicitConversionData private (element: PsiNamedElement,
   }
 
   private def problematicBounds(fromType: ScType) =
-    Left(s"${element.name} has incompatible type parameter bounds for $fromType")
+    Left(ScalaBundle.message("element.has.incompatible.type.parameter.bounds.for.type", element.name, fromType))
 
   private def conformanceFailure(fromType: ScType, paramType: ScType) =
-    Left(s"$fromType does not conform to $paramType")
+    Left(ScalaBundle.message("type.does.not.conform.to.type", fromType, paramType))
 
 }
 

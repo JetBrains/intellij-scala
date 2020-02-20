@@ -6,6 +6,7 @@ package types
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Literal, Spliced}
@@ -85,7 +86,7 @@ trait SimpleType {
                 builder.advanceLexer() //Ate )
                 if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
                 else {
-                  builder.error("Identifier expected, but ',' found")
+                  builder.error(ScalaBundle.message("identifier.expected.comma.found"))
                   tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
                 }
               case _ =>

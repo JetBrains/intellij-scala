@@ -4,6 +4,7 @@ package parser
 package parsing
 package statements
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -51,7 +52,7 @@ object ValDcl {
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer()
-            builder.error("Expected expression")
+            builder.error(ScalaBundle.message("expression.expected"))
           case _ =>
         }
         true

@@ -11,7 +11,7 @@ import com.intellij.ui.table.{JBTable, TableView}
 import com.intellij.ui.{EditorTextField, ToolbarDecorator}
 import com.intellij.util.IJSwingUtilities
 import javax.swing._
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature._
@@ -128,7 +128,7 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
         getRefactorAction.setEnabled(!newText.isEmpty)
       }
     })
-    val paramNameLabel = new JLabel("Name:")
+    val paramNameLabel = new JLabel(ScalaBundle.message("parameter.label.name"))
     paramNameLabel.setDisplayedMnemonic('N')
     paramNameLabel.setLabelFor(paramNameField)
     val paramNamePanel = new JPanel(new BorderLayout(0, 2))
@@ -139,7 +139,7 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
 
   private def createParamTypePanel(): JComponent = {
     typeCombobox = new ComboBox()
-    val typeLabel = new JLabel("Type:")
+    val typeLabel = new JLabel(ScalaBundle.message("parameter.label.type"))
     typeLabel.setLabelFor(typeCombobox)
     implicit val context: TypePresentationContext = method.getMethod
     typeMap = ScalaRefactoringUtil.getCompatibleTypeNames(introduceData.possibleTypes)
@@ -167,7 +167,7 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
   override def createDefaultArgumentPanel(): JPanel = {
     val panel = new JPanel(new BorderLayout())
     defaultForIntroducedTextField = new EditorTextField(introduceData.defaultArg, project, ScalaFileType.INSTANCE)
-    val label = new JLabel("Default value:")
+    val label = new JLabel(ScalaBundle.message("parameter.label.default.value"))
     label.setLabelFor(defaultForIntroducedTextField)
     panel.add(label, BorderLayout.NORTH)
     defaultForIntroducedTextField.setOneLineMode(false)
@@ -179,7 +179,7 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
     })
     panel.add(defaultForIntroducedTextField, BorderLayout.CENTER)
     val optionsPanel = new JPanel(new BorderLayout())
-    replaceOccurrencesChb = new JCheckBox("Replace all occurrences")
+    replaceOccurrencesChb = new JCheckBox(ScalaBundle.message("replace.all.occurrences"))
     replaceOccurrencesChb.setMnemonic('a')
     replaceOccurrencesChb.setSelected(false)
     replaceOccurrencesChb.setVisible(introduceData.occurrences.length > 1)

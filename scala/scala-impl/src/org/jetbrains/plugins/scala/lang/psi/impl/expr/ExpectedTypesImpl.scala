@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
@@ -199,7 +200,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
 // Expression has no expected type if followed by "." + "Identifier expected" error, #SCL-15754
   private def isInIncompeteCode(e: ScExpression): Boolean = {
     def isIncompleteDot(e1: LeafPsiElement, e2: PsiErrorElement) =
-      e1.textMatches(".") && e2.getErrorDescription == "Identifier expected"
+      e1.textMatches(".") && e2.getErrorDescription == ScalaBundle.message("identifier.expected")
 
     e.nextSiblings.toSeq match {
       case Seq(e1: LeafPsiElement, e2: PsiErrorElement, _ @_*) if isIncompleteDot(e1, e2) => true

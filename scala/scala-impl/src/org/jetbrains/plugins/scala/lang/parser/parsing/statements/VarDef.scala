@@ -4,6 +4,7 @@ package parser
 package parsing
 package statements
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -35,7 +36,7 @@ object VarDef {
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
           builder.checkedAdvanceLexer()
           if (!Type.parse(builder)) {
-            builder error "type declaration expected"
+            builder error ScalaBundle.message("type.declaration.expected")
           }
           hasTypeDcl = true
         }

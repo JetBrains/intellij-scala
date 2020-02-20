@@ -11,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
@@ -268,30 +269,30 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     element.getParent match {
       case tbody: ScTemplateBody =>
         PsiTreeUtil.getParentOfType(tbody, classOf[ScTemplateDefinition]) match {
-          case o: ScObject => s"Extract method to object ${o.name}"
-          case c: ScClass => s"Extract method to class ${c.name}"
-          case t: ScTrait => s"Extract method to trait ${t.name}"
-          case _: ScNewTemplateDefinition => "Extract method to anonymous class"
+          case o: ScObject => ScalaBundle.message("extract.method.to.object.name", o.name)
+          case c: ScClass => ScalaBundle.message("extract.method.to.class.name", c.name)
+          case t: ScTrait => ScalaBundle.message("extract.method.to.trait.name", t.name)
+          case _: ScNewTemplateDefinition => ScalaBundle.message("extract.method.to.anonymous.class")
         }
-      case _: ScTry => local("try block")
-      case _: ScConstrBlock => local("constructor")
+      case _: ScTry => local(ScalaBundle.message("try.block"))
+      case _: ScConstrBlock => local(ScalaBundle.message("constructor"))
       case b: ScBlock  =>
         b.getParent match {
-          case f: ScFunctionDefinition => local(s"def ${f.name}")
-          case p: ScPatternDefinition if p.bindings.nonEmpty => local(s"val ${p.bindings.head.name}")
-          case v: ScVariableDefinition if v.bindings.nonEmpty => local(s"var ${v.bindings.head.name}")
-          case _: ScCaseClause => local("case clause")
+          case f: ScFunctionDefinition => local(ScalaBundle.message("def.name", f.name))
+          case p: ScPatternDefinition if p.bindings.nonEmpty => local(ScalaBundle.message("val.name", p.bindings.head.name))
+          case v: ScVariableDefinition if v.bindings.nonEmpty => local(ScalaBundle.message("var.name", v.bindings.head.name))
+          case _: ScCaseClause => local(ScalaBundle.message("case.clause"))
           case ifStmt: ScIf =>
-            if (ifStmt.thenExpression.contains(b)) local("if block")
-            else "Extract local method in else block"
-          case forStmt: ScFor if forStmt.body.contains(b) => local("for statement")
-          case whileStmt: ScWhile if whileStmt.expression.contains(b) => local("while statement")
-          case doSttm: ScDo if doSttm.body.contains(b) => local("do statement")
-          case funExpr: ScFunctionExpr if funExpr.result.contains(b) => local("function expression")
-          case _ => local("code block")
+            if (ifStmt.thenExpression.contains(b)) local(ScalaBundle.message("if.block"))
+            else ScalaBundle.message("extract.local.method.in.else.block")
+          case forStmt: ScFor if forStmt.body.contains(b) => local(ScalaBundle.message("for.statement"))
+          case whileStmt: ScWhile if whileStmt.expression.contains(b) => local(ScalaBundle.message("while.statement"))
+          case doSttm: ScDo if doSttm.body.contains(b) => local(ScalaBundle.message("do.statement"))
+          case funExpr: ScFunctionExpr if funExpr.result.contains(b) => local(ScalaBundle.message("function.expression"))
+          case _ => local(ScalaBundle.message("code.block"))
         }
-      case _: ScalaFile => "Extract file method"
-      case _ => "Unknown extraction"
+      case _: ScalaFile => ScalaBundle.message("extract.file.method")
+      case _ => ScalaBundle.message("unknown.extraction")
     }
   }
 

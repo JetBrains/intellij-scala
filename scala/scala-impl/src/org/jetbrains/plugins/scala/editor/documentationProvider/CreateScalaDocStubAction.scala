@@ -9,6 +9,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
+import org.jetbrains.plugins.scala.editor.EditorBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -66,7 +67,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
           CodeStyleManager getInstance project reformatText (docOwner.getContainingFile, docRange.getStartOffset, docRange.getEndOffset + 2)
         }
       }
-    }, "Create ScalaDoc stub", null, psiDocument)
+    }, EditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
   }
   
   private def recreateStub(docOwner: ScDocCommentOwner, psiDocument: Document) {
@@ -126,6 +127,6 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
           CodeStyleManager getInstance project reformatText(docOwner.getContainingFile, range.getStartOffset, range.getEndOffset)
         }
       }
-    }, "Create ScalaDoc Stub", null, psiDocument)
+    }, EditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
   }
 }

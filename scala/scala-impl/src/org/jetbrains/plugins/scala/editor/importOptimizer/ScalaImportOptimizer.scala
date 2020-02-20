@@ -15,6 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.editor.EditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
@@ -94,7 +95,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       if (progressIndicator != null) progressIndicator
       else if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator
       else null
-    if (indicator != null) indicator.setText2(file.getName + ": analyzing imports usage")
+    if (indicator != null) indicator.setText2(EditorBundle.message("imports.analyzing.usage", file.getName))
 
     val size = importHolders.size + importUsers.size //processAllElementsConcurrentlyUnderProgress will be called 2 times
     val counter = new AtomicInteger(0)
@@ -117,7 +118,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       collectImportsUsed(element, usedImports, usedImportedNames)
     }
 
-    if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
+    if (indicator != null) indicator.setText2(EditorBundle.message("imports.collecting.additional.info", file.getName))
 
     def collectRanges(createInfo: ScImportStmt => Seq[ImportInfo]): Seq[RangeInfo] = {
       val importsInfo = ContainerUtil.newConcurrentSet[RangeInfo]()

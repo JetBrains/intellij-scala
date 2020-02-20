@@ -5,6 +5,7 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -27,7 +28,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   override def `type`(): TypeResult = getType
 
-  @CachedWithRecursionGuard(this, Failure("Recursive type of type element"),
+  @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.type.of.type.element")),
     ModCount.getBlockModificationCount)
   private[types] def getType: TypeResult = innerType
 
@@ -93,6 +94,6 @@ trait ScDesugarizableTypeElement extends ScTypeElement {
 
   override protected def innerType: TypeResult = computeDesugarizedType match {
     case Some(typeElement) => typeElement.getType
-    case _ => Failure(s"Cannot desugarize $typeName")
+    case _ => Failure(ScalaBundle.message("cannot.desugarize.typename", typeName))
   }
 }

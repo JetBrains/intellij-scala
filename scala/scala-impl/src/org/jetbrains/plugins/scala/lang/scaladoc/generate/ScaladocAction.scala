@@ -13,6 +13,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.ScaladocRunConfiguration
 
@@ -21,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.Scalado
  * User: Dmitry Naidanov
  * Date: 01.10.11
  */
-class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc") {
+class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.scaladoc"), "Scaladoc": @NonNls) {
   private var configurationDialog: ScaladocConsoleRunConfigurationForm = null
 
   private def disposeForm() {

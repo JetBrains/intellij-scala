@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.generate
 
 import javax.swing.Icon
-
 import com.intellij.analysis.AnalysisScope
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.{ModuleRunProfile, RunProfileState}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * User: Dmitry Naidanov
@@ -32,7 +32,7 @@ class ScaladocConfiguration(private val form: ScaladocConsoleRunConfigurationFor
     state
   }
 
-  override def getName: String = "Generate Scaladoc"
+  override def getName: String = ScalaBundle.message("generate.scaladoc")
 
   override def getIcon: Icon = null
 

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.parser.parsing
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -31,9 +32,9 @@ object CommonUtils {
             idMarker.done(ScalaElementType.REFERENCE_PATTERN)
           } else if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
             builder.advanceLexer()
-            if (!Pattern.parse(builder)) builder.error("Wrong pattern")
+            if (!Pattern.parse(builder)) builder.error(ScalaBundle.message("wrong.pattern"))
             else if (builder.getTokenType != ScalaTokenTypes.tRBRACE) {
-              builder.error("'}' is expected")
+              builder.error(ScalaBundle.message("right.brace.expected"))
               ParserUtils.parseLoopUntilRBrace(builder, () => (), braceReported = true)
             } else builder.advanceLexer()
           }
@@ -46,10 +47,10 @@ object CommonUtils {
             val literalMarker = builder.mark()
             builder.advanceLexer()
             literalMarker.done(ScalaElementType.THIS_REFERENCE)
-          } else if (!builder.getTokenText.startsWith("$")) builder.error("Bad interpolated string injection")
+          } else if (!builder.getTokenText.startsWith("$")) builder.error(ScalaBundle.message("bad.interpolated.string.injection"))
         }
       } else {
-        if (builder.getTokenType == ScalaTokenTypes.tWRONG_STRING) builder.error("Wrong string literal")
+        if (builder.getTokenType == ScalaTokenTypes.tWRONG_STRING) builder.error(ScalaBundle.message("wrong.string.literal"))
         builder.advanceLexer()
       }
     }

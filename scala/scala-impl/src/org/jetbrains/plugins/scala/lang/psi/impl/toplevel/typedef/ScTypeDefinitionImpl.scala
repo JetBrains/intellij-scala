@@ -19,6 +19,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
@@ -85,7 +86,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case clazz =>
         val projected = if (thisProjections) ScThisType(clazz)
         else clazz.getTypeWithProjections().getOrElse {
-          return Failure("Cannot resolve parent class")
+          return Failure(ScalaBundle.message("cannot.resolve.parent.class"))
         }
 
         ScProjectionType(projected, this)

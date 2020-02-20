@@ -8,6 +8,7 @@ import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageH
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compilerReferences.{Builder, Messages}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
@@ -40,7 +41,7 @@ private[compilerReferences] class JpsCompilationWatcher(
 
         buildData.fold(
           error => {
-            publisher.onError(s"Malformed messageText from builder: $messageText", Option(error))
+            publisher.onError(ScalaBundle.message("malformed.message.from.builder", messageText), Option(error))
           },
           publisher.processCompilationInfo(_, offline = false)
         )

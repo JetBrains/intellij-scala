@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
 import com.intellij.refactoring.changeSignature.ParameterTableModelItemBase
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
@@ -54,7 +55,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
       parameter.isByName = false
     }
     if (parameter.isByName && parameter.isRepeatedParameter) {
-      problems += "Parameter could not be repeated and by-name in the same time"
+      problems += ScalaBundle.message("parameter.could.not.be.repeated.and.by.name")
     }
 
     parameter.scType = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment, typeCodeFragment) match {
@@ -63,7 +64,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
     }
 
     if (parameter.scType == null) {
-      problems += s"Could not understand type $trimmed"
+      problems += ScalaBundle.message("could.not.understand.type", trimmed)
     }
   }
 

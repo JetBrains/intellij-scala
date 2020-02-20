@@ -23,7 +23,7 @@ object FunSig {
       ParamClauses parse builder
       true
     } else {
-      builder error "identifier expected"
+      builder error ScalaBundle.message("identifier.expected")
       false
     }
 
