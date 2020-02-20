@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager._
-import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
@@ -136,10 +135,13 @@ class ScalaPsiManager(implicit val project: Project) {
 
   def getCachedPackageInScope(fqn: String)
                              (implicit scope: GlobalSearchScope): Option[PsiPackage] =
-    getCachedPackage(fqn).filter { `package` =>
-      isScalaPackageInScope(fqn) ||
-        !isPackageOutOfScope(`package`)
-    }
+    if (DumbService.getInstance(project).isDumb)
+      None
+    else
+      getCachedPackage(fqn).filter { `package` =>
+        isScalaPackageInScope(fqn) ||
+          !isPackageOutOfScope(`package`)
+      }
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {

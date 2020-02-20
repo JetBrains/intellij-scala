@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveState}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 /**
@@ -93,8 +93,14 @@ object ScPackageImpl {
     case _ => new ScPackageImpl(psiPackage)
   }
 
-  def findPackage(project: Project, pName: String): ScPackageImpl =
-    ScPackageImpl(ScalaPsiManager.instance(project).getCachedPackage(pName).orNull)
+  def findPackage(project: Project, packageName: String): ScPackageImpl =
+    findPackage(packageName)(ScalaPsiManager.instance(project))
+
+  def findPackage(packageName: String)
+                 (implicit manager: ScalaPsiManager): ScPackageImpl =
+    manager.getCachedPackage(packageName)
+      .map(apply)
+      .orNull
 
   /**
    * Process synthetic classes for scala._ package
@@ -184,11 +190,10 @@ object ScPackageImpl {
             }
             val qName: String = psiPack.getQualifiedName
             val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
-            val subPackage = manager.getCachedPackageInScope(subpackageQName)(place.getResolveScope).orNull
-
-            if (subPackage != null) {
-              if (!processor.execute(subPackage, state)) return false
-            }
+            manager.getCachedPackageInScope(subpackageQName)(place.getResolveScope)
+              .foreach { `package` =>
+                if (!processor.execute(`package`, state)) return false
+              }
             true
           } else true
         } finally {

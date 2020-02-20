@@ -53,12 +53,11 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     implicit val scope: GlobalSearchScope = place.resolveScope
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
 
+    val defaultPackage = ScPackageImpl.findPackage("")
     place match {
       case ref: ScReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
-        val top = ScPackageImpl(manager.getCachedPackage("").orNull)
-        if (top != null && !processor.execute(top, state.withRename("_root_"))) return false
+        if (defaultPackage != null && !processor.execute(defaultPackage, state.withRename("_root_"))) return false
       case _ =>
-        val defaultPackage = ScPackageImpl(manager.getCachedPackage("").orNull)
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
           if (defaultPackage != null &&
             !packageProcessDeclarations(defaultPackage)(processor, state, null, place)) return false
@@ -88,8 +87,11 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
               }
             }
           } else {
-            val aPackage: PsiPackage = ScPackageImpl(manager.getCachedPackageInScope(name).orNull)
-            if (aPackage != null && !processor.execute(aPackage, state)) return false
+            manager.getCachedPackageInScope(name)
+              .map(ScPackageImpl(_))
+              .foreach { `package` =>
+                if (!processor.execute(`package`, state)) return false
+              }
           }
         }
     }
