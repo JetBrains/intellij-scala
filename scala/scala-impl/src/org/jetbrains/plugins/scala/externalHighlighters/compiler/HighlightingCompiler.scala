@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.externalHighlighters.compiler
 import java.io.{File, FileOutputStream}
 import java.nio.charset.StandardCharsets
 
+import com.intellij.ide.util.projectWizard.importSources.JavaModuleSourceRoot
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
@@ -11,6 +12,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import org.apache.commons.io.IOUtils
 import org.jetbrains.jps.incremental.scala.using
+import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.externalHighlighters.RemoteServerConnector
@@ -25,12 +27,13 @@ class HighlightingCompilerImpl
   extends HighlightingCompiler {
 
   override def compile(project: Project, source: Document): Opt[Unit] = {
-    val projectFileIndex = ProjectFileIndex.getInstance(project)
+    val index = ProjectFileIndex.getInstance(project)
     for {
       _ <- Opt.?(!DumbService.getInstance(project).isDumb, "project is dumb")
       sourceFileOriginal <- Opt.fromOption(source.virtualFile, "no virtual file")
+      _ <- Opt.?(isInSources(sourceFileOriginal, index), "file not in the sources")
       _ <- Opt.?(acceptableExtensions contains sourceFileOriginal.getExtension, "wrong extension")
-      module <- Opt.fromOption(getModule(sourceFileOriginal, projectFileIndex), "no module")
+      module <- Opt.fromOption(getModule(sourceFileOriginal, index), "no module")
       connector = new RemoteServerConnector(
         module = module,
         sourceFileOriginal = new File(sourceFileOriginal.getCanonicalPath),
@@ -40,9 +43,15 @@ class HighlightingCompilerImpl
     } yield connector.compile()
   }
 
+  private def isInSources(sourceFileOriginal: VirtualFile,
+                          index: ProjectFileIndex): Boolean = {
+    val rootType = index.getSourceFolder(sourceFileOriginal).getRootType
+    JavaModuleSourceRootTypes.SOURCES contains rootType
+  }
+
   private def getModule(sourceFileOriginal: VirtualFile,
-                        projectFileIndex: ProjectFileIndex): Option[Module] =
-    Option(projectFileIndex.getModuleForFile(sourceFileOriginal))
+                        index: ProjectFileIndex): Option[Module] =
+    Option(index.getModuleForFile(sourceFileOriginal))
 
   private def copyDocumentContentToFile(document: Document): File = {
     val file = FileUtil.createTempFile("tmp", "", true)
