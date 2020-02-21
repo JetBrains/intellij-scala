@@ -68,6 +68,7 @@ class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaA
       annotation.setHighlightType(ProblemHighlightType.INFORMATION)
       new ScalaAnnotation(annotation) {
         override def setHighlightType(highlightType: ProblemHighlightType): Unit = ()
+        override def setTooltip(tooltip: String): Unit = ()
       }
     } else {
       new ScalaAnnotation(annotation)
