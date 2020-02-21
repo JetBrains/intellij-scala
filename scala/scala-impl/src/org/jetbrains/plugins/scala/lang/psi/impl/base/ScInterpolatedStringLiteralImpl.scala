@@ -64,13 +64,18 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
   override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = (referenceText, getContext) match {
     case (methodName, context) if context != null &&
       isString &&
-      isValidMethodName(methodName) =>
+      isValidIdentifier(methodName) =>
       val quote = endQuote
 
       val constructorParameters = getStringParts.map(quote + _ + quote)
         .commaSeparated(Model.Parentheses)
-      val methodParameters = getInjections.map(_.getText)
-        .commaSeparated(Model.Parentheses)
+
+      val methodParameters = getInjections.map { injection =>
+        injection -> injection.getText
+      }.map {
+        case (_: ScReferenceExpression, text) if !isValidIdentifier(text) => "???"
+        case (_, text) => text
+      }.commaSeparated(Model.Parentheses)
 
       val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(
         s"$StringContextCanonical$constructorParameters.$methodName$methodParameters",
@@ -83,11 +88,11 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   private def referenceText: String = firstNode.getText
 
-  private def isValidMethodName(name: String) = {
+  private def isValidIdentifier(name: String) = {
     val validation = LanguageNamesValidation.INSTANCE.forLanguage(getLanguage)
     val project = getProject
 
-    validation.isIdentifier(name, project) &&
-      !validation.isKeyword(name, project)
+    !validation.isKeyword(name, project) &&
+      validation.isIdentifier(name, project)
   }
 }
