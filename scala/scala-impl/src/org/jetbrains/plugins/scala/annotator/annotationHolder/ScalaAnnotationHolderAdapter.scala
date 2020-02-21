@@ -65,12 +65,12 @@ class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaA
 
   private implicit def annotation2ScalaAnnotation(annotation: Annotation): ScalaAnnotation =
     if (showCompilerErrors) {
-      new ScalaAnnotation(annotation)
-    } else {
       annotation.setHighlightType(ProblemHighlightType.INFORMATION)
       new ScalaAnnotation(annotation) {
         override def setHighlightType(highlightType: ProblemHighlightType): Unit = ()
       }
+    } else {
+      new ScalaAnnotation(annotation)
     }
 
   private def ?(msg: String): String =
