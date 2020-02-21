@@ -126,7 +126,7 @@ object ILoopWrapperFactoryHandler {
   val ILoopWrapperImpl      = ("ILoopWrapperImpl", WrapperVersion(Scala2ILoopWrapperVersion))
   val ILoopWrapper213_0Impl = ("ILoopWrapper213_0Impl", WrapperVersion(Scala2ILoopWrapperVersion))
   val ILoopWrapper213Impl   = ("ILoopWrapper213Impl", WrapperVersion(Scala2ILoopWrapperVersion))
-  val ILoopWrapper3Impl     = ("ILoopWrapper3Impl", WrapperVersion(3))
+  val ILoopWrapper3Impl     = ("ILoopWrapper3Impl", WrapperVersion(9))
 
   private def wrapperClassNameFor(version: ScalaVersion): (String, WrapperVersion) = {
     val v = version.value

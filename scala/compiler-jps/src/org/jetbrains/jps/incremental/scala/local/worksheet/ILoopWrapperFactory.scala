@@ -126,12 +126,13 @@ class ILoopWrapperFactory {
         return Left(ILoopCreationException(ex))
     }
 
-    val replClasspath = Seq(
+    val replClasspathChunks = Seq(
       replContext.compilerJars.allJars,
       args.outputDirs,
       replContext.classpath
-    ).flatten
-    val classpathStrings = replClasspath.filter(_.exists()).map(_.getAbsolutePath).distinct.sorted.asJava
+    )
+    val replClasspath = replClasspathChunks.flatten
+    val classpathStrings = replClasspath.filter(_.exists).map(_.getAbsolutePath).distinct.sorted.asJava
     val scalaOptions = replContext.scalacOptions.asJava
 
     try {

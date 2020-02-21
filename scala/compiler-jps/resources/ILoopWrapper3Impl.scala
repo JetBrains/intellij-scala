@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import java.io.{Flushable, PrintStream}
+import java.io.{Flushable, PrintStream, File}
 import java.util
 
 import dotty.tools.repl.ReplDriver
@@ -25,20 +25,30 @@ class ILoopWrapper3Impl(
   override def getOutput: Flushable = myOut
 
   override def init(): Unit = {
-    val classPathString: String = projectFullCp.asScala.mkString(";")
+    val classPathString: String = projectFullCp.asScala.mkString(pathSeparator)
 
     // see dotty.tools.dotc.config.ScalaSettings for the list of possible arguments
     val extraScalaOptions = Seq(
-      "-classpath", classPathString,
-      "-color:never"
+      "-classpath", classPathString
     )
-    val scalaOptionsFinal = (scalaOptions.asScala.toSeq ++ extraScalaOptions).distinct
-    wrapperReporter.internalDebug(scalaOptionsFinal.mkString("\n####\n"))
+    val scalaOptionsFinal = (scalaOptions.asScala.toSeq ++ extraScalaOptions).distinct.toArray
+
     val classLoader: Option[ClassLoader] = None
 
-    driver = new ReplDriverOpen(scalaOptionsFinal.toArray, myOut, classLoader)
+    driver = new ReplDriverOpen(scalaOptionsFinal, myOut, classLoader)
     state = driver.initialState
   }
+
+  private def pathSeparator: String = {
+    val separator = Option(System.getProperty("path.separator"))
+    separator.getOrElse(fallbackPathSeparator)
+  }
+
+  private def fallbackPathSeparator: String =
+    File.separator match {
+      case "\\" => ";"
+      case _    => ":"
+    }
 
   override def reset(): Unit = {
     driver.resetToInitial()
