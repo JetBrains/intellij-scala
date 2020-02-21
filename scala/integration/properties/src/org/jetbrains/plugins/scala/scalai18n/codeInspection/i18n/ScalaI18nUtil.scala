@@ -75,12 +75,10 @@ object ScalaI18nUtil {
           .resolveAssignment
           .orElse(assign.leftExpression.asOptionOf[ScReferenceExpression].flatMap(_.bind()))
           .exists {
-            case ScalaResolveResult(e: ScBindingPattern, _) =>
-              isAnnotated(e.nameContext)
-            case rr@ScalaResolveResult(e: PsiModifierListOwner, _) if rr.isNamedParameter =>
-              isAnnotated(e)
             case ScalaResolveResult(f: ScFunction, _) =>
               f.parameters.headOption.exists(isAnnotated)
+            case ScalaResolveResult(e, _) =>
+              isAnnotated(e)
             case _ =>
               false
           }
@@ -119,7 +117,7 @@ object ScalaI18nUtil {
 
   def isAnnotatedWith(element: PsiElement,
                       annFqn: String,
-                      @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef]): Boolean = {
+                      @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean = {
     import ScalaPsiUtil._
     def isDirectAnnotated(element: PsiElement): Boolean =
       isDirectAnnotatedWith(element, annFqn, annotationAttributeValues)
@@ -132,8 +130,14 @@ object ScalaI18nUtil {
       case v: ScValueOrVariable =>
         isDirectAnnotated(v) || v.declaredElements.exists(isSuperAnnotatedWith)
 
+      case bindingPattern: ScBindingPattern =>
+        isDirectAnnotated(bindingPattern) || isSuperAnnotatedWith(bindingPattern)
+
       case function: ScFunction =>
         isDirectAnnotated(function) || function.superSignaturesIncludingSelfType.map(_.namedElement).exists(isDirectAnnotated)
+
+      case method: PsiMethod =>
+        isDirectAnnotated(method) || method.findSuperMethods().exists(isDirectAnnotated)
 
       case param: PsiParameter =>
         isDirectAnnotated(param) || {
