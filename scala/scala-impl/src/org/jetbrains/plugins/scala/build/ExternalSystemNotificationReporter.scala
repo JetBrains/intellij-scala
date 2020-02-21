@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.build
 import com.intellij.build.events.MessageEvent.Kind
 import com.intellij.build.events._
 import com.intellij.build.{FilePosition, SyncViewManager}
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.task.event.{FailureResult => _, SkippedResult => _, SuccessResult => _, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -16,7 +15,7 @@ import scala.util.Random
 class ExternalSystemNotificationReporter(workingDir: String,
                                          taskId: ExternalSystemTaskId,
                                          notifications: ExternalSystemTaskNotificationListener)
-  extends BuildTaskReporter {
+  extends BuildReporter {
 
   private val descriptors: mutable.Map[EventId, TaskDescriptor] = mutable.Map.empty
 

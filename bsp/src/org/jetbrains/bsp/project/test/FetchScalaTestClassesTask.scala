@@ -15,7 +15,7 @@ import org.jetbrains.bsp.protocol.BspJob.CancelCheck
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToolWindowReporter}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Promise
@@ -33,7 +33,7 @@ class FetchScalaTestClassesTask(project: Project,
     val cancelPromise: Promise[Unit] = Promise()
     val cancelCheck = new CancelCheck(cancelPromise, indicator)
     val cancelAction = new CancelBuildAction(cancelPromise)
-    val reporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, text, cancelAction)
+    implicit val reporter: BuildReporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, text, cancelAction)
     reporter.start()
 
     val targetsByWorkspace = ModuleManager.getInstance(project).getModules.toList
@@ -56,7 +56,6 @@ class FetchScalaTestClassesTask(project: Project,
         .run(
           requestTestClasses(params)(_,_),
           _ => {},
-          reporter,
           _ => {}
         )
     }

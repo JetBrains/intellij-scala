@@ -14,7 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, ExternalSystemNotificationReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.sbt.SbtUtil._
@@ -109,7 +109,7 @@ class SbtStructureDump {
              sbtLauncher: File,
              sbtCommandLineArgs: List[String],
              @NonNls sbtCommands: String,
-             reporter: BuildTaskReporter,
+             reporter: BuildReporter,
              @Nls reportMessage: String,
             ): Try[BuildMessages] = {
 
@@ -176,7 +176,7 @@ class SbtStructureDump {
 
   private def handle(process: Process,
                      dumpTaskId: EventId,
-                     reporter: BuildTaskReporter
+                     reporter: BuildReporter
                     ): Try[BuildMessages] = {
 
     var messages = BuildMessages.empty
@@ -232,7 +232,7 @@ object SbtStructureDump {
   private val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
   private def reportEvent(messages: BuildMessages,
-                          reporter: BuildTaskReporter,
+                          reporter: BuildReporter,
                           text: String): BuildMessages = {
 
     if (text.startsWith("[error] Total time")) {
@@ -246,7 +246,7 @@ object SbtStructureDump {
 
   private def shellMessageAggregator(dumpTaskId: EventId,
                                      shell: SbtShellCommunication,
-                                     reporter: BuildTaskReporter,
+                                     reporter: BuildReporter,
                                    ): EventAggregator[BuildMessages] = {
     case (messages, TaskStart) =>
       reporter.startTask(dumpTaskId, None, SbtBundle.message("sbt.extracting.project.structure.from.sbt.shell"))

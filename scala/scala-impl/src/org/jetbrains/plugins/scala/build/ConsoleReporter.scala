@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.build
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 
-class ConsoleReporter(val name: String) extends BuildTaskReporter {
+class ConsoleReporter(val name: String) extends BuildReporter {
 
   override def start(): Unit =
     println(s"Started task: $name")

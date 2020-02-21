@@ -22,7 +22,8 @@ import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAgg
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, BuildToolWindowReporter, IndicatorReporter}
+import org.jetbrains.plugins.scala.build._
+import org.jetbrains.plugins.scala.util.CompilationId
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -37,16 +38,14 @@ class BspTask[T](project: Project,
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
   private val resultPromise: Promise[BuildMessages] = Promise()
-  private val report = new BuildToolWindowReporter(
-    project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise))
 
   private val diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
   import BspNotifications._
-  private def notifications(report: BuildTaskReporter): NotificationAggregator[BuildMessages] =
+  private def notifications(implicit reporter: BuildReporter): NotificationAggregator[BuildMessages] =
     (messages, notification) => notification match {
     case LogMessage(params) =>
-      report.log(params.getMessage)
+      reporter.log(params.getMessage)
       messages
     case ShowMessage(params) =>
       reportShowMessage(messages, params)
@@ -66,7 +65,7 @@ class BspTask[T](project: Project,
       messages
   }
 
-  private def processLog(report: BuildTaskReporter): ProcessLogger = { message =>
+  private def processLog(implicit report: BuildReporter): ProcessLogger = { message =>
     report.log(message)
   }
 
@@ -81,23 +80,25 @@ class BspTask[T](project: Project,
   }
 
   override def run(indicator: ProgressIndicator): Unit = {
-    val reportIndicator = new IndicatorReporter(indicator)
+    implicit val reporter: BuildReporter = new CompositeReporter(
+      new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise)),
+      new CompilerEventReporter(project, CompilationId.generate()),
+      new IndicatorReporter(indicator)
+    )
 
     val targetByWorkspace = targets.groupBy(_.workspace)
     val targetToCleanByWorkspace = targetsToClean.groupBy(_.workspace)
 
-    reportIndicator.start()
-    report.start()
+    reporter.start()
 
     val buildJobs = targetByWorkspace.map { case (workspace, targets) =>
       val targetsToClean = targetToCleanByWorkspace.getOrElse(workspace, List.empty)
       val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile)
       communication.run(
-        buildRequests(targets, targetsToClean)(_,_),
+        buildRequests(targets, targetsToClean)(_, _, reporter),
         BuildMessages.empty,
-        notifications(report),
-        report,
-        processLog(report))
+        notifications,
+        processLog)
     }
 
     val cancelToken = new CancelCheck(resultPromise, indicator)
@@ -105,7 +106,7 @@ class BspTask[T](project: Project,
     val combinedMessages = buildJobs
       .traverse(BspJob.waitForJobCancelable(_, cancelToken))
       .map { compileResults =>
-        val updatedMessages = compileResults.map(r => messagesWithStatus(report, reportIndicator, r._1, r._2))
+        val updatedMessages = compileResults.map(r => messagesWithStatus(reporter, r._1, r._2))
         updatedMessages.fold(BuildMessages.empty) { (m1, m2) => m1.combine(m2) }
       }.recover {
         case _: ProcessCanceledException =>
@@ -124,25 +125,19 @@ class BspTask[T](project: Project,
 
     // TODO start/finish task for individual builds
     if (combinedMessages.status == BuildMessages.Canceled) {
-      report.finishCanceled()
-      reportIndicator.finishCanceled()
+      reporter.finishCanceled()
     } else if (combinedMessages.exceptions.nonEmpty) {
       // TODO report all exceptions?
-      report.finishWithFailure(combinedMessages.exceptions.head)
-      reportIndicator.finishWithFailure(combinedMessages.exceptions.head)
+      reporter.finishWithFailure(combinedMessages.exceptions.head)
     }
-    else {
-      report.finish(combinedMessages)
-      reportIndicator.finish(combinedMessages)
-    }
+    else reporter.finish(combinedMessages)
 
     resultPromise.success(combinedMessages)
   }
 
-  private def messagesWithStatus(report: BuildTaskReporter,
-                               reportIndicator: IndicatorReporter,
-                               result: CompileResult,
-                               messages: BuildMessages): BuildMessages = {
+  private def messagesWithStatus(reporter: BuildReporter,
+                                 result: CompileResult,
+                                 messages: BuildMessages): BuildMessages = {
     try {
       result.getStatusCode match {
         case StatusCode.OK =>
@@ -157,8 +152,7 @@ class BspTask[T](project: Project,
       case error: ResponseErrorException =>
         val msg = error.getMessage
         // TODO report full error to log?
-        report.error(msg, None)
-        reportIndicator.error(msg, None)
+        reporter.error(msg, None)
 
         messages
           .addError(msg)
@@ -171,7 +165,7 @@ class BspTask[T](project: Project,
         val errName = err.getClass.getName
         val msg = Option(err.getMessage).getOrElse(errName)
         // TODO report full error to log?
-        report.error(msg, None)
+        reporter.error(msg, None)
         messages
           .addError(msg)
           .status(BuildMessages.Error)
@@ -179,7 +173,7 @@ class BspTask[T](project: Project,
   }
 
   private def buildRequests(targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget])
-                           (implicit server: BspServer, capabilities: BuildServerCapabilities) = {
+                           (implicit server: BspServer, capabilities: BuildServerCapabilities, reporter: BuildReporter) = {
     if (targetsToClean.isEmpty) compileRequest(targets)
     else {
       cleanRequest(targetsToClean)
@@ -189,7 +183,7 @@ class BspTask[T](project: Project,
       .thenCompose { cleaned =>
         if (cleaned.getCleaned) compileRequest(targets)
         else {
-          report.error(BspBundle.message("bsp.task.targets.not.cleaned", cleaned.getMessage), None)
+          reporter.error(BspBundle.message("bsp.task.targets.not.cleaned", cleaned.getMessage), None)
           val res = new CompileResult(StatusCode.CANCELLED)
           val future = new CompletableFuture[CompileResult]()
           future.complete(res)
@@ -215,11 +209,11 @@ class BspTask[T](project: Project,
     server.buildTargetCompile(params)
   }
 
-  private def reportShowMessage(buildMessages: BuildMessages, params: bsp4j.ShowMessageParams): BuildMessages = {
+  private def reportShowMessage(buildMessages: BuildMessages, params: bsp4j.ShowMessageParams)(implicit reporter: BuildReporter): BuildMessages = {
     // TODO handle message type (warning, error etc) in output
     // TODO use params.requestId to show tree structure
     val text = params.getMessage
-    report.log(text)
+    reporter.log(text)
 
     // TODO build toolwindow log supports ansi colors, but not some other stuff
     val textNoAnsiAcceptor = new TextCollector
@@ -229,10 +223,10 @@ class BspTask[T](project: Project,
     import bsp4j.MessageType._
     params.getType match {
       case ERROR =>
-        report.error(textNoAnsi, None)
+        reporter.error(textNoAnsi, None)
         buildMessages.addError(textNoAnsi)
       case WARNING =>
-        report.warning(textNoAnsi, None)
+        reporter.warning(textNoAnsi, None)
         buildMessages.addWarning(textNoAnsi)
       case INFORMATION =>
         buildMessages
@@ -241,7 +235,8 @@ class BspTask[T](project: Project,
     }
   }
 
-  private def reportDiagnostics(buildMessages: BuildMessages, params: bsp4j.PublishDiagnosticsParams): BuildMessages = {
+  private def reportDiagnostics(buildMessages: BuildMessages, params: bsp4j.PublishDiagnosticsParams)
+                               (implicit reporter: BuildReporter): BuildMessages = {
     // TODO use params.originId to show tree structure
 
     val uri = params.getTextDocument.getUri.toURI
@@ -261,41 +256,41 @@ class BspTask[T](project: Project,
       import bsp4j.DiagnosticSeverity._
       Option(diagnostic.getSeverity).map {
         case ERROR =>
-          report.error(text, position)
+          reporter.error(text, position)
           messages.addError(text)
         case WARNING =>
-          report.warning(text, position)
+          reporter.warning(text, position)
           messages.addWarning(text)
         case INFORMATION =>
-          report.info(text, position)
+          reporter.info(text, position)
           messages
         case HINT =>
-          report.info(text, position)
+          reporter.info(text, position)
           messages
       }
         .getOrElse {
-          report.info(text, position)
+          reporter.info(text, position)
           messages
         }
     }
   }
 
-  private def reportTaskStart(params: TaskStartParams): Unit = {
+  private def reportTaskStart(params: TaskStartParams)(implicit reporter: BuildReporter): Unit = {
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)
     val parent = Option(taskId.getParents).flatMap(_.asScala.headOption).map(EventId).orElse(Option(bspTaskId))
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
-    report.startTask(id, parent, params.getMessage, time)
+    reporter.startTask(id, parent, params.getMessage, time)
   }
 
-  private def reportTaskProgress(params: TaskProgressParams): Unit = {
+  private def reportTaskProgress(params: TaskProgressParams)(implicit reporter: BuildReporter): Unit = {
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
-    report.progressTask(id, params.getTotal, params.getProgress, params.getUnit, params.getMessage, time)
+    reporter.progressTask(id, params.getTotal, params.getProgress, params.getUnit, params.getMessage, time)
   }
 
-  private def reportTaskFinish(params: TaskFinishParams): Unit = {
+  private def reportTaskFinish(params: TaskFinishParams)(implicit reporter: BuildReporter): Unit = {
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
@@ -310,7 +305,7 @@ class BspTask[T](project: Project,
         new FailureResultImpl(BspBundle.message("bsp.task.unknown.status.code", otherCode), null)
     }
 
-    report.finishTask(id, params.getMessage, result, time)
+    reporter.finishTask(id, params.getMessage, result, time)
   }
 }
 

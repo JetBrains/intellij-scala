@@ -67,5 +67,6 @@ object Client {
                              text: String,
                              source: Option[File],
                              line: Option[Long],
-                             column: Option[Long])
+                             column: Option[Long],
+                            )
 }

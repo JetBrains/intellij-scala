@@ -24,7 +24,7 @@ import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.bsp.{BSP, BspBundle, BspError, BspErrorMessage, BspUtil}
-import org.jetbrains.plugins.scala.build.BuildTaskReporter
+import org.jetbrains.plugins.scala.build.BuildReporter
 
 import scala.concurrent.duration._
 import scala.io.Source
@@ -37,7 +37,7 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
-  private def acquireSessionAndRun(job: BspSessionJob[_,_], reporter: BuildTaskReporter):
+  private def acquireSessionAndRun(job: BspSessionJob[_,_], reporter: BuildReporter):
   Either[BspError, BspSession] = session.synchronized {
     session.get() match {
       case Some(currentSession) =>
@@ -49,8 +49,8 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
     }
   }
 
-  private def openSession(job: BspSessionJob[_,_], reporter: BuildTaskReporter): Either[BspError, BspSession] = {
-    val sessionBuilder = prepareSession(base, executionSettings, reporter)
+  private def openSession(job: BspSessionJob[_,_], reporter: BuildReporter): Either[BspError, BspSession] = {
+    val sessionBuilder = prepareSession(base, reporter)
 
     sessionBuilder match {
       case Left(error) =>
@@ -109,9 +109,9 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
   def run[T, A](task: BspSessionTask[T],
                 default: A,
                 aggregator: NotificationAggregator[A],
-                reporter: BuildTaskReporter,
                 processLogger: ProcessLogger
-               ): BspJob[(T, A)] = {
+               )
+               (implicit reporter: BuildReporter): BspJob[(T, A)] = {
     val job = jobs.create(task, default, aggregator, processLogger)
 
     acquireSessionAndRun(job, reporter) match {
@@ -123,10 +123,10 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 
   def run[T](bspSessionTask: BspSessionTask[T],
              notifications: NotificationCallback,
-             reporter: BuildTaskReporter,
-             processLogger: ProcessLogger): BspJob[T] = {
+             processLogger: ProcessLogger)
+            (implicit reporter: BuildReporter): BspJob[T] = {
     val callback = (a: Unit, n: BspNotification) => notifications(n)
-    val job = run(bspSessionTask, (), callback, reporter, processLogger)
+    val job = run(bspSessionTask, (), callback, processLogger)
     new NonAggregatingBspJob(job)
   }
 
@@ -146,10 +146,7 @@ object BspCommunication {
   }
 
 
-  private[protocol] def prepareSession(base: File,
-                                       bspExecutionSettings: BspExecutionSettings,
-                                       reporter: BuildTaskReporter
-                                      ): Either[BspError, Builder] = {
+  private def prepareSession(base: File, reporter: BuildReporter): Either[BspError, Builder] = {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
     val capabilities = BspCapabilities(supportedLanguages)

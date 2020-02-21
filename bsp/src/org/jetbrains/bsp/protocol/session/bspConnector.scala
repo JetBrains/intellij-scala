@@ -4,11 +4,10 @@ import java.io.File
 import java.net.URI
 
 import ch.epfl.scala.bsp4j.{BspConnectionDetails, BuildClientCapabilities, InitializeBuildParams}
-import com.google.gson.{Gson, JsonArray, JsonElement, JsonObject}
-import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, BspConnectionMethod, ProcessBsp}
+import com.google.gson.{JsonArray, JsonObject}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspError, BspErrorMessage}
-import org.jetbrains.plugins.scala.build.BuildTaskReporter
+import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 
 import scala.collection.JavaConverters._
@@ -41,11 +40,11 @@ abstract class BspServerConnector() {
     * Connect to a bsp server with one of the given methods.
     * @return a BspError if no compatible method is found.
     */
-  def connect(reporter: BuildTaskReporter): Either[BspError, Builder]
+  def connect(reporter: BuildReporter): Either[BspError, Builder]
 }
 
 class DummyConnector(rootUri: URI) extends BspServerConnector() {
-  override def connect(reporter: BuildTaskReporter): Left[BspErrorMessage, Nothing] =
+  override def connect(reporter: BuildReporter): Left[BspErrorMessage, Nothing] =
     Left(BspErrorMessage(s"No way found to connect to a BSP server for workspace $rootUri"))
 }
 

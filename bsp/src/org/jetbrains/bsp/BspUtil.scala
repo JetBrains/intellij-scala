@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.BuildTaskReporter
+import org.jetbrains.plugins.scala.build.BuildReporter
 
 import scala.util.{Failure, Success, Try}
 
@@ -86,7 +86,7 @@ object BspUtil {
       } else Success(result)
     }
 
-    def reportFinished(reporter: BuildTaskReporter,
+    def reportFinished(reporter: BuildReporter,
                        eventId: EventId,
                        @Nls successMsg: String,
                        @Nls failMsg: String

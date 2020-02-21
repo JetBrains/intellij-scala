@@ -24,7 +24,7 @@ import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToolWindowReporter}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -169,11 +169,11 @@ class BspTestRunner(
 
     val cancelToken = Promise[Unit]()
     val cancelAction = new CancelBuildAction(cancelToken)
-    val reporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, "BSP Tests", cancelAction)
+    implicit val reporter: BuildReporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, "BSP Tests", cancelAction)
     reporter.start()
 
     bspCommunication
-      .run(testRequest, onBspNotification(procHandler, new BspTestSession()), reporter, reporter.log)
+      .run(testRequest, onBspNotification(procHandler, new BspTestSession()), reporter.log)
       .future
       .onComplete { res =>
         res match {

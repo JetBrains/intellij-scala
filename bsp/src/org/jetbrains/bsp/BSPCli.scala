@@ -17,7 +17,7 @@ import org.jetbrains.bsp.project.resolver.BspProjectResolver
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspCommunicationService}
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspSystemSettings}
-import org.jetbrains.plugins.scala.build.{BuildTaskReporter, ConsoleReporter}
+import org.jetbrains.plugins.scala.build.{BuildReporter, ConsoleReporter}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -145,9 +145,8 @@ object BSPCli extends App {
 
   def logDto(not: Any): Unit = println(Console.YELLOW + not + Console.RESET)
 
-  def bspReq[T](bspSessionTask: BspSessionTask[T])(implicit reporter: BuildTaskReporter): T = {
-    val reporter = new ConsoleReporter("")
-    val result = Await.result(bspComm.run(bspSessionTask, logDto, reporter, logProcess).future, Int.MaxValue seconds)
+  def bspReq[T](bspSessionTask: BspSessionTask[T])(implicit reporter: BuildReporter): T = {
+    val result = Await.result(bspComm.run(bspSessionTask, logDto, logProcess).future, Int.MaxValue seconds)
     logDto(result)
     result
   }
@@ -191,7 +190,7 @@ object BSPCli extends App {
     server.buildTargetScalaTestClasses(params)
   }
 
-  private def repl(implicit reporter: BuildTaskReporter): Unit = {
+  private def repl(implicit reporter: BuildReporter): Unit = {
     val exit = "exit[ \t]*".r
     val help = "help[ \t]*".r
     val compile = "compile[ \t]*".r

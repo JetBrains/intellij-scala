@@ -18,7 +18,7 @@ class BuildToolWindowReporter(project: Project,
                               title: String,
                               viewManager: BuildViewManager,
                               cancelAction: AnAction)
-  extends BuildTaskReporter {
+  extends BuildReporter {
   import MessageEvent.Kind
 
   def this(project: Project, buildId: EventId, title: String, cancelAction: AnAction) =

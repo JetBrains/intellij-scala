@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler
 
 import java.io.File
 
+import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.util.{CompilationId, ObjectSerialization}
@@ -31,6 +32,20 @@ object CompilerEvent {
   object MessageEmitted {
     val EventType = "message-emitted"
   }
+
+
+  final case class RangeMessageEmitted(compilationId: CompilationId, msg: RangeMessage)
+    extends CompilerEvent {
+    override def eventType: String = RangeMessageEmitted.EventType
+  }
+  object RangeMessageEmitted {
+    val EventType = "range-message-emitted"
+  }
+
+  final case class RangeMessage(
+    severity: HighlightSeverity, text: String, source: File,
+    fromLine: Int, fromColumn: Int,
+    toLine: Option[Int], toColumn: Option[Int])
 
   @SerialVersionUID(2805617802395239646L)
   case class CompilationFinished(compilationId: CompilationId, source: File)

@@ -40,9 +40,12 @@ object ExternalHighlighters {
       }
 
   private def toHighlightInfo(highlighting: ExternalHighlighting, editor: Editor): HighlightInfo = {
-    val highlightRange = offset(highlighting, editor)
-      .flatMap(findRangeToHighlight(editor, _))
-      .getOrElse(TextRange.EMPTY_RANGE)
+    val highlightRange =
+      highlightingRange(editor.getDocument, highlighting)
+        .orElse(
+          offset(highlighting, editor).flatMap(findRangeToHighlight(editor, _))
+        )
+        .getOrElse(TextRange.EMPTY_RANGE)
 
     val highlightInfoType = HighlightInfo.convertSeverity(highlighting.severity)
 
@@ -65,15 +68,26 @@ object ExternalHighlighters {
       }
   }
 
+  private def highlightingRange(doc: Document, highlighting: ExternalHighlighting): Option[TextRange] = {
+    for {
+      toLine <- highlighting.toLine
+      toColumn <- highlighting.toColumn
+    } yield {
+      val from = doc.getLineStartOffset(highlighting.fromLine) + highlighting.fromColumn
+      val to = doc.getLineStartOffset(toLine) + toColumn
+      new TextRange(from, to)
+    }
+  }
+
   private def offset(highlighting: ExternalHighlighting, editor: Editor): Option[Int] = {
-    val line = highlighting.line - 1
-    val column = (highlighting.column - 1).max(0)
+    val line = highlighting.fromLine - 1
+    val column = (highlighting.fromColumn - 1).max(0)
     if (line < 0) {
       None
     } else {
       val lineTextFromMessage = lineText(highlighting.message)
       val document = editor.getDocument
-      //todo: dotc and scalac report different lines in their messages :(
+      // TODO: dotc and scalac report different lines in their messages :(
       val actualLine =
         Seq(line, line - 1, line + 1)
           .find { lineNumber =>

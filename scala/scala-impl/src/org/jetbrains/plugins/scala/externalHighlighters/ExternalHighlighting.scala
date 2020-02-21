@@ -7,7 +7,10 @@ import com.intellij.lang.annotation.HighlightSeverity
  *
  * Note: potentially this class can be a sealed ADT.
  */
-case class ExternalHighlighting(severity: HighlightSeverity,
-                                message: String,
-                                line: Int,
-                                column: Int)
+final case class ExternalHighlighting(severity: HighlightSeverity,
+                                      message: String,
+                                      fromLine: Int,
+                                      fromColumn: Int,
+                                      toLine: Option[Int],
+                                      toColumn: Option[Int]
+                                     )

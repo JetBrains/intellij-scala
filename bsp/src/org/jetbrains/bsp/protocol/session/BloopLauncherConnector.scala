@@ -7,7 +7,7 @@ import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import org.jetbrains.bsp.BspError
 import org.jetbrains.bsp.protocol.session.BspServerConnector.BspCapabilities
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
-import org.jetbrains.plugins.scala.build.BuildTaskReporter
+import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.sbt.SbtUtil
 
@@ -18,7 +18,7 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
   val bloopVersion: String = BuildInfo.bloopVersion // TODO parameterize from build
   val bspVersion = "2.0.0"
 
-  override def connect(reporter: BuildTaskReporter): Either[BspError, Builder] = {
+  override def connect(reporter: BuildReporter): Either[BspError, Builder] = {
 
     val launcher = new File(SbtUtil.getLauncherDir, "bloop-launcher.jar")
     val scalaSdk = new File(SbtUtil.getLibDir, "scala-library.jar")

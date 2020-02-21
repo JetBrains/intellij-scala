@@ -22,7 +22,7 @@ import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, ExternalSystemNotificationReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
@@ -47,7 +47,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
                                   executionSettings: BspExecutionSettings,
                                   listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
 
-    val reporter = new ExternalSystemNotificationReporter(workspaceCreationPath, id, listener)
+    implicit val reporter: BuildReporter = new ExternalSystemNotificationReporter(workspaceCreationPath, id, listener)
     val workspaceCreationFile = new File(workspaceCreationPath)
     val workspace =
       if (workspaceCreationFile.isDirectory) workspaceCreationFile
@@ -119,7 +119,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     val result = sbtMessages match {
       case Success(messages) if messages.status == BuildMessages.OK =>
-        val projectJob = communication.run(requests(_,_), notifications, reporter, processLogger)
+        val projectJob = communication.run(requests(_,_), notifications, processLogger)
         waitForProjectCancelable(projectJob) match {
           case Success(data) =>
             reporter.finish(messages)
@@ -193,7 +193,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
 
-  private def runBloopInstall(baseDir: File, reporter: BuildTaskReporter) = {
+  private def runBloopInstall(baseDir: File, reporter: BuildReporter) = {
 
     val jdkType = JavaSdk.getInstance()
     val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType)
@@ -248,7 +248,7 @@ object BspProjectResolver {
   private case class PreImportTask(dumper: SbtStructureDump) extends ImportState
   private case class BspTask(communication: BspCommunication) extends ImportState
 
-  private[resolver] def targetData(targets: List[BuildTarget], isPreview: Boolean, reporter: BuildTaskReporter, parentId: EventId)
+  private[resolver] def targetData(targets: List[BuildTarget], isPreview: Boolean, reporter: BuildReporter, parentId: EventId)
                                   (implicit bsp: BspServer, capabilities: BuildServerCapabilities):
   CompletableFuture[TargetData] =
     if (isPreview) {

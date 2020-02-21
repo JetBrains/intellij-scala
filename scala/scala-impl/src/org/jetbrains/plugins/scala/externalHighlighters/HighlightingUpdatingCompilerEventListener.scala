@@ -24,11 +24,20 @@ private class HighlightingUpdatingCompilerEventListener(project: Project)
           highlighting = ExternalHighlighting(
             severity = kindToSeverity(msg.kind),
             message = text,
-            line = line.toInt,
-            column = column.toInt
+            fromLine = line.toInt,
+            fromColumn = column.toInt,
+            toLine = None,
+            toColumn = None
           )
           fileState = FileHighlightingState(compilationId, Set(highlighting))
         } yield virtualFile -> fileState
+
+      case CompilerEvent.RangeMessageEmitted(compilationId, msg) =>
+        val highlighting = ExternalHighlighting(msg.severity, msg.text, msg.fromLine, msg.fromColumn, msg.toLine, msg. toColumn)
+        val virtualFile = findVirtualFile(msg.source)
+        val fileState = FileHighlightingState(compilationId, Set(highlighting))
+        virtualFile.map (vfile => vfile -> fileState)
+
       case CompilerEvent.CompilationFinished(compilationId, source) =>
         findVirtualFile(source).map { virtualFile =>
           virtualFile -> FileHighlightingState(compilationId, Set.empty)
