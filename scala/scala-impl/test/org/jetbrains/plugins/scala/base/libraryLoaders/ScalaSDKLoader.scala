@@ -27,25 +27,19 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
     version match { // TODO maybe refactoring?
       case Scala_3_0 =>
         List(
-          scalaCompilerDescription,
-          scalaLibraryDescription,
-          scalaLibraryDescription(Scala_2_13),
-          DependencyDescription("ch.epfl.lamp", s"tasty-core_${version.major}", version.minor),
+          scalaCompilerDescription.transitive(),
+          scalaLibraryDescription.transitive(),
+          //scalaLibraryDescription(Scala_2_13),
+          //DependencyDescription("ch.epfl.lamp", s"tasty-core_${version.major}", version.minor),
           DependencyDescription("ch.epfl.lamp", "dotty-interfaces", version.minor),
-          DependencyDescription("org.scala-lang.modules", "scala-asm", "7.0.0-scala-1")
+          //DependencyDescription("org.scala-lang.modules", "scala-asm", "7.0.0-scala-1")
         )
       case _ =>
-        if (includeScalaReflect)
-          List(
-            scalaCompilerDescription,
-            scalaLibraryDescription,
-            scalaReflectDescription
-          )
-        else
-          List(
-            scalaCompilerDescription,
-            scalaLibraryDescription
-          )
+        val maybeScalaReflect = if (includeScalaReflect) Some(scalaReflectDescription) else None
+        List(
+          scalaCompilerDescription,
+          scalaLibraryDescription
+        ) ++ maybeScalaReflect
     }
 
   protected def sourcesDependency(implicit version: ScalaVersion): DependencyDescription =
@@ -60,17 +54,26 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
     val dependencies = binaryDependencies
     val resolved = DependencyManager.resolve(dependencies: _*)
 
-    assertEquals(
-      s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
-      dependencies.size,
-      resolved.size
+    if (version == Scala_3_0) {
+      assertTrue(
+        s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
+        resolved.size >= dependencies.size
+      )
+    } else {
+      assertEquals(
+        s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
+        dependencies.size,
+        resolved.size
+      )
+    }
+
+    val (resolvedOk, resolvedMissing) = resolved.partition(_.file.exists())
+    val compilerClasspath = resolvedOk.map(_.file)
+
+    assertTrue(
+      s"Some SDK jars were resolved but for some reason do not exist:\n$resolvedMissing",
+      resolvedMissing.isEmpty
     )
-
-    val compilerClasspath = for {
-      ResolvedDependency(_, file) <- resolved
-      if file.exists()
-    } yield file
-
     assertFalse(
       s"Local SDK files failed to verify for version $version:\n${resolved.mkString("\n")}",
       compilerClasspath.isEmpty
