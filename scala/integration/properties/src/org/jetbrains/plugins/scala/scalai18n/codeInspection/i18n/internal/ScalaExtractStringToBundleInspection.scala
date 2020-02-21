@@ -8,6 +8,7 @@ import java.util
 
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInspection.{BatchQuickFix, InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -41,7 +42,7 @@ class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection 
       case element@TopmostStringParts(parts) if !shouldBeIgnored(element, parts) =>
         val isNaturalLang = containsNaturalLangString(element, parts)
 
-        if (isNaturalLang || isOnTheFly) {
+        if (isNaturalLang || (isOnTheFly && !ApplicationManager.getApplication.isUnitTestMode )) {
           val quickFixes = Array[LocalQuickFix](new MoveToBundleQuickFix(element)) ++ maybeQuickFix
           val highlight =
             if (isNaturalLang) highlightType
