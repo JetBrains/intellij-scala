@@ -44,24 +44,25 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
   override def getDisplayName: String = ScalaBundle.message("line.breakpoints.tab.title")
 
   override def canPutAt(@NotNull file: VirtualFile, line: Int, @NotNull project: Project): Boolean = {
-    val psiFile: PsiFile = PsiManager.getInstance(project).findFile(file)
-    if (psiFile == null || !psiFile.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
-      return false
-    }
-    val document: Document = FileDocumentManager.getInstance.getDocument(file)
+    val psiFile = PsiManager.getInstance(project).findFile(file)
+    if (psiFile == null) return false
+    if (psiFile.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return false
+    val document = FileDocumentManager.getInstance.getDocument(file)
     if (document == null) return false
+    psiFile match {
+      case sf: ScalaFile if sf.isWorksheetFile => return false // we do not support debugging in worksheets yet
+      case _ =>
+    }
 
     var result: Boolean = false
-    val processor: Processor[PsiElement] = new Processor[PsiElement] {
-      override def process(e: PsiElement): Boolean = e match {
-        case ElementType(ScalaTokenTypes.kPACKAGE | ScalaTokenTypes.kIMPORT) => false
-        case _: PsiWhiteSpace => true
-        case _ if PsiTreeUtil.getParentOfType(e, classOf[PsiComment]) != null => true
-        case _ if PsiTreeUtil.getParentOfType(e, classOf[ScExpression], classOf[ScConstructorPattern], classOf[ScInfixPattern], classOf[ScClass]) != null =>
-          result = true
-          false
-        case _ => true
-      }
+    val processor: Processor[PsiElement] = {
+      case ElementType(ScalaTokenTypes.kPACKAGE | ScalaTokenTypes.kIMPORT)  => false
+      case _: PsiWhiteSpace                                                 => true
+      case e if PsiTreeUtil.getParentOfType(e, classOf[PsiComment]) != null => true
+      case e if PsiTreeUtil.getParentOfType(e, classOf[ScExpression], classOf[ScConstructorPattern], classOf[ScInfixPattern], classOf[ScClass]) != null =>
+        result = true
+        false
+      case _ => true
     }
     XDebuggerUtil.getInstance.iterateLine(project, document, line, processor)
     result
