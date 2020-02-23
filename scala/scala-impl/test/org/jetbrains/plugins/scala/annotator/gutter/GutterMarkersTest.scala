@@ -9,17 +9,26 @@ import org.junit.Assert._
 import org.junit.Test
 import org.junit.experimental.categories.Category
 
+// TODO: split by functionality
 @Category(Array(classOf[TypecheckerTests]))
 class GutterMarkersTest extends ScalaFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   protected def testLineMarker(expectedTooltip: String): Unit = {
     myFixture.doHighlighting()
-    if (CodeInsightTestFixtureImpl.processGuttersAtCaret(getEditor, getProject, mark => {
+    val processed = CodeInsightTestFixtureImpl.processGuttersAtCaret(getEditor, getProject, mark => {
       assertEquals(expectedTooltip, mark.getTooltipText)
       false
-    }
-    )) fail("Gutter mark expected.")
+    })
+    if (processed)
+      fail("Gutter mark expected.")
+  }
+
+  protected def doTestNoLineMarkers(): Unit = {
+    myFixture.doHighlighting()
+    CodeInsightTestFixtureImpl.processGuttersAtCaret(getEditor, getProject, _ => {
+      fail("No gutters expected.").asInstanceOf[Nothing]
+    })
   }
 
   protected def testOverridesImplementsMarker(superName: String, isOverride: Boolean, member: String): Unit =
@@ -165,4 +174,40 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
       |}
     """.stripMargin
   )(testLineMarker("Member has overrides"))
+
+  def testTypeAliasOverridesNothing(): Unit = {
+    doTest(
+      s"""trait T {
+         |  type S = String$caret
+         |}
+         |""".stripMargin
+    )(doTestNoLineMarkers())
+  }
+
+  def testTypeAliasOverridesNothing_1(): Unit = {
+    doTest(
+      s"""trait Base {
+         |  type P = Int
+         |}
+         |
+         |trait T extends Base {
+         |  type S = String$caret
+         |}
+         |""".stripMargin
+    )(doTestNoLineMarkers())
+  }
+
+
+  def testTypeAliasOverrides(): Unit = {
+    doTest(
+      s"""trait Base {
+         |  type S = Int
+         |}
+         |
+         |trait T extends Base {
+         |  type S = String$caret
+         |}
+         |""".stripMargin
+    )(testOverridesMarker("Base", "type"))
+  }
 }

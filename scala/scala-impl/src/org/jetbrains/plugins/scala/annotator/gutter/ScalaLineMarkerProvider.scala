@@ -121,7 +121,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
     val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
     val notReference = element.parent.exists {
       case _: ScReference => false
-      case  _                    => true
+      case _              => true
     }
 
     if (isIdentifier && notReference) {

@@ -619,10 +619,8 @@ object ScalaPsiUtil {
   }
 
   def superTypeMembers(element: PsiNamedElement,
-                       withSelfType: Boolean = false): Seq[PsiNamedElement] = {
-
+                       withSelfType: Boolean = false): Seq[PsiNamedElement] =
     superTypeSignatures(element, withSelfType).map(_.namedElement)
-  }
 
   def superTypeSignatures(element: PsiNamedElement,
                           withSelfType: Boolean = false): Seq[TypeSignature] = {
@@ -637,9 +635,9 @@ object ScalaPsiUtil {
 
     types.forName(element.name).findNode(element) match {
       //partial match
-      case Some(x) if !withSelfType || x.info == element => x.supers.map(_.info)
+      case Some(x) if !withSelfType || x.info.namedElement == element => x.supers.map(_.info)
       case Some(x) =>
-        x.supers.map(_.info).filter(_ != element) :+ x.info
+        x.supers.map(_.info).filter(_.namedElement != element) :+ x.info
       case None =>
         //this is possible case: private member of library source class.
         //Problem is that we are building types over decompiled class.
