@@ -576,18 +576,12 @@ object ScalaPsiUtil {
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(clazz)
       else TypeDefinitionMembers.getSignatures(clazz)
     val sigs = signatures.forName(x.name)
-    var res: Seq[TermSignature] = (sigs.get(s): @unchecked) match {
-      //partial match
-      case Some(node) if !withSelfType || node.info.namedElement == x => node.supers.map {
-        _.info
-      }
+    var res: Seq[TermSignature] = sigs.get(s) match {
+      case Some(node) if !withSelfType || node.info.namedElement == x =>
+        node.supers.map(_.info)
       case Some(node) =>
-        node.supers.map {
-          _.info
-        }.filter {
-          _.namedElement != x
-        } :+ node.info
-      case None =>
+        node.supers.map(_.info).filter(_.namedElement != x) :+ node.info
+      case _ =>
         //this is possible case: private member of library source class.
         //Problem is that we are building signatures over decompiled class.
         Seq.empty
@@ -595,27 +589,19 @@ object ScalaPsiUtil {
 
 
     val beanMethods = getBeanMethods(typed)
-    beanMethods.foreach {
-      method =>
-        val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)
-        (sigs.get(new PhysicalMethodSignature(method, ScSubstitutor.empty)): @unchecked) match {
-          //partial match
-          case Some(node) if !withSelfType || node.info.namedElement == method => res ++= node.supers.map {
-            _.info
-          }
-          case Some(node) =>
-            res +:= node.info
-            res ++= node.supers.map {
-              _.info
-            }.filter {
-              _.namedElement != method
-            }
-          case None =>
-        }
+    beanMethods.foreach { method =>
+      val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)
+      sigs.get(new PhysicalMethodSignature(method, ScSubstitutor.empty)) match {
+        case Some(node) if !withSelfType || node.info.namedElement == method =>
+          res ++= node.supers.map(_.info)
+        case Some(node) =>
+          res +:= node.info
+          res ++= node.supers.map(_.info).filter(_.namedElement != method)
+        case _ =>
+      }
     }
 
     res
-
   }
 
   def superTypeMembers(element: PsiNamedElement,
@@ -634,11 +620,11 @@ object ScalaPsiUtil {
       else TypeDefinitionMembers.getTypes(clazz)
 
     types.forName(element.name).findNode(element) match {
-      //partial match
-      case Some(x) if !withSelfType || x.info.namedElement == element => x.supers.map(_.info)
+      case Some(x) if !withSelfType || x.info.namedElement == element =>
+        x.supers.map(_.info)
       case Some(x) =>
         x.supers.map(_.info).filter(_.namedElement != element) :+ x.info
-      case None =>
+      case _ =>
         //this is possible case: private member of library source class.
         //Problem is that we are building types over decompiled class.
         Seq.empty
