@@ -77,7 +77,7 @@ object ImportAmmoniteDependenciesFix {
               case _ =>
             }
           case mre"[success]$_" =>
-            indicator.setText(ScalaBundle.message("ammonite.adding.dependencies"))
+            indicator.setText(ScalaBundle.message("ammonite.adding.dependencies.progress"))
 
             ScalaUtil.getModuleForFile(file.getVirtualFile).foreach { module =>
               invokeLater {
