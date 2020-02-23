@@ -79,7 +79,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
 
   def isIgnoreSingleParameter: Boolean
 
-  def setIgnoreSingleParameter(value: Boolean)
+  def setIgnoreSingleParameter(value: Boolean): Unit
 
 }
 

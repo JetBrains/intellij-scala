@@ -79,8 +79,8 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
 
 /** A dummy to satisfy interface constraints of ExternalSystem */
 trait BspProjectSettingsListener extends ExternalSystemSettingsListener[BspProjectSettings] {
-  def onBuildOnSaveChanged(buildOnSave: Boolean)
-  def onRunPreImportTaskChanged(runBloopInstall: Boolean)
+  def onBuildOnSaveChanged(buildOnSave: Boolean): Unit
+  def onRunPreImportTaskChanged(runBloopInstall: Boolean): Unit
 }
 
 class BspProjectSettingsListenerAdapter(listener: ExternalSystemSettingsListener[BspProjectSettings])

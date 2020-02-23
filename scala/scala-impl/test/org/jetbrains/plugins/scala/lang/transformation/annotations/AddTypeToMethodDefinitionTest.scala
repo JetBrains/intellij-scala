@@ -29,7 +29,7 @@ class AddTypeToMethodDefinitionTest extends TransformerTest(new AddTypeToMethodD
   )()
 
   def testDeclaration(): Unit = check(
-    before = "def f()",
-    after = "def f()"
+    before = "def f(): Unit",
+    after = "def f(): Unit"
   )()
 }

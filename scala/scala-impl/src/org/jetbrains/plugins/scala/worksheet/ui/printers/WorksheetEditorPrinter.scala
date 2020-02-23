@@ -10,7 +10,7 @@ trait WorksheetEditorPrinter {
   def flushBuffer(): Unit
   def close(): Unit
   def scheduleWorksheetUpdate(): Unit
-  def internalError(errorMessage: String)
+  def internalError(errorMessage: String): Unit
 
   @TestOnly
   def diffSplitter: Option[SimpleWorksheetSplitter]

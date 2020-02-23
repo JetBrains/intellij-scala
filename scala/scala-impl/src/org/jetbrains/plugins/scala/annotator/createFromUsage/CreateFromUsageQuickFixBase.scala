@@ -43,5 +43,5 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReference, description: String
     invokeInner(project, editor, file)
   }
 
-  protected def invokeInner(project: Project, editor: Editor, file: PsiFile)
+  protected def invokeInner(project: Project, editor: Editor, file: PsiFile): Unit
 }

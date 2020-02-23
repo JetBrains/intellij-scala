@@ -49,5 +49,5 @@ object DelegatingProjectDescriptor {
 }
 
 trait ModuleCallback {
-  def run(module: Module)
+  def run(module: Module): Unit
 }

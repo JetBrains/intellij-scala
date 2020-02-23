@@ -12,8 +12,8 @@ trait Instruction {
   def succ( /*put call env here*/ ): Iterable[Instruction]
   def pred( /*put call env here*/ ): Iterable[Instruction]
 
-  def addSucc(s: Instruction)
-  def addPred(p: Instruction)
+  def addSucc(s: Instruction): Unit
+  def addPred(p: Instruction): Unit
 
   val num: Int
 

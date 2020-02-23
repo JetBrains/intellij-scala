@@ -22,7 +22,7 @@ abstract class AbstractUastFixtureTest
   def getTestFile(testName: String): File =
     new File(getTestDataPath, testName + ".scala")
 
-  def check(testName: String, file: UFile)
+  def check(testName: String, file: UFile): Unit
 
   def doTest(testName: String = getTestName(false),
              checkCallback: (String, UFile) => Unit = check) {

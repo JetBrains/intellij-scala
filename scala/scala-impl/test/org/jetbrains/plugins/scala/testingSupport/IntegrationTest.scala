@@ -43,9 +43,9 @@ trait IntegrationTest {
 
   protected def createLocation(lineNumber: Int, offset: Int, fileName: String): PsiLocation[PsiElement]
 
-  protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*)
+  protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit
 
-  protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String] = None, testStatus: Int = Test.NormalStatusId)
+  protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String] = None, testStatus: Int = Test.NormalStatusId): Unit
 
   protected def checkTestNodeInFileStructure(root: TreeElementWrapper, nodeName: String, parentName: Option[String], status: Int): Boolean = {
 

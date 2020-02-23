@@ -87,7 +87,7 @@ object ScalaFileNameInspection {
     }
 
     protected def onElement(element: T)
-                           (implicit project: Project)
+                           (implicit project: Project): Unit
   }
 
   private final class RenameClassQuickFix(clazz: ScTypeDefinition, name: String)

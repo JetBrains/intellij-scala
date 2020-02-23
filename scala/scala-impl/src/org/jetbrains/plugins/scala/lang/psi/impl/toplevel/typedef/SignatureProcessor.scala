@@ -26,7 +26,7 @@ trait SignatureProcessor[T <: Signature] {
       sink.put(t)
   }
 
-  def processJava(clazz: PsiClass, subst: ScSubstitutor, processor: Sink)
+  def processJava(clazz: PsiClass, subst: ScSubstitutor, processor: Sink): Unit
 
   def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit
 

@@ -39,7 +39,7 @@ object jobs {
     private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)]
 
     /** Cancel and abort this job with given error. */
-    private[session] def cancelWithError(error: BspError)
+    private[session] def cancelWithError(error: BspError): Unit
   }
 }
 

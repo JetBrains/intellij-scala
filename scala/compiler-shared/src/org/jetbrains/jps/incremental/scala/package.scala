@@ -12,7 +12,7 @@ import _root_.scala.language.implicitConversions
  */
 package object scala {
   type Closeable = {
-    def close()
+    def close(): Unit
   }
 
   def using[A <: Closeable, B](resource: A)(block: A => B): B = {

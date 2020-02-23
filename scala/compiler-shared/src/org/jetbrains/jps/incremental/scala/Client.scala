@@ -39,9 +39,9 @@ trait Client {
                  column: Option[Long] = None): Unit =
     message(Kind.INFO, text, source, line, column)
 
-  def trace(exception: Throwable)
+  def trace(exception: Throwable): Unit
 
-  def progress(text: String, done: Option[Float] = None)
+  def progress(text: String, done: Option[Float] = None): Unit
 
   def internalInfo(text: String): Unit
 

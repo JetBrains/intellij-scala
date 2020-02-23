@@ -39,8 +39,8 @@ class ExpandProcedureSyntaxTest extends TransformerTest(new ExpandProcedureSynta
   )()
 
   def testDefinitionImplicitType(): Unit = check(
-    before = "def f()",
-    after = "def f()"
+    before = "def f(): Unit",
+    after = "def f(): Unit"
   )()
 
   def testDefinitionExplicitType(): Unit = check(

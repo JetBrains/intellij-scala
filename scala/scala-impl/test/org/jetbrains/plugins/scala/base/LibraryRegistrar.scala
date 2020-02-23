@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 
 trait LibraryRegistrar {
-  def registerLibrary(loader: LibraryLoader)
+  def registerLibrary(loader: LibraryLoader): Unit
 }
 
 class DirectRegistrar(module: Module) extends LibraryRegistrar {

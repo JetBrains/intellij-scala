@@ -11,7 +11,7 @@ import scala.language.reflectiveCalls
   */
 object JComponentExt {
   private type WithAddActionListener = JComponent {
-    def addActionListener(al: ActionListener)
+    def addActionListener(al: ActionListener): Unit
   }
 
   implicit class ActionListenersOwner(private val jc: WithAddActionListener) extends AnyVal {
