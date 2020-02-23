@@ -41,7 +41,7 @@ object ScalaMarkerType {
     members:         Array[NavigatablePsiElement],
     title:           String,
     findUsagesTitle: String,
-    renderer:        ListCellRenderer[_] = new ScCellRenderer
+    renderer:        ListCellRenderer[_] = newCellRenderer.asInstanceOf[ListCellRenderer[_]]
   ): Unit = PsiElementListNavigator.openTargets(event, members, title, findUsagesTitle, renderer)
 
   private[this] def navigateToSuperMethod(
@@ -162,18 +162,20 @@ object ScalaMarkerType {
                   ScalaBundle.message("navigation.findUsages.title.overriding.member", name)
               }
 
-            val renderer = new ScCellRenderer
+            val renderer = newCellRenderer
             util.Arrays.sort(overrides.map(e => e: PsiElement).toArray, renderer.getComparator)
             PsiElementListNavigator.openTargets(
               event,
               overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray,
               title,
               findUsagesTitle,
-              renderer
+              renderer.asInstanceOf[ListCellRenderer[_]]
             )
           }
     }
   )
+
+  def newCellRenderer: PsiElementListCellRenderer[PsiElement] = new ScCellRenderer
 
   val subclassedClass: ScalaMarkerType = ScalaMarkerType(
     element =>
@@ -203,7 +205,7 @@ object ScalaMarkerType {
               inheritors.map(_.asInstanceOf[NavigatablePsiElement]),
               title,
               findUsagesTitle,
-              renderer
+              renderer.asInstanceOf[ListCellRenderer[_]]
             )
           }
     }
@@ -214,7 +216,8 @@ object ScalaMarkerType {
     (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true))
   )
 
-  class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
+  private class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
+
     override def getElementText(element: PsiElement): String = {
       def defaultPresentation: String =
         element.getText.substring(0, math.min(element.getText.length, 20))
