@@ -18,7 +18,7 @@ class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
   override protected val hint: String =
     "Replace find and map with apply"
 
-  def test_inline_map() {
+  def test_inline_map(): Unit = {
     val selected = s"Map().${START}find(_ == 1).map(_._2)$END"
 
     checkTextHasError(selected)

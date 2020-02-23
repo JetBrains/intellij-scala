@@ -31,7 +31,7 @@ class ScalaEvaluatorCache(project: Project) extends Disposable {
     DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener)
   }
 
-  def clear() {
+  def clear(): Unit = {
     cachedEvaluators.values.foreach(_.clear())
     cachedEvaluators.clear()
     cachedStamp.clear()

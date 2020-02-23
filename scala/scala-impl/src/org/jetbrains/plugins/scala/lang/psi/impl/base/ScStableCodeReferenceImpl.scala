@@ -252,7 +252,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     override protected val forName = Some(refName)
   })
 
-  override def delete() {
+  override def delete(): Unit = {
     getContext match {
       case sel: ScImportSelector => sel.deleteSelector()
       case expr: ScImportExpr => expr.deleteExpr()
@@ -270,7 +270,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     _qualifier() match {
       case None =>
         @scala.annotation.tailrec
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+        def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           ProgressManager.checkCanceled()
           place match {
             case null =>

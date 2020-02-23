@@ -4,11 +4,11 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecG
 
 trait FreeSpecScopeTest extends FreeSpecGenerator {
 
-  def testFreeSpecEmptyScope() {
+  def testFreeSpecEmptyScope(): Unit = {
     assertConfigAndSettings(createTestFromLocation(31, 7, complexFreeSpecFileName), complexFreeSpecClassName)
   }
 
-  def testFreeSpecScope() {
+  def testFreeSpecScope(): Unit = {
     val testNames = Seq("A ComplexFreeSpec Outer scope 2 Inner scope 2 Another innermost scope",
         "A ComplexFreeSpec Outer scope 2 Inner test")
     val path1 = List("[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner scope 2",

@@ -50,7 +50,7 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
   override def classNames: Array[String] = byStubOrPsi(_.classNames) {
     val names = mutable.ArrayBuffer.empty[String]
 
-    def fillNames(typeElement: ScTypeElement) {
+    def fillNames(typeElement: ScTypeElement): Unit = {
       typeElement match {
         case s: ScSimpleTypeElement => s.reference match {
           case Some(ref) => names += ref.refName

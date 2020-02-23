@@ -173,7 +173,7 @@ object Expr1 {
           case ScalaTokenTypes.tLBRACE =>
             builder.advanceLexer() //Ate {
             builder.enableNewlines()
-            def foo() {
+            def foo(): Unit = {
               if (!Enumerators.parse(builder)) {
                 builder error ErrMsg("enumerators.expected")
               }
@@ -273,7 +273,7 @@ object Expr1 {
               case ScalaTokenTypes.tLBRACE =>
                 builder.advanceLexer() //Ate {
                 builder.enableNewlines()
-                def foo() {
+                def foo(): Unit = {
                   if (!CaseClauses.parse(builder)) {
                     builder error ErrMsg("case.clauses.expected")
                   }

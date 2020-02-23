@@ -100,7 +100,7 @@ object SbtBuilder {
 
   // TODO Mirror file deletion (either via the outputConsumer or a custom index)
   // TODO use AdditionalRootsProviderService?
-  private def updateSharedResources(context: CompileContext, chunk: ModuleChunk) {
+  private def updateSharedResources(context: CompileContext, chunk: ModuleChunk): Unit = {
     val project = context.getProjectDescriptor
 
     val resourceTargets: Seq[ResourcesTarget] = {

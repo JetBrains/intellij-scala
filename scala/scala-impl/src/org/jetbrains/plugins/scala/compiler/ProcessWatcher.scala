@@ -20,7 +20,7 @@ class ProcessWatcher(process: Process, commandLine: String) {
 
   processHandler.addProcessListener(MyProcessListener)
 
-  def startNotify() {
+  def startNotify(): Unit = {
     processHandler.startNotify()
   }
 
@@ -41,7 +41,7 @@ class ProcessWatcher(process: Process, commandLine: String) {
   }
 
   private object MyProcessListener extends ProcessAdapter {
-    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
+    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
       val text = event.getText
 
       outputType match {

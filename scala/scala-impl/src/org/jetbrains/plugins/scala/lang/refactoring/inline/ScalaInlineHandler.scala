@@ -44,7 +44,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScalaInlineHandler extends InlineHandler {
 
-  override def removeDefinition(element: PsiElement, settings: InlineHandler.Settings) {
+  override def removeDefinition(element: PsiElement, settings: InlineHandler.Settings): Unit = {
     def removeElementWithNonSignificantSibilings(value: PsiElement) = {
       val children = new ArrayBuffer[PsiElement]
       var psiElement = value.getNextSibling

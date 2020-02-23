@@ -40,7 +40,7 @@ abstract class ScalaMemberSelectionTableBase[M <: PsiElement, I <: ScalaMemberIn
     }
   }
 
-  override def setVisibilityIcon(memberInfo: I, icon: RowIcon) {
+  override def setVisibilityIcon(memberInfo: I, icon: RowIcon): Unit = {
     memberInfo.getMember match {
       case owner: PsiModifierListOwner =>
         owner.getModifierList match {

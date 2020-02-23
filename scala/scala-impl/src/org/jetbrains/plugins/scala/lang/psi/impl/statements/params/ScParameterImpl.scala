@@ -177,7 +177,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     }
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitParameter(this)
   }
 }

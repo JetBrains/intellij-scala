@@ -65,26 +65,26 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   /**
    * Process a new node inside the CFG
    */
-  private def startNode(element: Option[ScalaPsiElement], checkPending: Boolean)(body: InstructionImpl => Unit) {
+  private def startNode(element: Option[ScalaPsiElement], checkPending: Boolean)(body: InstructionImpl => Unit): Unit = {
     val instr = new InstructionImpl(inc, element)
     addNode(instr)
     body(instr)
     if (checkPending) checkPendingEdges(instr)
   }
 
-  private def addNode(instr: InstructionImpl) {
+  private def addNode(instr: InstructionImpl): Unit = {
     myInstructions += instr
     if (myHead != null) addEdge(myHead, instr)
     myHead = instr
   }
 
-  private def addEdge(from: InstructionImpl, to: InstructionImpl) {
+  private def addEdge(from: InstructionImpl, to: InstructionImpl): Unit = {
     if (from == null || to == null) return
     if (!from.succ().contains(to)) from.addSucc(to)
     if (!to.pred().contains(from)) to.addPred(from)
   }
 
-  private def checkPendingEdges(instruction: InstructionImpl) {
+  private def checkPendingEdges(instruction: InstructionImpl): Unit = {
     instruction.element match {
       case Some(elem) =>
         val ab = new ArrayBuffer[Int]
@@ -104,7 +104,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  private def addPendingEdge(scopeWhenAdded: ScalaPsiElement, instruction: InstructionImpl) {
+  private def addPendingEdge(scopeWhenAdded: ScalaPsiElement, instruction: InstructionImpl): Unit = {
     if (instruction == null) return
     var index = 0
     if (scopeWhenAdded != null) {
@@ -114,7 +114,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       myPending.insert(math.max(index, 0), (instruction, scopeWhenAdded))
   }
 
-  private def advancePendingEdges(fromScope: ScalaPsiElement, toScope: ScalaPsiElement) {
+  private def advancePendingEdges(fromScope: ScalaPsiElement, toScope: ScalaPsiElement): Unit = {
     for {
       ((instr, scope), idx) <- myPending.zipWithIndex
       if scope != null && PsiTreeUtil.isAncestor(fromScope, scope, false)
@@ -123,11 +123,11 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  private def interruptFlow() {
+  private def interruptFlow(): Unit = {
     myHead = null
   }
 
-  private def moveHead(instr: InstructionImpl) {
+  private def moveHead(instr: InstructionImpl): Unit = {
     myHead = instr
   }
 
@@ -140,7 +140,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
    * VISITOR METHODS
    **************************************/
 
-  override def visitPatternDefinition(pattern: ScPatternDefinition) {
+  override def visitPatternDefinition(pattern: ScPatternDefinition): Unit = {
     pattern.expr.foreach(_.accept(this))
     for (b <- pattern.bindings) {
       val instr = DefinitionInstruction(inc, b, DefinitionType.VAL)
@@ -149,7 +149,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitVariableDefinition(variable: ScVariableDefinition) {
+  override def visitVariableDefinition(variable: ScVariableDefinition): Unit = {
     variable.expr.foreach(_.accept(this))
     for (b <- variable.bindings) {
       val instr = DefinitionInstruction(inc, b, DefinitionType.VAR)
@@ -158,7 +158,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitReferenceExpression(ref: ScReferenceExpression) {
+  override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
     ref.qualifier match {
       case None =>
         val instr = ReadWriteVariableInstruction(inc, ref, usedVariable(ref), ScalaPsiUtil.isLValue(ref))
@@ -168,7 +168,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitAssignment(stmt: ScAssignment) {
+  override def visitAssignment(stmt: ScAssignment): Unit = {
     stmt.rightExpression match {
       case Some(rv) =>
         rv.accept(this)
@@ -182,7 +182,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitDo(stmt: ScDo) {
+  override def visitDo(stmt: ScDo): Unit = {
     startNode(Some(stmt)) {doStmtInstr =>
       checkPendingEdges(doStmtInstr)
       stmt.body foreach { e =>
@@ -199,7 +199,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitCaseClause(cc: ScCaseClause) {
+  override def visitCaseClause(cc: ScCaseClause): Unit = {
     cc.pattern match {
       case Some(p) => for (b <- p.bindings) {
         val instr = DefinitionInstruction(inc, b, DefinitionType.VAL)
@@ -220,7 +220,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitMatch(ms: ScMatch) {
+  override def visitMatch(ms: ScMatch): Unit = {
     startNode(Some(ms)) {msInstr =>
       checkPendingEdges(msInstr)
       ms.expression match {
@@ -236,7 +236,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitWhile(ws: ScWhile) {
+  override def visitWhile(ws: ScWhile): Unit = {
     startNode(Some(ws)) {instr =>
       checkPendingEdges(instr)
       // for breaks
@@ -252,7 +252,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitMethodCallExpression(call: ScMethodCall) {
+  override def visitMethodCallExpression(call: ScMethodCall): Unit = {
     val matchedParams = call.matchedParameters
     def isByNameOrFunction(arg: ScExpression) = {
       val param = matchedParams.toMap.get(arg)
@@ -275,19 +275,19 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitGenerator(gen: ScGenerator) {
+  override def visitGenerator(gen: ScGenerator): Unit = {
     gen.expr.foreach(_.accept(this))
     gen.pattern.accept(this)
   }
 
-  override def visitGuard(guard: ScGuard) {
+  override def visitGuard(guard: ScGuard): Unit = {
     guard.expr match {
       case Some(e) => e.accept(this)
       case _ =>
     }
   }
 
-  override def visitPattern(pat: ScPattern) {
+  override def visitPattern(pat: ScPattern): Unit = {
     pat match {
       case b: ScBindingPattern =>
         val instr = DefinitionInstruction(inc, b, DefinitionType.VAL)
@@ -297,13 +297,13 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitForBinding(forBinding: ScForBinding) {
+  override def visitForBinding(forBinding: ScForBinding): Unit = {
     forBinding.expr.foreach(_.accept(this))
     val pat = forBinding.pattern
     if (pat != null) pat.accept(this)
   }
 
-  override def visitFor(forStmt: ScFor) {
+  override def visitFor(forStmt: ScFor): Unit = {
     startNode(Some(forStmt)) {instr =>
       checkPendingEdges(instr)
       addPendingEdge(forStmt, myHead)
@@ -321,7 +321,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitIf(stmt: ScIf) {
+  override def visitIf(stmt: ScIf): Unit = {
     startNode(Some(stmt)) {ifStmtInstr =>
       checkPendingEdges(ifStmtInstr)
       stmt.condition match {
@@ -356,7 +356,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitReturn(ret: ScReturn) {
+  override def visitReturn(ret: ScReturn): Unit = {
     val isNodeNeeded = myHead == null || (myHead.element match {
       case Some(e) => e != ret
       case None => false
@@ -376,9 +376,9 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitFunctionExpression(stmt: ScFunctionExpr): Unit = addFreeVariables(stmt)
 
 
-  override def visitTypeDefinition(typedef: ScTypeDefinition) { /* Do not visit inner classes either */ }
+  override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = { /* Do not visit inner classes either */ }
 
-  override def visitBlockExpression(block: ScBlockExpr) {
+  override def visitBlockExpression(block: ScBlockExpr): Unit = {
     if (block.isAnonymousFunction) {
       // Do not visit closures
     } else super.visitBlockExpression(block)
@@ -402,7 +402,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     } else accept()
   }
 
-  override def visitFunction(fun: ScFunction) {
+  override def visitFunction(fun: ScFunction): Unit = {
     val instr = DefinitionInstruction(inc, fun, DefinitionType.DEF)
     checkPendingEdges(instr)
     addNode(instr)
@@ -410,7 +410,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     addFreeVariables(fun)
   }
 
-  private def addFreeVariables(paramOwner: ScalaPsiElement) {
+  private def addFreeVariables(paramOwner: ScalaPsiElement): Unit = {
     val parameters = paramOwner match {
       case owner: ScParameterOwner => owner.parameters
       case ScFunctionExpr(params, _) => params
@@ -418,7 +418,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
     val collectedRefs = ArrayBuffer[ScReferenceExpression]()
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitReferenceExpression(ref: ScReferenceExpression) {
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
         if (ref.qualifier.nonEmpty) return
 
         ref.bind() match {
@@ -440,7 +440,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitThrow(throwStmt: ScThrow) {
+  override def visitThrow(throwStmt: ScThrow): Unit = {
     val isNodeNeeded = myHead == null || (myHead.element match {
       case Some(e) => e != throwStmt
       case None => false
@@ -459,7 +459,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   case class CatchInfo(cc: ScCaseClause) extends HandleInfo(cc)
   case class FinallyInfo(fb: ScFinallyBlock) extends HandleInfo(fb)
 
-  override def visitTry(tryStmt: ScTry) {
+  override def visitTry(tryStmt: ScTry): Unit = {
     val handledExnTypes = tryStmt.catchBlock match {
       case None => Nil
       case Some(cb) => cb.expression match {

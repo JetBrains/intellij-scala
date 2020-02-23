@@ -18,7 +18,7 @@ class BuildFileChangeBrowser(val project: Project, val changes: java.util.List[C
 ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, ChangesBrowser.MyUseCase.LOCAL_CHANGES,
   null) {
 
-  override def afterDiffRefresh() {
+  override def afterDiffRefresh(): Unit = {
     val updatedChanges = new java.util.ArrayList[Change]
     updatedChanges.addAll(
       getSelectedChanges.asScala.map {
@@ -43,7 +43,7 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
     setChangesToDisplay(updatedChanges)
   }
 
-  override protected def showDiffForChanges(changesArray: Array[Change], indexInSelection: Int) {
+  override protected def showDiffForChanges(changesArray: Array[Change], indexInSelection: Int): Unit = {
     val context: ShowDiffContext = new ShowDiffContext()
     val changesArraySwapped: Array[Change] = for (change <- changesArray)
     yield BuildFileChange.swap(change.asInstanceOf[BuildFileChange])

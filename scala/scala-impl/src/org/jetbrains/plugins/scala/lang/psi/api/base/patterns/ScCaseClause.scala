@@ -25,7 +25,7 @@ trait ScCaseClause extends ScalaPsiElement {
     if (result.length != 1) None
     else Some(result(0).getPsi)
   }
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitCaseClause(this)
   }
 }

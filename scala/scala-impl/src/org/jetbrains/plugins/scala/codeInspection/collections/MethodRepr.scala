@@ -73,7 +73,7 @@ object MethodSeq {
   def unapplySeq(expr: ScExpression): Option[Seq[MethodRepr]] = {
     val result = ArrayBuffer[MethodRepr]()
     @tailrec
-    def extractMethods(expr: ScExpression) {
+    def extractMethods(expr: ScExpression): Unit = {
       expr match {
         case MethodRepr(_, optionalBase, optionalMethodRef, args) =>
           result += MethodRepr(expr, optionalBase, optionalMethodRef, args)

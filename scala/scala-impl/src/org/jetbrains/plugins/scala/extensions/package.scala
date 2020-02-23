@@ -258,7 +258,7 @@ package object extensions {
       b
     }
 
-    def foreachWithIndex[B](f: (A, Int) => B) {
+    def foreachWithIndex[B](f: (A, Int) => B): Unit = {
       var i = 0
       for (x <- value) {
         f(x, i)

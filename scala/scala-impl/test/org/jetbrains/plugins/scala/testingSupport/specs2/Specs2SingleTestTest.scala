@@ -33,7 +33,7 @@ abstract class Specs2SingleTestTest extends Specs2TestCase {
     """.stripMargin
   )
 
-  def testSpecification() {
+  def testSpecification(): Unit = {
     runTestByLocation(5, 10, specsTestFileName,
       checkConfigAndSettings(_, specsTestClassName, "run single test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run single test") &&

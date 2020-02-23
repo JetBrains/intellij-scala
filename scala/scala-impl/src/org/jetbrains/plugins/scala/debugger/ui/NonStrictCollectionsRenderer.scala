@@ -32,11 +32,11 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
   override def getName = "Scala streams as collections"
 
-  override def setName(text: String) {/*do nothing*/}
+  override def setName(text: String): Unit = {/*do nothing*/}
 
   override def isEnabled: Boolean = !mustNotExpandStreams
 
-  override def setEnabled(enabled: Boolean) {/*see ScalaDebuggerSettingsConfigurable */}
+  override def setEnabled(enabled: Boolean): Unit = {/*see ScalaDebuggerSettingsConfigurable */}
 
   private def mustNotExpandStreams: Boolean = ScalaDebuggerSettings.getInstance().DO_NOT_DISPLAY_STREAMS
 
@@ -65,7 +65,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
     }
   }
 
-  override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext) {
+  override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext): Unit = {
     def invokeEmptyArgsMethod(obj: ObjectReference, actualRefType: ReferenceType, methodName: String): Value = {
       val suitableMethods = actualRefType methodsByName methodName
       if (suitableMethods.size() == 0) return null
@@ -88,7 +88,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
     val myChildren = new util.ArrayList[DebuggerTreeNode]()
 
-    def returnChildren() {
+    def returnChildren(): Unit = {
       builder.setChildren(myChildren)
     }
     value match {

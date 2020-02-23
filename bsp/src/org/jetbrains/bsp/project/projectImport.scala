@@ -62,7 +62,7 @@ class BspProjectImportBuilder
     Collections.emptyList()
   }
 
-  def linkAndRefreshProject(projectFilePath: String, project: Project) {
+  def linkAndRefreshProject(projectFilePath: String, project: Project): Unit = {
     val localFileSystem = LocalFileSystem.getInstance()
     val projectFile = localFileSystem.refreshAndFindFileByPath(projectFilePath)
     if (projectFile == null) {
@@ -86,7 +86,7 @@ class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
     attachBspProjectAndRefresh(bspProjectSettings, project)
   }
 
-  private def attachBspProjectAndRefresh(settings: BspProjectSettings, project: Project) {
+  private def attachBspProjectAndRefresh(settings: BspProjectSettings, project: Project): Unit = {
     val externalProjectPath = settings.getExternalProjectPath
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
       ExternalSystemUtil.ensureToolWindowInitialized(project, BSP.ProjectSystemId)

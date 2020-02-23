@@ -303,13 +303,13 @@ object ScalaDocumentationProvider {
 
     def length: Int = delegate.length
 
-    def withTag(tag: String)(inner: => Unit) {
+    def withTag(tag: String)(inner: => Unit): Unit = {
       append(s"<$tag>")
       inner
       append(s"</$tag>")
     }
 
-    def withTag(tag: String, params: Seq[(String, String)])(inner: => Unit) {
+    def withTag(tag: String, params: Seq[(String, String)])(inner: => Unit): Unit = {
       append(s"<$tag ")
       for ((name, value) <- params) append(name + "=\"" + value + "\"")
       append(">")
@@ -317,7 +317,7 @@ object ScalaDocumentationProvider {
       append(s"</$tag>")
     }
 
-    def withHtmlMarkup(inner: => Unit) {
+    def withHtmlMarkup(inner: => Unit): Unit = {
       html {
         body {
           inner
@@ -348,7 +348,7 @@ object ScalaDocumentationProvider {
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider")
 
-  private def debugMessage(msg: String, elem: PsiElement) {
+  private def debugMessage(msg: String, elem: PsiElement): Unit = {
     val footer = if (!elem.isValid) {
       s"[Invalid Element: ${elem.getNode} ${elem.getClass.getName}]"
     } else if (elem.getContainingFile == null) {
@@ -404,8 +404,8 @@ object ScalaDocumentationProvider {
       None
     }
 
-    private def fillQueue() {
-      def fillInner(from: Iterable[ScDocCommentOwner]) {
+    private def fillQueue(): Unit = {
+      def fillInner(from: Iterable[ScDocCommentOwner]): Unit = {
         if (from.isEmpty) return
         val tc = mutable.ArrayBuffer.apply[ScDocCommentOwner]()
 
@@ -540,13 +540,13 @@ object ScalaDocumentationProvider {
 
     import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
 
-    def registerInheritedParam(allParams: mutable.HashMap[String, PsiDocTag], param: PsiDocTag) {
+    def registerInheritedParam(allParams: mutable.HashMap[String, PsiDocTag], param: PsiDocTag): Unit = {
       if (!allParams.contains(param.getValueElement.getText)) {
         allParams.put(param.getValueElement.getText, param)
       }
     }
 
-    def processProbablyJavaDocCommentWithOwner(owner: PsiDocCommentOwner) {
+    def processProbablyJavaDocCommentWithOwner(owner: PsiDocCommentOwner): Unit = {
       owner.getDocComment match {
         case scalaComment: ScDocComment =>
           for (docTag <- scalaComment.findTagsByName(Set(PARAM_TAG, TYPE_PARAM_TAG).contains _)) {
@@ -567,7 +567,7 @@ object ScalaDocumentationProvider {
       }
     }
 
-    def processParams(owner: ScParameterOwner) {
+    def processParams(owner: ScParameterOwner): Unit = {
       for (param <- owner.parameters) {
         if (inheritedParams contains param.name) {
           val paramText = inheritedParams(param.name).getText
@@ -578,7 +578,7 @@ object ScalaDocumentationProvider {
       }
     }
 
-    def processTypeParams(owner: ScTypeParametersOwner) {
+    def processTypeParams(owner: ScTypeParametersOwner): Unit = {
       for (tparam <- owner.typeParameters) {
         if (inheritedTParams.contains(tparam.name)) {
           val paramText = inheritedTParams(tparam.name).getText
@@ -868,7 +868,7 @@ object ScalaDocumentationProvider {
     val tagsPart = new StringBuilder("")
     var isFirst = true
 
-    def visitTags(element: ScDocTag) {
+    def visitTags(element: ScDocTag): Unit = {
       element.name match {
         case MyScaladocParsing.TODO_TAG | MyScaladocParsing.NOTE_TAG | MyScaladocParsing.EXAMPLE_TAG | MyScaladocParsing.SEE_TAG =>
           if (isFirst) {
@@ -884,7 +884,7 @@ object ScalaDocumentationProvider {
       }
     }
 
-    def visitElementInner(element: PsiElement, result: StringBuilder = commentBody) {
+    def visitElementInner(element: PsiElement, result: StringBuilder = commentBody): Unit = {
       if (element.getFirstChild == null) {
         element.getNode.getElementType match {
           case ScalaDocTokenType.DOC_TAG_NAME =>
@@ -1014,7 +1014,7 @@ object ScalaDocumentationProvider {
     if (i == -1) trimed else trimed.substring(0, i) + " ..."
   }
 
-  private def appendTypeParams(owner: ScTypeParametersOwner, buffer: StringBuilder) {
+  private def appendTypeParams(owner: ScTypeParametersOwner, buffer: StringBuilder): Unit = {
     buffer.append(owner.typeParametersClause match {
       case Some(x) => x.getText
       case None => ""

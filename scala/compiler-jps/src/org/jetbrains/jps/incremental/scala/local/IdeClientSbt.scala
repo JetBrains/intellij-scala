@@ -27,7 +27,7 @@ class IdeClientSbt(compilerName: String,
                    sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]])
         extends IdeClient(compilerName, context, modules) {
 
-  override def generated(source: File, outputFile: File, name: String) {
+  override def generated(source: File, outputFile: File, name: String): Unit = {
     invalidateBoundForms(source)
     val target = sourceToTarget(source).getOrElse {
       throw new RuntimeException("Unknown source file: " + source)
@@ -48,7 +48,7 @@ class IdeClientSbt(compilerName: String,
     field.get(null).asInstanceOf[Key[util.Map[File, util.Collection[File]]]]
   }
 
-  private def invalidateBoundForms(source: File) {
+  private def invalidateBoundForms(source: File): Unit = {
     FormsToCompileKey.foreach { key =>
       val boundForms: Option[Iterable[File]] = {
         val sourceToForm = context.getProjectDescriptor.dataManager.getSourceToFormMap

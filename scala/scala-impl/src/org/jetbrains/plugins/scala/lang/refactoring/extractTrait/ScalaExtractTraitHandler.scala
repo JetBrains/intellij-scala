@@ -91,7 +91,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     }
   }
 
-  private def invokeOnClass(clazz: ScTemplateDefinition, project: Project, editor: Editor) {
+  private def invokeOnClass(clazz: ScTemplateDefinition, project: Project, editor: Editor): Unit = {
     if (clazz == null) return
 
     Stats.trigger(FeatureKey.extractTrait)
@@ -116,7 +116,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     }(project)
   }
 
-  private def finishExtractTrait(trt: ScTrait, extractInfo: ExtractInfo) {
+  private def finishExtractTrait(trt: ScTrait, extractInfo: ExtractInfo): Unit = {
     val memberInfos = extractInfo.memberInfos
     val clazz = extractInfo.clazz
 
@@ -127,7 +127,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     pullUpProcessor.moveMembersToBase()
   }
 
-  private def addSelfType(trt: ScTrait, selfTypeText: Option[String]) {
+  private def addSelfType(trt: ScTrait, selfTypeText: Option[String]): Unit = {
     import trt.projectContext
 
     selfTypeText match {
@@ -150,7 +150,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     }
   }
 
-  private def addTypeParameters(trt: ScTrait, typeParamsText: String) {
+  private def addTypeParameters(trt: ScTrait, typeParamsText: String): Unit = {
     if (typeParamsText == null || typeParamsText.isEmpty) return
     val clause = createTypeParameterClauseFromTextWithContext(typeParamsText, trt, trt.nameId)
     trt.addAfter(clause, trt.nameId)
@@ -212,14 +212,14 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
       }
     }
 
-    private def addToClassesForSelfType(cl: PsiClass) {
+    private def addToClassesForSelfType(cl: PsiClass): Unit = {
       if (!classesForSelfType.contains(cl) && !classesForSelfType.exists(_.isInheritor(cl, true))) {
         classesForSelfType --= classesForSelfType.filter(cl.isInheritor(_, true))
         classesForSelfType += cl
       }
     }
 
-    private def collectForSelfType(resolve: PsiElement) {
+    private def collectForSelfType(resolve: PsiElement): Unit = {
       resolve match {
         case inSameClassOrAncestor(m, cl: PsiClass) if !selected.contains(m) => addToClassesForSelfType(cl)
         case inSelfType(cl) => addToClassesForSelfType(cl)
@@ -227,7 +227,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
       }
     }
 
-    private def collectConflicts(ref: ScReference, resolve: PsiElement) {
+    private def collectConflicts(ref: ScReference, resolve: PsiElement): Unit = {
       resolve match {
         case named: PsiNamedElement =>
           ScalaPsiUtil.nameContext(named) match {
@@ -247,7 +247,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
       }
     }
 
-    private def collectTypeParameters(resolve: PsiElement) {
+    private def collectTypeParameters(resolve: PsiElement): Unit = {
       val visitor = new ScalaRecursiveElementVisitor {
         override def visitReference(ref: ScReference): Unit = {
           ref.resolve() match {
@@ -265,9 +265,9 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
       }
     }
 
-    def collect() {
+    def collect(): Unit = {
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReference(ref: ScReference) {
+        override def visitReference(ref: ScReference): Unit = {
           val resolve = ref.resolve()
           collectForSelfType(resolve)
           collectConflicts(ref, resolve)

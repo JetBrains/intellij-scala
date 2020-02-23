@@ -126,7 +126,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   override def getMutexes: util.List[util.Set[ArrangementSettingsToken]] =
     List(scalaAccessModifiers.asJava, scalaTypesValues.asJava).asJava
 
-  private def setupUtilityMethods(info: ScalaArrangementParseInfo, orderType: ArrangementSettingsToken) {
+  private def setupUtilityMethods(info: ScalaArrangementParseInfo, orderType: ArrangementSettingsToken): Unit = {
     if (DEPTH_FIRST == orderType) {
       for (root <- info.getMethodDependencyRoots) {
         setupDepthFirstDependency(root)
@@ -173,7 +173,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   private def setupScalaGettersAndSetters(info: ScalaArrangementParseInfo): Unit =
     setupGettersAndSetters(info.scalaProperties)
 
-  private def setupGettersAndSetters(properties: Iterable[ScalaPropertyInfo]) {
+  private def setupGettersAndSetters(properties: Iterable[ScalaPropertyInfo]): Unit = {
     for (propertyInfo <- properties) {
       if (propertyInfo.isComplete && propertyInfo.setter.getDependencies == null) {
         propertyInfo.setter.addDependency(propertyInfo.getter)

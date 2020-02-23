@@ -15,10 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 class ImportsUsagesTest extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath + "resolve/imports/simple/"
 
-  def printResults(imports: Object) {
+  def printResults(imports: Object): Unit = {
   }
 
-  def testStaticJava() {
+  def testStaticJava(): Unit = {
     findReferenceAtCaret() match {
       case r: PsiReference =>
         val resolve = r.resolve
@@ -27,7 +27,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testStaticJavaMethod() {
+  def testStaticJavaMethod(): Unit = {
     findReferenceAtCaret() match {
       case r: PsiReference =>
         val resolve = r.resolve
@@ -36,7 +36,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testSynthticClassesPriority() {
+  def testSynthticClassesPriority(): Unit = {
     findReferenceAtCaret() match {
       case r: PsiReference =>
         val resolve = r.resolve
@@ -45,7 +45,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testPredefPriority() {
+  def testPredefPriority(): Unit = {
     findReferenceAtCaret() match {
       case r: PsiReference =>
         val resolve = r.resolve
@@ -54,7 +54,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testaaa() {
+  def testaaa(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)
@@ -71,7 +71,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
   }
 
 
-  def testSimpleImport() {
+  def testSimpleImport(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)
@@ -89,7 +89,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
   }
 
 
-  def testImportSelector() {
+  def testImportSelector(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)
@@ -106,7 +106,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testShadow1() {
+  def testShadow1(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)
@@ -123,7 +123,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testShadow() {
+  def testShadow(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)
@@ -140,7 +140,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testimplicits() {
+  def testimplicits(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
  */
 
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTupleTypeElement {
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTupleTypeElement(this)
   }
 }

@@ -18,7 +18,7 @@ class ReplaceForallWithExistsTest extends ExistsForallReplaceTest {
   override protected val hint: String =
     InspectionBundle.message("replace.with.exists")
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"""$START!Seq("").forall(!_.isEmpty)$END"""
     checkTextHasError(selected)
     val text = """!Seq("").forall(!_.isEmpty)"""
@@ -26,7 +26,7 @@ class ReplaceForallWithExistsTest extends ExistsForallReplaceTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"""$START!Seq("").forall(!_.isEmpty)$END"""
     checkTextHasError(selected)
     val text = """!Seq("").forall(s => !s.isEmpty)"""
@@ -40,7 +40,7 @@ class ReplaceSmthWithNotContainsTest extends ExistsForallReplaceTest {
   override protected val hint: String =
     InspectionBundle.message("replace.with.forall")
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"""$START!Seq("").exists(!_.isEmpty)$END"""
     checkTextHasError(selected)
     val text = """!Seq("").exists(!_.isEmpty)"""
@@ -48,7 +48,7 @@ class ReplaceSmthWithNotContainsTest extends ExistsForallReplaceTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"""$START!Seq("").exists(!_.isEmpty)$END"""
     checkTextHasError(selected)
     val text = """!Seq("").exists((s: String) => !s.isEmpty)"""

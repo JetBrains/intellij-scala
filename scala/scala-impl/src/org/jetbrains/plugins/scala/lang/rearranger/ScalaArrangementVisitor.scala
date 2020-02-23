@@ -45,22 +45,22 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
   /**
    * Traverses method body to build inter-method dependencies.
    **/
-  override def visitTypeAlias(alias: ScTypeAlias) {
+  override def visitTypeAlias(alias: ScTypeAlias): Unit = {
     processEntry(getEntryForRange(alias.getParent,
       expandTextRangeToComment(alias), getTokenType(alias), alias.getName, canArrange = true), alias, null)
   }
 
-  override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) {
+  override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation): Unit = {
     getEntryForRange(constrInvocation.getParent,
       expandTextRangeToComment(constrInvocation), getTokenType(constrInvocation), null, canArrange = true)
   }
 
-  override def visitFunction(fun: ScFunction) {
+  override def visitFunction(fun: ScFunction): Unit = {
     processEntry(getEntryForRange(fun.getParent,
       expandTextRangeToComment(fun), getTokenType(fun), fun.getName, canArrange = true), fun, null)
   }
 
-  override def visitFunctionDefinition(fun: ScFunctionDefinition) {
+  override def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {
     val entry = getEntryForRange(fun.getParent, expandTextRangeToComment(fun), getTokenType(fun), fun.getName, canArrange = true)
     parseInfo.onMethodEntryCreated(fun, entry)
     fun.body match {
@@ -73,7 +73,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
     parseProperties(fun, entry)
   }
 
-  override def visitMacroDefinition(fun: ScMacroDefinition) {
+  override def visitMacroDefinition(fun: ScMacroDefinition): Unit = {
     val entry = getEntryForRange(fun.getParent, expandTextRangeToComment(fun), getTokenType(fun), fun.getName, canArrange = true)
     parseInfo.onMethodEntryCreated(fun, entry)
     processEntry(entry, fun, null)
@@ -106,7 +106,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
   override def visitValueDeclaration(v: ScValueDeclaration): Unit =
     processEntry(getEntryForRange(v.getParent, expandTextRangeToComment(v), getTokenType(v), v.getName, canArrange = true), v, null)
 
-  override def visitVariableDefinition(varr: ScVariableDefinition) {
+  override def visitVariableDefinition(varr: ScVariableDefinition): Unit = {
     //TODO: insert inter-field dependency here
     processEntry(getEntryForRange(varr.getParent, expandTextRangeToComment(varr), getTokenType(varr), varr.declaredElements.head.getName,
       canArrange = true), varr, varr.expr.orNull)
@@ -116,7 +116,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
     processEntry(getEntryForRange(varr.getParent, expandTextRangeToComment(varr), getTokenType(varr), varr.declaredElements.head.getName, canArrange = true),
       varr, null)
 
-  override def visitTypeDefinition(typedef: ScTypeDefinition) {
+  override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
     processEntry(
       getEntryForRange(typedef.getParent, expandTextRangeToComment(typedef), getTokenType(typedef), typedef.getName, canArrange = true),
       typedef,
@@ -159,7 +159,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
     }
   }
 
-  private def parseModifiers(modifiers: ScModifierList, entry: ScalaArrangementEntry) {
+  private def parseModifiers(modifiers: ScModifierList, entry: ScalaArrangementEntry): Unit = {
     import org.jetbrains.plugins.scala.util.EnumSet._
 
     if (modifiers != null) {
@@ -174,7 +174,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
     }
   }
 
-  private def processEntry(entry: ScalaArrangementEntry, modifiers: ScModifierListOwner, nextPsiRoot: ScalaPsiElement) {
+  private def processEntry(entry: ScalaArrangementEntry, modifiers: ScModifierListOwner, nextPsiRoot: ScalaPsiElement): Unit = {
     if (entry == null) return
     if (modifiers != null) {
       parseModifiers(modifiers.getModifierList, entry)
@@ -195,7 +195,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
     }
   }
 
-  private def traverseTypedefBody(psiRoot: ScTemplateBody, entry: ScalaArrangementEntry) {
+  private def traverseTypedefBody(psiRoot: ScTemplateBody, entry: ScalaArrangementEntry): Unit = {
     genUnseparableRanges(psiRoot, entry)
     val top = arrangementEntries.top
     val queue = unseparableRanges.getOrElse(entry, mutable.Queue[ScalaArrangementEntry]())
@@ -276,7 +276,7 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
 
   private class MethodBodyProcessor(val info: ScalaArrangementParseInfo, val baseMethod: ScFunction) extends ScalaRecursiveElementVisitor {
 
-    override def visitReference(ref: ScReference) {
+    override def visitReference(ref: ScReference): Unit = {
       ref.resolve() match {
         case fun: ScFunction if fun.getContainingClass == baseMethod.getContainingClass =>
           assert(baseMethod != null)
@@ -286,12 +286,12 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
       super.visitReference(ref)
     }
 
-    override def visitReferenceExpression(ref: ScReferenceExpression) {
+    override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
       visitReference(ref)
     }
   }
 
-  private def parseProperties(method: ScFunction, entry: ScalaArrangementEntry) {
+  private def parseProperties(method: ScFunction, entry: ScalaArrangementEntry): Unit = {
     if (!(groupingRules.contains(RearrangerUtils.JAVA_GETTERS_AND_SETTERS) || groupingRules.contains(RearrangerUtils.SCALA_GETTERS_AND_SETTERS)) ||
             entry == null) {
       return

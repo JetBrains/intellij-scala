@@ -36,7 +36,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
-  def testImportFromObject() {
+  def testImportFromObject(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "0")
@@ -77,7 +77,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
-  def testImportFromPackageObject() {
+  def testImportFromPackageObject(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "0")
@@ -160,7 +160,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
-  def testImportVal() {
+  def testImportVal(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "0")
@@ -197,7 +197,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
-  def testImportProjectionType() {
+  def testImportProjectionType(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("charAt(0)", "a")
@@ -246,7 +246,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
-  def testImportJava() {
+  def testImportJava(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("staticField", "0")
@@ -284,7 +284,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
     """.stripMargin.trim)
 
-  def testImportedImplicits() {
+  def testImportedImplicits(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("i1.charAt(3)", "1")

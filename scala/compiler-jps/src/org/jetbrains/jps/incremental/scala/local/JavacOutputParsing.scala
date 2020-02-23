@@ -19,16 +19,16 @@ trait JavacOutputParsing extends Logger {
 
   protected def client: Client
 
-  abstract override def error(msg: Supplier[String]) {
+  abstract override def error(msg: Supplier[String]): Unit = {
     process(msg.get(), Kind.ERROR)
   }
 
-  abstract override def warn(msg: Supplier[String]) {
+  abstract override def warn(msg: Supplier[String]): Unit = {
     process(msg.get(), Kind.PROGRESS)
   }
 
   // Move Javac output parsing to sbt compiler
-  private def process(line: String, kind: Kind) {
+  private def process(line: String, kind: Kind): Unit = {
     line match {
       case HeaderPattern(path, row, modifier, message) =>
         header = Some(Header(new File(path), row.toLong, if (modifier == null) kind else Kind.WARNING))

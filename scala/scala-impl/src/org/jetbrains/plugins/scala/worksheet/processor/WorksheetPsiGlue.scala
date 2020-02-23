@@ -33,7 +33,7 @@ class WorksheetPsiGlue private(val store: mutable.Buffer[QueuedPsi]) {
   private def process(element: ScalaPsiElement): Unit = {
 
     /** @param clazz class or trait */
-    def processInner(clazz: ScTypeDefinition, obj: ScObject, isClassFirst: Boolean) {
+    def processInner(clazz: ScTypeDefinition, obj: ScObject, isClassFirst: Boolean): Unit = {
       val (first, second) = if (isClassFirst) (clazz, obj) else (obj, clazz)
 
       if (clazz.baseCompanionModule.contains(obj)) {

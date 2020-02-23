@@ -93,7 +93,7 @@ final class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
       val completionChar: Char = context.getCompletionChar
 
-      def disableParenthesesCompletionChar() {
+      def disableParenthesesCompletionChar(): Unit = {
         if (completionChar == '(' || completionChar == '{') {
           context.setAddCompletionChar(false)
         }
@@ -144,7 +144,7 @@ final class ScalaInsertHandler extends InsertHandler[LookupElement] {
         endOffset += 5
       }
 
-      def moveCaretIfNeeded() {
+      def moveCaretIfNeeded(): Unit = {
         if (some) {
           model.moveToOffset(endOffset + 1)
         }
@@ -160,8 +160,8 @@ final class ScalaInsertHandler extends InsertHandler[LookupElement] {
        * @param withSomeNum move caret with additional shift on some completion ending
        */
       @tailrec
-      def insertIfNeeded(placeInto: Boolean, openChar: Char, closeChar: Char, withSpace: Boolean, withSomeNum: Boolean) {
-        def shiftEndOffset(shift: Int, withSomeNum: Boolean = withSomeNum) {
+      def insertIfNeeded(placeInto: Boolean, openChar: Char, closeChar: Char, withSpace: Boolean, withSomeNum: Boolean): Unit = {
+        def shiftEndOffset(shift: Int, withSomeNum: Boolean = withSomeNum): Unit = {
           endOffset += shift
           model.moveToOffset(endOffset + (if (withSomeNum) someNum else 0))
         }

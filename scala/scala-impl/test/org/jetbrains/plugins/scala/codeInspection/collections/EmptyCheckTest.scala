@@ -16,7 +16,7 @@ class ReplaceIsEmptyTest extends CheckEmptinessTest {
   override protected val hint: String =
     InspectionBundle.message("replace.with.isEmpty")
 
-  def testNotNonEmpty() {
+  def testNotNonEmpty(): Unit = {
     val selected = s"$START!Seq().nonEmpty$END"
     checkTextHasError(selected)
     val text = "!Seq().nonEmpty"
@@ -24,7 +24,7 @@ class ReplaceIsEmptyTest extends CheckEmptinessTest {
     testQuickFix(text, result, hint)
   }
 
-  def testNotIsDefined() {
+  def testNotIsDefined(): Unit = {
     val selected = s"$START!Option(1).isDefined$END"
     checkTextHasError(selected)
     val text = "!Option(1).isDefined"
@@ -116,7 +116,7 @@ class ReplaceWithNonEmptyTest extends CheckEmptinessTest {
   override protected val hint: String =
     InspectionBundle.message("replace.with.nonEmpty")
 
-  def testNotIsEmpty() {
+  def testNotIsEmpty(): Unit = {
     val selected = s"$START!Seq().isEmpty$END"
     checkTextHasError(selected)
     val text = "!Seq().isEmpty"

@@ -36,7 +36,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
 
   private val currentTypeParameters: mutable.HashMap[Symbol, String] = new mutable.HashMap[Symbol, String]()
 
-  private def addTypeParameter(t: Symbol) {
+  private def addTypeParameter(t: Symbol): Unit = {
     def checkName(name: String): Boolean = {
       currentTypeParameters.forall {
         case (_: Symbol, symbolName: String) => name != symbolName
@@ -46,7 +46,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       currentTypeParameters += ((t, t.name))
     } else {
       @tailrec
-      def writeWithIndex(index: Int) {
+      def writeWithIndex(index: Int): Unit = {
         val nameWithIndex: String = s"${t.name}_$$_$index"
         if (checkName(nameWithIndex)) {
           currentTypeParameters += ((t, nameWithIndex))
@@ -56,7 +56,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     }
   }
 
-  private def removeTypeParameter(t: Symbol) {
+  private def removeTypeParameter(t: Symbol): Unit = {
     currentTypeParameters.remove(t)
   }
 
@@ -67,7 +67,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   case class TypeFlags(printRep: Boolean)
   implicit object _tf extends TypeFlags(false)
 
-  def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
+  def printSymbol(symbol: Symbol): Unit = {printSymbol(0, symbol)}
 
   def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit): Unit = s match {
     case t: SymbolInfoSymbol =>
@@ -78,7 +78,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     case _ =>
   }
 
-  def printSymbol(level: Int, symbol: Symbol) {
+  def printSymbol(level: Int, symbol: Symbol): Unit = {
     def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor
 
     def isClassPrivate: Boolean = symbol match {
@@ -96,7 +96,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case HideInstancePrivate => !isInstancePrivate
     }
 
-    def indent() {for (_ <- 1 to level) print("  ")}
+    def indent(): Unit = {for (_ <- 1 to level) print("  ")}
 
     if (accessibilityOk && !isSynthetic) {
       symbol match {
@@ -151,7 +151,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   }
 
 
-  private def printChildren(level: Int, symbol: Symbol, filterFirstCons: Boolean = false) {
+  private def printChildren(level: Int, symbol: Symbol, filterFirstCons: Boolean = false): Unit = {
     var firstConsFiltered = !filterFirstCons
     for {
       child <- symbol.children
@@ -166,13 +166,13 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     }
   }
 
-  def printWithIndent(level: Int, s: String) {
-    def indent() {for (i <- 1 to level) print("  ")}
+  def printWithIndent(level: Int, s: String): Unit = {
+    def indent(): Unit = {for (i <- 1 to level) print("  ")}
     indent()
     print(s)
   }
 
-  def printModifiers(symbol: Symbol) {
+  def printModifiers(symbol: Symbol): Unit = {
     lazy val privateWithin: Option[String] = {
       symbol match {
         case sym: SymbolInfoSymbol => sym.symbolInfo.privateWithin match {
@@ -216,7 +216,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
 
   private def refinementClass(c: ClassSymbol) = c.name == "<refinement>"
 
-  def printClass(level: Int, c: ClassSymbol) {
+  def printClass(level: Int, c: ClassSymbol): Unit = {
     if (c.name == "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCALCHILD.toString()*/ ) {
       print("\n")
     } else if (c.name == "<refinement>") { //todo: make it better to avoin '\n' char
@@ -274,12 +274,12 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     }
   }
 
-  def printPrimaryConstructor(m: MethodSymbol, c: ClassSymbol) {
+  def printPrimaryConstructor(m: MethodSymbol, c: ClassSymbol): Unit = {
     printModifiers(m)
     printMethodType(m.infoType, printResult = false, methodSymbolAsClassParam(_, c))(())
   }
 
-  def printPackageObject(level: Int, o: ObjectSymbol) {
+  def printPackageObject(level: Int, o: ObjectSymbol): Unit = {
     printModifiers(o)
     print("package ")
     print("object ")
@@ -293,7 +293,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
 
   }
 
-  def printObject(level: Int, o: ObjectSymbol) {
+  def printObject(level: Int, o: ObjectSymbol): Unit = {
     printModifiers(o)
     print("object ")
     print(processName(o.name))
@@ -335,9 +335,9 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   }
 
   def printMethodType(t: Type, printResult: Boolean,
-                      pe: MethodSymbol => String = methodSymbolAsMethodParam)(cont: => Unit) {
+                      pe: MethodSymbol => String = methodSymbolAsMethodParam)(cont: => Unit): Unit = {
 
-    def _pmt(mt: FunctionType) {
+    def _pmt(mt: FunctionType): Unit = {
 
       val paramEntries = mt.paramSymbols.map({
         case ms: MethodSymbol => pe(ms)
@@ -385,7 +385,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     cont
   }
 
-  def printMethod(level: Int, m: MethodSymbol, indent: () => Unit) {
+  def printMethod(level: Int, m: MethodSymbol, indent: () => Unit): Unit = {
     val n = m.name
     if (underObject(m) && n == CONSTRUCTOR_NAME) return
     if (underTrait(m) && n == INIT_NAME) return
@@ -441,7 +441,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     print("\n")
   }
 
-  def printAlias(level: Int, a: AliasSymbol) {
+  def printAlias(level: Int, a: AliasSymbol): Unit = {
     printModifiers(a)
     print("type ")
     print(processName(a.name))
@@ -453,7 +453,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     printChildren(level, a)
   }
 
-  def printTypeSymbol(level: Int, t: TypeSymbol) {
+  def printTypeSymbol(level: Int, t: TypeSymbol): Unit = {
     print("type ")
     print(processName(t.name))
     t.infoType match {

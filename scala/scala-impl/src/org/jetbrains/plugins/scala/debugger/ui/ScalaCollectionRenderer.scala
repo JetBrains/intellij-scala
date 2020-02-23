@@ -200,7 +200,7 @@ object ScalaCollectionRenderer {
     }
 
 
-    override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext) {
+    override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext): Unit = {
       val nodeManager: NodeManager = builder.getNodeManager
       try {
         val parentDescriptor: ValueDescriptor = builder.getParentDescriptor

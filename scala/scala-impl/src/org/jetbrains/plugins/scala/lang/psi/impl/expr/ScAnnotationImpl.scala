@@ -97,7 +97,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
       if (existing == null) {
         return null.asInstanceOf[T]
       }
-      def delete(elem: PsiElement) {
+      def delete(elem: PsiElement): Unit = {
         elem.getParent match {
           case _: ScArgumentExprList =>
             var prev = elem.getPrevSibling
@@ -159,7 +159,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
     findDeclaredAttributeValue(attributeName).asInstanceOf[T]
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitAnnotation(this)
   }
 

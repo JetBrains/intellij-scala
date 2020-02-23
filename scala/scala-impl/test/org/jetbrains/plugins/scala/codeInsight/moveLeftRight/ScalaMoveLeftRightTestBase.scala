@@ -8,17 +8,17 @@ import org.jetbrains.plugins.scala.util.TestUtils
   * @author Nikolay.Tropin
   */
 abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCase {
-  protected def doTestFromLeftToRight(leftMostPosition: String, rightPositions: String*) {
+  protected def doTestFromLeftToRight(leftMostPosition: String, rightPositions: String*): Unit = {
     doTest(moveLeft = true, leftMostPosition)
     doTest(false, leftMostPosition, rightPositions: _*)
   }
 
-  protected def doTestFromRightToLeft(rightMostPosition: String, leftPositions: String*) {
+  protected def doTestFromRightToLeft(rightMostPosition: String, leftPositions: String*): Unit = {
     doTest(false, rightMostPosition)
     doTest(true, rightMostPosition, leftPositions: _*)
   }
 
-  private def doTest(moveLeft: Boolean, before: String, after: String*) {
+  private def doTest(moveLeft: Boolean, before: String, after: String*): Unit = {
     var current: String = before
     for (next <- after) {
       doTestSingle(moveLeft, current, next)
@@ -34,7 +34,7 @@ abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCa
     doTestSingle(!moveLeft, current, before)
   }
 
-  private def doTestSingle(moveLeft: Boolean, before: String, after: String) {
+  private def doTestSingle(moveLeft: Boolean, before: String, after: String): Unit = {
     configureEditor(before)
     val actionId =
       if (moveLeft) IdeActions.MOVE_ELEMENT_LEFT
@@ -43,7 +43,7 @@ abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCa
     checkResultByText(after)
   }
 
-  private def configureEditor(fileText: String) {
+  private def configureEditor(fileText: String): Unit = {
     val fileName = s"${getTestName(false)}.scala"
     configureFromFileText(fileName, fileText)
   }

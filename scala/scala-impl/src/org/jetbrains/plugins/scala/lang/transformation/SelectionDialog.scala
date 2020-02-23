@@ -114,14 +114,14 @@ class SelectionDialog {
 
         override def valueOf(node: Node) = node.value.map(Boolean.box).orNull
 
-        override def setValue(node: Node, value: java.lang.Boolean) {
+        override def setValue(node: Node, value: java.lang.Boolean): Unit = {
           val toggle = node.value.forall(!_)
           node.value = Some(toggle)
         }
       }
 
       val model = new ListTreeTableModel(root, Array(new TreeColumnInfo(ScalaBundle.message("column.transformation")), rightColumn)) {
-        override def setValueAt(aValue: Any, node: Any, column: Int) {
+        override def setValueAt(aValue: Any, node: Any, column: Int): Unit = {
           super.setValueAt(aValue, node, column)
 
           nodeChanged(node.asInstanceOf[TreeNode])
@@ -170,7 +170,7 @@ private case class Group(name: String, nodes: Node*) extends Node(name) {
     else if (nodes.forall(_.value.contains(false))) Some(false)
     else None
 
-  override def value_=(b: Option[Boolean]) {
+  override def value_=(b: Option[Boolean]): Unit = {
     nodes.foreach(_.value = b)
   }
 

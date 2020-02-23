@@ -188,7 +188,7 @@ object MixinNodes {
       fromSuper = true
     }
 
-    override def put(signature: T) {
+    override def put(signature: T): Unit = {
       val name = signature.name
       val buffer =
         if (fromSuper) supersSignaturesByName.computeIfAbsent(name, _ => new SmartList[T])
@@ -423,7 +423,7 @@ object MixinNodes {
         case _ => "Class: " + clazz.qualifiedName
       }
     }
-    def add(tp: ScType) {
+    def add(tp: ScType): Unit = {
       extractClassOrUpperBoundClass(tp) match {
         case Some((clazz, _)) if clazz.qualifiedName != null && !set.contains(classString(clazz)) =>
           tp +=: buffer

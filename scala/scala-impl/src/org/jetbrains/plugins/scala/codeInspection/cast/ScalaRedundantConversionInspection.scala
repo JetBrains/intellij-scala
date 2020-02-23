@@ -26,7 +26,7 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
       process(element, operand, target, operator.getStartOffsetInParent, holder)
   }
 
-  private def process(element: PsiElement, left: ScExpression, target: PsiElement, offset: Int, holder: ProblemsHolder) {
+  private def process(element: PsiElement, left: ScExpression, target: PsiElement, offset: Int, holder: ProblemsHolder): Unit = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(element)
     target match {
       case f: ScSyntheticFunction if f.name.startsWith("to") =>
@@ -46,7 +46,7 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
   }
 
   private def registerProblem(element: PsiElement, left: ScExpression, conversionType: String,
-                      offset: Int, holder: ProblemsHolder) {
+                      offset: Int, holder: ProblemsHolder): Unit = {
     val descriptor = {
       val range = new TextRange(offset, element.getTextLength)
 

@@ -27,7 +27,7 @@ class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
     myFixture.setTestDataPath(getBasePath)
   }
 
-  def doTest() {
+  def doTest(): Unit = {
     val input: java.util.List[String] = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
     myFixture.configureByText(ScalaFileType.INSTANCE, input.get(0))
     val file: ScalaFile = myFixture.getFile.asInstanceOf[ScalaFile]

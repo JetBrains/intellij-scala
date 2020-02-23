@@ -45,7 +45,7 @@ final class SbtProjectService(project: Project) extends Disposable {
   }
 
   object TreeListener extends PsiTreeChangeAdapter {
-    override def childrenChanged(event: PsiTreeChangeEvent) {
+    override def childrenChanged(event: PsiTreeChangeEvent): Unit = {
       event.getFile match {
         case file: SbtFileImpl => analyzer.restart(file)
         case _ =>

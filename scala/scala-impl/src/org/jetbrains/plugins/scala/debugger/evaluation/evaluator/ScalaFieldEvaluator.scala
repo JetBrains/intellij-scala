@@ -133,7 +133,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
           true
         }
 
-        override def setValue(value: Value) {
+        override def setValue(value: Value): Unit = {
           if (myEvaluatedQualifier.isInstanceOf[ReferenceType]) {
             val classType: ClassType = myEvaluatedQualifier.asInstanceOf[ClassType]
             classType.setValue(myEvaluatedField, value)

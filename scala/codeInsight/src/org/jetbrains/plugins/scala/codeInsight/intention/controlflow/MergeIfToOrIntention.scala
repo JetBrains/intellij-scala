@@ -56,7 +56,7 @@ final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     PsiEquivalenceUtil.areElementsEquivalent(thenBranch, innerThenBranch, comparator, false)
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val ifStmt : ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 

@@ -37,7 +37,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
   private val defaultMarker = "//default = "
   private val constructorMarker = "//constructor = "
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     import _root_.junit.framework.Assert._
     implicit val project: Project = getProjectAdapter
     val filePath = folderPath + getTestName(false) + ".scala"

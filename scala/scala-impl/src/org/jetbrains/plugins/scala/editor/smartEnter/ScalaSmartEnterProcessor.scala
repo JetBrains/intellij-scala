@@ -96,7 +96,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     }
   }
 
-  protected override def reformat(caret: PsiElement) {
+  protected override def reformat(caret: PsiElement): Unit = {
     if (caret == null) return
 
     val atCaret = caret
@@ -109,7 +109,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     super.reformat(atCaretAdjusted)
   }
 
-  private def doEnter(caret: PsiElement, editor: Editor) {
+  private def doEnter(caret: PsiElement, editor: Editor): Unit = {
     var atCaret = caret
     val psiFile = atCaret.getContainingFile
     val rangeMarker = createRangeMarker(atCaret)
@@ -178,7 +178,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     }
   }
 
-  protected def moveCaretBy(editor: Editor, by: Int) {
+  protected def moveCaretBy(editor: Editor, by: Int): Unit = {
     editor.getCaretModel.moveToOffset(editor.getCaretModel.getOffset + by)
   }
 

@@ -115,7 +115,7 @@ trait InfixType {
     true
   }
 
-  protected def parseId(builder: ScalaPsiBuilder, elementType: IElementType = ScalaElementType.REFERENCE) {
+  protected def parseId(builder: ScalaPsiBuilder, elementType: IElementType = ScalaElementType.REFERENCE): Unit = {
     val idMarker = builder.mark
     builder.advanceLexer() //Ate id
     idMarker.done(elementType)

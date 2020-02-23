@@ -8,7 +8,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
 
   import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
 
-  def testSCL2424() {
+  def testSCL2424(): Unit = {
     val before =
       """
         |someMethod(new Something, abc, def)
@@ -17,7 +17,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
-  def testSCL2425() {
+  def testSCL2425(): Unit = {
     val before =
       """
         |import foo.{Foo, Bar}
@@ -26,7 +26,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
-  def testSCL2477() {
+  def testSCL2477(): Unit = {
     val before =
       """
         |class Foo {
@@ -75,7 +75,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       |""".stripMargin
   )
 
-  def testSCL1875() {
+  def testSCL1875(): Unit = {
     val before =
       """
         |/**
@@ -95,7 +95,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL2066FromDiscussion() {
+  def testSCL2066FromDiscussion(): Unit = {
     val settings = getCommonSettings
     settings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
     val before =
@@ -123,7 +123,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL2775sTrue() {
+  def testSCL2775sTrue(): Unit = {
     getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
 
     val before =
@@ -142,7 +142,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL2775sFalse() {
+  def testSCL2775sFalse(): Unit = {
     getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = false
     getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = true
 
@@ -170,7 +170,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL2839sTrue() {
+  def testSCL2839sTrue(): Unit = {
     getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = true
     getCommonSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = true
 
@@ -194,7 +194,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL2839sFalse() {
+  def testSCL2839sFalse(): Unit = {
     getCommonSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = false
 
     val before =
@@ -219,7 +219,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL2470() {
+  def testSCL2470(): Unit = {
     getScalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS = true
 
     val before =
@@ -263,7 +263,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL3126AllTrue() {
+  def testSCL3126AllTrue(): Unit = {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = true
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = true
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
@@ -317,7 +317,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL3126InfixFalse() {
+  def testSCL3126InfixFalse(): Unit = {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = true
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
@@ -371,7 +371,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL3126InfixTruePreservevTrue() {
+  def testSCL3126InfixTruePreservevTrue(): Unit = {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = true
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = true
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
@@ -425,7 +425,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL3126InfixTruePreserveFalse() {
+  def testSCL3126InfixTruePreserveFalse(): Unit = {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = true
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = false
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
@@ -479,7 +479,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL3126AllFalse() {
+  def testSCL3126AllFalse(): Unit = {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = false
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
@@ -533,7 +533,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL2474() {
+  def testSCL2474(): Unit = {
     getCommonSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES = true
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
 
@@ -554,7 +554,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testThisExtraSpace() {
+  def testThisExtraSpace(): Unit = {
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
     getCommonSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES = false
 
@@ -607,7 +607,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSpaceInsideClosureBraces() {
+  def testSpaceInsideClosureBraces(): Unit = {
     getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = true
     getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
     getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
@@ -652,7 +652,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testNoSpaceInsideClosure() {
+  def testNoSpaceInsideClosure(): Unit = {
     getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = false
     getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
     getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
@@ -696,7 +696,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL6702() {
+  def testSCL6702(): Unit = {
     getCurrentCodeStyleSettings.FORMATTER_TAGS_ENABLED = true
     val before =
       """
@@ -731,7 +731,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL5488_1() {
+  def testSCL5488_1(): Unit = {
     getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = false
     getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = false
     getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
@@ -759,7 +759,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL5488_2() {
+  def testSCL5488_2(): Unit = {
     getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = true
     getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = false
     getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
@@ -787,7 +787,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL5488_3() {
+  def testSCL5488_3(): Unit = {
     getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = false
     getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = true
     getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
@@ -815,7 +815,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL5488_4() {
+  def testSCL5488_4(): Unit = {
     getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = true
     getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = true
     getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
@@ -843,7 +843,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL9243() {
+  def testSCL9243(): Unit = {
     getScalaSettings.INDENT_BRACED_FUNCTION_ARGS = false
     val before =
       """

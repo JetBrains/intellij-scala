@@ -29,7 +29,7 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
 
   def folderPath: String = baseRootPath + "keywordCompletion/"
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assertNotNull(s"file $filePath not found", file)

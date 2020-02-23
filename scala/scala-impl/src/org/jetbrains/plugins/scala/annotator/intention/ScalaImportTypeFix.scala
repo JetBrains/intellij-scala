@@ -56,7 +56,7 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile] || file.findAnyScalaFile.isDefined
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     CommandProcessor.getInstance().runUndoTransparentAction(() => {
       if (ref.isValid) {
         classes = ScalaImportTypeFix.getTypesToImport(ref)
@@ -104,7 +104,7 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
 
   private def endOffset(editor: Editor) = range(editor).getEndOffset
 
-  private def fixesAction(editor: Editor) {
+  private def fixesAction(editor: Editor): Unit = {
     ApplicationManager.getApplication.invokeLater(() => {
       if (ref.isValid && ref.resolve() == null && !HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint(true)) {
         val action = ScalaAddImportAction(editor, classes, ref)

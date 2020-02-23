@@ -19,7 +19,7 @@ object ScalaInplaceTypeAliasIntroducer {
   def revertState(myEditor: Editor, scopeItem: ScopeItem, namedElement: ScNamedElement): Unit = {
     val myProject = myEditor.getProject
     CommandProcessor.getInstance.executeCommand(myProject, new Runnable {
-      override def run() {
+      override def run(): Unit = {
         val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
         val document = myEditor.getDocument
         if (revertInfo != null) {

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
  * @author Alexander Podkhalyuzin
  */
 class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
-  override def fillActions(element: LookupElement, lookup: Lookup, consumer: Consumer[LookupElementAction]) {
+  override def fillActions(element: LookupElement, lookup: Lookup, consumer: Consumer[LookupElementAction]): Unit = {
     element match {
       case elem: ScalaLookupItem if elem.element.isInstanceOf[PsiClass] =>
       case elem: ScalaLookupItem =>

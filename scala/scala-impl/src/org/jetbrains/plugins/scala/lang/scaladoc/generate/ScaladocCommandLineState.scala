@@ -42,31 +42,31 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
   private var docTitle: String = ""
   private var maxHeapSize: String = ""
 
-  def setAdditionalScaladocFlags(flags: String) {
+  def setAdditionalScaladocFlags(flags: String): Unit = {
     additionalScaladocFlags = flags
   }
 
-  def setScope(scope: AnalysisScope) {
+  def setScope(scope: AnalysisScope): Unit = {
     this.scope = scope
   }
 
-  def setVerbose(flag: Boolean) {
+  def setVerbose(flag: Boolean): Unit = {
     verbose = flag
   }
 
-  def setDocTitle(title: String) {
+  def setDocTitle(title: String): Unit = {
     docTitle = title
   }
 
-  def setMaxHeapSize(size: String) {
+  def setMaxHeapSize(size: String): Unit = {
     maxHeapSize = size
   }
 
-  def setShowInBrowser(b: Boolean) {
+  def setShowInBrowser(b: Boolean): Unit = {
     showInBrowser = b
   }
 
-  def setOutputDir(dir: String) {
+  def setOutputDir(dir: String): Unit = {
     outputDir = dir
   }
 
@@ -75,7 +75,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     val handler: OSProcessHandler = JavaCommandLineStateUtil.startProcess(createCommandLine)
     if (showInBrowser) {
       handler.addProcessListener(new ProcessAdapter {
-        override def processTerminated(event: ProcessEvent) {
+        override def processTerminated(event: ProcessEvent): Unit = {
           val url: File = new File(outputDir, "index.html")
           if (url.exists && event.getExitCode == 0) {
             BrowserUtil.browse(url.getPath)
@@ -183,13 +183,13 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     val allModules = MutableHashSet.apply(modules: _*)
     val modulesNeeded = MutableHashSet.apply[Module]()
 
-    def filterModulesList(files: VirtualFile*) {
+    def filterModulesList(files: VirtualFile*): Unit = {
       modulesNeeded ++= allModules.filter(m => files.exists(f => m.getModuleScope.contains(f)))
       allModules --= modulesNeeded
     }
     
     def collectCPSources(target: OrderEnumerator, classesCollector: collection.mutable.HashSet[String],
-                         sourcesCollector: collection.mutable.HashSet[String]) {
+                         sourcesCollector: collection.mutable.HashSet[String]): Unit = {
       Set(classesCollector -> target.classes(), sourcesCollector -> target.sources()).foreach {
         entry => entry._1 ++= entry._2.withoutSelfModuleOutput().getRoots.map {
           virtualFile => virtualFile.getPath.replaceAll(Pattern.quote(".") + "(\\S{2,6})" + Pattern.quote("!/"), ".$1/")
@@ -197,7 +197,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
       }
     }
 
-    def filterNeededModuleSources() {
+    def filterNeededModuleSources(): Unit = {
       val allEntries = MutableHashSet.apply[String]()
       val allSourceEntries = MutableHashSet.apply[String]()
 

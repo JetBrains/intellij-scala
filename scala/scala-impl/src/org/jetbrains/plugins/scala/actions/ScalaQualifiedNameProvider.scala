@@ -38,7 +38,7 @@ class ScalaQualifiedNameProvider extends QualifiedNameProvider {
     new JavaQualifiedNameProvider().qualifiedNameToElement(fqn, project) // TODO:
   }
 
-  override def insertQualifiedName(fqn: String, element: PsiElement, editor: Editor, project: Project) {
+  override def insertQualifiedName(fqn: String, element: PsiElement, editor: Editor, project: Project): Unit = {
     new JavaQualifiedNameProvider().insertQualifiedName(fqn, element, editor, project) // TODO
   }
 }

@@ -72,11 +72,11 @@ class AmmoniteScriptWrappersHolder(project: Project) {
     })
 
     project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener {
-      override def fileClosed(source: FileEditorManager, file: VirtualFile) {
+      override def fileClosed(source: FileEditorManager, file: VirtualFile): Unit = {
         decrementImpl(file, SET_OPEN_MASK)
       }
 
-      override def fileOpened(source: FileEditorManager, file: VirtualFile) {
+      override def fileOpened(source: FileEditorManager, file: VirtualFile): Unit = {
         getFile(file).foreach(ammoniteFileOpened)
       }
     })
@@ -94,43 +94,43 @@ class AmmoniteScriptWrappersHolder(project: Project) {
     if (!isIgnoreImport) ImportAmmoniteDependenciesFix.suggestAddingAmmonite(file)
   }
   
-  def onAmmoniteRun(vFile: VirtualFile) {
+  def onAmmoniteRun(vFile: VirtualFile): Unit = {
     if (getFile(vFile).isEmpty) return
     val state = disabledFiles get vFile
     if (state != AlwaysDisabled) disabledFiles.remove(vFile)
   }
   
-  private def setFileState(vFile: VirtualFile, state: DisabledState) {
+  private def setFileState(vFile: VirtualFile, state: DisabledState): Unit = {
     disabledFiles.put(vFile, state)
   }
   
-  private def increment(file: ScalaFile, mask: Int) {
+  private def increment(file: ScalaFile, mask: Int): Unit = {
     Option(file.getVirtualFile).foreach(incrementImpl(_, mask))
   }
   
-  private def decrement(file: ScalaFile, mask: Int) {
+  private def decrement(file: ScalaFile, mask: Int): Unit = {
     Option(file.getVirtualFile).foreach(decrementImpl(_, mask))
   }
   
-  private def incrementImpl(vFile: VirtualFile, mask: Int) {
+  private def incrementImpl(vFile: VirtualFile, mask: Int): Unit = {
     problemFiles.merge(vFile, mask, (t: Int, u: Int) => t | u)
     
     tryFetching(vFile)
   }
   
-  private def decrementImpl(vFile: VirtualFile, mask: Int) {
+  private def decrementImpl(vFile: VirtualFile, mask: Int): Unit = {
     problemFiles.computeIfPresent(vFile, removeMask(mask))
     problemFiles.remove(vFile, 0)
   }
   
-  private def tryFetching(file: VirtualFile) {
+  private def tryFetching(file: VirtualFile): Unit = {
     if (!disabledFiles.containsKey(file) && problemFiles.get(file) == READY_MASK) {
       decrementImpl(file, SET_DAEMON_MASK | SET_PROBLEM_MASK)
       showInfo(file)
     }
   }
   
-  private def showInfo(vFile: VirtualFile) {
+  private def showInfo(vFile: VirtualFile): Unit = {
     setFileState(vFile, PerRunDisabled)
     
     NotificationUtil.showMessage (

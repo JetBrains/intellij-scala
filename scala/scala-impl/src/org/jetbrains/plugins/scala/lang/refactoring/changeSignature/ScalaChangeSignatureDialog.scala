@@ -129,17 +129,17 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   protected def createParametersTable(): TableView[ScalaParameterTableModelItem] = {
     new TableView[ScalaParameterTableModelItem](myParametersTableModel) {
-      override def removeEditor() {
+      override def removeEditor(): Unit = {
         clearEditorListeners()
         super.removeEditor()
       }
 
-      override def editingStopped(e: ChangeEvent) {
+      override def editingStopped(e: ChangeEvent): Unit = {
         super.editingStopped(e)
         repaint()
       }
 
-      private def clearEditorListeners() {
+      private def clearEditorListeners(): Unit = {
         val editor: TableCellEditor = getCellEditor
         editor match {
           case ed: StringTableCellEditor =>
@@ -154,7 +154,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
       override def prepareEditor(editor: TableCellEditor, row: Int, column: Int): Component = {
         val listener: DocumentListener = new DocumentListener() {
-          override def documentChanged(e: DocumentEvent) {
+          override def documentChanged(e: DocumentEvent): Unit = {
             val ed: TableCellEditor = parametersTable.getCellEditor
             if (ed != null) {
               val editorValue: AnyRef = ed.getCellEditorValue
@@ -175,7 +175,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
         super.prepareEditor(editor, row, column)
       }
 
-      override def editingCanceled(e: ChangeEvent) {
+      override def editingCanceled(e: ChangeEvent): Unit = {
         super.editingCanceled(e)
       }
     }

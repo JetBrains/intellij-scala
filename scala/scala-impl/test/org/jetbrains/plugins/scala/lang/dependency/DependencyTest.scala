@@ -10,7 +10,7 @@ import org.junit.Assert
  */
 
 class DependencyTest extends base.SimpleTestCase {
-  def testClass() {
+  def testClass(): Unit = {
     assertDependenciesAre("""
     object O {
       class C
@@ -19,7 +19,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.C")
   }
 
-  def testSyntheticClass() {
+  def testSyntheticClass(): Unit = {
     assertDependenciesAre("""
     object O {
       classOf[Int]
@@ -27,7 +27,7 @@ class DependencyTest extends base.SimpleTestCase {
     """)
   }
 
-  def testObject() {
+  def testObject(): Unit = {
     assertDependenciesAre("""
     object O {
       object Foo
@@ -36,7 +36,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.Foo")
   }
 
-  def testQualifier() {
+  def testQualifier(): Unit = {
     assertDependenciesAre("""
     object O {
       object Foo {
@@ -47,7 +47,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.Foo")
   }
 
-  def testPrimaryConstructor() {
+  def testPrimaryConstructor(): Unit = {
     assertDependenciesAre("""
     object O {
       class C
@@ -56,7 +56,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.C")
   }
 
-  def testSecondaryConstructor() {
+  def testSecondaryConstructor(): Unit = {
     assertDependenciesAre("""
     object O {
       class C(i: Int, s: String) {
@@ -69,7 +69,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.C")
   }
 
-  def testCaseClassCopy() {
+  def testCaseClassCopy(): Unit = {
     assertDependenciesAre("""
     object O {
       case class C(v: Any)
@@ -79,7 +79,7 @@ class DependencyTest extends base.SimpleTestCase {
   }
 
 
-  def testSyntheticApply() {
+  def testSyntheticApply(): Unit = {
     assertDependenciesAre("""
     object O {
       case class C()
@@ -88,7 +88,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.C")
   }
 
-  def testSyntheticUnapply() {
+  def testSyntheticUnapply(): Unit = {
     assertDependenciesAre("""
     object O {
       case class C()
@@ -99,7 +99,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.C")
   }
 
-  def testSyntheticInfixUnapply() {
+  def testSyntheticInfixUnapply(): Unit = {
     assertDependenciesAre("""
     object O {
       case class C(a: Any, b: Any)
@@ -110,7 +110,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.C")
   }
 
-  def testSyntheticUnapplySeq() {
+  def testSyntheticUnapplySeq(): Unit = {
     assertDependenciesAre("""
     object O {
       case class C(seq: Any*)
@@ -121,7 +121,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.C")
   }
 
-  def testExplicitApply() {
+  def testExplicitApply(): Unit = {
     assertDependenciesAre("""
     object O {
       object Foo {
@@ -132,7 +132,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.Foo")
   }
 
-  def testExplicitUnapply() {
+  def testExplicitUnapply(): Unit = {
     assertDependenciesAre("""
     object O {
       object Foo {
@@ -145,7 +145,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.Foo")
   }
 
-  def testExplicitInfixUnapply() {
+  def testExplicitInfixUnapply(): Unit = {
     assertDependenciesAre("""
     object O {
       object Foo {
@@ -158,7 +158,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.Foo")
   }
 
-  def testExplicitUnapplySeq() {
+  def testExplicitUnapplySeq(): Unit = {
     assertDependenciesAre("""
     object O {
       object Foo {
@@ -171,7 +171,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.Foo")
   }
 
-  def testFunction() {
+  def testFunction(): Unit = {
     assertDependenciesAre("""
     object O {
       def foo() {}
@@ -180,7 +180,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.foo")
   }
 
-  def testValue() {
+  def testValue(): Unit = {
     assertDependenciesAre("""
     object O {
       val foo = 1
@@ -188,7 +188,7 @@ class DependencyTest extends base.SimpleTestCase {
     }""", "O.foo")
   }
 
-  def testVariable() {
+  def testVariable(): Unit = {
     assertDependenciesAre("""
     object O {
       var foo = 1
@@ -196,7 +196,7 @@ class DependencyTest extends base.SimpleTestCase {
     }""", "O.foo")
   }
 
-  def testNonStaticMembers() {
+  def testNonStaticMembers(): Unit = {
     assertDependenciesAre("""
     object O {
       class A {
@@ -213,7 +213,7 @@ class DependencyTest extends base.SimpleTestCase {
     """, "O.A")
   }
 
-  def testInheritedMemberImport() {
+  def testInheritedMemberImport(): Unit = {
     assertDependenciesAre("""
     object O {
       trait A {
@@ -230,7 +230,7 @@ class DependencyTest extends base.SimpleTestCase {
   // import, T
   // injected
 
-  private def assertDependenciesAre(@Language("Scala") code: String, expected: String*) {
+  private def assertDependenciesAre(@Language("Scala") code: String, expected: String*): Unit = {
     val file = parseText(code)
 
     val descriptors = Dependency.collect(file.getTextRange)(file).map {

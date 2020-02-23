@@ -69,7 +69,7 @@ trait PrecedenceHelper {
 
   protected def isCheckForEqualPrecedence = true
 
-  protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
+  protected def clearLevelQualifiedSet(result: ScalaResolveResult): Unit = {
     levelUniqueNamesSet.clear()
   }
 
@@ -86,7 +86,7 @@ trait PrecedenceHelper {
 
     lazy val levelSet = getLevelSet(result)
 
-    def addResults() {
+    def addResults(): Unit = {
       levelUniqueNamesSet.add(result)
       val iterator = results.iterator
       while (iterator.hasNext) {

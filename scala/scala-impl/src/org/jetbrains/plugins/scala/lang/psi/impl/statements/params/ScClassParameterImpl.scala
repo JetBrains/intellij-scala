@@ -71,7 +71,7 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
     this
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitClassParameter(this)
   }
 

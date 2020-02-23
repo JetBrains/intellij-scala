@@ -136,7 +136,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }
   }
 
-  def setPackageName(base: String, name: String) {
+  def setPackageName(base: String, name: String): Unit = {
     if (packageName == null) return
 
     val vector = toVector(name)
@@ -170,7 +170,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }
   }
 
-  private def preservingClasses(block: => Unit) {
+  private def preservingClasses(block: => Unit): Unit = {
     val data = this.typeDefinitions
 
     block
@@ -179,7 +179,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
       codeStyle.CodeEditUtil.setNodeGenerated(oldClass.getNode, true)
       PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
         new Runnable {
-          override def run() {
+          override def run(): Unit = {
             try {
               DebugUtil.startPsiModification(null)
               aClass.getNode.getTreeParent.replaceChild(aClass.getNode, oldClass.getNode)
@@ -193,7 +193,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }
   }
 
-  private def stripPackagings(document: Document) {
+  private def stripPackagings(document: Document): Unit = {
     this.depthFirst().instanceOf[ScPackaging].foreach { p =>
       val startOffset = p.getTextOffset
       val endOffset = startOffset + p.getTextLength
@@ -378,7 +378,7 @@ object ScalaFileImpl {
 
   private def isDuringMoveRefactoring: Boolean = duringMoveRefactoring
 
-  def performMoveRefactoring(body: => Unit) {
+  def performMoveRefactoring(body: => Unit): Unit = {
     synchronized {
       try {
         duringMoveRefactoring = true

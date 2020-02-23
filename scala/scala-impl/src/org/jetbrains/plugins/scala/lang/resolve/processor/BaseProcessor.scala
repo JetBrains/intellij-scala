@@ -64,7 +64,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   def changedLevel: Boolean = true
 
   protected var accessibility = true
-  def doNotCheckAccessibility() {accessibility = false}
+  def doNotCheckAccessibility(): Unit = {accessibility = false}
 
   override final def execute(element: PsiElement, state: ResolveState): Boolean = element match {
     case namedElement: PsiNamedElement if ResolveUtils.kindMatches(namedElement, kinds) => execute(namedElement)(state)
@@ -93,7 +93,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
 
   //todo: fix this ugly performance improvement
   private var classKind = true
-  def setClassKind(classKind: Boolean) {
+  def setClassKind(classKind: Boolean): Unit = {
     this.classKind = classKind
   }
   def getClassKind: Boolean = {

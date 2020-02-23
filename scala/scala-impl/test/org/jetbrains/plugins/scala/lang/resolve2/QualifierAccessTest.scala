@@ -8,17 +8,17 @@ class QualifierAccessTest extends ResolveTestBase {
     super.folderPath + "qualifier/access/"
   }
 
-  def testClassParameterValue() {doTest()}
-  def testClassParameterVariable() {doTest()}
-  def testPrivateRef() {doTest()}
-  def testPrivateRefCaseClass() {doTest()}
-  def testPrivateThis() {doTest()}
-  def testPrivateThisCaseClass() {doTest()}
-  def testSourcePrivate() {doTest()}
-  def testSourceProtected() {doTest()}
-  def testTargetPrivate() {doTest()}
-  def testTargetProtected() {doTest()}
-  def testQualifiedAccissibility() {doTest()}
-  def testSCL3857() {doTest()}
-  def testSelfQualifier() {doTest()}
+  def testClassParameterValue(): Unit = {doTest()}
+  def testClassParameterVariable(): Unit = {doTest()}
+  def testPrivateRef(): Unit = {doTest()}
+  def testPrivateRefCaseClass(): Unit = {doTest()}
+  def testPrivateThis(): Unit = {doTest()}
+  def testPrivateThisCaseClass(): Unit = {doTest()}
+  def testSourcePrivate(): Unit = {doTest()}
+  def testSourceProtected(): Unit = {doTest()}
+  def testTargetPrivate(): Unit = {doTest()}
+  def testTargetProtected(): Unit = {doTest()}
+  def testQualifiedAccissibility(): Unit = {doTest()}
+  def testSCL3857(): Unit = {doTest()}
+  def testSelfQualifier(): Unit = {doTest()}
 }

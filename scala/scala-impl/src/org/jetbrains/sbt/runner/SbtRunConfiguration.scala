@@ -64,14 +64,14 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new SbtRunConfigurationEditor(project, this)
 
-  override def writeExternal(element: Element) {
+  override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
     workingDir = if (StringUtil.isEmpty(workingDir)) defaultWorkingDirectory else workingDir
     XmlSerializer.serializeInto(this, element)
     EnvironmentVariablesComponent.writeExternal(element, environmentVariables)
   }
 
-  override def readExternal(element: Element) {
+  override def readExternal(element: Element): Unit = {
     super.readExternal(element)
     XmlSerializer.deserializeInto(this, element)
     EnvironmentVariablesComponent.readExternal(element, environmentVariables)

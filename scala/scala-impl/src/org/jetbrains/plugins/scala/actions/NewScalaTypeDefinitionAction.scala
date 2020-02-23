@@ -33,7 +33,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
   ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS,
   JavaModuleSourceRootTypes.SOURCES) with DumbAware {
   override protected def buildDialog(project: Project, directory: PsiDirectory,
-                                     builder: CreateFileFromTemplateDialog.Builder) {
+                                     builder: CreateFileFromTemplateDialog.Builder): Unit = {
     builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
     builder.addKind("Case Class", Icons.CASE_CLASS, ScalaFileTemplateUtil.SCALA_CASE_CLASS)
     builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)

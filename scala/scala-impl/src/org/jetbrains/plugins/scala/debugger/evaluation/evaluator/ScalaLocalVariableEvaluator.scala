@@ -27,11 +27,11 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
   private var myParameterIndex: Int = -1
   private var myMethodName: String = _
 
-  def setParameterIndex(parameterIndex: Int) {
+  def setParameterIndex(parameterIndex: Int): Unit = {
     myParameterIndex = parameterIndex
   }
 
-  def setMethodName(name: String) {
+  def setMethodName(name: String): Unit = {
     myMethodName = name
   }
 
@@ -134,7 +134,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
       modifier = new Modifier {
         override def canInspect: Boolean = true
         override def canSetValue: Boolean = true
-        override def setValue(value: Value) {
+        override def setValue(value: Value): Unit = {
           val frameProxy: StackFrameProxyImpl = myContext.getFrameProxy
           try {
             if (DebuggerUtil.isScalaRuntimeRef(myEvaluatedVariable.getType.name())) {

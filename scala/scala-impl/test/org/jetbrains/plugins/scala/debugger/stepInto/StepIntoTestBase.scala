@@ -41,7 +41,7 @@ class StepIntoTest_since_2_12 extends StepIntoTestBase {
        |}
       """.stripMargin.trim()
   )
-  def testSamAbstractClass() {
+  def testSamAbstractClass(): Unit = {
     runDebugger() {
       waitBreakpointAndStepInto("SamAbstractClass.scala", "SamAbstractClass$$$anonfun$main$1", 4)
     }
@@ -75,7 +75,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
       """.stripMargin.trim()
   )
 
-  def testSimple() {
+  def testSimple(): Unit = {
     addBreakpoint(2, "Simple.scala")
     runDebugger() {
       waitBreakpointAndStepInto("Simple.scala", "foo", 9)
@@ -100,7 +100,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}""".stripMargin.trim()
   )
 
-  def testConstructor() {
+  def testConstructor(): Unit = {
     addBreakpoint(2, "Constructor.scala")
     runDebugger("Constructor") {
       waitBreakpointAndStepInto("ZZZ.scala", "<init>", 1)
@@ -217,7 +217,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}""".stripMargin.trim()
   )
 
-  def testWithDefaultParam() {
+  def testWithDefaultParam(): Unit = {
     runDebugger() {
       waitBreakpointAndStepInto("EEE.scala", "withDefault", 3)
     }
@@ -241,7 +241,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}""".stripMargin.trim()
   )
 
-  def testTraitMethod() {
+  def testTraitMethod(): Unit = {
     runDebugger() {
       waitBreakpointAndStepInto("RRR.scala", "foo", 3)
     }
@@ -269,7 +269,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}""".stripMargin.trim()
   )
 
-  def testUnapplyMethod() {
+  def testUnapplyMethod(): Unit = {
     runDebugger() {
       waitBreakpointAndStepInto("TTT.scala", "unapply", 2)
     }
@@ -295,7 +295,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
       """.stripMargin.trim()
   )
 
-  def testImplicitConversion() {
+  def testImplicitConversion(): Unit = {
     runDebugger() {
       waitBreakpointAndStepInto("ImplicitConversion.scala", "a2B", 7)
     }

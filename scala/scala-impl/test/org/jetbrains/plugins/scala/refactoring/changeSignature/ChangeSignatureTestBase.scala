@@ -51,7 +51,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
                        newName: String,
                        newReturnType: String,
                        newParams: => Seq[Seq[ParameterInfo]],
-                       settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
+                       settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))): Unit = {
     val testName = getTestName(false)
 
     val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()

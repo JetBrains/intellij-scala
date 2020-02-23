@@ -20,7 +20,7 @@ class ScalaUnwrapContext extends AbstractUnwrapper.AbstractContext {
     case _ =>
   }
 
-  def insertNewLine() {
+  def insertNewLine(): Unit = {
     val lastExtracted = myElementsToExtract.get(myElementsToExtract.size() - 1)
     val newLine = createNewLine()(lastExtracted.getManager)
     if (myIsEffective && lastExtracted.isValid) {
@@ -28,7 +28,7 @@ class ScalaUnwrapContext extends AbstractUnwrapper.AbstractContext {
     }
   }
 
-  def setElseBranch(ifStmt: ScIf, expr: ScExpression) {
+  def setElseBranch(ifStmt: ScIf, expr: ScExpression): Unit = {
     if (myIsEffective) {
       ifStmt.elseExpression match {
         case Some(oldExpr) =>

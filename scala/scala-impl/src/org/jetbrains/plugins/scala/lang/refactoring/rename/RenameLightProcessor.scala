@@ -28,7 +28,7 @@ class RenameLightProcessor extends RenamePsiElementProcessor {
   }
 
 
-  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
     val orig = originalElement(element)
     allRenames.put(orig, newName)
     import scala.collection.JavaConverters.asScalaBufferConverter
@@ -62,7 +62,7 @@ class RenameLightProcessor extends RenamePsiElementProcessor {
     case _ => element
   }
 
-  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener): Unit = {
     ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
   }
 }

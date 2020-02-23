@@ -26,7 +26,7 @@ trait ScTypeBoundsOwner extends ScalaPsiElement {
   def viewTypeElement: Seq[ScTypeElement] = Nil
   def contextBoundTypeElement: Seq[ScTypeElement] = Nil
 
-  def removeImplicitBounds() {}
+  def removeImplicitBounds(): Unit = {}
 
   def boundsText: String = {
     def toString(bounds: Traversable[ScTypeElement], elementType: IElementType) = bounds.map {

@@ -6,126 +6,126 @@ package annotator
  * @since  6/27/2014.
  */
 class VarianceTest extends VarianceTestBase {
-  def testVarianceParameter() {
+  def testVarianceParameter(): Unit = {
     assertMatches(messages("trait Agent[+S] { def nextAction(state: S) }")) {
       case Error("state", ContravariantPosition()) :: Nil =>
     }
   }
 
-  def testVarianceReturnType() {
+  def testVarianceReturnType(): Unit = {
     assertMatches(messages("trait C[-S] {def f: S}")) {
       case Error("f", CovariantPosition()) :: Nil =>
     }
   }
 
-  def testVarianceTypeAlias() {
+  def testVarianceTypeAlias(): Unit = {
     assertMatches(messages("trait D[-S] { type al = S; def f: al }")) {
       case Error("f", CovariantPosition()) :: Nil =>
     }
   }
 
-  def testVarianceParameterizedParameter() {
+  def testVarianceParameterizedParameter(): Unit = {
     assertMatches(messages("trait E[-P[+_], +R] {def a(x: P[R])}")) {
       case Error("x", ContravariantPosition()) :: Nil =>
     }
   }
 
-  def testVarianceParameterizedReturnType() {
+  def testVarianceParameterizedReturnType(): Unit = {
     assertMatches(messages("abstract class F[-P[+_], +R](in: P[R]) {def a = in}")) {
       case Error("a", CovariantPosition()) :: Nil =>
     }
   }
 
-  def testVariancePrivateThis() {
+  def testVariancePrivateThis(): Unit = {
     assertMatches(messages("private[this] abstract class G[-P[+_], +R](in: P[R]) {def a = in}")) {
       case Error("a", CovariantPosition()) :: Nil =>
     }
   }
 
-  def testFunctionInsideFunction() {
+  def testFunctionInsideFunction(): Unit = {
     assertMatches(messages("trait H[+S] { def outer = {def inner(s: S) = s }}")) {
       case Nil =>
     }
   }
 
-  def testVariableCovariantParam() {
+  def testVariableCovariantParam(): Unit = {
     assertMatches(messages("trait I[+S] {var k: S}")) {
       case Error("k", ContravariantPosition()) :: Nil =>
     }
   }
-  def testVariableContravariantParam() {
+  def testVariableContravariantParam(): Unit = {
     assertMatches(messages("trait J[-S] {var k: S}")) {
       case Error("k", CovariantPosition()) :: Nil =>
     }
   }
 
-  def testVariableInsideFunction() {
+  def testVariableInsideFunction(): Unit = {
     assertMatches(messages("trait K[-S] {def f(s: S) {var k: S = s}}")) {
       case Nil =>
     }
   }
 
-  def testValueContravariantParam() {
+  def testValueContravariantParam(): Unit = {
     assertMatches(messages("trait L[-S] {val k: S}")) {
       case Error("k", CovariantPosition()) :: Nil =>
     }
   }
 
-  def testValueCovariantParam() {
+  def testValueCovariantParam(): Unit = {
     assertMatches(messages("trait M[+S] {val k: S}")) {
       case Nil =>
     }
   }
 
-  def testAbstractPrivateMethod() { //test SCL-7176
+  def testAbstractPrivateMethod(): Unit = { //test SCL-7176
     assertMatches(messages("private def x")) {
       case Error("x", AbstractModifier()) :: Nil =>
     }
   }
 
-  def testBoundsConformance() {
+  def testBoundsConformance(): Unit = {
     assertMatches(messages("trait T[Q, R <: Q, C >: Q <: R]")) {
       case Error("C >: Q <: R", NotConformsUpper()) :: Nil =>
     }
   }
 
-  def testTypeBoundsNoError() {
+  def testTypeBoundsNoError(): Unit = {
     assertMatches(messages("trait U[M[+X] <: W[X], W[+_]")) {
       case Nil =>
     }
   }
 
-  def testTypeBoundNoErrorParameterized() {
+  def testTypeBoundNoErrorParameterized(): Unit = {
     assertMatches(messages("trait V[M[X <: Bound[X]], Bound[_]]")) {
       case Nil =>
     }
   }
 
-  def testComplexTypeBoundsNoError() {
+  def testComplexTypeBoundsNoError(): Unit = {
     assertMatches(messages("abstract class B[-T, S[Z <: T] >: T, P >: T]")) {
       case Nil =>
     }
   }
 
-  def testSimpleTypeAlias() {
+  def testSimpleTypeAlias(): Unit = {
     assertMatches(messages("trait T[-T] { type S <: T }")) {
       case Error("S", CovariantPosition()) :: Nil =>
     }
   }
 
-  def testBoundDefinedInsideOwner() {
+  def testBoundDefinedInsideOwner(): Unit = {
     assertMatches(messages("trait B[Z[-P, A <: P] <: P]")) {
       case Error("Z", CovariantPosition()) :: Nil =>
     }
   }
 
-  def testBoundDefinedInsideTrait() {
+  def testBoundDefinedInsideTrait(): Unit = {
     assertMatches(messages("trait X[-P, A <: P]")) {
       case Error("A", CovariantPosition()) :: Nil =>
     }
   }
 
-  def testSCL8803() {
+  def testSCL8803(): Unit = {
     assertMatches(messages(
       """object Main extends App {
         |

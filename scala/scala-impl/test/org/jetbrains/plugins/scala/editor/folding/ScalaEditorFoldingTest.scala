@@ -20,7 +20,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private[this] val ST = FOLD_START_MARKER
   private[this] val END = FOLD_END_MARKER
 
-  private def genericCheckRegions(fileText: String) {
+  private def genericCheckRegions(fileText: String): Unit = {
     val myRegions = new ArrayBuffer[TextRange]()
     val myFileText = new StringBuilder(fileText.length)
     val myOpenMarkers = mutable.Stack[Int]()
@@ -30,7 +30,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
     var overallFixOffset = 0
     @inline def increaseOverall(): Unit = overallFixOffset += FOLD_MARKER_LENGTH
-    @inline def appendPair(errorPlaceMsg: String) {
+    @inline def appendPair(errorPlaceMsg: String): Unit = {
       assert(myOpenMarkers.nonEmpty, "Unbalanced fold markers " + errorPlaceMsg)
       val st = myOpenMarkers.pop()
       myRegions += new TextRange(st, i2 - overallFixOffset)
@@ -91,7 +91,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     }
   }
 
-  def testNested() {
+  def testNested(): Unit = {
     val text =
       s""" class A $ST{
         |  1 match $ST{
@@ -117,7 +117,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testMatchBody() {
+  def testMatchBody(): Unit = {
     val text =
       s"""
          | 1 match $ST{
@@ -128,7 +128,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testClassBody() {
+  def testClassBody(): Unit = {
     val text =
       s"""
          | class A $ST{
@@ -139,7 +139,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testMethodBody() {
+  def testMethodBody(): Unit = {
     val text =
       s"""
          | def boo() $ST{
@@ -150,7 +150,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testIfBody() {
+  def testIfBody(): Unit = {
     val text =
       s"""
          | if (true) $ST{
@@ -161,7 +161,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testMatchInner() {
+  def testMatchInner(): Unit = {
     val text =
       s"""
          |1 match $ST{
@@ -174,7 +174,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testLambdaArgs() {
+  def testLambdaArgs(): Unit = {
     val text =
       s"""
          | def foo(i: Int => Int, j: Int) = i(j)
@@ -187,7 +187,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testSelectorImport() {
+  def testSelectorImport(): Unit = {
     val text =
       s"""
          |  import ${ST}scala.collection.mutable.{
@@ -202,7 +202,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testBlockComment() {
+  def testBlockComment(): Unit = {
     val text =
       s"""
          |  $ST/*
@@ -214,7 +214,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testDocComment() {
+  def testDocComment(): Unit = {
     val text =
       s"""
          |  $ST/**
@@ -226,7 +226,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     genericCheckRegions(text)
   }
 
-  def testMlString() {
+  def testMlString(): Unit = {
     val text =
       s"""
          | val tratata =

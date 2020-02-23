@@ -5,7 +5,7 @@ import scala.meta._
 
 class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
 
-  def testValInit() {
+  def testValInit(): Unit = {
     doTest(
       "val x = 2",
       Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, None, Lit.Int(2))
@@ -48,7 +48,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
     )
   }
   
-  def testDefTypeBoundsArg() {
+  def testDefTypeBoundsArg(): Unit = {
     doTest(
       "def x[A <: Any] = 2",
       Defn.Def(Nil, Term.Name("x"),
@@ -57,7 +57,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
     )
   }
   
-  def testDefViewTypeBounds() {
+  def testDefViewTypeBounds(): Unit = {
     doTest(
       "def x[A <% Any] = 2",
       Defn.Def(Nil, Term.Name("x"),
@@ -66,7 +66,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
     )
   }
   
-  def testDefContextBounds() {
+  def testDefContextBounds(): Unit = {
     doTest(
       "def x[A: Any] = 2",
       Defn.Def(Nil, Term.Name("x"),
@@ -75,7 +75,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
     )
   }
   
-  def testDefImplicitParam() {
+  def testDefImplicitParam(): Unit = {
     doTest(
       "def f(a: Int)(implicit b: Int) = b",
       Defn.Def(Nil, Term.Name("f"), Nil,
@@ -84,7 +84,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
     )
   }
   
-  def testDefBrackets() {
+  def testDefBrackets(): Unit = {
     doTest(
       "def proc { return 42 }",
       Defn.Def(Nil, Term.Name("proc"), Nil, Nil, None, Term.Block(Term.Return(Lit.Int(42)) :: Nil))
@@ -111,7 +111,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testManyStatements() {
+  def testManyStatements(): Unit = {
     doTest(
       "def f = {f(); f(); 42}",
       Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Term.Apply(Term.Name("f"), Nil), Term.Apply(Term.Name("f"), Nil), Lit.Int(42))))

@@ -43,7 +43,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
     assertNothing(messagesForGeneric("this(true, true)"))
   }
 
-  def testExcessArguments() {
+  def testExcessArguments(): Unit = {
     assertMatches(messagesForNonGeneric("this(1, 2, 3)")) {
       case Error(", 3", "Too many arguments for constructor(Int, Int)") :: Nil =>
     }
@@ -100,7 +100,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
     )
   }
 
-  def testNamedDuplicates() {
+  def testNamedDuplicates(): Unit = {
     assertMessagesSorted(messagesForNonGeneric("this(a = 0, a = 1)"))(
       Error("a", "Parameter specified multiple times"),
       Error("a", "Parameter specified multiple times")
@@ -109,7 +109,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
 
 
-  def testTypeMismatch() {
+  def testTypeMismatch(): Unit = {
     assertMessagesSorted(messagesForNonGeneric("this(0, false)"))(
       Error("false", "Type mismatch, expected: Int, actual: Boolean")
     )
@@ -133,14 +133,14 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
     )
   }
 
-  def testMissingAndTypeMismatch() {
+  def testMissingAndTypeMismatch(): Unit = {
     assertMessagesSorted(messagesForGeneric("this(true)"))(
       Error("e)", "Unspecified value parameters: d: Boolean"),
       Error("true", "Type mismatch, expected: Int, actual: Boolean")
     )
   }
 
-  def testMalformedSignature() {
+  def testMalformedSignature(): Unit = {
     val code =
       """
         |class A

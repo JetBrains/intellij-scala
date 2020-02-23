@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 
 class ScalaPackageUsagesSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
-  override def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[_ >: PsiReference]) {
+  override def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[_ >: PsiReference]): Unit = {
     val data = inReadAction {
       parameters.getElementToSearch match {
         case pack: PsiPackage =>

@@ -22,7 +22,7 @@ class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor,
     usages.map(_.getTextRange).foreach(myReadUsages.add)
   }
 
-  override def selectTargets(targets: util.List[PsiElement], selectionConsumer: Consumer[util.List[PsiElement]]) {
+  override def selectTargets(targets: util.List[PsiElement], selectionConsumer: Consumer[util.List[PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }
 

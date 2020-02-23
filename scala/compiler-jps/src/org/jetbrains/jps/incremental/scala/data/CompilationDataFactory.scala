@@ -80,7 +80,7 @@ object CompilationDataFactory
   }
 
 
-  private def checkOrCreate(output: File) {
+  private def checkOrCreate(output: File): Unit = {
     if (!output.exists()) {
       try {
         if (!output.mkdirs()) throw new IOException("Cannot create output directory: " + output.toString)

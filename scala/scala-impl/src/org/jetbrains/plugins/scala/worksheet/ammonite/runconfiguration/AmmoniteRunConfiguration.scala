@@ -36,15 +36,15 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
   private var fileName: Option[String] = None
   private var scriptParameters: Option[String] = None
 
-  def setFilePath(path: String) {
+  def setFilePath(path: String): Unit = {
     fileName = Option(path).filter(_ != "")
   }
 
-  def setExecPath(path: String) {
+  def setExecPath(path: String): Unit = {
     execName = Option(path)
   }
 
-  def setScriptParameters(params: String) {
+  def setScriptParameters(params: String): Unit = {
     scriptParameters = Option(params).filter(_ != "")
   }
 
@@ -53,7 +53,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new MyEditor
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
-    def patchSdkVersion(cmd: GeneralCommandLine) {
+    def patchSdkVersion(cmd: GeneralCommandLine): Unit = {
       Option(ProjectRootManager.getInstance(project).getProjectSdk).foreach {
         sdk => cmd.getEnvironment.put("JAVA_HOME", sdk.getHomePath)
       }
@@ -120,10 +120,10 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
     state
   }
 
-  override def writeExternal(element: Element) {
+  override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
 
-    def saveFileElement(name: String, maybeString: Option[String]) {
+    def saveFileElement(name: String, maybeString: Option[String]): Unit = {
       JDOMExternalizer.write(element, name, maybeString.getOrElse(""))
     }
 
@@ -132,7 +132,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
     saveFileElement("scriptParameters", scriptParameters)
   }
 
-  override def readExternal(element: Element) {
+  override def readExternal(element: Element): Unit = {
     super.readExternal(element)
 
     def retrieveFileElement(name: String): Option[String] = {
@@ -179,14 +179,14 @@ object AmmoniteRunConfiguration {
 
     override def createEditor(): JComponent = form.panel
 
-    override def applyEditorTo(s: AmmoniteRunConfiguration) {
+    override def applyEditorTo(s: AmmoniteRunConfiguration): Unit = {
       val (fileName, execName, scriptParameters) = form.get
       s.setFilePath(fileName)
       s.setExecPath(execName)
       s.setScriptParameters(scriptParameters)
     }
 
-    override def resetEditorFrom(s: AmmoniteRunConfiguration) {
+    override def resetEditorFrom(s: AmmoniteRunConfiguration): Unit = {
       form(s.fileName.getOrElse(""), s.execName.getOrElse("amm"), s.scriptParameters.getOrElse(""))
     }
   }
@@ -196,7 +196,7 @@ object AmmoniteRunConfiguration {
 
     def get: (String, String, String) = (fileNameField.getText, execNameField.getText, scriptParameters.getText)
 
-    def apply(fileName: String, execName: String, parametersRaw: String) {
+    def apply(fileName: String, execName: String, parametersRaw: String): Unit = {
       fileNameField.setText(fileName)
       execNameField.setText(execName)
       scriptParameters.setText(parametersRaw)

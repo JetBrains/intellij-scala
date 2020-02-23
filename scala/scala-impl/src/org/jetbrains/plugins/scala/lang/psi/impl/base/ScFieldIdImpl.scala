@@ -42,7 +42,7 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
     case _ => true
   }
 
-  override def delete() {
+  override def delete(): Unit = {
     getContext match {
       case id: ScIdList if id.fieldIds == Seq(this) =>
         id.getContext.delete()

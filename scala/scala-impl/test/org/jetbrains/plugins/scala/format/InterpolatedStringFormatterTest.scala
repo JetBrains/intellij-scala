@@ -11,25 +11,25 @@ import org.junit.Assert._
  */
 
 class InterpolatedStringFormatterTest extends SimpleTestCase {
-  def testEmpty() {
+  def testEmpty(): Unit = {
     assertEquals("", format())
   }
 
-  def testText() {
+  def testText(): Unit = {
     assertEquals("foo", format(Text("foo")))
   }
 
-  def testEscapeChar() {
+  def testEscapeChar(): Unit = {
     val text = Text("\n")
     assertEquals("\\n", format(text))
     assertEquals(quoted("\n", multiline = true), formatFull(text))
   }
 
-  def testSlash() {
+  def testSlash(): Unit = {
     assertEquals("\\\\", format(Text("\\")))
   }
 
-  def testDollar() {
+  def testDollar(): Unit = {
     assertEquals("$$", format(Text("$")))
     assertEquals(quoted("$"), formatFull(Text("$")))
 
@@ -38,72 +38,72 @@ class InterpolatedStringFormatterTest extends SimpleTestCase {
     assertEquals(quoted("$$ $amount", prefix = "s"), formatFull(parts: _*))
   }
 
-  def testPlainExpression() {
+  def testPlainExpression(): Unit = {
     val injection = Injection(exp("foo"), None)
     assertEquals("$foo", format(injection))
     assertEquals(quoted("$foo", prefix = "s"), formatFull(injection))
   }
 
-  def testExpressionWithDispensableFormat() {
+  def testExpressionWithDispensableFormat(): Unit = {
     val injection = Injection(exp("foo"), Some(Specifier(null, "%d")))
     assertEquals(quoted("$foo", prefix = "s"), formatFull(injection))
   }
 
-  def testExpressionWithMadatoryFormat() {
+  def testExpressionWithMadatoryFormat(): Unit = {
     val injection = Injection(exp("foo"), Some(Specifier(null, "%2d")))
     assertEquals(quoted("$foo%2d", prefix = "f"), formatFull(injection))
   }
 
-  def testPlainLiteral() {
+  def testPlainLiteral(): Unit = {
     assertEquals(quoted("123"), formatFull(Injection(exp("123"), None)))
   }
 
-  def testLiteralWithDispensableFormat() {
+  def testLiteralWithDispensableFormat(): Unit = {
     val injection = Injection(exp("123"), Some(Specifier(null, "%d")))
     assertEquals(quoted("123"), formatFull(injection))
   }
 
-  def testLiteralWithMadatoryFormat() {
+  def testLiteralWithMadatoryFormat(): Unit = {
     val injection = Injection(exp("123"), Some(Specifier(null, "%2d")))
     assertEquals(quoted("${123}%2d", prefix = "f"), formatFull(injection))
   }
 
-  def testPlainComplexExpression() {
+  def testPlainComplexExpression(): Unit = {
     val injection = Injection(exp("foo.bar"), None)
     assertEquals(quoted("${foo.bar}", prefix = "s"), formatFull(injection))
   }
 
-  def testComplexExpressionWithDispensableFormat() {
+  def testComplexExpressionWithDispensableFormat(): Unit = {
     val injection = Injection(exp("foo.bar"), Some(Specifier(null, "%d")))
     assertEquals(quoted("${foo.bar}", prefix = "s"), formatFull(injection))
   }
 
-  def testComplexExpressionWithMadatoryFormat() {
+  def testComplexExpressionWithMadatoryFormat(): Unit = {
     val injection = Injection(exp("foo.bar"), Some(Specifier(null, "%2d")))
     assertEquals(quoted("${foo.bar}%2d", prefix = "f"), formatFull(injection))
   }
 
-  def testPlainBlockExpression() {
+  def testPlainBlockExpression(): Unit = {
     val injection = Injection(exp("{foo.bar}"), None)
     assertEquals(quoted("${foo.bar}", prefix = "s"), formatFull(injection))
   }
 
-  def testBlockExpressionWithDispensableFormat() {
+  def testBlockExpressionWithDispensableFormat(): Unit = {
     val injection = Injection(exp("{foo.bar}"), Some(Specifier(null, "%d")))
     assertEquals(quoted("${foo.bar}", prefix = "s"), formatFull(injection))
   }
 
-  def testBlockExpressionWithMadatoryFormat() {
+  def testBlockExpressionWithMadatoryFormat(): Unit = {
     val injection = Injection(exp("{foo.bar}"), Some(Specifier(null, "%2d")))
     assertEquals(quoted("${foo.bar}%2d", prefix = "f"), formatFull(injection))
   }
 
-  def testMixedParts() {
+  def testMixedParts(): Unit = {
     val parts = Seq(Text("foo "), Injection(exp("exp"), None), Text(" bar"))
     assertEquals(quoted("foo $exp bar", prefix = "s"), formatFull(parts: _*))
   }
 
-  def testLiterals() {
+  def testLiterals(): Unit = {
     val stringLiteral = exp(quoted("foo"))
     assertEquals(quoted("foo"), formatFull(Injection(stringLiteral, None)))
 
@@ -114,7 +114,7 @@ class InterpolatedStringFormatterTest extends SimpleTestCase {
     assertEquals(quoted("true"), formatFull(booleanLiteralInjection))
   }
 
-  def testOther() {
+  def testOther(): Unit = {
     assertEquals("", format(UnboundExpression(exp("foo"))))
   }
 

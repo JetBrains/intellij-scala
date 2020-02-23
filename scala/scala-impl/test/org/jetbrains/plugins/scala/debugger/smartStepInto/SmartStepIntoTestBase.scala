@@ -97,7 +97,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin.trim()
   )
-  def testChainedMethodsAndConstructor() {
+  def testChainedMethodsAndConstructor(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       checkSmartStepTargets("new A(int)", "id1()", "id2()", "asString()")

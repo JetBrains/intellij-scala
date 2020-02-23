@@ -18,7 +18,7 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
   override protected val hint: String =
     InspectionBundle.message("sort.filter.hint")
 
-  def testWithoutParams() {
+  def testWithoutParams(): Unit = {
     val selected = s"List(0, 1).${START}sorted.filter(_ => true)$END"
     checkTextHasError(selected)
 
@@ -27,7 +27,7 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testWithParameter() {
+  def testWithParameter(): Unit = {
     val selected = s"List(0, 1).${START}sortWith((x, y) => x < y).filter(_ => true)$END"
     checkTextHasError(selected)
 
@@ -36,7 +36,7 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testWithGenericParameter() {
+  def testWithGenericParameter(): Unit = {
     val selected = s"List(0, 1).${START}sortBy[String](_.toString).filter(_ => true)$END"
     checkTextHasError(selected)
 
@@ -45,7 +45,7 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testInfix() {
+  def testInfix(): Unit = {
     val selected = s"List(0, 1).${START}sortBy[String](_.toString) filter (_ => true)$END"
     checkTextHasError(selected)
 

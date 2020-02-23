@@ -99,7 +99,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoErrors(code)
   }
 
-  def testStableIdPattern() {
+  def testStableIdPattern(): Unit = {
     emptyMessages(
       """
         |val xs = List("")
@@ -223,7 +223,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
   }
 
 
-  def testCannotBeUsed() {
+  def testCannotBeUsed(): Unit = {
     val anyValCode =
       """
         |1 match {
@@ -285,7 +285,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     emptyMessages(code)
   }
 
-  def testUncheckedRefinement() {
+  def testUncheckedRefinement(): Unit = {
     checkWarning("val Some(x: AnyRef{def foo(i: Int): Int}) = Some(new AnyRef())", "AnyRef{def foo(i: Int): Int}",
       ScalaBundle.message("pattern.on.refinement.unchecked"))
   }

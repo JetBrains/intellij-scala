@@ -93,7 +93,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
 
 
-  override def updateUI(p: Any, context: ParameterInfoUIContext) {
+  override def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: PsiElement =>
@@ -302,7 +302,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         val namedPrefix = "["
         val namedPostfix = "]"
 
-        def appendFirst(useGrey: Boolean = false) {
+        def appendFirst(useGrey: Boolean = false): Unit = {
           val getIt = used.indexOf(false)
           used(getIt) = true
           if (namedMode) buffer.append(namedPrefix)
@@ -311,7 +311,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           buffer.append(param._2)
           if (namedMode) buffer.append(namedPostfix)
         }
-        def doNoNamed(expr: ScExpression) {
+        def doNoNamed(expr: ScExpression): Unit = {
           if (namedMode) {
             isGrey = true
             appendFirst()
@@ -496,7 +496,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     args.parent match {
       case call @ (_: MethodInvocation | _: ScReferenceExpression) =>
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
-        def collectResult() {
+        def collectResult(): Unit = {
           val canBeUpdate = call.getParent match {
             case assignStmt: ScAssignment if call == assignStmt.leftExpression => true
             case notExpr if !notExpr.isInstanceOf[ScExpression] || notExpr.isInstanceOf[ScBlockExpr] => true

@@ -93,7 +93,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     identifierPattern.and(new FilterPattern(new AndFilter(new NotFilter(new OrFilter(new LeftNeighbour(new TextContainFilter(".")), new LeftNeighbour(new TextContainFilter(":"))))))),
     new CompletionProvider[CompletionParameters] {
 
-    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
       val position = positionFromParameters(parameters)
 
       Option(PsiTreeUtil.getContextOfType(position, classOf[ScDeclaration])).collect {

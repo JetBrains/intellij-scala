@@ -19,11 +19,11 @@ class ScalaDocParserErrorInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
 
     new ScalaElementVisitor {
-      override def visitDocComment(s: ScDocComment) {
+      override def visitDocComment(s: ScDocComment): Unit = {
         visitScaladocElement(s)
       }
 
-      override def visitScaladocElement(element: ScalaPsiElement) {
+      override def visitScaladocElement(element: ScalaPsiElement): Unit = {
         for (child <- element.getChildren) {
           child match {
             case a: PsiErrorElement => 

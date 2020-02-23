@@ -7,7 +7,7 @@ package refactoring.extractTrait
  */
 class ExtractTraitTestSimple extends ExtractTraitTestBase {
 
-  def testDef() {
+  def testDef(): Unit = {
     val text =
       """
         |trait A {<caret>
@@ -39,7 +39,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     checkResult(text, resultDecl, onlyDeclarations = true)
   }
 
-  def testDef2() {
+  def testDef2(): Unit = {
     val text =
       """
         |trait A {<caret>
@@ -71,7 +71,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     checkResult(text, resultDecl, onlyDeclarations = true)
   }
 
-  def testValAndVar() {
+  def testValAndVar(): Unit = {
     val text =
       """
         |trait A {<caret>
@@ -107,7 +107,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     checkResult(text, resultDecl, onlyDeclarations = true)
   }
 
-  def testDeclarations() {
+  def testDeclarations(): Unit = {
     val text =
       """
         |abstract class A {
@@ -130,7 +130,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     checkResult(text, result, onlyDeclarations = false)
   }
 
-  def testDontExtractConstructor() {
+  def testDontExtractConstructor(): Unit = {
     val text =
       """
         |class A {<caret>
@@ -163,7 +163,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     checkResult(text, result, onlyDeclarations = false)
   }
 
-  def testDontExtractPrivateMethods() {
+  def testDontExtractPrivateMethods(): Unit = {
     val text =
       """
         |class A {<caret>
@@ -190,7 +190,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     checkResult(text, result, onlyDeclarations = false)
   }
 
-  def testDontExtractTypeDefs() {
+  def testDontExtractTypeDefs(): Unit = {
     val text =
       """
         |class A {<caret>
@@ -219,7 +219,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     checkResult(text, result, onlyDeclarations = false)
   }
 
-  def testTypeAlias() {
+  def testTypeAlias(): Unit = {
     val text =
       """
         |trait A {<caret>
@@ -254,7 +254,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     checkResult(text, resultDecl, onlyDeclarations = true)
   }
 
-  def testExtractFromAnonymous() {
+  def testExtractFromAnonymous(): Unit = {
     val text =
       """
         |class A {

@@ -74,7 +74,7 @@ package object intention {
   /**
     * The usages of this method need to be refactored to remove StringBuilder implementation
     */
-  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: StringBuilder) {
+  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: StringBuilder): Unit = {
     if (methodCallArgs.exprs.length == 1) {
       methodCallArgs.exprs.head match {
         case _: ScLiteral | _: ScTuple | _: ScReferenceExpression | _: ScGenericCall | _: ScXmlExpr | _: ScMethodCall =>

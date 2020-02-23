@@ -296,7 +296,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     definition.getPresentation //todo: ?
   }
 
-  override def navigate(requestFocus: Boolean) {
+  override def navigate(requestFocus: Boolean): Unit = {
     definition.navigate(requestFocus)
   }
 

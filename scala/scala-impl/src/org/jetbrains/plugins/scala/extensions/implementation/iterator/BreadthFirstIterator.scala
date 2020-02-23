@@ -22,7 +22,7 @@ class BreadthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean
     element
   }
 
-  def pushChildren(element: PsiElement) {
+  def pushChildren(element: PsiElement): Unit = {
       var child = element.getFirstChild
       while (child != null) {
         queue.enqueue(child)

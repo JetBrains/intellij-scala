@@ -58,7 +58,7 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testEvaluateObjects() {
+  def testEvaluateObjects(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("Simple", "Simple$")
@@ -95,7 +95,7 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testInnerClassObjectFromObject() {
+  def testInnerClassObjectFromObject(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("SS.G", "InnerClassObjectFromObject$S$SS$G")

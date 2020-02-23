@@ -19,7 +19,7 @@ class ScalaDelegateMethodTest extends base.ScalaLightPlatformCodeInsightTestCase
   import ScalaDelegateMethodTestBase._
 
   private def doTest(fileText: String, expectedText: String,
-                     settings: ScalaCodeStyleSettings = defaultSettings(getProjectAdapter)) {
+                     settings: ScalaCodeStyleSettings = defaultSettings(getProjectAdapter)): Unit = {
     implicit val project: Project = getProjectAdapter
     configureFromFileTextAdapter("dummy.scala", fileText)
 

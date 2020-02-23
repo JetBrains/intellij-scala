@@ -80,7 +80,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
     }
 
     val visitor = new ScalaElementVisitor {
-      override def visitExpression(expr: ScExpression) {
+      override def visitExpression(expr: ScExpression): Unit = {
         if (!compiled) {
           ImplicitParametersAnnotator.annotate(expr, typeAware)
           ByNameParameter.annotate(expr, typeAware)
@@ -102,43 +102,43 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         super.visitMacroDefinition(fun)
       }
 
-      override def visitReferenceExpression(ref: ScReferenceExpression) {
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
         visitExpression(ref)
       }
 
-      override def visitGenericCallExpression(call: ScGenericCall) {
+      override def visitGenericCallExpression(call: ScGenericCall): Unit = {
         //todo: if (typeAware) checkGenericCallExpression(call, holder)
         super.visitGenericCallExpression(call)
       }
 
-      override def visitFor(expr: ScFor) {
+      override def visitFor(expr: ScFor): Unit = {
         registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
         super.visitFor(expr)
       }
 
-      override def visitFunctionDefinition(fun: ScFunctionDefinition) {
+      override def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {
         if (!compiled && !fun.isConstructor)
           annotateFunction(fun, typeAware)
         super.visitFunctionDefinition(fun)
       }
 
-      override def visitFunctionDeclaration(fun: ScFunctionDeclaration) {
+      override def visitFunctionDeclaration(fun: ScFunctionDeclaration): Unit = {
         checkAbstractMemberPrivateModifier(fun, Seq(fun.nameId))
         super.visitFunctionDeclaration(fun)
       }
 
-      override def visitFunction(function: ScFunction) {
+      override def visitFunction(function: ScFunction): Unit = {
         if (typeAware && !compiled) checkOverrideMethods(function, isInSources)
 
         if (!function.isConstructor) checkFunctionForVariance(function)
         super.visitFunction(function)
       }
 
-      override def visitTypeProjection(proj: ScTypeProjection) {
+      override def visitTypeProjection(proj: ScTypeProjection): Unit = {
         visitTypeElement(proj)
       }
 
-      override def visitModifierList(modifierList: ScModifierList) {
+      override def visitModifierList(modifierList: ScModifierList): Unit = {
         ModifierChecker.checkModifiers(modifierList)
         super.visitModifierList(modifierList)
       }
@@ -148,14 +148,14 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         super.visitExistentialTypeElement(exist)
       }
 
-      override def visitTypeAlias(alias: ScTypeAlias) {
+      override def visitTypeAlias(alias: ScTypeAlias): Unit = {
         if (typeAware && !compiled) checkOverrideTypeAliases(alias)
 
         if (!compoundType(alias)) checkBoundsVariance(alias, alias.nameId, alias, checkTypeDeclaredSameBracket = false)
         super.visitTypeAlias(alias)
       }
 
-      override def visitVariable(variable: ScVariable) {
+      override def visitVariable(variable: ScVariable): Unit = {
         if (typeAware && !compiled) checkOverrideVariables(variable, isInSources)
 
         variable.typeElement match {
@@ -169,12 +169,12 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         super.visitVariable(variable)
       }
 
-      override def visitValueDeclaration(v: ScValueDeclaration) {
+      override def visitValueDeclaration(v: ScValueDeclaration): Unit = {
         checkAbstractMemberPrivateModifier(v, v.declaredElements.map(_.nameId))
         super.visitValueDeclaration(v)
       }
 
-      override def visitValue(value: ScValue) {
+      override def visitValue(value: ScValue): Unit = {
         if (typeAware && !compiled) checkOverrideValues(value, isInSources)
 
         value.typeElement match {
@@ -187,7 +187,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         super.visitValue(value)
       }
 
-      override def visitClassParameter(parameter: ScClassParameter) {
+      override def visitClassParameter(parameter: ScClassParameter): Unit = {
         if (typeAware && !compiled) checkOverrideClassParameters(parameter)
 
         checkClassParameterVariance(parameter)
@@ -237,7 +237,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       case _ =>
     }
 
-    def checkAndHighlightBounds(boundOption: Option[ScTypeElement], expectedVariance: Variance) {
+    def checkAndHighlightBounds(boundOption: Option[ScTypeElement], expectedVariance: Variance): Unit = {
       boundOption match {
         case Some(bound) if !childHasAnnotation(Some(bound), "uncheckedVariance") =>
           checkVariance(bound.calcType, expectedVariance, toHighlight, checkParentOf, checkTypeDeclaredSameBracket)
@@ -262,7 +262,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   }
 
   private def checkFunctionForVariance(fun: ScFunction)
-                                      (implicit holder: ScalaAnnotationHolder) {
+                                      (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!modifierIsThis(fun) && !compoundType(fun)) { //if modifier contains [this] or if it is a compound type we do not highlight it
       checkBoundsVariance(fun, fun.nameId, fun.getParent)
       if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
@@ -312,7 +312,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
   def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Variance,
                                     declaredElements: Seq[Typeable with ScNamedElement])
-                                   (implicit holder: ScalaAnnotationHolder) {
+                                   (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
         checkTypeVariance(element, variance, element.nameId, toCheck)

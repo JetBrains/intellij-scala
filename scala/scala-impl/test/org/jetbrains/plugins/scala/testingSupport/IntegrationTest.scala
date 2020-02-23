@@ -255,7 +255,7 @@ trait IntegrationTest {
     EdtTestUtil.runInEdtAndWait(() => checkGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine))
   }
 
-  private def checkGoToSourceTest(testRoot: AbstractTestProxy, testNames: Iterable[String], sourceFile: String, sourceLine: Int) {
+  private def checkGoToSourceTest(testRoot: AbstractTestProxy, testNames: Iterable[String], sourceFile: String, sourceLine: Int): Unit = {
     val testPathOpt = getExactNamePathFromResultTree(testRoot, testNames, allowTail = true)
     assertTrue(s"no test path found under ${testRoot.getName} for test names ${testNames.mkString(", ")}", testPathOpt.isDefined)
     val test = testPathOpt.get.last

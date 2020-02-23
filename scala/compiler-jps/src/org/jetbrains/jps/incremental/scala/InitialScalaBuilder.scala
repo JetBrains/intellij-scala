@@ -94,7 +94,7 @@ object InitialScalaBuilder {
       }
     }
 
-    def setPreviousIncrementalType(incrType: IncrementalityType) {
+    def setPreviousIncrementalType(incrType: IncrementalityType): Unit = {
       storageFile.foreach { file =>
         val parentDir = file.getParentFile
         if (!parentDir.exists()) parentDir.mkdirs()
@@ -104,7 +104,7 @@ object InitialScalaBuilder {
       }
     }
 
-    def cleanCaches() {
+    def cleanCaches(): Unit = {
       try {
         val directory = context.getProjectDescriptor.dataManager.getDataPaths.getDataStorageRoot
         FileUtil.delete(directory)

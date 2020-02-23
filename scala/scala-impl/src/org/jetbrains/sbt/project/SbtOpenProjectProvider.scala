@@ -27,7 +27,7 @@ class SbtOpenProjectProvider() extends AbstractOpenProjectProvider {
     attachSbtProjectAndRefresh(sbtProjectSettings, project)
   }
 
-  private def attachSbtProjectAndRefresh(settings: SbtProjectSettings, project: Project) {
+  private def attachSbtProjectAndRefresh(settings: SbtProjectSettings, project: Project): Unit = {
     val externalProjectPath = settings.getExternalProjectPath
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
       ExternalSystemUtil.ensureToolWindowInitialized(project, SbtProjectSystem.Id)

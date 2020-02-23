@@ -22,7 +22,7 @@ import scala.collection.mutable.ListBuffer
 
 final class ScalaReferenceContributor extends PsiReferenceContributor {
 
-  override def registerReferenceProviders(registrar: PsiReferenceRegistrar) {
+  override def registerReferenceProviders(registrar: PsiReferenceRegistrar): Unit = {
 
     def literalCapture: PsiJavaElementPattern.Capture[ScStringLiteral] = psiElement(classOf[ScStringLiteral])
 

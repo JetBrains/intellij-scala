@@ -25,7 +25,7 @@ abstract class JavaToScalaConversionTestBase extends base.ScalaLightPlatformCode
 
   def folderPath: String = baseRootPath + "conversion/"
 
-  protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings = alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
+  protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings = alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))): Unit = {
     import org.junit.Assert._
     val oldSettings: Any = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone
 

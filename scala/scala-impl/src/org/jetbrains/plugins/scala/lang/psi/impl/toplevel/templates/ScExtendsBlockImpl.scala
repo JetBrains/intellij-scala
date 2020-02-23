@@ -74,7 +74,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     val stdTypes = projectContext.stdTypes
     import stdTypes._
 
-    def addType(t: ScType) {
+    def addType(t: ScType): Unit = {
       t match {
         case ScCompoundType(comps, _, _) => comps.foreach(addType)
         case _ => buffer += t

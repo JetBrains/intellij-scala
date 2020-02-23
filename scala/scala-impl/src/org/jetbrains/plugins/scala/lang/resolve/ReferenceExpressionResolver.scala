@@ -253,7 +253,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       treeWalkUp(ref, null)
     }
 
-    def processAssignment(assign: PsiElement, processor: BaseProcessor) {
+    def processAssignment(assign: PsiElement, processor: BaseProcessor): Unit = {
       assign.getContext match {
         //trying to resolve naming parameter
         case args: ScArgumentExprList =>
@@ -278,7 +278,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
 
     def processAnyAssignment(exprs: Seq[ScExpression], call: MethodInvocation, callReference: ScReferenceExpression, invocationCount: Int,
-                             assign: PsiElement, processor: BaseProcessor) {
+                             assign: PsiElement, processor: BaseProcessor): Unit = {
       val refName = ref.refName
 
       def addParamForApplyDynamicNamed(): Unit = {
@@ -336,9 +336,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
     }
 
-    def processConstructorReference(args: ScArgumentExprList, assign: PsiElement, baseProcessor: BaseProcessor) {
+    def processConstructorReference(args: ScArgumentExprList, assign: PsiElement, baseProcessor: BaseProcessor): Unit = {
       def processConstructor(elem: PsiElement, tp: ScType, typeArgs: Seq[ScTypeElement], arguments: Seq[ScArgumentExprList],
-                             secondaryConstructors: (ScClass) => Seq[ScFunction]) {
+                             secondaryConstructors: (ScClass) => Seq[ScFunction]): Unit = {
         tp.extractClassType match {
           case Some((clazz, subst)) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
             if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
@@ -361,7 +361,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                 val exprs = args.exprs
                 var i = 0
 
-                def tail() {
+                def tail(): Unit = {
                   if (methods.nonEmpty) methods.remove(0)
                 }
 
@@ -470,13 +470,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
 
     def funCollectNamedCompletions(clauses: ScParameters, assign: PsiElement, processor: BaseProcessor,
-                                           subst: ScSubstitutor, exprs: Seq[ScExpression], invocationCount: Int) {
+                                           subst: ScSubstitutor, exprs: Seq[ScExpression], invocationCount: Int): Unit = {
       if (clauses.clauses.length >= invocationCount) {
         val actualClause = clauses.clauses(invocationCount - 1)
         val params = new ArrayBuffer[ScParameter] ++ actualClause.parameters
         var i = 0
 
-        def tail() {
+        def tail(): Unit = {
           if (params.nonEmpty) params.remove(0)
         }
 
@@ -575,7 +575,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       } else processor
     }
 
-    def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
+    def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean): Unit = {
       import ImplicitResolveResult._
 
       processor match {

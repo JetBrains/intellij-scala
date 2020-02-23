@@ -46,7 +46,7 @@ object ParserUtils {
   }
 
   @tailrec
-  def parseLoopUntilRBrace(builder: ScalaPsiBuilder, fun: () => Unit, braceReported: Boolean = false) {
+  def parseLoopUntilRBrace(builder: ScalaPsiBuilder, fun: () => Unit, braceReported: Boolean = false): Unit = {
     var br = braceReported
     fun()
     builder.getTokenType match {

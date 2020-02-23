@@ -49,7 +49,7 @@ class LibraryNode(override val data: LibraryData)
     this(new LibraryData(SbtProjectSystem.Id, name, !resolved))
   }
 
-  def addPaths(pathType: LibraryPathType, paths: Seq[String]) {
+  def addPaths(pathType: LibraryPathType, paths: Seq[String]): Unit = {
     paths.foreach(data.addPath(pathType, _))
   }
 
@@ -62,7 +62,7 @@ class ContentRootNode(override val data: ContentRootData)
     this(new ContentRootData(SbtProjectSystem.Id, path))
   }
 
-  def storePaths(sourceType: ExternalSystemSourceType, paths: Seq[String]) {
+  def storePaths(sourceType: ExternalSystemSourceType, paths: Seq[String]): Unit = {
     paths.foreach(data.storePath(sourceType, _))
   }
 
@@ -131,11 +131,11 @@ abstract class Node[T] {
 
   protected def data: T
 
-  def add(node: Node[_]) {
+  def add(node: Node[_]): Unit = {
     children :+= node
   }
 
-  def addAll(nodes: Iterable[Node[_]]) {
+  def addAll(nodes: Iterable[Node[_]]): Unit = {
     children ++= nodes
   }
 

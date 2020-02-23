@@ -19,15 +19,15 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  */
 object SelfType {
 
-  def parse(builder: ScalaPsiBuilder) {
+  def parse(builder: ScalaPsiBuilder): Unit = {
     val selfTypeMarker = builder.mark
     
-    def handleFunArrow() {
+    def handleFunArrow(): Unit = {
       builder.advanceLexer() //Ate '=>'
       selfTypeMarker.done(ScalaElementType.SELF_TYPE)
     }
     
-    def handleColon() {
+    def handleColon(): Unit = {
       builder.advanceLexer() //Ate ':'
       
       if (!parseType(builder)) selfTypeMarker.rollbackTo()
@@ -39,7 +39,7 @@ object SelfType {
         }
     }
     
-    def handleLastPart() {
+    def handleLastPart(): Unit = {
       builder.getTokenType match {
         case ScalaTokenTypes.tCOLON => handleColon()
         case ScalaTokenTypes.tFUNTYPE => handleFunArrow()

@@ -112,7 +112,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     configurationElement
   }
 
-  override def loadState(configurationElement: Element) {
+  override def loadState(configurationElement: Element): Unit = {
     incrementalityType = configurationElement.getChildren("option").asScala
       .find(_.getAttributeValue("name") == "incrementalityType")
       .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))

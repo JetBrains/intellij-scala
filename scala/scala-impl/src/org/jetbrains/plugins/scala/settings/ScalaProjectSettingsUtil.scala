@@ -62,7 +62,7 @@ object ScalaProjectSettingsUtil {
   }
 
   def getPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, inputTitle: String): JPanel = {
-    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer) {
+    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
       if (pattern == null) return
       val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {
         case null => return
@@ -77,7 +77,7 @@ object ScalaProjectSettingsUtil {
     }
 
     ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction(new AnActionButtonRunnable {
-      override def run(button: AnActionButton) {
+      override def run(button: AnActionButton): Unit = {
         val validator: InputValidator = ScalaProjectSettingsUtil.getPatternValidator
         val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
         addPattern(pattern, patternJBList)
@@ -86,7 +86,7 @@ object ScalaProjectSettingsUtil {
   }
 
   def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, inputTitle: String): JPanel = {
-    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer) {
+    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
       if (pattern == null) return
       val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {
         case null => return
@@ -100,13 +100,13 @@ object ScalaProjectSettingsUtil {
     }
 
     ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction(new AnActionButtonRunnable {
-      override def run(button: AnActionButton) {
+      override def run(button: AnActionButton): Unit = {
         val validator: InputValidator = ScalaProjectSettingsUtil.getPackageValidator
         val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
         addPattern(pattern, patternJBList)
       }
     }).addExtraAction(new AnActionButton(ApplicationBundle.message("button.add.blank"), IconUtil.getAddBlankLineIcon) {
-      override def actionPerformed(e: AnActionEvent) {
+      override def actionPerformed(e: AnActionEvent): Unit = {
         addPattern(ScalaCodeStyleSettings.BLANK_LINE, patternJBList)
       }
     }).setRemoveAction(new AnActionButtonRunnable {

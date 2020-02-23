@@ -63,7 +63,7 @@ object ScalaInheritors {
       implicit val project: Project = clazz.getProject
       val resolveScope = clazz.resolveScope
 
-      def processClass(inheritedClazz: PsiClass) {
+      def processClass(inheritedClazz: PsiClass): Unit = {
         val name = inheritedClazz.name
         if (name == null) {
           return

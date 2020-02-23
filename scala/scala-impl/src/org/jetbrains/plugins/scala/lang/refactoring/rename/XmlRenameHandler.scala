@@ -66,7 +66,7 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
     val rangeHighlighters = new util.ArrayList[RangeHighlighter]()
     val matchedRange = element.getMatchedTag.getTagNameElement.getTextRange
 
-    def highlightMatched() {
+    def highlightMatched(): Unit = {
       val colorsManager = EditorColorsManager.getInstance()
       val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES)
 
@@ -79,20 +79,20 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
       }
     }
 
-    def rename() {
+    def rename(): Unit = {
       CommandProcessor.getInstance().executeCommand(project, new Runnable {
-        override def run() {
+        override def run(): Unit = {
           extensions.inWriteAction {
             val offset = editor.getCaretModel.getOffset
             val template = buildTemplate()
             editor.getCaretModel.moveToOffset(element.getParent.getTextOffset)
 
             TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
-              override def templateFinished(template: Template, brokenOff: Boolean) {
+              override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
                 templateCancelled(template)
               }
 
-              override def templateCancelled(template: Template) {
+              override def templateCancelled(template: Template): Unit = {
                 val highlightManager = HighlightManager.getInstance(project)
                 rangeHighlighters.forEach { a => highlightManager.removeSegmentHighlighter(editor, a) }
               }

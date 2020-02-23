@@ -12,7 +12,7 @@ class FindIsDefinedTest extends OperationsOnCollectionInspectionTest {
   override val classOfInspection = classOf[FindEmptyCheckInspection]
   override val hint = InspectionBundle.message("find.isDefined.hint")
 
-  def testFindIsDefined() {
+  def testFindIsDefined(): Unit = {
     val selected = s"""val valueIsGoodEnough: (Any) => Boolean = _ => true
                  |Nil$START.find(valueIsGoodEnough).isDefined$END""".stripMargin
     checkTextHasError(selected)
@@ -23,7 +23,7 @@ class FindIsDefinedTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testInfix() {
+  def testInfix(): Unit = {
     val selected = s"(Nil$START find (_ => true)) isDefined$END"
     checkTextHasError(selected)
     val text = "(Nil find (_ => true)) isDefined"
@@ -31,7 +31,7 @@ class FindIsDefinedTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testNotEqNoneInfix() {
+  def testNotEqNoneInfix(): Unit = {
     val selected = s"(Nil$START find (_ => true)) != None$END"
     checkTextHasError(selected)
     val text = "(Nil find (_ => true)) != None"
@@ -39,7 +39,7 @@ class FindIsDefinedTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testNotEqNone() {
+  def testNotEqNone(): Unit = {
     val selected = s"Nil$START.find(_ => true) != None$END"
     checkTextHasError(selected)
     val text = "Nil.find(_ => true) != None"
@@ -52,7 +52,7 @@ class FindIsEmptyTest extends OperationsOnCollectionInspectionTest {
   override val classOfInspection = classOf[FindEmptyCheckInspection]
   override val hint = InspectionBundle.message("find.isEmpty.hint")
 
-  def testEqNone() {
+  def testEqNone(): Unit = {
     val selected = s"Nil$START.find(_ => true) == None$END"
     checkTextHasError(selected)
     val text = "Nil.find(_ => true) == None"
@@ -60,7 +60,7 @@ class FindIsEmptyTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testIsEmpty() {
+  def testIsEmpty(): Unit = {
     val selected = s"Nil$START.find(_ => true).isEmpty$END"
     checkTextHasError(selected)
     val text = "Nil.find(_ => true).isEmpty"

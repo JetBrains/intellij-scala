@@ -23,7 +23,7 @@ class OverridingAnnotatorTest3 extends ScalaInspectionTestBase {
   override protected val description: String =
     "overriding variable name in class Abs of type String"
 
-  def testScl7536() {
+  def testScl7536(): Unit = {
     checkTextHasError(
       s"""
          |class Abs(var name: String){ }         |

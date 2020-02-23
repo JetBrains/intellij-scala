@@ -27,7 +27,7 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
 
   protected override def sourceRootPath: String = folderPath
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     import _root_.junit.framework.Assert._
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))

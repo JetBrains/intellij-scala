@@ -37,7 +37,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
   import ScalaImportTypeFix._
   import org.junit.Assert._
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")

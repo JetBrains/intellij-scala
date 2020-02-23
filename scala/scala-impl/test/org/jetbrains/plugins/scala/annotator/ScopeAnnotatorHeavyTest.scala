@@ -8,7 +8,7 @@ class ScopeAnnotatorHeavyTest extends ScalaHighlightingTestBase {
                        (implicit holder: ScalaAnnotationHolder): Unit =
     ScopeAnnotator.annotateScope(element)
 
-  def testNoTypeErasureForArray() {
+  def testNoTypeErasureForArray(): Unit = {
     assertMatches(errorsFromScalaCode(
       """
         |class Foo

@@ -188,7 +188,7 @@ abstract class FakePsiParameter(manager: PsiManager, language: Language, name: S
 
   override def computeConstantValue: AnyRef = null
 
-  override def normalizeDeclaration() {}
+  override def normalizeDeclaration(): Unit = {}
 
   override def hasInitializer: Boolean = false
 

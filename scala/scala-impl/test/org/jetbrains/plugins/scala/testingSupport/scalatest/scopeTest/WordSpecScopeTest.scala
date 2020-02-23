@@ -8,7 +8,7 @@ trait WordSpecScopeTest extends WordSpecGenerator {
     assertConfigAndSettings(createTestFromLocation(13, 10, wordSpecFileName), wordSpecClassName)
   }
 
-  def testWordSpecScope() {
+  def testWordSpecScope(): Unit = {
     val testNames = Seq("WordSpecTest should Run single test", "WordSpecTest should ignore other tests")
 
     val path1 = List("[root]", wordSpecClassName, "WordSpecTest", "Run single test")

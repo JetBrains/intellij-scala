@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  */
 class FilterSizeTest extends OperationsOnCollectionInspectionTest {
   override val hint = InspectionBundle.message("filter.size.hint")
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"Array().${START}filter(x => true).size$END"
     checkTextHasError(selected)
     val text = "Array().filter(x => true).size"
@@ -18,7 +18,7 @@ class FilterSizeTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"List().${START}filter(x => true).length$END"
     checkTextHasError(selected)
     val text = "List().filter(x => true).length"
@@ -26,7 +26,7 @@ class FilterSizeTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_3() {
+  def test_3(): Unit = {
     val selected = s"Map() ${START}filter (x => true) size$END"
     checkTextHasError(selected)
     val text = "Map() filter (x => true) size"
@@ -34,7 +34,7 @@ class FilterSizeTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_4() {
+  def test_4(): Unit = {
     val selected = s"List().${START}filter {x => true}.size$END"
     checkTextHasError(selected)
     val text =

@@ -319,7 +319,7 @@ object ScalaPluginUpdater {
           |<a href="Nightly">Nightly</a>, <a href="EAP">EAP</a>, <a href="Release">Release</a>""".stripMargin
 
       val notification = new Notification(updGroupId, title, message, NotificationType.INFORMATION, new NotificationListener {
-        override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
+        override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
           notification.expire()
           applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
           event.getDescription match {

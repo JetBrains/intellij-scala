@@ -123,7 +123,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
       }
 
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitScalaElement(element: ScalaPsiElement) {
+        override def visitScalaElement(element: ScalaPsiElement): Unit = {
           try {
             annotator.annotate(element)(mock)
           } catch {

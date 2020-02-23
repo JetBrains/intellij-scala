@@ -199,7 +199,7 @@ object ShowImplicitArgumentsAction {
       createPopup
 
     new AnAction {
-      override def actionPerformed(e: AnActionEvent) {
+      override def actionPerformed(e: AnActionEvent): Unit = {
         val succeeded: Boolean = navigateSelectedElement(popup, jTree, project)
         if (succeeded) {
           unregisterCustomShortcutSet(panel)

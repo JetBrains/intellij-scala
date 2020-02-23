@@ -8,7 +8,7 @@ trait FeatureSpecFileStructureViewTest extends ScalaTestTestCase {
 
   private val className = "FeatureSpecViewTest"
 
-  private def runTest(status: Int, names: String*) {
+  private def runTest(status: Int, names: String*): Unit = {
     runFileStructureViewTest(className, status, names: _*)
   }
 

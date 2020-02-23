@@ -85,7 +85,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
     }
   }
 
-  private def checkVersion() {
+  private def checkVersion(): Unit = {
     import ScalaPluginVersionVerifier._
 
     ScalaPluginVersionVerifier.getPluginVersion match {
@@ -94,7 +94,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
 
         for (extension <- extensions) {
           var failed = false
-          def wrongVersion() {
+          def wrongVersion(): Unit = {
             failed = true
             extension.getClass.getClassLoader match {
               case pluginLoader: PluginClassLoader =>
@@ -145,7 +145,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
       }
       NotificationGroup.balloonGroup(Scala_Group)
       val notification = new Notification(Scala_Group, "Incompatible plugin detected", message, NotificationType.ERROR, new NotificationListener {
-        override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
+        override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
           notification.expire()
           val description = event.getDescription
           callback(description)

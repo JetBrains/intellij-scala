@@ -35,7 +35,7 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReference, description: String
 
   override def startInWriteAction() = false
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     if (!ref.isValid) return
 

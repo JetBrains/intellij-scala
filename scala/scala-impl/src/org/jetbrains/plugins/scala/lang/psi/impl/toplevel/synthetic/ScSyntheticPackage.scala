@@ -28,10 +28,10 @@ import scala.collection.mutable
 abstract class ScSyntheticPackage(name: String, manager: PsiManager)
   extends LightElement(manager, ScalaLanguage.INSTANCE) with PsiPackage {
 
-  override def handleQualifiedNameChange(newQualifiedName: String) {
+  override def handleQualifiedNameChange(newQualifiedName: String): Unit = {
   }
   override def getDirectories: Array[PsiDirectory] = PsiDirectory.EMPTY_ARRAY
-  override def checkSetName(s: String) {
+  override def checkSetName(s: String): Unit = {
     throw new IncorrectOperationException("cannot set name: nonphysical element")
   }
   override def getText = ""
@@ -148,7 +148,7 @@ object ScSyntheticPackage {
                 val buff = new mutable.HashSet[PsiPackage]
                 filtered.foreach{
                   p =>
-                    def addPackage(tail : String) {
+                    def addPackage(tail : String): Unit = {
                       val p = ScPackageImpl.findPackage(project, fqn + "." + tail)
                       if (p != null) buff += p
                     }

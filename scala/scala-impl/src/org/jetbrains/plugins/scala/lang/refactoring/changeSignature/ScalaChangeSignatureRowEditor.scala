@@ -35,7 +35,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
 
   val myDefaultValueEditor = new EditorTextField(defaultValueDoc, project, fileType)
 
-  override def prepareEditor(table: JTable, row: Int) {
+  override def prepareEditor(table: JTable, row: Int): Unit = {
     setLayout(new BorderLayout)
     addNameEditor()
     addTypeEditor()
@@ -49,14 +49,14 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
     }
   }
 
-  def addNameEditor() {
+  def addNameEditor(): Unit = {
     myNameEditor.addDocumentListener(signatureUpdater)
     myNameEditor.setPreferredWidth(table.getWidth / 3)
     myNameEditor.addDocumentListener(new this.RowEditorChangeListener(0))
     add(createLabeledPanel(ScalaBundle.message("parameter.label.name"), myNameEditor), BorderLayout.WEST)
   }
 
-  def addTypeEditor() {
+  def addTypeEditor(): Unit = {
     myTypeEditor.addDocumentListener(signatureUpdater)
     myTypeEditor.addDocumentListener(new DocumentListener {
       override def documentChanged(e: DocumentEvent): Unit = {
@@ -77,7 +77,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
 
   def getNamesColumnWidth: Int = getColumnWidth(dialog.getNamesMaxLength + 2)
 
-  def addDefaultValueEditor(additionalPanel: JPanel) {
+  def addDefaultValueEditor(additionalPanel: JPanel): Unit = {
     myDefaultValueEditor.setPreferredWidth(table.getWidth / 2)
     myDefaultValueEditor.addDocumentListener(new this.RowEditorChangeListener(2))
     myDefaultValueEditor.addDocumentListener(new DocumentListener {

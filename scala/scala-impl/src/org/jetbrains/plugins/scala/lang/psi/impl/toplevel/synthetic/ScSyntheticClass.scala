@@ -37,7 +37,7 @@ abstract class SyntheticNamedElement(name: String)
   override def getText = ""
   override def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
   override def copy = throw new IncorrectOperationException("nonphysical element")
-  override def accept(v: PsiElementVisitor) {
+  override def accept(v: PsiElementVisitor): Unit = {
     throw new IncorrectOperationException("should not call")
   }
   override def getContainingFile = SyntheticClasses.get(projectContext).file
@@ -226,7 +226,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder {
   val syntheticObjects: mutable.Map[String, ScObject] = new mutable.HashMap[String, ScObject]
   var file : PsiFile = _
 
-  def registerClasses() {
+  def registerClasses(): Unit = {
     val stdTypes = ctx.stdTypes
     import stdTypes._
     val typeParameters = SyntheticClasses.TypeParameter :: Nil
@@ -305,7 +305,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder {
     stringPlusMethod = new ScSyntheticFunction("+", _, Seq(Seq(Any)))
 
     //register synthetic objects
-    def registerObject(fileText: String) {
+    def registerObject(fileText: String): Unit = {
       val dummyFile = PsiFileFactory.getInstance(project).
         createFileFromText("dummy." + ScalaFileType.INSTANCE.getDefaultExtension,
           ScalaFileType.INSTANCE, fileText).asInstanceOf[ScalaFile]

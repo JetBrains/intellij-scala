@@ -44,7 +44,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
       reference.get
   }
 
-  override def deleteExpr() {
+  override def deleteExpr(): Unit = {
     val parent = getParent.asInstanceOf[ScImportStmt]
     if (parent.importExprs.size == 1) {
       parent.getParent match {
@@ -56,7 +56,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
       val remove = node.removeChild _
       val next = getNextSibling
       if (next != null) {
-        def removeWhitespaceAfterComma(comma: ASTNode) {
+        def removeWhitespaceAfterComma(comma: ASTNode): Unit = {
           if (comma.getTreeNext != null && !comma.getTreeNext.getText.contains("\n") &&
             comma.getTreeNext.getText.trim.isEmpty) {
             remove(comma.getTreeNext)

@@ -22,9 +22,9 @@ import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 class RuntimeRefRenderer extends NodeRendererImpl {
 
   override def getName = "Scala runtime references renderer"
-  override def setName(name: String) { }
+  override def setName(name: String): Unit = { }
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS
-  override def setEnabled(enabled: Boolean) {/*see ScalaDebuggerSettingsConfigurable */}
+  override def setEnabled(enabled: Boolean): Unit = {/*see ScalaDebuggerSettingsConfigurable */}
   override def getUniqueId: String = "ScalaRuntimeRefRenderer"
 
   override def isApplicable(t: Type): Boolean = {
@@ -96,12 +96,12 @@ class RuntimeRefRenderer extends NodeRendererImpl {
 
   private def calcToStringLabel(valueDescriptor: ValueDescriptor, value: Value, evaluationContext: EvaluationContext, labelListener: DescriptorLabelListener): String = {
     BatchEvaluator.getBatchEvaluator(evaluationContext.getDebugProcess).invoke(new ToStringCommand(evaluationContext, value) {
-      override def evaluationResult(message: String) {
+      override def evaluationResult(message: String): Unit = {
         valueDescriptor.setValueLabel(StringUtil.notNullize(message))
         labelListener.labelChanged()
       }
 
-      override def evaluationError(message: String) {
+      override def evaluationError(message: String): Unit = {
         val msg: String =
           if (value != null) message + " " + DebuggerBundle.message("evaluation.error.cannot.evaluate.tostring", value.`type`.name)
           else message

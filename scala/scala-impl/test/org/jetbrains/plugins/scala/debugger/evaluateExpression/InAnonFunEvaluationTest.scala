@@ -46,7 +46,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
-  def testFunctionValue() {
+  def testFunctionValue(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
@@ -75,7 +75,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
-  def testPartialFunction() {
+  def testPartialFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
@@ -106,7 +106,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
-  def testFunctionExpr() {
+  def testFunctionExpr(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
@@ -135,7 +135,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
-  def testForStmt() {
+  def testForStmt(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("s", "a")

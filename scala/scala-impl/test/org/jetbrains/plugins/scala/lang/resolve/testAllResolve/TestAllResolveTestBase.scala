@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 abstract class TestAllResolveTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   def folderPath: String = baseRootPath + "resolve/testAllResolve/"
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     import _root_.junit.framework.Assert._
 
     val filePath = folderPath + getTestName(false) + ".scala"
@@ -27,7 +27,7 @@ abstract class TestAllResolveTestBase extends ScalaLightPlatformCodeInsightTestC
     configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     scalaFile.accept(new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReference) {
+      override def visitReference(ref: ScReference): Unit = {
         val resolve = ref.resolve()
         assertNotNull("Failed on reference: " + ref.getText + ". Reference Range: (" +
                 ref.getTextRange.getStartOffset + ", " + ref.getTextRange.getEndOffset + ")",

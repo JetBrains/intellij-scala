@@ -91,7 +91,7 @@ object StableId {
     parseEndIdentifier(builder, nm, element, forImport)
   }
 
-  def parseClassQualifier(builder: ScalaPsiBuilder) {
+  def parseClassQualifier(builder: ScalaPsiBuilder): Unit = {
     if (builder.getTokenType != tLSQBRACKET) return
     builder.advanceLexer()
     builder.disableNewlines

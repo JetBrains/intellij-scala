@@ -17,7 +17,7 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
   override protected val handler: LanguageCodeInsightActionHandler =
     new ScalaGeneratePropertyAction.Handler
 
-  def testSimple() {
+  def testSimple(): Unit = {
     val text = s"""class A {
                  |  ${CARET_MARKER}var a: Int = 0
                  |}"""
@@ -34,7 +34,7 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
     performTest(text, result, checkAvailability = true)
   }
 
-  def testWithoutType() {
+  def testWithoutType(): Unit = {
     val text = s"""object A {
                  |  ${CARET_MARKER}var a = 0
                  |}"""

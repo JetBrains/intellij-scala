@@ -99,7 +99,7 @@ trait ScAssignment extends ScExpression {
     false
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitAssignment(this)
   }
 }

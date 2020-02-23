@@ -32,7 +32,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
     val currentModCount = position.getManager.getModificationTracker.getModificationCount
     if (buffer == null || tuple._2 != currentModCount) {
       @tailrec
-      def treeWalkup(place: PsiElement, lastParent: PsiElement) {
+      def treeWalkup(place: PsiElement, lastParent: PsiElement): Unit = {
         if (place == null) return
         place match {
           case holder: ScImportsHolder =>

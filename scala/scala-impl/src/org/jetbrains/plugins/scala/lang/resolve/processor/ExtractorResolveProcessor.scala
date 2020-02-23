@@ -30,7 +30,7 @@ class ExtractorResolveProcessor(ref: ScReference,
       val accessible = isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
 
-      def resultsForTypedDef(obj: ScTypedDefinition) {
+      def resultsForTypedDef(obj: ScTypedDefinition): Unit = {
         def resultsFor(unapplyName: String) = {
           val typeResult = state.fromType match {
             case Some(tp) => Right(ScProjectionType(tp, obj))

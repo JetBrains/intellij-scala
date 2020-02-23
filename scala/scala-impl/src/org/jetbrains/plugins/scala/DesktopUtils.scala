@@ -23,11 +23,11 @@ object DesktopUtils {
   </html>
   """
 
-  def browse(url: URL) {
+  def browse(url: URL): Unit = {
     browse(url.toExternalForm)
   }
 
-  def browse(url: String) {
+  def browse(url: String): Unit = {
     val supported = Desktop.isDesktopSupported && Desktop.getDesktop.isSupported(Desktop.Action.BROWSE)
 
     if(supported)
@@ -38,7 +38,7 @@ object DesktopUtils {
   }
 
    private object Listener extends NotificationListener.Adapter {
-    override def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
+    override def hyperlinkActivated(notification: Notification, event: HyperlinkEvent): Unit = {
       Option(event.getURL).foreach { url =>
          val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
          clipboard.setContents(new StringSelection(url.toExternalForm), null)
@@ -47,7 +47,7 @@ object DesktopUtils {
   }
 
   object LinkHandler extends NotificationListener.Adapter {
-    override def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
+    override def hyperlinkActivated(notification: Notification, e: HyperlinkEvent): Unit = {
       Option(e.getURL).foreach(browse)
     }
   }

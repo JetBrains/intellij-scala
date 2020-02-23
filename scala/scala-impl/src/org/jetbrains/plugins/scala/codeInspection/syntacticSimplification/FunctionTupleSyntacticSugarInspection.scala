@@ -31,7 +31,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
     import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection._
 
     new ScalaElementVisitor {
-      override def visitScalaElement(elem: ScalaPsiElement) {
+      override def visitScalaElement(elem: ScalaPsiElement): Unit = {
         elem match {
           case te: ScParameterizedTypeElement =>
             te.typeElement match {

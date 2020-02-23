@@ -37,7 +37,7 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
 
   implicit def projectContext: Project = getProjectAdapter
 
-  protected def doTest(scType: ScType = Int) {
+  protected def doTest(scType: ScType = Int): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")

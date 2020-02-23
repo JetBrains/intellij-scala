@@ -63,7 +63,7 @@ final class SbtSettings(project: Project)
     customSbtStructurePath = state.customSbtStructurePath
   }
 
-  override def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {
+  override def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]): Unit = {
     val adapter = new SbtProjectSettingsListenerAdapter(listener)
     getProject.getMessageBus.connect(getProject).subscribe(SbtTopic, adapter)
   }

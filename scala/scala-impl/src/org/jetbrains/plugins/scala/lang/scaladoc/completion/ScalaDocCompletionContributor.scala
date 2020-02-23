@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 class ScalaDocCompletionContributor extends ScalaCompletionContributor {
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaDocTokenType.DOC_TAG_NAME), new CompletionProvider[CompletionParameters]() {
-    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       var posParent = positionFromParameters(parameters).getContext
       while (posParent != null && !posParent.isInstanceOf[ScDocComment]) {
         posParent = posParent.getContext

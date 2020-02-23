@@ -26,7 +26,7 @@ final class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntent
     }
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
      findSimplifiableParent(element) match {
        case Some(expr) =>
          inWriteAction {

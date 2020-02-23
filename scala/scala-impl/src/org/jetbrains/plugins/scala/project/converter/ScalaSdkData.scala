@@ -21,7 +21,7 @@ private case class ScalaSdkData(name: String, standardLibrary: LibraryData, lang
   def isEquivalentTo(compilerLibrary: LibraryData): Boolean =
     compilerClasspath.toSet == compilerLibrary.classesAsFileUrls.toSet
 
-  def addReferenceTo(module: ModuleSettings) {
+  def addReferenceTo(module: ModuleSettings): Unit = {
     val id = LibraryReference(ProjectLevel, name)
     id.addTo(module)
   }
@@ -48,7 +48,7 @@ private case class ScalaSdkData(name: String, standardLibrary: LibraryData, lang
     file
   }
 
-  private def addProjectBasedLibrary(library: Elem, context: ConversionContext) {
+  private def addProjectBasedLibrary(library: Elem, context: ConversionContext): Unit = {
     val libraryTableElement = {
       val rootElement = context.getProjectSettings.getRootElement
       XPath.selectSingleNode(rootElement, "component[@name='libraryTable']").asInstanceOf[Element]

@@ -34,7 +34,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
-  def testMatch() {
+  def testMatch(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("all", "(List(1, 2),Some(z),None)")
@@ -65,7 +65,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
-  def testMatchInForStmt() {
+  def testMatchInForStmt(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("all", "(List(1, 2),Some(z),List(aa, 1))")
@@ -102,7 +102,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
 
   )
-  def testRegexMatch() {
+  def testRegexMatch(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("number", "-2.5")
@@ -134,7 +134,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
-  def testMultilevel() {
+  def testMultilevel(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("name", "name")
@@ -163,7 +163,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
-  def testLocalInMatch() {
+  def testLocalInMatch(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("name", "name")
@@ -190,7 +190,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
-  def testAnonymousInMatch() {
+  def testAnonymousInMatch(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("name", "name")

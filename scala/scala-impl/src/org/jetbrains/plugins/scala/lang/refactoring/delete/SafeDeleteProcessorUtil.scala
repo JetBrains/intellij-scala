@@ -42,7 +42,7 @@ object SafeDeleteProcessorUtil {
 
   private def referenceSearch(element: PsiElement) = ReferencesSearch.search(element, element.getUseScope)
   
-  def findClassUsages(psiClass: PsiClass, allElementsToDelete: Array[PsiElement], usages: util.List[UsageInfo]) {
+  def findClassUsages(psiClass: PsiClass, allElementsToDelete: Array[PsiElement], usages: util.List[UsageInfo]): Unit = {
     val justPrivates: Boolean = containsOnlyPrivates(psiClass)
     referenceSearch(psiClass).forEach(new Processor[PsiReference] {
       override def process(reference: PsiReference): Boolean = {
@@ -90,7 +90,7 @@ object SafeDeleteProcessorUtil {
     false // TODO
   }
 
-  def findTypeParameterExternalUsages(typeParameter: PsiTypeParameter, usages: util.Collection[UsageInfo]) {
+  def findTypeParameterExternalUsages(typeParameter: PsiTypeParameter, usages: util.Collection[UsageInfo]): Unit = {
     val owner: PsiTypeParameterListOwner = typeParameter.getOwner
     if (owner != null) {
       val index: Int = owner.getTypeParameterList.getTypeParameterIndex(typeParameter)
@@ -333,7 +333,7 @@ object SafeDeleteProcessorUtil {
     isInsideDeleted
   }
 
-  def findParameterUsages(parameter: PsiParameter, usages: util.List[UsageInfo]) {
+  def findParameterUsages(parameter: PsiParameter, usages: util.List[UsageInfo]): Unit = {
     val method: PsiMethod = parameter.getDeclarationScope.asInstanceOf[PsiMethod]
     val index: Int = method.getParameterList.getParameterIndex(parameter)
     referenceSearch(method).forEach(new Processor[PsiReference] {
@@ -380,7 +380,7 @@ object SafeDeleteProcessorUtil {
               newText.append(parameters.asScala.map(_.getType.getCanonicalText).mkString(","))
               newText.append(")*/")
               usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, parameter, true) {
-                override def deleteElement() {
+                override def deleteElement(): Unit = {
                   val javadocMethodReference: PsiDocMethodOrFieldRef#MyReference = element.getReference.asInstanceOf[PsiDocMethodOrFieldRef#MyReference]
                   if (javadocMethodReference != null) {
                     javadocMethodReference.bindToText(method.containingClass, newText)

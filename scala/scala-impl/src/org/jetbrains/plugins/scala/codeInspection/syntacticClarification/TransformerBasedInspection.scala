@@ -16,7 +16,7 @@ class TransformerBasedInspection(name: String, solution: String, transformer: Ab
 
     override def apply(e: PsiElement): Unit = {
       holder.registerProblem(e, name, new LocalQuickFixOnPsiElement(e) {
-        override def invoke(project: Project, psiFile: PsiFile, psiElement: PsiElement, psiElement1: PsiElement) {
+        override def invoke(project: Project, psiFile: PsiFile, psiElement: PsiElement, psiElement1: PsiElement): Unit = {
           Transformer.applyTransformerAndReformat(e, psiFile, transformer)
         }
 

@@ -18,12 +18,12 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsight
     getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALADOC2_FORMATTING = false
   }
 
-  protected def checkGeneratedTextFromString(header: String,  footer: String,  assumedStub: String) {
+  protected def checkGeneratedTextFromString(header: String,  footer: String,  assumedStub: String): Unit = {
     checkGeneratedTextFromString(header, footer, assumedStub, a => a)
   }
 
   protected def checkGeneratedTextFromString(header: String,  footer: String,  assumedStub: String,
-                                            transform: String => String) {
+                                            transform: String => String): Unit = {
     configureFromFileTextAdapter("dummy.scala", header + footer)
     getEditorAdapter.getCaretModel.moveToOffset(header.length - 1)
     val enterHandler = EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER)

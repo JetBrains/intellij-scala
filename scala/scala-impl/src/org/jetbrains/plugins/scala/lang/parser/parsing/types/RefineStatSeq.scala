@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 */
 object RefineStatSeq {
 
-  def parse(builder: ScalaPsiBuilder) {
+  def parse(builder: ScalaPsiBuilder): Unit = {
     while (true) {
       builder.getTokenType match {
         //end of parsing when find } or builder.eof

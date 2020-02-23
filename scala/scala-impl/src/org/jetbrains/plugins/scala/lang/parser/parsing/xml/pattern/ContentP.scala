@@ -35,7 +35,7 @@ object ContentP {
       case _ =>
     }
     @tailrec
-    def subparse() {
+    def subparse(): Unit = {
       var isReturn = false
       if (!CDSect.parse(builder) &&
         !Comment.parse(builder) &&

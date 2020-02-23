@@ -24,8 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
  * @since 02.11.12
  */
 final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler {
-  override def doMove(project: Project, elements: Array[PsiElement], targetContainer: PsiElement, callback: MoveCallback) {
-    def refactoringIsNotSupported() {
+  override def doMove(project: Project, elements: Array[PsiElement], targetContainer: PsiElement, callback: MoveCallback): Unit = {
+    def refactoringIsNotSupported(): Unit = {
       Messages.showErrorDialog(ScalaBundle.message("move.to.inner.is.not.supported"), ScalaBundle.message("move.to.inner.is.not.supported.title"))
     }
     targetContainer match {

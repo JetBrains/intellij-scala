@@ -121,7 +121,7 @@ final class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNo
     override def getVariants: Array[Object] = {
       val buffer = mutable.ArrayBuffer.empty[Object]
 
-      def processPackages(qname: String) {
+      def processPackages(qname: String): Unit = {
         var pack: PsiPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(qname))
         while (pack != null && pack.name != null) {
           buffer += pack
@@ -129,7 +129,7 @@ final class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNo
         }
       }
 
-      def append(e: PsiElement) {
+      def append(e: PsiElement): Unit = {
         e match {
           case null =>
           case td: ScTypeDefinition =>

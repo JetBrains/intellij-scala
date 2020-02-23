@@ -90,7 +90,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
       // Collect all values, variables and inner objects from given object amd apply them
       def collectAndApplyVariants(obj: PsiClass): Unit = obj match {
         case obj: ScObject if isAccessible(obj) && ScalaPsiUtil.hasStablePath(obj) =>
-          def fetchAndApply(element: ScTypedDefinition) {
+          def fetchAndApply(element: ScTypedDefinition): Unit = {
             val lookup = new ScalaResolveResult(element)
               .getLookupElement(isClassName = true, shouldImport = true)
               .head
@@ -106,8 +106,8 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
         case _ => // do nothing
       }
 
-      def applyVariant(variantObj: Object) {
-        def apply(item: ScalaLookupItem) {
+      def applyVariant(variantObj: Object): Unit = {
+        def apply(item: ScalaLookupItem): Unit = {
           item.isSbtLookupItem = true
           result.addElement(item)
         }

@@ -67,7 +67,7 @@ object DuplicatesUtil {
     pattern.findDuplicates(settings.nextSibling.getParent)
   }
 
-  def previewDuplicate(project: Project, editor: Editor, duplicate: DuplicateMatch)(work: => Unit) {
+  def previewDuplicate(project: Project, editor: Editor, duplicate: DuplicateMatch)(work: => Unit): Unit = {
     val highlighter = new util.ArrayList[RangeHighlighter](1)
     highlightDuplicate(project, editor, duplicate, highlighter)
     val range = duplicate.textRange
@@ -143,7 +143,7 @@ object DuplicatesUtil {
     }
   }
 
-  private def expandAllRegionsCoveringRange(project: Project, editor: Editor, textRange: TextRange) {
+  private def expandAllRegionsCoveringRange(project: Project, editor: Editor, textRange: TextRange): Unit = {
     val foldRegions: Array[FoldRegion] = CodeFoldingManager.getInstance(project).getFoldRegionsAtOffset(editor, textRange.getStartOffset)
     val anyCollapsed: Boolean = foldRegions.exists(!_.isExpanded)
     if (anyCollapsed) {
@@ -154,7 +154,7 @@ object DuplicatesUtil {
     }
   }
 
-  def highlightDuplicate(project: Project, editor: Editor, duplicate: DuplicateMatch, highlighters: util.Collection[RangeHighlighter]) {
+  def highlightDuplicate(project: Project, editor: Editor, duplicate: DuplicateMatch, highlighters: util.Collection[RangeHighlighter]): Unit = {
     val colorsManager: EditorColorsManager = EditorColorsManager.getInstance
     val attributes: TextAttributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
     val range = duplicate.textRange

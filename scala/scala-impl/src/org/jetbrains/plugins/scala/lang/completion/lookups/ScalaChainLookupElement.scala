@@ -25,7 +25,7 @@ class ScalaChainLookupElement(val prefix: ScalaLookupItem, val element: ScalaLoo
 
   override def toString: String = getLookupString
 
-  override def renderElement(presentation: LookupElementPresentation) {
+  override def renderElement(presentation: LookupElementPresentation): Unit = {
     val prefixPresentation: LookupElementPresentation = new LookupElementPresentation
     prefix.renderElement(prefixPresentation)
     val old = element.someSmartCompletion
@@ -38,7 +38,7 @@ class ScalaChainLookupElement(val prefix: ScalaLookupItem, val element: ScalaLoo
     }
   }
 
-  override def handleInsert(context: InsertionContext) {
+  override def handleInsert(context: InsertionContext): Unit = {
     val editor = context.getEditor
     val caretModel = editor.getCaretModel
     val offsetForPrefix = caretModel.getOffset + (if (element.someSmartCompletion) 5 else 0) - element.getLookupString.length - 1

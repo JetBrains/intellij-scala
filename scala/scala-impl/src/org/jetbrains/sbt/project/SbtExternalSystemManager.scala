@@ -33,7 +33,7 @@ class SbtExternalSystemManager
     with ExternalSystemConfigurableAware
     with AutoImportAwareness {
 
-  override def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
+  override def enhanceRemoteProcessing(parameters: SimpleJavaParameters): Unit = {
     val classpath = parameters.getClassPath
 
     classpath.add(jarWith[this.type])

@@ -50,7 +50,7 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
   private def appendDescriptors(node: ASTNode,
                                 document: Document,
                                 descriptors: ArrayBuffer[FoldingDescriptor],
-                                processedComments: util.HashSet[PsiElement]) {
+                                processedComments: util.HashSet[PsiElement]): Unit = {
     if (node.getElementType == ScalaTokenTypes.tLINE_COMMENT &&
       (node.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) ||
         node.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))) {

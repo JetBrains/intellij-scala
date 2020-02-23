@@ -19,7 +19,7 @@ import scala.concurrent.duration.Duration
  */
 abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
 
-  def doFileTest(stringsToType: String*)(implicit timeout: Duration) {
+  def doFileTest(stringsToType: String*)(implicit timeout: Duration): Unit = {
     val fileName = getTestName(true) + ".scala"
     val filePath = folderPath + fileName
     val ioFile = new File(filePath)

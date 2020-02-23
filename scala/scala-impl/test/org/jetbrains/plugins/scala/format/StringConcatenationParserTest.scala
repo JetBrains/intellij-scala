@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
  */
 
 class StringConcatenationParserTest extends SimpleTestCase {
-  def testEmpty() {
+  def testEmpty(): Unit = {
 //    assertMatches(parse("")) {
 //      case Nil =>
 //    }

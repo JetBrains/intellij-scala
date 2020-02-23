@@ -87,7 +87,7 @@ trait IntroduceTypeAlias {
       // replace all occurrences, don't replace occurences available from companion object or inheritors
       // suggest to choose scope
       def runInplace(): Unit = {
-        def handleScope(scopeItem: SimpleScopeItem, needReplacement: Boolean) {
+        def handleScope(scopeItem: SimpleScopeItem, needReplacement: Boolean): Unit = {
           val suggestedNames = scopeItem.availableNames
 
           val allOccurrences = OccurrenceData(inTypeElement,
@@ -238,7 +238,7 @@ trait IntroduceTypeAlias {
   }
 
   def afterScopeChoosing(project: Project, editor: Editor, file: PsiFile, scopes: Array[ScopeItem],
-                         refactoringName: String)(invokesNext: (ScopeItem) => Unit) {
+                         refactoringName: String)(invokesNext: (ScopeItem) => Unit): Unit = {
 
     def chooseScopeItem(item: ScopeItem): Unit = {
       invokesNext(item)
@@ -314,7 +314,7 @@ trait IntroduceTypeAlias {
       }
     })
     list.addListSelectionListener(new ListSelectionListener {
-      override def valueChanged(e: ListSelectionEvent) {
+      override def valueChanged(e: ListSelectionEvent): Unit = {
         highlighter.dropHighlight()
         val index: Int = list.getSelectedIndex
         if (index < 0) return
@@ -326,7 +326,7 @@ trait IntroduceTypeAlias {
         selection.addHighlighter()
       }
 
-      override def onClosed(event: LightweightWindowEvent) {
+      override def onClosed(event: LightweightWindowEvent): Unit = {
         highlighter.dropHighlight()
         selection.removeHighlighter()
       }

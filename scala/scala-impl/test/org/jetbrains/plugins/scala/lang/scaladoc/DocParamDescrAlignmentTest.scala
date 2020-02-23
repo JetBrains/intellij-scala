@@ -12,7 +12,7 @@ class DocParamDescrAlignmentTest extends ScalaDocEnterActionTestBase {
   
   import org.jetbrains.plugins.scala.lang.scaladoc.DocParamDescrAlignmentTest._
   
-  def testSimpleAlignment() {
+  def testSimpleAlignment(): Unit = {
     val header = "/**\n *" + docParamText + "blah-blah "
     val testText = "\n */"
     val stub = "/**\n * @param i blah-blah\n *" + StringUtil.repeat (" ", docParamText.length) + testText
@@ -20,7 +20,7 @@ class DocParamDescrAlignmentTest extends ScalaDocEnterActionTestBase {
     checkGeneratedTextFromString(header, testText, stub)
   }
 
-  def testEmptyStringAlignment() {
+  def testEmptyStringAlignment(): Unit = {
     val spaces = StringUtil.repeat(" ", 10)
     val header = "/**\n *" + docParamText + " " + spaces
     val testText = "\n */"
@@ -29,7 +29,7 @@ class DocParamDescrAlignmentTest extends ScalaDocEnterActionTestBase {
     checkGeneratedTextFromString(header, testText, stub)
   }
 
-  def testMultiSpacesAlignment() {
+  def testMultiSpacesAlignment(): Unit = {
     val spaces = StringUtil.repeat(" ", 10)
     val header = "/**\n *" + docParamText + spaces + "blah-blah "
     val testText = "\n */"
@@ -39,7 +39,7 @@ class DocParamDescrAlignmentTest extends ScalaDocEnterActionTestBase {
     checkGeneratedTextFromString(header, testText, stub)
   }
 
-  def testEnterWithCar() {
+  def testEnterWithCar(): Unit = {
     val header = "/**\n *" + docParamText + "blah  "
     val testText = "\n */"
     val stub = "/**\n *" + docParamText + "blah \n *" + StringUtil.repeat(" ", docParamText.length) + testText
@@ -47,7 +47,7 @@ class DocParamDescrAlignmentTest extends ScalaDocEnterActionTestBase {
     checkGeneratedTextFromString(header, testText, stub)
   }
   
-  def testEnterWithInvalidParam() {
+  def testEnterWithInvalidParam(): Unit = {
     val header = "/**\n * @param    "
     val testText = "\n */"
     val stub = "/**\n * @param   \n *" + StringUtil.repeat(" ", " @param".length) + testText
@@ -55,7 +55,7 @@ class DocParamDescrAlignmentTest extends ScalaDocEnterActionTestBase {
     checkGeneratedTextFromString(header, testText, stub)
   }
 
-  def testEnterWithTagWithoutValue() {
+  def testEnterWithTagWithoutValue(): Unit = {
     val descrText = "something"
     val spaces = StringUtil.repeat(" ", 4)
     val header = "/**\n * @see" + spaces + descrText + " "

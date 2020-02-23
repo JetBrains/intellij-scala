@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 class ScalaDefaultTemplatePropertiesProvider extends TemplatePackagePropertyProvider {
   private val QualifiedPackagePattern = "(.+)\\.(.+?)".r
 
-  override def fillProperties(directory: PsiDirectory, props: Properties) {
+  override def fillProperties(directory: PsiDirectory, props: Properties): Unit = {
     super.fillProperties(directory, props)
 
     val attributePackageName = props.get(FileTemplate.ATTRIBUTE_PACKAGE_NAME) match {

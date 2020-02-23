@@ -35,7 +35,7 @@ object ImplicitsRecursionGuard {
     }
   }
 
-  private def addLast(element: PsiElement, tp: ScType) {
+  private def addLast(element: PsiElement, tp: ScType): Unit = {
     recursionMap.get().get(element) match {
       case Some(list) =>
         recursionMap.set(recursionMap.get().updated(element, tp :: list))
@@ -44,7 +44,7 @@ object ImplicitsRecursionGuard {
     }
   }
 
-  private def removeLast(element: PsiElement) {
+  private def removeLast(element: PsiElement): Unit = {
     recursionMap.get().get(element) match {
       case Some(list) =>
         list match {

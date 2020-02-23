@@ -38,7 +38,7 @@ final class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAc
     false
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     for {
       IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
       ifStmt <- iioCall.parentOfType(classOf[ScIf])

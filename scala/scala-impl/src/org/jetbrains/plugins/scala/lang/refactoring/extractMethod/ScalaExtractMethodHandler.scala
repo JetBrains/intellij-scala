@@ -56,7 +56,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   }
 
   private def invokeOnEditor(file: PsiFile)
-                            (implicit project: Project, editor: Editor, dataContext: DataContext) {
+                            (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     implicit val ctx: ProjectContext = project
 
     val scalaFile = maybeWritableScalaFile(file, REFACTORING_NAME)
@@ -84,7 +84,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       if (fun == null) return None
       var result: Option[ScType] = None
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReturn(ret: ScReturn) {
+        override def visitReturn(ret: ScReturn): Unit = {
           val newFun = PsiTreeUtil.getParentOfType(ret, classOf[ScFunctionDefinition])
           if (newFun == fun) {
             result = Some(fun.returnType.getOrElse(Unit))
@@ -208,7 +208,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
     var result: PsiElement = commonParent.getContainingFile
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReference) {
+      override def visitReference(ref: ScReference): Unit = {
         scopeBound(ref) match {
           case Some(bound: PsiElement) if PsiTreeUtil.isAncestor(result, bound, true) => result = bound
           case _ =>
@@ -296,7 +296,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     }
   }
 
-  private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor) {
+  private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor): Unit = {
     val method = ScalaExtractMethodUtils.createMethodFromSettings(settings)
     if (method == null) return
     val ics = settings.innerClassSettings
@@ -309,7 +309,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       added
     }
 
-    def insertInnerClassBefore(anchorNext: PsiElement) {
+    def insertInnerClassBefore(anchorNext: PsiElement): Unit = {
       if (!ics.needClass) return
 
       val classText = ics.classText(canonTextForTypes = true)

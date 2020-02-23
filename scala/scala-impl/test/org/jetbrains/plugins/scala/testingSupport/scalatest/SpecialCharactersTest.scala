@@ -48,35 +48,35 @@ trait SpecialCharactersTest extends ScalaTestTestCase {
         |}""".stripMargin
   )
 
-  def testComma() {
+  def testComma(): Unit = {
     runTestByLocation(3, 3, className + ".scala",
       checkConfigAndSettings(_, className, "Comma , test should contain , comma"),
       root => checkResultTreeHasExactNamedPath(root, commaTestPath: _*)
     )
   }
 
-  def testExclamation() {
+  def testExclamation(): Unit = {
     runTestByLocation(6, 3, className + ".scala",
       checkConfigAndSettings(_, className, "! test should contain !"),
       root => checkResultTreeHasExactNamedPath(root, exclamationTestPath: _*)
     )
   }
 
-  def testTick() {
+  def testTick(): Unit = {
     runTestByLocation(9, 3, className + ".scala",
       checkConfigAndSettings(_, className, "tick ' test should contain '"),
       root => checkResultTreeHasExactNamedPath(root, tickTestPath: _*)
     )
   }
 
-  def testTilde() {
+  def testTilde(): Unit = {
     runTestByLocation(15, 3, className + ".scala",
       checkConfigAndSettings(_, className, "tilde ~ test should contain ~"),
       root => checkResultTreeHasExactNamedPath(root, tildeTestPath: _*)
     )
   }
 
-  def testBacktick() {
+  def testBacktick(): Unit = {
     runTestByLocation(12, 3, className + ".scala",
       checkConfigAndSettings(_, className, "backtick ` test should contain `"),
       root => checkResultTreeHasExactNamedPath(root, backtickTestPath: _*)

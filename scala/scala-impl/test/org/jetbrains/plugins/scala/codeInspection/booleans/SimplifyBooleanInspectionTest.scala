@@ -21,7 +21,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
   override protected val description =
     "Simplify boolean expression"
 
-  def test_NotTrue() {
+  def test_NotTrue(): Unit = {
     val selectedText = s"$START!true$END"
     checkTextHasError(selectedText)
 
@@ -31,7 +31,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_TrueEqualsA() {
+  def test_TrueEqualsA(): Unit = {
     val selectedText =
       s"""val a = true
          |${START}true == a$END""".stripMargin
@@ -46,7 +46,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_TrueAndA() {
+  def test_TrueAndA(): Unit = {
     val selectedText =
       s"""val a = true
          |${START}true && a$END""".stripMargin
@@ -61,7 +61,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_AOrFalse() {
+  def test_AOrFalse(): Unit = {
     val selectedText = s"""val a = true
                           |${START}a | false$END""".stripMargin
     checkTextHasError(selectedText)
@@ -74,7 +74,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_ExternalExpression() {
+  def test_ExternalExpression(): Unit = {
     val selectedText = s"""
                           |val a = true
                           |${START}true && (a || false)$END
@@ -91,7 +91,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_InternalExpression() {
+  def test_InternalExpression(): Unit = {
     val selectedText =
       s"""
          |val a = true
@@ -111,7 +111,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_TrueNotEqualsA() {
+  def test_TrueNotEqualsA(): Unit = {
     val selectedText =  s"""val a = true
                            |val flag: Boolean = ${START}true != a$END""".stripMargin
     checkTextHasError(selectedText)
@@ -124,7 +124,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_SimplifyInParentheses() {
+  def test_SimplifyInParentheses(): Unit = {
     val selectedText = s"""val a = true
                           |!(${START}true != a$END)""".stripMargin
     checkTextHasError(selectedText, allowAdditionalHighlights = true)
@@ -137,7 +137,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_TrueAsAny() {
+  def test_TrueAsAny(): Unit = {
     val text =
       """
         |def trueAsAny: Any = {

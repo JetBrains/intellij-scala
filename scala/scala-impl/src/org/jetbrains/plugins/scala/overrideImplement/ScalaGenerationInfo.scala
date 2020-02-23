@@ -79,7 +79,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
 object ScalaGenerationInfo {
   def defaultValue(returnType: ScType, file: PsiFile): String = "???"
 
-  def positionCaret(editor: Editor, element: PsiMember) {
+  def positionCaret(editor: Editor, element: PsiMember): Unit = {
     //hack for postformatting IDEA bug.
     val member =
       try CodeStyleManager.getInstance(element.getProject).reformat(element)

@@ -38,7 +38,7 @@ object ConvertParameterToUnderscoreIntention {
       val map: mutable.HashMap[String, Int] = new mutable.HashMap[String, Int]()
       var clearMap = false
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReferenceExpression(expr: ScReferenceExpression) {
+        override def visitReferenceExpression(expr: ScReferenceExpression): Unit = {
           expr.resolve() match {
             case p: ScParameter if fun.parameters.contains(p) =>
               if (!map.keySet.contains(expr.getText)) {
@@ -125,8 +125,8 @@ class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionActio
     false
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    def showErrorHint(hint: String) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
+    def showErrorHint(hint: String): Unit = {
       if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(hint)
       else HintManager.getInstance().showErrorHint(editor, hint)
     }

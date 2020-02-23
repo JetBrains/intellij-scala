@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  * @since 17.10.12
  */
 class NeedsToBeMixinTest extends AnnotatorTestBase[ScTemplateDefinition] {
-  def testProblem() {
+  def testProblem(): Unit = {
     val message = ScalaBundle.message("mixin.required", "Class", "C", "base", "T")
 
     assertMatches(messages(
@@ -28,7 +28,7 @@ class NeedsToBeMixinTest extends AnnotatorTestBase[ScTemplateDefinition] {
     }
   }
 
-  def testFine() {
+  def testFine(): Unit = {
     assertNothing(messages(
       """
         |trait Base {

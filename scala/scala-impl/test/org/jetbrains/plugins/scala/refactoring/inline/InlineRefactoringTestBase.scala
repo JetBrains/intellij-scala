@@ -30,7 +30,7 @@ abstract class InlineRefactoringTestBase extends ScalaLightPlatformCodeInsightTe
 
   protected def folderPath = baseRootPath + "inline/"
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     import _root_.junit.framework.Assert._
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))

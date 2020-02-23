@@ -17,7 +17,7 @@ private[annotator] object EnableTypeMismatchHints extends IntentionAction {
   override def isAvailable(project: Project, editor: Editor, file: PsiFile) =
     !file.isInstanceOf[ScalaCodeFragment] && !ScalaProjectSettings.in(project).isTypeMismatchHints
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     ScalaProjectSettings.in(project).setTypeMismatchHints(true)
     TypeMismatchHints.refreshIn(project)
   }

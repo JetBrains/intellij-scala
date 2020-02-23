@@ -6,14 +6,14 @@ import scala.meta._
 
 class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
 
-  def testVal() {
+  def testVal(): Unit = {
     doTest(
       "val x,y: Int",
       Decl.Val(Nil, List(Pat.Var.Term(Term.Name("x")), Pat.Var.Term(Term.Name("y"))), Type.Name("Int"))
     )
   }
 
-  def testVar() {
+  def testVar(): Unit = {
     doTest(
       "var x: Int",
       Decl.Var(Nil, List(Pat.Var.Term(Term.Name("x"))), Type.Name("Int"))
@@ -21,14 +21,14 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
   }
 
 
-  def testMultiVal() {
+  def testMultiVal(): Unit = {
     doTest(
       "val x, y: Int",
       Decl.Val(Nil, List(Pat.Var.Term(Term.Name("x")), Pat.Var.Term(Term.Name("y"))), Type.Name("Int"))
     )
   }
 
-  def testMultiVar() {
+  def testMultiVar(): Unit = {
     doTest(
       "var x, y: Int",
       Decl.Var(Nil, List(Pat.Var.Term(Term.Name("x")), Pat.Var.Term(Term.Name("y"))), Type.Name("Int"))
@@ -42,28 +42,28 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testTypeUpperBound() {
+  def testTypeUpperBound(): Unit = {
     doTest(
       "type T <: Any",
       Decl.Type(Nil, Type.Name("T"), Nil, Type.Bounds(None, Some(Type.Name("Any"))))
     )
   }
 
-  def testTypeLowerBound() {
+  def testTypeLowerBound(): Unit = {
     doTest(
       "type T >: Any",
       Decl.Type(Nil, Type.Name("T"), Nil, Type.Bounds(Some(Type.Name("Any")), None))
     )
   }
 
-  def testBothTypeBounds() {
+  def testBothTypeBounds(): Unit = {
     doTest(
       "type T >: Any <: Int",
       Decl.Type(Nil, Type.Name("T"), Nil, Type.Bounds(Some(Type.Name("Any")), Some(Type.Name("Int"))))
     )
   }
 
-  def testParametrizedType() {
+  def testParametrizedType(): Unit = {
     doTest(
       "type F[T]",
       Decl.Type(Nil, Type.Name("F"),
@@ -72,7 +72,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testParametrizedAnonType() {
+  def testParametrizedAnonType(): Unit = {
     doTest(
       "type F[_]",
       Decl.Type(Nil, Type.Name("F"),
@@ -81,7 +81,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testParametrizedWithUpperBoundType() {
+  def testParametrizedWithUpperBoundType(): Unit = {
     doTest(
       "type F[T <: Any]",
       Decl.Type(Nil, Type.Name("F"),
@@ -90,7 +90,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testCovariantType() {
+  def testCovariantType(): Unit = {
     doTest(
       "type F[+T]",
       Decl.Type(Nil, Type.Name("F"),
@@ -99,7 +99,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testContravariantType() {
+  def testContravariantType(): Unit = {
     doTest(
       "type F[-T]",
       Decl.Type(Nil, Type.Name("F"),
@@ -108,14 +108,14 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testDefNoReturnType() {
+  def testDefNoReturnType(): Unit = {
     doTest(
       "def f",
       Decl.Def(Nil, Term.Name("f"), Nil, Nil, Type.Name("Unit"))
     )
   }
 
-  def testDefWithReturnType() {
+  def testDefWithReturnType(): Unit = {
     doTest(
       "def f: Int",
       Decl.Def(Nil, Term.Name("f"), Nil, Nil, Type.Name("Int"))
@@ -151,7 +151,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testDefVararg() {
+  def testDefVararg(): Unit = {
     doTest(
       "def f (a: Int*)",
       Decl.Def(Nil, Term.Name("f"), Nil, List(List(Term.Param(Nil, Term.Name("a"), Some(Type.Arg.Repeated(Type.Name("Int"))), None))), Type.Name("Unit"))
@@ -167,7 +167,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testDefTypeArgs() {
+  def testDefTypeArgs(): Unit = {
     doTest(
       "def f[T]: T",
       Decl.Def(Nil, Term.Name("f"),
@@ -176,7 +176,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
   
-  def testLocalDeclarations() {
+  def testLocalDeclarations(): Unit = {
     doTest(
       "def f = { val x = 42 }",
       Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))), None, Lit.Int(42)))))

@@ -17,7 +17,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
 
   override def familyName: String = new ImplementAbstractMethodAction().getFamilyName
 
-  def testFromTrait() {
+  def testFromTrait(): Unit = {
     val text =
       """
         |trait A {
@@ -42,7 +42,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
     doTest(text, result)
   }
 
-  def testFromAbstractClass() {
+  def testFromAbstractClass(): Unit = {
     val text =
       """
         |abstract class A {
@@ -65,7 +65,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
     doTest(text, result)
   }
 
-  def testParameterizedTrait() {
+  def testParameterizedTrait(): Unit = {
     val text =
       """
         |trait A[T] {
@@ -88,7 +88,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
     doTest(text, result)
   }
 
-  def testFunDefInTrait() {
+  def testFunDefInTrait(): Unit = {
     val text =
       """
         |trait A {
@@ -102,7 +102,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
     checkIntentionIsNotAvailable(text)
   }
 
-  def testUnitReturn() {
+  def testUnitReturn(): Unit = {
     val text =
       """
         |trait A {

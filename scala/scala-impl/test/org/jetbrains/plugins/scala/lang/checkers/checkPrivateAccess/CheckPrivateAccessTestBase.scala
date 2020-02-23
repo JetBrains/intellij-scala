@@ -27,7 +27,7 @@ abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightT
 
   protected def folderPath = baseRootPath + "checkers/checkPrivateAccess/"
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assertNotNull("file " + filePath + " not found", file)

@@ -24,7 +24,7 @@ class RenameOpeningTagQuickFixTest extends XmlUnmatchedTagQuickFixesTest {
   override protected val hint: String =
     ScalaBundle.message("xml.rename.opening.tag")
 
-  def testWithAttributes() {
+  def testWithAttributes(): Unit = {
     val text = """val xml = <aaa attr1="1" attr2="attr2">blah blah</bbb>"""
     val assumedStub = """val xml = <bbb attr1="1" attr2="attr2">blah blah</bbb>"""
     testQuickFix(text, assumedStub, hint)
@@ -72,7 +72,7 @@ class RenameClosingTagQuickFixTest extends XmlUnmatchedTagQuickFixesTest {
     testQuickFix(text, assumedStub, hint)
   }
 
-  def testInsideCase() {
+  def testInsideCase(): Unit = {
     val text =
       """
         <aa></aa> match {

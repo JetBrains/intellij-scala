@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
  */
 
 class ToggleTypeAwareHighlightingAction extends AnAction {
-  override def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     CommonDataKeys.PROJECT.getData(e.getDataContext) match {
       case project: Project =>
         toggleSettingAndRehighlight(project)
@@ -36,7 +36,7 @@ object ToggleTypeAwareHighlightingAction {
     }
   }
 
-  private def reparseActiveFiles(project: Project) {
+  private def reparseActiveFiles(project: Project): Unit = {
     val openEditors = EditorFactory.getInstance().getAllEditors.toSeq.filterBy[EditorEx]
     val vFiles = openEditors.map(_.getVirtualFile).filterNot(_ == null)
     FileContentUtil.reparseFiles(project, vFiles.asJava, true)

@@ -8,7 +8,7 @@ import scala.{Seq => _}
 
 class TreeConverterTestBugs extends TreeConverterTestBaseWithLibrary {
 
-  def testQualifiedTypes() {
+  def testQualifiedTypes(): Unit = {
     doTest(
       "object A { class Foo; class Bar extends Foo }",
       Defn.Object(Nil, Term.Name("A"), Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None),
@@ -19,7 +19,7 @@ class TreeConverterTestBugs extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testThisQualifier() {
+  def testThisQualifier(): Unit = {
     doTest(
       "trait Foo { def foo = Foo.this.hashCode }",
       Defn.Trait(Nil, Type.Name("Foo"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),

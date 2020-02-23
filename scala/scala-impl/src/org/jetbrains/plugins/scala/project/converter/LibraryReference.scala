@@ -21,7 +21,7 @@ private case class LibraryReference(level: Level, name: String) {
   def resolveIn(context: ConversionContext): Option[LibraryData] =
     level.librariesIn(context).find(_.name == name)
 
-  def addTo(module: ModuleSettings) {
+  def addTo(module: ModuleSettings): Unit = {
     rootManagerElementIn(module).addContent(createOrderEntry())
   }
 
@@ -33,7 +33,7 @@ private case class LibraryReference(level: Level, name: String) {
     entry
   }
 
-  def removeFrom(module: ModuleSettings) {
+  def removeFrom(module: ModuleSettings): Unit = {
     val element = findOrderEntryIn(module).getOrElse(throw new IllegalArgumentException(
       s"Cannot remove library (${level.title}/$name}) dependency in module ${module.getModuleName}"))
 
@@ -70,7 +70,7 @@ private case class LibraryReference(level: Level, name: String) {
     }
   }
 
-  def deleteIn(context: ConversionContext) {
+  def deleteIn(context: ConversionContext): Unit = {
     context.getStorageScheme match {
       case StorageScheme.DIRECTORY_BASED => deleteDirectoryBasedLibrary(context)
       case StorageScheme.DEFAULT => deleteProjectBasedLibrary(context)
@@ -91,7 +91,7 @@ private case class LibraryReference(level: Level, name: String) {
     libraryFile
   }
 
-  private def deleteProjectBasedLibrary(context: ConversionContext) {
+  private def deleteProjectBasedLibrary(context: ConversionContext): Unit = {
     val libraryElement = {
       val rootElement = context.getProjectSettings.getRootElement
       XPath.selectSingleNode(rootElement,

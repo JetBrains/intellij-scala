@@ -92,7 +92,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
       }
       wrapper = StructureViewComponent.createWrapper(getProject, treeViewModel.getRoot, treeViewModel)
 
-      def initTree(wrapper: TreeElementWrapper) {
+      def initTree(wrapper: TreeElementWrapper): Unit = {
         wrapper.initChildren()
         wrapper.getChildren.asScala.foreach(node => initTree(node.asInstanceOf[TreeElementWrapper]))
       }
@@ -179,7 +179,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
         _.getClass == classOf[DefaultJavaProgramRunner]
       }.get
       val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], new ProcessAdapter {
-        override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
+        override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
           val text = event.getText
           if (debug) print(text)
         }
@@ -214,7 +214,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
       val handler: ProcessHandler = descriptor.getProcessHandler
       assertNotNull(handler)
       disposeOnTearDown(new Disposable {
-        override def dispose() {
+        override def dispose(): Unit = {
           if (!handler.isProcessTerminated) {
             handler.destroyProcess()
           }

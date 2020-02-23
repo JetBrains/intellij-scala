@@ -13,7 +13,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
 
   private val hint = "Simplify match to if statement"
 
-  def test_SingleTrueWithParenthesis_lessPatternSimpleBranches() {
+  def test_SingleTrueWithParenthesis_lessPatternSimpleBranches(): Unit = {
     val selectedText =
       s"""
          |val a = true
@@ -41,7 +41,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_SingleTrueWithParenthesis_lessPatternSimpleBranchesBracesBlock() {
+  def test_SingleTrueWithParenthesis_lessPatternSimpleBranchesBracesBlock(): Unit = {
     val selectedText =
       s"""
          |val a = true
@@ -73,7 +73,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_SingleFalseWithParenthesis_lessPatternSimpleBranches() {
+  def test_SingleFalseWithParenthesis_lessPatternSimpleBranches(): Unit = {
     val selectedText =
       s"""
          |val a = true
@@ -101,7 +101,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_TrueFalseWithParenthesis_lessPatternSimpleBranches() {
+  def test_TrueFalseWithParenthesis_lessPatternSimpleBranches(): Unit = {
     val selectedText =
       s"""
          |val a = true
@@ -133,7 +133,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_TrueWildcardWithParenthesis_lessPatternSimpleBranches() {
+  def test_TrueWildcardWithParenthesis_lessPatternSimpleBranches(): Unit = {
     val selectedText =
       s"""
          |val a = true
@@ -165,7 +165,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_FalseWildcardWithParenthesis_lessPatternSimpleBranches() {
+  def test_FalseWildcardWithParenthesis_lessPatternSimpleBranches(): Unit = {
     val selectedText =
       s"""
          |val a = true
@@ -197,7 +197,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_TrueFalseWithParenthesis_lessPatternBlockBranches() {
+  def test_TrueFalseWithParenthesis_lessPatternBlockBranches(): Unit = {
     val selectedText =
       s"""
          |val a = true
@@ -240,7 +240,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_SingleTrueWithParenthesisedPatternSimpleBranches() {
+  def test_SingleTrueWithParenthesisedPatternSimpleBranches(): Unit = {
     val selectedText =
       s"""
          |val b = 1 + 2 == 3 ${START}match$END {
@@ -265,7 +265,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_SingleFalseWithParenthesisedPatternSimpleBranches() {
+  def test_SingleFalseWithParenthesisedPatternSimpleBranches(): Unit = {
     val selectedText =
       s"""
          |val b = 1 + 2 == 3 ${START}match$END {
@@ -290,7 +290,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_SingleComplexBranch() {
+  def test_SingleComplexBranch(): Unit = {
     val text =
       s"""
          |val a = true
@@ -304,7 +304,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors(text)
   }
 
-  def test_ThreeBranches() {
+  def test_ThreeBranches(): Unit = {
     val text =
       s"""
          |val a = 1
@@ -322,7 +322,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors(text)
   }
 
-  def test_NotBooleanExpr() {
+  def test_NotBooleanExpr(): Unit = {
     val text =
       s"""
          |val a = 1 + 2
@@ -336,7 +336,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors(text)
   }
 
-  def test_OnlyWildcardExpr() {
+  def test_OnlyWildcardExpr(): Unit = {
     val text =
       s"""
          |val a = true
@@ -350,7 +350,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors(text)
   }
 
-  def test_TwoWildcatdsExpr() {
+  def test_TwoWildcatdsExpr(): Unit = {
     val text =
       s"""
          |val a = true
@@ -367,7 +367,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors(text)
   }
 
-  def test_MatchWithGuard() {
+  def test_MatchWithGuard(): Unit = {
     val text =
       s"""
          |val a = true

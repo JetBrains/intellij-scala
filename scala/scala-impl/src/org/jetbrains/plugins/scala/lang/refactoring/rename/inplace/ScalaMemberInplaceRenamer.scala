@@ -58,7 +58,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   override def acceptReference(reference: PsiReference): Boolean = true
 
-  override def beforeTemplateStart() {
+  override def beforeTemplateStart(): Unit = {
     super.beforeTemplateStart()
 
     val revertInfo = ScalaRefactoringUtil.RevertInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
@@ -72,11 +72,11 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     myCaretRangeMarker.setGreedyToRight(true)
   }
 
-  override def revertState() {
+  override def revertState(): Unit = {
     if (myOldName == null) return
 
     CommandProcessor.getInstance.executeCommand(myProject, new Runnable {
-      override def run() {
+      override def run(): Unit = {
         val revertInfo = editor.getUserData(ScalaMemberInplaceRenamer.REVERT_INFO)
         val document = myEditor.getDocument
         if (revertInfo != null) {

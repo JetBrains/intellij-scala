@@ -5,7 +5,7 @@ import com.intellij.openapi.startup.StartupActivity
 
 class BspStartupActivity extends StartupActivity {
     @Override
-    override def runActivity(project: Project) {
+    override def runActivity(project: Project): Unit = {
         // initialize build loop only for bsp projects
         if (BspUtil.hasBspModule(project))
           BspBuildLoopService.getInstance(project)

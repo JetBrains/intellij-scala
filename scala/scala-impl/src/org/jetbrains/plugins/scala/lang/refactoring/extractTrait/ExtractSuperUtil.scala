@@ -38,7 +38,7 @@ object ExtractSuperUtil {
                          editor: Editor,
                          file: PsiFile,
                          isSuitableClass: PsiClass => Boolean)
-                        (action: => Unit) {
+                        (action: => Unit): Unit = {
     try {
       val classes = ScalaPsiUtil.getParents(element, file).collect {
         case t: ScTemplateDefinition if isSuitableClass(t) => t
@@ -83,7 +83,7 @@ object ExtractSuperUtil {
       _.getPackageName
     }.getOrElse("")
 
-  def addExtendsTo(clazz: ScTemplateDefinition, typeToExtend: ScTypeDefinition, parameters: String = "") {
+  def addExtendsTo(clazz: ScTemplateDefinition, typeToExtend: ScTypeDefinition, parameters: String = ""): Unit = {
     val name = typeToExtend.name
     val text = name + parameters
     val oldExtBlock = clazz.extendsBlock

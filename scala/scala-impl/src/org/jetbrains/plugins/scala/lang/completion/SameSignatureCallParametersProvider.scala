@@ -35,25 +35,25 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
           withSuperParent(2, classOf[ScArgumentExprList]).withSuperParent(3, classOf[ScMethodCall])
 
   extend(CompletionType.BASIC, constructorFilter, new CompletionProvider[CompletionParameters]() {
-    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       addConstructorCompletions(parameters, result)
     }
   })
 
   extend(CompletionType.SMART, constructorFilter, new CompletionProvider[CompletionParameters]() {
-    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       addConstructorCompletions(parameters, result)
     }
   })
 
   extend(CompletionType.BASIC, superCallFilter, new CompletionProvider[CompletionParameters]() {
-    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       addSuperCallCompletions(parameters, result)
     }
   })
 
   extend(CompletionType.SMART, superCallFilter, new CompletionProvider[CompletionParameters]() {
-    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       addSuperCallCompletions(parameters, result)
     }
   })
@@ -87,7 +87,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
     }
   }
 
-  private def addConstructorCompletions(parameters: CompletionParameters, result: CompletionResultSet) {
+  private def addConstructorCompletions(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
     val position = positionFromParameters(parameters)
     val elementType = position.getNode.getElementType
     if (elementType != ScalaTokenTypes.tIDENTIFIER) return
@@ -140,7 +140,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
     }
   }
 
-  private def checkSignatures(signatures: Seq[Seq[(String, ScType)]], methodLike: ScMethodLike, result: CompletionResultSet) {
+  private def checkSignatures(signatures: Seq[Seq[(String, ScType)]], methodLike: ScMethodLike, result: CompletionResultSet): Unit = {
     for (signature <- signatures if signature.forall(_._1 != null)) {
       val names = new ArrayBuffer[String]()
       val res = signature.map {
@@ -158,7 +158,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
         icon.setIcon(Icons.PARAMETER, 0, 2 * w / 5, 0)
         icon.setIcon(Icons.PARAMETER, 1)
         val element = LookupElementBuilder.create(res).withIcon(icon).withInsertHandler(new InsertHandler[LookupElement] {
-          override def handleInsert(context: InsertionContext, item: LookupElement) {
+          override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
             val completionChar = context.getCompletionChar
             if (completionChar == ')') return
 

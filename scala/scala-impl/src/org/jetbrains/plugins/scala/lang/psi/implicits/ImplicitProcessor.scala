@@ -56,7 +56,7 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
   private[this] val levelMap: ju.Map[ScalaResolveResult, ju.Set[ScalaResolveResult]] =
     new THashMap[ScalaResolveResult, ju.Set[ScalaResolveResult]](nameUniquenessStrategy)
 
-  override protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
+  override protected def clearLevelQualifiedSet(result: ScalaResolveResult): Unit = {
     //optimisation, do nothing
   }
 
@@ -195,7 +195,7 @@ object ImplicitProcessor {
       }
     }
 
-    def collectParts(tp: ScType) {
+    def collectParts(tp: ScType): Unit = {
       ProgressManager.checkCanceled()
       if (visited.contains(tp)) return
       visited += tp
@@ -205,7 +205,7 @@ object ImplicitProcessor {
         case _                         =>
       }
 
-      def collectSupers(clazz: PsiClass, subst: ScSubstitutor) {
+      def collectSupers(clazz: PsiClass, subst: ScSubstitutor): Unit = {
         clazz match {
           case td: ScTemplateDefinition =>
             collectPartsIter(td.superTypes.map(subst))
@@ -293,7 +293,7 @@ object ImplicitProcessor {
     }
 
     @tailrec
-    def collectObjects(tp: ScType) {
+    def collectObjects(tp: ScType): Unit = {
       tp match {
         case _ if tp.isAny =>
         case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>

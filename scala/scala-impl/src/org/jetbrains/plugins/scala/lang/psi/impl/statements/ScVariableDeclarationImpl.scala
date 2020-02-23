@@ -33,7 +33,7 @@ final class ScVariableDeclarationImpl private[psi](stub: ScPropertyStub[ScVariab
 
   override def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST)
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitVariableDeclaration(this)
   }
 }

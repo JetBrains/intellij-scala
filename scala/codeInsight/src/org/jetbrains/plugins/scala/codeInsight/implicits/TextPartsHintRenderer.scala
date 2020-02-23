@@ -31,7 +31,7 @@ class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
     metrics.stringWidth(getText) + m.left + p.left + p.right + m.right
   }
 
-  override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes) {
+  override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
     if (!editor.isInstanceOf[EditorImpl]) return
     val editorImpl = editor.asInstanceOf[EditorImpl]
 

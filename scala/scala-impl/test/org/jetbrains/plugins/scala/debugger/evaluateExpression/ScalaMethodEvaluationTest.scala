@@ -39,7 +39,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testSmartBoxing() {
+  def testSmartBoxing(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo(1)", "1")
@@ -61,7 +61,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testFunctionWithSideEffects() {
+  def testFunctionWithSideEffects(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo", "2")
@@ -79,7 +79,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testSimpleFunction() {
+  def testSimpleFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo", "2")
@@ -100,7 +100,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testPrivateMethods() {
+  def testPrivateMethods(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo", "2")
@@ -121,7 +121,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testApplyCall() {
+  def testApplyCall(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a(-1)", "0")
@@ -139,7 +139,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testCurriedFunction() {
+  def testCurriedFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo(1)(2)", "4")
@@ -157,7 +157,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testArrayApplyFunction() {
+  def testArrayApplyFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("s(1)(1)", "test")
@@ -175,7 +175,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testOverloadedFunction() {
+  def testOverloadedFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo(1)", "1")
@@ -192,7 +192,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testImplicitConversion() {
+  def testImplicitConversion(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("\"test\".dropRight(2)", "te")
@@ -212,7 +212,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testSequenceArgument() {
+  def testSequenceArgument(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("moo(x: _*)", "2")
@@ -229,7 +229,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testArrayLengthFunction() {
+  def testArrayLengthFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("s.length", "3")
@@ -251,7 +251,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testSimpleFunctionFromInner() {
+  def testSimpleFunctionFromInner(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo", "2")
@@ -267,7 +267,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testLibraryFunctions() {
+  def testLibraryFunctions(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("scala.collection.mutable.ArrayBuffer.empty", "ArrayBuffer()")
@@ -299,7 +299,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testDynamicFunctionApplication() {
+  def testDynamicFunctionApplication(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a.foo()", "1")
@@ -332,7 +332,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testNonStaticFunction() {
+  def testNonStaticFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("goo", "2")
@@ -349,7 +349,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testDefaultAndNamedParameters() {
+  def testDefaultAndNamedParameters(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo(1, z = 1)(m = 1)", "6")
@@ -368,7 +368,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testRepeatedParameters() {
+  def testRepeatedParameters(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo(\"a\", \"b\", \"c\")", "abc")
@@ -394,7 +394,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testImplicitParameters() {
+  def testImplicitParameters(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo(1)", "2")
@@ -415,7 +415,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testCaseClasses() {
+  def testCaseClasses(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("CCA(1)", "CCA(1)")
@@ -574,7 +574,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
-  def testLocalFunctions() {
+  def testLocalFunctions(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo1", "1")
@@ -623,7 +623,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
-  def testClosure() {
+  def testClosure(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "aa")
@@ -650,7 +650,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
-  def testLocalWithDefaultAndNamedParams() {
+  def testLocalWithDefaultAndNamedParams(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "aa")
@@ -686,7 +686,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
     """.stripMargin.trim())
 
-  def testLocalMethodsWithSameName() {
+  def testLocalMethodsWithSameName(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo()", "1")
@@ -726,7 +726,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
     """.stripMargin.trim())
 
-  def testLocalMethodsWithSameName1() {
+  def testLocalMethodsWithSameName1(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo()", "1111")
@@ -756,7 +756,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
     """.stripMargin.trim())
 
-  def testLocalMethodsWithSameName2() {
+  def testLocalMethodsWithSameName2(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo()", "1111")
@@ -785,7 +785,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
-  def testClosureWithDefaultParameter() {
+  def testClosureWithDefaultParameter(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "aa")

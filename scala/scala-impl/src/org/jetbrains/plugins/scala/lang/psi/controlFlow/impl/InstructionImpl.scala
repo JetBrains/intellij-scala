@@ -22,11 +22,11 @@ sealed class InstructionImpl(override val num: Int,
 
   override def succ(): ArrayBuffer[Instruction] = mySucc
 
-  override def addPred(p: Instruction) {
+  override def addPred(p: Instruction): Unit = {
     myPred += p
   }
 
-  override def addSucc(s: Instruction) {
+  override def addSucc(s: Instruction): Unit = {
     mySucc += s
   }
 

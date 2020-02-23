@@ -184,7 +184,7 @@ object ImportAmmoniteDependenciesFix {
     }
   }
 
-  def suggestAddingAmmonite(file: ScFile) {
+  def suggestAddingAmmonite(file: ScFile): Unit = {
     if (hasAmmonite(file)) return
     implicit val project: Project = file.getProject
 

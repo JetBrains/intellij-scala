@@ -16,7 +16,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
 
 
 
-  def testBasicGenerics() {
+  def testBasicGenerics(): Unit = {
     val code =
       """
         |trait Blargle[T] {
@@ -28,7 +28,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def testTypeInference() {
+  def testTypeInference(): Unit = {
     val code =
       """
         | abstract class Foo {
@@ -41,7 +41,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
   }
 
 
-  def testFunctionNegOne() {
+  def testFunctionNegOne(): Unit = {
     val code =
       """
         |def z(): Unit = println()
@@ -52,7 +52,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testFunctionNegTwo() {
+  def testFunctionNegTwo(): Unit = {
     val code =
       """
         |def z: Unit = println()
@@ -63,7 +63,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testFunctionNegThree() {
+  def testFunctionNegThree(): Unit = {
     val code =
       """
         |def z(): Unit = println()
@@ -85,7 +85,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def testUnderscoreOne() {
+  def testUnderscoreOne(): Unit = {
     val code =
       """
         |trait Foo { def bar(i: Int, s: String): String }
@@ -94,7 +94,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def testUnderscoreTwo() {
+  def testUnderscoreTwo(): Unit = {
     val code =
       """
         |trait Foo { def bar(s: String): String }
@@ -103,7 +103,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def testSimpleNeg() {
+  def testSimpleNeg(): Unit = {
     val code =
       """
         |trait Foo { def blargle(i: Int): Unit }
@@ -114,7 +114,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testSimpleNegWrongReturnType() {
+  def testSimpleNegWrongReturnType(): Unit = {
     val code =
       """
         |object T {
@@ -127,7 +127,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testSimpleNegWrongParamNumber() {
+  def testSimpleNegWrongParamNumber(): Unit = {
     val code =
       """
         |object T {
@@ -140,7 +140,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testSimpleNegWrongParamType() {
+  def testSimpleNegWrongParamType(): Unit = {
     val code =
       """
         |object T {
@@ -153,7 +153,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testSimpleNegRightParamWrongReturn() {
+  def testSimpleNegRightParamWrongReturn(): Unit = {
     val code =
       """
         |object T {
@@ -166,7 +166,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testConstructorWithArgs() {
+  def testConstructorWithArgs(): Unit = {
     val code =
       """
         |abstract class Foo(s: String) { def a(): String }
@@ -177,7 +177,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testImplicitConversionWithSAM() {
+  def testImplicitConversionWithSAM(): Unit = {
     val code =
       """
         |import scala.language.implicitConversions
@@ -560,7 +560,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
+  def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None): Unit = {
     assertNothing(messages(scalaCode, javaCode))
   }
 
@@ -604,7 +604,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
-  def testFunctionSAM() {
+  def testFunctionSAM(): Unit = {
     val code =
       """
         |def z() = println()
@@ -771,7 +771,7 @@ class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
 
-  protected override def setUp() {
+  protected override def setUp(): Unit = {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
@@ -782,7 +782,7 @@ class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
   }
 
 
-  def testFunctionSAM() {
+  def testFunctionSAM(): Unit = {
     val code =
       """
         |def z() = println()

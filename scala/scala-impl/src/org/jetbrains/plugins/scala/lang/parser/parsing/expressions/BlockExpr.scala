@@ -34,7 +34,7 @@ object BlockExpr {
         blockExprMarker.drop()
         return false
     }
-    def loopFunction() {
+    def loopFunction(): Unit = {
       builder.getTokenType match {
         case `kCASE` =>
           val backMarker = builder.mark

@@ -13,7 +13,7 @@ class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   override val hint = InspectionBundle.message("filter.headOption.hint")
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"List(0).${START}filter(x => true).headOption$END"
     checkTextHasError(selected)
     val text = "List(0).filter(x => true).headOption"
@@ -21,7 +21,7 @@ class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"(List(0) ${START}filter (x => true)).headOption$END"
     checkTextHasError(selected)
     val text = "(List(0) filter (x => true)).headOption"
@@ -29,7 +29,7 @@ class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_3() {
+  def test_3(): Unit = {
     val selected = s"List(0).${START}filter(x => true).headOption$END.isDefined"
     checkTextHasError(selected)
     val text = "List(0).filter(x => true).headOption.isDefined"

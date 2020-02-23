@@ -41,9 +41,9 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     case _ => false
   }
 
-  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
     val namedElement = element match {case x: PsiNamedElement => x case _ => return}
-    def addBeanMethods(element: PsiElement, newName: String) {
+    def addBeanMethods(element: PsiElement, newName: String): Unit = {
       element match {
         case t: ScTypedDefinition =>
           for (method <- getBeanMethods(t)) {
@@ -87,7 +87,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     RenameSuperMembersUtil.prepareSuperMembers(element, newName, allRenames)
   }
   override def findCollisions(element: PsiElement, newName: String,
-                              allRenames: util.Map[_ <: PsiElement, String], result: util.List[UsageInfo]) {/*todo*/}
+                              allRenames: util.Map[_ <: PsiElement, String], result: util.List[UsageInfo]): Unit = {/*todo*/}
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     element match {
@@ -97,7 +97,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     }
   }
 
-  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
+  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]): Unit = {
     val named = element match {case named: ScNamedElement => named; case _ => return}
     RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
       override def execute(named: PsiNamedElement): Boolean = {
@@ -107,7 +107,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     }, editor)
   }
 
-  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener): Unit = {
     ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
   }
 }

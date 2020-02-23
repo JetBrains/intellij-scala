@@ -30,23 +30,23 @@ class ScalaOIUtilTest extends SimpleTestCase {
   // implemented as mixin
   // abstract override
 
-  def testSOE() {
+  def testSOE(): Unit = {
     assertUnimplemented("trait A; trait B extends D; " +
       "trait C extends A with B; trait D extends B with C;" +
       "object X extends D {}")
   }
 
-  def testEmpty() {
+  def testEmpty(): Unit = {
     assertUnimplemented("trait T { }; new T {}")
     assertUnimplemented("abstract case class C; new C {}")
   }
 
-  def testSelf() {
+  def testSelf(): Unit = {
     assertUnimplemented("trait T { }")
     assertUnimplemented("trait T { def f }")
   }
 
-  def testConvertedName() {
+  def testConvertedName(): Unit = {
     assertUnimplemented(
       """
         |1
@@ -60,7 +60,7 @@ class ScalaOIUtilTest extends SimpleTestCase {
     )
   }
 
-  def testOverAbstract() {
+  def testOverAbstract(): Unit = {
     assertUnimplemented(
       """
         |1
@@ -76,18 +76,18 @@ class ScalaOIUtilTest extends SimpleTestCase {
     )
   }
 
-  def testMembers() {
+  def testMembers(): Unit = {
     assertUnimplemented("trait T { def f }; new T {}", "f: Unit")
     assertUnimplemented("trait T { var f }; new T {}", "f: Any")
     assertUnimplemented("trait T { type X }; new T {}", "X")
   }
 
-  def testSources() {
+  def testSources(): Unit = {
     assertUnimplemented("trait T { def f }; new T {}", "f: Unit")
     assertUnimplemented("abstract class T { def f }; new T {}", "f: Unit")
   }
 
-  def testTargets() {
+  def testTargets(): Unit = {
     //todo: important: in script file resolve is ok. In any other file problems with resolve to T,
     //todo: because of wrong package structure.
     assertUnimplemented("trait T { def f }; new T {}", "f: Unit")
@@ -98,7 +98,7 @@ class ScalaOIUtilTest extends SimpleTestCase {
   }
 
   private def assertUnimplemented(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String,
-                                  names: String*) {
+                                  names: String*): Unit = {
     Assert.assertEquals(names.toList, unimplementedIn(code).toList)
   }
 

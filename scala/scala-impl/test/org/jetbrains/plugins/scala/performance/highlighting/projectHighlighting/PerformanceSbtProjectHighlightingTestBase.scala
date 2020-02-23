@@ -24,7 +24,7 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndI
         val psiFile = fileManager.findFile(file)
         val mock = new AnnotatorHolderMock(psiFile)
         val visitor = new ScalaRecursiveElementVisitor {
-          override def visitScalaElement(element: ScalaPsiElement) {
+          override def visitScalaElement(element: ScalaPsiElement): Unit = {
             try {
               annotator.annotate(element)(mock)
               super.visitScalaElement(element)

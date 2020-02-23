@@ -15,7 +15,7 @@ class GetGetOrElseTest extends OperationsOnCollectionInspectionTest {
   override val hint = InspectionBundle.message("get.getOrElse.hint")
   override val classOfInspection = classOf[GetGetOrElseInspection]
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"""Map().${START}get(0).getOrElse("")$END"""
     checkTextHasError(selected)
     val text = "Map().get(0).getOrElse(\"\")"
@@ -23,7 +23,7 @@ class GetGetOrElseTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"""Map("a" -> "A") ${START}get "b" getOrElse "B"$END"""
     checkTextHasError(selected)
     val text = """Map("a" -> "A") get "b" getOrElse "B""""

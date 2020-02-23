@@ -30,8 +30,8 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
 
   var name: String = ifc.possibleNames.iterator().next()
   var scType: ScType = ifc.types(0)
-  def setName(s: String) {name = s}
-  def setType(t: ScType) {scType = t}
+  def setName(s: String): Unit = {name = s}
+  def setType(t: ScType): Unit = {scType = t}
 
   if (!canBeInitLocally) {
     initLocallyEnabled = false
@@ -50,27 +50,27 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
   if (initInDeclarationEnabled && initLocallyEnabled) initInDeclaration = scalaSettings.INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION
 
   def defineVar: Boolean = isVar
-  def defineVar_=(value: Boolean) {isVar = value}
-  def setDefineVar(value: Boolean) {defineVar = value}
+  def defineVar_=(value: Boolean): Unit = {isVar = value}
+  def setDefineVar(value: Boolean): Unit = {defineVar = value}
 
   def replaceAll: Boolean = replAll
-  def replaceAll_=(value: Boolean) {
+  def replaceAll_=(value: Boolean): Unit = {
     replAll = value
     initLocallyEnabled = replaceAll && canBeInitLocalIfReplaceAll || !replaceAll && canBeInitLocalOneOccurrence
   }
-  def setReplaceAll(value: Boolean) {replaceAll = value}
+  def setReplaceAll(value: Boolean): Unit = {replaceAll = value}
 
   def visibilityLevel: String = visLevel
-  def visibilityLevel_=(value: String) {visLevel = value}
-  def setVisibilityLevel(value: String) {visibilityLevel = value}
+  def visibilityLevel_=(value: String): Unit = {visLevel = value}
+  def setVisibilityLevel(value: String): Unit = {visibilityLevel = value}
 
   def explicitType: Boolean = explType
-  def explicitType_=(value: Boolean) {explType = value}
-  def setExplicitType(value: Boolean) {explicitType = value}
+  def explicitType_=(value: Boolean): Unit = {explType = value}
+  def setExplicitType(value: Boolean): Unit = {explicitType = value}
 
 
   def initInDeclaration: Boolean = initInDecl
-  def initInDeclaration_=(value: Boolean) {
+  def initInDeclaration_=(value: Boolean): Unit = {
     if (value && initInDeclarationEnabled || !value && initLocallyEnabled) {
       initInDecl = value
       if (!initInDecl) {
@@ -81,10 +81,10 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
       explicitTypeChbEnabled = value
     }
   }
-  def setInitInDeclaration(value: Boolean) {initInDeclaration = value}
+  def setInitInDeclaration(value: Boolean): Unit = {initInDeclaration = value}
 
   def initInDeclarationEnabled: Boolean = initInDeclEn
-  def initInDeclarationEnabled_=(value: Boolean) {
+  def initInDeclarationEnabled_=(value: Boolean): Unit = {
     initInDeclEn = value
     if (!initInDeclarationEnabled) {
       initInDeclaration = false
@@ -96,7 +96,7 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
   }
 
   def initLocallyEnabled: Boolean = initLocEn
-  def initLocallyEnabled_=(value: Boolean) {
+  def initLocallyEnabled_=(value: Boolean): Unit = {
     initLocEn = value
     if (!initLocallyEnabled) {
       initInDeclaration = true

@@ -38,7 +38,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 
   private def innerPanel: JComponent = super.getPanel
 
-  override protected def initTabs(settings: CodeStyleSettings) {
+  override protected def initTabs(settings: CodeStyleSettings): Unit = {
     super.initTabs(settings)
     addTab(new ScalaDocFormattingPanel(settings))
     addTab(new ImportsPanel(settings))

@@ -14,7 +14,7 @@ private class ScalaModuleConversionProcessor(context: ConversionContext) extends
   
   override def isConversionNeeded(module: ModuleSettings): Boolean = ScalaFacetData.isPresentIn(module)
 
-  override def process(module: ModuleSettings) {
+  override def process(module: ModuleSettings): Unit = {
     val scalaFacet = ScalaFacetData.findIn(module).getOrElse(
       throw new IllegalStateException("Cannot find Scala facet in module: " + module.getModuleName))
 

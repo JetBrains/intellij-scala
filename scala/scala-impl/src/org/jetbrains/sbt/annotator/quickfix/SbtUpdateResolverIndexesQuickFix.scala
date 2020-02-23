@@ -18,7 +18,7 @@ class SbtUpdateResolverIndexesQuickFix(module: Module) extends AbstractIntention
 
   override def getText = SbtBundle.message("sbt.fix.updateIndexes")
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val ui = ProjectStructureConfigurable.getInstance(project)
     val editor = new SingleConfigurableEditor(project, ui)
     ui.select(module.getName, "sbt", false)

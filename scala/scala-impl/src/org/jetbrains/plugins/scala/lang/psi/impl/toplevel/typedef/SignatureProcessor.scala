@@ -104,7 +104,7 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
   override def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
     implicit val ctx: ProjectContext = template
 
-    def addSignature(s: TermSignature) {
+    def addSignature(s: TermSignature): Unit = {
       process(s, sink)
     }
 

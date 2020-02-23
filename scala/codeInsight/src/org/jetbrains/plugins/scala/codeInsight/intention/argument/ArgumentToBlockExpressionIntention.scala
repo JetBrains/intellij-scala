@@ -25,7 +25,7 @@ final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAc
     })
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val list = element.getParent.asInstanceOf[ScArgumentExprList]
     val exp = list.exprs.head
     implicit val projectContext = list.projectContext

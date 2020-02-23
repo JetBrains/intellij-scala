@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor with ScalaIntellijFormatterLike {
 
   private class ScalaDocNewlinedPreFormatVisitor(settings: ScalaCodeStyleSettings) extends ScalaElementVisitor {
-    override def visitDocComment(s: ScDocComment) {
+    override def visitDocComment(s: ScDocComment): Unit = {
       s.getChildren.foreach {fixNewlines(_, settings)}
     }
 

@@ -275,7 +275,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     }
   }
 
-  private def addParameterUsages(param: PsiParameter, oldIndex: Int, newName: String, results: ArrayBuffer[UsageInfo]) {
+  private def addParameterUsages(param: PsiParameter, oldIndex: Int, newName: String, results: ArrayBuffer[UsageInfo]): Unit = {
     val scope: SearchScope = param.getUseScope
     val process = (ref: PsiReference) => {
       ref.getElement match {

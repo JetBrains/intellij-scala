@@ -10,7 +10,7 @@ trait FeatureSpecSingleTestTest extends FeatureSpecGenerator {
   val featureSpecTestPath = List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A")
   val featureSpecTaggedTestPath = List("[root]", featureSpecClassName, "Feature: Feature 3", "Scenario: Tagged")
 
-  def testFeatureSpecSingleTest() {
+  def testFeatureSpecSingleTest(): Unit = {
     runTestByLocation(5, 7, featureSpecFileName,
       checkConfigAndSettings(_, featureSpecClassName, featureSpecConfigTestName),
       root => checkResultTreeHasExactNamedPath(root, featureSpecTestPath:_*) &&

@@ -11,93 +11,93 @@ import org.junit.Assert._
  */
 
 class StringConcatenationFormatterTest extends SimpleTestCase {
-  def testEmpty() {
+  def testEmpty(): Unit = {
     assertEquals("\"\"", format())
   }
 
-  def testText() {
+  def testText(): Unit = {
     assertEquals("\"foo\"", format(Text("foo")))
   }
 
-  def testEscapeChar() {
+  def testEscapeChar(): Unit = {
     assertEquals("\"\\n\"", format(Text("\n")))
   }
 
-  def testSlash() {
+  def testSlash(): Unit = {
     assertEquals("\"\\\\\"", format(Text("\\")))
   }
 
-  def testPlainExpression() {
+  def testPlainExpression(): Unit = {
     assertEquals("foo", format(Injection(exp("foo"), None)))
   }
 
-  def testExpressionWithDispensableFormat() {
+  def testExpressionWithDispensableFormat(): Unit = {
     assertEquals("foo", format(Injection(exp("foo"), Some(Specifier(null, "%d")))))
   }
 
-  def testExpressionWithMadatoryFormat() {
+  def testExpressionWithMadatoryFormat(): Unit = {
     assertEquals("foo.formatted(\"%2d\")", format(Injection(exp("foo"), Some(Specifier(null, "%2d")))))
   }
 
-  def testPlainLiteral() {
+  def testPlainLiteral(): Unit = {
     assertEquals("123", format(Injection(exp("123"), None)))
   }
 
-  def testLiteralWithDispensableFormat() {
+  def testLiteralWithDispensableFormat(): Unit = {
     assertEquals("123", format(Injection(exp("123"), Some(Specifier(null, "%d")))))
   }
 
-  def testLiteralWithMadatoryFormat() {
+  def testLiteralWithMadatoryFormat(): Unit = {
     assertEquals("123.formatted(\"%2d\")", format(Injection(exp("123"), Some(Specifier(null, "%2d")))))
   }
 
-  def testPlainComplexExpression() {
+  def testPlainComplexExpression(): Unit = {
     assertEquals("foo.bar", format(Injection(exp("foo.bar"), None)))
   }
 
-  def testComplexExpressionWithDispensableFormat() {
+  def testComplexExpressionWithDispensableFormat(): Unit = {
     assertEquals("foo.bar", format(Injection(exp("foo.bar"), Some(Specifier(null, "%d")))))
   }
 
-  def testComplexExpressionWithMadatoryFormat() {
+  def testComplexExpressionWithMadatoryFormat(): Unit = {
     assertEquals("foo.bar.formatted(\"%2d\")", format(Injection(exp("foo.bar"), Some(Specifier(null, "%2d")))))
   }
 
-  def testPlainBlockExpression() {
+  def testPlainBlockExpression(): Unit = {
     assertEquals("foo.bar", format(Injection(exp("{foo.bar}"), None)))
   }
 
-  def testBlockExpressionWithDispensableFormat() {
+  def testBlockExpressionWithDispensableFormat(): Unit = {
     assertEquals("foo.bar", format(Injection(exp("{foo.bar}"), Some(Specifier(null, "%d")))))
   }
 
-  def testBlockExpressionWithMadatoryFormat() {
+  def testBlockExpressionWithMadatoryFormat(): Unit = {
     assertEquals("foo.bar.formatted(\"%2d\")", format(Injection(exp("{foo.bar}"), Some(Specifier(null, "%2d")))))
   }
 
-  def testPlainComplexBlockExpression() {
+  def testPlainComplexBlockExpression(): Unit = {
     assertEquals("{null; foo.bar}", format(Injection(exp("{null; foo.bar}"), None)))
   }
 
-  def testComplexBlockExpressionWithDispensableFormat() {
+  def testComplexBlockExpressionWithDispensableFormat(): Unit = {
     assertEquals("{null; foo.bar}", format(Injection(exp("{null; foo.bar}"), Some(Specifier(null, "%d")))))
   }
 
-  def testComplexBlockExpressionWithMadatoryFormat() {
+  def testComplexBlockExpressionWithMadatoryFormat(): Unit = {
     assertEquals("{null; foo.bar}.formatted(\"%2d\")", format(Injection(exp("{null; foo.bar}"), Some(Specifier(null, "%2d")))))
   }
 
-  def testMixedParts() {
+  def testMixedParts(): Unit = {
     assertEquals("\"foo \" + exp + \" bar\"", format(Text("foo "), Injection(exp("exp"), None), Text(" bar")))
   }
 
-  def testStringLiteral() {
+  def testStringLiteral(): Unit = {
     assertEquals("\"foo\"", format(Injection(exp('"' + "foo" + '"'), None)))
     assertEquals("123L", format(Injection(exp("123L"), None)))
     assertEquals("true", format(Injection(exp("true"), None)))
   }
 
-  def testOther() {
+  def testOther(): Unit = {
     assertEquals("", format(UnboundExpression(exp("foo"))))
   }
 

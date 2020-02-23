@@ -20,7 +20,7 @@ abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBas
     super.errorsFromScalaCode(scalaFileText)
   }
 
-  def doTest(expectedErrors: List[Message] = Nil, fileText: Option[String] = None, settingOn: Boolean = false) {
+  def doTest(expectedErrors: List[Message] = Nil, fileText: Option[String] = None, settingOn: Boolean = false): Unit = {
     val text = fileText.getOrElse {
       val filePath = folderPath + getTestName(true) + ".scala"
       val ioFile: File = new File(filePath)

@@ -72,7 +72,7 @@ trait ScExpression extends ScBlockStatement
   @volatile
   private var additionalExpression: Option[(ScExpression, ScType)] = None
 
-  def setAdditionalExpression(additionalExpression: Option[(ScExpression, ScType)]) {
+  def setAdditionalExpression(additionalExpression: Option[(ScExpression, ScType)]): Unit = {
     this.additionalExpression = additionalExpression
   }
 

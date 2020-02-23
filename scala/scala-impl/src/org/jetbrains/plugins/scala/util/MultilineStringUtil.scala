@@ -111,7 +111,7 @@ object MultilineStringUtil {
     case _ => true
   }
 
-  def insertStripMargin(document: Document, literal: ScLiteral, marginChar: Char) {
+  def insertStripMargin(document: Document, literal: ScLiteral, marginChar: Char): Unit = {
     if (needAddStripMargin(literal, "" + marginChar)) {
       val stripText = if (marginChar == DefaultMarginChar) ".stripMargin"
       else s".stripMargin('$marginChar')"
@@ -230,7 +230,7 @@ object MultilineStringUtil {
         val marginIndent = quotesIndent + interpolatorPrefixLength(literal) + settings.marginIndent
 
         inWriteAction {
-          def insertIndent(lineNumber: Int, indent: Int, marginChar: Option[Char]) {
+          def insertIndent(lineNumber: Int, indent: Int, marginChar: Option[Char]): Unit = {
             val lineStart = document.getLineStartOffset(lineNumber)
             val indentStr = settings.getSmartSpaces(indent) + marginChar.getOrElse("")
             document.insertString(lineStart, indentStr)

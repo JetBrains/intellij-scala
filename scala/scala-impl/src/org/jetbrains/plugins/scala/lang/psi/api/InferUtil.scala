@@ -56,7 +56,7 @@ object InferUtil {
 
   private def isDebugImplicitParameters = LOG.isDebugEnabled
 
-  def logInfo(searchLevel: Int, message: => String) {
+  def logInfo(searchLevel: Int, message: => String): Unit = {
     val indent = Seq.fill(searchLevel)("  ").mkString
     //    println(indent + message)
     if (isDebugImplicitParameters) {

@@ -71,7 +71,7 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
     ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`())
   }
 
-  override def delete() {
+  override def delete(): Unit = {
     getContext match {
       case pList: ScPatternList if pList.patterns == Seq(this) =>
         val context: PsiElement = pList.getContext

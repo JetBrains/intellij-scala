@@ -32,7 +32,7 @@ class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Projec
 
   import com.intellij.find.findUsages.AbstractFindUsagesDialog.{isSelected, isToChange}
 
-  override def calcFindUsagesOptions(options: ScalaTypeDefinitionFindUsagesOptions) {
+  override def calcFindUsagesOptions(options: ScalaTypeDefinitionFindUsagesOptions): Unit = {
     super.calcFindUsagesOptions(options)
     if (isToChange(myCbUsages)) {
       options.isUsages = isSelected(myCbUsages)
@@ -83,7 +83,7 @@ class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Projec
     findWhatPanel
   }
 
-  protected override def update() {
+  protected override def update(): Unit = {
     val dependentCbs = Seq(
       myCbToSearchForTextOccurrences,
       myCbCompanionModule,

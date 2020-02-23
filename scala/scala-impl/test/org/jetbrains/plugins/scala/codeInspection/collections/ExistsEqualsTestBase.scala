@@ -17,7 +17,7 @@ abstract class ReplaceWithContainsTestBase extends ExistsEqualsTestBase {
 
 class ReplaceWithContainsTest extends ReplaceWithContainsTestBase {
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"List(0).${START}exists(x => x == 1)$END"
     checkTextHasError(selected)
     val text = "List(0).exists(x => x == 1)"
@@ -25,7 +25,7 @@ class ReplaceWithContainsTest extends ReplaceWithContainsTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"List(0).${START}exists(_ == 1)$END"
     checkTextHasError(selected)
     val text = "List(0).exists(_ == 1)"
@@ -33,7 +33,7 @@ class ReplaceWithContainsTest extends ReplaceWithContainsTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_3() {
+  def test_3(): Unit = {
     val selected = s"List(0) ${START}exists (x => x == 1)$END"
     checkTextHasError(selected)
     val text = "List(0) exists (x => x == 1)"
@@ -41,7 +41,7 @@ class ReplaceWithContainsTest extends ReplaceWithContainsTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_4() {
+  def test_4(): Unit = {
     val selected = s"List(0).${START}exists(1 == _)$END"
     checkTextHasError(selected)
     val text = "List(0).exists(1 == _)"
@@ -49,12 +49,12 @@ class ReplaceWithContainsTest extends ReplaceWithContainsTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_5() {
+  def test_5(): Unit = {
     val text = "List(0).exists(x => x == - x)"
     checkTextHasNoErrors(text)
   }
 
-  def test_7() {
+  def test_7(): Unit = {
     val text = "Map(1 -> \"1\").exists(_ == (1, \"1\"))"
     checkTextHasNoErrors(text)
   }
@@ -64,7 +64,7 @@ class ReplaceWithContainsTest_with_OptionContains extends ReplaceWithContainsTes
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
 
-  def test_6() {
+  def test_6(): Unit = {
     val selected = s"Some(0).${START}exists(_ == 1)$END"
     checkTextHasError(selected)
     val text = "Some(0).exists(_ == 1)"
@@ -77,7 +77,7 @@ class ReplaceWithContainsTest_without_OptionContains extends ReplaceWithContains
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_10
 
-  def test_6() {
+  def test_6(): Unit = {
     val text = "Some(1).exists(_ == 1)"
     checkTextHasNoErrors(text)
   }

@@ -17,19 +17,19 @@ class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
   override protected val hint: String =
     InspectionBundle.message("redundant.collection.conversion")
 
-  def test_1() {
+  def test_1(): Unit = {
     doTest(s"List(1, 2).${START}toList$END",
       "List(1, 2).toList",
       "List(1, 2)")
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     doTest(s"Seq(1, 2).${START}to[Seq]$END",
       "Seq(1, 2).to[Seq]",
       "Seq(1, 2)")
   }
 
-  def test_2_with_implicit_generic() {
+  def test_2_with_implicit_generic(): Unit = {
     doTest(s"val x: List[Int] = List(1, 2).${START}to$END",
       "val x: List[Int] = List(1, 2).to",
       "val x: List[Int] = List(1, 2)")

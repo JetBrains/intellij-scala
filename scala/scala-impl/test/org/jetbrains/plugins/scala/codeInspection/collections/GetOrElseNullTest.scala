@@ -14,7 +14,7 @@ class GetOrElseNullTest extends OperationsOnCollectionInspectionTest {
 
   override val hint: String = InspectionBundle.message("getOrElse.null.hint")
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"None.${START}getOrElse(null)$END"
     checkTextHasError(selected)
 
@@ -23,7 +23,7 @@ class GetOrElseNullTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"None ${START}getOrElse null$END"
     checkTextHasError(selected)
 

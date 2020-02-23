@@ -21,7 +21,7 @@ class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     case None => Right(Unit)
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitParenthesisedTypeElement(this)
   }
 }

@@ -18,7 +18,7 @@ class SbtRefreshProjectQuickFix extends AbstractIntentionAction {
 
   override def getText = SbtBundle.message("sbt.fix.refreshProject")
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     FileDocumentManager.getInstance.saveAllDocuments()
     ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
   }

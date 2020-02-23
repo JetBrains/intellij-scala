@@ -24,7 +24,7 @@ abstract class Specs2ObjectSpecTest extends Specs2TestCase {
       |  }
       |}
     """.stripMargin)
-  def testSpecObject() {
+  def testSpecObject(): Unit = {
     runTestByLocation(5, 8, "SpecObject.scala",
       checkConfigAndSettings(_, "SpecObject", "run alone"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecObject", "single test in SpecObject should", "run alone") &&

@@ -42,7 +42,7 @@ class MakeBoxingExplicitTest extends TransformerTest(new MakeBoxingExplicit()) {
     before = "  f(1)",
     after = "  f(1)"
   )(
-    header = "class C[@specialized T] {def f(p: T) {}",
+    header = "class C[@specialized T] {def f(p: T): Unit = {}",
     footer = "}"
   )
 
@@ -50,7 +50,7 @@ class MakeBoxingExplicitTest extends TransformerTest(new MakeBoxingExplicit()) {
     before = "  f(1)",
     after = "  f(1)"
   )(
-    header = "class C[@specialized(Int) T] {def f(p: T) {}",
+    header = "class C[@specialized(Int) T] {def f(p: T): Unit = {}",
     footer = "}"
   )
 
@@ -58,7 +58,7 @@ class MakeBoxingExplicitTest extends TransformerTest(new MakeBoxingExplicit()) {
     before = "  f(1)",
     after = "  f(scala.runtime.BoxesRunTime.boxToInteger(1))"
   )(
-    header = "class C[@specialized(Double) T] {def f(p: T) {}",
+    header = "class C[@specialized(Double) T] {def f(p: T): Unit = {}",
     footer = "}"
   )
 }

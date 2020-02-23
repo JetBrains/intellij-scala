@@ -59,7 +59,7 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
     } yield t
   }
 
-  override def removeImplicitBounds() {
+  override def removeImplicitBounds(): Unit = {
     var node = getNode.getFirstChildNode
     while (node != null && !Set(ScalaTokenTypes.tCOLON, ScalaTokenTypes.tVIEW)(node.getElementType)) {
       node = node.getTreeNext

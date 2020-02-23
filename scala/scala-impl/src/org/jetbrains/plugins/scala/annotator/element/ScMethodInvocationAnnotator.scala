@@ -27,7 +27,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   }
 
   def annotateMethodInvocation(call: MethodInvocation)
-                              (implicit holder: ScalaAnnotationHolder) {
+                              (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = call
     implicit val tpc: TypePresentationContext = TypePresentationContext(call)
 

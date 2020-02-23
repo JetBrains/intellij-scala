@@ -115,7 +115,7 @@ object ScalaPsiUtil {
     paramText
   }
 
-  def debug(message: => String, logger: Logger) {
+  def debug(message: => String, logger: Logger): Unit = {
     if (logger.isDebugEnabled) {
       logger.debug(message)
     }
@@ -345,7 +345,7 @@ object ScalaPsiUtil {
   def getExprImports(z: ScExpression): Set[ImportUsed] = {
     var res: Set[ImportUsed] = Set.empty
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitExpression(expr: ScExpression) {
+      override def visitExpression(expr: ScExpression): Unit = {
         //Implicit parameters
         expr.findImplicitArguments match {
           case Some(results) => for (r <- results if r != null) res = res ++ r.importsUsed
@@ -353,7 +353,7 @@ object ScalaPsiUtil {
         }
 
         //implicit conversions
-        def addConversions(fromUnderscore: Boolean) {
+        def addConversions(fromUnderscore: Boolean): Unit = {
           res = res ++ expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
             fromUnderscore = fromUnderscore).importsUsed
         }
@@ -650,7 +650,7 @@ object ScalaPsiUtil {
         else !super.hasModifierProperty("private") && !super.hasModifierProperty("protected")
     }
 
-  def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true) {
+  def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = {
     TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
   }
 
@@ -800,7 +800,7 @@ object ScalaPsiUtil {
 
       override def substituteWithBoundsPromotion(typeParameter: PsiTypeParameter): PsiType = substitute(typeParameter)
 
-      override def ensureValid() {}
+      override def ensureValid(): Unit = {}
     }
 
     PseudoPsiSubstitutor(subst)
@@ -1371,7 +1371,7 @@ object ScalaPsiUtil {
     clauses.isEmpty || (clauses.length == 1 && clauses.head.isImplicit)
   }
 
-  def padWithWhitespaces(element: PsiElement) {
+  def padWithWhitespaces(element: PsiElement): Unit = {
     val range: TextRange = element.getTextRange
     val previousOffset = range.getStartOffset - 1
     val nextOffset = range.getEndOffset

@@ -22,7 +22,7 @@ import scala.collection.mutable
  */
 class ScalaMethodImplementor extends MethodImplementor {
   val emptyConsumer: Consumer[PsiMethod] = new Consumer[PsiMethod] {
-    override def consume(t: PsiMethod) {}
+    override def consume(t: PsiMethod): Unit = {}
   }
 
   private val prototypeToBaseMethod = mutable.WeakHashMap[PsiMethod, PsiMethod]()
@@ -57,7 +57,7 @@ private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMet
 
   var member: PsiMember = method
 
-  override def insert(aClass: PsiClass, anchor: PsiElement, before: Boolean) {
+  override def insert(aClass: PsiClass, anchor: PsiElement, before: Boolean): Unit = {
     aClass match {
       case td: ScTemplateDefinition =>
         member = ScalaGenerationInfo.insertMethod(ScMethodMember(method), td, findAnchor(td, baseMethod))

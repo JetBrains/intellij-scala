@@ -51,7 +51,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     false
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     def countMethodCall(call: ScMethodCall): Int = {
       call.getInvokedExpr match {
         case call: ScMethodCall => 1 + countMethodCall(call)
@@ -59,7 +59,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
       }
     }
 
-    def showErrorHint(hint: String) {
+    def showErrorHint(hint: String): Unit = {
       if (ApplicationManager.getApplication.isUnitTestMode) {
         throw new RuntimeException(hint)
       } else {

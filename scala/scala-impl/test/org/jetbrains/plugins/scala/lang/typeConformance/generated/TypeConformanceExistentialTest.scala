@@ -14,39 +14,39 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
   //todo:
   /*def testBadLowerBoundPrimitive() {doTest()}*/
 
-  def testBadLowerUpper() {doTest()}
+  def testBadLowerUpper(): Unit = {doTest()}
 
-  def testBadToExistential() {doTest()}
+  def testBadToExistential(): Unit = {doTest()}
 
-  def testInnerPlaceHolder() {doTest()}
+  def testInnerPlaceHolder(): Unit = {doTest()}
 
-  def testInnerPlaceholderBack() {doTest()}
+  def testInnerPlaceholderBack(): Unit = {doTest()}
 
-  def testLowerBound() {doTest()}
+  def testLowerBound(): Unit = {doTest()}
 
-  def testLowerBound2() {doTest()}
+  def testLowerBound2(): Unit = {doTest()}
 
-  def testLowerBoundAbstract() {doTest()}
+  def testLowerBoundAbstract(): Unit = {doTest()}
 
   //todo:
   /*def testLowerBoundAbstract2() {doTest()}*/
 
-  def testLowerBoundPrimitive() {doTest()}
+  def testLowerBoundPrimitive(): Unit = {doTest()}
 
-  def testLowerBoundsPrimitiveCovariant() {doTest()}
+  def testLowerBoundsPrimitiveCovariant(): Unit = {doTest()}
 
-  def testLowerUpperBouns() {doTest()}
+  def testLowerUpperBouns(): Unit = {doTest()}
 
-  def testSCL2977() {doTest()}
+  def testSCL2977(): Unit = {doTest()}
 
-  def testSCL2977B() {doTest()}
+  def testSCL2977B(): Unit = {doTest()}
 
-  def testToExistential() {doTest()}
+  def testToExistential(): Unit = {doTest()}
 
-  def testToExistentialSimple() {doTest()}
+  def testToExistentialSimple(): Unit = {doTest()}
 
   //SCL-10295
-  def testExistentialWithAliasedDesignator() {doTest()}
+  def testExistentialWithAliasedDesignator(): Unit = {doTest()}
 
   def testSCL12127ConformanceFreeze(): Unit = {
     doTest(

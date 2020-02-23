@@ -46,15 +46,15 @@ object DebuggerUtil {
   val packageSuffix = ".package$"
 
   class JVMNameBuffer {
-    def append(evaluator: JVMName) {
+    def append(evaluator: JVMName): Unit = {
       buffer += evaluator
     }
 
-    def append(name: Char) {
+    def append(name: Char): Unit = {
       append(Character.toString(name))
     }
 
-    def append(text: String) {
+    def append(text: String): Unit = {
       buffer += JVMNameUtil.getJVMRawText(text)
     }
 
@@ -414,7 +414,7 @@ object DebuggerUtil {
 
     val buf = ArrayBuffer.empty[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReference) {
+      override def visitReference(ref: ScReference): Unit = {
         if (ref.qualifier.isDefined || isArgName(ref)) {
           super.visitReference(ref)
           return

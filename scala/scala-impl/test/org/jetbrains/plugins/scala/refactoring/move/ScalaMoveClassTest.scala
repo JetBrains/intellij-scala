@@ -25,72 +25,72 @@ import scala.collection.mutable.ArrayBuffer
  * @since 30.10.12
  */
 class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  def testPackageObject() {
+  def testPackageObject(): Unit = {
     doTest(Array("com.`package`"), "org")
   }
 
-  def testPackageObject2() {
+  def testPackageObject2(): Unit = {
     doTest(Array("com"), "org")
   }
 
-  def testSimple() {
+  def testSimple(): Unit = {
     doTest(Array("com.A"), "org")
   }
 
-  def testSingleObject() {
+  def testSingleObject(): Unit = {
     doTest(Array("com.A"), "org")
   }
 
-  def testcaseClass() {
+  def testcaseClass(): Unit = {
     doTest(Array("com.A"), "org")
   }
 
-  def testScl2625() {
+  def testScl2625(): Unit = {
     doTest(Array("somepackage.Dummy", "somepackage.MoreBusiness", "somepackage.Business", "somepackage.AnotherEnum"), "dest")
   }
 
-  def testScl4623() {
+  def testScl4623(): Unit = {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
-  def testScl4613() {
+  def testScl4613(): Unit = {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
-  def testScl4621() {
+  def testScl4621(): Unit = {
     doTest(Array("moveRefactoring.foo.O"), "moveRefactoring.bar")
   }
 
-  def testScl4619() {
+  def testScl4619(): Unit = {
     doTest(Array("foo.B"), "bar")
   }
 
-  def testScl4875() {
+  def testScl4875(): Unit = {
     doTest(Array("com.A"), "org")
   }
 
-  def testScl4878() {
+  def testScl4878(): Unit = {
     doTest(Array("org.B"), "com")
   }
 
-  def testScl4894() {
+  def testScl4894(): Unit = {
     doTest(Array("moveRefactoring.foo.B", "moveRefactoring.foo.BB"), "moveRefactoring.bar")
   }
 
-  def testScl4972() {
+  def testScl4972(): Unit = {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
-  def testScl5456 () {
+  def testScl5456 (): Unit = {
     doTest(Array("com.A"), "org", Kinds.onlyClasses)
   }
 
-  def testWithCompanion() {
+  def testWithCompanion(): Unit = {
     doTest(Array("source.A"), "target", Kinds.onlyClasses)
   }
 
 
-  def testBothJavaAndScala() {
+  def testBothJavaAndScala(): Unit = {
     doTest(Array("org.A", "org.J"), "com")
   }
 
@@ -124,7 +124,7 @@ class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     rootDirAfter = findAndRefreshVFile(rootAfter)
   }
 
-  def doTest(classNames: Array[String], newPackageName: String, mode: Kinds.Value = Kinds.all, moveCompanion: Boolean = true) {
+  def doTest(classNames: Array[String], newPackageName: String, mode: Kinds.Value = Kinds.all, moveCompanion: Boolean = true): Unit = {
     val settings = ScalaApplicationSettings.getInstance()
     val moveCompanionOld = settings.MOVE_COMPANION
     settings.MOVE_COMPANION = moveCompanion
@@ -138,7 +138,7 @@ class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     PlatformTestUtil.assertDirectoriesEqual(rootDirAfter, rootDirBefore)
   }
 
-  private def performAction(classNames: Array[String], newPackageName: String, mode: Kinds.Value) {
+  private def performAction(classNames: Array[String], newPackageName: String, mode: Kinds.Value): Unit = {
     val classes = new ArrayBuffer[PsiClass]()
     for (name <- classNames) {
       classes ++= ScalaPsiManager.instance(getProjectAdapter).getCachedClasses(GlobalSearchScope.allScope(getProjectAdapter), name).filter {

@@ -54,10 +54,10 @@ object ScalaColorSchemeAnnotator {
     }
   }
 
-  def highlightReferenceElement(refElement: ScReference, holder: ScalaAnnotationHolder) {
+  def highlightReferenceElement(refElement: ScReference, holder: ScalaAnnotationHolder): Unit = {
     implicit val project: ProjectContext = refElement.projectContext
 
-    def annotateCollectionByType(resolvedType: ScType) {
+    def annotateCollectionByType(resolvedType: ScType): Unit = {
       val resolvedTypeName = resolvedType.presentableText(TypePresentationContext.emptyContext)
       if (ScalaNamesUtil.isOperatorName(
         resolvedTypeName.substring(0, resolvedTypeName.prefixLength(_ != '.')))) return
@@ -85,7 +85,7 @@ object ScalaColorSchemeAnnotator {
           tp.conforms
         }
 
-      def simpleAnnotate(annotationText: String, annotationAttributes: TextAttributesKey) {
+      def simpleAnnotate(annotationText: String, annotationAttributes: TextAttributesKey): Unit = {
         if (SCALA_FACTORY_METHODS_NAMES.contains(refElement.nameId.getText)) {
           return
         }
@@ -115,7 +115,7 @@ object ScalaColorSchemeAnnotator {
       }
     }
 
-    def annotateCollection(resolvedClazz: PsiClass) {
+    def annotateCollection(resolvedClazz: PsiClass): Unit = {
       annotateCollectionByType(ScalaType.designator(resolvedClazz))
     }
 
@@ -248,7 +248,7 @@ object ScalaColorSchemeAnnotator {
     }
   }
 
-  def highlightElement(element: PsiElement, holder: ScalaAnnotationHolder) {
+  def highlightElement(element: PsiElement, holder: ScalaAnnotationHolder): Unit = {
     element match {
       case r: ScReference => highlightReferenceElement(r, holder)
       case x: ScAnnotation => visitAnnotation(x, holder)

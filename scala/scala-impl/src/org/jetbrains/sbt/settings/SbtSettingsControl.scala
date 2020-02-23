@@ -24,7 +24,7 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
   override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit =
     canvas.add(pane.getContentPanel, ExternalSystemUiUtil.getFillLineConstraints(indentLevel))
 
-  override def disposeUIResources() {}
+  override def disposeUIResources(): Unit = {}
 
   override def apply(settings: SbtSettings): Unit = {
     settings.customLauncherEnabled = pane.isCustomLauncher

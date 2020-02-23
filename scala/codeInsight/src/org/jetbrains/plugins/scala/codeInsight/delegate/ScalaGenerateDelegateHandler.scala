@@ -41,7 +41,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   override def isValidFor(editor: Editor, file: PsiFile): Boolean =
     targetElements(file, editor).nonEmpty
 
-  override def invoke(@NotNull project: Project, @NotNull editor: Editor, @NotNull file: PsiFile) {
+  override def invoke(@NotNull project: Project, @NotNull editor: Editor, @NotNull file: PsiFile): Unit = {
     if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 

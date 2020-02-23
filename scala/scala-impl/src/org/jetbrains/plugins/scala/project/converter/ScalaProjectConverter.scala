@@ -29,24 +29,24 @@ class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter
 
   override def createModuleFileConverter(): ConversionProcessor[ModuleSettings] = scalaModuleConverter
 
-  override def processingFinished() {
+  override def processingFinished(): Unit = {
     updateScalaCompilerSettings()
     updateScalaProjectSettings()
     deleteObsoleteProjectLibraries()
   }
 
-  private def updateScalaCompilerSettings() {
+  private def updateScalaCompilerSettings(): Unit = {
     val compilerConfiguration = merge(scalaCompilerSettings)
     val createdFile = compilerConfiguration.createIn(context)
     createdSettingsFiles ++= createdFile.toSeq
   }
 
-  private def updateScalaProjectSettings() {
+  private def updateScalaProjectSettings(): Unit = {
     val createdFile = scalaProjectSettings.createOrUpdateIn(context)
     createdSettingsFiles ++= createdFile.toSeq
   }
 
-  private def deleteObsoleteProjectLibraries() {
+  private def deleteObsoleteProjectLibraries(): Unit = {
     obsoleteProjectLibraries.foreach(_.deleteIn(context))
   }
 

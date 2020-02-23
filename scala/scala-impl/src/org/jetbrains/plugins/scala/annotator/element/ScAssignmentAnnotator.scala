@@ -29,7 +29,7 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
         ref.bind() match {
           case Some(r) if r.isDynamic && r.name == DynamicResolveProcessor.UPDATE_DYNAMIC => //ignore
           case Some(r) if !r.isNamedParameter =>
-            def checkVariable() {
+            def checkVariable(): Unit = {
               left.`type`().foreach { lType =>
                 right.foreach { expression =>
                   expression.getTypeAfterImplicitConversion().tr.foreach { rType =>

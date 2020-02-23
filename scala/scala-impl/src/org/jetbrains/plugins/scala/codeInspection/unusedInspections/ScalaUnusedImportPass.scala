@@ -87,13 +87,13 @@ object ScalaUnusedImportPass {
   private val SCALA_LAST_POST_PASS_TIMESTAMP = Key.create[java.lang.Long]("SCALA_LAST_POST_PASS_TIMESTAMP")
 
   //todo: copy/paste from QuickFixFactoryImpl
-  private def invokeOnTheFlyImportOptimizer(runnable: Runnable, file: PsiFile) {
+  private def invokeOnTheFlyImportOptimizer(runnable: Runnable, file: PsiFile): Unit = {
     val project: Project = file.getProject
     val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
     if (document == null) return
     val stamp: Long = document.getModificationStamp
     ApplicationManager.getApplication.invokeLater(new Runnable {
-      override def run() {
+      override def run(): Unit = {
         if (project.isDisposed || document.getModificationStamp != stamp) return
         val undoManager: UndoManager = UndoManager.getInstance(project)
         if (undoManager.isUndoInProgress || undoManager.isRedoInProgress) return

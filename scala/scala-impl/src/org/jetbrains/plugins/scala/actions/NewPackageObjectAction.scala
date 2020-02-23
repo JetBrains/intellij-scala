@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project._
 
 class NewPackageObjectAction extends LazyFileTemplateAction("Package Object", Icons.PACKAGE_OBJECT) {
 
-  override def update(e: AnActionEvent) {
+  override def update(e: AnActionEvent): Unit = {
     super.update(e)
 
     e.getPresentation.setIcon(icon)

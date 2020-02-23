@@ -30,7 +30,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testTraitThis() {
+  def testTraitThis(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("this", "TraitThis$$anon")
@@ -57,7 +57,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testSuperInvocation() {
+  def testSuperInvocation(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo", "1")
@@ -78,7 +78,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testInvocationFromInner() {
+  def testInvocationFromInner(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo", "1")
@@ -99,7 +99,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testThisInvocationFromInner() {
+  def testThisInvocationFromInner(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("ThisInvocationFromInner.this.foo", "1")
@@ -126,7 +126,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testThisInvocationFromInnerClass() {
+  def testThisInvocationFromInnerClass(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("ThisInvocationFromInnerClass.this.foo", "1")
@@ -147,7 +147,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testSuperInvocationFromInner() {
+  def testSuperInvocationFromInner(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("SuperInvocationFromInner.super.foo", "1")
@@ -173,7 +173,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testSuperTraitInvocationFromInner() {
+  def testSuperTraitInvocationFromInner(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("SuperTraitInvocationFromInner.super.foo", "1")
@@ -189,7 +189,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testSuperTraitInvocation() {
+  def testSuperTraitInvocation(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo", "1")
@@ -221,7 +221,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testOuterSuperInnerTraitInvocation() {
+  def testOuterSuperInnerTraitInvocation(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("E.super.ioi", "2")
@@ -248,7 +248,7 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testInnerOuterEtc() {
+  def testInnerOuterEtc(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("foo", "1")

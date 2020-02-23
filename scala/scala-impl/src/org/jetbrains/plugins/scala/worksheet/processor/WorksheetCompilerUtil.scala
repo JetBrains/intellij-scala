@@ -84,7 +84,7 @@ object WorksheetCompilerUtil {
                           (implicit project: Project): Unit =
     showCompilationMessage(file, pos, msg, ErrorSeverity, onShow)
 
-  def removeOldMessageContent(project: Project) {
+  def removeOldMessageContent(project: Project): Unit = {
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
     if (oldContent != null) {

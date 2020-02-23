@@ -43,7 +43,7 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
       modifier = new Modifier {
         override def canInspect: Boolean = true
         override def canSetValue: Boolean = true
-        override def setValue(value: Value) {
+        override def setValue(value: Value): Unit = {
           myEvaluatedArrayReference.setValue(myEvaluatedIndex, value)
         }
         override def getExpectedType: Type = {

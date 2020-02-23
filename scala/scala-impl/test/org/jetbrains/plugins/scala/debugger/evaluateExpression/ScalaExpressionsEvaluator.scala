@@ -37,7 +37,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testPrefixUnary() {
+  def testPrefixUnary(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("!u", "false")
@@ -54,7 +54,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testVariousExprs() {
+  def testVariousExprs(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("(1, 2, 3)", "(1,2,3)")
@@ -78,7 +78,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testSmartBoxing() {
+  def testSmartBoxing(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("test(tup)", "1")
@@ -105,7 +105,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testAssignment() {
+  def testAssignment(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x(0)(0)", "1")
@@ -137,7 +137,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testThis() {
+  def testThis(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("this.x", "1")
@@ -168,7 +168,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testPrefixedThis() {
+  def testPrefixedThis(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("This.this.x", "1")
@@ -186,7 +186,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testPostfix() {
+  def testPostfix(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x x", "1")
@@ -204,7 +204,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testBackticks() {
+  def testBackticks(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("`val`", "100")
@@ -222,7 +222,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testLiteral() {
+  def testLiteral(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals(""""x".length""", "1")
@@ -251,7 +251,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testJavaLib() {
+  def testJavaLib(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("new StringBuilder(\"test\").append(23)", "test23")
@@ -269,7 +269,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testInnerClass() {
+  def testInnerClass(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("new Expr", "InnerClass$Expr")
@@ -290,7 +290,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testOverloadingClass() {
+  def testOverloadingClass(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("new Expr(\"\")", "OverloadingClass$Expr")
@@ -311,7 +311,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testIsInstanceOf() {
+  def testIsInstanceOf(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x.isInstanceOf[A]", "true")

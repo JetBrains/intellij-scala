@@ -29,7 +29,7 @@ trait FlatSpecScopeTest extends ScalaTestTestCase {
        |""".stripMargin
   )
 
-  def testFlatSpecScope_ShouldIncludeItTestsWithoutBehaviourInTheBeginning() {
+  def testFlatSpecScope_ShouldIncludeItTestsWithoutBehaviourInTheBeginning(): Unit = {
     //TODO: "fix scalatest-finders-patched: FlatSpecFinder#getAllTestSelection does not detect tests without initial scope"
     return
 

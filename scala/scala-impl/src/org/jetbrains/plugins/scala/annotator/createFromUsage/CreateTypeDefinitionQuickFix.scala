@@ -97,7 +97,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
     }
   }
 
-  private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]) {
+  private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]): Unit = {
     val renderer = new PsiElementListCellRenderer[PsiElement] {
       override def getElementText(element: PsiElement): String = element match {
         case _: PsiFile => "New file"
@@ -145,7 +145,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
     afterCreationWork(clazz.asInstanceOf[ScTypeDefinition])
   }
 
-  protected def afterCreationWork(clazz: ScTypeDefinition) {
+  protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
     addGenericParams(clazz)
     addClassParams(clazz)
     ScalaPsiUtil.adjustTypes(clazz)

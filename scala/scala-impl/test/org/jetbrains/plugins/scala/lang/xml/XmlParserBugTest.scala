@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
  */
 
 class XmlParserBugTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  def testSCL1699() {
+  def testSCL1699(): Unit = {
     val text =
       """
       | object Foo{
@@ -21,13 +21,13 @@ class XmlParserBugTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL3388() {
+  def testSCL3388(): Unit = {
     val text = "class A { val xml = <span>&rarr;</span> }"
 
     checkTextHasNoErrors(text)
   }
 
-  def testSCL3299() {
+  def testSCL3299(): Unit = {
     val text =
       """
       | object TestObject {

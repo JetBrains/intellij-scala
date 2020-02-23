@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
  */
 
 class DefaultTest extends ApplicabilityTestBase {
-  def testFine() {
+  def testFine(): Unit = {
     assertProblems("(a: A = null)", "()") {
       case Nil =>
     }
@@ -25,7 +25,7 @@ class DefaultTest extends ApplicabilityTestBase {
     }
   }
   
-  def testMix() {
+  def testMix(): Unit = {
     assertProblems("(a: A, b: B = null)", "(A)") {
       case Nil =>
     }
@@ -37,7 +37,7 @@ class DefaultTest extends ApplicabilityTestBase {
     }
   }
   
-  def testTooManyArguments() {
+  def testTooManyArguments(): Unit = {
     assertProblems("(a: A = null)", "(A, B)") {
       case ExcessArgument(Expression("B")) :: Nil =>
     }
@@ -49,7 +49,7 @@ class DefaultTest extends ApplicabilityTestBase {
     }
   }
 
-  def testMissedParametersClause() {
+  def testMissedParametersClause(): Unit = {
     assertProblemsFunction("", "(p: A = null)", "") {
       case MissedParametersClause(_) :: Nil =>
     }
@@ -59,7 +59,7 @@ class DefaultTest extends ApplicabilityTestBase {
     }
   }
   
-  def testMissedParameter() {
+  def testMissedParameter(): Unit = {
     assertProblems("(a: A, b: B = null)", "()") {
       case MissedValueParameter(Parameter("a")) :: Nil =>
     }
@@ -86,7 +86,7 @@ class DefaultTest extends ApplicabilityTestBase {
     }
   }
   
-  def testTypeMismatch() {
+  def testTypeMismatch(): Unit = {
     assertProblems("(a: A = null)", "(B)") {
       case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
     }

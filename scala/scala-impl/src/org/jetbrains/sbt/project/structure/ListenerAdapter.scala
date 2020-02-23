@@ -8,7 +8,7 @@ import com.intellij.openapi.util.Key
  * @author Pavel Fatin
  */
 class ListenerAdapter(listener: (OutputType, String) => Unit) extends ProcessAdapter {
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
+  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
     val textType = outputType match {
       case ProcessOutputTypes.STDOUT => Some(OutputType.StdOut)
       case ProcessOutputTypes.STDERR => Some(OutputType.StdErr)

@@ -81,7 +81,7 @@ class TechHubModuleBuilder extends
 
     new SdkSettingsStep(settingsStep, this, (t: SdkTypeId) => t != null && t.isInstanceOf[JavaSdk]) {
 
-      override def updateDataModel() {
+      override def updateDataModel(): Unit = {
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
       }
 

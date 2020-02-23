@@ -7,7 +7,7 @@ trait WordSpecSingleTestTest extends WordSpecGenerator {
   val wordSpecTestPath = List("[root]", wordSpecClassName, "WordSpecTest", "Run single test")
   val wordSpecTestTaggedPath = List("[root]", wordSpecClassName, "tagged", "be tagged")
 
-  def testWordSpec() {
+  def testWordSpec(): Unit = {
     runTestByLocation(5, 10, wordSpecFileName,
       checkConfigAndSettings(_, wordSpecClassName, "WordSpecTest should Run single test"),
       root => checkResultTreeHasExactNamedPath(root, wordSpecTestPath:_*) &&
@@ -15,7 +15,7 @@ trait WordSpecSingleTestTest extends WordSpecGenerator {
     )
   }
 
-  def testTaggedWordSpec() {
+  def testTaggedWordSpec(): Unit = {
     runTestByLocation(20, 6, wordSpecFileName,
       checkConfigAndSettings(_, wordSpecClassName, "tagged should be tagged"),
       root => checkResultTreeHasExactNamedPath(root, wordSpecTestTaggedPath:_*) &&

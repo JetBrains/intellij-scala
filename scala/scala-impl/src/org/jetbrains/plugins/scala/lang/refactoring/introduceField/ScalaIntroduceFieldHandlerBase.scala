@@ -31,7 +31,7 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
   protected def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean
 
   def afterClassChoosing[T <: PsiElement](elem: T, types: Array[ScType], project: Project, editor: Editor, file: PsiFile, title: String)
-                                         (action: IntroduceFieldContext[T] => Unit) {
+                                         (action: IntroduceFieldContext[T] => Unit): Unit = {
     try {
       val classes = ScalaPsiUtil.getParents(elem, file).collect {
         case t: ScTemplateDefinition if isSuitableClass(elem, t) => t

@@ -53,7 +53,7 @@ object RenameSuperMembersUtil {
     chosen
   }
 
-  def chooseAndProcessSuper(named: ScNamedElement, processor: PsiElementProcessor[PsiNamedElement], editor: Editor) {
+  def chooseAndProcessSuper(named: ScNamedElement, processor: PsiElementProcessor[PsiNamedElement], editor: Editor): Unit = {
 
     val superMembers = named match {
       case _: ScTypeAlias => allSuperTypes(named, withSelfType = false)

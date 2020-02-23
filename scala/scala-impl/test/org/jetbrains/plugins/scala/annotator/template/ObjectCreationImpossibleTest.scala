@@ -10,42 +10,42 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  */
 
 class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition] {
-  def testFineNew() {
+  def testFineNew(): Unit = {
     assertNothing(messages("class C; new C"))
     assertNothing(messages("class C; new C {}"))
     assertNothing(messages("class C; trait T; new C with T"))
     assertNothing(messages("class C; trait T; new C with T {}"))
   }
 
-  def testFineObject() {
+  def testFineObject(): Unit = {
     assertNothing(messages("class C; object O extends C"))
     assertNothing(messages("class C; object O extends C {}"))
     assertNothing(messages("class C; trait T; object O extends C with T"))
     assertNothing(messages("class C; trait T; object O extends C with T {}"))
   }
 
-  def testTypeSkipDeclarations() {
+  def testTypeSkipDeclarations(): Unit = {
     assertNothing(messages("class C { def f }"))
   }
 
-  def testSkipAbstractInstantiations() {
+  def testSkipAbstractInstantiations(): Unit = {
     assertNothing(messages("trait T; new T"))
   }
 
-  def testSkipConcrete() {
+  def testSkipConcrete(): Unit = {
     assertNothing(messages("class C { def f }; new C"))
     assertNothing(messages("class C { def f }; new C {}"))
     assertNothing(messages("class C { def f }; new Object with C"))
     assertNothing(messages("class C { def f }; new Object with C {}"))
   }
 
-  def testSkipInvalidDirect() {
+  def testSkipInvalidDirect(): Unit = {
     assertNothing(messages("new { def f }"))
     assertNothing(messages("new Object { def f }"))
     assertNothing(messages("object O { def f }"))
   }
 
-  def testUndefinedMember() {
+  def testUndefinedMember(): Unit = {
     val Message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
 
     assertMatches(messages("trait T { def f }; new T {}")) {
@@ -53,7 +53,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitio
     }
   }
 
-  def testUndefinedMemberObject() {
+  def testUndefinedMemberObject(): Unit = {
     val Message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
 
     assertMatches(messages("trait T { def f }; object O extends T {}")) {
@@ -61,7 +61,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitio
     }
   }
 
-  def testUndefinedAndWith(){
+  def testUndefinedAndWith(): Unit = {
     val Message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
 
     assertMatches(messages("trait T { def f }; new Object with T {}")) {
@@ -69,7 +69,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitio
     }
   }
 
-  def testNeedsToBeAbstractPlaceDiffer() {
+  def testNeedsToBeAbstractPlaceDiffer(): Unit = {
     val Message = objectCreationImpossibleMessage(
       ("b: Unit", "Holder.B"), ("a: Unit", "Holder.A"))
     val ReversedMessage = objectCreationImpossibleMessage(
@@ -81,7 +81,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitio
     }
   }
 
-  def testSkipTypeDeclarationSCL2887() {
+  def testSkipTypeDeclarationSCL2887(): Unit = {
     assertNothing(messages("trait A { type a }; new A {}"))
   }
 

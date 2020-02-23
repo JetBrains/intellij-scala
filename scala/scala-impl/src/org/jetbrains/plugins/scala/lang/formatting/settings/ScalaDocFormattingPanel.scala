@@ -72,13 +72,13 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
       |def foo(x: Int, yy: Int, longParamName: Int): Int
     """.stripMargin.replace("\r", "")
 
-  private def update() {
+  private def update(): Unit = {
     setEnabled(getPanel, myEnableCheckBox.isSelected)
     myEnableCheckBox.setEnabled(true)
     myAsteriskStyleCheckBox.setEnabled(true)
   }
 
-  private def setEnabled(c: JComponent, enabled: Boolean) {
+  private def setEnabled(c: JComponent, enabled: Boolean): Unit = {
     c.setEnabled(enabled)
     val children = c.getComponents
     for (child <- children) {
@@ -90,14 +90,14 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
     }
   }
 
-  override def apply(settings: CodeStyleSettings) {
+  override def apply(settings: CodeStyleSettings): Unit = {
     super.apply(settings)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     scalaSettings.ENABLE_SCALADOC_FORMATTING = myEnableCheckBox.isSelected
     scalaSettings.USE_SCALADOC2_FORMATTING = myAsteriskStyleCheckBox.isSelected
   }
 
-  protected override def resetImpl(settings: CodeStyleSettings) {
+  protected override def resetImpl(settings: CodeStyleSettings): Unit = {
     super.resetImpl(settings)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     myEnableCheckBox.setSelected(scalaSettings.ENABLE_SCALADOC_FORMATTING)
@@ -113,7 +113,7 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
 
   protected override def getFileType: FileType = ScalaFileType.INSTANCE
 
-  protected override def customizeSettings() {
+  protected override def customizeSettings(): Unit = {
     val provider: LanguageCodeStyleSettingsProvider = LanguageCodeStyleSettingsProvider.forLanguage(ScalaLanguage.INSTANCE)
     if (provider != null) {
       provider.customizeSettings(this, getSettingsType)

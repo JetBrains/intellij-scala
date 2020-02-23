@@ -18,7 +18,7 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
   override protected val hint: String =
     InspectionBundle.message("map.getOrElse.hint")
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"None.${START}map(x => 1).getOrElse(0)$END"
     checkTextHasError(selected)
 
@@ -27,7 +27,7 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"""class Test {
                      |  Some(0) ${START}map (_ => true) getOrElse false$END
                      |}""".stripMargin
@@ -42,7 +42,7 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_3() {
+  def test_3(): Unit = {
     val selected = s"""val function: (Any) => Boolean = _ => true
                       |(None ${START}map function).getOrElse(false)$END""".stripMargin
     checkTextHasError(selected)
@@ -53,12 +53,12 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_4() {
+  def test_4(): Unit = {
     val text = "None.map(x => Seq(0)).getOrElse(List(0))"
     checkTextHasNoErrors(text)
   }
 
-  def test_5() {
+  def test_5(): Unit = {
     val selected = s"None ${START}map {_ => 1} getOrElse {1}$END"
     checkTextHasError(selected)
     val text = "None map {_ => 1} getOrElse {1}"
@@ -66,7 +66,7 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_6() {
+  def test_6(): Unit = {
     val selected = s"""Some(1) ${START}map (s => s + 1) getOrElse {
                      |  val x = 1
                      |  x
@@ -88,7 +88,7 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     checkTextHasNoErrors(text)
   }
 
-  def test_SCL7009() {
+  def test_SCL7009(): Unit = {
     val text = "None.map(_ => Seq(1)).getOrElse(Seq.empty)"
     checkTextHasNoErrors(text)
   }

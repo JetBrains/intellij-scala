@@ -16,7 +16,7 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 trait SbtRefreshCaller {
   this: AbstractExternalModuleBuilder[SbtProjectSettings] => 
   
-  def callForRefresh(project: Project) {
+  def callForRefresh(project: Project): Unit = {
     val runnable = new Runnable {
       override def run(): Unit = {
 

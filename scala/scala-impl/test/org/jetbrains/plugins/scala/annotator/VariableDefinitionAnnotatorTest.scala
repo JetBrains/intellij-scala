@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 class VariableDefinitionAnnotatorTest extends SimpleTestCase {
   final val Header = "class A; class B; object A extends A; object B extends B\n"
 
-  def testFine() {
+  def testFine(): Unit = {
     assertMatches(messages("var v = A")) {
       case Nil =>
     }
@@ -30,19 +30,19 @@ class VariableDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def testTypeMismatch() {
+  def testTypeMismatch(): Unit = {
     assertMatches(messages("var v: A = B")) {
       case Error("B", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeMismatchMessage() {
+  def testTypeMismatchMessage(): Unit = {
     assertMatches(messages("var v: A = B")) {
       case Error(_, "Type mismatch, found: B.type, required: A") :: Nil =>
     }
   }
 
-  def testTypeMismatchWithMultiplePatterns() {
+  def testTypeMismatchWithMultiplePatterns(): Unit = {
     assertMatches(messages("var foo, bar: A = B")) {
       case Error("B", TypeMismatch()) :: Nil =>
     }
@@ -55,7 +55,7 @@ class VariableDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }*/
 
-  def testWildchar() {
+  def testWildchar(): Unit = {
     assertMatches(messages("var v: A = _")) {
       case Nil =>
     }

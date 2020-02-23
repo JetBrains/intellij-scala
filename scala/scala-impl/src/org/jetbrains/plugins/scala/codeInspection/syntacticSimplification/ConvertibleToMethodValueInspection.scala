@@ -109,7 +109,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
     }
   }
 
-  private def registerProblem(holder: ProblemsHolder, expr: ScExpression, hint: String) {
+  private def registerProblem(holder: ProblemsHolder, expr: ScExpression, hint: String): Unit = {
     possibleReplacements(expr).find(isSuitableForReplace(expr, _)).foreach { replacement =>
       holder.registerProblem(expr, inspectionName,
         ProblemHighlightType.GENERIC_ERROR_OR_WARNING,

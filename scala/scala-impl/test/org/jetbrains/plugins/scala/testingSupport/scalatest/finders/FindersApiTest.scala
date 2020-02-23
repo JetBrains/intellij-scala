@@ -26,7 +26,7 @@ trait FindersApiTest
     assertEquals(testNames, selection.testNames().map(_.trim).toSet)
   }
 
-  def testFeatureSpec() {
+  def testFeatureSpec(): Unit = {
     val scenarioA = "Feature: Feature 1 Scenario: Scenario A"
     val scenarioB = "Feature: Feature 1 Scenario: Scenario B"
 
@@ -46,7 +46,7 @@ trait FindersApiTest
     checkSelection(24, 6, featureSpecFileName, Set("Feature: Feature 3 Scenario: Tagged"))
   }
 
-  def testFlatSpec() {
+  def testFlatSpec(): Unit = {
 
     val flatTestName1 = "A FlatSpecTest should be able to run single test"
     val flatTestName2 = "A FlatSpecTest should not run other tests"
@@ -65,7 +65,7 @@ trait FindersApiTest
     checkSelection(19, 3, flatSpecFileName, Set("A FlatSpecTest should run tagged tests"))
   }
 
-  def testFlatSpec_WithBehavior() {
+  def testFlatSpec_WithBehavior(): Unit = {
     val testName1 = "FlatSpec should run scopes"
     val testName2 = "FlatSpec should do other stuff"
     val testName3 = "FlatSpec should tag"
@@ -144,7 +144,7 @@ trait FindersApiTest
   }
 
   //for now, there is no need to test path.FreeSpec separately: it and FreeSpec share the same finder
-  def testFreeSpec() {
+  def testFreeSpec(): Unit = {
     val testName1 = "A ComplexFreeSpec Outer scope 1 Inner scope 1"
     val testName2 = "A ComplexFreeSpec Outer scope 2 Inner test"
     val testName3 = "A ComplexFreeSpec Outer scope 2 Inner scope 2 Another innermost scope"
@@ -174,7 +174,7 @@ trait FindersApiTest
     checkSelection(12, 10, freeSpecFileName, Set("A FreeSpecTest can be tagged"))
   }
 
-  def testFunSpec() {
+  def testFunSpec(): Unit = {
     val testName1 = "FunSpecTest should launch single test"
     val testName2 = "FunSpecTest should not launch other tests"
 
@@ -193,7 +193,7 @@ trait FindersApiTest
     checkSelection(20, 10, funSpecFileName, Set("taggedScope is tagged"))
   }
 
-  def testFunSuite() {
+  def testFunSuite(): Unit = {
     val testName1 = "should not run other tests"
 
     //'test' word
@@ -206,7 +206,7 @@ trait FindersApiTest
     checkSelection(12, 10, funSuiteFileName, Set("tagged"))
   }
 
-  def testPropSpec() {
+  def testPropSpec(): Unit = {
     val testName1 = "Single tests should run"
 
     //'property' word
@@ -219,7 +219,7 @@ trait FindersApiTest
     checkSelection(12, 10, propSpecFileName, Set("tagged"))
   }
 
-  def testWordSpec() {
+  def testWordSpec(): Unit = {
     val testName1 = "WordSpecTest should Run single test"
     val testName2 = "WordSpecTest should ignore other tests"
 

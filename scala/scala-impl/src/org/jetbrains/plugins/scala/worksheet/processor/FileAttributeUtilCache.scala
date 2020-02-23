@@ -42,7 +42,7 @@ private [worksheet] object FileAttributeUtilCache {
   def writeAttribute(attribute: FileAttribute, file: PsiFile, data: String): Unit =
     writeAttribute(attribute, file.getVirtualFile, data)
 
-  def writeAttribute(attribute: FileAttribute, file: VirtualFile, data: String) {
+  def writeAttribute(attribute: FileAttribute, file: VirtualFile, data: String): Unit = {
     file match {
       case normalFile: VirtualFileWithId => attribute.writeAttributeBytes(normalFile, data.getBytes)
       case other => lightKeys get other match {

@@ -16,7 +16,7 @@ class DefaultValuesUsagePanel(labelText: String = ScalaBundle.message("default.v
 
   init()
 
-  def init() {
+  def init(): Unit = {
     val boxLayout: BoxLayout = new BoxLayout(this, BoxLayout.X_AXIS)
     setLayout(boxLayout)
 
@@ -36,7 +36,7 @@ class DefaultValuesUsagePanel(labelText: String = ScalaBundle.message("default.v
     Seq(myRbAddDefaultArg, myRbModifyCalls).foreach(bg.add)
 
     val listener = new ItemListener {
-      override def itemStateChanged(e: ItemEvent) {
+      override def itemStateChanged(e: ItemEvent): Unit = {
         stateModified()
       }
     }
@@ -45,7 +45,7 @@ class DefaultValuesUsagePanel(labelText: String = ScalaBundle.message("default.v
   }
 
 
-  protected def stateModified() {
+  protected def stateModified(): Unit = {
   }
 
   def isAddDefaultArgs: Boolean = myRbAddDefaultArg.isSelected

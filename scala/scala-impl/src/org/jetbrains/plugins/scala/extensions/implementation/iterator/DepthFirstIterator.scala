@@ -22,7 +22,7 @@ class DepthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) 
     element
   }
 
-  def pushChildren(element: PsiElement) {
+  def pushChildren(element: PsiElement): Unit = {
       var child = element.getLastChild
       while (child != null) {
         stack = child +: stack

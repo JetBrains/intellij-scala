@@ -44,11 +44,11 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
   type Alias[A] = Klass[A]
   """
   
-  def testEmpty() {
+  def testEmpty(): Unit = {
     assertNothing(messages(""))
   }
   
-  def testFine() {
+  def testFine(): Unit = {
     val codes = Seq(
       "new Simple",
       "new Simple()",
@@ -79,7 +79,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testExcessArguments() {
+  def testExcessArguments(): Unit = {
     assertMatches(messages("new A(0, 1)")) {
       case Error(", 1", "Too many arguments for constructor(Int)") :: Nil =>
     }
@@ -112,7 +112,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
   }
 
   // TODO Don't separate the code from the expected messages (it's hard to understand such a test)
-  def testMissedParameters() {
+  def testMissedParameters(): Unit = {
     assertMatches(messages("new A")) {
       case Error(_, "Unspecified value parameters: a: Int") :: Nil =>
     }
@@ -172,7 +172,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     )
   }
 
-  def testMissingAndTypeMismatch() {
+  def testMissingAndTypeMismatch(): Unit = {
     assertMessagesSorted(messages("new DD(true)"))(
       Error("DD", "Cannot resolve overloaded constructor `DD`") // SCL-15594
     )
@@ -180,7 +180,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
 
 
 
-  def testPositionalAfterNamed() {
+  def testPositionalAfterNamed(): Unit = {
     assertMatches(messages("new Complex(i = 1.0, 5.0)")) {
       case Error("5.0", "Positional after named argument") :: Nil =>
     }
@@ -190,7 +190,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testNamedDuplicates() {
+  def testNamedDuplicates(): Unit = {
     assertMessagesSorted(messages("new A(a = null, a = Unit)"))(
       Error("a", "Parameter specified multiple times"),
       Error("a", "Parameter specified multiple times")
@@ -279,7 +279,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testTypeMismatch() {
+  def testTypeMismatch(): Unit = {
     assertMatches(messages("new A(false)")) {
       case Error("false", "Type mismatch, expected: Int, actual: Boolean") :: Nil =>
     }
@@ -305,7 +305,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     )
   }
   
-  def testMalformedSignature() {
+  def testMalformedSignature(): Unit = {
     assertMatches(messages("class Malformed(a: A*, b: B); new Malformed(0)")) {
       case Error("Malformed", "Constructor has malformed definition") :: Nil =>
     }

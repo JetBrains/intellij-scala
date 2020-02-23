@@ -84,7 +84,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project)
     while (iterator.hasNext) {
       val each = iterator.next()
       panel.createActionLabel(GuiUtils.getTextWithoutMnemonicEscaping(each.getName), new Runnable {
-        override def run() {
+        override def run(): Unit = {
           if (!Comparing.equal(libraries, findOrderEntriesContainingFile(file))) {
             Messages.showErrorDialog(myProject, "Cannot find library for " + StringUtil.getShortName(fqn), "Error")
             return

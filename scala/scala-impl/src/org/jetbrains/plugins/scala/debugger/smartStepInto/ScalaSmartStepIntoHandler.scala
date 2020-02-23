@@ -175,7 +175,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       addMethodsIfInArgument()
     }
 
-    override def visitExpression(expr: ScExpression) {
+    override def visitExpression(expr: ScExpression): Unit = {
       if (!elementFilter(expr)) return
 
       expr.implicitElement().collect {

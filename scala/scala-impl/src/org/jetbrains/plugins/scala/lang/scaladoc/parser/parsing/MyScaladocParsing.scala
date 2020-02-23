@@ -28,20 +28,20 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
   private var canHaveTags = true
   private var flags = 0
 
-  private def setFlag(flag: Int) {
+  private def setFlag(flag: Int): Unit = {
     flags |= flag
   }
 
   private def isSetFlag(flag: Int): Boolean = flag != 0 && (flags & flag) != 0
 
-  private def clearFlag(flag: Int) {
+  private def clearFlag(flag: Int): Unit = {
     flags &= ~flag
   }
 
   private def isEndOfComment(implicit builder: PsiBuilder): Boolean = 
     builder.eof() || builder.getTokenType == DOC_COMMENT_END
 
-  def parse() {
+  def parse(): Unit = {
     while (parseCommentData(psiBuilder)) { }
     while (!psiBuilder.eof()) {
       psiBuilder.advanceLexer()
@@ -89,7 +89,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     setFlag(tokenType.getFlagConst)
     if (!isEndOfComment) builder.advanceLexer()
 
-    def closedBy(message: String = ScalaBundle.message("new.paragraph")) {
+    def closedBy(message: String = ScalaBundle.message("new.paragraph")): Unit = {
       marker.done(tokenType)
       scaladocError(builder, ScalaBundle.message("wiki.syntax.element.closed.by.message", message))
       clearFlag(tokenType.getFlagConst)
@@ -101,7 +101,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
               ((tokenType == DOC_LINK_TAG) || (tokenType == DOC_HTTP_LINK_TAG)) && element == DOC_LINK_CLOSE_TAG)
     }
     
-    def parseUntilAndConvertToData(set: TokenSet) {
+    def parseUntilAndConvertToData(set: TokenSet): Unit = {
       val uset = TokenSet.orSet(set, MyScaladocParsing.nonDataTokens)
       
       while (!isEndOfComment && !set.contains(builder.getTokenType)) {

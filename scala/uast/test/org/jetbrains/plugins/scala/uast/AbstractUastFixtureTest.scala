@@ -25,7 +25,7 @@ abstract class AbstractUastFixtureTest
   def check(testName: String, file: UFile): Unit
 
   def doTest(testName: String = getTestName(false),
-             checkCallback: (String, UFile) => Unit = check) {
+             checkCallback: (String, UFile) => Unit = check): Unit = {
     val testFile = getTestFile(testName)
     if (!testFile.exists())
       throw new IllegalStateException(s"File does not exist: $testFile")

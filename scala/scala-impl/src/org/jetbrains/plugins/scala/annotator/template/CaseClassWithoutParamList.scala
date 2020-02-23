@@ -66,7 +66,7 @@ final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
     c.isValid && c.getManager.isInProject(file)
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val classKeywordTextRange = c.targetToken.getTextRange
 
     val objectText = c.getText.patch(

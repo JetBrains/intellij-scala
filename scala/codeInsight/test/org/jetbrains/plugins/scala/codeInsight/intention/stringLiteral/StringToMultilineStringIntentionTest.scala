@@ -11,7 +11,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
   //    ScalaLightCodeInsightFixtureTestAdapter.normalize, that is used in ScalaIntentionTestBase.doTest
   // TODO: cleanup, ideally we should do stripMargin in tests, not somewhere under the hood
 
-  def testConvertMultiline1() {
+  def testConvertMultiline1(): Unit = {
     val before =
       s"""object A {
          |  "one ${CARET}two"
@@ -28,7 +28,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertMultiline2() {
+  def testConvertMultiline2(): Unit = {
     val before =
       s"""object A {
          |  $CARET"one two"
@@ -45,7 +45,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertEmptyToMultiline() {
+  def testConvertEmptyToMultiline(): Unit = {
     val before =
       s"""object A {
          |  "$CARET"
@@ -62,7 +62,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertInterpolatedMultiline1() {
+  def testConvertInterpolatedMultiline1(): Unit = {
     val before =
       s"""object A {
          |  ${CARET}interp"one$${iterpVal}two"
@@ -79,7 +79,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertInterpolatedMultiline2() {
+  def testConvertInterpolatedMultiline2(): Unit = {
     val before =
       s"""object A {
          |  interp$CARET"one$${iterpVal}two"
@@ -96,7 +96,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertInterpolatedMultiline3() {
+  def testConvertInterpolatedMultiline3(): Unit = {
     val before =
       s"""object A {
          |  s"one$${iterpVal}${CARET}two"
@@ -113,7 +113,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertInterpolatedMultiline4() {
+  def testConvertInterpolatedMultiline4(): Unit = {
     val before =
       s"""object A {
          |  interp"one$${iterpVal}${CARET}two"
@@ -130,7 +130,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertInterpolatedMultiline5() {
+  def testConvertInterpolatedMultiline5(): Unit = {
     val before =
       s"""object A {
          |  interp"one$${iterp${CARET}Val}two"
@@ -147,7 +147,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertMultilineWithNewLines1() {
+  def testConvertMultilineWithNewLines1(): Unit = {
     val before =
       s"""object A {
          |  "${CARET}one\\ntwo\\nthree\\nfour"
@@ -168,7 +168,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
   }
 
 
-  def testConvertMultilineWithNewLines2() {
+  def testConvertMultilineWithNewLines2(): Unit = {
     val before =
       s"""object A {
          |  "one\\n${CARET}two\\nthree\\nfour"
@@ -188,7 +188,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertMultilineWithNewLines3() {
+  def testConvertMultilineWithNewLines3(): Unit = {
     val before =
       s"""object A {
          |  "one\\ntwo\\nthree\\n${CARET}four"
@@ -208,7 +208,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertMultilineWithNewLines4() {
+  def testConvertMultilineWithNewLines4(): Unit = {
     val before =
       s"""object A {
          |  "one\\ntwo\\nthree\\nfour\\n${CARET}five"
@@ -229,7 +229,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, before)
   }
 
-  def testConvertFromMultilineWithNewLinesWithoutStripMargin() {
+  def testConvertFromMultilineWithNewLinesWithoutStripMargin(): Unit = {
     val before =
       s"""object A {
          |  \"\"\"one
@@ -244,7 +244,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(before, after)
   }
 
-  def testConvertFromMultilineWithNewLinesAndShiftedMargins() {
+  def testConvertFromMultilineWithNewLinesAndShiftedMargins(): Unit = {
     val before =
       s"""object A {
          |  \"\"\"one
@@ -260,7 +260,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(before, after)
   }
 
-  def testConvertFromMultilineWithCaretBeforeMarginChar() {
+  def testConvertFromMultilineWithCaretBeforeMarginChar(): Unit = {
     val before =
       s"""object A {
          |  \"\"\"one
@@ -277,7 +277,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(before, after)
   }
 
-  def testConvertMultilineWithNewLinesAndAssigment1() {
+  def testConvertMultilineWithNewLinesAndAssigment1(): Unit = {
     val before =
       s"""object A {
          |  val value = $CARET"one\\ntwo\\nthree\\nfour"
@@ -305,7 +305,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, afterAfter)
   }
 
-  def testConvertMultilineWithNewLinesAndAssigment2() {
+  def testConvertMultilineWithNewLinesAndAssigment2(): Unit = {
     val before =
       s"""object A {
          |  val value = "${CARET}one\\ntwo\\nthree\\nfour"
@@ -333,7 +333,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, afterAfter)
   }
 
-  def testConvertMultilineWithNewLinesAndAssigment3() {
+  def testConvertMultilineWithNewLinesAndAssigment3(): Unit = {
     val before =
       s"""object A {
          |  val value = "one\\n${CARET}two\\nthree\\nfour"
@@ -361,7 +361,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, afterAfter)
   }
 
-  def testConvertMultilineWithNewLinesAndAssigment4() {
+  def testConvertMultilineWithNewLinesAndAssigment4(): Unit = {
     val before =
       s"""object A {
          |  val value = "one\\ntwo\\nthree\\n${CARET}four"
@@ -389,7 +389,7 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
     doTest(after, afterAfter)
   }
 
-  def testConvertInterpolatedMultilineWithNewLinesAndAssigment() {
+  def testConvertInterpolatedMultilineWithNewLinesAndAssigment(): Unit = {
     val before =
       s"""object A {
          |  val value = interp"one\\ntwo\\nthree\\n${CARET}four"

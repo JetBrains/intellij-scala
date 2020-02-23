@@ -6,7 +6,7 @@ trait FreeSpecSingleTestTest extends FreeSpecGenerator {
 
   val freeSpecTestPath = List("[root]", freeSpecClassName, "A FreeSpecTest", "should be able to run single tests")
 
-  def testFreeSpec() {
+  def testFreeSpec(): Unit = {
     runTestByLocation(6, 3, freeSpecFileName,
       checkConfigAndSettings(_, freeSpecClassName, "A FreeSpecTest should be able to run single tests"),
       root => checkResultTreeHasExactNamedPath(root, freeSpecTestPath:_*) &&

@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
   private var referencesStack = List.empty[ScReference]
   
-  override def visitScalaElement(element: ScalaPsiElement) {
+  override def visitScalaElement(element: ScalaPsiElement): Unit = {
     if (referencesStack.nonEmpty && referencesStack.head == element) {
       referencesStack = null :: referencesStack.tail
     } else {
@@ -30,7 +30,7 @@ class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
     }
   }
 
-  override def visitReferenceExpression(ref: ScReferenceExpression) {
+  override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
     try {
       referencesStack = ref :: referencesStack
       visitReference(ref)
@@ -40,7 +40,7 @@ class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
     }
   }
 
-  override def visitTypeProjection(proj: ScTypeProjection) {
+  override def visitTypeProjection(proj: ScTypeProjection): Unit = {
     try {
       referencesStack = proj :: referencesStack
       visitReference(proj)
@@ -56,138 +56,138 @@ class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
 // For example, because of the need to support recursion, visitReferenceExpression doesn't call visitReference or visitExpression, or visitScalaElement.
 // This is inconsistent and misguiding. Even when ones knowns (and remembers) about that, one may need to replicate the inheritance hierarchy in each particular visitor.
 abstract class ScalaElementVisitor extends PsiElementVisitor {
-  def visitTypeAliasDefinition(alias: ScTypeAliasDefinition) {visitTypeAlias(alias)}
+  def visitTypeAliasDefinition(alias: ScTypeAliasDefinition): Unit = {visitTypeAlias(alias)}
 
-  def visitTypeAlias(alias: ScTypeAlias) {visitScalaElement(alias)}
-
-  // TODO visitDeclaration
-  def visitTypeAliasDeclaration(alias: ScTypeAliasDeclaration) {visitTypeAlias(alias)}
-
-  def visitParameters(parameters: ScParameters) {visitScalaElement(parameters)}
-
-  def visitParameterClause(clause: ScParameterClause) {visitScalaElement(clause)}
-
-  def visitTypeParameterClause(clause: ScTypeParamClause) {visitScalaElement(clause)}
-
-  def visitPatternArgumentList(args: ScPatternArgumentList) {visitScalaElement(args)}
-
-  def visitArgumentExprList(args: ScArgumentExprList) {visitScalaElement(args)}
-
-  def visitModifierList(modifierList: ScModifierList) {visitScalaElement(modifierList)}
-
-  def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) {visitScalaElement(constrInvocation)}
-
-  def visitFunctionDefinition(fun: ScFunctionDefinition) {visitFunction(fun)}
+  def visitTypeAlias(alias: ScTypeAlias): Unit = {visitScalaElement(alias)}
 
   // TODO visitDeclaration
-  def visitFunctionDeclaration(fun: ScFunctionDeclaration) {visitFunction(fun)}
+  def visitTypeAliasDeclaration(alias: ScTypeAliasDeclaration): Unit = {visitTypeAlias(alias)}
 
-  def visitMacroDefinition(fun: ScMacroDefinition) {visitFunction(fun)}
+  def visitParameters(parameters: ScParameters): Unit = {visitScalaElement(parameters)}
 
-  def visitCatchBlock(c: ScCatchBlock) {visitScalaElement(c)}
+  def visitParameterClause(clause: ScParameterClause): Unit = {visitScalaElement(clause)}
 
-  override def visitFile(file: PsiFile) {
+  def visitTypeParameterClause(clause: ScTypeParamClause): Unit = {visitScalaElement(clause)}
+
+  def visitPatternArgumentList(args: ScPatternArgumentList): Unit = {visitScalaElement(args)}
+
+  def visitArgumentExprList(args: ScArgumentExprList): Unit = {visitScalaElement(args)}
+
+  def visitModifierList(modifierList: ScModifierList): Unit = {visitScalaElement(modifierList)}
+
+  def visitConstructorInvocation(constrInvocation: ScConstructorInvocation): Unit = {visitScalaElement(constrInvocation)}
+
+  def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {visitFunction(fun)}
+
+  // TODO visitDeclaration
+  def visitFunctionDeclaration(fun: ScFunctionDeclaration): Unit = {visitFunction(fun)}
+
+  def visitMacroDefinition(fun: ScMacroDefinition): Unit = {visitFunction(fun)}
+
+  def visitCatchBlock(c: ScCatchBlock): Unit = {visitScalaElement(c)}
+
+  override def visitFile(file: PsiFile): Unit = {
     file match {
       case sf: ScalaFile => visitScalaElement(sf)
       case _ => visitElement(file)
     }
   }
 
-  def visitScalaElement(element: ScalaPsiElement) {super.visitElement(element)}
+  def visitScalaElement(element: ScalaPsiElement): Unit = {super.visitElement(element)}
 
   //Override also visitReferenceExpression! and visitTypeProjection!
-  def visitReference(ref: ScReference) { visitScalaElement(ref) }
-  def visitParameter(parameter: ScParameter) {visitScalaElement(parameter)}
-  def visitClassParameter(parameter: ScClassParameter) {visitParameter(parameter)}
-  def visitPatternDefinition(pat: ScPatternDefinition) { visitValue(pat) }
+  def visitReference(ref: ScReference): Unit = { visitScalaElement(ref) }
+  def visitParameter(parameter: ScParameter): Unit = {visitScalaElement(parameter)}
+  def visitClassParameter(parameter: ScClassParameter): Unit = {visitParameter(parameter)}
+  def visitPatternDefinition(pat: ScPatternDefinition): Unit = { visitValue(pat) }
   // TODO visitDeclaration
   // TODO visitValueOrVariable
-  def visitValueDeclaration(v: ScValueDeclaration) {visitValue(v)}
-  def visitVariableDefinition(varr: ScVariableDefinition) { visitVariable(varr) }
+  def visitValueDeclaration(v: ScValueDeclaration): Unit = {visitValue(v)}
+  def visitVariableDefinition(varr: ScVariableDefinition): Unit = { visitVariable(varr) }
   // TODO visitDeclaration
   // TODO visitValueOrVariable
-  def visitVariableDeclaration(varr: ScVariableDeclaration) {visitVariable(varr) }
+  def visitVariableDeclaration(varr: ScVariableDeclaration): Unit = {visitVariable(varr) }
   // TODO visitValueOrVariable
-  def visitVariable(varr: ScVariable) {visitScalaElement(varr)}
+  def visitVariable(varr: ScVariable): Unit = {visitScalaElement(varr)}
   // TODO visitValueOrVariable
-  def visitValue(v: ScValue) {visitScalaElement(v)}
-  def visitCaseClause(cc: ScCaseClause) { visitScalaElement(cc) }
-  def visitPattern(pat: ScPattern) { visitScalaElement(pat) }
-  def visitForBinding(forBinding: ScForBinding) { visitScalaElement(forBinding) }
-  def visitGenerator(gen: ScGenerator) { visitScalaElement(gen) }
-  def visitGuard(guard: ScGuard) { visitScalaElement(guard) }
-  def visitFunction(fun: ScFunction) { visitScalaElement(fun) }
-  def visitTypeDefinition(typedef: ScTypeDefinition) { visitScalaElement(typedef) }
-  def visitImportExpr(expr: ScImportExpr) {visitScalaElement(expr)}
-  def visitSelfInvocation(self: ScSelfInvocation) {visitScalaElement(self)}
-  def visitAnnotation(annotation: ScAnnotation) {visitScalaElement(annotation)}
-  def visitTemplateParents(cp: ScTemplateParents) {visitScalaElement(cp)}
+  def visitValue(v: ScValue): Unit = {visitScalaElement(v)}
+  def visitCaseClause(cc: ScCaseClause): Unit = { visitScalaElement(cc) }
+  def visitPattern(pat: ScPattern): Unit = { visitScalaElement(pat) }
+  def visitForBinding(forBinding: ScForBinding): Unit = { visitScalaElement(forBinding) }
+  def visitGenerator(gen: ScGenerator): Unit = { visitScalaElement(gen) }
+  def visitGuard(guard: ScGuard): Unit = { visitScalaElement(guard) }
+  def visitFunction(fun: ScFunction): Unit = { visitScalaElement(fun) }
+  def visitTypeDefinition(typedef: ScTypeDefinition): Unit = { visitScalaElement(typedef) }
+  def visitImportExpr(expr: ScImportExpr): Unit = {visitScalaElement(expr)}
+  def visitSelfInvocation(self: ScSelfInvocation): Unit = {visitScalaElement(self)}
+  def visitAnnotation(annotation: ScAnnotation): Unit = {visitScalaElement(annotation)}
+  def visitTemplateParents(cp: ScTemplateParents): Unit = {visitScalaElement(cp)}
 
   def visitEnumCases(cases: ScEnumCases): Unit = visitScalaElement(cases)
 
   // Expressions
   //Override also visitReferenceExpression!
-  def visitExpression(expr: ScExpression) { visitScalaElement(expr) }
-  def visitThisReference(t: ScThisReference) {visitExpression(t)}
-  def visitSuperReference(t: ScSuperReference) {visitExpression(t)}
+  def visitExpression(expr: ScExpression): Unit = { visitScalaElement(expr) }
+  def visitThisReference(t: ScThisReference): Unit = {visitExpression(t)}
+  def visitSuperReference(t: ScSuperReference): Unit = {visitExpression(t)}
   // TODO visitReference
   // TODO visitExpression
-  def visitReferenceExpression(ref: ScReferenceExpression) {}
+  def visitReferenceExpression(ref: ScReferenceExpression): Unit = {}
   // TODO visitMethodInvocation
-  def visitPostfixExpression(p: ScPostfixExpr) { visitExpression(p) }
+  def visitPostfixExpression(p: ScPostfixExpr): Unit = { visitExpression(p) }
   // TODO visitMethodInvocation
-  def visitPrefixExpression(p: ScPrefixExpr) { visitExpression(p) }
-  def visitIf(stmt: ScIf) { visitExpression(stmt) }
-  def visitLiteral(l: ScLiteral) {visitExpression(l)}
-  def visitAssignment(stmt: ScAssignment) { visitExpression(stmt) }
+  def visitPrefixExpression(p: ScPrefixExpr): Unit = { visitExpression(p) }
+  def visitIf(stmt: ScIf): Unit = { visitExpression(stmt) }
+  def visitLiteral(l: ScLiteral): Unit = {visitExpression(l)}
+  def visitAssignment(stmt: ScAssignment): Unit = { visitExpression(stmt) }
   // TODO visitMethodInvocation
-  def visitMethodCallExpression(call: ScMethodCall) { visitExpression(call) }
-  def visitGenericCallExpression(call: ScGenericCall) { visitExpression(call) }
+  def visitMethodCallExpression(call: ScMethodCall): Unit = { visitExpression(call) }
+  def visitGenericCallExpression(call: ScGenericCall): Unit = { visitExpression(call) }
   // TODO visitMethodInvocation
-  def visitInfixExpression(infix: ScInfixExpr) {visitExpression(infix)}
-  def visitWhile(ws: ScWhile) { visitExpression(ws) }
-  def visitReturn(ret: ScReturn) { visitExpression(ret) }
-  def visitMatch(ms: ScMatch) { visitExpression(ms) }
-  def visitFor(expr: ScFor) { visitExpression(expr) }
-  def visitDo(stmt: ScDo) { visitExpression(stmt) }
-  def visitFunctionExpression(stmt: ScFunctionExpr) { visitExpression(stmt) }
-  def visitThrow(throwStmt: ScThrow) { visitExpression(throwStmt) }
-  def visitTry(tryStmt: ScTry) { visitExpression(tryStmt) }
-  def visitParenthesisedExpr(expr: ScParenthesisedExpr) {visitExpression(expr)}
-  def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) {visitExpression(templ)}
-  def visitTypedStmt(stmt: ScTypedExpression) {visitExpression(stmt)}
-  def visitTuple(tuple: ScTuple) {visitExpression(tuple)}
-  def visitBlockExpression(block: ScBlockExpr) {visitExpression(block)}
-  def visitUnderscoreExpression(under: ScUnderscoreSection) {visitExpression(under)}
-  def visitConstrBlock(constr: ScConstrBlock) {visitBlockExpression(constr)}
+  def visitInfixExpression(infix: ScInfixExpr): Unit = {visitExpression(infix)}
+  def visitWhile(ws: ScWhile): Unit = { visitExpression(ws) }
+  def visitReturn(ret: ScReturn): Unit = { visitExpression(ret) }
+  def visitMatch(ms: ScMatch): Unit = { visitExpression(ms) }
+  def visitFor(expr: ScFor): Unit = { visitExpression(expr) }
+  def visitDo(stmt: ScDo): Unit = { visitExpression(stmt) }
+  def visitFunctionExpression(stmt: ScFunctionExpr): Unit = { visitExpression(stmt) }
+  def visitThrow(throwStmt: ScThrow): Unit = { visitExpression(throwStmt) }
+  def visitTry(tryStmt: ScTry): Unit = { visitExpression(tryStmt) }
+  def visitParenthesisedExpr(expr: ScParenthesisedExpr): Unit = {visitExpression(expr)}
+  def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = {visitExpression(templ)}
+  def visitTypedStmt(stmt: ScTypedExpression): Unit = {visitExpression(stmt)}
+  def visitTuple(tuple: ScTuple): Unit = {visitExpression(tuple)}
+  def visitBlockExpression(block: ScBlockExpr): Unit = {visitExpression(block)}
+  def visitUnderscoreExpression(under: ScUnderscoreSection): Unit = {visitExpression(under)}
+  def visitConstrBlock(constr: ScConstrBlock): Unit = {visitBlockExpression(constr)}
 
   //type elements
   //Override also visitTypeProjection!
   //If you use it for typed pattern, override visitTypeParam too.
-  def visitTypeElement(te: ScTypeElement) {visitScalaElement(te)}
-  def visitSimpleTypeElement(simple: ScSimpleTypeElement) {visitTypeElement(simple)}
-  def visitWildcardTypeElement(wildcard: ScWildcardTypeElement) {visitTypeElement(wildcard)}
+  def visitTypeElement(te: ScTypeElement): Unit = {visitScalaElement(te)}
+  def visitSimpleTypeElement(simple: ScSimpleTypeElement): Unit = {visitTypeElement(simple)}
+  def visitWildcardTypeElement(wildcard: ScWildcardTypeElement): Unit = {visitTypeElement(wildcard)}
   // TODO visitReference
-  def visitTypeProjection(proj: ScTypeProjection) {}
-  def visitTupleTypeElement(tuple: ScTupleTypeElement) {visitTypeElement(tuple)}
-  def visitParenthesisedTypeElement(parenthesised: ScParenthesisedTypeElement) {visitTypeElement(parenthesised)}
-  def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {visitTypeElement(parameterized)}
-  def visitInfixTypeElement(infix: ScInfixTypeElement) {visitTypeElement(infix)}
-  def visitFunctionalTypeElement(fun: ScFunctionalTypeElement) {visitTypeElement(fun)}
-  def visitExistentialTypeElement(exist: ScExistentialTypeElement) {visitTypeElement(exist)}
-  def visitCompoundTypeElement(compound: ScCompoundTypeElement) {visitTypeElement(compound)}
-  def visitAnnotTypeElement(annot: ScAnnotTypeElement) {visitTypeElement(annot)}
+  def visitTypeProjection(proj: ScTypeProjection): Unit = {}
+  def visitTupleTypeElement(tuple: ScTupleTypeElement): Unit = {visitTypeElement(tuple)}
+  def visitParenthesisedTypeElement(parenthesised: ScParenthesisedTypeElement): Unit = {visitTypeElement(parenthesised)}
+  def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement): Unit = {visitTypeElement(parameterized)}
+  def visitInfixTypeElement(infix: ScInfixTypeElement): Unit = {visitTypeElement(infix)}
+  def visitFunctionalTypeElement(fun: ScFunctionalTypeElement): Unit = {visitTypeElement(fun)}
+  def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {visitTypeElement(exist)}
+  def visitCompoundTypeElement(compound: ScCompoundTypeElement): Unit = {visitTypeElement(compound)}
+  def visitAnnotTypeElement(annot: ScAnnotTypeElement): Unit = {visitTypeElement(annot)}
   def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = { visitTypeElement(tvar) }
 
   //scaladoc
   // TODO visitScalaElement
-  def visitDocComment(s: ScDocComment) {visitComment(s)}
-  def visitScaladocElement(s: ScalaPsiElement) {visitScalaElement(s)}
-  def visitWikiSyntax(s: ScDocSyntaxElement) {visitScalaElement(s)}
-  def visitInlinedTag(s: ScDocInlinedTag) {visitScalaElement(s)}
-  def visitTag(s: ScDocTag) {visitScalaElement(s)}
+  def visitDocComment(s: ScDocComment): Unit = {visitComment(s)}
+  def visitScaladocElement(s: ScalaPsiElement): Unit = {visitScalaElement(s)}
+  def visitWikiSyntax(s: ScDocSyntaxElement): Unit = {visitScalaElement(s)}
+  def visitInlinedTag(s: ScDocInlinedTag): Unit = {visitScalaElement(s)}
+  def visitTag(s: ScDocTag): Unit = {visitScalaElement(s)}
 
   //xml
-  def visitXmlStartTag(s: ScXmlStartTag) {visitScalaElement(s)}
-  def visitXmlEndTag(s: ScXmlEndTag) {visitScalaElement(s)}
+  def visitXmlStartTag(s: ScXmlStartTag): Unit = {visitScalaElement(s)}
+  def visitXmlEndTag(s: ScXmlEndTag): Unit = {visitScalaElement(s)}
 }

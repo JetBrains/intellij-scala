@@ -30,12 +30,12 @@ class BlockParseTest extends SimpleTestCase {
     node.getPsi
   }
 
-  def doTest(s: String) {
+  def doTest(s: String): Unit = {
     val elem = parseBlock(s)
     Assert.assertEquals(s, elem.getText)
   }
 
-  def testBlock() {
+  def testBlock(): Unit = {
     doTest(
 """{
   val a = new df
@@ -52,7 +52,7 @@ class BlockParseTest extends SimpleTestCase {
     )
   }
 
-  def testBlock2() {
+  def testBlock2(): Unit = {
     doTest(
 """{
     PsiDocumentManager.getInstance(project).commitAllDocuments()
@@ -98,7 +98,7 @@ class BlockParseTest extends SimpleTestCase {
 
   }
 
-  def testBlock3() {
+  def testBlock3(): Unit = {
       doTest(
 """{
       var asdga = adf
@@ -130,7 +130,7 @@ class BlockParseTest extends SimpleTestCase {
       )
     }
 
-    def testBlock4() {
+    def testBlock4(): Unit = {
       doTest(
 """{
     val asdfadf = fadfad.:

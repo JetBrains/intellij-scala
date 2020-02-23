@@ -22,13 +22,13 @@ class SbtProjectImportBuilder
 
   override def getIcon: Icon = Sbt.Icon
 
-  override def doPrepare(context: WizardContext) {}
+  override def doPrepare(context: WizardContext): Unit = {}
 
-  override def beforeCommit(dataNode: DataNode[ProjectData], project: Project) {}
+  override def beforeCommit(dataNode: DataNode[ProjectData], project: Project): Unit = {}
 
-  def onProjectInit(project: Project) {}
+  def onProjectInit(project: Project): Unit = {}
 
   override def getExternalProjectConfigToUse(file: File): File = file
 
-  override def applyExtraSettings(context: WizardContext) {}
+  override def applyExtraSettings(context: WizardContext): Unit = {}
 }

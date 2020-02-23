@@ -17,7 +17,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
   override protected val handler: LanguageCodeInsightActionHandler =
     new ScalaGenerateCompanionObjectAction.Handler
 
-  def testInCaseClass() {
+  def testInCaseClass(): Unit = {
     val text = s"""case class A(x: Int, s: String) {
                  |  def foo() {}
                  |  $CARET_MARKER
@@ -25,7 +25,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
     checkIsNotAvailable(text)
   }
 
-  def testCompanionObjectExist() {
+  def testCompanionObjectExist(): Unit = {
     val text = s"""class A(x: Int, s: String) {
                  |  def foo() {}
                  |  $CARET_MARKER
@@ -36,7 +36,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
     checkIsNotAvailable(text)
   }
 
-  def testInObject() {
+  def testInObject(): Unit = {
     val text = s"""object A { $CARET_MARKER
                  |  def foo() {}
                  |  val bar = 1
@@ -44,7 +44,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
     checkIsNotAvailable(text)
   }
 
-  def testInAnonymous() {
+  def testInAnonymous(): Unit = {
     val text = s"""object A {
                  |  val runnable = new Runnable {
                  |    def run() {} $CARET_MARKER
@@ -53,7 +53,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
     checkIsNotAvailable(text)
   }
 
-  def testClass() {
+  def testClass(): Unit = {
     val text = s"""class A(x: Int, s: String) {
                  |  def foo() {}
                  |$CARET_MARKER
@@ -70,7 +70,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
     performTest(text, result, checkAvailability = true, checkCaretOffset = true)
   }
 
-  def testTrait() {
+  def testTrait(): Unit = {
     val text = s"""trait A {
                  |  def foo() {$CARET_MARKER}
                  |
@@ -87,7 +87,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
     performTest(text, result, checkAvailability = true, checkCaretOffset = true)
   }
 
-  def testInnerClass() {
+  def testInnerClass(): Unit = {
     val text = s"""trait A {
                  |  def foo()
                  |  class B {

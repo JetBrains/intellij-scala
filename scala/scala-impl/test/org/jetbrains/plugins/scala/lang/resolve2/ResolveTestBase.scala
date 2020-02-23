@@ -68,7 +68,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     null
   }
 
-  def assertKnown(parameters: Parameters) {
+  def assertKnown(parameters: Parameters): Unit = {
     for ((key, value) <- parameters) {
       Assert.assertTrue("Unknown parameter: " + key + "\nAllowed: " + Parameters.mkString(", "),
         Parameters.contains(key))
@@ -83,11 +83,11 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     }: _*)
   }
 
-  def doTest() {
+  def doTest(): Unit = {
     doTest(getTestName(false) + ".scala")
   }
 
-  def doTest(file: String) {
+  def doTest(file: String): Unit = {
     references.zip(options).foreach(it => {
       it._1 match {
         case ref: ScReference =>
@@ -107,7 +107,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     })
   }
 
-  def doEachTest(reference: ScReference, options: Parameters) {
+  def doEachTest(reference: ScReference, options: Parameters): Unit = {
     val referenceName = reference.refName
     val result = reference.bind()
     val (target, accessible, applicable) = if(result.isDefined) (
@@ -117,7 +117,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
 
     def message = format(getFileAdapter.getText, _: String, lineOf(reference))
 
-    def assertEquals(name: String, v1: Any, v2: Any) {
+    def assertEquals(name: String, v1: Any, v2: Any): Unit = {
       if(v1 != v2) Assert.fail(message(name + " - expected: " + v1 + ", actual: " + v2))
     }
 

@@ -14,7 +14,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     getSettings.setRightMargin(ScalaLanguage.INSTANCE, rightMarginVisualHelper.indexOf(RightMarginMarker))
   }
 
-  def testInfixExpressionWrapAsNeeded() {
+  def testInfixExpressionWrapAsNeeded(): Unit = {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
@@ -38,7 +38,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testInfixPatternWrapAsNeeded() {
+  def testInfixPatternWrapAsNeeded(): Unit = {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
@@ -56,7 +56,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testInfixTypeWrapAsNeeded() {
+  def testInfixTypeWrapAsNeeded(): Unit = {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
@@ -70,7 +70,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testInfixExprWrapAlways() {
+  def testInfixExprWrapAlways(): Unit = {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
@@ -91,7 +91,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testInfixExprWrapAllIfLong() {
+  def testInfixExprWrapAllIfLong(): Unit = {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
     getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
@@ -111,7 +111,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testInfixExprDoNotWrap() {
+  def testInfixExprDoNotWrap(): Unit = {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
@@ -126,7 +126,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testAlignBinary() {
+  def testAlignBinary(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_BINARY_OPERATION = true
     val before =
       """val i = 2 + 2 +
@@ -143,7 +143,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testBinaryParentExpressionWrap() {
+  def testBinaryParentExpressionWrap(): Unit = {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getCommonSettings.PARENTHESES_EXPRESSION_LPAREN_WRAP = true
     getCommonSettings.PARENTHESES_EXPRESSION_RPAREN_WRAP = true
@@ -166,7 +166,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testCallParametersWrap() {
+  def testCallParametersWrap(): Unit = {
     getCommonSettings.CALL_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     val before =
       """foo(1, 2, 3)
@@ -179,7 +179,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testAlignMultilineParametersCalls() {
+  def testAlignMultilineParametersCalls(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
     val before =
       """foo(1,
@@ -194,7 +194,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testCallParametersParen() {
+  def testCallParametersParen(): Unit = {
     getScalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = ScalaCodeStyleSettings.NEW_LINE_ALWAYS
     getCommonSettings.CALL_PARAMETERS_RPAREN_ON_NEXT_LINE = true
     val before =
@@ -212,7 +212,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testBraceStyle() {
+  def testBraceStyle(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
     getCommonSettings.METHOD_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     getCommonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED
@@ -260,7 +260,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   // Do not align when multiline
   //
 
-  def test_MethodCallChain_DoNotWrap() {
+  def test_MethodCallChain_DoNotWrap(): Unit = {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
       """                               ! """)
@@ -269,7 +269,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
-  def test_MethodCallChain_DoNotWrap_1() {
+  def test_MethodCallChain_DoNotWrap_1(): Unit = {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
       """                               ! """)
@@ -284,7 +284,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_WrapIfLong() {
+  def test_MethodCallChain_WrapIfLong(): Unit = {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     setupRightMargin(
       """                               ! """)
@@ -299,7 +299,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_ChopDownIfLong() {
+  def test_MethodCallChain_ChopDownIfLong(): Unit = {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CHOP_DOWN_IF_LONG
     setupRightMargin(
       """                               ! """)
@@ -317,7 +317,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_ChopDownIfLong_WrapFirstCall() {
+  def test_MethodCallChain_ChopDownIfLong_WrapFirstCall(): Unit = {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CHOP_DOWN_IF_LONG
     getCommonSettings.WRAP_FIRST_METHOD_IN_CALL_CHAIN = true
     setupRightMargin(
@@ -337,7 +337,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_WrapAlways() {
+  def test_MethodCallChain_WrapAlways(): Unit = {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     setupRightMargin(
       """                                       ! """)
@@ -352,7 +352,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_WrapAlways_WrapFirstCall() {
+  def test_MethodCallChain_WrapAlways_WrapFirstCall(): Unit = {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     getCommonSettings.WRAP_FIRST_METHOD_IN_CALL_CHAIN = true
     setupRightMargin(
@@ -373,7 +373,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   // Align when multiline
   //
 
-  def test_MethodCallChain_Align_DoNotWrap() {
+  def test_MethodCallChain_Align_DoNotWrap(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -391,7 +391,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_DoNotWrap_FirstCallOnNewLine() {
+  def test_MethodCallChain_Align_DoNotWrap_FirstCallOnNewLine(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -411,7 +411,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_DoNotWrap_FirstCallOnNewLine_WithComment() {
+  def test_MethodCallChain_Align_DoNotWrap_FirstCallOnNewLine_WithComment(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -445,7 +445,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_DoNotWrap_CommentsBetweenCalls() {
+  def test_MethodCallChain_Align_DoNotWrap_CommentsBetweenCalls(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -511,7 +511,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_DoNotWrap_CommentsAfterDot() {
+  def test_MethodCallChain_Align_DoNotWrap_CommentsAfterDot(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -529,7 +529,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_DoNotWrap_CommentsAfterMethodName() {
+  def test_MethodCallChain_Align_DoNotWrap_CommentsAfterMethodName(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -545,7 +545,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_DoNotWrap_CommentsMixed() {
+  def test_MethodCallChain_Align_DoNotWrap_CommentsMixed(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -557,7 +557,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_DoNotWrap_MethodWithoutBrackets() {
+  def test_MethodCallChain_Align_DoNotWrap_MethodWithoutBrackets(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -576,7 +576,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_DoNotWrap_WithTypeArguments() {
+  def test_MethodCallChain_Align_DoNotWrap_WithTypeArguments(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -609,7 +609,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   }
 
   @Ignore("waiting for https://youtrack.jetbrains.com/issue/SCL-15163")
-  def ignore_MethodCallChain_Align_DoNotWrap_FirstNewLineCallIsMultiline() {
+  def ignore_MethodCallChain_Align_DoNotWrap_FirstNewLineCallIsMultiline(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -633,7 +633,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_DoNotWrap_FirstNewLineCallIsMultilineAndLast() {
+  def test_MethodCallChain_Align_DoNotWrap_FirstNewLineCallIsMultilineAndLast(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -651,7 +651,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_WrapIfLong() {
+  def test_MethodCallChain_Align_WrapIfLong(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     setupRightMargin(
@@ -668,7 +668,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_ChopDownIfLong() {
+  def test_MethodCallChain_Align_ChopDownIfLong(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CHOP_DOWN_IF_LONG
     setupRightMargin(
@@ -687,7 +687,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_ChopDownIfLong_WrapFirstCall() {
+  def test_MethodCallChain_Align_ChopDownIfLong_WrapFirstCall(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CHOP_DOWN_IF_LONG
     getCommonSettings.WRAP_FIRST_METHOD_IN_CALL_CHAIN = true
@@ -708,7 +708,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_WrapAlways() {
+  def test_MethodCallChain_Align_WrapAlways(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     setupRightMargin(
@@ -724,7 +724,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_Align_WrapAlways_WrapFirstCall() {
+  def test_MethodCallChain_Align_WrapAlways_WrapFirstCall(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     getCommonSettings.WRAP_FIRST_METHOD_IN_CALL_CHAIN = true
@@ -742,7 +742,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_GenericMethodCall() {
+  def test_MethodCallChain_GenericMethodCall(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = false
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -760,7 +760,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_GenericMethodCall_Align() {
+  def test_MethodCallChain_GenericMethodCall_Align(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -778,7 +778,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_GenericMethodCallInTheMiddle_Align_1() {
+  def test_MethodCallChain_GenericMethodCallInTheMiddle_Align_1(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -793,7 +793,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_GenericMethodCallInTheMiddle_Align_2() {
+  def test_MethodCallChain_GenericMethodCallInTheMiddle_Align_2(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -808,7 +808,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def test_MethodCallChain_GenericMethodCallInTheMiddle_Align_3() {
+  def test_MethodCallChain_GenericMethodCallInTheMiddle_Align_3(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
@@ -831,7 +831,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
 
   // this is some legacy peculiar case when first dot in method call chain starts in on previous line
   // still this does not work properly with wrapping styles different from NO_WRAP
-  def test_MethodCallChain_Align_FirstDotOnPrevLine() {
+  def test_MethodCallChain_Align_FirstDotOnPrevLine(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     val before =
       """val x = foo.

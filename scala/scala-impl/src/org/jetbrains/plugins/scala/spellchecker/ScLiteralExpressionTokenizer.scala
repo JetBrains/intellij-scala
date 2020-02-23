@@ -18,14 +18,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
  */
 
 class ScLiteralExpressionTokenizer extends Tokenizer[ScLiteral] {
-  def processTextWithEscapeSequences(element: ScLiteral, text: String, consumer: TokenConsumer) {
+  def processTextWithEscapeSequences(element: ScLiteral, text: String, consumer: TokenConsumer): Unit = {
     val unEscapedText: StringBuilder = new StringBuilder
     val offsets: Array[Int] = new Array[Int](text.length + 1)
     PsiLiteralExpressionImpl.parseStringCharacters(text, unEscapedText, offsets)
     EscapeSequenceTokenizer.processTextWithOffsets(element, consumer, unEscapedText, offsets, 1)
   }
 
-  override def tokenize(element: ScLiteral, consumer: TokenConsumer) {
+  override def tokenize(element: ScLiteral, consumer: TokenConsumer): Unit = {
     val listOwner: PsiModifierListOwner = PsiTreeUtil.getParentOfType(element, classOf[PsiModifierListOwner])
     if (listOwner != null && AnnotationUtil.isAnnotated(listOwner, Collections.singleton(AnnotationUtil.NON_NLS), 0)) {
       return

@@ -15,13 +15,13 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
  * @author Alexander Podkhalyuzin
  */
 class RenameJavaToScalaAction extends AnAction {
-  override def update(e: AnActionEvent) {
+  override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
-    def enable() {
+    def enable(): Unit = {
       presentation.setEnabled(true)
       presentation.setVisible(true)
     }
-    def disable() {
+    def disable(): Unit = {
       presentation.setEnabled(false)
       presentation.setVisible(false)
     }
@@ -53,7 +53,7 @@ class RenameJavaToScalaAction extends AnAction {
 
   }
 
-  override def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     var elements = LangDataKeys.PSI_ELEMENT_ARRAY.getData(e.getDataContext)
     if (elements == null) {
       val file = CommonDataKeys.PSI_FILE.getData(e.getDataContext)

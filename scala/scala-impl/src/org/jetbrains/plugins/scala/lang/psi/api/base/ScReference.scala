@@ -198,7 +198,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 
   def getSameNameVariants: Array[ScalaResolveResult]
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitReference(this)
   }
 
@@ -219,7 +219,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 
       var reject = false
       getContainingFile.accept(new ScalaRecursiveElementVisitor {
-        override def visitReference(ref: ScReference) {
+        override def visitReference(ref: ScReference): Unit = {
           if (reject) return
           if (usedNames.contains(ref.refName)) {
             ref.bind() match {
@@ -260,7 +260,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
                 var res = true
                 holder.accept(new ScalaRecursiveElementVisitor {
                   //Override also visitReferenceExpression! and visitTypeProjection!
-                  override def visitReference(ref: ScReference) {
+                  override def visitReference(ref: ScReference): Unit = {
                     ref.qualifier match {
                       case Some(_) =>
                       case None =>

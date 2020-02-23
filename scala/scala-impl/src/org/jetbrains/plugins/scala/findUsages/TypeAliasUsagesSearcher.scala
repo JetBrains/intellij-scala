@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
  */
 class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
-  override def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[_ >: PsiReference]) {
+  override def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[_ >: PsiReference]): Unit = {
     val data = inReadAction {
       parameters.getElementToSearch match {
         case target @ ScalaPsiUtil.inNameContext(ta: ScTypeAliasDefinition) =>

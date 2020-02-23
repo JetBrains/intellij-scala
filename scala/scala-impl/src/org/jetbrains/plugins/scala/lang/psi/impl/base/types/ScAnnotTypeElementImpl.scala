@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
  */
 
 class ScAnnotTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScAnnotTypeElement {
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitAnnotTypeElement(this)
   }
 }

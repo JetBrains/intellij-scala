@@ -25,14 +25,14 @@ class Test1 extends BadCodeIsGreenTest {
   override protected val description: String =
     "‘A’ has itself as bound"
 
-  def testScl7139_1() {
+  def testScl7139_1(): Unit = {
     checkTextHasError(
       s"""
          |class X1[${START}A >: A$END]
       """.stripMargin)
   }
   
-  def testScl7139_2() {
+  def testScl7139_2(): Unit = {
     checkTextHasError(
       s"""
          |class X2[A <: B, B <: C, ${START}C <: A$END]

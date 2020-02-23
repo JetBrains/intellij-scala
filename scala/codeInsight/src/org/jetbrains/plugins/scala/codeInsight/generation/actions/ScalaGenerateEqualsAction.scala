@@ -146,7 +146,7 @@ object ScalaGenerateEqualsAction {
       createMethodWithContext(text, aClass, aClass.extendsBlock)
     }
 
-    override def invoke(project: Project, editor: Editor, file: PsiFile) {
+    override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
       try {

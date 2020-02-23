@@ -12,84 +12,84 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 class ConvertToInfixExpressionIntentionTest extends ScalaIntentionTestBase {
   override val familyName = ConvertToInfixExpressionIntention.familyName
 
-  def testConvertToInfixExpression() {
+  def testConvertToInfixExpression(): Unit = {
     val text = "1.<caret>to(5)"
     val resultText = "1 <caret>to 5"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression1() {
+  def testConvertToInfixExpression1(): Unit = {
     val text = "1.<caret>to(5, 7)"
     val resultText = "1 <caret>to(5, 7)"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression2() {
+  def testConvertToInfixExpression2(): Unit = {
     val text = "new A().f<caret>oo(2)"
     val resultText = "new A() f<caret>oo 2"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression3() {
+  def testConvertToInfixExpression3(): Unit = {
     val text = "(new A).foo<caret>(2)"
     val resultText = "new A foo<caret> 2"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression4() {
+  def testConvertToInfixExpression4(): Unit = {
     val text = "1 :: Nil.:<caret>:(2)"
     val resultText = "1 :: 2 :<caret>: Nil"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression5() {
+  def testConvertToInfixExpression5(): Unit = {
     val text = "x.<caret>foo(g2)"
     val resultText = "x <caret>foo g2"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression6() {
+  def testConvertToInfixExpression6(): Unit = {
     val text = "x.goo<caret>(1, (1 + 2) * 3)"
     val resultText = "x goo<caret>(1, (1 + 2) * 3)"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression7() {
+  def testConvertToInfixExpression7(): Unit = {
     val text = "(l2 :: Nil).:<caret>:(l1)"
     val resultText = "l1 :<caret>: l2 :: Nil"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression8() {
+  def testConvertToInfixExpression8(): Unit = {
     val text = "1 + 2 :: Nil.::<caret>(3 + 4)"
     val resultText = "1 + 2 :: 3 + 4 ::<caret> Nil"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression9() {
+  def testConvertToInfixExpression9(): Unit = {
     val text = "1.<caret>+(2 * 3)"
     val resultText = "1 <caret>+ 2 * 3"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression10() {
+  def testConvertToInfixExpression10(): Unit = {
     val text = "x.map<caret>(_ > 9)"
     val resultText = "x map<caret> (_ > 9)"
 
     doTest(text, resultText)
   }
 
-  def testConvertToInfixExpression11() {
+  def testConvertToInfixExpression11(): Unit = {
     val text = "this.<caret>foo(1)"
     val resultText = "this <caret>foo 1"
 

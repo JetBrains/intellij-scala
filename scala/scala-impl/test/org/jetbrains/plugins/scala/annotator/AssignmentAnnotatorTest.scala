@@ -15,7 +15,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
   object A extends A; object B extends B
   """
 
-  def testVariable() {
+  def testVariable(): Unit = {
     assertMatches(messages("var v = A; v = A")) {
       case Nil =>
     }
@@ -31,7 +31,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }*/
   
-  def testValue() {
+  def testValue(): Unit = {
     assertMatches(messages("val v = A; v = A")) {
       case Error("v = A", ReassignmentToVal()) :: Nil =>
     }
@@ -40,7 +40,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
   
-  def testFunctionParameter() {
+  def testFunctionParameter(): Unit = {
     assertMatches(messages("def f(p: A) { p = A }")) {
       case Error("p = A", ReassignmentToVal()) :: Nil =>
     }
@@ -49,7 +49,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
   
-  def testClassParameter() {
+  def testClassParameter(): Unit = {
     assertMatches(messages("case class C(var p: A) { p = A }")) {
       case Nil =>
     }
@@ -58,7 +58,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
   
-  def testClassVariableParameter() {
+  def testClassVariableParameter(): Unit = {
     assertMatches(messages("class C(var p: A) { p = A }")) {
       case Nil =>
     }
@@ -68,7 +68,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
 //    }
   }
 
-  def testClassValueParameter() {
+  def testClassValueParameter(): Unit = {
     assertMatches(messages("class C(val p: A) { p = A }")) {
       case Error("p = A", ReassignmentToVal()) :: Nil =>
     }
@@ -77,7 +77,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
   
-  def testFunctionLiteralParameter() {
+  def testFunctionLiteralParameter(): Unit = {
     assertMatches(messages("(p: A) => { p = A }")) {
       case Error("p = A", ReassignmentToVal()) :: Nil =>
     }
@@ -96,7 +96,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
 //    }
 //  }
   
-  def testForComprehensionGenerator() {
+  def testForComprehensionGenerator(): Unit = {
     assertMatches(messages("for(v: A <- null) { v = A }")) {
       case Error("v = A", ReassignmentToVal()) :: Nil =>
     }
@@ -105,7 +105,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
   
-  def testForComprehensionBinding() {
+  def testForComprehensionBinding(): Unit = {
     assertMatches(messages("for(x <- null; v = A) { v = A }")) {
       case Error("v = A", ReassignmentToVal()) :: Nil =>
     }
@@ -114,7 +114,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
   
-  def testCaseClause() {
+  def testCaseClause(): Unit = {
     assertMatches(messages("A match { case v: A => v = A }")) {
       case Error("v = A", ReassignmentToVal()) :: Nil =>
     }
@@ -123,19 +123,19 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testNamedParameterClause() {
+  def testNamedParameterClause(): Unit = {
     assertMatches(messages("def blerg(a: Any)= 0; blerg(a = 0)")) {
       case Nil =>
     }
   }
 
-  def testUpdateOkay() {
+  def testUpdateOkay(): Unit = {
     assertMatches(messages("val a = new { def update(x: Int): Unit = () }; a() = 1")) {
       case Nil =>
     }
   }
   
-  def testVarInsideVar() {
+  def testVarInsideVar(): Unit = {
     assertMatches(messages("val x = { var a = A; a = A }")) {
       case Nil =>
     }
@@ -144,13 +144,13 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testVarInsideTemplateAssignedToVal() {
+  def testVarInsideTemplateAssignedToVal(): Unit = {
     assertMatches(messages("val outer = new { var a = (); a = () }")) {
       case Nil =>
     }
   }
   
-  def testSetter() {
+  def testSetter(): Unit = {
     assertMatches(messages("def a = A; def a_=(x: A) {}; a = A")) {
       case Nil =>
     }

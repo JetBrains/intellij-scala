@@ -20,7 +20,7 @@ class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
     returns.map(_.getTextRange).foreach(myReadUsages.add)
   }
 
-  override def selectTargets(targets: util.List[PsiElement], selectionConsumer: Consumer[util.List[PsiElement]]) {
+  override def selectTargets(targets: util.List[PsiElement], selectionConsumer: Consumer[util.List[PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }
 

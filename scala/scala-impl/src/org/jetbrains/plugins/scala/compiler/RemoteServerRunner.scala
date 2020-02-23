@@ -59,7 +59,7 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
       }
     }
 
-    override def stop() {
+    override def stop(): Unit = {
       CompileServerLauncher.ensureNotRunning(project)
     }
   }

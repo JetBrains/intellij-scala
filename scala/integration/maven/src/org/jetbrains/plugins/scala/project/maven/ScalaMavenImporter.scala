@@ -24,16 +24,16 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-plugin") {
-  override def collectSourceFolders(mavenProject: MavenProject, result: java.util.List[String]) {
+  override def collectSourceFolders(mavenProject: MavenProject, result: java.util.List[String]): Unit = {
     collectSourceOrTestFolders(mavenProject, "add-source", "sourceDir", "src/main/scala", result)
   }
 
-  override def collectTestFolders(mavenProject: MavenProject, result: java.util.List[String]) {
+  override def collectTestFolders(mavenProject: MavenProject, result: java.util.List[String]): Unit = {
     collectSourceOrTestFolders(mavenProject, "add-source", "testSourceDir", "src/test/scala", result)
   }
 
   private def collectSourceOrTestFolders(mavenProject: MavenProject, goal: String, goalPath: String,
-                                         defaultDir: String, result: java.util.List[String]) {
+                                         defaultDir: String, result: java.util.List[String]): Unit = {
     val goalConfigValue = findGoalConfigValue(mavenProject, goal, goalPath)
     result.add(if (goalConfigValue == null) defaultDir else goalConfigValue)
   }
@@ -41,12 +41,12 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
   // exclude "default" plugins, should be done inside IDEA's MavenImporter itself
   override def isApplicable(mavenProject: MavenProject): Boolean = validConfigurationIn(mavenProject).isDefined
 
-  override def preProcess(module: Module, mavenProject: MavenProject, changes: MavenProjectChanges, modelsProvider: IdeModifiableModelsProvider) {}
+  override def preProcess(module: Module, mavenProject: MavenProject, changes: MavenProjectChanges, modelsProvider: IdeModifiableModelsProvider): Unit = {}
 
   override def process(modelsProvider: IdeModifiableModelsProvider, module: Module,
               rootModel: MavenRootModelAdapter, mavenModel: MavenProjectsTree, mavenProject: MavenProject,
               changes: MavenProjectChanges, mavenProjectToModuleName: util.Map[MavenProject, String],
-              postTasks: util.List[MavenProjectsProcessorTask]) {
+              postTasks: util.List[MavenProjectsProcessorTask]): Unit = {
 
     validConfigurationIn(mavenProject).foreach { configuration =>
       // TODO configuration.vmOptions
@@ -80,7 +80,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
   }
 
   override def resolve(project: Project, mavenProject: MavenProject, nativeMavenProject: NativeMavenProjectHolder,
-                       embedder: MavenEmbedderWrapper) {
+                       embedder: MavenEmbedderWrapper): Unit = {
     validConfigurationIn(mavenProject).foreach { configuration =>
       val repositories = mavenProject.getRemoteRepositories
 

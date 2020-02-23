@@ -75,7 +75,7 @@ package object sbt {
 
     def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
 
-    def copyTo(destination: File) {
+    def copyTo(destination: File): Unit = {
       copy(file, destination)
     }
 
@@ -162,7 +162,7 @@ package object sbt {
     }
   }
 
-  def copy(source: File, destination: File) {
+  def copy(source: File, destination: File): Unit = {
     using(new BufferedInputStream(new FileInputStream(source))) { in =>
       using(new BufferedOutputStream(new FileOutputStream(destination))) { out =>
         var eof = false

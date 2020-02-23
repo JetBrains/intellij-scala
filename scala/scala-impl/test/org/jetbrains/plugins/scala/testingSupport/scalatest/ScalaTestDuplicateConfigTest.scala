@@ -14,7 +14,7 @@ trait ScalaTestDuplicateConfigTest extends ScalaTestTestCase {
     """.stripMargin.trim()
   )
 
-  def testDuplicateConfig() {
+  def testDuplicateConfig(): Unit = {
     runDuplicateConfigTest(4, 10, "DuplicateConfigTest.scala",
       checkConfigAndSettings(_, "DuplicateConfigTest", "A DuplicateConfigTest should create only one run configuration")
     )

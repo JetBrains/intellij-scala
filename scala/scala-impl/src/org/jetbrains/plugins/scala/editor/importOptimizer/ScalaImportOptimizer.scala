@@ -144,7 +144,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val optimized = rangeInfos.map(range => (range, optimizedImportInfos(range, importsSettings)))
 
     new Runnable {
-      override def run() {
+      override def run(): Unit = {
         val documentManager = PsiDocumentManager.getInstance(project)
         val document: Document = documentManager.getDocument(scalaFile)
         documentManager.commitDocument(document)
@@ -270,7 +270,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
     }
 
-    def initRange(psi: PsiElement) {
+    def initRange(psi: PsiElement): Unit = {
       firstPsi = psi
       lastPsi = psi
     }
@@ -481,7 +481,7 @@ object ScalaImportOptimizer {
       }
     }
 
-    def updateWithWildcardNames(buffer: ArrayBuffer[ImportInfo]) {
+    def updateWithWildcardNames(buffer: ArrayBuffer[ImportInfo]): Unit = {
       for ((info, idx) <- buffer.zipWithIndex) {
         val withWildcardNames = info.withAllNamesForWildcard(rangeStartPsi)
         if (info != withWildcardNames) {

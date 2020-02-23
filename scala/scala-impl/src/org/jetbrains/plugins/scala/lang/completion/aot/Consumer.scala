@@ -23,7 +23,7 @@ private[completion] sealed abstract class Consumer(originalResultSet: Completion
     resultSet.runRemainingContributors(parameters, this, true)
   }
 
-  override final def consume(result: CompletionResult) {
+  override final def consume(result: CompletionResult): Unit = {
     val lookupElement = result.getLookupElement
     consume(lookupElement, suggestItemText(lookupElement.getLookupString))
   }

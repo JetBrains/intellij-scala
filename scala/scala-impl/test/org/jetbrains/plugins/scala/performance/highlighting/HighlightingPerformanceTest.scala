@@ -13,7 +13,7 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[SlowTests]))
 class HighlightingPerformanceTest extends ScalaFixtureTestCase {
-  def doTest(text: String, TIMEOUT: Int) {
+  def doTest(text: String, TIMEOUT: Int): Unit = {
     val file = PsiFileFactory.getInstance(myFixture.getProject)
       .createFileFromText("dummy.scala", ScalaLanguage.INSTANCE, text, true, false)
     TestUtils.assertTiming("Failed highlighting performance test", TIMEOUT,
@@ -27,7 +27,7 @@ class HighlightingPerformanceTest extends ScalaFixtureTestCase {
       )
   }
 
-  def testPerformance() {
+  def testPerformance(): Unit = {
     val text = """
 object addressbook {
 
@@ -97,7 +97,7 @@ object addressbook {
     doTest(text, TIMEOUT)
   }
 
-  def testLotsOfArguments() {
+  def testLotsOfArguments(): Unit = {
     val text =
       """
         |val x: List[Int] = List(79,59,12,2,79,35,8,28,20,2,3,68,8,9,68,45,0,12,9,67,68,4,7,5,23,27,1,21,79,85,78,79,85,71,38,10,71,27

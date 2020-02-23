@@ -15,7 +15,7 @@ class FilterIsEmptyCheckTest extends OperationsOnCollectionInspectionTest {
 
   override protected val hint: String = InspectionBundle.message("filter.empty.check.hint")
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"(Map()$START filter (x => true)).size == 0$END"
     checkTextHasError(selected)
     val text = "(Map() filter (x => true)).size == 0"
@@ -23,12 +23,12 @@ class FilterIsEmptyCheckTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testNoError() {
+  def testNoError(): Unit = {
     val text = "Seq(0).filter(_ > 0).size == 1"
     checkTextHasNoErrors(text)
   }
 
-  def testNoError2() {
+  def testNoError2(): Unit = {
     val text = "Seq(0).filter(_ > 0).size + 1"
     checkTextHasNoErrors(text)
   }
@@ -70,7 +70,7 @@ class FilterNonEmptyCheckTest extends OperationsOnCollectionInspectionTest {
   override protected val hint: String =
     InspectionBundle.message("filter.nonempty.check.hint")
 
-  def testArraySizeGrZero() {
+  def testArraySizeGrZero(): Unit = {
     val selected = s"Array()$START.filter(x => true).size > 0$END"
     checkTextHasError(selected)
     val text = "Array().filter(x => true).size > 0"
@@ -78,7 +78,7 @@ class FilterNonEmptyCheckTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testLenthgGrEqOne() {
+  def testLenthgGrEqOne(): Unit = {
     val selected = s"List()$START.filter(x => true).length >= 1$END"
     checkTextHasError(selected)
     val text = "List().filter(x => true).length >= 1"
@@ -86,7 +86,7 @@ class FilterNonEmptyCheckTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testNonEmpty() {
+  def testNonEmpty(): Unit = {
     val selected = s"List()$START.filter(x => true).nonEmpty$END"
     checkTextHasError(selected)
     val text = "List().filter(x => true).nonEmpty"
@@ -94,7 +94,7 @@ class FilterNonEmptyCheckTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testNoError() {
+  def testNoError(): Unit = {
     val text = "Seq(0).filter(_ > 0).size == 1"
     checkTextHasNoErrors(text)
   }

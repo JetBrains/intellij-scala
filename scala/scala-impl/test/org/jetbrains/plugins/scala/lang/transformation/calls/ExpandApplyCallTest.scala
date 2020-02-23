@@ -54,7 +54,7 @@ class ExpandApplyCallTest extends TransformerTest(new ExpandApplyCall()) {
     """
      object O1 {
        object O2 {
-         def apply(p: A) {}
+         def apply(p: A): Unit = {}
        }
      }
     """)

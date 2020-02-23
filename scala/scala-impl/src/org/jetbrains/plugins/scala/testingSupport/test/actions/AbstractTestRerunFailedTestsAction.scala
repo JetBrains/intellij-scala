@@ -57,7 +57,7 @@ class AbstractTestRerunFailedTestsAction(consoleView: ConsoleView)
         } -> s).toMap
 
         for (failed <- failedTests) { //todo: fix after adding location API
-        def tail() {
+        def tail(): Unit = {
           var parent = failed.getParent
           while (parent != null) {
             classNames.get(parent.getName) match {

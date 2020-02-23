@@ -112,7 +112,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     val processHandler = Ref.create[ProcessHandler]
     EdtTestUtil.runInEdtAndWait(() => {
       val handler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
-        override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
+        override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
           val text = event.getText
           if (debug) print(text)
         }
@@ -157,12 +157,12 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     }
   }
 
-  protected def resume() {
+  protected def resume(): Unit = {
     val resumeCommand = getDebugProcess.createResumeCommand(currentSuspendContext())
     getDebugProcess.getManagerThread.invokeAndWait(resumeCommand)
   }
 
-  protected def addBreakpoint(line: Int, fileName: String = mainFileName, lambdaOrdinal: Integer = -1) {
+  protected def addBreakpoint(line: Int, fileName: String = mainFileName, lambdaOrdinal: Integer = -1): Unit = {
     breakpoints += ((fileName, line, lambdaOrdinal))
   }
 
@@ -171,7 +171,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     clearXBreakpoints()
   }
 
-  private def setupBreakpoints() {
+  private def setupBreakpoints(): Unit = {
     invokeAndWaitInTransaction {
       breakpoints.foreach {
         case (fileName, line, ordinal) =>
@@ -187,7 +187,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     }
   }
 
-  protected def setupLibraryBreakpoint(classQName: String, methodName: String, relativeLineNumber: Int = 1) {
+  protected def setupLibraryBreakpoint(classQName: String, methodName: String, relativeLineNumber: Int = 1): Unit = {
     invokeAndWaitInTransaction {
       implicit val project: Project = getProject
       val psiClass = ScalaPsiManager.instance.getCachedClass(GlobalSearchScope.allScope(getProject), classQName)
@@ -373,11 +373,11 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     }
   }
 
-  protected def evalEquals(codeText: String, expected: String) {
+  protected def evalEquals(codeText: String, expected: String): Unit = {
     Assert.assertEquals(s"Evaluating:\n $codeText", expected, evalResult(codeText))
   }
 
-  protected def evalStartsWith(codeText: String, startsWith: String) {
+  protected def evalStartsWith(codeText: String, startsWith: String): Unit = {
     val result = evalResult(codeText)
     Assert.assertTrue(s"Evaluating:\n $codeText,\n $result doesn't starts with $startsWith",
       result.startsWith(startsWith))

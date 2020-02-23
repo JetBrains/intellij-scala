@@ -48,7 +48,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     commonSettings.KEEP_FIRST_COLUMN_COMMENT = false //added here to comply with prior default behavior
   }
 
-  override def customizeSettings(consumer: CodeStyleSettingsCustomizable, settingsType: SettingsType) {
+  override def customizeSettings(consumer: CodeStyleSettingsCustomizable, settingsType: SettingsType): Unit = {
     val settingsToEnable: ArrayBuffer[String] = new ArrayBuffer
 
     def enableSettings(@NonNls fieldNames: String*): Unit = settingsToEnable ++= fieldNames

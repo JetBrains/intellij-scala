@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTra
  */
 abstract class ExtractTraitTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  def checkResult(fileText: String, expectedText: String, onlyDeclarations: Boolean, onlyFirstMember: Boolean = false) {
+  def checkResult(fileText: String, expectedText: String, onlyDeclarations: Boolean, onlyFirstMember: Boolean = false): Unit = {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
     implicit val project: Project = getProjectAdapter
     implicit val editor: Editor = getEditorAdapter
@@ -22,7 +22,7 @@ abstract class ExtractTraitTestBase extends ScalaLightPlatformCodeInsightTestCas
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
   }
 
-  def checkException(fileText: String, messageText: String, onlyDeclarations: Boolean, onlyFirstMember: Boolean) {
+  def checkException(fileText: String, messageText: String, onlyDeclarations: Boolean, onlyFirstMember: Boolean): Unit = {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
     try {
       implicit val project: Project = getProjectAdapter

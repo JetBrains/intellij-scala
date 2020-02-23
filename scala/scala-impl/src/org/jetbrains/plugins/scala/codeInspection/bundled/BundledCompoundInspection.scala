@@ -28,7 +28,7 @@ class BundledCompoundInspection extends LocalInspectionTool {
 
 object BundledCompoundInspection {
   class MyInspectionVisitorWrapper(allActions: Iterable[PartialFunction[PsiElement, Any]]) extends PsiElementVisitor {
-    override def visitElement(element: PsiElement) {
+    override def visitElement(element: PsiElement): Unit = {
       allActions.find (_.isDefinedAt(element)) map (_.apply(element))
     }
   }

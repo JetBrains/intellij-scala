@@ -20,13 +20,13 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
   import ScalaDelegateMethodTestBase._
   import builders.JavaModuleFixtureBuilder
 
-  protected override def tuneFixture(moduleBuilder: JavaModuleFixtureBuilder[_ <: fixtures.ModuleFixture]) {
+  protected override def tuneFixture(moduleBuilder: JavaModuleFixtureBuilder[_ <: fixtures.ModuleFixture]): Unit = {
     moduleBuilder.setMockJdkLevel(JavaModuleFixtureBuilder.MockJdkLevel.jdk15)
     moduleBuilder.addJdk(IdeaTestUtil.getMockJdk14Path.getPath)
   }
 
   private def doTest(javaText: String, scalaText: String, expectedText: String,
-                     settings: ScalaCodeStyleSettings = defaultSettings(getProject)) {
+                     settings: ScalaCodeStyleSettings = defaultSettings(getProject)): Unit = {
     import StringUtil.convertLineSeparators
 
     implicit val project: Project = getProject

@@ -21,7 +21,7 @@ class ScDocInlinedTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   override def getValueElement: PsiDocTagValue = findChildByClass(classOf[PsiDocTagValue])
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitInlinedTag(this)
   }
 }

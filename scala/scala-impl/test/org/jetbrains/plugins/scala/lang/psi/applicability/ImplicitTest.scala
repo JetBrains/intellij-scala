@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
  */
 
 class ImplicitTest extends ApplicabilityTestBase {
-  def testExplicitArguments() {
+  def testExplicitArguments(): Unit = {
     assertProblemsFunction("", "(implicit p: A)", "(A)") {
       case Nil =>
     }
@@ -20,7 +20,7 @@ class ImplicitTest extends ApplicabilityTestBase {
     }
   }
 
-  def testImplicitValue() {
+  def testImplicitValue(): Unit = {
     assertProblemsFunction("implicit val v = A", "(implicit p: A)", "") {
       case Nil =>
     }
@@ -32,13 +32,13 @@ class ImplicitTest extends ApplicabilityTestBase {
     }
   }
 
-  def testEmptyArguments() {
+  def testEmptyArguments(): Unit = {
     assertProblemsConstructor("", "(implicit p: A)", "") {
       case Nil =>
     }
   }
   
-  def testSwitchToExplicitMode() {
+  def testSwitchToExplicitMode(): Unit = {
     assertProblemsFunction("implicit val v = A", "(implicit p: A)", "()") {
       case MissedValueParameter(Parameter("p")) :: Nil =>
     }

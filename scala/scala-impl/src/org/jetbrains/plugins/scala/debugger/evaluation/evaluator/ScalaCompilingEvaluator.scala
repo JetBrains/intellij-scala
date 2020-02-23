@@ -135,7 +135,7 @@ object ScalaCompilingEvaluator {
   val classNameKey: Key[String] = Key.create[String]("generated.class.name")
   val originalFileKey: Key[PsiFile] = Key.create[PsiFile]("compiling.evaluator.original.file")
 
-  private def keep(reference: ObjectReference, context: EvaluationContext) {
+  private def keep(reference: ObjectReference, context: EvaluationContext): Unit = {
     context.getSuspendContext.asInstanceOf[SuspendContextImpl].keep(reference)
   }
 

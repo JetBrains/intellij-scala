@@ -35,7 +35,7 @@ class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val statement = element.getParent.asInstanceOf[ScFor]
     ScalaPsiUtil.replaceBracesWithParentheses(statement)
 

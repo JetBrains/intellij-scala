@@ -444,7 +444,7 @@ trait ScalaBounds extends api.Bounds {
 
   private def getLeastUpperClasses(leftClasses: Seq[ClassLike], rightClasses: Seq[ClassLike]): Array[(ClassLike, Int, Int)] = {
     val res = new ArrayBuffer[(ClassLike, Int, Int)]
-    def addClass(baseClassToAdd: ClassLike, x: Int, y: Int) {
+    def addClass(baseClassToAdd: ClassLike, x: Int, y: Int): Unit = {
       var i = 0
       var break = false
       while (!break && i < res.length) {
@@ -461,7 +461,7 @@ trait ScalaBounds extends api.Bounds {
         res += ((baseClassToAdd, x, y))
       }
     }
-    def checkClasses(leftClasses: Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty) {
+    def checkClasses(leftClasses: Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Unit = {
       ProgressManager.checkCanceled()
 
       if (leftClasses.isEmpty) return

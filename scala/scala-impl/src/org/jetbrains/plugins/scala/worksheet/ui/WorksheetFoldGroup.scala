@@ -161,7 +161,7 @@ final class WorksheetFoldGroup(
     }
   }
 
-  private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean) {
+  private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean): Unit = {
     val line = originalDocument.safeLineNumber(target.leftEndOffset - 1)
     val key = unfolded floorKey line
 
@@ -219,7 +219,7 @@ object WorksheetFoldGroup {
       if (region.isExpanded) owner.expand(region)
       else owner.collapse(region)
 
-    override def onFoldProcessingEnd() {}
+    override def onFoldProcessingEnd(): Unit = {}
   }
 
   /**

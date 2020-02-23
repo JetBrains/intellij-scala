@@ -27,7 +27,7 @@ abstract class ScPsiElementAssertionTestBase[T <: PsiElement : ClassTag]
 
   def computeRepresentation(t: T): Either[String, String]
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")

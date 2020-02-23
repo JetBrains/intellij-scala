@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase {
   override def familyName: String = ScalaBundle.message("family.name.import.all.members")
 
-  def testParameterizedDef() {
+  def testParameterizedDef(): Unit = {
     val text =
       """object A {
         |  scala.<caret>Option.empty[Int]
@@ -22,7 +22,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testWithExistedImport() {
+  def testWithExistedImport(): Unit = {
     val text =
       """import math.E
         |
@@ -39,7 +39,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testLongRef1() {
+  def testLongRef1(): Unit = {
     val text =
       """object A {
         |  math.BigDecimal.RoundingMode.CEILING
@@ -56,7 +56,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testLongRef2() {
+  def testLongRef2(): Unit = {
     val text =
       """object A {
         |  math.BigD<caret>ecimal.RoundingMode.CEILING
@@ -73,7 +73,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testClasses() {
+  def testClasses(): Unit = {
     val text =
       """abstract class A extends ma<caret>th.Integral {
         |  val obj = math.BigDecimal
@@ -93,7 +93,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testAddToExistedImport() {
+  def testAddToExistedImport(): Unit = {
     val text =
       """import scala.math.Pi
         |
@@ -110,7 +110,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testInfixExprWithNesting() {
+  def testInfixExprWithNesting(): Unit = {
     val text =
       """object A {
         |  <caret>math floor math.Pi
@@ -125,7 +125,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testPostfix() {
+  def testPostfix(): Unit = {
     val text =
       """object A {
         |  println(<caret>math Pi)
@@ -140,7 +140,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testJavaStatic() {
+  def testJavaStatic(): Unit = {
     val text =
       """object A {
         |  java.lang.<caret>Math.sin(java.lang.Math.PI)
@@ -155,7 +155,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testNonStatic() {
+  def testNonStatic(): Unit = {
     val text =
       """object A {
         |  math.<caret>Pi.toString
@@ -164,7 +164,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     checkIntentionIsNotAvailable(text)
   }
 
-  def testInfixNonStatic() {
+  def testInfixNonStatic(): Unit = {
     val text =
       """object A {
         |  math.<caret>Pi + 1
@@ -173,7 +173,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     checkIntentionIsNotAvailable(text)
   }
 
-  def testInImport() {
+  def testInImport(): Unit = {
     val text =
       """import m<caret>ath.E
         |
@@ -192,7 +192,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testImportConflicts() {
+  def testImportConflicts(): Unit = {
     val text =
       """import java.lang.Math._
         |
@@ -214,7 +214,7 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     doTest(text, result)
   }
 
-  def testImportConflictsNoMerge() {
+  def testImportConflictsNoMerge(): Unit = {
     val settings = ScalaCodeStyleSettings.getInstance(getProject)
     settings.setCollectImports(false)
     val text =

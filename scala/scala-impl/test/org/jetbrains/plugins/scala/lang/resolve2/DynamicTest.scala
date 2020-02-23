@@ -12,11 +12,11 @@ class DynamicTest extends ResolveTestBase {
     super.folderPath + "dynamic/"
   }
 
-  def testApplyDynamic() { doTest() }
-  def testApplyDynamicNoMethod() { doTest() }
-  def testApplyDynamicOrdinaryType() { doTest() }
-  def testApplyDynamicWrongSignature() { doTest() }
-  def testSelectDynamicPostfix() { doTest() }
+  def testApplyDynamic(): Unit = { doTest() }
+  def testApplyDynamicNoMethod(): Unit = { doTest() }
+  def testApplyDynamicOrdinaryType(): Unit = { doTest() }
+  def testApplyDynamicWrongSignature(): Unit = { doTest() }
+  def testSelectDynamicPostfix(): Unit = { doTest() }
 
   def testSelectDynamicInType(): Unit = doTest()
   def testSelectDynamicInTypeMacro(): Unit = doTest()

@@ -25,7 +25,7 @@ class ZeroIndexToHeadTest extends OperationsOnCollectionInspectionTest {
       "Seq(1, 2).head")
   }
 
-  def testBraces() {
+  def testBraces(): Unit = {
     doTest(s"List(1, 2)$START(0)$END",
       "List(1, 2)(0)",
       "List(1, 2).head")

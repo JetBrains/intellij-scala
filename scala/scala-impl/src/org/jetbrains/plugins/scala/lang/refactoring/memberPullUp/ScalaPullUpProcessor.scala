@@ -91,7 +91,7 @@ final class ScalaPullUpProcessor(project: Project,
     reformatAfter()
   }
 
-  private def reformatAfter() {
+  private def reformatAfter(): Unit = {
     val documentManager = PsiDocumentManager.getInstance(project)
     val csManager = CodeStyleManager.getInstance(project)
     val targetDocument = documentManager.getDocument(targetClass.getContainingFile)

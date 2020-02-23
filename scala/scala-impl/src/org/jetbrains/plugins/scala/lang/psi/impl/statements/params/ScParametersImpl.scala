@@ -53,7 +53,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
     true
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitParameters(this)
   }
 

@@ -11,7 +11,7 @@ import org.junit.Assert
 class HideImportsTest extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath + "resolve/imports/simple/"
 
-  def testHidePredefImplicit() {
+  def testHidePredefImplicit(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)

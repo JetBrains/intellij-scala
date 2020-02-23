@@ -897,7 +897,7 @@ object ScalaPositionManager {
     private val sourceName = sourceFile.getName
     private def sourceNameOf(refType: ReferenceType): Option[String] = ScalaPositionManager.cachedSourceName(refType)
 
-    override def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType) {
+    override def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType): Unit = {
       val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
 
       if (!sourceNameOf(referenceType).contains(sourceName)) return

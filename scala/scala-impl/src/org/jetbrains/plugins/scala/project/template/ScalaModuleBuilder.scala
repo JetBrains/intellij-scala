@@ -56,14 +56,14 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
       }
     }
 
-    override def updateDataModel() {
+    override def updateDataModel(): Unit = {
       libraryCompositionSettings = libraryPanel.apply()
       javaStep.updateDataModel()
     }
 
     override def getComponent: JComponent = libraryPanel.getMainPanel
 
-    override def disposeUIResources() {
+    override def disposeUIResources(): Unit = {
       super.disposeUIResources()
       javaStep.disposeUIResources()
       Disposer.dispose(libraryPanel)

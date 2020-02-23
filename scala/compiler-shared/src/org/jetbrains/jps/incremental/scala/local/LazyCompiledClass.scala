@@ -25,7 +25,7 @@ class LazyCompiledClass(outputFile: File, sourceFile: File, className: String)
     }
   }
 
-  override def setContent(content: BinaryContent) {
+  override def setContent(content: BinaryContent): Unit = {
     super.setContent(content)
     loadedContent = None
     contentIsSet = true

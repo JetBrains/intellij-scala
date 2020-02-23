@@ -23,11 +23,11 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
  */
 class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 
-  override def update(e: AnActionEvent) {
+  override def update(e: AnActionEvent): Unit = {
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
   }
 
-  override def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
     if(editor == null) return

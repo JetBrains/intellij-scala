@@ -11,7 +11,7 @@ import org.junit.Assert.assertEquals
  */
 class GoToImplementationTest extends GoToTestBase {
 
-  def testTraitImplementation() {
+  def testTraitImplementation(): Unit = {
     val fileText =
       """
         |trait a {

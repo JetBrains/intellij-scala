@@ -39,7 +39,7 @@ object ScalaActionUtil {
 
   def getFileFrom(e: AnActionEvent): Option[PsiFile] = Option(CommonDataKeys.PSI_FILE.getData(e.getDataContext))
   
-  def showHint(editor: Editor, text: String) {
+  def showHint(editor: Editor, text: String): Unit = {
     val label = HintUtil.createInformationLabel(text)
     label.setFont(StartupUiUtil.getLabelFont)
 
@@ -48,7 +48,7 @@ object ScalaActionUtil {
     val hintManager: HintManagerImpl = HintManagerImpl.getInstanceImpl
 
     label.addMouseMotionListener(new MouseMotionAdapter {
-      override def mouseMoved(e: MouseEvent) {
+      override def mouseMoved(e: MouseEvent): Unit = {
         hintManager.hideAllHints()
       }
     })

@@ -39,11 +39,11 @@ final class ShowImplicitConversionsAction extends AnAction("Show implicit conver
   private var hint: LightBulbHint = _
   private val hintAlarm: Alarm = new Alarm
 
-  override def update(e: AnActionEvent) {
+  override def update(e: AnActionEvent): Unit = {
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
   }
 
-  override def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
@@ -87,7 +87,7 @@ final class ShowImplicitConversionsAction extends AnAction("Show implicit conver
       list.setFont(font)
       JListCompatibility.setCellRenderer(list, renderer)
       list.getSelectionModel.addListSelectionListener(new ListSelectionListener {
-        override def valueChanged(e: ListSelectionEvent) {
+        override def valueChanged(e: ListSelectionEvent): Unit = {
           hintAlarm.cancelAllRequests
           val item = list.getSelectedValue.asInstanceOf[Parameters]
           if (item == null) return
@@ -147,7 +147,7 @@ final class ShowImplicitConversionsAction extends AnAction("Show implicit conver
         if (falseGuard.length != 0) falseGuard
         else getExpressions(guard = true)
       }
-      def chooseExpression(expr: ScExpression) {
+      def chooseExpression(expr: ScExpression): Unit = {
         editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,
           expr.getTextRange.getEndOffset)
         forExpr(expr)
@@ -180,7 +180,7 @@ final class ShowImplicitConversionsAction extends AnAction("Show implicit conver
     }
 
     hintAlarm.addRequest(new Runnable {
-      override def run() {
+      override def run(): Unit = {
         hint = new LightBulbHint(element.editor, element.project, element.oldExpression, element.elements)
         list.add(hint, 20, 0)
         hint.setBulbLayout()

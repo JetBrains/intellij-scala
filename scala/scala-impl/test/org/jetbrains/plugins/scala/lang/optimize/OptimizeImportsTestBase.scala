@@ -33,7 +33,7 @@ abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTest
     override def settings(file: PsiFile): OptimizeImportSettings = OptimizeImportsTestBase.this.settings(file)
   }
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     import _root_.junit.framework.Assert._
 
     val filePath = folderPath + getTestName(false) + ".scala"

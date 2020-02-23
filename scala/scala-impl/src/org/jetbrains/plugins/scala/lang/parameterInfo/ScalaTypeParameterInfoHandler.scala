@@ -91,7 +91,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
     }
   }
 
-  private def appendPsiTypeParams(params: Array[PsiTypeParameter], buffer: scala.StringBuilder, index: Int, substitutor: ScSubstitutor)(implicit tpc: TypePresentationContext) {
+  private def appendPsiTypeParams(params: Array[PsiTypeParameter], buffer: scala.StringBuilder, index: Int, substitutor: ScSubstitutor)(implicit tpc: TypePresentationContext): Unit = {
     if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
     else {
       buffer.append(params.map((param: PsiTypeParameter) => {

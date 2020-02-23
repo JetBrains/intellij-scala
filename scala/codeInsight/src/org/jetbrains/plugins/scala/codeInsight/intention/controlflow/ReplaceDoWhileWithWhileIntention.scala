@@ -65,7 +65,7 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
 
     doReplacement()
 
-    def showNotification(text: String) {
+    def showNotification(text: String): Unit = {
 
       val popupFactory = JBPopupFactory.getInstance
       popupFactory.createConfirmation(text, "Continue", "Cancel", () => {
@@ -75,7 +75,7 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
     }
 
 
-    def doReplacement() {
+    def doReplacement(): Unit = {
       for {
         doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo]))
         condition <- doStmt.condition

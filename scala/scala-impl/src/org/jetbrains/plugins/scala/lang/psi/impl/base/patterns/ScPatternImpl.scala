@@ -16,7 +16,7 @@ trait ScPatternImpl extends ScPattern {
   override def bindings: Seq[ScBindingPattern] = {
     val b = mutable.ArrayBuffer.empty[ScBindingPattern]
 
-    def inner(p: ScPattern) {
+    def inner(p: ScPattern): Unit = {
       p match {
         case binding: ScBindingPattern => b += binding
         case _ =>
@@ -34,7 +34,7 @@ trait ScPatternImpl extends ScPattern {
   override def typeVariables: Seq[ScTypeVariableTypeElement] = {
     val b = mutable.ArrayBuffer.empty[ScTypeVariableTypeElement]
 
-    def inner(p: ScPattern) {
+    def inner(p: ScPattern): Unit = {
       p match {
         case ScTypedPattern(te) =>
           te.accept(new ScalaRecursiveElementVisitor {
@@ -54,7 +54,7 @@ trait ScPatternImpl extends ScPattern {
     b
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitPattern(this)
   }
 

@@ -66,7 +66,7 @@ object WorksheetEditorPrinterFactory {
 
       case _ =>
         new CaretListener {
-          override def caretPositionChanged(e: CaretEvent) {
+          override def caretPositionChanged(e: CaretEvent): Unit = {
             if (!e.getEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return
             recipient.getCaretModel.moveToVisualPosition(editor.getCaretModel.getVisualPosition)
           }
@@ -212,7 +212,7 @@ object WorksheetEditorPrinterFactory {
     if (!ApplicationManager.getApplication.isUnitTestMode) {
       val parent = child.getParent
 
-      @inline def preserveFocus(body: => Unit) {
+      @inline def preserveFocus(body: => Unit): Unit = {
         val hadFocus = editorContentComponent.hasFocus
 
         body

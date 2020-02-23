@@ -17,7 +17,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
   override protected val handler: LanguageCodeInsightActionHandler =
     new ScalaGenerateEqualsAction.Handler
 
-  def testFindAllFields() {
+  def testFindAllFields(): Unit = {
     val text = s"""class A (i: Int, val j: Int) {
                  |  val x = 0$CARET_MARKER
                  |  var y = 0
@@ -48,7 +48,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
     performTest(text, result)
   }
 
-  def testInFinalClass() {
+  def testInFinalClass(): Unit = {
     val text = s"""final class$CARET_MARKER A (i: Int, val j: Int) {
                  |  private val z = 0
                  |}"""
@@ -70,7 +70,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
     performTest(text, result)
   }
 
-  def testInAbstract() {
+  def testInAbstract(): Unit = {
     val text = s"""abstract class A (i: Int, val j: Int) extends Set[Int] {
                  |  private val z = 0
                  |
@@ -97,7 +97,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
     performTest(text, result)
   }
 
-  def testInInheritor() {
+  def testInInheritor(): Unit = {
     val text = s"""class A {
                  |  val a = 0
                  |

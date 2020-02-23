@@ -82,7 +82,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
       case _ => false
     }
 
-    def checkExpressionTypeInner(fromUnderscore: Boolean) {
+    def checkExpressionTypeInner(fromUnderscore: Boolean): Unit = {
       val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
         element.getTypeAfterImplicitConversion(expectedOption = element.smartExpectedType(fromUnderscore), fromUnderscore = fromUnderscore)
 

@@ -22,7 +22,7 @@ class TargetTimestamps(context: CompileContext) {
     }
   }
 
-  def set(target: ModuleBuildTarget, timestamp: Long) {
+  def set(target: ModuleBuildTarget, timestamp: Long): Unit = {
     val file = timestampFile(target)
 
     using(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) { out =>
