@@ -63,12 +63,12 @@ object ScalaDirectoryService {
     val templateText = packageLine + "\n" + kind + nameAndBraces
 
     val template = new FileTemplateBase {
-      def setExtension(extension: String) {}
-      def setName(name: String) {}
-      def getName: String = templateName
-      def isDefault: Boolean = true
-      def getDescription: String = ""
-      def getExtension: String = "scala"
+      override def setExtension(extension: String) {}
+      override def setName(name: String) {}
+      override def getName: String = templateName
+      override def isDefault: Boolean = true
+      override def getDescription: String = ""
+      override def getExtension: String = "scala"
     }
 
     template.setText(templateText)

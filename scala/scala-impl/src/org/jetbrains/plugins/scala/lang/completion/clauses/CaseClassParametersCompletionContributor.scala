@@ -28,7 +28,7 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
     PlatformPatterns.psiElement,
     new CompletionProvider[CompletionParameters] {
 
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
         val position = positionFromParameters(parameters)
 
         val maybeParametersOwner = position.findContextOfType(classOf[ScConstructorPattern]).collect {

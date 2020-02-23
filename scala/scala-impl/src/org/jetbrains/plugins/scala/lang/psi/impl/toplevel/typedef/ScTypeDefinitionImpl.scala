@@ -118,7 +118,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     case _ => false
   }
 
-  def getSourceMirrorClass: PsiClass = {
+  override def getSourceMirrorClass: PsiClass = {
     val classParent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
     val name = this.name
     if (classParent == null) {
@@ -147,7 +147,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       super.isLocal && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null
     }
 
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
   override def getTextOffset: Int =
     nameId.getTextRange.getStartOffset
@@ -302,7 +302,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
-  def getQualifiedNameForDebugger: String = {
+  override def getQualifiedNameForDebugger: String = {
     import ScalaNamesUtil.toJavaName
     containingClass match {
       case td: ScTypeDefinition => td.getQualifiedNameForDebugger + "$" + toJavaName(name)
@@ -325,9 +325,9 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
 
     new ItemPresentation() {
-      def getPresentableText: String = presentableName
+      override def getPresentableText: String = presentableName
 
-      def getLocationString: String = getPath match {
+      override def getLocationString: String = getPath match {
         case "" => ScTypeDefinitionImpl.DefaultLocationString
         case path => path.parenthesize()
       }
@@ -347,7 +347,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     _ != this
   }.toArray
 
-  def methodsByName(name: String): Iterator[PhysicalMethodSignature] = {
+  override def methodsByName(name: String): Iterator[PhysicalMethodSignature] = {
     TypeDefinitionMembers.getSignatures(this).forName(name)
       .iterator
       .collect {

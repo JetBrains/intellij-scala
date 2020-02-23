@@ -77,12 +77,12 @@ class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, group: String, m
   override def getNavigatable(project: Project): Navigatable = null // TODO sensible default navigation?
 }
 
-case class TaskRunnerResult(isAborted: Boolean,
-                            hasErrors: Boolean) extends ProjectTaskRunner.Result
+case class TaskRunnerResult(override val isAborted: Boolean,
+                            override val hasErrors: Boolean) extends ProjectTaskRunner.Result
 
 case class TaskManagerResult(context: ProjectTaskContext,
-                             isAborted: Boolean,
-                             hasErrors: Boolean) extends ProjectTaskManager.Result {
+                             override val isAborted: Boolean,
+                             override val hasErrors: Boolean) extends ProjectTaskManager.Result {
 
   override def getContext: ProjectTaskContext = context
 

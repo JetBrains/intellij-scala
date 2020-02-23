@@ -10,14 +10,14 @@ import org.jetbrains.plugins.scala.icons.Icons
 class UTestConfigurationType extends ConfigurationType with DumbAware {
   val confFactory = new UTestRunConfigurationFactory(this)
 
-  def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
+  override def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
 
-  def getDisplayName: String = ScalaBundle.message("utest.config.display.name")
+  override def getDisplayName: String = ScalaBundle.message("utest.config.display.name")
 
-  def getConfigurationTypeDescription: String = ScalaBundle.message("utest.config.description")
+  override def getConfigurationTypeDescription: String = ScalaBundle.message("utest.config.description")
 
-  def getId: String = "uTestRunConfiguration" //if you want to change id, change it in Android plugin too
+  override def getId: String = "uTestRunConfiguration" //if you want to change id, change it in Android plugin too
 
-  def getIcon: Icon = Icons.SCALA_TEST
+  override def getIcon: Icon = Icons.SCALA_TEST
 
 }

@@ -36,7 +36,7 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
     val currentFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
     if (stringToSearch != null) {
       TextOccurrencesUtil.processUsagesInStringsAndComments(elementToRename, stringToSearch, true, new PairProcessor[PsiElement, TextRange] {
-        def process(psiElement: PsiElement, textRange: TextRange): Boolean = {
+        override def process(psiElement: PsiElement, textRange: TextRange): Boolean = {
           if (psiElement.getContainingFile == currentFile) {
             stringUsages.add(Pair.create(psiElement, textRange))
           }

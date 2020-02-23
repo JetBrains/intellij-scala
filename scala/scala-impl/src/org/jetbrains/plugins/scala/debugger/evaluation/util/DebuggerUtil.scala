@@ -60,7 +60,7 @@ object DebuggerUtil {
 
     def toName: JVMName = {
       new JVMName {
-        def getName(process: DebugProcessImpl): String = {
+        override def getName(process: DebugProcessImpl): String = {
           if (myName == null) {
             var name: String = ""
             for (nameEvaluator <- buffer) {
@@ -71,7 +71,7 @@ object DebuggerUtil {
           myName
         }
 
-        def getDisplayName(debugProcess: DebugProcessImpl): String = {
+        override def getDisplayName(debugProcess: DebugProcessImpl): String = {
           if (myDisplayName == null) {
             var displayName: String = ""
             for (nameEvaluator <- buffer) {
@@ -240,7 +240,7 @@ object DebuggerUtil {
     }
 
   class JVMClassAt(sourcePosition: SourcePosition) extends JVMName {
-    def getName(process: DebugProcessImpl): String = {
+    override def getName(process: DebugProcessImpl): String = {
       jvmClassAtPosition(sourcePosition, process) match {
         case Some(refType) => refType.name
         case _ =>
@@ -248,9 +248,9 @@ object DebuggerUtil {
       }
     }
 
-    def getDisplayName(debugProcess: DebugProcessImpl): String = {
+    override def getDisplayName(debugProcess: DebugProcessImpl): String = {
       ApplicationManager.getApplication.runReadAction(new Computable[String] {
-        def compute: String = {
+        override def compute: String = {
           JVMNameUtil.getSourcePositionClassDisplayName(debugProcess, sourcePosition)
         }
       })

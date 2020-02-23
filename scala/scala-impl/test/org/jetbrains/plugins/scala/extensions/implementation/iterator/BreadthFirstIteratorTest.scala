@@ -21,6 +21,6 @@ class BreadthFirstIteratorTest extends TreeIteratorTestBase {
     assertIterates("0, 1.1, 1.2, 1.3, 2.1, 2.2, 2.5, 2.6", createIterator(element, _.toString != "1.2"))
   }
   
-  def createIterator(element: PsiElement, predicate: PsiElement => Boolean) = 
+  override def createIterator(element: PsiElement, predicate: PsiElement => Boolean) =
     new BreadthFirstIterator(element, predicate)
 }

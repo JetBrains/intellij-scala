@@ -21,13 +21,13 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
     val previousSources = previousAnalysis.readStamps().getAllSourceStamps.keySet().asScala.toSet
 
     Some(new UnderlyingChanges[File] {
-      def added: Set[File] = all -- previousSources
+      override def added: Set[File] = all -- previousSources
 
-      def removed: Set[File] = previousSources -- all
+      override def removed: Set[File] = previousSources -- all
 
-      def changed: Set[File] = changedSources & previousSources
+      override def changed: Set[File] = changedSources & previousSources
 
-      def unmodified: Set[File] = previousSources -- changedSources
+      override def unmodified: Set[File] = previousSources -- changedSources
     })
   }
 

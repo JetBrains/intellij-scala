@@ -18,7 +18,7 @@ class ElseFilter extends ElementFilter {
 
   import ScalaCompletionUtil._
 
-  def isAcceptable(element: Object, context: PsiElement): Boolean = {
+  override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
@@ -49,7 +49,7 @@ class ElseFilter extends ElementFilter {
     false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 
   @NonNls
   override def toString: String = "statements keyword filter"

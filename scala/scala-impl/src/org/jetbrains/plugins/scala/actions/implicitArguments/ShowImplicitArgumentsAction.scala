@@ -39,7 +39,7 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
 
   override def update(e: AnActionEvent): Unit = ScalaActionUtil.enableAndShowIfInScalaFile(e)
 
-  def actionPerformed(e: AnActionEvent): Unit = {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
@@ -141,7 +141,7 @@ object ShowImplicitArgumentsAction {
     val succeeded: Ref[Boolean] = new Ref[Boolean]
     val commandProcessor: CommandProcessor = CommandProcessor.getInstance
     commandProcessor.executeCommand(project, new Runnable {
-      def run(): Unit = {
+      override def run(): Unit = {
         if (selectedNode != null) {
           if (selectedNode.canNavigateToSource) {
             popup.cancel()
@@ -168,7 +168,7 @@ object ShowImplicitArgumentsAction {
     val structure = new ImplicitArgumentsTreeStructure(project, results)
 
     val tempDisposable = new Disposable {
-      def dispose(): Unit = ()
+      override def dispose(): Unit = ()
     }
     val structureTreeModel = new StructureTreeModel[ImplicitArgumentsTreeStructure](structure, tempDisposable)
     val asyncTreeModel = new AsyncTreeModel(structureTreeModel, true, tempDisposable)
@@ -199,7 +199,7 @@ object ShowImplicitArgumentsAction {
       createPopup
 
     new AnAction {
-      def actionPerformed(e: AnActionEvent) {
+      override def actionPerformed(e: AnActionEvent) {
         val succeeded: Boolean = navigateSelectedElement(popup, jTree, project)
         if (succeeded) {
           unregisterCustomShortcutSet(panel)
@@ -208,7 +208,7 @@ object ShowImplicitArgumentsAction {
     }.registerCustomShortcutSet(shortcutSet, panel)
 
     new ClickListener {
-      def onClick(e: MouseEvent, clickCount: Int): Boolean = {
+      override def onClick(e: MouseEvent, clickCount: Int): Boolean = {
         val path: TreePath = jTree.getPathForLocation(e.getX, e.getY)
         if (path == null) return false
         navigateSelectedElement(popup, jTree, project)

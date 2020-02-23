@@ -350,7 +350,7 @@ object ScalaLanguageCodeStyleSettingsProvider {
   private class ScalaCodeStyleAbstractConfigurable(settings: CodeStyleSettings, cloneSettings: CodeStyleSettings)
     extends CodeStyleAbstractConfigurable(settings, cloneSettings, "Scala") {
 
-    protected def createPanel(settings: CodeStyleSettings): CodeStyleAbstractPanel = {
+    override protected def createPanel(settings: CodeStyleSettings): CodeStyleAbstractPanel = {
       panel = try new ScalaTabbedCodeStylePanel(getCurrentSettings, settings) catch {
         case ex: Throwable =>
           Log.error("Error occurred during scala code style panel initialization", ex)

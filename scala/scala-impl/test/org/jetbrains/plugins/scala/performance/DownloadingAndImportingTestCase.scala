@@ -60,9 +60,9 @@ trait GithubRepo {
 
 trait ScalaCommunityGithubRepo extends GithubRepo {
 
-  def githubUsername: String = "JetBrains"
+  override def githubUsername: String = "JetBrains"
 
-  def githubRepoName: String = "intellij-scala"
+  override def githubRepoName: String = "intellij-scala"
 
-  def revision: String = "a9ac902e8930c520b390095d9e9346d9ae546212"
+  override def revision: String = "a9ac902e8930c520b390095d9e9346d9ae546212"
 }

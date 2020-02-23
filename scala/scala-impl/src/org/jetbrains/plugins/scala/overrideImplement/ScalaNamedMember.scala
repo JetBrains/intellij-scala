@@ -59,23 +59,23 @@ object ScMethodMember {
 
 sealed trait ScalaFieldMember extends ScalaTypedMember
 
-class ScValueMember(member: ScValue, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val isOverride: Boolean)
+class ScValueMember(member: ScValue, val element: ScTypedDefinition, override val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
-          val name = element.getName
-          val scType = substitutor(element.`type`().getOrAny)
+          override val name = element.getName
+          override val scType = substitutor(element.`type`().getOrAny)
           val text = element.name + ": " + scType.presentableText(element)
         } with PsiElementClassMember[ScValue](member, text) with ScalaFieldMember
 
-class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val isOverride: Boolean)
+class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, override val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
-          val name = element.getName
-          val scType = substitutor(element.`type`().getOrAny)
+          override val name = element.getName
+          override val scType = substitutor(element.`type`().getOrAny)
           val text = name + ": " + scType.presentableText(element)
         } with PsiElementClassMember[ScVariable](member, text) with ScalaFieldMember
 
 class JavaFieldMember private(override val getElement: PsiField,
-                              text: String, val scType: ScType,
-                              val substitutor: ScSubstitutor)
+                              text: String, override val scType: ScType,
+                              override val substitutor: ScSubstitutor)
   extends PsiElementClassMember[PsiField](getElement, text) with ScalaFieldMember {
 
   override val name: String = getElement.getName

@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
   * @since 05.04.12
   */
 abstract class PsiMethodWrapper[T <: ScalaPsiElement with PsiNamedElement with NavigatablePsiElement](
-  val delegate: T,
-  methodName: String,
-  containingClass: PsiClass
+                                                                                                       override val delegate: T,
+                                                                                                       methodName: String,
+                                                                                                       containingClass: PsiClass
 ) extends LightMethodBuilder(delegate.getManager, containingClass.getLanguage, methodName)
     with NavigablePsiElementWrapper[T] {
 

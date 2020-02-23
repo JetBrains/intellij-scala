@@ -214,7 +214,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
       val handler: ProcessHandler = descriptor.getProcessHandler
       assertNotNull(handler)
       disposeOnTearDown(new Disposable {
-        def dispose() {
+        override def dispose() {
           if (!handler.isProcessTerminated) {
             handler.destroyProcess()
           }

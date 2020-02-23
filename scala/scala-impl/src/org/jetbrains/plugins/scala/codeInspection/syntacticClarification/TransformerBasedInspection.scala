@@ -12,17 +12,17 @@ import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, Tra
 class TransformerBasedInspection(name: String, solution: String, transformer: AbstractTransformer) extends AbstractInspection(name) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = new PartialFunction[PsiElement, Any] {
-    def isDefinedAt(e: PsiElement): Boolean = transformer.isApplicableTo(e)
+    override def isDefinedAt(e: PsiElement): Boolean = transformer.isApplicableTo(e)
 
-    def apply(e: PsiElement): Unit = {
+    override def apply(e: PsiElement): Unit = {
       holder.registerProblem(e, name, new LocalQuickFixOnPsiElement(e) {
-        def invoke(project: Project, psiFile: PsiFile, psiElement: PsiElement, psiElement1: PsiElement) {
+        override def invoke(project: Project, psiFile: PsiFile, psiElement: PsiElement, psiElement1: PsiElement) {
           Transformer.applyTransformerAndReformat(e, psiFile, transformer)
         }
 
-        def getText: String = solution
+        override def getText: String = solution
 
-        def getFamilyName: String = getText
+        override def getFamilyName: String = getText
       })
     }
   }

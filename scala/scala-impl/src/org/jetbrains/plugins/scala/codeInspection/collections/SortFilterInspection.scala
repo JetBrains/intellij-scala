@@ -15,7 +15,7 @@ class SortFilterInspection extends OperationOnCollectionInspection {
 
 object SortFilter extends SimplificationType {
 
-  def hint: String = InspectionBundle.message("sort.filter.hint")
+  override def hint: String = InspectionBundle.message("sort.filter.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

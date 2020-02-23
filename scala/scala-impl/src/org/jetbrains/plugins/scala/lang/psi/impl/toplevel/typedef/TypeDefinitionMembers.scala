@@ -426,14 +426,14 @@ object TypeDefinitionMembers {
   private implicit class TermNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[TermSignature]]) extends AnyVal
     with NodesIteratorFilteredOps[TermSignature] {
 
-    protected def checkName(s: TermSignature, nameHint: String): Boolean =
+    override protected def checkName(s: TermSignature, nameHint: String): Boolean =
       nameHint.isEmpty || s.name == nameHint || syntheticPropertyMethods(nameHint, s).nonEmpty
   }
 
   private implicit class TypeNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[TypeSignature]]) extends AnyVal
     with NodesIteratorFilteredOps[TypeSignature] {
 
-    protected def checkName(named: TypeSignature, nameHint: String): Boolean =
+    override protected def checkName(named: TypeSignature, nameHint: String): Boolean =
       nameHint.isEmpty || ScalaNamesUtil.clean(named.name) == nameHint
   }
 

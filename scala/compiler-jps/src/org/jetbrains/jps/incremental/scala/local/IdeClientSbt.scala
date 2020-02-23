@@ -27,7 +27,7 @@ class IdeClientSbt(compilerName: String,
                    sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]])
         extends IdeClient(compilerName, context, modules) {
 
-  def generated(source: File, outputFile: File, name: String) {
+  override def generated(source: File, outputFile: File, name: String) {
     invalidateBoundForms(source)
     val target = sourceToTarget(source).getOrElse {
       throw new RuntimeException("Unknown source file: " + source)

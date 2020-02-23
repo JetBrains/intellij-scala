@@ -28,7 +28,7 @@ object BspSyntheticModuleType {
 
 
 class BspSyntheticModuleEditorProvider extends ModuleConfigurationEditorProvider {
-  def createEditors(state: ModuleConfigurationState): Array[ModuleConfigurationEditor] = {
+  override def createEditors(state: ModuleConfigurationState): Array[ModuleConfigurationEditor] = {
     val module = state.getRootModel.getModule
 
     ModuleType.get(module) match {

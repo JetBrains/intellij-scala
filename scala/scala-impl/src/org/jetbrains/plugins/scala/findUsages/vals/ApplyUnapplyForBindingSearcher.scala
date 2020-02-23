@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * 8/29/13
  */
 class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
-  def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
+  override def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val project = queryParameters.getProject
     val scope = inReadAction {
       ScalaFilterScope(queryParameters)
@@ -42,7 +42,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
 
   private def createProcessor(consumer: Processor[_ >: PsiReference], binding: ScBindingPattern, checkApply: Boolean, checkUnapply: Boolean) =
     new TextOccurenceProcessor {
-      def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+      override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
         val references = inReadAction(element.getReferences)
         val IsApply = new Apply(binding)
         val IsUnapply = new Unapply(binding)

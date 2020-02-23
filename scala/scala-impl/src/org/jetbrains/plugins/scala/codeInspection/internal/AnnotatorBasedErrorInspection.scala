@@ -88,15 +88,15 @@ object AnnotatorBasedErrorInspection {
     override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String,
                                   htmlTooltip: String): ScalaAnnotation = FakeAnnotation
 
-    def createAnnotation(severity: HighlightSeverity, range: TextRange, str: String): ScalaAnnotation = FakeAnnotation
+    override def createAnnotation(severity: HighlightSeverity, range: TextRange, str: String): ScalaAnnotation = FakeAnnotation
 
-    def isBatchMode: Boolean = false
+    override def isBatchMode: Boolean = false
 
-    def createInfoAnnotation(range: TextRange, message: String): ScalaAnnotation = FakeAnnotation
+    override def createInfoAnnotation(range: TextRange, message: String): ScalaAnnotation = FakeAnnotation
 
-    def createInfoAnnotation(node: ASTNode, message: String): ScalaAnnotation = FakeAnnotation
+    override def createInfoAnnotation(node: ASTNode, message: String): ScalaAnnotation = FakeAnnotation
 
-    def createInfoAnnotation(elt: PsiElement, message: String): ScalaAnnotation = FakeAnnotation
+    override def createInfoAnnotation(elt: PsiElement, message: String): ScalaAnnotation = FakeAnnotation
 
     def createInformationAnnotation(range: TextRange, message: String): ScalaAnnotation = FakeAnnotation
 
@@ -104,51 +104,51 @@ object AnnotatorBasedErrorInspection {
 
     def createInformationAnnotation(elt: PsiElement, message: String): ScalaAnnotation = FakeAnnotation
 
-    def createWarningAnnotation(range: TextRange, message: String): ScalaAnnotation = {
+    override def createWarningAnnotation(range: TextRange, message: String): ScalaAnnotation = {
       holder.registerProblem(element, InspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
-    def createWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
+    override def createWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
       holder.registerProblem(element, InspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
-    def createWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
+    override def createWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
       holder.registerProblem(element, InspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
-    def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation = {
+    override def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation = {
       if (message != null) {
         holder.registerProblem(element, InspectionBundle.message("error.detected.with.message", message), ERROR)
       }
       FakeAnnotation
     }
 
-    def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
+    override def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
       if (message != null) {
         holder.registerProblem(element, InspectionBundle.message("error.detected.with.message", message), ERROR)
       }
       FakeAnnotation
     }
 
-    def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
+    override def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
       if (message != null) {
         holder.registerProblem(element, InspectionBundle.message("error.detected.with.message", message), ERROR)
       }
       FakeAnnotation
     }
 
-    def getCurrentAnnotationSession: AnnotationSession = {
+    override def getCurrentAnnotationSession: AnnotationSession = {
       new AnnotationSession(element.getContainingFile)
     }
 
-    def createWeakWarningAnnotation(p1: TextRange, p2: String): ScalaAnnotation = FakeAnnotation
+    override def createWeakWarningAnnotation(p1: TextRange, p2: String): ScalaAnnotation = FakeAnnotation
 
-    def createWeakWarningAnnotation(p1: ASTNode, p2: String): ScalaAnnotation = FakeAnnotation
+    override def createWeakWarningAnnotation(p1: ASTNode, p2: String): ScalaAnnotation = FakeAnnotation
 
-    def createWeakWarningAnnotation(p1: PsiElement, p2: String): ScalaAnnotation = FakeAnnotation
+    override def createWeakWarningAnnotation(p1: PsiElement, p2: String): ScalaAnnotation = FakeAnnotation
   }
 
 }

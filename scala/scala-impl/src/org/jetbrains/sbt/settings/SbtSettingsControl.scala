@@ -9,7 +9,7 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
 
   private val pane = new SbtSettingsPane(settings.getProject)
 
-  def isModified: Boolean = ! {
+  override def isModified: Boolean = ! {
     pane.isCustomLauncher == settings.customLauncherEnabled &&
       pane.getLauncherPath == settings.customLauncherPath &&
       pane.getMaximumHeapSize == settings.maximumHeapSize &&
@@ -18,15 +18,15 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
       pane.getCustomVMPath == settings.customVMPath
   }
 
-  def showUi(show: Boolean): Unit =
+  override def showUi(show: Boolean): Unit =
     pane.getContentPanel.setVisible(show)
 
-  def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit =
+  override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit =
     canvas.add(pane.getContentPanel, ExternalSystemUiUtil.getFillLineConstraints(indentLevel))
 
-  def disposeUIResources() {}
+  override def disposeUIResources() {}
 
-  def apply(settings: SbtSettings): Unit = {
+  override def apply(settings: SbtSettings): Unit = {
     settings.customLauncherEnabled = pane.isCustomLauncher
     settings.customLauncherPath = pane.getLauncherPath
     settings.maximumHeapSize = pane.getMaximumHeapSize
@@ -35,7 +35,7 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
     settings.customVMPath = pane.getCustomVMPath
   }
 
-  def reset(): Unit = {
+  override def reset(): Unit = {
     pane.setCustomLauncherEnabled(settings.customLauncherEnabled)
     pane.setLauncherPath(settings.customLauncherPath)
     pane.setMaximumHeapSize(settings.maximumHeapSize)
@@ -44,5 +44,5 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
     pane.setPathListeners()
   }
 
-  def validate(settings: SbtSettings) = true
+  override def validate(settings: SbtSettings) = true
 }

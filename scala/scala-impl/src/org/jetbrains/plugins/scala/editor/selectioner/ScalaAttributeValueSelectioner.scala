@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes._
  * @author Pavel Fatin
  */
 class ScalaAttributeValueSelectioner extends ExtendWordSelectionHandlerBase {
-  def canSelect(e: PsiElement): Boolean = isPartOfAttributeValue(e)
+  override def canSelect(e: PsiElement): Boolean = isPartOfAttributeValue(e)
 
   override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): util.List[TextRange] = {
     val result = super.select(e, editorText, cursorOffset, editor)

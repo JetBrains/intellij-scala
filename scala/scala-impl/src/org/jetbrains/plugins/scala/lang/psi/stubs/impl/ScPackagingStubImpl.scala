@@ -8,7 +8,7 @@ import com.intellij.psi.stubs.StubBase
 
 final class ScPackagingStubImpl(parent: RawStubElement,
                                 elementType: RawStubElementType,
-                                val packageName: String,
-                                val parentPackageName: String,
-                                val isExplicit: Boolean)
+                                override val packageName: String,
+                                override val parentPackageName: String,
+                                override val isExplicit: Boolean)
   extends StubBase[api.toplevel.ScPackaging](parent, elementType) with ScPackagingStub

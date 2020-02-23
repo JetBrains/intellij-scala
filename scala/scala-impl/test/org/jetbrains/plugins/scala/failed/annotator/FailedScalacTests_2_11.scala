@@ -59,7 +59,7 @@ abstract class FailedScalacTestsBase_2_12 extends ScalacTestdataHighlightingTest
 @Category(Array(classOf[PerfCycleTests]))
 class FailedScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
 
-  def testDirName = "failed"
+  override def testDirName = "failed"
 
   //Delete test method and move corresponding .scala file or directory to testdata/scalacTests/pos/ after test passes
 

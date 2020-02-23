@@ -35,13 +35,13 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
 
   override def allTypeElements: Seq[ScTypeElement] = typeElements ++ syntheticTypeElements
 
-  def typeElements: Seq[ScTypeElement] = byPsiOrStub {
+  override def typeElements: Seq[ScTypeElement] = byPsiOrStub {
     (constructorInvocation.map(_.typeElement) ++ typeElementsWithoutConstructor).toSeq
   } {
     _.parentTypeElements
   }
 
-  def superTypes: Seq[ScType] = {
+  override def superTypes: Seq[ScType] = {
     if (!isValid) return Seq.empty
 
     val elements = byStubOrPsi(_.parentTypeElements ++ syntheticTypeElements) {

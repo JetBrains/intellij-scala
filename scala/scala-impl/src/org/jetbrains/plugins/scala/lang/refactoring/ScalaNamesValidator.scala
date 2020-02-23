@@ -18,7 +18,7 @@ class ScalaNamesValidator extends NamesValidator {
     .map(_.toString)
     .toSet
 
-  def isIdentifier(name: String, project: Project): Boolean = {
+  override def isIdentifier(name: String, project: Project): Boolean = {
     if (isEmpty(name)) return false
 
     val lexer = lexerCache.get()
@@ -29,7 +29,7 @@ class ScalaNamesValidator extends NamesValidator {
     lexer.getTokenType == null
   }
 
-  def isKeyword(name: String, project: Project): Boolean =
+  override def isKeyword(name: String, project: Project): Boolean =
     keywordNames.contains(name)
 }
 

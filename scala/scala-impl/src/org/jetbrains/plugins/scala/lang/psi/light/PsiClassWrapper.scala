@@ -46,38 +46,38 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     }
   }
 
-  def getQualifiedName: String = qualName
+  override def getQualifiedName: String = qualName
 
-  def isInterface: Boolean = false
+  override def isInterface: Boolean = false
 
-  def isAnnotationType: Boolean = false
+  override def isAnnotationType: Boolean = false
 
-  def isEnum: Boolean = false
+  override def isEnum: Boolean = false
 
-  def getExtendsList: PsiReferenceList = null //todo:
+  override def getExtendsList: PsiReferenceList = null //todo:
 
-  def getImplementsList: PsiReferenceList = null //todo: ?
+  override def getImplementsList: PsiReferenceList = null //todo: ?
 
-  def getExtendsListTypes: Array[PsiClassType] = Array.empty
+  override def getExtendsListTypes: Array[PsiClassType] = Array.empty
 
-  def getImplementsListTypes: Array[PsiClassType] = Array.empty
+  override def getImplementsListTypes: Array[PsiClassType] = Array.empty
 
-  def getSuperClass: PsiClass = null
+  override def getSuperClass: PsiClass = null
 
-  def getInterfaces: Array[PsiClass] = Array.empty
+  override def getInterfaces: Array[PsiClass] = Array.empty
 
-  def getSupers: Array[PsiClass] = Array.empty
+  override def getSupers: Array[PsiClass] = Array.empty
 
-  def getSuperTypes: Array[PsiClassType] = Array.empty
+  override def getSuperTypes: Array[PsiClassType] = Array.empty
 
-  def psiFields: Array[PsiField] = {
+  override def psiFields: Array[PsiField] = {
     definition match {
       case _: ScObject => Array.empty
       case _ => definition.getFields //todo:
     }
   }
 
-  def psiMethods: Array[PsiMethod] = {
+  override def psiMethods: Array[PsiMethod] = {
     definition match {
       case obj: ScObject =>
         val res = new ArrayBuffer[PsiMethod]()
@@ -124,7 +124,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   @Cached(ModCount.getBlockModificationCount, this)
   private def getEmptyConstructor: PsiMethod = new EmptyPrivateConstructor(this)
 
-  def getConstructors: Array[PsiMethod] = {
+  override def getConstructors: Array[PsiMethod] = {
     Array(getEmptyConstructor)
   }
 
@@ -144,82 +144,82 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     }
   }
 
-  def getInitializers: Array[PsiClassInitializer] = Array.empty
+  override def getInitializers: Array[PsiClassInitializer] = Array.empty
 
-  def getAllFields: Array[PsiField] = {
+  override def getAllFields: Array[PsiField] = {
     PsiClassImplUtil.getAllFields(this)
   }
 
-  def getAllMethods: Array[PsiMethod] = {
+  override def getAllMethods: Array[PsiMethod] = {
     PsiClassImplUtil.getAllMethods(this)
   }
 
-  def getAllInnerClasses: Array[PsiClass] = {
+  override def getAllInnerClasses: Array[PsiClass] = {
     PsiClassImplUtil.getAllInnerClasses(this)
   }
 
-  def findFieldByName(name: String, checkBases: Boolean): PsiField = {
+  override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
     PsiClassImplUtil.findFieldByName(this, name, checkBases)
   }
 
-  def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
+  override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
     PsiClassImplUtil.findMethodBySignature(this, patternMethod, checkBases)
   }
 
-  def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] = {
+  override def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] = {
     PsiClassImplUtil.findMethodsBySignature(this, patternMethod, checkBases)
   }
 
-  def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
+  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
     PsiClassImplUtil.findMethodsByName(this, name, checkBases)
   }
 
-  def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): util.List[Pair[PsiMethod, PsiSubstitutor]] = {
+  override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): util.List[Pair[PsiMethod, PsiSubstitutor]] = {
     PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases)
   }
 
-  def getAllMethodsAndTheirSubstitutors: util.List[Pair[PsiMethod, PsiSubstitutor]] = {
+  override def getAllMethodsAndTheirSubstitutors: util.List[Pair[PsiMethod, PsiSubstitutor]] = {
     PsiClassImplUtil.getAllWithSubstitutorsByMap(this, MemberType.METHOD)
   }
 
-  def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {
+  override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {
     PsiClassImplUtil.findInnerByName(this, name, checkBases)
   }
 
-  def getLBrace: PsiElement = {
+  override def getLBrace: PsiElement = {
     definition.getLBrace
   }
 
-  def getRBrace: PsiElement = {
+  override def getRBrace: PsiElement = {
     definition.getRBrace
   }
 
-  def getNameIdentifier: PsiIdentifier = {
+  override def getNameIdentifier: PsiIdentifier = {
     definition.getNameIdentifier
   }
 
-  def getScope: PsiElement = {
+  override def getScope: PsiElement = {
     definition.getScope
   }
 
-  def isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean = {
+  override def isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean = {
     definition match {
       case _: ScObject => baseClass.getQualifiedName == "java.lang.Object"
       case _ => false
     }
   }
 
-  def isInheritorDeep(baseClass: PsiClass, classToByPass: PsiClass): Boolean = isInheritor(baseClass, checkDeep = true)
+  override def isInheritorDeep(baseClass: PsiClass, classToByPass: PsiClass): Boolean = isInheritor(baseClass, checkDeep = true)
 
-  def getContainingClass: PsiClass = {
+  override def getContainingClass: PsiClass = {
     definition.getContainingClass
   }
 
-  def getVisibleSignatures: util.Collection[HierarchicalMethodSignature] = {
+  override def getVisibleSignatures: util.Collection[HierarchicalMethodSignature] = {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
 
-  def setName(name: String): PsiElement = {
+  override def setName(name: String): PsiElement = {
     this.name = name
     val packageName = StringUtil.getPackageName(this.qualName)
     this.qualName = if (packageName.isEmpty) name else packageName + "." + name
@@ -276,19 +276,19 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     definition.getIcon(flags)
   }
 
-  def getModifierList: PsiModifierList = {
+  override def getModifierList: PsiModifierList = {
     definition.getModifierList
   }
 
-  def hasModifierProperty(name: String): Boolean = {
+  override def hasModifierProperty(name: String): Boolean = {
     definition.hasModifierProperty(name)
   }
 
-  def getDocComment: PsiDocComment = {
+  override def getDocComment: PsiDocComment = {
     definition.getDocComment
   }
 
-  def isDeprecated: Boolean = {
+  override def isDeprecated: Boolean = {
     definition.isDeprecated
   }
 
@@ -312,11 +312,11 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   override def getTextOffset: Int = definition.getTextOffset
 
-  def hasTypeParameters: Boolean = false
+  override def hasTypeParameters: Boolean = false
 
-  def getTypeParameterList: PsiTypeParameterList = null
+  override def getTypeParameterList: PsiTypeParameterList = null
 
-  def psiTypeParameters: Array[PsiTypeParameter] = Array.empty
+  override def psiTypeParameters: Array[PsiTypeParameter] = Array.empty
 
   override def isEquivalentTo(another: PsiElement): Boolean = {
     PsiClassImplUtil.isClassEquivalentTo(this, another)

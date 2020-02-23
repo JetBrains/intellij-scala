@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
  * Date: 15.06.2009
  */
 
-class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Document,
+class ScalaUnusedImportPass(override val file: PsiFile, editor: Editor, override val document: Document,
                             highlightInfoProcessor: HighlightInfoProcessor)
   extends ProgressableTextEditorHighlightingPass(
     file.getProject,
@@ -93,7 +93,7 @@ object ScalaUnusedImportPass {
     if (document == null) return
     val stamp: Long = document.getModificationStamp
     ApplicationManager.getApplication.invokeLater(new Runnable {
-      def run() {
+      override def run() {
         if (project.isDisposed || document.getModificationStamp != stamp) return
         val undoManager: UndoManager = UndoManager.getInstance(project)
         if (undoManager.isUndoInProgress || undoManager.isRedoInProgress) return

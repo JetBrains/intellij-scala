@@ -47,7 +47,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
 
   import ScImportStmtImpl._
 
-  def importExprs: Seq[ScImportExpr] =
+  override def importExprs: Seq[ScImportExpr] =
     getStubOrPsiChildren(ScalaElementType.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory).toSeq
 
   override def processDeclarations(

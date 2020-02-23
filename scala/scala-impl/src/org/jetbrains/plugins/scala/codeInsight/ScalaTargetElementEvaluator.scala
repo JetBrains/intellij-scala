@@ -93,7 +93,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     }
   }
 
-  def isIdentifierPart(file: PsiFile, text: CharSequence, offset: Int): Boolean = {
+  override def isIdentifierPart(file: PsiFile, text: CharSequence, offset: Int): Boolean = {
     val child: PsiElement = file.findElementAt(offset)
     child != null && child.getNode != null && ScalaTokenTypes.IDENTIFIER_TOKEN_SET.contains(child.getNode.getElementType )
   }

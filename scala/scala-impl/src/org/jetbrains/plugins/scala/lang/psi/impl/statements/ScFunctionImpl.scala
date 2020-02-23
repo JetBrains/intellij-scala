@@ -61,7 +61,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def isStable = false
 
-  def nameId: PsiElement = {
+  override def nameId: PsiElement = {
     val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
       case null => getNode.findChildByType(ScalaTokenTypes.kTHIS)
       case notNull => notNull
@@ -78,7 +78,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
+  override def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
@@ -118,7 +118,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def returnTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def returnTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
   // TODO unify with ScValue and ScVariable
   protected override final def baseIcon: Icon = {
@@ -134,7 +134,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     null
   }
 
-  def getReturnType: PsiType = {
+  override def getReturnType: PsiType = {
     if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
       return null //no resolve during dumb mode or while synthetic classes is not registered
     }
@@ -154,7 +154,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     resultType.toPsiType
   }
 
-  def definedReturnType: TypeResult = {
+  override def definedReturnType: TypeResult = {
     returnTypeElement match {
       case Some(ret) => ret.`type`()
       case _ if !hasAssign => Right(Unit)
@@ -168,7 +168,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  def hasUnitResultType: Boolean = {
+  override def hasUnitResultType: Boolean = {
     @tailrec
     def hasUnitRT(t: ScType): Boolean = t match {
       case _ if t.isUnit => true
@@ -178,12 +178,12 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     this.returnType.exists(hasUnitRT)
   }
 
-  def hasParameterClause: Boolean = ScFunctionImpl.hasParameterClauseImpl(this)
+  override def hasParameterClause: Boolean = ScFunctionImpl.hasParameterClauseImpl(this)
 
-  def parameterListCount: Int = paramClauses.clauses.length
+  override def parameterListCount: Int = paramClauses.clauses.length
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
-  def effectiveParameterClauses: Seq[ScParameterClause] = {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = {
     val maybeOwner = if (isConstructor) {
       containingClass match {
         case owner: ScTypeParametersOwner => Some(owner)
@@ -200,7 +200,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     * @return Empty array, if containing class is null.
     */
   @Cached(ModCount.getBlockModificationCount, this)
-  def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
+  override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val buffer = new ArrayBuffer[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
       for {
@@ -230,41 +230,41 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     super.hasModifierProperty(name)
   }
 
-  def hasAssign: Boolean = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).nonEmpty
+  override def hasAssign: Boolean = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).nonEmpty
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  def findDeepestSuperMethod: PsiMethod = {
+  override def findDeepestSuperMethod: PsiMethod = {
     val s = superMethods
     if (s.isEmpty) null
     else s.last
   }
 
-  def getReturnTypeElement: Null = null
+  override def getReturnTypeElement: Null = null
 
-  def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
+  override def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
+  override def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def findSuperMethods: Array[PsiMethod] = superMethods.toArray // TODO which other xxxSuperMethods can/should be implemented?
+  override def findSuperMethods: Array[PsiMethod] = superMethods.toArray // TODO which other xxxSuperMethods can/should be implemented?
 
-  def findDeepestSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
+  override def findDeepestSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
   def getReturnTypeNoResolve: PsiType = PsiType.VOID
 
-  def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): java.util.List[MethodSignatureBackedByPsiMethod] =
+  override def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): java.util.List[MethodSignatureBackedByPsiMethod] =
     ContainerUtil.emptyList()
 
-  def getSignature(substitutor: PsiSubstitutor): MethodSignatureBackedByPsiMethod = MethodSignatureBackedByPsiMethod.create(this, substitutor)
+  override def getSignature(substitutor: PsiSubstitutor): MethodSignatureBackedByPsiMethod = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
   //todo implement me!
-  def isVarArgs = false
+  override def isVarArgs = false
 
-  def isConstructor: Boolean = name == "this"
+  override def isConstructor: Boolean = name == "this"
 
-  def getBody: PsiCodeBlock = null
+  override def getBody: PsiCodeBlock = null
 
-  def getThrowsList: FakePsiReferenceList = new FakePsiReferenceList(getManager, getLanguage, Role.THROWS_LIST) {
+  override def getThrowsList: FakePsiReferenceList = new FakePsiReferenceList(getManager, getLanguage, Role.THROWS_LIST) {
     override def getReferenceElements: Array[PsiJavaCodeReferenceElement] = {
       getReferencedTypes.map {
         tp => PsiElementFactory.getInstance(getProject).createReferenceElementByType(tp)
@@ -292,7 +292,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  def `type`(): TypeResult = {
+  override def `type`(): TypeResult = {
     this.returnType match {
       case Right(tp) =>
         var res: TypeResult = Right(tp)
@@ -322,7 +322,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     case _ => false
   }
 
-  def getHierarchicalMethodSignature: HierarchicalMethodSignature = {
+  override def getHierarchicalMethodSignature: HierarchicalMethodSignature = {
     new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
   }
 
@@ -348,11 +348,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  def superMethods: Seq[PsiMethod] = superSignatures.map(_.namedElement).filterBy[PsiMethod]
+  override def superMethods: Seq[PsiMethod] = superSignatures.map(_.namedElement).filterBy[PsiMethod]
 
-  def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
+  override def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
 
-  def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
+  override def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
     val option = TypeDefinitionMembers.getSignatures(containingClass).forName(name).findNode(this)
     option
       .flatMap(_.primarySuper)
@@ -363,14 +363,14 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   }
 
 
-  def superSignatures: Seq[TermSignature] = {
+  override def superSignatures: Seq[TermSignature] = {
     TypeDefinitionMembers.getSignatures(containingClass).forName(name).findNode(this) match {
       case Some(x) => x.supers.map {_.info}
       case None => Seq.empty
     }
   }
 
-  def superSignaturesIncludingSelfType: Seq[TermSignature] = {
+  override def superSignaturesIncludingSelfType: Seq[TermSignature] = {
     val clazz = containingClass
     if (clazz == null) return Seq.empty
 

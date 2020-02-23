@@ -33,7 +33,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
     null
   }
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     lazy val frameProxy: StackFrameProxyImpl = context.getFrameProxy
     var objRef: Value = context.getThisObject match {
       case null => //so we possibly in trait $class

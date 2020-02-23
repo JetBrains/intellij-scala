@@ -24,10 +24,10 @@ class Specs2ConfigurationProducer extends {
     "org.specs2.specification.core.SpecificationStructure"
   )
 
-  protected def configurationNameForPackage(packageName: String): String = ScalaBundle.message("test.in.scope.specs2.presentable.text", packageName)
+  override protected def configurationNameForPackage(packageName: String): String = ScalaBundle.message("test.in.scope.specs2.presentable.text", packageName)
 
   //TODO: move logic from prepareRunConfiguration, like it is done in other test frameworks
-  protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
+  override protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
     testClass.name
 
   override protected def prepareRunConfiguration(runConfiguration: Specs2RunConfiguration, location: Location[_ <: PsiElement], testClass: ScTypeDefinition, testName: String): Unit = {

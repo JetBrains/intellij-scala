@@ -32,29 +32,29 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatternArgumentList, Any, ScPattern] {
-  def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
+  override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
 
-  def couldShowInLookup: Boolean = true
+  override def couldShowInLookup: Boolean = true
 
-  def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
+  override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
-  def getActualParameters(patternArgumentList: ScPatternArgumentList): Array[ScPattern] = patternArgumentList.patterns.toArray
+  override def getActualParameters(patternArgumentList: ScPatternArgumentList): Array[ScPattern] = patternArgumentList.patterns.toArray
 
-  def getArgumentListClass: Class[ScPatternArgumentList] = classOf[ScPatternArgumentList]
+  override def getArgumentListClass: Class[ScPatternArgumentList] = classOf[ScPatternArgumentList]
 
-  def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
+  override def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
+  override def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
     val set = new java.util.HashSet[Class[_]]()
     set.add(classOf[ScConstructorPattern])
     set
   }
 
-  def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
+  override def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
 
-  def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
+  override def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: ScPatternArgumentList =>

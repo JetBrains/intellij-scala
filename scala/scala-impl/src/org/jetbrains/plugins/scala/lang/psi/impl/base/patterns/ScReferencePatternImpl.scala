@@ -36,9 +36,9 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = true
 
-  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
+  override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
   override def toString: String = "ReferencePattern: " + ifReadAllowed(name)("")
 

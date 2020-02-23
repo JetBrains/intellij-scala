@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
   *
   * So when expression is typed, we should replace all such types be return value.
   */
-final case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner with LeafType {
+final case class ScThisType(override val element: ScTemplateDefinition) extends DesignatorOwner with LeafType {
   element.getClass
   //throw NPE if clazz is null...
 

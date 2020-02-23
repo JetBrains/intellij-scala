@@ -224,7 +224,7 @@ final class WorksheetEditorPrinterRepl private[printers](
     }
   }
 
-  def close(): Unit = {}
+  override def close(): Unit = {}
 
   // Looks like we don't need any flushing here
   override def scheduleWorksheetUpdate(): Unit = {}

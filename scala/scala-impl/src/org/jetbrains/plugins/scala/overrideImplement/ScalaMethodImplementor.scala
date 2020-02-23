@@ -22,12 +22,12 @@ import scala.collection.mutable
  */
 class ScalaMethodImplementor extends MethodImplementor {
   val emptyConsumer: Consumer[PsiMethod] = new Consumer[PsiMethod] {
-    def consume(t: PsiMethod) {}
+    override def consume(t: PsiMethod) {}
   }
 
   private val prototypeToBaseMethod = mutable.WeakHashMap[PsiMethod, PsiMethod]()
 
-  def createImplementationPrototypes(inClass: PsiClass, method: PsiMethod): Array[PsiMethod] = {
+  override def createImplementationPrototypes(inClass: PsiClass, method: PsiMethod): Array[PsiMethod] = {
     (for {
       td <- inClass.asOptionOf[ScTemplateDefinition].toSeq
       member <- ScalaOIUtil.getMembersToImplement(td).collect {
@@ -42,15 +42,15 @@ class ScalaMethodImplementor extends MethodImplementor {
     }).toArray
   }
 
-  def createGenerationInfo(method: PsiMethod, mergeIfExists: Boolean): GenerationInfo = {
+  override def createGenerationInfo(method: PsiMethod, mergeIfExists: Boolean): GenerationInfo = {
     val baseMethod = prototypeToBaseMethod.get(method)
     prototypeToBaseMethod.clear()
     new ScalaPsiMethodGenerationInfo(method, baseMethod.orNull)
   }
 
-  def createDecorator(targetClass: PsiClass, baseMethod: PsiMethod, toCopyJavaDoc: Boolean, insertOverrideIfPossible: Boolean): Consumer[PsiMethod] = emptyConsumer
+  override def createDecorator(targetClass: PsiClass, baseMethod: PsiMethod, toCopyJavaDoc: Boolean, insertOverrideIfPossible: Boolean): Consumer[PsiMethod] = emptyConsumer
 
-  def getMethodsToImplement(aClass: PsiClass): Array[PsiMethod] = Array()
+  override def getMethodsToImplement(aClass: PsiClass): Array[PsiMethod] = Array()
 }
 
 private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMethod) extends PsiGenerationInfo[PsiMethod](method) {

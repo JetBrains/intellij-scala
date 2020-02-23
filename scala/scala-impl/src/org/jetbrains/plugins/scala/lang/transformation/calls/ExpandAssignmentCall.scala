@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandAssignmentCall extends AbstractTransformer {
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e@ScInfixExpr(l, o@ReferenceTarget(ElementName(name)), r) if o.getText == name + "=" =>
       val (a, b) = if (name.endsWith(":")) (r, l) else (l, r)
       e.replace(code"$l = $a $name $b")

@@ -18,17 +18,17 @@ import org.jetbrains.sbt.project.SbtImportControl.SbtImportControlFactory
 class SbtProjectImportBuilder
   extends AbstractExternalProjectImportBuilder[SbtImportControl](ProjectDataManager.getInstance(), SbtImportControlFactory, SbtProjectSystem.Id) {
 
-  def getName: String = Sbt.Name
+  override def getName: String = Sbt.Name
 
-  def getIcon: Icon = Sbt.Icon
+  override def getIcon: Icon = Sbt.Icon
 
-  def doPrepare(context: WizardContext) {}
+  override def doPrepare(context: WizardContext) {}
 
-  def beforeCommit(dataNode: DataNode[ProjectData], project: Project) {}
+  override def beforeCommit(dataNode: DataNode[ProjectData], project: Project) {}
 
   def onProjectInit(project: Project) {}
 
-  def getExternalProjectConfigToUse(file: File): File = file
+  override def getExternalProjectConfigToUse(file: File): File = file
 
-  def applyExtraSettings(context: WizardContext) {}
+  override def applyExtraSettings(context: WizardContext) {}
 }

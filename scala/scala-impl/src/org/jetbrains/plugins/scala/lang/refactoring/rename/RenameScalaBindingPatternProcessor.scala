@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
  */
 
 class RenameScalaBindingPatternProcessor extends RenamePsiElementProcessor with ScalaRenameProcessor {
-  def canProcessElement(element: PsiElement): Boolean = element match {
+  override def canProcessElement(element: PsiElement): Boolean = element match {
     case pattern: ScBindingPattern =>
       ScalaPsiUtil.nameContext(pattern) match {
         case _: ScVariable | _: ScValue | _: ScClassParameter => false //handled by RenameScalaValsProcessor

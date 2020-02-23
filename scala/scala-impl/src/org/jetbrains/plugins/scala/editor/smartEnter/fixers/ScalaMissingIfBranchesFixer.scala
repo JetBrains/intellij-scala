@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScIf}
  * @since 1/31/13
  */
 class ScalaMissingIfBranchesFixer extends ScalaFixer {
-  def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
+  override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val ifStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScIf], false)
     if (ifStatement == null) return NoOperation
 

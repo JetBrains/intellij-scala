@@ -71,7 +71,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
     null
   }
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     myEvaluatedField = null
     myEvaluatedQualifier = null
     val obj: AnyRef = DebuggerUtil.unwrapScalaRuntimeRef {
@@ -125,15 +125,15 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
       (myEvaluatedQualifier.isInstanceOf[ClassType] ||
         myEvaluatedQualifier.isInstanceOf[ObjectReference])) {
       modifier = new Modifier {
-        def canInspect: Boolean = {
+        override def canInspect: Boolean = {
           myEvaluatedQualifier.isInstanceOf[ObjectReference]
         }
 
-        def canSetValue: Boolean = {
+        override def canSetValue: Boolean = {
           true
         }
 
-        def setValue(value: Value) {
+        override def setValue(value: Value) {
           if (myEvaluatedQualifier.isInstanceOf[ReferenceType]) {
             val classType: ClassType = myEvaluatedQualifier.asInstanceOf[ClassType]
             classType.setValue(myEvaluatedField, value)
@@ -144,11 +144,11 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
           }
         }
 
-        def getExpectedType: Type = {
+        override def getExpectedType: Type = {
           myEvaluatedField.`type`
         }
 
-        def getInspectItem(project: Project): NodeDescriptorImpl = {
+        override def getInspectItem(project: Project): NodeDescriptorImpl = {
           myEvaluatedQualifier match {
             case reference: ObjectReference =>
               new FieldDescriptorImpl(project, reference, myEvaluatedField)

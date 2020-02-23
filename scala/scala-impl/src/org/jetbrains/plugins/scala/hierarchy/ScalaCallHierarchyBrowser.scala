@@ -18,7 +18,7 @@ import com.intellij.ui.PopupHandler
   */
 final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
   extends CallHierarchyBrowserBase(project, method) {
-  protected def createTrees(type2TreeMap: util.Map[String, JTree]): Unit = {
+  override protected def createTrees(type2TreeMap: util.Map[String, JTree]): Unit = {
     var group: ActionGroup = ActionManager.getInstance.getAction(IdeActions.GROUP_CALL_HIERARCHY_POPUP).asInstanceOf[ActionGroup]
     val tree1: JTree = createTree(false)
     PopupHandler.installPopupHandler(tree1, group, ActionPlaces.CALL_HIERARCHY_VIEW_POPUP, ActionManager.getInstance)
@@ -37,7 +37,7 @@ final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
     type2TreeMap.put(CALLER_TYPE, tree2)
   }
 
-  protected def getElementFromDescriptor(descriptor: HierarchyNodeDescriptor): PsiElement = {
+  override protected def getElementFromDescriptor(descriptor: HierarchyNodeDescriptor): PsiElement = {
     descriptor match {
       case nodeDescriptor: CallHierarchyNodeDescriptor => nodeDescriptor.getEnclosingElement
       case _ => null
@@ -51,11 +51,11 @@ final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
     }
   }
 
-  protected def isApplicableElement(element: PsiElement): Boolean = {
+  override protected def isApplicableElement(element: PsiElement): Boolean = {
     element.isInstanceOf[PsiMethod]
   }
 
-  protected def createHierarchyTreeStructure(typeName: String, psiElement: PsiElement): HierarchyTreeStructure = {
+  override protected def createHierarchyTreeStructure(typeName: String, psiElement: PsiElement): HierarchyTreeStructure = {
     if (CALLER_TYPE.equals(typeName))
       new ScalaCallerMethodsTreeStructure(myProject, psiElement.asInstanceOf[PsiMethod], getCurrentScopeType)
     else if (CALLEE_TYPE.equals(typeName))
@@ -63,7 +63,7 @@ final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
     else null
   }
 
-  protected def getComparator: Comparator[NodeDescriptor[_]] = {
+  override protected def getComparator: Comparator[NodeDescriptor[_]] = {
     JavaHierarchyUtil.getComparator(myProject)
   }
 }

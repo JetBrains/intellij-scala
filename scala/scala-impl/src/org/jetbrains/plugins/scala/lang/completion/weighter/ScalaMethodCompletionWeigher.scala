@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
  */
 class ScalaMethodCompletionWeigher extends CompletionWeigher {
   case class MethodNameComparable(name: String, hasParameters: Boolean) extends Comparable[MethodNameComparable] {
-    def compareTo(o: MethodNameComparable): Int = {
+    override def compareTo(o: MethodNameComparable): Int = {
       val i = name.compareTo(o.name)
       if (i != 0) return 0
       if (hasParameters == o.hasParameters) 0
@@ -23,7 +23,7 @@ class ScalaMethodCompletionWeigher extends CompletionWeigher {
 
 
 
-  def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = element match {
+  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = element match {
     case ScalaLookupItem(_, namedElement) =>
       namedElement match {
         case psi: ScFunction =>

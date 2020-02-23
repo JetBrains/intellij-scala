@@ -21,14 +21,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScArgumentExprList {
   override def toString: String = "ArgumentList"
 
-  def invocationCount: Int = {
+  override def invocationCount: Int = {
     callExpression match {
       case call: ScMethodCall => call.args.invocationCount + 1
       case _ => 1
     }
   }
 
-  def callReference: Option[ScReferenceExpression] = {
+  override def callReference: Option[ScReferenceExpression] = {
     getContext match {
       case call: ScMethodCall =>
         call.deepestInvokedExpr match {
@@ -44,7 +44,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def callGeneric: Option[ScGenericCall] = {
+  override def callGeneric: Option[ScGenericCall] = {
     getContext match {
       case call: ScMethodCall =>
         call.deepestInvokedExpr match {
@@ -55,7 +55,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def callExpression: ScExpression = {
+  override def callExpression: ScExpression = {
     getContext match {
       case call: ScMethodCall =>
         call.getEffectiveInvokedExpr
@@ -63,7 +63,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def matchedParameters: Seq[(ScExpression, Parameter)] = {
+  override def matchedParameters: Seq[(ScExpression, Parameter)] = {
     getContext match {
       case call: ScMethodCall => call.matchedParameters
       case constrInvocation: ScConstructorInvocation =>
@@ -91,7 +91,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def addExpr(expr: ScExpression): ScArgumentExprList = {
+  override def addExpr(expr: ScExpression): ScArgumentExprList = {
     val par = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     val nextNode = par.getNode.getTreeNext
     val node = getNode
@@ -104,7 +104,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     this
   }
 
-  def addExprAfter(expr: ScExpression, anchor: PsiElement): ScArgumentExprList = {
+  override def addExprAfter(expr: ScExpression, anchor: PsiElement): ScArgumentExprList = {
     val nextNode = anchor.getNode.getTreeNext
     val node = getNode
 

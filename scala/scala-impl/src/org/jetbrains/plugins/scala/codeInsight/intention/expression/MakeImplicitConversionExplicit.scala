@@ -24,7 +24,7 @@ class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
 
   override def getText: String = FamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     findImplicitElement(element).isDefined
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =

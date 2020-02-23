@@ -49,7 +49,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   override def toString: String = "ReferenceExpression: " + ifReadAllowed(getText)("")
 
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitReferenceExpression(this)
@@ -73,12 +73,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] =
+  override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] =
     new ReferenceExpressionResolver().doResolve(this, processor, accessibilityCheck)
 
-  def bindToElement(element: PsiElement): PsiElement = bindToElement(element, None)
+  override def bindToElement(element: PsiElement): PsiElement = bindToElement(element, None)
 
-  def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement = {
+  override def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement = {
     def tail(qualName: String)(simpleImport: => PsiElement): PsiElement = {
       safeBindToElement(qualName, {
         case (qual, true) =>
@@ -147,13 +147,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] =
     getSimpleVariants(incomplete = true, completion = false, implicits).flatMap(toLookupItem)
 
-  def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
+  override def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
     new CompletionProcessor(getKinds(incomplete = true), this, isImplicit = true) {
 
       override protected val forName = Some(refName)
     })
 
-  def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
+  override def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
     getContext match {
       case _ if completion => StdKinds.refExprQualRef // SC-3092
       case _: ScReferenceExpression => StdKinds.refExprQualRef
@@ -164,7 +164,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   } // See SCL-3092
 
-  def multiType: Array[TypeResult] = {
+  override def multiType: Array[TypeResult] = {
     val buffer = mutable.ArrayBuffer[TypeResult]()
     val iterator = multiResolveScala(incomplete = false).iterator
     while (iterator.hasNext) {
@@ -186,14 +186,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  def shapeType: TypeResult = {
+  override def shapeType: TypeResult = {
     shapeResolve match {
       case Array(bind) if bind.isApplicable() => convertBindToType(bind)
       case _ => resolveFailure
     }
   }
 
-  def shapeMultiType: Array[TypeResult] = {
+  override def shapeMultiType: Array[TypeResult] = {
     val buffer = mutable.ArrayBuffer[TypeResult]()
     val iterator = shapeResolve.iterator
     while (iterator.hasNext) {
@@ -530,7 +530,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     Right(inner)
   }
 
-  def getPrevTypeInfoParams: Seq[TypeParameter] = {
+  override def getPrevTypeInfoParams: Seq[TypeParameter] = {
     val maybeExpression = qualifier match {
       case Some(_: ScSuperReference) => None
       case None => getContext match {

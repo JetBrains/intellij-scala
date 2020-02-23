@@ -15,7 +15,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  def familyName: String = new ImplementAbstractMethodAction().getFamilyName
+  override def familyName: String = new ImplementAbstractMethodAction().getFamilyName
 
   def testFromTrait() {
     val text =

@@ -22,11 +22,11 @@ class StaticPsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
 
   override protected def returnScType: ScType = PsiTypedDefinitionWrapper.typeFor(delegate, role)
 
-  protected def parameters: Seq[PsiParameter] = PsiTypedDefinitionWrapper.propertyMethodParameters(delegate, role, Some(containingClass))
+  override protected def parameters: Seq[PsiParameter] = PsiTypedDefinitionWrapper.propertyMethodParameters(delegate, role, Some(containingClass))
 
-  protected def typeParameters: Seq[PsiTypeParameter] = Seq.empty
+  override protected def typeParameters: Seq[PsiTypeParameter] = Seq.empty
 
-  protected def modifierList: PsiModifierList =
+  override protected def modifierList: PsiModifierList =
     ScLightModifierList(delegate, isStatic = true)
 
   override def copy(): PsiElement =

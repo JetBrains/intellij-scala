@@ -30,9 +30,9 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
       _.`type`()
     }.getOrElse(Failure(ScalaBundle.message("no.alias.type")))
 
-  def lowerBound: TypeResult = aliasedType
+  override def lowerBound: TypeResult = aliasedType
 
-  def upperBound: TypeResult = aliasedType
+  override def upperBound: TypeResult = aliasedType
 
   def isExactAliasFor(cls: PsiClass): Boolean = {
     val isDefinedInObject = containingClass match {

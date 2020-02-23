@@ -44,7 +44,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScalaInlineHandler extends InlineHandler {
 
-  def removeDefinition(element: PsiElement, settings: InlineHandler.Settings) {
+  override def removeDefinition(element: PsiElement, settings: InlineHandler.Settings) {
     def removeElementWithNonSignificantSibilings(value: PsiElement) = {
       val children = new ArrayBuffer[PsiElement]
       var psiElement = value.getNextSibling
@@ -72,9 +72,9 @@ class ScalaInlineHandler extends InlineHandler {
     }
   }
 
-  def createInliner(element: PsiElement, settings: InlineHandler.Settings): InlineHandler.Inliner = new ScalaInliner
+  override def createInliner(element: PsiElement, settings: InlineHandler.Settings): InlineHandler.Inliner = new ScalaInliner
 
-  def prepareInlineElement(element: PsiElement, editor: Editor, invokedOnReference: Boolean): InlineHandler.Settings = {
+  override def prepareInlineElement(element: PsiElement, editor: Editor, invokedOnReference: Boolean): InlineHandler.Settings = {
     def title(suffix: String) = "Scala Inline " + suffix
 
     def showErrorHint(message: String, titleSuffix: String): InlineHandler.Settings = {
@@ -88,7 +88,7 @@ class ScalaInlineHandler extends InlineHandler {
       val inlineTitle = title(inlineTitleSuffix)
       val occurrenceHighlighters = highlightOccurrences(refs.map(_.getElement))(element.getProject, editor)
       val settings = new InlineHandler.Settings {
-        def isOnlyOneReferenceToInline: Boolean = false
+        override def isOnlyOneReferenceToInline: Boolean = false
       }
       if (refs.isEmpty)
         showErrorHint(ScalaBundle.message("cannot.inline.never.used"), inlineTitleSuffix)

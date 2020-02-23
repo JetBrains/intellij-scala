@@ -17,11 +17,11 @@ import scala.annotation.tailrec
   */
 final class UpdateScalaCopyrightsProvider extends psi.UpdateCopyrightsProvider {
 
-  def createInstance(project: Project,
-                     module: Module,
-                     file: VirtualFile,
-                     base: FileType,
-                     options: CopyrightProfile): UpdateJavaFileCopyright =
+  override def createInstance(project: Project,
+                              module: Module,
+                              file: VirtualFile,
+                              base: FileType,
+                              options: CopyrightProfile): UpdateJavaFileCopyright =
     new UpdateJavaFileCopyright(project, module, file, options) {
       override def accept: Boolean = getFile.isInstanceOf[ScalaFile]
 

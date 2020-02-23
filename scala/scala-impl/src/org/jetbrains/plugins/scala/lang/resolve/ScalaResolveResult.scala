@@ -58,7 +58,7 @@ class ScalaResolveResult(
 
   override implicit def projectContext: ProjectContext = element.getProject
 
-  def getElement: PsiNamedElement = element
+  override def getElement: PsiNamedElement = element
 
   lazy val name: String = element.name
 
@@ -82,7 +82,7 @@ class ScalaResolveResult(
       case None    => isApplicable(withExpectedType)
     }
 
-  def isValidResult: Boolean = isAccessible && isApplicable()
+  override def isValidResult: Boolean = isAccessible && isApplicable()
 
   def isRenamed: Option[String] = renamed
 

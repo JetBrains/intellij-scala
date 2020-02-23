@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
  */
 
 class ScalaCompletionStatistician extends CompletionStatistician {
-  def serialize(element: LookupElement, location: CompletionLocation): StatisticsInfo = {
+  override def serialize(element: LookupElement, location: CompletionLocation): StatisticsInfo = {
     ScalaLookupItem.delegate(element) match {
       case item: ScalaLookupItem =>
         item.element match {

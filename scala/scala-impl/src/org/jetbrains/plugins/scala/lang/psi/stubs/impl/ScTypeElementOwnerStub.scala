@@ -25,7 +25,7 @@ trait ScTypeElementOwnerStub[E <: PsiElement] extends PsiOwner[E] {
   }
 }
 
-class ScTypeElementOwnerStubImpl[E <: PsiElement] private[impl](val typeText: Option[String],
+class ScTypeElementOwnerStubImpl[E <: PsiElement] private[impl](override val typeText: Option[String],
                                                                 stubElement: StubElement[E])
   extends ScTypeElementOwnerStub[E] {
   override def getPsi: E = stubElement.getPsi

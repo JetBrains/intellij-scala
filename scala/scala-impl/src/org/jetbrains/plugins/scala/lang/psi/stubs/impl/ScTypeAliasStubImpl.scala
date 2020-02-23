@@ -15,11 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 class ScTypeAliasStubImpl(parent: StubElement[_ <: PsiElement],
                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                           name: String,
-                          val typeText: Option[String],
-                          val lowerBoundText: Option[String],
-                          val upperBoundText: Option[String],
-                          val isLocal: Boolean,
-                          val isDeclaration: Boolean,
-                          val isStableQualifier: Boolean,
-                          val stableQualifier: Option[String])
+                          override val typeText: Option[String],
+                          override val lowerBoundText: Option[String],
+                          override val upperBoundText: Option[String],
+                          override val isLocal: Boolean,
+                          override val isDeclaration: Boolean,
+                          override val isStableQualifier: Boolean,
+                          override val stableQualifier: Option[String])
   extends ScNamedStubBase[ScTypeAlias](parent, elementType, name) with ScTypeAliasStub

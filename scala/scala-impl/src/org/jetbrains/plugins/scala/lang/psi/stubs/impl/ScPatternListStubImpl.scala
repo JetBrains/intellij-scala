@@ -14,5 +14,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
   */
 class ScPatternListStubImpl(parent: StubElement[_ <: PsiElement],
                             elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                            val simplePatterns: Boolean)
+                            override val simplePatterns: Boolean)
   extends StubBase[ScPatternList](parent, elementType) with ScPatternListStub

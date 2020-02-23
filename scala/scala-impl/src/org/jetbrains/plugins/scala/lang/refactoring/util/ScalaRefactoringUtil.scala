@@ -523,7 +523,7 @@ object ScalaRefactoringUtil {
       }
     })
     list.addListSelectionListener(new ListSelectionListener {
-      def valueChanged(e: ListSelectionEvent): Unit = {
+      override def valueChanged(e: ListSelectionEvent): Unit = {
         highlighter.dropHighlight()
         val index: Int = list.getSelectedIndex
         if (index < 0) return

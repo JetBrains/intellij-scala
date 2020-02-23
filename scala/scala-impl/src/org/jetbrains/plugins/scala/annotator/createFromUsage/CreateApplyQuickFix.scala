@@ -14,11 +14,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
  */
 
 class CreateApplyQuickFix(td: ScTypeDefinition, call: ScMethodCall)
-        extends {val getFamilyName = "Create 'apply' method"} with CreateApplyOrUnapplyQuickFix(td) {
+        extends {override val getFamilyName = "Create 'apply' method"} with CreateApplyOrUnapplyQuickFix(td) {
 
-  val methodType = call.expectedType().map(_.canonicalText)
+  override val methodType = call.expectedType().map(_.canonicalText)
 
-  val methodText = {
+  override val methodText = {
     val argsText = CreateFromUsageUtil.paramsText(call.argumentExpressions)
     val dummyTypeText = methodType.fold("")(_ => ": Int")
     s"def apply$argsText$dummyTypeText = ???"

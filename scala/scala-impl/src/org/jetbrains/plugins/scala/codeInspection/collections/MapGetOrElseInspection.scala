@@ -16,7 +16,7 @@ class MapGetOrElseInspection extends OperationOnCollectionInspection {
 }
 
 object MapGetOrElse extends SimplificationType() {
-  def hint: String = InspectionBundle.message("map.getOrElse.hint")
+  override def hint: String = InspectionBundle.message("map.getOrElse.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

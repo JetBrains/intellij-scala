@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
-  def lowerBound: TypeResult = typeOf(lowerTypeElement, isLower = true)
+  override def lowerBound: TypeResult = typeOf(lowerTypeElement, isLower = true)
 
-  def upperBound: TypeResult = typeOf(upperTypeElement, isLower = false)
+  override def upperBound: TypeResult = typeOf(upperTypeElement, isLower = false)
 
   protected def extractBound(in: ScType, isLower: Boolean): ScType = in
 

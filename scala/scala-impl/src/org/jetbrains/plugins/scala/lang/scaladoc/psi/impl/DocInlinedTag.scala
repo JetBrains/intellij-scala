@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocInlinedTag
 class ScDocInlinedTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocInlinedTag{
   override def toString: String = "DocInlinedTag"
 
-  def getValueElement: PsiDocTagValue = findChildByClass(classOf[PsiDocTagValue])
+  override def getValueElement: PsiDocTagValue = findChildByClass(classOf[PsiDocTagValue])
 
   override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitInlinedTag(this)

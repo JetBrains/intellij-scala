@@ -87,12 +87,12 @@ object MethodTypeProvider {
     }
   }
 
-  private case class ScFunProvider(element: ScFun)
+  private case class ScFunProvider(override val element: ScFun)
     extends ScalaMethodTypeProvider[ScFun] {
 
-    def typeParameters: Seq[PsiTypeParameter] = element.typeParameters
+    override def typeParameters: Seq[PsiTypeParameter] = element.typeParameters
 
-    def methodType(returnType: Option[ScType]): ScType = {
+    override def methodType(returnType: Option[ScType]): ScType = {
       val retType = returnType.getOrElse(element.retType)
       element.paramClauses.foldRight(retType) {
         case (params, tp) => ScMethodType(tp, params, isImplicit = false)
@@ -100,17 +100,17 @@ object MethodTypeProvider {
     }
   }
 
-  private case class ScFunctionProvider(element: ScFunction)
+  private case class ScFunctionProvider(override val element: ScFunction)
     extends ScalaMethodTypeProvider[ScFunction] {
 
-    def typeParameters: Seq[PsiTypeParameter] = {
+    override def typeParameters: Seq[PsiTypeParameter] = {
       element match {
         case AuxiliaryConstructor.in(td: ScTypeDefinition) => td.typeParameters
         case _ => element.typeParameters
       }
     }
 
-    def methodType(returnType: Option[ScType]): ScType = {
+    override def methodType(returnType: Option[ScType]): ScType = {
       val retType = returnType.getOrElse(element.returnType.getOrAny)
       if (!element.hasParameterClause) return retType
 
@@ -123,12 +123,12 @@ object MethodTypeProvider {
     }
   }
 
-  private case class ScPrimaryConstructorProvider(element: ScPrimaryConstructor)
+  private case class ScPrimaryConstructorProvider(override val element: ScPrimaryConstructor)
     extends ScalaMethodTypeProvider[ScPrimaryConstructor] {
 
-    def typeParameters: Seq[PsiTypeParameter] = element.containingClass.typeParameters
+    override def typeParameters: Seq[PsiTypeParameter] = element.containingClass.typeParameters
 
-    def methodType(returnType: Option[ScType]): ScType = {
+    override def methodType(returnType: Option[ScType]): ScType = {
       val parameters: ScParameters = element.parameterList
       val retType: ScType = returnType.getOrElse(containingClassType)
 
@@ -155,12 +155,12 @@ object MethodTypeProvider {
     }
   }
 
-  private case class JavaMethodProvider(element: PsiMethod)
+  private case class JavaMethodProvider(override val element: PsiMethod)
                                        (override implicit val scope: ElementScope)
     extends MethodTypeProvider[PsiMethod] {
-    def typeParameters: Seq[PsiTypeParameter] = element.getTypeParameters
+    override def typeParameters: Seq[PsiTypeParameter] = element.getTypeParameters
 
-    def methodType(returnType: Option[ScType] = None): ScType = {
+    override def methodType(returnType: Option[ScType] = None): ScType = {
       val retType = returnType.getOrElse(computeReturnType)
       ScMethodType(retType, parameters, isImplicit = false)
     }

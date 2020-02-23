@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 * Date: 13.03.2008
 */
 class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScTypeProjection {
-  protected def innerType: TypeResult = {
+  override protected def innerType: TypeResult = {
     this.bind() match {
       case Some(ScalaResolveResult(elem, _)) =>
         typeElement.`type`().map {
@@ -36,15 +36,15 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScT
     }
   }
 
-  def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet = StdKinds.stableClass
+  override def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet = StdKinds.stableClass
 
   @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
-  def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
     doResolve(new ResolveProcessor(getKinds(incomplete), ScTypeProjectionImpl.this, refName))
 
-  def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
-  def qualifier = None
+  override def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def qualifier = None
 
   override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
@@ -61,7 +61,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScT
     res
   }
 
-  def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
+  override def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
 
     override protected val forName = Some(refName)
   })

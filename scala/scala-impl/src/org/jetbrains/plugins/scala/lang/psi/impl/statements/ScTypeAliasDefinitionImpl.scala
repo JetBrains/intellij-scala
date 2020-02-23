@@ -32,7 +32,7 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
 
   def this(stub: ScTypeAliasStub) = this(stub, null)
 
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null =>
       val name = getGreenStub.getName
       val id = createIdentifier(name)
@@ -59,9 +59,9 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
 
   override def getPresentation: ItemPresentation = {
     new ItemPresentation() {
-      def getPresentableText: String = name
+      override def getPresentableText: String = name
       def getTextAttributesKey: TextAttributesKey = null
-      def getLocationString: String = "(" + ScTypeAliasDefinitionImpl.this.containingClass.qualifiedName + ")"
+      override def getLocationString: String = "(" + ScTypeAliasDefinitionImpl.this.containingClass.qualifiedName + ")"
       override def getIcon(open: Boolean): Icon = ScTypeAliasDefinitionImpl.this.getIcon(0)
     }
   }

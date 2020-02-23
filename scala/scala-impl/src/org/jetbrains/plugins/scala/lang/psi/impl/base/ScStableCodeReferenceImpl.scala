@@ -48,18 +48,18 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) with ScStableCodeReference {
 
-  def getResolveResultVariants: Array[ScalaResolveResult] =
+  override def getResolveResultVariants: Array[ScalaResolveResult] =
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this))
 
   override def getConstructorInvocation: Option[ScConstructorInvocation] =
     getContext.asOptionOf[ScSimpleTypeElement]
       .flatMap(_.findConstructorInvocation)
 
-  def isConstructorReference: Boolean = getConstructorInvocation.nonEmpty
+  override def isConstructorReference: Boolean = getConstructorInvocation.nonEmpty
 
   override def toString: String = "CodeReferenceElement: " + ifReadAllowed(getText)("")
 
-  def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
+  override def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 
     val result = getContext match {
@@ -94,10 +94,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     if (completion) result + ResolveTargets.PACKAGE + ResolveTargets.OBJECT + ResolveTargets.VAL else result
   }
 
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
   //  @throws(IncorrectOperationException)
-  def bindToElement(element: PsiElement): PsiElement = {
+  override def bindToElement(element: PsiElement): PsiElement = {
     def isCorrectReference(text: String): Option[ScStableCodeReference] = {
       val ref = createReferenceFromText(text, getContext, ScStableCodeReferenceImpl.this)
 
@@ -248,7 +248,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
          |$contextText""".stripMargin)
   }
 
-  def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
+  override def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
     override protected val forName = Some(refName)
   })
 
@@ -266,7 +266,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     resolver.resolve(ScStableCodeReferenceImpl.this, incomplete)
   }
 
-  protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
+  override protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
     _qualifier() match {
       case None =>
         @scala.annotation.tailrec
@@ -425,7 +425,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
+  override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
     def candidatesFilter(result: ScalaResolveResult) = {
       result.element match {
         case c: PsiClass if c.name == c.qualifiedName => c.getContainingFile match {

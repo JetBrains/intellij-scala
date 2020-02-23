@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 /**
   * @author adkozlov
   */
-final class ScalaTypeSystem private (implicit val projectContext: ProjectContext) extends api.TypeSystem
+final class ScalaTypeSystem private (implicit override val projectContext: ProjectContext) extends api.TypeSystem
   with ScalaEquivalence
   with ScalaConformance
   with ScalaBounds

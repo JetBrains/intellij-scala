@@ -28,9 +28,9 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
     CompletionType.BASIC,
     PlatformPatterns.psiElement,
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters,
-                         context: ProcessingContext,
-                         resultSet: CompletionResultSet): Unit = {
+      override def addCompletions(parameters: CompletionParameters,
+                                  context: ProcessingContext,
+                                  resultSet: CompletionResultSet): Unit = {
         val invocationCount = parameters.getInvocationCount
         if (invocationCount < 2) return
 
@@ -51,9 +51,9 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
     CompletionType.BASIC,
     PlatformPatterns.psiElement,
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters,
-                         context: ProcessingContext,
-                         resultSet: CompletionResultSet): Unit = {
+      override def addCompletions(parameters: CompletionParameters,
+                                  context: ProcessingContext,
+                                  resultSet: CompletionResultSet): Unit = {
         val invocationCount = parameters.getInvocationCount
 
         if (invocationCount < 2) return

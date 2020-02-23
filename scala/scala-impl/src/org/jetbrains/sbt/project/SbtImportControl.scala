@@ -16,11 +16,11 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
 
   def getLinkedProjectChooserDescriptor = new FileChooserDescriptor(true, true, true, true, true, true)
 
-  def onLinkedProjectPathChange(path: String) {}
+  override def onLinkedProjectPathChange(path: String) {}
 
-  def createProjectSettingsControl(settings: SbtProjectSettings) = new SbtProjectSettingsControl(Context.Wizard, settings)
+  override def createProjectSettingsControl(settings: SbtProjectSettings) = new SbtProjectSettingsControl(Context.Wizard, settings)
 
-  def createSystemSettingsControl(settings: SbtSettings) = new SbtSettingsControl(settings)
+  override def createSystemSettingsControl(settings: SbtSettings) = new SbtSettingsControl(settings)
 }
 
 object SbtImportControl {

@@ -303,8 +303,8 @@ trait IntroduceTypeAlias {
     }
     val list = JListCompatibility.createJListFromModel(model)
     JListCompatibility.setCellRenderer(list, new DefaultListCellRendererAdapter {
-      def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
-                                              value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+      override def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
+                                                       value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
         val rendererComponent: Component = getSuperListCellRendererComponent(container.getList, value, index, isSelected, cellHasFocus)
         val element: T = value.asInstanceOf[T]
         //        if (element.isValid) {
@@ -314,7 +314,7 @@ trait IntroduceTypeAlias {
       }
     })
     list.addListSelectionListener(new ListSelectionListener {
-      def valueChanged(e: ListSelectionEvent) {
+      override def valueChanged(e: ListSelectionEvent) {
         highlighter.dropHighlight()
         val index: Int = list.getSelectedIndex
         if (index < 0) return

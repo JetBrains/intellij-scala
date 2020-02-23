@@ -22,7 +22,7 @@ abstract class ApplyUnapplyMethodSearcherBase extends QueryExecutor[PsiReference
 
   protected def checkAndTransform(ref: PsiReference): Option[ScReference]
 
-  def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
+  override def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val element = queryParameters.getElementToSearch
     val ignoreAccess = queryParameters.isIgnoreAccessScope
 
@@ -37,7 +37,7 @@ abstract class ApplyUnapplyMethodSearcherBase extends QueryExecutor[PsiReference
     data match {
       case Some((fun, obj, scope)) =>
         val processor = new Processor[PsiReference] {
-          def process(ref: PsiReference): Boolean = {
+          override def process(ref: PsiReference): Boolean = {
             inReadAction {
               checkAndTransform(ref).flatMap(_.bind()) match {
                 case Some(ScalaResolveResult(`fun`, _)) => consumer.process(ref)

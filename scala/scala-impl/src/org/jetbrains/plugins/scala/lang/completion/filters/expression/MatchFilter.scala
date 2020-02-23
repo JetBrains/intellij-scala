@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 */
 
 class MatchFilter extends ElementFilter {
-  def isAcceptable(element: Object, context: PsiElement): Boolean = {
+  override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
@@ -28,7 +28,7 @@ class MatchFilter extends ElementFilter {
     false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
+  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
     true
   }
 

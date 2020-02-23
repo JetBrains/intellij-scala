@@ -9,95 +9,95 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor, ResolveState}
  */
 
 abstract class AbstractPsiElementMock extends PsiElement {
-  def getIcon(flags: Int) = null
+  override def getIcon(flags: Int) = null
 
-  def putUserData[T](key: Key[T], value: T) = {}
+  override def putUserData[T](key: Key[T], value: T) = {}
 
-  def getUserData[T](key: Key[T]) = null.asInstanceOf[T]
+  override def getUserData[T](key: Key[T]) = null.asInstanceOf[T]
 
-  def isEquivalentTo(another: PsiElement) = false
+  override def isEquivalentTo(another: PsiElement) = false
 
-  def getNode = null
+  override def getNode = null
 
-  def getUseScope = null
+  override def getUseScope = null
 
-  def getResolveScope = null
+  override def getResolveScope = null
 
-  def isPhysical = false
+  override def isPhysical = false
 
-  def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement) = false
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement) = false
 
-  def putCopyableUserData[T](key: Key[T], value: T) = {}
+  override def putCopyableUserData[T](key: Key[T], value: T) = {}
 
-  def getCopyableUserData[T](key: Key[T]) = null.asInstanceOf[T]
+  override def getCopyableUserData[T](key: Key[T]) = null.asInstanceOf[T]
 
-  def getReferences = null
+  override def getReferences = null
 
-  def getReference = null
+  override def getReference = null
 
-  def isWritable = false
+  override def isWritable = false
 
-  def isValid = false
+  override def isValid = false
 
-  def replace(newElement: PsiElement) = null
+  override def replace(newElement: PsiElement) = null
 
-  def deleteChildRange(first: PsiElement, last: PsiElement) = {}
+  override def deleteChildRange(first: PsiElement, last: PsiElement) = {}
 
-  def checkDelete() = {}
+  override def checkDelete() = {}
 
-  def delete() = {}
+  override def delete() = {}
 
-  def addRangeAfter(first: PsiElement, last: PsiElement, anchor: PsiElement) = null
+  override def addRangeAfter(first: PsiElement, last: PsiElement, anchor: PsiElement) = null
 
-  def addRangeBefore(first: PsiElement, last: PsiElement, anchor: PsiElement) = null
+  override def addRangeBefore(first: PsiElement, last: PsiElement, anchor: PsiElement) = null
 
-  def addRange(first: PsiElement, last: PsiElement) = null
+  override def addRange(first: PsiElement, last: PsiElement) = null
 
-  def checkAdd(element: PsiElement) = {}
+  override def checkAdd(element: PsiElement) = {}
 
-  def addAfter(element: PsiElement, anchor: PsiElement) = null
+  override def addAfter(element: PsiElement, anchor: PsiElement) = null
 
-  def addBefore(element: PsiElement, anchor: PsiElement) = null
+  override def addBefore(element: PsiElement, anchor: PsiElement) = null
 
-  def add(element: PsiElement) = null
+  override def add(element: PsiElement) = null
 
-  def copy = null
+  override def copy = null
 
-  def acceptChildren(visitor: PsiElementVisitor) = {}
+  override def acceptChildren(visitor: PsiElementVisitor) = {}
 
-  def accept(visitor: PsiElementVisitor) = {}
+  override def accept(visitor: PsiElementVisitor) = {}
 
-  def textContains(c: Char) = false
+  override def textContains(c: Char) = false
 
-  def textMatches(element: PsiElement) = false
+  override def textMatches(element: PsiElement) = false
 
-  def textMatches(text: CharSequence) = false
+  override def textMatches(text: CharSequence) = false
 
-  def getOriginalElement = null
+  override def getOriginalElement = null
 
-  def getNavigationElement = null
+  override def getNavigationElement = null
 
-  def textToCharArray = null
+  override def textToCharArray = null
 
-  def getText = ""
+  override def getText = ""
 
-  def getTextOffset = 0
+  override def getTextOffset = 0
 
-  def findReferenceAt(offset: Int) = null
+  override def findReferenceAt(offset: Int) = null
 
-  def findElementAt(offset: Int) = null
+  override def findElementAt(offset: Int) = null
 
-  def getTextLength = 0
+  override def getTextLength = 0
 
-  def getStartOffsetInParent = 0
+  override def getStartOffsetInParent = 0
 
-  def getTextRange = null
+  override def getTextRange = null
 
-  def getContainingFile = null
+  override def getContainingFile = null
 
-  def getManager = null
+  override def getManager = null
 
-  def getLanguage = null
+  override def getLanguage = null
 
-  def getProject = null
+  override def getProject = null
 }

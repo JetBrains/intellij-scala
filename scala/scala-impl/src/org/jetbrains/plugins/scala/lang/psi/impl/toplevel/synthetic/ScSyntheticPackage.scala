@@ -28,10 +28,10 @@ import scala.collection.mutable
 abstract class ScSyntheticPackage(name: String, manager: PsiManager)
   extends LightElement(manager, ScalaLanguage.INSTANCE) with PsiPackage {
 
-  def handleQualifiedNameChange(newQualifiedName: String) {
+  override def handleQualifiedNameChange(newQualifiedName: String) {
   }
-  def getDirectories: Array[PsiDirectory] = PsiDirectory.EMPTY_ARRAY
-  def checkSetName(s: String) {
+  override def getDirectories: Array[PsiDirectory] = PsiDirectory.EMPTY_ARRAY
+  override def checkSetName(s: String) {
     throw new IncorrectOperationException("cannot set name: nonphysical element")
   }
   override def getText = ""
@@ -88,21 +88,21 @@ object ScSyntheticPackage {
         }) {
           new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
             override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
-            def containsClassNamed(name: String): Boolean = false
+            override def containsClassNamed(name: String): Boolean = false
 
-            def getQualifiedName: String = fqn
+            override def getQualifiedName: String = fqn
 
-            def getClasses: Array[PsiClass] = Array.empty
+            override def getClasses: Array[PsiClass] = Array.empty
 
-            def getClasses(scope: GlobalSearchScope): Array[PsiClass] = Array.empty
+            override def getClasses(scope: GlobalSearchScope): Array[PsiClass] = Array.empty
 
-            def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, parentName)
+            override def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, parentName)
 
-            def getSubPackages: Array[PsiPackage] = Array.empty
+            override def getSubPackages: Array[PsiPackage] = Array.empty
 
-            def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = Array.empty
+            override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = Array.empty
 
-            def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = Array.empty
+            override def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = Array.empty
           }
         } else null
       case packages =>
@@ -115,17 +115,17 @@ object ScSyntheticPackage {
             new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
               override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
 
-              def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
+              override def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
                 getClasses.filter(n => ScalaNamesUtil.equivalentFqn(n.name, name))
               }
 
-              def containsClassNamed(name: String): Boolean = {
+              override def containsClassNamed(name: String): Boolean = {
                 getClasses.exists(n => ScalaNamesUtil.equivalentFqn(n.name, name))
               }
 
-              def getQualifiedName: String = fqn
+              override def getQualifiedName: String = fqn
 
-              def getClasses: Array[PsiClass] = {
+              override def getClasses: Array[PsiClass] = {
                 filtered.flatMap(p =>
                   if (ScalaNamesUtil.cleanFqn(p.fullPackageName).length == cleanName.length)
                     p.immediateTypeDefinitions.flatMap {
@@ -136,15 +136,15 @@ object ScSyntheticPackage {
                   else Seq.empty).toArray
               }
 
-              def getClasses(scope: GlobalSearchScope): Array[PsiClass] =
+              override def getClasses(scope: GlobalSearchScope): Array[PsiClass] =
                 getClasses.filter { clazz =>
                   val file = clazz.getContainingFile.getVirtualFile
                   file != null && scope.contains(file)
                 }
 
-              def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, parentName)
+              override def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, parentName)
 
-              def getSubPackages: Array[PsiPackage] = {
+              override def getSubPackages: Array[PsiPackage] = {
                 val buff = new mutable.HashSet[PsiPackage]
                 filtered.foreach{
                   p =>
@@ -176,7 +176,7 @@ object ScSyntheticPackage {
                 }
                 buff.toArray
               }
-              def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = getSubPackages
+              override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = getSubPackages
             }
 
         }

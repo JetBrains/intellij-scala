@@ -13,5 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
   */
 class ScExtendsBlockStubImpl(parent: StubElement[_ <: PsiElement],
                              elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                             val baseClasses: Array[String])
+                             override val baseClasses: Array[String])
   extends StubBase[ScExtendsBlock](parent, elementType) with ScExtendsBlockStub

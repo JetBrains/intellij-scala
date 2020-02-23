@@ -17,12 +17,12 @@ class ScalaGoToClassContributor extends GotoClassContributor {
 
   import ScalaIndexKeys._
 
-  def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {
+  override def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {
     implicit val projectCopy: Project = project
     (NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY.allKeys ++ PACKAGE_OBJECT_SHORT_NAME_KEY.allKeys).toArray
   }
 
-  def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
+  override def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
     val scope = if (includeNonProjectItems) GlobalSearchScope.allScope(project) else GlobalSearchScope.projectScope(project)
     val cleanName = ScalaNamesUtil.cleanFqn(name)
 
@@ -33,10 +33,10 @@ class ScalaGoToClassContributor extends GotoClassContributor {
     (classes ++ packageObjects).toArray
   }
 
-  def getQualifiedName(item: NavigationItem): String = item match {
+  override def getQualifiedName(item: NavigationItem): String = item match {
     case t: ScTypeDefinition => t.qualifiedName
     case _ => null
   }
 
-  def getQualifiedNameSeparator: String = "."
+  override def getQualifiedNameSeparator: String = "."
 }

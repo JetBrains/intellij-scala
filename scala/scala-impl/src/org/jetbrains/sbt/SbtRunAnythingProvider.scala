@@ -103,7 +103,7 @@ object SbtRunAnythingProvider {
   sealed abstract class SbtRunItem {
     def command: String
   }
-  case class SbtShellCommandString(command: String) extends SbtRunItem
+  case class SbtShellCommandString(override val command: String) extends SbtRunItem
   case class SbtShellTask(projectId: String, task: String) extends SbtRunItem {
     override def command: String = SbtNodeAction.scopedKey(projectId, task)
   }

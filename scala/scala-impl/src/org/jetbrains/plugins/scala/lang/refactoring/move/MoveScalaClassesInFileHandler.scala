@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
   */
 final class MoveScalaClassesInFileHandler extends MoveAllClassesInFileHandler {
 
-  def processMoveAllClassesInFile(allClasses: ju.Map[PsiClass, JBoolean],
-                                  psiClass: PsiClass,
-                                  elementsToMove: PsiElement*): Unit = {
+  override def processMoveAllClassesInFile(allClasses: ju.Map[PsiClass, JBoolean],
+                                           psiClass: PsiClass,
+                                           elementsToMove: PsiElement*): Unit = {
     psiClass.getContainingFile match {
       case file: ScalaFile if settings.ScalaApplicationSettings.getInstance.MOVE_COMPANION =>
         for {

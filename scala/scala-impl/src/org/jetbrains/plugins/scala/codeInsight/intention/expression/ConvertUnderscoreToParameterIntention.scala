@@ -40,11 +40,11 @@ object ConvertUnderscoreToParameterIntention {
 }
 
 class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ConvertUnderscoreToParameterIntention.familyName
+  override def getFamilyName: String = ConvertUnderscoreToParameterIntention.familyName
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, _element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, _element: PsiElement): Boolean = {
     findExpression(_element, editor) match {
       case Some(_) => true
       case None => false

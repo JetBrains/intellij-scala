@@ -10,7 +10,7 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class SharedSourceDependenciesProviderService extends SourceDependenciesProviderService {
-  def getSourceDependenciesFor(chunk: ModuleChunk): Seq[JpsModule] = {
+  override def getSourceDependenciesFor(chunk: ModuleChunk): Seq[JpsModule] = {
     val modules = chunk.getModules.asScala.toSeq
 
     val dependencies = modules.flatMap(_.getDependenciesList.getDependencies.asScala)

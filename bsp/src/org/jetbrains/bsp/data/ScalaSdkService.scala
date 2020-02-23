@@ -17,7 +17,7 @@ import scala.collection.JavaConverters._
 
 
 class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] {
-  def getTargetDataKey: Key[ScalaSdkData] = ScalaSdkData.Key
+  override def getTargetDataKey: Key[ScalaSdkData] = ScalaSdkData.Key
 
   import scala.collection.JavaConverters._
 

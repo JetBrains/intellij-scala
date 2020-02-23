@@ -26,6 +26,6 @@ abstract class ScalaMemberSelectionPanelBase[M <: PsiElement, I <: ScalaMemberIn
 
   def createMemberSelectionTable(memberInfos: util.List[I], abstractColumnHeader: String): ScalaMemberSelectionTableBase[M, I]
 
-  def getTable: ScalaMemberSelectionTableBase[M, I] = myTable
+  override def getTable: ScalaMemberSelectionTableBase[M, I] = myTable
 
 }

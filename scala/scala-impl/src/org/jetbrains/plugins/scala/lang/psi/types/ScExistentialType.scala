@@ -224,8 +224,8 @@ object ScExistentialType {
 
     val rightToLeft: java.util.Map[ScExistentialArgument, ScExistentialArgument] = {
       val byName: TObjectHashingStrategy[ScExistentialArgument] = new TObjectHashingStrategy[ScExistentialArgument] {
-        def computeHashCode(t: ScExistentialArgument): Int = t.name.hashCode
-        def equals(t: ScExistentialArgument, t1: ScExistentialArgument): Boolean = t.name == t1.name
+        override def computeHashCode(t: ScExistentialArgument): Int = t.name.hashCode
+        override def equals(t: ScExistentialArgument, t1: ScExistentialArgument): Boolean = t.name == t1.name
       }
       val map = new THashMap[ScExistentialArgument, ScExistentialArgument](byName)
       right.wildcards.zip(left.wildcards).foreach {

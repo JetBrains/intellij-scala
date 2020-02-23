@@ -29,13 +29,13 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
 
   override def toString: String = "ImportExpression"
 
-  def isSingleWildcard: Boolean = byStubOrPsi(_.isSingleWildcard)(wildcardElement.nonEmpty)
+  override def isSingleWildcard: Boolean = byStubOrPsi(_.isSingleWildcard)(wildcardElement.nonEmpty)
 
-  def wildcardElement: Option[PsiElement] =
+  override def wildcardElement: Option[PsiElement] =
     Option(findChildByType(ScalaTokenTypes.tUNDER))
       .orElse(selectorSet.flatMap(_.wildcardElement))
 
-  def qualifier: ScStableCodeReference = {
+  override def qualifier: ScStableCodeReference = {
     if (reference.isEmpty)
       throw new IncorrectOperationException()
     else if (!isSingleWildcard && selectorSet.isEmpty)
@@ -44,7 +44,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
       reference.get
   }
 
-  def deleteExpr() {
+  override def deleteExpr() {
     val parent = getParent.asInstanceOf[ScImportStmt]
     if (parent.importExprs.size == 1) {
       parent.getParent match {
@@ -103,9 +103,9 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
     }
   }
 
-  def selectorSet: Option[ScImportSelectors] =
+  override def selectorSet: Option[ScImportSelectors] =
     this.stubOrPsiChild(IMPORT_SELECTORS)
 
-  def reference: Option[ScStableCodeReference] =
+  override def reference: Option[ScStableCodeReference] =
     byPsiOrStub(getFirstChild.asOptionOf[ScStableCodeReference])(_.reference)
 }

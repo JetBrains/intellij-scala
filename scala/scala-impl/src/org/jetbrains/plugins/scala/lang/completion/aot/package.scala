@@ -12,7 +12,7 @@ package object aot {
 
   private[aot] class InsertHandler(itemText: String) extends IJInsertHandler[Decorator] {
 
-    final def handleInsert(context: InsertionContext, decorator: Decorator): Unit =
+    override final def handleInsert(context: InsertionContext, decorator: Decorator): Unit =
       handleInsert(decorator)(context)
 
     protected def handleInsert(decorator: Decorator)
@@ -33,8 +33,8 @@ package object aot {
 
   private[aot] class LookupElementRenderer(itemText: String) extends IJLookupElementRenderer[Decorator] {
 
-    def renderElement(decorator: Decorator,
-                      presentation: LookupElementPresentation): Unit = {
+    override def renderElement(decorator: Decorator,
+                               presentation: LookupElementPresentation): Unit = {
       decorator.getDelegate.renderElement(presentation)
       presentation.setItemText(itemText)
     }

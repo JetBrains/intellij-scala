@@ -21,7 +21,7 @@ import scala.collection.mutable
 final class ScalaCallerMethodsTreeStructure(project: Project, method: PsiMethod, scopeType: String)
   extends HierarchyTreeStructure(project, new CallHierarchyNodeDescriptor(project, null, method, true, false)) {
 
-  protected def buildChildren(descriptor: HierarchyNodeDescriptor): Array[AnyRef] = {
+  override protected def buildChildren(descriptor: HierarchyNodeDescriptor): Array[AnyRef] = {
     val enclosingElement: PsiMember = descriptor.asInstanceOf[CallHierarchyNodeDescriptor].getEnclosingElement
     if (!enclosingElement.isInstanceOf[PsiMethod]) {
       return ArrayUtil.EMPTY_OBJECT_ARRAY
@@ -46,7 +46,7 @@ final class ScalaCallerMethodsTreeStructure(project: Project, method: PsiMethod,
     val methodToDescriptorMap = new mutable.HashMap[PsiMember, CallHierarchyNodeDescriptor]
     for (methodToFind <- methodsToFind) {
       MethodReferencesSearch.search(methodToFind, searchScope, true).forEach(new Processor[PsiReference] {
-        def process(reference: PsiReference): Boolean = {
+        override def process(reference: PsiReference): Boolean = {
           val element: PsiElement = reference.getElement
           val key: PsiMember = PsiTreeUtil.getNonStrictParentOfType(element, classOf[PsiMethod], classOf[PsiClass])
           methodToDescriptorMap synchronized {

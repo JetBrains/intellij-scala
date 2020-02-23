@@ -24,7 +24,7 @@ final class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAc
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     for {
       IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
       ifStmt <- iioCall.parentOfType(classOf[ScIf])
@@ -38,7 +38,7 @@ final class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAc
     false
   }
 
-  def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement) {
     for {
       IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
       ifStmt <- iioCall.parentOfType(classOf[ScIf])

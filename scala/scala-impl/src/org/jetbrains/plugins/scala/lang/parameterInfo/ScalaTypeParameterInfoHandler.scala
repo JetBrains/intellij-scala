@@ -28,28 +28,28 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * Date: 22.02.2009
  */
 class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs, Any, ScTypeElement] {
-  def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
+  override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
 
-  def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
+  override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
-  def getActualParameters(o: ScTypeArgs): Array[ScTypeElement] = o.typeArgs.toArray
+  override def getActualParameters(o: ScTypeArgs): Array[ScTypeElement] = o.typeArgs.toArray
 
-  def getArgumentListClass: Class[ScTypeArgs] = classOf[ScTypeArgs]
+  override def getArgumentListClass: Class[ScTypeArgs] = classOf[ScTypeArgs]
 
-  def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
+  override def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
+  override def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
     val set = new java.util.HashSet[Class[_]]()
     set.add(classOf[ScParameterizedTypeElement])
     set.add(classOf[ScGenericCall])
     set
   }
 
-  def couldShowInLookup: Boolean = true
+  override def couldShowInLookup: Boolean = true
 
-  def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
+  override def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     implicit val tpc: TypePresentationContext = TypePresentationContext(context.getParameterOwner)
     context.getParameterOwner match {
@@ -157,7 +157,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
     }
   }
 
-  def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
+  override def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
 
 
 

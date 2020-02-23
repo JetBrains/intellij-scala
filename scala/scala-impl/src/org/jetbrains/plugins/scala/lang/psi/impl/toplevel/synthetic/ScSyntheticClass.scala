@@ -35,7 +35,7 @@ abstract class SyntheticNamedElement(name: String)
   extends LightElement(projectContext, ScalaLanguage.INSTANCE) with PsiNameIdentifierOwner {
   override def getName = name
   override def getText = ""
-  def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
+  override def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
   override def copy = throw new IncorrectOperationException("nonphysical element")
   override def accept(v: PsiElementVisitor) {
     throw new IncorrectOperationException("should not call")
@@ -46,33 +46,33 @@ abstract class SyntheticNamedElement(name: String)
   override def getNameIdentifier: PsiIdentifier = null
 }
 
-class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
+class ScSyntheticTypeParameter(override val name: String, override val owner: ScFun)
   extends SyntheticNamedElement(name)(owner.projectContext) with ScTypeParam with PsiClassFake {
 
-  def typeParameterText: String = name
+  override def typeParameterText: String = name
 
   override def getPresentation: ItemPresentation = super[ScTypeParam].getPresentation
 
   def getOffsetInFile: Int = 0
 
-  def getContainingFileName: String = "NoFile"
+  override def getContainingFileName: String = "NoFile"
 
   override def toString = "Synthetic type parameter: " + name
 
-  def isCovariant = false
-  def isContravariant = false
+  override def isCovariant = false
+  override def isContravariant = false
 
-  def lowerBound = Right(Nothing)
+  override def lowerBound = Right(Nothing)
 
-  def upperBound = Right(Any)
+  override def upperBound = Right(Any)
 
-  def getIndex = -1
-  def getOwner = null
+  override def getIndex = -1
+  override def getOwner = null
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+  override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
 
-  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+  override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
   override def isHigherKindedTypeParameter: Boolean = false
 
@@ -86,13 +86,13 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
   override def getPresentation: ItemPresentation = {
     new ItemPresentation {
       val This = ScSyntheticClass.this
-      def getLocationString: String = "(scala)"
+      override def getLocationString: String = "(scala)"
 
       def getTextAttributesKey: TextAttributesKey = null
 
-      def getPresentableText: String = This.className
+      override def getPresentableText: String = This.className
 
-      def getIcon(open: Boolean): Icon = This.getIcon(0)
+      override def getIcon(open: Boolean): Icon = This.getIcon(0)
     }
   }
 
@@ -147,7 +147,7 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
   }
 }
 
-class ScSyntheticFunction(val name: String, val retType: ScType, val paramClauses: Seq[Seq[Parameter]], typeParameterNames: Seq[String])
+class ScSyntheticFunction(val name: String, override val retType: ScType, override val paramClauses: Seq[Seq[Parameter]], typeParameterNames: Seq[String])
                          (implicit projectContext: ProjectContext)
   extends SyntheticNamedElement(name) with ScFun {
   def isStringPlusMethod: Boolean = {
@@ -172,11 +172,11 @@ class ScSyntheticFunction(val name: String, val retType: ScType, val paramClause
 
   override def toString = "Synthetic method"
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = {
+  override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = {
     findChildrenByClass[T](clazz)
   }
 
-  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = {
+  override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = {
     var cur: PsiElement = getFirstChild
     while (cur != null) {
       if (clazz.isInstance(cur)) return cur.asInstanceOf[T]
@@ -474,7 +474,7 @@ object Unit
   def byName(name: String) = all.get(name)
 
   val prefix = "scala."
-  def findClass(qName: String, scope: GlobalSearchScope): PsiClass = {
+  override def findClass(qName: String, scope: GlobalSearchScope): PsiClass = {
     if (qName.startsWith(prefix)) {
       byName(qName.substring(prefix.length)) match {
         case Some(c) => return c
@@ -484,7 +484,7 @@ object Unit
     syntheticObjects.get(qName).orNull
   }
 
-  def findClasses(qName: String, scope: GlobalSearchScope): Array[PsiClass] = {
+  override def findClasses(qName: String, scope: GlobalSearchScope): Array[PsiClass] = {
     val c = findClass(qName, scope)
     val obj = syntheticObjects.get(qName).orNull
 

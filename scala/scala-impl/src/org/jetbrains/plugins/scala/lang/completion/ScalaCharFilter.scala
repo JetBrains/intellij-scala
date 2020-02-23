@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
 class ScalaCharFilter extends CharFilter {
-  def acceptChar(c: Char, prefixLength: Int, lookup: Lookup): Result = {
+  override def acceptChar(c: Char, prefixLength: Int, lookup: Lookup): Result = {
     if (lookup == null || lookup.getPsiElement == null) return null
     val file = lookup.getPsiFile
     if (!file.isInstanceOf[ScalaFile]) return null

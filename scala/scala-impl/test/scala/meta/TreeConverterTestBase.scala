@@ -8,7 +8,7 @@ import scala.meta.intellij.IDEAContext
 
 abstract class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TreeConverterTestUtils {
 
-  def fixture = myFixture
+  override def fixture = myFixture
 
   override val context = new IDEAContext(fixture.getProject) {
     override def dumbMode: Boolean = true

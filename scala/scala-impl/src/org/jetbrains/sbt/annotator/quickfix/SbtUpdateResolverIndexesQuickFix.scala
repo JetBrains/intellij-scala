@@ -16,7 +16,7 @@ import com.intellij.psi.PsiFile
  */
 class SbtUpdateResolverIndexesQuickFix(module: Module) extends AbstractIntentionAction {
 
-  def getText = SbtBundle.message("sbt.fix.updateIndexes")
+  override def getText = SbtBundle.message("sbt.fix.updateIndexes")
 
   override def invoke(project: Project, editor: Editor, file: PsiFile) {
     val ui = ProjectStructureConfigurable.getInstance(project)

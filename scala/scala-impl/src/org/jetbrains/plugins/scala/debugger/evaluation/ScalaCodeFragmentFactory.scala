@@ -32,7 +32,7 @@ import scala.collection.mutable
  */
 
 class ScalaCodeFragmentFactory extends CodeFragmentFactory {
-  def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
+  override def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
     implicit val p: Project = project
     val fragment = createCodeFragmentInner(item, wrapContext(context))
 
@@ -81,11 +81,11 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
     fragment
   }
 
-  def createPresentationCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
+  override def createPresentationCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
     createCodeFragment(item, context, project)
   }
 
-  def isContextAccepted(contextElement: PsiElement): Boolean = {
+  override def isContextAccepted(contextElement: PsiElement): Boolean = {
     if (contextElement.isInstanceOf[PsiCodeBlock]) {
       return contextElement.getContext != null && contextElement.getContext.getContext != null &&
         contextElement.getContext.getContext.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
@@ -94,9 +94,9 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
     contextElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   }
 
-  def getFileType: LanguageFileType = ScalaFileType.INSTANCE
+  override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
-  def getEvaluatorBuilder: EvaluatorBuilder = ScalaEvaluatorBuilder
+  override def getEvaluatorBuilder: EvaluatorBuilder = ScalaEvaluatorBuilder
 
   private def wrapContext(originalContext: PsiElement)
                          (implicit project: Project): PsiElement = {

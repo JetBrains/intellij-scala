@@ -102,10 +102,10 @@ sealed trait SbtRankedKey {
 
 @SerialVersionUID(1)
 case class SbtSettingData @PropertyMapping(Array("name", "description", "rank", "value"))(
-  name: String,
-  description: String,
-  rank: Int,
-  value: String
+                                                                                           override val name: String,
+                                                                                           description: String,
+                                                                                           override val rank: Int,
+                                                                                           value: String
 )  extends SbtEntityData with SbtNamedKey with SbtRankedKey
 
 object SbtSettingData {
@@ -114,9 +114,9 @@ object SbtSettingData {
 
 @SerialVersionUID(1)
 case class SbtTaskData @PropertyMapping(Array("name", "description", "rank")) (
-  name: String,
-  description: String,
-  rank: Int) extends SbtEntityData with SbtNamedKey with SbtRankedKey
+                                                                                override val name: String,
+                                                                                description: String,
+                                                                                override val rank: Int) extends SbtEntityData with SbtNamedKey with SbtRankedKey
 
 object SbtTaskData {
   val Key: Key[SbtTaskData] = datakey(classOf[SbtTaskData])
@@ -124,8 +124,8 @@ object SbtTaskData {
 
 @SerialVersionUID(1)
 case class SbtCommandData @PropertyMapping(Array("name", "help")) (
-  name: String,
-  help: JMap[String, String]
+                                                                    override val name: String,
+                                                                    help: JMap[String, String]
 ) extends SbtEntityData with SbtNamedKey
 
 object SbtCommandData {

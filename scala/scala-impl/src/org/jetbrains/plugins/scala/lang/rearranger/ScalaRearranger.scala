@@ -257,6 +257,6 @@ object ScalaRearranger {
   private val SETTINGS_SERIALIZER = new DefaultArrangementSettingsSerializer(new ScalaSettingsSerializerMixin(), defaultSettings)
 
   private class ScalaSettingsSerializerMixin extends DefaultArrangementSettingsSerializer.Mixin {
-    def deserializeToken(id: String): ArrangementSettingsToken = getTokenById(id).orNull
+    override def deserializeToken(id: String): ArrangementSettingsToken = getTokenById(id).orNull
   }
 }

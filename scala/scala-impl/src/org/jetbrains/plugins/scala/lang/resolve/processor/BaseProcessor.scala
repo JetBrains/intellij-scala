@@ -108,7 +108,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   //java compatibility
   object MyElementClassHint extends ElementClassHint {
     import com.intellij.psi.scope.ElementClassHint.DeclarationKind
-    def shouldProcess(kind: DeclarationKind): Boolean = {
+    override def shouldProcess(kind: DeclarationKind): Boolean = {
       kind match {
         case null => true
         case DeclarationKind.PACKAGE => kinds contains ResolveTargets.PACKAGE

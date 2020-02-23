@@ -30,7 +30,7 @@ class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.sc
     configurationDialog = null
   }
 
-  def analyze(project: Project, scope: AnalysisScope) {
+  override def analyze(project: Project, scope: AnalysisScope) {
     var config: ScaladocConfiguration = null
     try {
       configurationDialog.saveSettings()
@@ -63,7 +63,7 @@ class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.sc
   override def getAdditionalActionSettings(project: Project, dialog: BaseAnalysisActionDialog): JComponent = {
     configurationDialog = new ScaladocConsoleRunConfigurationForm(project)
     configurationDialog.getOutputDirChooser.getDocument.addDocumentListener(new DocumentAdapter() {
-      def textChanged(e: DocumentEvent) {
+      override def textChanged(e: DocumentEvent) {
         updateAvailability(dialog)
       }
     })

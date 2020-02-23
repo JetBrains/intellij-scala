@@ -33,8 +33,8 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
                                  fieldLike: List[ScNamedElement],
                                  classParameters: List[ScClassParameter])
 
-  def annotate(element: ScalaPsiElement, typeAware: Boolean)
-              (implicit holder: ScalaAnnotationHolder): Unit =
+  override def annotate(element: ScalaPsiElement, typeAware: Boolean)
+                       (implicit holder: ScalaAnnotationHolder): Unit =
     annotateScope(element)
 
   def annotateScope(element: PsiElement)

@@ -780,27 +780,27 @@ object ScalaPsiUtil {
                        (implicit elementScope: ElementScope): PsiSubstitutor = {
 
     case class PseudoPsiSubstitutor(substitutor: ScSubstitutor) extends PsiSubstitutor {
-      def putAll(parentClass: PsiClass, mappings: Array[PsiType]): PsiSubstitutor = PsiSubstitutor.EMPTY
+      override def putAll(parentClass: PsiClass, mappings: Array[PsiType]): PsiSubstitutor = PsiSubstitutor.EMPTY
 
-      def isValid: Boolean = true
+      override def isValid: Boolean = true
 
-      def put(classParameter: PsiTypeParameter, mapping: PsiType): PsiSubstitutor = PsiSubstitutor.EMPTY
+      override def put(classParameter: PsiTypeParameter, mapping: PsiType): PsiSubstitutor = PsiSubstitutor.EMPTY
 
-      def getSubstitutionMap: ju.Map[PsiTypeParameter, PsiType] = new ju.HashMap[PsiTypeParameter, PsiType]()
+      override def getSubstitutionMap: ju.Map[PsiTypeParameter, PsiType] = new ju.HashMap[PsiTypeParameter, PsiType]()
 
-      def substitute(`type`: PsiType): PsiType = {
+      override def substitute(`type`: PsiType): PsiType = {
         substitutor(`type`.toScType()).toPsiType
       }
 
-      def substitute(typeParameter: PsiTypeParameter): PsiType = {
+      override def substitute(typeParameter: PsiTypeParameter): PsiType = {
         substitutor(TypeParameterType(typeParameter)).toPsiType
       }
 
-      def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
+      override def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
 
-      def substituteWithBoundsPromotion(typeParameter: PsiTypeParameter): PsiType = substitute(typeParameter)
+      override def substituteWithBoundsPromotion(typeParameter: PsiTypeParameter): PsiType = substitute(typeParameter)
 
-      def ensureValid() {}
+      override def ensureValid() {}
     }
 
     PseudoPsiSubstitutor(subst)

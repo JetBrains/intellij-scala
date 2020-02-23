@@ -63,10 +63,10 @@ private final class StaticMembersFinder(place: ScReferenceExpression, matcher: P
   private def isAccessible(member: PsiMember) = accessAll ||
     ResolveUtils.isAccessible(member, place, forCompletion = true)
 
-  private final case class StaticMemberResult(elementToImport: PsiNamedElement,
-                                              containingClass: PsiClass,
-                                              isOverloadedForClassName: Boolean = false) extends GlobalMemberResult {
-    val classToImport: PsiClass = containingClass
+  private final case class StaticMemberResult(override val elementToImport: PsiNamedElement,
+                                              override val containingClass: PsiClass,
+                                              override val isOverloadedForClassName: Boolean = false) extends GlobalMemberResult {
+    override val classToImport: PsiClass = containingClass
 
     override protected val resolveResult = new ScalaResolveResult(elementToImport)
   }

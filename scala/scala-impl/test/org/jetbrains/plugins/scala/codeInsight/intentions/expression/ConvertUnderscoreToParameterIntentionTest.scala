@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
  */
 
 class ConvertUnderscoreToParameterIntentionTest extends ScalaIntentionTestBase{
-  def familyName = ConvertUnderscoreToParameterIntention.familyName
+  override def familyName = ConvertUnderscoreToParameterIntention.familyName
 
   def testIntroduceExplicitParameter() {
     val text = "some.map(_<caret> > 5)"

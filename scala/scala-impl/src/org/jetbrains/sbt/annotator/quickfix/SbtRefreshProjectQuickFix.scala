@@ -16,7 +16,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
  */
 class SbtRefreshProjectQuickFix extends AbstractIntentionAction {
 
-  def getText = SbtBundle.message("sbt.fix.refreshProject")
+  override def getText = SbtBundle.message("sbt.fix.refreshProject")
 
   override def invoke(project: Project, editor: Editor, file: PsiFile) {
     FileDocumentManager.getInstance.saveAllDocuments()

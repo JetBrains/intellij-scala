@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 class ScTypeArgsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeArgs {
   override def toString: String = "TypeArgumentsList"
 
-  def typeArgs: Seq[ScTypeElement] = getChildren.toSeq
+  override def typeArgs: Seq[ScTypeElement] = getChildren.toSeq
     .filter(e => TYPE_ELEMENTS_TOKEN_SET.contains(e.getNode.getElementType))
     .map(_.asInstanceOf[ScTypeElement])
 }

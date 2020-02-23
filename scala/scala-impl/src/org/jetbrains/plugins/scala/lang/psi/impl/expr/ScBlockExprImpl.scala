@@ -23,7 +23,7 @@ class ScBlockExprImpl(elementType: ILazyParseableElementType, buffer: CharSequen
 
   override def hasCaseClauses: Boolean = caseClauses.isDefined
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): Array[T] = {
+  override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): Array[T] = {
     val result = new util.ArrayList[T]
     var cur: PsiElement = getFirstChild
     while (cur != null) {
@@ -33,7 +33,7 @@ class ScBlockExprImpl(elementType: ILazyParseableElementType, buffer: CharSequen
     result.toArray[T](java.lang.reflect.Array.newInstance(aClass, result.size).asInstanceOf[Array[T]])
   }
 
-  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): T = {
+  override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): T = {
     var cur: PsiElement = getFirstChild
     while (cur != null) {
       if (aClass.isInstance(cur)) return cur.asInstanceOf[T]

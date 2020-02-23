@@ -99,7 +99,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       convertReferencedType(typeResult, isShape = false)
     }
 
-  def shapeType: TypeResult =
+  override def shapeType: TypeResult =
     polymorphicLambdaType.left.flatMap { _ =>
       val typeResult: TypeResult = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeType
@@ -108,7 +108,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       convertReferencedType(typeResult, isShape = true)
     }
 
-  def shapeMultiType: Array[TypeResult] = {
+  override def shapeMultiType: Array[TypeResult] = {
     val polyLambdaType = polymorphicLambdaType
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
@@ -126,7 +126,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     }
   }
 
-  def multiType: Array[TypeResult] = {
+  override def multiType: Array[TypeResult] = {
     val polyLambdaType = polymorphicLambdaType
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {

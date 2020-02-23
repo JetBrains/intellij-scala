@@ -14,7 +14,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaQuickFixTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertibleToMethodValueInspection]
 
-  val description = InspectionBundle.message("convertible.to.method.value.name")
+  override val description = InspectionBundle.message("convertible.to.method.value.name")
   val hintAnon = InspectionBundle.message("convertible.to.method.value.anonymous.hint")
   val hintEta = InspectionBundle.message("convertible.to.method.value.eta.hint")
 

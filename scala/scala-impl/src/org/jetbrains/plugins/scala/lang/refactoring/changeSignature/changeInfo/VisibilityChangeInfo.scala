@@ -11,12 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 private[changeInfo] trait VisibilityChangeInfo {
   this: ScalaChangeInfo =>
 
-  def getNewVisibility: String = {
+  override def getNewVisibility: String = {
     if (newVisibility != null) scalaToJavaVisibility(newVisibility)
     else oldVisibility
   }
 
-  def isVisibilityChanged: Boolean = oldVisibility != newVisibility
+  override def isVisibilityChanged: Boolean = oldVisibility != newVisibility
 
   def oldVisibility: String = {
     function.getModifierList.accessModifier.fold("")(accessModifierText)

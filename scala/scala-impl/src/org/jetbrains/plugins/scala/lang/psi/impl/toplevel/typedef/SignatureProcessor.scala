@@ -51,7 +51,7 @@ trait SignatureProcessor[T <: Signature] {
 }
 
 object TypesCollector extends SignatureProcessor[TypeSignature] {
-  def shouldSkip(t: TypeSignature): Boolean = t.namedElement match {
+  override def shouldSkip(t: TypeSignature): Boolean = t.namedElement match {
     case _: ScObject => true
     case _: ScTypeDefinition | _: ScTypeAlias => false
     case c: PsiClass => isStaticJava(c)
@@ -59,19 +59,19 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
   }
 
 
-  def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
+  override def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
     for (inner <- clazz.getInnerClasses) {
       process(TypeSignature(inner, subst), sink)
     }
   }
 
-  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
+  override def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
     for (member <- template.membersWithSynthetic.filterBy[ScNamedElement]) {
       process(TypeSignature(member, subst), sink)
     }
   }
 
-  def processRefinement(cp: ScCompoundType, sink: Sink): Unit = {
+  override def processRefinement(cp: ScCompoundType, sink: Sink): Unit = {
     for ((_, aliasSig) <- cp.typesMap) {
       process(TypeSignature(aliasSig.typeAlias, aliasSig.substitutor), sink)
     }
@@ -82,14 +82,14 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
 
   protected def relevantMembers(td: ScTemplateDefinition): Seq[ScMember]
 
-  def shouldSkip(t: TermSignature): Boolean = t.namedElement match {
+  override def shouldSkip(t: TermSignature): Boolean = t.namedElement match {
     case f: ScFunction => f.isConstructor
     case m: PsiMethod  => m.isConstructor || isStaticJava(m)
     case m: PsiMember  => isStaticJava(m)
     case _             => false
   }
 
-  def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
+  override def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
     for (method <- clazz.getMethods) {
       val phys = new PhysicalMethodSignature(method, subst)
       process(phys, sink)
@@ -101,7 +101,7 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     }
   }
 
-  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
+  override def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
     implicit val ctx: ProjectContext = template
 
     def addSignature(s: TermSignature) {
@@ -132,7 +132,7 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     }
   }
 
-  def processRefinement(cp: ScCompoundType, sink: Sink): Unit = {
+  override def processRefinement(cp: ScCompoundType, sink: Sink): Unit = {
     for ((sign, _) <- cp.signatureMap) {
       process(sign, sink)
     }
@@ -181,11 +181,11 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
 }
 
 object TermsCollector extends TermsCollector {
-  def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = td.membersWithSynthetic
+  override def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = td.membersWithSynthetic
 }
 
 object StableTermsCollector extends TermsCollector {
-  def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = {
+  override def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = {
     (td.members ++ td.syntheticMembers ++ td.syntheticTypeDefinitions)
       .filter(mayContainStable)
   }

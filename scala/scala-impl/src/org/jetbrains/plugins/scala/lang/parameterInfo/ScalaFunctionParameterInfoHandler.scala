@@ -44,15 +44,15 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiElement, Any, ScExpression] {
-  def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
+  override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod])
   }
 
-  def couldShowInLookup: Boolean = true
+  override def couldShowInLookup: Boolean = true
 
-  def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
+  override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
-  def getActualParameters(elem: PsiElement): Array[ScExpression] = {
+  override def getActualParameters(elem: PsiElement): Array[ScExpression] = {
     elem match {
       case argExprList: ScArgumentExprList =>
         argExprList.exprs.toArray
@@ -64,11 +64,11 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     }
   }
 
-  def getArgumentListClass: Class[PsiElement] = classOf[PsiElement]
+  override def getArgumentListClass: Class[PsiElement] = classOf[PsiElement]
 
-  def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
+  override def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
+  override def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
     val set = new util.HashSet[Class[_]]()
     set.add(classOf[ScMethodCall])
     set.add(classOf[ScConstructorInvocation])
@@ -78,7 +78,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     set
   }
 
-  def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = {
+  override def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = {
     if (!item.isInstanceOf[LookupItem[_]]) return null
     val allElements = JavaCompletionUtil.getAllPsiElements(item.asInstanceOf[LookupItem[_]])
 
@@ -93,7 +93,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
 
 
-  def updateUI(p: Any, context: ParameterInfoUIContext) {
+  override def updateUI(p: Any, context: ParameterInfoUIContext) {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: PsiElement =>

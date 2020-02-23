@@ -234,7 +234,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   }
 
 
-  def findExistingDocComment(contextElement: PsiComment): PsiComment = {
+  override def findExistingDocComment(contextElement: PsiComment): PsiComment = {
     contextElement match {
       case comment: ScDocComment =>
         val commentOwner = comment.getOwner
@@ -245,12 +245,12 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
     null
   }
 
-  def generateDocumentationContentStub(contextComment: PsiComment): String = contextComment match {
+  override def generateDocumentationContentStub(contextComment: PsiComment): String = contextComment match {
     case scalaDocComment: ScDocComment => ScalaDocumentationProvider createScalaDocStub scalaDocComment.getOwner
     case _ => ""
   }
 
-  def parseContext(startPoint: PsiElement): Pair[PsiElement, PsiComment] = {
+  override def parseContext(startPoint: PsiElement): Pair[PsiElement, PsiComment] = {
     @tailrec
     def findDocCommentOwner(elem: PsiElement): Option[ScDocCommentOwner] = {
       elem match {
@@ -375,7 +375,7 @@ object ScalaDocumentationProvider {
     private val processingQueue = mutable.Queue.apply[ScDocCommentOwner]()
     private var init = false
 
-    def getMacroBody(name: String): Option[String] = {
+    override def getMacroBody(name: String): Option[String] = {
       if (!init) fillQueue()
       if (myCache contains name) return myCache get name
 

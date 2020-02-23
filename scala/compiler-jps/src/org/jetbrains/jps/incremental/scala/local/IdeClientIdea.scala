@@ -35,7 +35,7 @@ class IdeClientIdea(compilerName: String,
   private var compilationResults: Seq[CompilationResult] = List.empty
 
   //logic is taken from org.jetbrains.jps.incremental.java.OutputFilesSink.save
-  def generated(source: File, outputFile: File, name: String): Unit = {
+  override def generated(source: File, outputFile: File, name: String): Unit = {
     val compilationResult = CompilationResult(
       source = source,
       outputFile = outputFile,

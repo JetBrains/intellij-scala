@@ -90,7 +90,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     }
   }
 
-  def getState: Element = {
+  override def getState: Element = {
     val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters())
 
     if (incrementalityType != IncrementalityType.IDEA) {
@@ -112,7 +112,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     configurationElement
   }
 
-  def loadState(configurationElement: Element) {
+  override def loadState(configurationElement: Element) {
     incrementalityType = configurationElement.getChildren("option").asScala
       .find(_.getAttributeValue("name") == "incrementalityType")
       .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))

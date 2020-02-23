@@ -46,7 +46,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor with ScalaRen
     val guess = ScalaRenameUtil.findSubstituteElement(element)
     if (guess != element) renameCallback.pass(guess)
     else RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
-      def execute(named: PsiNamedElement): Boolean = {
+      override def execute(named: PsiNamedElement): Boolean = {
         renameCallback.pass(named)
         false
       }
@@ -69,7 +69,7 @@ object RenameScalaMethodProcessor {
 }
 
 class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
-  def canProcessElement(element: PsiElement): Boolean = RenameScalaMethodProcessor.canProcessElement(element)
+  override def canProcessElement(element: PsiElement): Boolean = RenameScalaMethodProcessor.canProcessElement(element)
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val function = element match {case x: ScFunction => x case _ => return}
@@ -146,7 +146,7 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
     setOKButtonText(CommonBundle.getYesButtonText)
     init()
 
-    def createCenterPanel: JComponent = null
+    override def createCenterPanel: JComponent = null
 
     override def createNorthPanel: JComponent = {
       val panel = new JPanel(new BorderLayout)

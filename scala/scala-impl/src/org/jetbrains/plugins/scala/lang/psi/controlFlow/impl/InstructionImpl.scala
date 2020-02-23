@@ -13,20 +13,20 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 sealed class InstructionImpl(override val num: Int,
-                             val element: Option[ScalaPsiElement])
+                             override val element: Option[ScalaPsiElement])
         extends Instruction with Cloneable {
   private val mySucc = new ArrayBuffer[Instruction]
   private val myPred = new ArrayBuffer[Instruction]
 
-  def pred(): ArrayBuffer[Instruction] = myPred
+  override def pred(): ArrayBuffer[Instruction] = myPred
 
-  def succ(): ArrayBuffer[Instruction] = mySucc
+  override def succ(): ArrayBuffer[Instruction] = mySucc
 
-  def addPred(p: Instruction) {
+  override def addPred(p: Instruction) {
     myPred += p
   }
 
-  def addSucc(s: Instruction) {
+  override def addSucc(s: Instruction) {
     mySucc += s
   }
 

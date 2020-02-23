@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, T
 import scala.collection.JavaConverters._
 
 class ScalaTestGenerator extends TestGenerator {
-  def generateTest(project: Project, d: CreateTestDialog): PsiElement = {
+  override def generateTest(project: Project, d: CreateTestDialog): PsiElement = {
     postponeFormattingWithin(project) {
       inWriteAction {
         try {

@@ -39,7 +39,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
 
   override def toString = "ScPackaging"
 
-  def reference: Option[ScStableCodeReference] =
+  override def reference: Option[ScStableCodeReference] =
     Option(getFirstChild).flatMap { node =>
       Option(node.getNextSibling)
     }.flatMap { node =>
@@ -61,7 +61,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
 
   override def fullPackageName: String = ScPackagingImpl.fullPackageName(parentPackageName, packageName)
 
-  def declaredElements: Seq[ScPackageImpl] = {
+  override def declaredElements: Seq[ScPackageImpl] = {
     val name = packageName
     val topRefName = name.indexOf(".") match {
       case -1 => name
@@ -104,11 +104,11 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     true
   }
 
-  def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
+  override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
     ScalaShortNamesCacheManager.getInstance(getProject)
       .findPackageObjectByName(fullPackageName, scope)
 
-  def bodyText: String = {
+  override def bodyText: String = {
     val text = getText
     val endOffset = text.length
 

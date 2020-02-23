@@ -25,13 +25,13 @@ final class ScVariableDeclarationImpl private[psi](stub: ScPropertyStub[ScVariab
 
   override def toString: String = "ScVariableDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
-  def `type`(): TypeResult = this.flatMapType(typeElement)
+  override def `type`(): TypeResult = this.flatMapType(typeElement)
 
-  def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
+  override def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
-  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST)
+  override def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST)
 
   override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitVariableDeclaration(this)

@@ -10,11 +10,11 @@ import org.jetbrains.sbt.SbtBundle
  * @author Pavel Fatin
  */
 class SharedSourcesModuleType extends ModuleType[EmptyModuleBuilder]("SHARED_SOURCES_MODULE") {
-  def createModuleBuilder() = new EmptyModuleBuilder()
+  override def createModuleBuilder() = new EmptyModuleBuilder()
 
-  def getName: String = SbtBundle.message("sbt.shared.sources.module")
+  override def getName: String = SbtBundle.message("sbt.shared.sources.module")
 
-  def getDescription: String = SbtBundle.message("sbt.shared.source.module.description")
+  override def getDescription: String = SbtBundle.message("sbt.shared.source.module.description")
 
   def getBigIcon: Icon = AllIcons.Nodes.Package
 

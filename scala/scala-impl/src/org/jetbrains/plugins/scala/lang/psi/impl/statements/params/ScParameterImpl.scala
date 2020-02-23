@@ -42,11 +42,11 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
+  override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {
+  override def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {
     // by-text heuristic is used because this method is called during stub creation,
     // so actual resolving of an annotation causes deadlock
 
@@ -57,16 +57,16 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     } yield symbol.name
   }
 
-  def nameId: PsiElement = {
+  override def nameId: PsiElement = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) findChildByType[PsiElement](ScalaTokenTypes.tUNDER) else id
   }
 
-  def getTypeElement: PsiTypeElement = null
+  override def getTypeElement: PsiTypeElement = null
 
-  def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
 
-  def `type`(): TypeResult = {
+  override def `type`(): TypeResult = {
     def success(t: ScType): TypeResult = Right(t)
     //todo: this is very error prone way to calc type, when usually we need real parameter type
     getStub match {
@@ -150,11 +150,11 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     }
   }
 
-  def baseDefaultParam: Boolean = byStubOrPsi(_.isDefaultParameter)(findChildByType(ScalaTokenTypes.tASSIGN) != null)
+  override def baseDefaultParam: Boolean = byStubOrPsi(_.isDefaultParameter)(findChildByType(ScalaTokenTypes.tASSIGN) != null)
 
-  def isRepeatedParameter: Boolean = byStubOrPsi(_.isRepeated)(paramType.exists(_.isRepeatedParameter))
+  override def isRepeatedParameter: Boolean = byStubOrPsi(_.isRepeated)(paramType.exists(_.isRepeatedParameter))
 
-  def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  override def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
   override def getNavigationElement: PsiElement = {
     val maybeResult = owner match {

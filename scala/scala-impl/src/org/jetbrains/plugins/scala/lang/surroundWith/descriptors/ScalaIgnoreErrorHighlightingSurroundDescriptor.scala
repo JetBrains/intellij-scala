@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.errorHighlighti
  */
 
 class ScalaIgnoreErrorHighlightingSurroundDescriptor extends SurroundDescriptor {
-  def getElementsToSurround(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
+  override def getElementsToSurround(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
     if (!file.isInstanceOf[ScalaFile]) return PsiElement.EMPTY_ARRAY
     val startElement = file.findElementAt(startOffset)
     val endElement = file.findElementAt(endOffset - 1)
@@ -25,7 +25,7 @@ class ScalaIgnoreErrorHighlightingSurroundDescriptor extends SurroundDescriptor 
     range.toArray
   }
 
-  def getSurrounders: Array[Surrounder] = Array(new IgnoreErrorHighlightingSurrounder)
+  override def getSurrounders: Array[Surrounder] = Array(new IgnoreErrorHighlightingSurrounder)
 
-  def isExclusive: Boolean = false
+  override def isExclusive: Boolean = false
 }

@@ -35,7 +35,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
 
   val myDefaultValueEditor = new EditorTextField(defaultValueDoc, project, fileType)
 
-  def prepareEditor(table: JTable, row: Int) {
+  override def prepareEditor(table: JTable, row: Int) {
     setLayout(new BorderLayout)
     addNameEditor()
     addTypeEditor()
@@ -88,14 +88,14 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
     additionalPanel.add(createLabeledPanel(ScalaBundle.message("parameter.label.default.value"), myDefaultValueEditor), BorderLayout.WEST)
   }
 
-  def getValue: JBTableRow = {
+  override def getValue: JBTableRow = {
     case 0 => myNameEditor.getText.trim
     case 1 => myTypeEditor.getText.trim
     case 2 => myDefaultValueEditor.getText.trim
     case _ => null
   }
 
-  def getPreferredFocusedComponent: JComponent = {
+  override def getPreferredFocusedComponent: JComponent = {
     val me: MouseEvent = getMouseEvent
     if (me == null) {
       return myNameEditor.getFocusTarget
@@ -106,7 +106,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
     else myDefaultValueEditor.getFocusTarget
   }
 
-  def getFocusableComponents: Array[JComponent] = {
+  override def getFocusableComponents: Array[JComponent] = {
     val focusable = ArrayBuffer[JComponent]()
     focusable += myNameEditor.getFocusTarget
     focusable += myTypeEditor.getFocusTarget

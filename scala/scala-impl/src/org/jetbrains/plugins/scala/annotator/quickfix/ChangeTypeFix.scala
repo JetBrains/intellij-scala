@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
 
-  val getText: String = {
+  override val getText: String = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(typeElement)
     val (oldTypeDescripton, newTypeDescription) = typeElement.`type`() match {
       case Right(oldType) => ScTypePresentation.different(oldType, newType)

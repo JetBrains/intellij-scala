@@ -93,7 +93,7 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
       })
   }
 
-  private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)] =
+  override private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)] =
     runningTask.synchronized {
       runningTask.get match {
         case Some(running) =>

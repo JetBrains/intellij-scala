@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createRe
   */
 class ScImportExprStubImpl(parent: StubElement[_ <: PsiElement],
                            elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                           val referenceText: Option[String],
-                           val isSingleWildcard: Boolean)
+                           override val referenceText: Option[String],
+                           override val isSingleWildcard: Boolean)
   extends StubBase[ScImportExpr](parent, elementType) with ScImportExprStub with PsiOwner[ScImportExpr] {
 
   private var referenceReference: SofterReference[Option[ScStableCodeReference]] = null
 
-  def reference: Option[ScStableCodeReference] = {
+  override def reference: Option[ScStableCodeReference] = {
     getFromOptionalReference(referenceReference) {
       case (context, child) =>
         referenceText.map {

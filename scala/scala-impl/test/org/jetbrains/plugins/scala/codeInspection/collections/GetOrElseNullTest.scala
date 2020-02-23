@@ -12,7 +12,7 @@ class GetOrElseNullTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val hint: String = InspectionBundle.message("getOrElse.null.hint")
+  override val hint: String = InspectionBundle.message("getOrElse.null.hint")
 
   def test_1() {
     val selected = s"None.${START}getOrElse(null)$END"

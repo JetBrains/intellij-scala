@@ -25,16 +25,16 @@ sealed trait ImplicitResolveResult {
   protected val unresolvedTypeParameters: Seq[TypeParameter]
 }
 
-final case class CompanionImplicitResolveResult(resolveResult: ScalaResolveResult,
-                                                `type`: ScType,
-                                                implicitDependentSubstitutor: ScSubstitutor) extends ImplicitResolveResult {
+final case class CompanionImplicitResolveResult(override val resolveResult: ScalaResolveResult,
+                                                override val `type`: ScType,
+                                                override val implicitDependentSubstitutor: ScSubstitutor) extends ImplicitResolveResult {
   override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty
 }
 
-final case class RegularImplicitResolveResult(resolveResult: ScalaResolveResult,
-                                              `type`: ScType,
-                                              implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-                                              unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
+final case class RegularImplicitResolveResult(override val resolveResult: ScalaResolveResult,
+                                              override val `type`: ScType,
+                                              override val implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
+                                              override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
 
 object ImplicitResolveResult {
 

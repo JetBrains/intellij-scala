@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 */
 
 class TraitFilter extends ElementFilter {
-  def isAcceptable(element: Object, context: PsiElement): Boolean = {
+  override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
     
@@ -26,7 +26,7 @@ class TraitFilter extends ElementFilter {
     false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 
   @NonNls
   override def toString = "template definitions keyword filter"

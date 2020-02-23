@@ -48,7 +48,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     resolveScope
   }
 
-  def getPlace: PsiElement = ref
+  override def getPlace: PsiElement = ref
 
   private[this] val isThisOrSuperResolve = ref.getParent match {
     case _: ScThisReference | _: ScSuperReference => true
@@ -184,7 +184,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   object ScalaNameHint extends NameHint {
-    def getName(state: ResolveState): String = state.renamed.getOrElse(name)
+    override def getName(state: ResolveState): String = state.renamed.getOrElse(name)
   }
 
   override def toString = s"ResolveProcessor($name)"

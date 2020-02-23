@@ -126,7 +126,7 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
     }
   }
   
-  def createJavaParameters(): JavaParameters = {
+  override def createJavaParameters(): JavaParameters = {
     val environmentVariables = configuration.environmentVariables
     val params: JavaParameters = new JavaParameters
     val jdk: Sdk = JavaParametersUtil.createProjectJdk(configuration.getProject, null)

@@ -13,12 +13,12 @@ class ScalaLocalVarCouldBeValPassFactory
   extends TextEditorHighlightingPassFactory
     with TextEditorHighlightingPassFactoryRegistrar {
 
-  def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = file match {
+  override def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = file match {
     case scalaFile: ScalaFile => new ScalaLocalVarCouldBeValPass(scalaFile, Option(editor.getDocument))
     case _ => null
   }
 
-  def registerHighlightingPassFactory(registrar: TextEditorHighlightingPassRegistrar, project: Project): Unit = {
+  override def registerHighlightingPassFactory(registrar: TextEditorHighlightingPassRegistrar, project: Project): Unit = {
     registrar.registerTextEditorHighlightingPass(this, Array[Int](Pass.UPDATE_ALL), null, false, -1)
   }
 }

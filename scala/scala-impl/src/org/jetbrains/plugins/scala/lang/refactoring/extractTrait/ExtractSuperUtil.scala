@@ -49,7 +49,7 @@ object ExtractSuperUtil {
         case _ =>
           val selection = classes(0)
           val processor = new PsiElementProcessor[PsiClass] {
-            def execute(aClass: PsiClass): Boolean = {
+            override def execute(aClass: PsiClass): Boolean = {
               action
               false
             }

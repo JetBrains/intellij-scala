@@ -33,10 +33,10 @@ object SigFileType extends FileType {
 
 
 class SigFileViewProviderFactory extends FileViewProviderFactory {
-  def createFileViewProvider(file: VirtualFile,
-                             language: Language,
-                             manager: PsiManager,
-                             eventSystemEnabled: Boolean): FileViewProvider = {
+  override def createFileViewProvider(file: VirtualFile,
+                                      language: Language,
+                                      manager: PsiManager,
+                                      eventSystemEnabled: Boolean): FileViewProvider = {
 
     ScClassFileDecompiler.createFileViewProviderImpl(manager, file, eventSystemEnabled, ScalaLanguage.INSTANCE)
   }

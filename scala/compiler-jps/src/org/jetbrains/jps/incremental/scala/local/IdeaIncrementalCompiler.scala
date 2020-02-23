@@ -22,7 +22,7 @@ import scala.collection.JavaConverters._
 class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
   extends AbstractCompiler {
 
-  def compile(compilationData: CompilationData, client: Client): Unit = {
+  override def compile(compilationData: CompilationData, client: Client): Unit = {
     val progress = getProgress(client)
     val reporter = getReporter(client)
     val logFilter = new ZincLogFilter {
@@ -95,8 +95,8 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
 }
 
 private object emptyChanges extends DependencyChanges {
-  val modifiedBinaries = new Array[File](0)
-  val modifiedClasses = new Array[String](0)
+  override val modifiedBinaries = new Array[File](0)
+  override val modifiedClasses = new Array[String](0)
 
-  def isEmpty = true
+  override def isEmpty = true
 }

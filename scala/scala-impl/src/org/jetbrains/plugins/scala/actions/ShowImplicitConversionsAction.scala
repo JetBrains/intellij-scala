@@ -43,7 +43,7 @@ final class ShowImplicitConversionsAction extends AnAction("Show implicit conver
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
   }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
@@ -87,7 +87,7 @@ final class ShowImplicitConversionsAction extends AnAction("Show implicit conver
       list.setFont(font)
       JListCompatibility.setCellRenderer(list, renderer)
       list.getSelectionModel.addListSelectionListener(new ListSelectionListener {
-        def valueChanged(e: ListSelectionEvent) {
+        override def valueChanged(e: ListSelectionEvent) {
           hintAlarm.cancelAllRequests
           val item = list.getSelectedValue.asInstanceOf[Parameters]
           if (item == null) return
@@ -180,7 +180,7 @@ final class ShowImplicitConversionsAction extends AnAction("Show implicit conver
     }
 
     hintAlarm.addRequest(new Runnable {
-      def run() {
+      override def run() {
         hint = new LightBulbHint(element.editor, element.project, element.oldExpression, element.elements)
         list.add(hint, 20, 0)
         hint.setBulbLayout()

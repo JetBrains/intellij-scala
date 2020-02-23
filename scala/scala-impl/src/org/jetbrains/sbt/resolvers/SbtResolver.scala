@@ -39,8 +39,8 @@ object SbtResolver {
 }
 
 class SbtMavenResolver @PropertyMapping(Array("name", "root")) (
-  val name: String,
-  val root: String
+                                                                 override val name: String,
+                                                                 override val root: String
 ) extends SbtResolver {
 
   override def getIndex(project: Project): Option[ResolverIndex] = try {
@@ -57,8 +57,8 @@ class SbtMavenResolver @PropertyMapping(Array("name", "root")) (
 }
 
 class SbtIvyResolver @PropertyMapping(Array("name", "root")) (
-  val name: String,
-  val root: String
+                                                               override val name: String,
+                                                               override val root: String
 ) extends SbtResolver {
 
   override def getIndex(project: Project): Option[ResolverIndex] =

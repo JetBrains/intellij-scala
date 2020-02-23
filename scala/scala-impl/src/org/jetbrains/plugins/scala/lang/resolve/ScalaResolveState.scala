@@ -13,7 +13,7 @@ object ScalaResolveState extends ResolveStateOps {
 
   val empty: ResolveState = ResolveState.initial()
 
-  def resolveState: ResolveState = empty
+  override def resolveState: ResolveState = empty
 
   implicit class ResolveStateExt(override val resolveState: ResolveState) extends AnyVal with ResolveStateOps
 }

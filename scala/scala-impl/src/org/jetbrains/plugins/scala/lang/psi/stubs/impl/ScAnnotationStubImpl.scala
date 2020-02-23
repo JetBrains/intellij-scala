@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
   */
 class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
                            elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                           val annotationText: String,
-                           val name: Option[String])
+                           override val annotationText: String,
+                           override val name: Option[String])
   extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub with PsiOwner[ScAnnotation] {
 
   private[impl] var annotationExprRef: SofterReference[Option[ScAnnotationExpr]] = _
 
-  def annotationExpr: Option[ScAnnotationExpr] = {
+  override def annotationExpr: Option[ScAnnotationExpr] = {
     getFromOptionalReference(annotationExprRef) {
       case (context, _) =>
         val annotation = ScalaPsiElementFactory.createAnAnnotation(annotationText)(getProject)
@@ -34,5 +34,5 @@ class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
 
   }
 
-  def typeElement: Option[ScTypeElement] = annotationExpr.map(_.constructorInvocation.typeElement)
+  override def typeElement: Option[ScTypeElement] = annotationExpr.map(_.constructorInvocation.typeElement)
 }

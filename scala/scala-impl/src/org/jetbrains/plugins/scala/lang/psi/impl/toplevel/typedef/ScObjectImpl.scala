@@ -80,7 +80,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   }
 
 
-  def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
+  override def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
 
   override def isCase: Boolean = hasModifierProperty("case")
 
@@ -116,7 +116,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   }
 
   @Cached(ModCount.getBlockModificationCount, this)
-  def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
+  override def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
     case Some(_) => None
     case None =>
       val qualName = Option(getQualifiedName).map(_.stripSuffix("$"))
@@ -124,7 +124,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
       name.map(new PsiClassWrapper(this, qualName.orNull, _))
   }
 
-  def fakeCompanionClassOrCompanionClass: PsiClass = fakeCompanionClass match {
+  override def fakeCompanionClassOrCompanionClass: PsiClass = fakeCompanionClass match {
     case Some(clazz) => clazz
     case _ => getCompanionModule(this).get
   }

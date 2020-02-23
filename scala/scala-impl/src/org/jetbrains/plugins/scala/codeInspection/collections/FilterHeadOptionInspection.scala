@@ -15,7 +15,7 @@ class FilterHeadOptionInspection extends OperationOnCollectionInspection {
 
 object FilterHeadOption extends SimplificationType {
 
-  def hint: String = InspectionBundle.message("filter.headOption.hint")
+  override def hint: String = InspectionBundle.message("filter.headOption.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

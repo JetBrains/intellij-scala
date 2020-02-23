@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSynthetic
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-sealed class StdType(val name: String, val tSuper: Option[StdType])
-                    (implicit val projectContext: ProjectContext)
+sealed class StdType(override val name: String, val tSuper: Option[StdType])
+                    (implicit override val projectContext: ProjectContext)
   extends ValueType with NamedType with LeafType {
 
   val fullName = s"scala.$name"

@@ -12,13 +12,13 @@ import scala.annotation.tailrec
 final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit: Boolean)
                              (implicit val elementScope: ElementScope) extends NonValueType {
 
-  implicit def projectContext: project.ProjectContext = elementScope.projectContext
+  override implicit def projectContext: project.ProjectContext = elementScope.projectContext
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitMethodType(this)
 
   override def typeDepth: Int = result.typeDepth
 
-  def inferValueType: api.ValueType = {
+  override def inferValueType: api.ValueType = {
     api.FunctionType(result.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType

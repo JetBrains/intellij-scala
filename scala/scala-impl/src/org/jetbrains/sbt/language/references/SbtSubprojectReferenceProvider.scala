@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
  */
 class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
 
-  def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
+  override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
     if (element.getContainingFile.getFileType.getName != Sbt.Name) return Array.empty
     extractSubprojectPath(element).flatMap { path =>
       findBuildFile(path, element.getProject).map(new SbtSubprojectReference(element, _))

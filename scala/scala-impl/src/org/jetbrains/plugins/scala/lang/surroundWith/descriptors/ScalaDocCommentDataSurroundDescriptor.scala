@@ -20,7 +20,7 @@ class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
     new ScalaDocWithMonospaceSurrounder, new ScalaDocWithItalicSurrounder, new ScalaDocWithSubscriptSurrounder,
     new ScalaDocWithSuperscriptSurrounder)
 
-  def getElementsToSurround(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
+  override def getElementsToSurround(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
     if (endOffset == startOffset) return PsiElement.EMPTY_ARRAY
 
     val validBoundElements = Set(DOC_COMMENT_DATA, DOC_WHITESPACE)
@@ -101,7 +101,7 @@ class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
     elementsToSurround.toArray
   }
 
-  def getSurrounders: Array[Surrounder] = surrounders
+  override def getSurrounders: Array[Surrounder] = surrounders
 
-  def isExclusive: Boolean = false
+  override def isExclusive: Boolean = false
 }

@@ -15,12 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 final class ScFunctionStubImpl[F <: ScFunction](parent: StubElement[_ <: PsiElement],
                                                 elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                                                 name: String,
-                                                val isDeclaration: Boolean,
-                                                val annotations: Array[String],
-                                                val typeText: Option[String],
-                                                val bodyText: Option[String],
-                                                val hasAssign: Boolean,
+                                                override val isDeclaration: Boolean,
+                                                override val annotations: Array[String],
+                                                override val typeText: Option[String],
+                                                override val bodyText: Option[String],
+                                                override val hasAssign: Boolean,
                                                 override val isImplicitConversion: Boolean,
-                                                val isLocal: Boolean,
-                                                val implicitClassNames: Array[String])
+                                                override val isLocal: Boolean,
+                                                override val implicitClassNames: Array[String])
   extends ScNamedStubBase[F](parent, elementType, name) with ScFunctionStub[F]

@@ -24,7 +24,7 @@ final class SbtLocalSettings(project: Project)
     state
   }
 
-  def loadState(state: SbtLocalSettingsState)  {
+  override def loadState(state: SbtLocalSettingsState)  {
     super[AbstractExternalSystemLocalSettings].loadState(state)
   }
 }

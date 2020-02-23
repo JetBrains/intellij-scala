@@ -73,10 +73,10 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
   protected def createMarker[T <: PsiElement, R](elem: T, icon: Icon, caption: String)(fun: T => R): Marker = {
     new RelatedItemLineMarkerInfo[PsiElement](elem, new TextRange(elem.getTextRange.getStartOffset, elem.getTextRange.getStartOffset), icon, Pass.LINE_MARKERS,
       new Function[PsiElement, String] {
-        def fun(param: PsiElement): String = caption
+        override def fun(param: PsiElement): String = caption
       },
       new GutterIconNavigationHandler[PsiElement] {
-        def navigate(mouseEvent: MouseEvent, elt: PsiElement): Unit = fun(elt.asInstanceOf[T])
+        override def navigate(mouseEvent: MouseEvent, elt: PsiElement): Unit = fun(elt.asInstanceOf[T])
       },
       GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]())
   }

@@ -50,7 +50,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     result
   }
 
-  def hasModifierProperty(name: String): Boolean = {
+  override def hasModifierProperty(name: String): Boolean = {
     if (name == PsiModifier.PUBLIC)
       !modifiers.contains(ScalaModifier.Private) && !modifiers.contains(ScalaModifier.Protected)
     else
@@ -125,16 +125,16 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitModifierList(this)
 
-  def hasExplicitModifier(name: String): Boolean = {
+  override def hasExplicitModifier(name: String): Boolean = {
     val mod = ScalaModifier.byText(name)
     mod != null && modifiers.contains(mod)
   }
 
-  def checkSetModifierProperty(name: String, value: Boolean): Unit = {}
+  override def checkSetModifierProperty(name: String, value: Boolean): Unit = {}
 
-  def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
+  override def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
-  def addAnnotation(qualifiedName: String): PsiAnnotation = null
+  override def addAnnotation(qualifiedName: String): PsiAnnotation = null
 
   private def addModifierProperty(name: String): Unit = {
     val node = getNode

@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPairedTag
  * Date: 4/8/12
  */
 class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler {
-  def isAvailableOnDataContext(dataContext: DataContext): Boolean = {
+  override def isAvailableOnDataContext(dataContext: DataContext): Boolean = {
     val editor = CommonDataKeys.EDITOR.getData(dataContext)
     if (editor == null || !editor.getSettings.isVariableInplaceRenameEnabled) return false
 
@@ -81,7 +81,7 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
 
     def rename() {
       CommandProcessor.getInstance().executeCommand(project, new Runnable {
-        def run() {
+        override def run() {
           extensions.inWriteAction {
             val offset = editor.getCaretModel.getOffset
             val template = buildTemplate()
@@ -98,7 +98,7 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
               }
             },
               new PairProcessor[String, String] {
-                def process(s: String, t: String): Boolean = !(t.length == 0 || t.charAt(t.length - 1) == ' ')
+                override def process(s: String, t: String): Boolean = !(t.length == 0 || t.charAt(t.length - 1) == ' ')
               })
 
             highlightMatched()

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
  */
 
 class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
-  def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
+  override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val scope = inReadAction(queryParameters.getEffectiveSearchScope)
     val element = queryParameters.getElementToSearch
 
@@ -29,7 +29,7 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
     }
     toProcess.foreach{ case (elem, name) =>
       val processor = new TextOccurenceProcessor {
-        def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+        override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
           val references = inReadAction(element.getReferences)
           for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
             inReadAction {

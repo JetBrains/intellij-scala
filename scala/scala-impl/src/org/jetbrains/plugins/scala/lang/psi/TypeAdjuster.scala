@@ -409,10 +409,10 @@ object TypeAdjuster extends ApplicationListener {
     def pathsToImport: List[String]
   }
 
-  private final case class SimpleInfo(place: PsiElement,
+  private final case class SimpleInfo(override val place: PsiElement,
                                       replacement: String,
                                       resolve: Option[PsiElement],
-                                      pathsToImport: List[String] = Nil) extends ReplacementInfo {
+                                      override val pathsToImport: List[String] = Nil) extends ReplacementInfo {
 
     def updateTarget(target: PsiNamedElement): SimpleInfo = {
       def prefixAndPath(qualifiedName: String, prefixLength: Int): Option[(String, Some[String])] =
@@ -497,7 +497,7 @@ object TypeAdjuster extends ApplicationListener {
   }
 
   private final case class CompoundInfo(children: List[ReplacementInfo])
-                                       (val place: PsiElement,
+                                       (override val place: PsiElement,
                                         private val typeElement: ScTypeElement) extends ReplacementInfo {
 
     if (!children.map(_.place).forall(typeElement.isAncestorOf)) {

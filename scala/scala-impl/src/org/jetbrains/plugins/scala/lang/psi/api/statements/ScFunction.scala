@@ -80,32 +80,32 @@ trait ScFunction extends ScalaPsiElement with ScMember.WithBaseIconProvider with
 
   def paramClauses: ScParameters
 
-  def parameterList: ScParameters = paramClauses // TODO merge
+  override def parameterList: ScParameters = paramClauses // TODO merge
 
   def parameterListCount: Int
 
-  def clauses: Option[ScParameters] = Some(paramClauses)
+  override def clauses: Option[ScParameters] = Some(paramClauses)
 
-  def declaredElements: Seq[ScFunction] = Seq(this)
+  override def declaredElements: Seq[ScFunction] = Seq(this)
 
   override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitFunction(this)
   }
 
-  def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)
+  override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)
 
-  def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
+  override def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
 
-  def hasTypeParameters: Boolean = typeParameters.nonEmpty
+  override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 
-  def getParameterList: ScParameters = paramClauses
+  override def getParameterList: ScParameters = paramClauses
 
   /** PsiMethod wrappers for java compatibility
     * @return Empty array, if containing class is null.
     */
   def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper]
 
-  def parameters: Seq[ScParameter] = paramClauses.params
+  override def parameters: Seq[ScParameter] = paramClauses.params
 
   def superMethods: Seq[PsiMethod]
 

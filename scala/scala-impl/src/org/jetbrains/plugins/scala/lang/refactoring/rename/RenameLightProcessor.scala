@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiTypedDefinitionWrapper, Sc
  * Date: 08.09.2009
  */
 class RenameLightProcessor extends RenamePsiElementProcessor {
-  def canProcessElement(element: PsiElement): Boolean = {
+  override def canProcessElement(element: PsiElement): Boolean = {
     element match {
       case _: FakePsiMethod => true
       case _: ScFunctionWrapper => true

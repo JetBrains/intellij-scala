@@ -32,5 +32,5 @@ class ParentsIteratorTest extends IteratorTestCase {
     assertIterates("", "0 (1.1)")
   }
 
-  def createIterator(element: PsiElement) = new ParentsIterator(element)
+  override def createIterator(element: PsiElement) = new ParentsIterator(element)
 }

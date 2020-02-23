@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 abstract class CreateFromUsageQuickFixBase(ref: ScReference, description: String)
   extends IntentionAction with ProjectContextOwner {
 
-  implicit val projectContext: ProjectContext = ref
+  override implicit val projectContext: ProjectContext = ref
   
-  val getText = s"Create $description '${ref.nameId.getText}'"
+  override val getText = s"Create $description '${ref.nameId.getText}'"
 
-  val getFamilyName = s"Create $description"
+  override val getFamilyName = s"Create $description"
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!ref.isValid) return false

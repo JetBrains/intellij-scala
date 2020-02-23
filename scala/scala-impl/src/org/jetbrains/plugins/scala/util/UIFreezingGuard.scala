@@ -115,7 +115,7 @@ object UIFreezingGuard {
 
     def timestamp: Long = counter.get()
 
-    def start(): Unit = {
+    override def start(): Unit = {
       counter.incrementAndGet()
       delegate.start()
     }
@@ -124,31 +124,31 @@ object UIFreezingGuard {
       if (timestamp == l) delegate.cancel()
     }
 
-    def checkCanceled(): Unit = {
+    override def checkCanceled(): Unit = {
       if (isCanceled && canInterrupt)
         throw UnfreezeException
     }
 
     //EmptyProgressIndicator is good enough, but it has final `checkCanceled()` method
-    def cancel(): Unit                                                 = delegate.cancel()
-    def isRunning: Boolean                                             = delegate.isRunning
-    def pushState(): Unit                                              = delegate.pushState()
-    def setIndeterminate(indeterminate: Boolean): Unit                 = delegate.setIndeterminate(indeterminate)
-    def setModalityProgress(modalityProgress: ProgressIndicator): Unit = delegate.setModalityProgress(modalityProgress)
-    def isCanceled: Boolean                                            = delegate.isCanceled
-    def isIndeterminate: Boolean                                       = delegate.isIndeterminate
-    def isModal: Boolean                                               = delegate.isModal
-    def setFraction(fraction: Double): Unit                            = delegate.setFraction(fraction)
-    def stop(): Unit                                                   = delegate.stop()
-    def getText: String                                                = delegate.getText
-    def setText(text: String): Unit                                    = delegate.setText(text)
-    def isPopupWasShown: Boolean                                       = delegate.isPopupWasShown
-    def setText2(text: String): Unit                                   = delegate.setText2(text)
-    def getModalityState: ModalityState                                = delegate.getModalityState
-    def getFraction: Double                                            = delegate.getFraction
-    def popState(): Unit                                               = delegate.popState()
-    def getText2: String                                               = delegate.getText2
-    def isShowing: Boolean                                             = delegate.isShowing
+    override def cancel(): Unit                                                 = delegate.cancel()
+    override def isRunning: Boolean                                             = delegate.isRunning
+    override def pushState(): Unit                                              = delegate.pushState()
+    override def setIndeterminate(indeterminate: Boolean): Unit                 = delegate.setIndeterminate(indeterminate)
+    override def setModalityProgress(modalityProgress: ProgressIndicator): Unit = delegate.setModalityProgress(modalityProgress)
+    override def isCanceled: Boolean                                            = delegate.isCanceled
+    override def isIndeterminate: Boolean                                       = delegate.isIndeterminate
+    override def isModal: Boolean                                               = delegate.isModal
+    override def setFraction(fraction: Double): Unit                            = delegate.setFraction(fraction)
+    override def stop(): Unit                                                   = delegate.stop()
+    override def getText: String                                                = delegate.getText
+    override def setText(text: String): Unit                                    = delegate.setText(text)
+    override def isPopupWasShown: Boolean                                       = delegate.isPopupWasShown
+    override def setText2(text: String): Unit                                   = delegate.setText2(text)
+    override def getModalityState: ModalityState                                = delegate.getModalityState
+    override def getFraction: Double                                            = delegate.getFraction
+    override def popState(): Unit                                               = delegate.popState()
+    override def getText2: String                                               = delegate.getText2
+    override def isShowing: Boolean                                             = delegate.isShowing
   }
 
   private object UnfreezeException extends ProcessCanceledException with NoStackTrace {

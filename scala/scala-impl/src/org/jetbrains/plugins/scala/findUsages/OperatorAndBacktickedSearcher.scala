@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   */
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
 
-  def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
+  override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val elementToSearch = queryParameters.getElementToSearch
 
     val namesToProcess = inReadAction {
@@ -51,7 +51,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     val scope = inReadAction(ScalaFilterScope(queryParameters))
     namesToProcess.foreach { name =>
       val processor = new TextOccurenceProcessor {
-        def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+        override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
           val references = inReadAction(element.getReferences)
           for {
             reference <- references

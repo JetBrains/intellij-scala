@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeR
 
 class UnapplyMethodSearcher extends ApplyUnapplyMethodSearcherBase {
 
-  protected val names: Set[String] = Set("unapply", "unapplySeq")
+  override protected val names: Set[String] = Set("unapply", "unapplySeq")
 
-  protected def checkAndTransform(ref: PsiReference): Option[ScReference] =
+  override protected def checkAndTransform(ref: PsiReference): Option[ScReference] =
     (ref, ref.getElement.getContext) match {
       case (sref: ScStableCodeReference, _: ScConstructorPattern) => Some(sref)
       // TODO check every other ScConstructorPattern known to man?

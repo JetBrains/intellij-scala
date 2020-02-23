@@ -31,14 +31,14 @@ object ElementToImport {
   }
 }
 
-final case class ClassToImport(element: PsiClass) extends ElementToImport {
+final case class ClassToImport(override val element: PsiClass) extends ElementToImport {
 
   override protected type E = PsiClass
 
   override def qualifiedName: String = element.qualifiedName
 }
 
-final case class TypeAliasToImport(element: ScTypeAlias) extends ElementToImport {
+final case class TypeAliasToImport(override val element: ScTypeAlias) extends ElementToImport {
 
   override protected type E = ScTypeAlias
 
@@ -50,7 +50,7 @@ final case class TypeAliasToImport(element: ScTypeAlias) extends ElementToImport
   }
 }
 
-final case class PrefixPackageToImport(element: ScPackage) extends ElementToImport {
+final case class PrefixPackageToImport(override val element: ScPackage) extends ElementToImport {
 
   override protected type E = ScPackage
 

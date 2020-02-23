@@ -18,5 +18,5 @@ trait ScXmlStartTag extends ScXmlPairedTag {
     null
   }
 
-  def getMatchedTag: ScXmlPairedTag = getClosingTag
+  override def getMatchedTag: ScXmlPairedTag = getClosingTag
 }

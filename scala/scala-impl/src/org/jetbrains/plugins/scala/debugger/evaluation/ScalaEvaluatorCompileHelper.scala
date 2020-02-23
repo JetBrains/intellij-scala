@@ -68,7 +68,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with Eval
     file
   }
 
-  def compile(fileText: String, module: Module): Array[(File, String)] = {
+  override def compile(fileText: String, module: Module): Array[(File, String)] = {
     compile(fileText, module, tempDir())
   }
 

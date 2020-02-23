@@ -15,7 +15,7 @@ class GetGetOrElseInspection extends OperationOnCollectionInspection {
 
 object GetGetOrElse extends SimplificationType() {
 
-  def hint: String = InspectionBundle.message("get.getOrElse.hint")
+  override def hint: String = InspectionBundle.message("get.getOrElse.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

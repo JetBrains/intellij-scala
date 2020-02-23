@@ -27,7 +27,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
   }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
     if(editor == null) return

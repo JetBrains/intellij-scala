@@ -543,7 +543,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
   
   class ScalaParametersListTable extends ParametersListTable {
-    protected def getRowRenderer(row: Int): JBTableRowRenderer = {
+    override protected def getRowRenderer(row: Int): JBTableRowRenderer = {
       (table: JTable, row: Int, selected: Boolean, focused: Boolean) => {
         val item = getRowItem(row)
         val name = nameText(item)

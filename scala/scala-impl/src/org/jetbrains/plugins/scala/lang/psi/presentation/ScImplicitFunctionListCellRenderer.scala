@@ -22,8 +22,8 @@ import org.jetbrains.plugins.scala.util.JListCompatibility
  * Date: 15.06.2010
  */
 class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImplicitFunctionListCellRendererAdapter {
-  def getListCellRendererComponentAdapter(containter: JListCompatibility.JListContainer,
-                                          value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+  override def getListCellRendererComponentAdapter(containter: JListCompatibility.JListContainer,
+                                                   value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
     val foregroundColor = Option(EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS))
       .getOrElse(DefaultHighlighter.IMPLICIT_CONVERSIONS.getDefaultAttributes)
       .getForegroundColor
@@ -82,7 +82,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
     }
   }
 
-  def getIconFlags: Int = 0
+  override def getIconFlags: Int = 0
 
-  def getContainerText(element: PsiNamedElement, name: String) = null //todo: add package name
+  override def getContainerText(element: PsiNamedElement, name: String) = null //todo: add package name
 }

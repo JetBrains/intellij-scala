@@ -31,13 +31,13 @@ import scala.collection.{Seq, mutable}
 class TermSignature(_name: String,
                     private val typesEval: Seq[Seq[() => ScType]],
                     private val tParams: Seq[TypeParameter],
-                    val substitutor: ScSubstitutor,
-                    val namedElement: PsiNamedElement,
+                    override val substitutor: ScSubstitutor,
+                    override val namedElement: PsiNamedElement,
                     val hasRepeatedParam: Array[Int] = Array.empty) extends Signature with ProjectContextOwner {
 
   override implicit def projectContext: ProjectContext = namedElement
 
-  val name: String = ScalaNamesUtil.clean(_name)
+  override val name: String = ScalaNamesUtil.clean(_name)
 
   val paramClauseSizes: Array[Int] = typesEval.map(_.length).toArray
   val paramLength: Int = paramClauseSizes.arraySum
@@ -50,7 +50,7 @@ class TermSignature(_name: String,
 
   private def isField = namedElement.isInstanceOf[PsiField]
 
-  def equiv(other: Signature): Boolean = other match {
+  override def equiv(other: Signature): Boolean = other match {
     case otherTerm: TermSignature =>
       ProgressManager.checkCanceled()
 
@@ -153,7 +153,7 @@ class TermSignature(_name: String,
     * Use it, while building class hierarchy.
     * Because for class hierarchy def foo(): Int is the same thing as def foo: Int and val foo: Int.
     */
-  def equivHashCode: Int = name #+ parameterSizeHash
+  override def equivHashCode: Int = name #+ parameterSizeHash
 
   def isJava: Boolean = false
 
@@ -180,7 +180,7 @@ class TermSignature(_name: String,
 
   override def toString = s"Signature($namedElement, $substitutor)"
 
-  def isAbstract: Boolean = namedElement match {
+  override def isAbstract: Boolean = namedElement match {
     case _: ScFunctionDeclaration => true
     case _: ScFunctionDefinition => false
     case _: ScFieldId => true
@@ -188,9 +188,9 @@ class TermSignature(_name: String,
     case _ => false
   }
 
-  def isImplicit: Boolean = ScalaPsiUtil.isImplicit(namedElement)
+  override def isImplicit: Boolean = ScalaPsiUtil.isImplicit(namedElement)
 
-  def isSynthetic: Boolean = namedElement match {
+  override def isSynthetic: Boolean = namedElement match {
     case m: ScMember                => m.isSynthetic
     case inNameContext(m: ScMember) => m.isSynthetic
     case _                          => false

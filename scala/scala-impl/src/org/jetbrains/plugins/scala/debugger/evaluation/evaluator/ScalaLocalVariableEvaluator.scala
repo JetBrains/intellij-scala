@@ -41,7 +41,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
       case _: AbsentInformationException => ""
     }
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
 
     def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = {
       myEvaluatedVariable = local
@@ -132,9 +132,9 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
     var modifier: Modifier = null
     if (myEvaluatedVariable != null && myContext != null) {
       modifier = new Modifier {
-        def canInspect: Boolean = true
-        def canSetValue: Boolean = true
-        def setValue(value: Value) {
+        override def canInspect: Boolean = true
+        override def canSetValue: Boolean = true
+        override def setValue(value: Value) {
           val frameProxy: StackFrameProxyImpl = myContext.getFrameProxy
           try {
             if (DebuggerUtil.isScalaRuntimeRef(myEvaluatedVariable.getType.name())) {
@@ -154,7 +154,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
               LOG.error(e)
           }
         }
-        def getExpectedType: Type = {
+        override def getExpectedType: Type = {
           try {
             myEvaluatedVariable.getType
           }
@@ -164,7 +164,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
               null
           }
         }
-        def getInspectItem(project: Project): NodeDescriptorImpl = {
+        override def getInspectItem(project: Project): NodeDescriptorImpl = {
           new LocalVariableDescriptorImpl(project, myEvaluatedVariable)
         }
       }

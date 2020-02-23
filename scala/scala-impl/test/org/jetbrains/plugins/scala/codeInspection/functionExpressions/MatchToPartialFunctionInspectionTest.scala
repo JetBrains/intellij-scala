@@ -14,10 +14,10 @@ class MatchToPartialFunctionInspectionTest extends ScalaQuickFixTestBase {
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
   import MatchToPartialFunctionInspection.DESCRIPTION
 
-  protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[MatchToPartialFunctionInspection]
 
-  protected val description: String = DESCRIPTION
+  override protected val description: String = DESCRIPTION
 
   def testInVal(): Unit = testQuickFix(
     text =

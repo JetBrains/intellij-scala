@@ -18,7 +18,7 @@ object ReachingDefinitions {
   type RDSet = Set[Instruction]
 
   object ReachingDefinitionsInstance extends DfaInstance[RDSet] {
-    def isForward = true
+    override def isForward = true
 
     override def fun(i: Instruction)(set: RDSet): RDSet = i match {
       case dv: DefinitionInstruction => set + dv
@@ -36,11 +36,11 @@ object ReachingDefinitions {
   }
 
   object ReachingDefinitionsLattice extends Semilattice[RDSet] {
-    val bottom: RDSet = Set()
+    override val bottom: RDSet = Set()
 
-    def join(ins: Iterable[RDSet]): RDSet = ins.foldLeft(bottom)(_ ++ _)
+    override def join(ins: Iterable[RDSet]): RDSet = ins.foldLeft(bottom)(_ ++ _)
 
-    def eq(e1: RDSet, e2: RDSet): Boolean = e1 == e2 // todo is this correct?
+    override def eq(e1: RDSet, e2: RDSet): Boolean = e1 == e2 // todo is this correct?
   }
 
 }

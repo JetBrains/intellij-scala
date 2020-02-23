@@ -28,7 +28,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
   def getStartIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_START_INDEX.intValue()
   def getEndIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_END_INDEX.intValue()
 
-  def getUniqueId = "NonStrictCollectionsRenderer"
+  override def getUniqueId = "NonStrictCollectionsRenderer"
 
   override def getName = "Scala streams as collections"
 
@@ -136,7 +136,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
     case _ => false
   }
 
-  def isApplicable(tpe: Type): Boolean = tpe match {
+  override def isApplicable(tpe: Type): Boolean = tpe match {
     case _: ReferenceType if !mustNotExpandStreams =>
       isLazy(tpe) || isView(tpe)
     case _ => false
@@ -148,7 +148,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
   private def isStreamView(tpe: Type): Boolean = instanceOf(tpe, streamViewClassName)
 
-  def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
+  override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
     val stringBuilder = new StringBuilder()
 
     descriptor.getValue match {
@@ -201,9 +201,9 @@ object NonStrictCollectionsRenderer {
   private case class Fail[E <: Throwable](exc: E) extends SimpleMethodInvocationResult[E]
   
   private class CollectionElementNodeDescriptor(name: String, project: Project, value: Value) extends ValueDescriptorImpl(project, value) {
-    def calcValue(evaluationContext: EvaluationContextImpl): Value = value
+    override def calcValue(evaluationContext: EvaluationContextImpl): Value = value
 
-    def getDescriptorEvaluation(context: DebuggerContext): PsiExpression = {
+    override def getDescriptorEvaluation(context: DebuggerContext): PsiExpression = {
       try {
         JavaPsiFacade.getInstance(project).getElementFactory.createExpressionFromText(name, PositionUtil getContextElement context)
       } 

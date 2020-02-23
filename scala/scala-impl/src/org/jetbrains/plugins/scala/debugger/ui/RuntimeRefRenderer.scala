@@ -96,12 +96,12 @@ class RuntimeRefRenderer extends NodeRendererImpl {
 
   private def calcToStringLabel(valueDescriptor: ValueDescriptor, value: Value, evaluationContext: EvaluationContext, labelListener: DescriptorLabelListener): String = {
     BatchEvaluator.getBatchEvaluator(evaluationContext.getDebugProcess).invoke(new ToStringCommand(evaluationContext, value) {
-      def evaluationResult(message: String) {
+      override def evaluationResult(message: String) {
         valueDescriptor.setValueLabel(StringUtil.notNullize(message))
         labelListener.labelChanged()
       }
 
-      def evaluationError(message: String) {
+      override def evaluationError(message: String) {
         val msg: String =
           if (value != null) message + " " + DebuggerBundle.message("evaluation.error.cannot.evaluate.tostring", value.`type`.name)
           else message

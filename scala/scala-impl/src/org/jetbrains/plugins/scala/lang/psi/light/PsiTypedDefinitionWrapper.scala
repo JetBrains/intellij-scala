@@ -34,9 +34,9 @@ class PsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
 
   override protected def returnScType: ScType = PsiTypedDefinitionWrapper.typeFor(delegate, role)
 
-  protected def parameters: Seq[PsiParameter] = PsiTypedDefinitionWrapper.propertyMethodParameters(delegate, role, None)
+  override protected def parameters: Seq[PsiParameter] = PsiTypedDefinitionWrapper.propertyMethodParameters(delegate, role, None)
 
-  protected def typeParameters: Seq[PsiTypeParameter] = Seq.empty
+  override protected def typeParameters: Seq[PsiTypeParameter] = Seq.empty
 
   override def modifierList: PsiModifierList =
     ScLightModifierList(delegate, isStatic, isAbstract, getContainingClass.isInstanceOf[ScTrait])

@@ -28,7 +28,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
     ScalaActionUtil enableAndShowIfInScalaFile e
   }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
     val editor = CommonDataKeys.EDITOR.getData(context)
 
@@ -56,7 +56,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
     val docCommentEnd = docOwner.getTextRange.getStartOffset - 1
     
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
-      def run() {
+      override def run() {
         extensions inWriteAction {
           psiDocument insertString (docCommentEnd, newComment.getText + "\n")
           PsiDocumentManager getInstance project commitDocument psiDocument
@@ -111,7 +111,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
 
     val project = docOwner.getProject
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
-      def run() {
+      override def run() {
         extensions inWriteAction {
           docOwner match {
             case fun: ScFunctionDefinition =>

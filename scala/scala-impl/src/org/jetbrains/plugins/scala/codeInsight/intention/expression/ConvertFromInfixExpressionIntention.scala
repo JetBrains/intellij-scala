@@ -20,11 +20,11 @@ object ConvertFromInfixExpressionIntention {
 }
 
 class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ConvertFromInfixExpressionIntention.familyName
+  override def getFamilyName: String = ConvertFromInfixExpressionIntention.familyName
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr : ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
     val range: TextRange = infixExpr.operation.nameId.getTextRange

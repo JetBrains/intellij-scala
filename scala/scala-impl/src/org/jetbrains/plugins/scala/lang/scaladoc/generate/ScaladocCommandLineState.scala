@@ -149,7 +149,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     result.result()
   }
 
-  def createJavaParameters(): JavaParameters = {
+  override def createJavaParameters(): JavaParameters = {
     val MutableHashSet = collection.mutable.HashSet
 
     val jp = new JavaParameters

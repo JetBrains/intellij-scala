@@ -11,22 +11,22 @@ import org.jetbrains.plugins.scala.project.template.WizardEntity.{Module, Projec
   * @author Pavel Fatin
   */
 class ScalaProjectTemplate(entity: WizardEntity) extends ProjectTemplate {
-  def getName: String = entity match {
+  override def getName: String = entity match {
     case Project => "IDEA"
     case Module => "Scala"
   }
 
-  def getDescription: String = entity match {
+  override def getDescription: String = entity match {
     case Project => "IDEA-based Scala project"
     case Module => "Module with a Scala SDK"
   }
 
-  def getIcon: Icon = entity match {
+  override def getIcon: Icon = entity match {
     case Project => AllIcons.Nodes.IdeaProject
     case Module => AllIcons.Nodes.Module
   }
 
-  def createModuleBuilder() = new ScalaModuleBuilder()
+  override def createModuleBuilder() = new ScalaModuleBuilder()
 
-  def validateSettings() = null
+  override def validateSettings() = null
 }

@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.collection.Seq
 
 private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: ImplicitArgumentsOwner) extends IntentionAction {
-  def getText: String = {
+  override def getText: String = {
     val typeOrEllipsis = typesToSearch match {
       case Seq(tp) => tp.presentableText(place)
       case _ => "..."
@@ -28,11 +28,11 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: Implicit
     s"Search implicit instances for $typeOrEllipsis"
   }
 
-  def getFamilyName: String = "Search implicit instances"
+  override def getFamilyName: String = "Search implicit instances"
 
-  def isAvailable(project: Project, editor: Editor, psiFile: PsiFile): Boolean = true
+  override def isAvailable(project: Project, editor: Editor, psiFile: PsiFile): Boolean = true
 
-  def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = {
+  override def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = {
     typesToSearch match {
       case Seq(tp) => searchAndSuggestImport(tp, editor)
       case _       => chooseType(editor)

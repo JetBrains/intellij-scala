@@ -15,7 +15,7 @@ class FilterSizeInspection extends OperationOnCollectionInspection {
 
 object FilterSize extends SimplificationType {
 
-  def hint: String = InspectionBundle.message("filter.size.hint")
+  override def hint: String = InspectionBundle.message("filter.size.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
    expr match {

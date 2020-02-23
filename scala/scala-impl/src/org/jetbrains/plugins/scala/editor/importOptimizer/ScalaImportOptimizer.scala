@@ -51,7 +51,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def settings(file: PsiFile): OptimizeImportSettings = OptimizeImportSettings(file)
 
-  def processFile(file: PsiFile): Runnable = processFile(file, null)
+  override def processFile(file: PsiFile): Runnable = processFile(file, null)
 
   def processFile(file: PsiFile, progressIndicator: ProgressIndicator = null): Runnable = {
     def collectImportHoldersAndUsers: (util.ArrayList[ScImportsHolder], util.ArrayList[PsiElement]) = {
@@ -144,7 +144,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val optimized = rangeInfos.map(range => (range, optimizedImportInfos(range, importsSettings)))
 
     new Runnable {
-      def run() {
+      override def run() {
         val documentManager = PsiDocumentManager.getInstance(project)
         val document: Document = documentManager.getDocument(scalaFile)
         documentManager.commitDocument(document)
@@ -174,7 +174,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def isImportDelimiter(psi: PsiElement): Boolean = psi.isInstanceOf[PsiWhiteSpace]
 
-  def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
+  override def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
 
   def replaceWithNewImportInfos(range: RangeInfo, importInfos: Seq[ImportInfo], settings: OptimizeImportSettings, file: PsiFile): Unit = {
     val firstPsi = range.firstPsi.retrieve()

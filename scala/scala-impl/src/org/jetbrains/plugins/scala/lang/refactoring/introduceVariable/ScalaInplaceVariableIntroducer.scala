@@ -246,7 +246,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       })
 
     ApplicationManager.getApplication.runReadAction(new Runnable {
-      def run(): Unit = {
+      override def run(): Unit = {
         if (needTypeDefault) resetGreedyToRightBack()
       }
     })

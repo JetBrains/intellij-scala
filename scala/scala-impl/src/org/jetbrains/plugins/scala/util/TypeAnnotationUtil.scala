@@ -82,7 +82,7 @@ object TypeAnnotationUtil {
         ShowSettingsUtil.getInstance.editConfigurable(project, configurable, new Runnable() {
           requestCountsToShow += 1
 
-          def run() {
+          override def run() {
             val codeStyleMainPanel: CodeStyleMainPanel = configurable.createComponent.asInstanceOf[CodeStyleMainPanel]
             assert(codeStyleMainPanel != null, "Cannot find Code Style main panel")
 

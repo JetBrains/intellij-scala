@@ -38,31 +38,31 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
 
   override def toString: String = "ScTemplateBody"
 
-  def aliases: Seq[ScTypeAlias] =
+  override def aliases: Seq[ScTypeAlias] =
     getStubOrPsiChildren(ALIASES_SET, ScTypeAliasFactory)
 
-  def functions: Seq[ScFunction] =
+  override def functions: Seq[ScFunction] =
     getStubOrPsiChildren(FUNCTIONS, ScFunctionFactory).toSeq.filterNot(_.isLocal)
 
-  def typeDefinitions: Seq[ScTypeDefinition] =
+  override def typeDefinitions: Seq[ScTypeDefinition] =
     getStubOrPsiChildren(TYPE_DEFINITIONS, ScTypeDefinitionFactory)
       .toSeq.filterNot(_.isLocal)
 
-  def members: Seq[ScMember] =
+  override def members: Seq[ScMember] =
     getStubOrPsiChildren(MEMBERS, ScMemberFactory).toSeq.filterNot(_.isLocal)
 
-  def holders: Seq[ScDeclaredElementsHolder] =
+  override def holders: Seq[ScDeclaredElementsHolder] =
     getStubOrPsiChildren(DECLARED_ELEMENTS_HOLDER, ScDeclaredElementsHolderFactory).toSeq.filterNot {
       case s: ScMember => s.isLocal
       case _ => false
     }
 
-  def exprs: Seq[ScExpression] =
+  override def exprs: Seq[ScExpression] =
     if (this.getStub != null) Seq.empty //we don't have stubbed expressions
     else findChildrenByClassScala(classOf[ScExpression])
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def selfTypeElement: Option[ScSelfTypeElement] =
+  override def selfTypeElement: Option[ScSelfTypeElement] =
     Option(getStubOrPsiChild(SELF_TYPE))
 
   override def processDeclarations(processor: PsiScopeProcessor,

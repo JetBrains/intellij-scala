@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
  */
 
 class ToggleTypeAwareHighlightingAction extends AnAction {
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent) {
     CommonDataKeys.PROJECT.getData(e.getDataContext) match {
       case project: Project =>
         toggleSettingAndRehighlight(project)

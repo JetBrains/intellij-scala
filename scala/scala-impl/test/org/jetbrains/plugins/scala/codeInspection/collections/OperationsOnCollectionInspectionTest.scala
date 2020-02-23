@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
   * 5/21/13
   */
 abstract class OperationsOnCollectionInspectionTest extends ScalaQuickFixTestBase {
-  protected val classOfInspection: Class[_ <: OperationOnCollectionInspection]
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection]
 
   protected val hint: String
 

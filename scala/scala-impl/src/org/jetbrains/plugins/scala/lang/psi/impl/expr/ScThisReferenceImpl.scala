@@ -31,7 +31,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with
     }
   }
 
-  def refTemplate: Option[ScTemplateDefinition] = reference match {
+  override def refTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(ref) => ref.resolve() match {
       case td: ScTypeDefinition if PsiTreeUtil.isContextAncestor(td, ref, false) => Some(td)
       case _ => None

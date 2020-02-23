@@ -30,7 +30,7 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
 
   protected def alwaysAsk: Boolean = false
 
-  def execute: Boolean = {
+  override def execute: Boolean = {
     val validVariants = variants.filter(_.isValid)
 
     if (validVariants.isEmpty)
@@ -128,7 +128,7 @@ object ScalaAddImportAction {
   private class ForReference(editor: Editor, variants: Array[ElementToImport], ref: ScReference)
     extends ScalaAddImportAction[ScReference](editor, variants, ref) {
 
-    protected def doAddImport(toImport: ElementToImport): Unit = {
+    override protected def doAddImport(toImport: ElementToImport): Unit = {
       toImport match {
         case PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
         case _ => ref.bindToElement(toImport.element)
@@ -140,7 +140,7 @@ object ScalaAddImportAction {
     extends ScalaAddImportAction[ScDocResolvableCodeReference](editor, variants, ref) {
 
     //use fully qualified name instead of adding imports for scaladoc references
-    protected def doAddImport(toImport: ElementToImport): Unit = {
+    override protected def doAddImport(toImport: ElementToImport): Unit = {
       ref.replace(createDocLinkValue(toImport.qualifiedName)(ref.getManager))
     }
   }
@@ -153,7 +153,7 @@ object ScalaAddImportAction {
 
     override protected def chooserTitle(variants: Array[ElementToImport]): String = title
 
-    protected def doAddImport(toImport: ElementToImport): Unit = {
+    override protected def doAddImport(toImport: ElementToImport): Unit = {
       val holder = getImportHolder(place, place.getProject)
       holder.addImportForPath(toImport.qualifiedName)
     }

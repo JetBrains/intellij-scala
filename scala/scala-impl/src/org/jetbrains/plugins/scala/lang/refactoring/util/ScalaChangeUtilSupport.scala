@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  */
 
 class ScalaChangeUtilSupport extends TreeCopyHandler {
-  def encodeInformation(element: TreeElement, original: ASTNode, encodingState: Map[Object, Object]): Unit = {
+  override def encodeInformation(element: TreeElement, original: ASTNode, encodingState: Map[Object, Object]): Unit = {
     if (!element.isInstanceOf[ScalaPsiElement]) return
     if (original.isInstanceOf[CompositeElement]) {
       original.getElementType match {
@@ -38,7 +38,7 @@ class ScalaChangeUtilSupport extends TreeCopyHandler {
     }
   }
 
-  def decodeInformation(element: TreeElement, decodingState: Map[Object, Object]): TreeElement = {
+  override def decodeInformation(element: TreeElement, decodingState: Map[Object, Object]): TreeElement = {
     if (!element.isInstanceOf[ScalaPsiElement]) return null
     if (element.isInstanceOf[CompositeElement]) {
       if (element.getElementType == ScalaElementType.REFERENCE || element.getElementType == ScalaElementType.REFERENCE_EXPRESSION ||

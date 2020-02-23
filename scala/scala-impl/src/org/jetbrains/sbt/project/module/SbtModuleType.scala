@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NonNls
  * @author Pavel Fatin
  */
 class SbtModuleType extends ModuleType[EmptyModuleBuilder](Id) {
-  def createModuleBuilder() = new EmptyModuleBuilder()
+  override def createModuleBuilder() = new EmptyModuleBuilder()
 
   override def getName: String = Sbt.BuildModuleName
 

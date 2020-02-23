@@ -106,7 +106,7 @@ class SelectionDialog {
   private class MyDialog(root: Group) extends DialogWrapper(false) {
     init()
 
-    protected def createCenterPanel = {
+    override protected def createCenterPanel = {
       val rightColumn = new ColumnInfo[Node, java.lang.Boolean](ScalaBundle.message("column.enabled")) {
         override def getColumnClass = classOf[Boolean]
 
@@ -165,21 +165,21 @@ private abstract class Node(name: String) extends DefaultMutableTreeTableNode(na
 private case class Group(name: String, nodes: Node*) extends Node(name) {
   nodes.foreach(add)
 
-  def value =
+  override def value =
     if (nodes.forall(_.value.contains(true))) Some(true)
     else if (nodes.forall(_.value.contains(false))) Some(false)
     else None
 
-  def value_=(b: Option[Boolean]) {
+  override def value_=(b: Option[Boolean]) {
     nodes.foreach(_.value = b)
   }
 
-  def transformers = nodes.flatMap(_.transformers)
+  override def transformers = nodes.flatMap(_.transformers)
 }
 
 // TODO remove the default argument when all transformers are implemented
 private case class Entry(name: String, private val transformer: Transformer = null, private val enabled: Boolean = true) extends Node(name) {
   var value: Option[Boolean] = Some(enabled)
 
-  def transformers = if (value.contains(true)) Seq(transformer) else Seq.empty
+  override def transformers = if (value.contains(true)) Seq(transformer) else Seq.empty
 }

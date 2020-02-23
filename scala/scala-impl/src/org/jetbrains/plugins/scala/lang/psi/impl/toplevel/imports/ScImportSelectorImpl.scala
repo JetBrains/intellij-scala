@@ -31,13 +31,13 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
 
   override def toString: String = "ImportSelector"
 
-  def importedName: Option[String] =
+  override def importedName: Option[String] =
     byStubOrPsi(_.importedName) {
       Option(findChildByType[PsiElement](ID_SET)).map(_.getText)
         .orElse(reference.map(_.refName))
     }
 
-  def reference: Option[ScStableCodeReference] = byPsiOrStub {
+  override def reference: Option[ScStableCodeReference] = byPsiOrStub {
     getFirstChild match {
       case element: ScStableCodeReference => Option(element)
       case _ => None
@@ -72,7 +72,7 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
     }
   }
 
-  def isAliasedImport: Boolean = byStubOrPsi(_.isAliasedImport) {
+  override def isAliasedImport: Boolean = byStubOrPsi(_.isAliasedImport) {
     PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.nonEmpty &&
       !getLastChild.isInstanceOf[ScStableCodeReference]
   }

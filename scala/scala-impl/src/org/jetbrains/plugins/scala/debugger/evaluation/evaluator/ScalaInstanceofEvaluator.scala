@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
   */
 class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeEvaluator) extends Evaluator {
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     val value: Value = operandEvaluator.evaluate(context).asInstanceOf[Value]
     if (value == null) {
       return DebuggerUtilsEx.createValue(context.getDebugProcess.getVirtualMachineProxy, PsiType.BOOLEAN.getPresentableText(), false)

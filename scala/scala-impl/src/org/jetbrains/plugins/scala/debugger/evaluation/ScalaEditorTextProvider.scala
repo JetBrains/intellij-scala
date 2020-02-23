@@ -20,12 +20,12 @@ import scala.util.Try
  */
 
 class ScalaEditorTextProvider extends EditorTextProvider {
-  def getEditorText(elementAtCaret: PsiElement): TextWithImports = {
+  override def getEditorText(elementAtCaret: PsiElement): TextWithImports = {
     val result: String = findExpressionInner(elementAtCaret, allowMethodCalls = true).map(_.getText).getOrElse("")
     new TextWithImportsImpl(CodeFragmentKind.EXPRESSION, result)
   }
 
-  def findExpression(element: PsiElement, allowMethodCalls: Boolean): Pair[PsiElement, TextRange] = {
+  override def findExpression(element: PsiElement, allowMethodCalls: Boolean): Pair[PsiElement, TextRange] = {
     findExpressionInner(element, allowMethodCalls) match {
       case None => null
       case Some(elem) =>

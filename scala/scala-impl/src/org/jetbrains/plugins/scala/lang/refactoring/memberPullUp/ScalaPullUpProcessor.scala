@@ -171,14 +171,14 @@ final class ScalaPullUpProcessor(project: Project,
   }
 
   private class PullUpUsageViewDescriptor extends UsageViewDescriptor {
-    def getProcessedElementsHeader: String = ScalaBundle.message("pull.up.members.from")
+    override def getProcessedElementsHeader: String = ScalaBundle.message("pull.up.members.from")
 
-    def getElements: Array[PsiElement] = Array[PsiElement](sourceClass)
+    override def getElements: Array[PsiElement] = Array[PsiElement](sourceClass)
 
-    def getCodeReferencesText(usagesCount: Int, filesCount: Int): String =
+    override def getCodeReferencesText(usagesCount: Int, filesCount: Int): String =
       ScalaBundle.message("class.to.pull.up.members.to.class", targetClass.name)
 
-    def getCommentReferencesText(usagesCount: Int, filesCount: Int): String = null
+    override def getCommentReferencesText(usagesCount: Int, filesCount: Int): String = null
   }
 
 }

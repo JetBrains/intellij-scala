@@ -14,6 +14,6 @@ import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.invokeOverrideI
 class ScalaOverrideMethodsHandler extends ScalaCodeInsightActionHandler {
   override def startInWriteAction: Boolean = false
 
-  def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
     invokeOverrideImplement(file, isImplement = false)(project, editor)
 }

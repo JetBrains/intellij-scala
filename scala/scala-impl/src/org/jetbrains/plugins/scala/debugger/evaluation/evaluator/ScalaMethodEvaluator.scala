@@ -42,7 +42,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
     }
   }
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     val debugProcess: DebugProcessImpl = context.getDebugProcess
     if (!debugProcess.isAttached) return null
     if (debugProcess != prevProcess) {

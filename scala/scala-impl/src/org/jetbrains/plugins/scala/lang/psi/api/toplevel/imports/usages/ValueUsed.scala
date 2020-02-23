@@ -29,7 +29,7 @@ object ValueUsed {
   }
 }
 
-case class ReadValueUsed(pointer: SmartPsiElementPointer[PsiNamedElement]) extends ValueUsed {
+case class ReadValueUsed(override val pointer: SmartPsiElementPointer[PsiNamedElement]) extends ValueUsed {
   override protected val name: String = "ValueRead"
 }
 
@@ -37,7 +37,7 @@ object ReadValueUsed {
   def apply(e: PsiNamedElement): ReadValueUsed = ReadValueUsed(e.createSmartPointer)
 }
 
-case class WriteValueUsed(pointer: SmartPsiElementPointer[PsiNamedElement]) extends ValueUsed {
+case class WriteValueUsed(override val pointer: SmartPsiElementPointer[PsiNamedElement]) extends ValueUsed {
   override protected val name: String = "ValueWrite"
 }
 

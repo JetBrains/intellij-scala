@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
   * 5/21/2016
   */
 class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
-  val familyName = CreateCompanionObjectIntention.getFamilyName
+  override val familyName = CreateCompanionObjectIntention.getFamilyName
 
   def testShouldCreateCompanion(): Unit = {
     val text =

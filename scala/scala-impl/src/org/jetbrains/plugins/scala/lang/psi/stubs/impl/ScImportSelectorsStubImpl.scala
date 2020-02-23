@@ -14,5 +14,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
   */
 class ScImportSelectorsStubImpl(parent: StubElement[_ <: PsiElement],
                                 elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                val hasWildcard: Boolean)
+                                override val hasWildcard: Boolean)
   extends StubBase[ScImportSelectors](parent, elementType) with ScImportSelectorsStub

@@ -54,14 +54,14 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
       )
     }
 
-  def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[_ >: PsiMember]): Boolean = {
+  override def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[_ >: PsiMember]): Boolean = {
     val annClass = p.getAnnotationClass
     assert(annClass.isAnnotationType, "Annotation type should be passed to annotated members search")
     val annotationFQN = annClass.qualifiedName
     assert(annotationFQN != null)
 
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
-      def compute: Boolean = {
+      override def compute: Boolean = {
         val scope = p.getScope match {
           case searchScope: GlobalSearchScope => searchScope
           case _ => return true

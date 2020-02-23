@@ -14,9 +14,9 @@ class BreadthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean
     if (element != null) mutable.Queue(element)
     else mutable.Queue.empty
 
-  def hasNext: Boolean = queue.nonEmpty
+  override def hasNext: Boolean = queue.nonEmpty
 
-  def next(): PsiElement = {
+  override def next(): PsiElement = {
     val element = queue.dequeue()
     if (predicate(element)) pushChildren(element)
     element

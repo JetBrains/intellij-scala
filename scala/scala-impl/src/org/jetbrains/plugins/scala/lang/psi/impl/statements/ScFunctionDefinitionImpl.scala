@@ -72,11 +72,11 @@ class ScFunctionDefinitionImpl(stub: ScFunctionStub[ScFunctionDefinition],
     } else returnTypeInner(this)
   }
 
-  def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  override def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
   override def hasAssign: Boolean = byStubOrPsi(_.hasAssign)(assignment.isDefined)
 
-  def assignment = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
+  override def assignment = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
 
   override def getBody: FakePsiCodeBlock = body match {
     case Some(b) => new FakePsiCodeBlock(b) // Needed so that LineBreakpoint.canAddLineBreakpoint allows line breakpoints on one-line method definitions

@@ -25,27 +25,27 @@ abstract class AbstractCompiler extends Compiler {
   def getProgress(client: Client): ClientProgress = new ClientProgress(client)
 
   private class ClientLogger(val client: Client, logFilter: ZincLogFilter) extends Logger {
-    def error(msg: Supplier[String]): Unit = {
+    override def error(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.ERROR, txt)) client.error(txt)
     }
 
-    def warn(msg: Supplier[String]): Unit = {
+    override def warn(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.WARNING, txt)) client.warning(txt)
     }
 
-    def info(msg: Supplier[String]): Unit = {
+    override def info(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.INFO, txt)) client.info(txt)
     }
 
-    def debug(msg: Supplier[String]): Unit = {
+    override def debug(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.PROGRESS, txt)) client.internalInfo(txt)
     }
 
-    def trace(exception: Supplier[Throwable]): Unit = {
+    override def trace(exception: Supplier[Throwable]): Unit = {
       client.trace(exception.get())
     }
   }
@@ -55,12 +55,12 @@ abstract class AbstractCompiler extends Compiler {
     private var lastTimeChecked = System.currentTimeMillis()
     private final val cancelThreshold = 1000L
 
-    def startUnit(phase: String, unitPath: String): Unit = {
+    override def startUnit(phase: String, unitPath: String): Unit = {
       val unitName = new File(unitPath).getName
       client.progress("Phase " + phase + " on " + unitName)
     }
 
-    def advance(current: Int, total: Int): Boolean = {
+    override def advance(current: Int, total: Int): Boolean = {
       client.progress("", Some(current.toFloat / total.toFloat))
       // Since isCanceled is blocking method (waiting on flush on socket connection to finish).
       // We don't want to block compilation more often then once per second (this is optimalization)
@@ -78,7 +78,7 @@ abstract class AbstractCompiler extends Compiler {
     private var errorSeen = false
     private var warningSeen = false
 
-    def reset(): Unit = {
+    override def reset(): Unit = {
       entries.clear()
       errorSeen = false
       warningSeen = false

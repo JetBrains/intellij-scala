@@ -17,7 +17,7 @@ import scala.util.Try
   * @author Pavel Fatin
   */
 class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileToStore: File => AnalysisStore) extends AbstractCompiler {
-  def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {
+  override def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {
     case Some(scalac) => doCompile(compilationData, client, scalac)
     case _ =>
       client.error(s"No scalac found to compile scala sources: ${compilationData.sources.take(10).mkString("\n")}...")

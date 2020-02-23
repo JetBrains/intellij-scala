@@ -6,9 +6,9 @@ class ChildrenIterator(element: PsiElement) extends Iterator[PsiElement] {
 
   private var current: PsiElement = if (element != null) element.getFirstChild else null
 
-  def hasNext: Boolean = current != null
+  override def hasNext: Boolean = current != null
 
-  def next(): PsiElement = {
+  override def next(): PsiElement = {
     val result = current
     current = current.getNextSibling
     result

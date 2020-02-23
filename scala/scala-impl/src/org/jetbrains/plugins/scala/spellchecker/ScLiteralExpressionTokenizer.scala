@@ -25,7 +25,7 @@ class ScLiteralExpressionTokenizer extends Tokenizer[ScLiteral] {
     EscapeSequenceTokenizer.processTextWithOffsets(element, consumer, unEscapedText, offsets, 1)
   }
 
-  def tokenize(element: ScLiteral, consumer: TokenConsumer) {
+  override def tokenize(element: ScLiteral, consumer: TokenConsumer) {
     val listOwner: PsiModifierListOwner = PsiTreeUtil.getParentOfType(element, classOf[PsiModifierListOwner])
     if (listOwner != null && AnnotationUtil.isAnnotated(listOwner, Collections.singleton(AnnotationUtil.NON_NLS), 0)) {
       return

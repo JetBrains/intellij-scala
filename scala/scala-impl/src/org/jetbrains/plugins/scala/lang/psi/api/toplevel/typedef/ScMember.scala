@@ -29,7 +29,7 @@ import scala.collection.mutable.ArrayBuffer
   */
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
-  def getContainingClass: PsiClass = containingClass
+  override def getContainingClass: PsiClass = containingClass
 
   final def syntheticNavigationElement: PsiElement =
     getUserData(syntheticNavigationElementKey)

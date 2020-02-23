@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
  */
 
 class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
-  val familyName = RemoveApplyIntention.familyName
+  override val familyName = RemoveApplyIntention.familyName
 
   def testRemoveApply() {
     val text = "val l = List.apply<caret>(1, 3, 4)"

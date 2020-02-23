@@ -55,8 +55,8 @@ object ScExistentialArgument {
 
   //used for representing type parameters of a java raw class type
   //it may have a reference to itself in it's bounds, so it cannot be fully initialized in constructor
-  private class Deferred(val name: String,
-                         val typeParameters: Seq[TypeParameter],
+  private class Deferred(override val name: String,
+                         override val typeParameters: Seq[TypeParameter],
                          var lowerBound: () => ScType,
                          var upperBound: () => ScType) extends ScExistentialArgument {
     @volatile
@@ -83,17 +83,17 @@ object ScExistentialArgument {
       isInitialized = true
     }
 
-    def lower: ScType = {
+    override def lower: ScType = {
       assertInitialized()
       _lower
     }
 
-    def upper: ScType = {
+    override def upper: ScType = {
       assertInitialized()
       _upper
     }
 
-    def isLazy: Boolean = true
+    override def isLazy: Boolean = true
 
     override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
       assertInitialized()
@@ -107,29 +107,29 @@ object ScExistentialArgument {
   private case class FromTypeAlias(ta: ScTypeAlias) extends ScExistentialArgument {
     override val name: String = ta.name
 
-    def typeParameters: Seq[TypeParameter] = ta.typeParameters.map(TypeParameter(_))
-    lazy val lower: ScType = ta.lowerBound.getOrNothing
-    lazy val upper: ScType = ta.upperBound.getOrAny
+    override def typeParameters: Seq[TypeParameter] = ta.typeParameters.map(TypeParameter(_))
+    override lazy val lower: ScType = ta.lowerBound.getOrNothing
+    override lazy val upper: ScType = ta.upperBound.getOrAny
 
     override def isLazy: Boolean = true
 
-    def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument = {
+    override def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument = {
       if (newLower != lower || newUpper != upper)
         Complete(name, typeParameters, newLower, newUpper)
       else this //we shouldn't create `Complete` instance, because it'll break equals/hashcode
     }
   }
 
-  private case class Complete(name: String,
-                              typeParameters: Seq[TypeParameter],
-                              lower: ScType,
-                              upper: ScType)
+  private case class Complete(override val name: String,
+                              override val typeParameters: Seq[TypeParameter],
+                              override val lower: ScType,
+                              override val upper: ScType)
 
     extends ScExistentialArgument {
 
     override def isLazy: Boolean = false
 
-    def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument =
+    override def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument =
       Complete(name, typeParameters, newLower, newUpper)
   }
 

@@ -28,10 +28,10 @@ class ScalaTestConfigurationProducer extends {
 
   override def suitePaths: List[String] = List("org.scalatest.Suite")
 
-  protected def configurationNameForPackage(packageName: String): String =
+  override protected def configurationNameForPackage(packageName: String): String =
     ScalaBundle.message("test.in.scope.scalatest.presentable.text", packageName)
 
-  protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
+  override protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
     StringUtil.getShortName(testClass.qualifiedName) + (if (testName == null) "" else "." + testName)
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {

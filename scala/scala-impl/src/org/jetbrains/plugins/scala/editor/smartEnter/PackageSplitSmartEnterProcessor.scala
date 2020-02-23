@@ -8,7 +8,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.editor.enterHandler.PackageSplitEnterHandler
 
 class PackageSplitSmartEnterProcessor extends SmartEnterProcessor {
-  def process(project: Project, editor: Editor, psiFile: PsiFile): Boolean = {
+  override def process(project: Project, editor: Editor, psiFile: PsiFile): Boolean = {
     val document = editor.getDocument
     val offset = editor.getCaretModel.getOffset
 

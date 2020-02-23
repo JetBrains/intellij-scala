@@ -14,7 +14,7 @@ class FindEmptyCheckInspection extends OperationOnCollectionInspection{
 }
 
 object FindIsDefined extends SimplificationType() {
-  def hint: String = InspectionBundle.message("find.isDefined.hint")
+  override def hint: String = InspectionBundle.message("find.isDefined.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
@@ -29,7 +29,7 @@ object FindIsDefined extends SimplificationType() {
 }
 
 object FindIsEmpty extends SimplificationType() {
-  def hint: String = InspectionBundle.message("find.isEmpty.hint")
+  override def hint: String = InspectionBundle.message("find.isEmpty.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

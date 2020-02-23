@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
   */
 
 class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
-  def computeExpression(expression: PsiElement, throwExceptionOnOverflow: Boolean,
-                        auxEvaluator: AuxEvaluator): AnyRef = computeConstantExpression(expression, throwExceptionOnOverflow)
+  override def computeExpression(expression: PsiElement, throwExceptionOnOverflow: Boolean,
+                                 auxEvaluator: AuxEvaluator): AnyRef = computeConstantExpression(expression, throwExceptionOnOverflow)
 
   private def isInFinalClass(member: ScMember): Boolean = {
     val containing = member.containingClass
@@ -30,7 +30,7 @@ class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
     containing.isInstanceOf[ScClass] && containing.hasModifierProperty("final")
   }
 
-  def computeConstantExpression(expression: PsiElement, throwExceptionOnOverflow: Boolean = false): AnyRef = expression match {
+  override def computeConstantExpression(expression: PsiElement, throwExceptionOnOverflow: Boolean = false): AnyRef = expression match {
     case patternDef: ScPatternDefinition => patternDef.expr.map(computeConstantExpression(_)).orNull
     case fun: ScFunctionDefinition
       if isInFinalClass(fun) || fun.hasModifierProperty("final") ||

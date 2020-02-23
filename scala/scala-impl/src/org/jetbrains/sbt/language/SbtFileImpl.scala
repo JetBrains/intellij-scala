@@ -97,9 +97,9 @@ object SbtFileImpl {
     override def module: Nothing = throw new NoSuchElementException("Module not found")
   }
 
-  private case class DefinitionModule(module: Module) extends TargetModule
+  private case class DefinitionModule(override val module: Module) extends TargetModule
 
-  private case class SbtModuleWithScope(module: Module,
+  private case class SbtModuleWithScope(override val module: Module,
                                         moduleWithDependenciesAndLibrariesScope: GlobalSearchScope) extends TargetModule
 
   private def importsFor(module: TargetModule)

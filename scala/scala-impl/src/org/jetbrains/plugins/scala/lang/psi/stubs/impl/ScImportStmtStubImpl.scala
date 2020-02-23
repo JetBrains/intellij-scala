@@ -14,5 +14,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
   */
 class ScImportStmtStubImpl(parent: StubElement[_ <: PsiElement],
                            elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                           val importText: String)
+                           override val importText: String)
   extends StubBase[ScImportStmt](parent, elementType) with ScImportStmtStub

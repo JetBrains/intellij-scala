@@ -51,7 +51,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
    * Do not use this method inside of resolve or type inference.
    * Using this leads to SOE.
    */
-  def smartExpectedType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ScType] =
+  override def smartExpectedType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ScType] =
     smartExpectedTypeEx(expr, fromUnderscore).map(_._1)
 
   def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
@@ -60,7 +60,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     filterAlternatives(types, expr)
   }
 
-  def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
+  override def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
     val types = expr.expectedTypesEx(fromUnderscore)
 
     filterAlternatives(types, expr)
@@ -212,8 +212,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
   /**
    * @return (expectedType, expectedTypeElement)
    */
-  def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
-                        fromUnderscore: Boolean = true): Array[ParameterType] = {
+  override def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
+                                 fromUnderscore: Boolean = true): Array[ParameterType] = {
     import expr.projectContext
 
     if (isInIncompeteCode(expr)) {

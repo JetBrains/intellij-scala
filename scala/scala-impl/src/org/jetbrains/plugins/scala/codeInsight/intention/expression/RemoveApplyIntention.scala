@@ -30,11 +30,11 @@ object RemoveApplyIntention {
 }
 
 class RemoveApplyIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = RemoveApplyIntention.familyName
+  override def getFamilyName: String = RemoveApplyIntention.familyName
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
 

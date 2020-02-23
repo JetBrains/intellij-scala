@@ -11,7 +11,7 @@ private abstract class LeafSubstitution extends SimpleUpdate {
 
   protected val subst: PartialFunction[LeafType, ScType]
 
-  def apply(scType: ScType): AfterUpdate = scType match {
+  override def apply(scType: ScType): AfterUpdate = scType match {
     //we shouldn't go deeper even if this substitution can't process `scType`
     //to allow application of several of them in the same pass
     case leaf: LeafType => ReplaceWith(subst.applyOrElse(leaf, identity[ScType]))

@@ -12,7 +12,7 @@ class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val hint = InspectionBundle.message("filter.headOption.hint")
+  override val hint = InspectionBundle.message("filter.headOption.hint")
   def test_1() {
     val selected = s"List(0).${START}filter(x => true).headOption$END"
     checkTextHasError(selected)

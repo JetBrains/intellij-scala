@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 
 class ScalaPackageUsagesSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
-  def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[_ >: PsiReference]) {
+  override def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[_ >: PsiReference]) {
     val data = inReadAction {
       parameters.getElementToSearch match {
         case pack: PsiPackage =>
@@ -35,7 +35,7 @@ class ScalaPackageUsagesSearcher extends QueryExecutorBase[PsiReference, Referen
   }
 
   private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {
-    def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[_ >: PsiReference]): Boolean = inReadAction {
+    override def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[_ >: PsiReference]): Boolean = inReadAction {
       val reference: PsiReference = element.getReference
       if (reference == null || !reference.isReferenceTo(myTarget)) {
         true

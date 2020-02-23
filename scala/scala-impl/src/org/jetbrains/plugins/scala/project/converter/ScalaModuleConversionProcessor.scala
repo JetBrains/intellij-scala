@@ -12,9 +12,9 @@ private class ScalaModuleConversionProcessor(context: ConversionContext) extends
   private var createdSdks: Seq[ScalaSdkData] = Seq.empty
   private var newSdkFiles: Seq[File] = Seq.empty
   
-  def isConversionNeeded(module: ModuleSettings): Boolean = ScalaFacetData.isPresentIn(module)
+  override def isConversionNeeded(module: ModuleSettings): Boolean = ScalaFacetData.isPresentIn(module)
 
-  def process(module: ModuleSettings) {
+  override def process(module: ModuleSettings) {
     val scalaFacet = ScalaFacetData.findIn(module).getOrElse(
       throw new IllegalStateException("Cannot find Scala facet in module: " + module.getModuleName))
 

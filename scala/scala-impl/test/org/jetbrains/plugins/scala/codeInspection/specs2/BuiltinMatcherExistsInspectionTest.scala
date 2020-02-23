@@ -7,7 +7,7 @@ class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
 
   protected val annotation: String = InspectionBundle.message("specs2.use.builtin.matcher")
   private val hint = InspectionBundle.message("specs2.builtin.matcher.alternative.exists")
-  protected val classOfInspection: Class[BuiltinMatcherExistsInspection] = classOf[BuiltinMatcherExistsInspection]
+  override protected val classOfInspection: Class[BuiltinMatcherExistsInspection] = classOf[BuiltinMatcherExistsInspection]
 
   //OperationOnCollectionInspectionBase
   def testMustBeSomeSimplification(): Unit = {

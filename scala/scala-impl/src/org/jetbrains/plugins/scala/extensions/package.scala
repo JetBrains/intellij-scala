@@ -1151,7 +1151,7 @@ package object extensions {
     val manager = ProgressManager.getInstance
     catching(classOf[Exception]).withTry {
       manager.runProcessWithProgressSynchronously(new ThrowableComputable[T, Exception] {
-        def compute: T = body(manager)
+        override def compute: T = body(manager)
       }, title, canBeCanceled, null)
     }
   }

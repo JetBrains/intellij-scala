@@ -44,19 +44,19 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
 
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null => createIdentifier(getGreenStub.getName).getPsi
     case n => n
   }
   
   override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")
 
-  def lowerBound: TypeResult = lowerTypeElement match {
+  override def lowerBound: TypeResult = lowerTypeElement match {
     case Some(te) => te.`type`()
     case None => Right(Nothing)
   }
 
-  def upperBound: TypeResult = upperTypeElement match {
+  override def upperBound: TypeResult = upperTypeElement match {
     case Some(te) => te.`type`()
     case None => Right(Any)
   }

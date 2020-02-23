@@ -22,7 +22,7 @@ trait ScReferenceExpression extends ScExpression
 
   final def isQualified: Boolean = qualifier.isDefined
 
-  final def qualifier: Option[ScExpression] = getFirstChild match {
+  override final def qualifier: Option[ScExpression] = getFirstChild match {
     case e: ScExpression => Some(e)
     case _ => None
   }

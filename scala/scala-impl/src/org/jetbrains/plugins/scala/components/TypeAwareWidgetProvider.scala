@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class TypeAwareWidgetProvider extends StatusBarWidgetProvider {
-  def getWidget(project: Project): StatusBarWidget = new TypeAwareWidgetProvider.Widget(project)
+  override def getWidget(project: Project): StatusBarWidget = new TypeAwareWidgetProvider.Widget(project)
 }
 
 object TypeAwareWidgetProvider {

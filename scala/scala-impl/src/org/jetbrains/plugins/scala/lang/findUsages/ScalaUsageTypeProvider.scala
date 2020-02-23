@@ -31,11 +31,11 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
 
   import ScalaUsageTypeProvider._
 
-  def getUsageType(element: PsiElement): UsageType =
+  override def getUsageType(element: PsiElement): UsageType =
     getUsageType(element, UsageTarget.EMPTY_ARRAY)
 
   // TODO more of these, including Scala specific: case class/object, pattern match, type ascription, ...
-  def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType =
+  override def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType =
     element.containingScalaFile.flatMap { _ =>
       (element, targets) match {
         case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))

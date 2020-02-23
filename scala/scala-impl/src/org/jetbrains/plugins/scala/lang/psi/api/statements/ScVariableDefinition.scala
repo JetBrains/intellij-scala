@@ -20,7 +20,7 @@ trait ScVariableDefinition extends ScVariable {
 
   def bindings: Seq[ScBindingPattern]
 
-  def declaredElements: Seq[ScBindingPattern] = bindings
+  override def declaredElements: Seq[ScBindingPattern] = bindings
 
   def assignment: Option[PsiElement]
 

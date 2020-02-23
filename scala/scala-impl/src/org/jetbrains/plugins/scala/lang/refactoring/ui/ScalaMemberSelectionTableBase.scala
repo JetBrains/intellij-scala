@@ -21,7 +21,7 @@ abstract class ScalaMemberSelectionTableBase[M <: PsiElement, I <: ScalaMemberIn
                                 abstractColumnHeader: String)
         extends AbstractMemberSelectionTable[M, I](memberInfos, memberInfoModel, abstractColumnHeader) {
 
-  def getAbstractColumnValue(memberInfo: I): AnyRef = memberInfo.getMember match {
+  override def getAbstractColumnValue(memberInfo: I): AnyRef = memberInfo.getMember match {
     case member: ScMember if member.containingClass.isInstanceOf[ScObject] => null
     case member: ScMember if member.hasAbstractModifier && myMemberInfoModel.isFixedAbstract(memberInfo) != null =>
       myMemberInfoModel.isFixedAbstract(memberInfo)
@@ -32,7 +32,7 @@ abstract class ScalaMemberSelectionTableBase[M <: PsiElement, I <: ScalaMemberIn
     case _ => java.lang.Boolean.FALSE
   }
 
-  def isAbstractColumnEditable(rowIndex: Int): Boolean = {
+  override def isAbstractColumnEditable(rowIndex: Int): Boolean = {
     val info: I = myMemberInfos.get(rowIndex)
     info.getMember match {
       case member: ScMember if member.hasAbstractModifier && myMemberInfoModel.isFixedAbstract(info) == java.lang.Boolean.TRUE => false
@@ -51,7 +51,7 @@ abstract class ScalaMemberSelectionTableBase[M <: PsiElement, I <: ScalaMemberIn
     }
   }
 
-  def getOverrideIcon(memberInfo: I): Icon = memberInfo.getMember match {
+  override def getOverrideIcon(memberInfo: I): Icon = memberInfo.getMember match {
     case _: ScFunction =>
       if (java.lang.Boolean.TRUE == memberInfo.getOverrides) AllIcons.General.OverridingMethod
       else if (java.lang.Boolean.FALSE == memberInfo.getOverrides) AllIcons.General.ImplementingMethod

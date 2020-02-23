@@ -7,7 +7,7 @@ package lang.surroundWith.surrounders.scaladoc
  */
 
 class ScalaDocWithUnderlinedSurrounder extends ScalaDocWithSyntaxSurrounder {
-  def getSyntaxTag = "__"
+  override def getSyntaxTag = "__"
 
-  def getTemplateDescription: String = "Underline: __ __"
+  override def getTemplateDescription: String = "Underline: __ __"
 }

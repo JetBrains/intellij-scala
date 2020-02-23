@@ -32,8 +32,8 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeDefinition](
   ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS,
   JavaModuleSourceRootTypes.SOURCES) with DumbAware {
-  protected def buildDialog(project: Project, directory: PsiDirectory,
-                            builder: CreateFileFromTemplateDialog.Builder) {
+  override protected def buildDialog(project: Project, directory: PsiDirectory,
+                                     builder: CreateFileFromTemplateDialog.Builder) {
     builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
     builder.addKind("Case Class", Icons.CASE_CLASS, ScalaFileTemplateUtil.SCALA_CASE_CLASS)
     builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
@@ -51,30 +51,30 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
     builder.setTitle("Create New Scala Class")
     builder.setValidator(new InputValidatorEx {
-      def getErrorText(inputString: String): String = {
+      override def getErrorText(inputString: String): String = {
         if (inputString.length > 0 && !ScalaNamesUtil.isQualifiedName(inputString)) {
           return "This is not a valid Scala qualified name"
         }
         null
       }
 
-      def checkInput(inputString: String): Boolean = {
+      override def checkInput(inputString: String): Boolean = {
         true
       }
 
-      def canClose(inputString: String): Boolean = {
+      override def canClose(inputString: String): Boolean = {
         !StringUtil.isEmptyOrSpaces(inputString) && getErrorText(inputString) == null
       }
     })
   }
 
-  def getActionName(directory: PsiDirectory, newName: String, templateName: String): String = {
+  override def getActionName(directory: PsiDirectory, newName: String, templateName: String): String = {
     ScalaBundle.message("newclass.menu.action.text")
   }
 
-  def getNavigationElement(createdElement: ScTypeDefinition): PsiElement = createdElement.extendsBlock
+  override def getNavigationElement(createdElement: ScTypeDefinition): PsiElement = createdElement.extendsBlock
 
-  def doCreate(directory: PsiDirectory, newName: String, templateName: String): ScTypeDefinition = {
+  override def doCreate(directory: PsiDirectory, newName: String, templateName: String): ScTypeDefinition = {
     createClassFromTemplate(directory, newName, templateName) match {
       case scalaFile: ScalaFile =>
         scalaFile.typeDefinitions.headOption.orNull
@@ -117,7 +117,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     NewScalaTypeDefinitionAction.createFromTemplate(directory, className, templateName, parameters: _*)
   }
 
-  def checkPackageExists(directory: PsiDirectory): Boolean = JavaDirectoryService.getInstance.getPackage(directory) != null
+  override def checkPackageExists(directory: PsiDirectory): Boolean = JavaDirectoryService.getInstance.getPackage(directory) != null
 }
 
 object NewScalaTypeDefinitionAction {

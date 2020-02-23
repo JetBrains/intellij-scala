@@ -118,7 +118,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
       case _ =>
         val selection = siblings.head
         val processor = new PsiElementProcessor[PsiElement] {
-          def execute(elem: PsiElement): Boolean = {
+          override def execute(elem: PsiElement): Boolean = {
             inWriteCommandAction {
               createClassAtLevel(elem)
             }(elem.getProject)

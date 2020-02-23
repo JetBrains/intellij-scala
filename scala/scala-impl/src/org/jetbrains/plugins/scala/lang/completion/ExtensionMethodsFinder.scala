@@ -39,9 +39,9 @@ private final class ExtensionMethodsFinder(originalType: ScType, place: ScExpres
     processor.candidatesS
   }
 
-  private final case class ExtensionMethodCandidate(resolveResult: ScalaResolveResult,
-                                                    elementToImport: ScFunction,
-                                                    classToImport: ScObject) extends GlobalMemberResult {
+  private final case class ExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
+                                                    override val elementToImport: ScFunction,
+                                                    override val classToImport: ScObject) extends GlobalMemberResult {
 
     override protected val isOverloadedForClassName = false
     override protected val containingClass: PsiClass = null

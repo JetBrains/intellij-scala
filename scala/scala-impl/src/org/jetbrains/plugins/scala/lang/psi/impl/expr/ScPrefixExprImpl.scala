@@ -22,9 +22,9 @@ import scala.collection.Seq
   */
 class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScPrefixExpr {
 
-  def argumentExpressions: Seq[ScExpression] = Seq.empty
+  override def argumentExpressions: Seq[ScExpression] = Seq.empty
 
-  def getInvokedExpr: ScExpression = operation
+  override def getInvokedExpr: ScExpression = operation
 
   override def toString: String = "PrefixExpression"
 

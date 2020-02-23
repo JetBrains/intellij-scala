@@ -39,7 +39,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     identifierPattern.and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter("override"))), new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), new ModifiersFilter)))),
     new CompletionProvider[CompletionParameters] {
 
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
         // one word (simple completion throw generation all possible variants)
 
         val position = positionFromParameters(parameters)
@@ -93,7 +93,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     identifierPattern.and(new FilterPattern(new AndFilter(new NotFilter(new OrFilter(new LeftNeighbour(new TextContainFilter(".")), new LeftNeighbour(new TextContainFilter(":"))))))),
     new CompletionProvider[CompletionParameters] {
 
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {
       val position = positionFromParameters(parameters)
 
       Option(PsiTreeUtil.getContextOfType(position, classOf[ScDeclaration])).collect {
@@ -186,7 +186,7 @@ object ScalaOverrideContributor {
 
   private[this] class MyInsertHandler(hasOverride: Boolean) extends InsertHandler[LookupElement] {
 
-    def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+    override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
       val startElement = context.getFile.findElementAt(context.getStartOffset)
       getContextOfType(startElement, classOf[ScModifierListOwner]) match {
         case member: PsiMember =>
@@ -207,7 +207,7 @@ object ScalaOverrideContributor {
 
   private[this] class MyElementRenderer(member: ClassMember) extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
 
-    def renderElement(decorator: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
+    override def renderElement(decorator: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
       decorator.getDelegate.renderElement(presentation)
       presentation.setTypeText(typeText)
       presentation.setItemText(itemText)

@@ -43,7 +43,7 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
 
   private val project = ref.getProject
 
-  def getText: String = {
+  override def getText: String = {
     if (classes.length == 1) ScalaBundle.message("import.with", classes(0).qualifiedName)
     else ElementToImport.messageByType(classes)(
       ScalaBundle.message("import.class"),
@@ -52,11 +52,11 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
     )
   }
 
-  def getFamilyName: String = ScalaBundle.message("import.class")
+  override def getFamilyName: String = ScalaBundle.message("import.class")
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile] || file.findAnyScalaFile.isDefined
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile] || file.findAnyScalaFile.isDefined
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile) {
     CommandProcessor.getInstance().runUndoTransparentAction(() => {
       if (ref.isValid) {
         classes = ScalaImportTypeFix.getTypesToImport(ref)
@@ -65,7 +65,7 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
     })
   }
 
-  def showHint(editor: Editor): Boolean = {
+  override def showHint(editor: Editor): Boolean = {
     if (!ref.isValid) return false
     if (ref.qualifier.isDefined) return false
     ref.getContext match {

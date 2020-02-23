@@ -41,10 +41,10 @@ abstract class IdeClient(compilerName: String,
     }
   }
 
-  def trace(exception: Throwable): Unit =
+  override def trace(exception: Throwable): Unit =
     context.processMessage(CompilerMessage.createInternalCompilationError(compilerName, exception))
 
-  def progress(text: String, done: Option[Float]): Unit = {
+  override def progress(text: String, done: Option[Float]): Unit = {
     if (text.nonEmpty) {
       val decapitalizedText = text.charAt(0).toLower.toString + text.substring(1)
       lastProgressMessage = "%s: %s [%s]".format(compilerName, decapitalizedText, modules.mkString(", "))
@@ -52,18 +52,18 @@ abstract class IdeClient(compilerName: String,
     context.processMessage(new ProgressMessage(lastProgressMessage, done.getOrElse(-1.0F)))
   }
 
-  def internalInfo(text: String): Unit =
+  override def internalInfo(text: String): Unit =
     ScalaBuilder.Log.info(text)
 
-  def internalDebug(text: String): Unit =
+  override def internalDebug(text: String): Unit =
     ScalaBuilder.Log.debug(text)
 
-  def deleted(module: File): Unit = {
+  override def deleted(module: File): Unit = {
     val paths = util.Collections.singletonList(FileUtil.toCanonicalPath(module.getPath))
     context.processMessage(new FileDeletedEvent(paths))
   }
 
-  def isCanceled: Boolean = context.getCancelStatus.isCanceled
+  override def isCanceled: Boolean = context.getCancelStatus.isCanceled
 
   def hasReportedErrors: Boolean = hasErrors
 }

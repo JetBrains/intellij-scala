@@ -20,7 +20,7 @@ import xsbti.compile.{ScalaInstance => _, _}
  */
 class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
-  def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
+  override def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
 
     val scalac: Option[AnalyzingCompiler] = getScalac(sbtData, compilerData.compilerJars, client)
 
@@ -43,7 +43,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
   private val classloaderCache = Some(new ClassLoaderCache(new URLClassLoader(Array())))
 
-  def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
+  override def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
     getScalaInstance(compilerJars).map { scalaInstance =>
       val compiledInterfaceJar = getOrCompileInterfaceJar(
         home = sbtData.interfacesHome,

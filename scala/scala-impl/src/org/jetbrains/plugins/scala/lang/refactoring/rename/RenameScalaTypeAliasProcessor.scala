@@ -32,7 +32,7 @@ class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor with Scala
       case _ => return
     }
     RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
-      def execute(named: PsiNamedElement): Boolean = {
+      override def execute(named: PsiNamedElement): Boolean = {
         renameCallback.pass(named)
         false
       }

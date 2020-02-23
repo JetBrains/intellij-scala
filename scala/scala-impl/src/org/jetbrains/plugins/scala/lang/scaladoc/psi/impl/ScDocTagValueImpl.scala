@@ -34,11 +34,11 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
 
   import ResolveTargets._
 
-  def nameId: PsiElement = this
+  override def nameId: PsiElement = this
 
   override def getName: String = getText
 
-  def qualifier: Option[ScalaPsiElement] = None
+  override def qualifier: Option[ScalaPsiElement] = None
 
   override def getKinds(incomplete: Boolean, completion: Boolean): Set[Value] = Set(
     CLASS,
@@ -46,9 +46,9 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
     VAR
   )
 
-  def getSameNameVariants: Array[ScalaResolveResult] = Array.empty
+  override def getSameNameVariants: Array[ScalaResolveResult] = Array.empty
 
-  def multiResolveScala(incompleteCode: Boolean): Array[ScalaResolveResult] =
+  override def multiResolveScala(incompleteCode: Boolean): Array[ScalaResolveResult] =
     doResolve(
       new ResolveProcessor(getKinds(incompleteCode), this, refName),
       accessibilityCheck = false
@@ -65,7 +65,7 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
 
   override def toString: String = "ScalaDocTagValue: " + getText
 
-  def bindToElement(element: PsiElement): PsiElement = {
+  override def bindToElement(element: PsiElement): PsiElement = {
     element match {
       case _: ScParameter => this
       case _: ScTypeParam =>

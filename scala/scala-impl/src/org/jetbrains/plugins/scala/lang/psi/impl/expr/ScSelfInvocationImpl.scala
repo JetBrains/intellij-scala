@@ -97,16 +97,16 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     }
   }
 
-  def shapeType(i: Int): TypeResult = {
+  override def shapeType(i: Int): TypeResult = {
     val option = bindInternal(shapeResolve = true)
     workWithBindInternal(option, i)
   }
 
-  def shapeMultiType(i: Int): Array[TypeResult] = {
+  override def shapeMultiType(i: Int): Array[TypeResult] = {
     bindMultiInternal(shapeResolve = true).map(pe => workWithBindInternal(Some(pe), i))
   }
 
-  def multiType(i: Int): Array[TypeResult] = {
+  override def multiType(i: Int): Array[TypeResult] = {
     bindMultiInternal(shapeResolve = false).map(pe => workWithBindInternal(Some(pe), i))
   }
 

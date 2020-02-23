@@ -30,9 +30,9 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
 
   override def toString: String = "SelfType: " + ifReadAllowed(name)("")
 
-  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.SELF_TYPE_ID)
+  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.SELF_TYPE_ID)
 
-  def `type`(): TypeResult = {
+  override def `type`(): TypeResult = {
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
     assert(parent != null)
     typeElement match {
@@ -45,9 +45,9 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
     }
   }
 
-  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def classNames: Array[String] = byStubOrPsi(_.classNames) {
+  override def classNames: Array[String] = byStubOrPsi(_.classNames) {
     val names = mutable.ArrayBuffer.empty[String]
 
     def fillNames(typeElement: ScTypeElement) {

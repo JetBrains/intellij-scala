@@ -53,7 +53,7 @@ class RenameJavaToScalaAction extends AnAction {
 
   }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent) {
     var elements = LangDataKeys.PSI_ELEMENT_ARRAY.getData(e.getDataContext)
     if (elements == null) {
       val file = CommonDataKeys.PSI_FILE.getData(e.getDataContext)

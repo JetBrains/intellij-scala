@@ -25,8 +25,8 @@ object Play2Keys {
     val values: Map[String, T]
   }
 
-  class StringXmlKey(val name: String, val values: Map[String, String]) extends SettingKey[String] {}
-  class SeqStringXmlKey(val name: String, val values: Map[String, util.List[String]]) extends SettingKey[util.List[String]] {}
+  class StringXmlKey(override val name: String, override val values: Map[String, String]) extends SettingKey[String] {}
+  class SeqStringXmlKey(override val name: String, override val values: Map[String, util.List[String]]) extends SettingKey[util.List[String]] {}
 
   object KeyExtractor {
     def extract(elem: scala.xml.Node): Option[SettingKey[_]] = {
@@ -73,9 +73,9 @@ object Play2Keys {
       def parsed: T
       override def toString: String = parsed.toString
     }
-    case class StringParsedValue @PropertyMapping(Array("parsed")) (parsed: String) extends ParsedValue[String]
+    case class StringParsedValue @PropertyMapping(Array("parsed")) (override val parsed: String) extends ParsedValue[String]
 
-    case class SeqStringParsedValue @PropertyMapping(Array("parsed")) (parsed: util.List[String]) extends ParsedValue[util.List[String]]
+    case class SeqStringParsedValue @PropertyMapping(Array("parsed")) (override val parsed: util.List[String]) extends ParsedValue[util.List[String]]
 
     abstract class ParsedKey[T](val name: String) {
       def in(allKeys: Map[String, Map[String, ParsedValue[_]]]): Option[Map[String, ParsedValue[_]]] = allKeys get name

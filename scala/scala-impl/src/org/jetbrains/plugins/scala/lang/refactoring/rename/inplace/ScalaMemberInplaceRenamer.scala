@@ -76,7 +76,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     if (myOldName == null) return
 
     CommandProcessor.getInstance.executeCommand(myProject, new Runnable {
-      def run() {
+      override def run() {
         val revertInfo = editor.getUserData(ScalaMemberInplaceRenamer.REVERT_INFO)
         val document = myEditor.getDocument
         if (revertInfo != null) {

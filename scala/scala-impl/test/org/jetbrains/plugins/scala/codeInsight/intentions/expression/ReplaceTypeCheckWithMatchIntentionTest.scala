@@ -13,7 +13,7 @@ class ReplaceTypeCheckWithMatchIntentionTest extends ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  def familyName: String = intention.expression.ReplaceTypeCheckWithMatchIntention.FamilyName
+  override def familyName: String = intention.expression.ReplaceTypeCheckWithMatchIntention.FamilyName
 
   def test_1(): Unit = doTest(
     s"""val x = 0

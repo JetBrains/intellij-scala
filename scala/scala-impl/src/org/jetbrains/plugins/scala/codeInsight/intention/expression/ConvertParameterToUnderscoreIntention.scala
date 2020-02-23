@@ -110,11 +110,11 @@ object ConvertParameterToUnderscoreIntention {
 }
 
 class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = familyName
+  override def getFamilyName: String = familyName
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val expr: ScFunctionExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr], false)
     if (expr == null) return false
 

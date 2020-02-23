@@ -27,9 +27,9 @@ class UTestConfigurationProducer extends {
 
   override def suitePaths: List[String] = UTestUtil.suitePaths
 
-  protected def configurationNameForPackage(packageName: String): String = ScalaBundle.message("test.in.scope.utest.presentable.text", packageName)
+  override protected def configurationNameForPackage(packageName: String): String = ScalaBundle.message("test.in.scope.utest.presentable.text", packageName)
 
-  protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
+  override protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
     StringUtil.getShortName(testClass.qualifiedName) + (if (testName == null) "" else "\\" + testName)
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {

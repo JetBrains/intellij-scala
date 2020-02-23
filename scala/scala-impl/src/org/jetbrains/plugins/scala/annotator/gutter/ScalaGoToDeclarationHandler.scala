@@ -29,7 +29,7 @@ import scala.annotation.tailrec
 
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
-  def getGotoDeclarationTargets(element: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
+  override def getGotoDeclarationTargets(element: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
     if (element == null) return null
     val containingFile = element.getContainingFile
     if (containingFile == null) return null

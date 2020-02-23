@@ -26,7 +26,7 @@ trait ScalaBounds extends api.Bounds {
 
   import ScalaBounds._
 
-  def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
+  override def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
     if (conforms(t1, t2, checkWeak)) t1
     else if (conforms(t2, t1, checkWeak)) t2
     else {
@@ -46,7 +46,7 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  def glb(typez: Seq[ScType], checkWeak: Boolean): ScType = {
+  override def glb(typez: Seq[ScType], checkWeak: Boolean): ScType = {
     if (typez.length == 1) typez.head
     var res = typez.head
     for (i <- 1 until typez.length) {
@@ -93,11 +93,11 @@ trait ScalaBounds extends api.Bounds {
     ScTypePolymorphicType(intTpe, newParams)
   }
 
-  def lub(t1: ScType, t2: ScType, checkWeak: Boolean): ScType = {
+  override def lub(t1: ScType, t2: ScType, checkWeak: Boolean): ScType = {
     lubInner(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
   }
 
-  def lub(seq: Seq[ScType], checkWeak: Boolean): ScType = {
+  override def lub(seq: Seq[ScType], checkWeak: Boolean): ScType = {
     seq.reduce((l: ScType, r: ScType) => lub(l, r, checkWeak))
   }
 

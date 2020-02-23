@@ -32,9 +32,9 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
 
   def this(stub: ScBindingPatternStub[ScTypedPattern]) = this(stub, null)
 
-  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
+  override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = {
     for {

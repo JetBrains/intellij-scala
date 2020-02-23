@@ -41,12 +41,12 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
     var modifier: Modifier = null
     if (myEvaluatedArrayReference != null) {
       modifier = new Modifier {
-        def canInspect: Boolean = true
-        def canSetValue: Boolean = true
-        def setValue(value: Value) {
+        override def canInspect: Boolean = true
+        override def canSetValue: Boolean = true
+        override def setValue(value: Value) {
           myEvaluatedArrayReference.setValue(myEvaluatedIndex, value)
         }
-        def getExpectedType: Type = {
+        override def getExpectedType: Type = {
           try {
             val tp: ArrayType = myEvaluatedArrayReference.referenceType.asInstanceOf[ArrayType]
             tp.componentType
@@ -56,7 +56,7 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
               throw EvaluationException(e)
           }
         }
-        def getInspectItem(project: Project): NodeDescriptorImpl = {
+        override def getInspectItem(project: Project): NodeDescriptorImpl = {
           new ArrayElementDescriptorImpl(project, myEvaluatedArrayReference, myEvaluatedIndex)
         }
       }

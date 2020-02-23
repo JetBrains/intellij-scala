@@ -18,23 +18,23 @@ object BufferOperations {
   private[importOptimizer] implicit val astNodeChildrenOperations: BufferOperations[AstChildrenBuffer, ASTNode] =
     new BufferOperations[AstChildrenBuffer, ASTNode] {
 
-      def remove(buffer: AstChildrenBuffer, startIdx: Int, count: Int): Unit =
+      override def remove(buffer: AstChildrenBuffer, startIdx: Int, count: Int): Unit =
         buffer.remove(startIdx, count)
 
-      def insert(buffer: AstChildrenBuffer, idx: Int, toInsert: Seq[ASTNode]): Unit =
+      override def insert(buffer: AstChildrenBuffer, idx: Int, toInsert: Seq[ASTNode]): Unit =
         buffer.insert(idx, toInsert)
 
-      def asArray(buffer: AstChildrenBuffer): Array[ASTNode] =
+      override def asArray(buffer: AstChildrenBuffer): Array[ASTNode] =
         buffer.asArray
     }
 
   implicit def scalaBufferOperations[E: ClassTag, B <: mutable.Buffer[E]]: BufferOperations[B, E] =
     new BufferOperations[B, E] {
-      def remove(buffer: B, startIdx: Int, count: Int): Unit = buffer.remove(startIdx, count)
+      override def remove(buffer: B, startIdx: Int, count: Int): Unit = buffer.remove(startIdx, count)
 
-      def insert(buffer: B, idx: Int, toInsert: Seq[E]): Unit = buffer.insert(idx, toInsert: _*)
+      override def insert(buffer: B, idx: Int, toInsert: Seq[E]): Unit = buffer.insert(idx, toInsert: _*)
 
-      def asArray(buffer: B): Array[E] = buffer.toArray
+      override def asArray(buffer: B): Array[E] = buffer.toArray
     }
 }
 

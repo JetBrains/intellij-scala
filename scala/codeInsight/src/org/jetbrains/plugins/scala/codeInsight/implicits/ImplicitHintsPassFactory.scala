@@ -12,7 +12,7 @@ class ImplicitHintsPassFactory
   extends TextEditorHighlightingPassFactory
     with TextEditorHighlightingPassFactoryRegistrar {
 
-  def registerHighlightingPassFactory(registrar: TextEditorHighlightingPassRegistrar, project: Project): Unit = {
+  override def registerHighlightingPassFactory(registrar: TextEditorHighlightingPassRegistrar, project: Project): Unit = {
     val runAfterAnnotator = Array(Pass.UPDATE_ALL)
 
     registrar.registerTextEditorHighlightingPass(this, runAfterAnnotator, null, false, -1)

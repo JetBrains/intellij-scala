@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
   */
 class DesugarCodeAction extends AnAction {
   // TODO support read-only files (create duplicate scratch buffer)
-  def actionPerformed(event: AnActionEvent) {
+  override def actionPerformed(event: AnActionEvent) {
     Stats.trigger(FeatureKey.desugarCode)
 
     implicit val project: Project = event.getProject

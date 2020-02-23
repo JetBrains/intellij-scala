@@ -27,17 +27,17 @@ class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTa
     visitor.visitTag(this)
   }
 
-  def getContainingComment: PsiDocComment =
+  override def getContainingComment: PsiDocComment =
     getParent match {
       case docComment: PsiDocComment => docComment
       case _ => null
     }
 
-  def getNameElement: PsiElement = findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME)
+  override def getNameElement: PsiElement = findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME)
 
-  def getDataElements: Array[PsiElement] = getChildren
+  override def getDataElements: Array[PsiElement] = getChildren
 
-  def getValueElement: PsiDocTagValue = findChildByClass(classOf[PsiDocTagValue])
+  override def getValueElement: PsiDocTagValue = findChildByClass(classOf[PsiDocTagValue])
   
   override def getName: String =
     if (getNameElement != null) {
@@ -46,7 +46,7 @@ class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTa
       null
     }
 
-  def setName(name: String): PsiElement = {
+  override def setName(name: String): PsiElement = {
     if (findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME) != null) {
       findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME).replace(createDocTagName(name))
     }

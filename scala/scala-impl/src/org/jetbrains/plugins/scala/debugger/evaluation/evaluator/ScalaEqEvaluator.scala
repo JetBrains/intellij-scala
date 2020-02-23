@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 class ScalaEqEvaluator(left: Evaluator, right: Evaluator) extends Evaluator {
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     val leftResult = left.evaluate(context).asInstanceOf[Value]
     val rightResult = right.evaluate(context).asInstanceOf[Value]
     val vm = context.getDebugProcess.getVirtualMachineProxy

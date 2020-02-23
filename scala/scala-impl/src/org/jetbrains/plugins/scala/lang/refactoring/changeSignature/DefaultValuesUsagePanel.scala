@@ -36,7 +36,7 @@ class DefaultValuesUsagePanel(labelText: String = ScalaBundle.message("default.v
     Seq(myRbAddDefaultArg, myRbModifyCalls).foreach(bg.add)
 
     val listener = new ItemListener {
-      def itemStateChanged(e: ItemEvent) {
+      override def itemStateChanged(e: ItemEvent) {
         stateModified()
       }
     }

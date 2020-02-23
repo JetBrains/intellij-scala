@@ -29,7 +29,7 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends AbstractProjectDat
                      project: Project,
                      modelsProvider: IdeModifiableModelsProvider): Importer[E]
 
-  def getTargetDataKey: Key[E] = key
+  override def getTargetDataKey: Key[E] = key
 
   override final def importData(toImport: util.Collection[DataNode[E]],
                                 projectData: ProjectData,
@@ -110,7 +110,7 @@ object Importer {
     }
 }
 
-abstract class AbstractImporter[E](val dataToImport: Seq[DataNode[E]],
-                                   val projectData: ProjectData,
-                                   val project: Project,
-                                   val modelsProvider: IdeModifiableModelsProvider) extends Importer[E]
+abstract class AbstractImporter[E](override val dataToImport: Seq[DataNode[E]],
+                                   override val projectData: ProjectData,
+                                   override val project: Project,
+                                   override val modelsProvider: IdeModifiableModelsProvider) extends Importer[E]

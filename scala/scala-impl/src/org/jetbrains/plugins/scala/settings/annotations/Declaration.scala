@@ -121,11 +121,11 @@ object Declaration {
     }
   }
 
-  private case class SyntheticDeclaration(visibility: Visibility,
-                                          isImplicit: Boolean,
-                                          isConstant: Boolean,
-                                          hasUnitType: Boolean,
-                                          hasAccidentalStructuralType: Boolean) extends Declaration {
+  private case class SyntheticDeclaration(override val visibility: Visibility,
+                                          override val isImplicit: Boolean,
+                                          override val isConstant: Boolean,
+                                          override val hasUnitType: Boolean,
+                                          override val hasAccidentalStructuralType: Boolean) extends Declaration {
 
     override def entity: Entity = Entity.Method
 

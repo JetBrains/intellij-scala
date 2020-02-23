@@ -29,7 +29,7 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsight
     val enterHandler = EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
 
     enterHandler.execute(getEditorAdapter, getEditorAdapter.getCaretModel.getCurrentCaret, new DataContext {
-      def getData(dataId: String): AnyRef = {
+      override def getData(dataId: String): AnyRef = {
         dataId match {
           case "Language" | "language" => getFileAdapter.getLanguage
           case "Project" | "project" => getFileAdapter.getProject

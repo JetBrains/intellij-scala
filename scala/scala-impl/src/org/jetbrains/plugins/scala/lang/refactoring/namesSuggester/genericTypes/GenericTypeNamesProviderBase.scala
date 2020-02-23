@@ -12,7 +12,7 @@ abstract class GenericTypeNamesProviderBase extends GenericTypeNamesProvider {
 
   import NameSuggester._
 
-  def names(`type`: ScParameterizedType): Seq[String] =
+  override def names(`type`: ScParameterizedType): Seq[String] =
     if (isValid(`type`)) {
       val ParameterizedType(designator, arguments) = `type`
       val firstNames = this.firstNames(designator, arguments)

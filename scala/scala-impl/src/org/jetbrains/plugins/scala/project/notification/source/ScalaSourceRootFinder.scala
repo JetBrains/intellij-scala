@@ -17,11 +17,11 @@ final class ScalaSourceRootFinder extends JavaSourceRootDetector {
 
   import ScalaFileType.{INSTANCE => scalaFileType}
 
-  def getLanguageName = scalaFileType.getName
+  override def getLanguageName = scalaFileType.getName
 
-  def getFileExtension = scalaFileType.getDefaultExtension
+  override def getFileExtension = scalaFileType.getDefaultExtension
 
-  def getPackageNameFetcher: NullableFunction[CharSequence, String] =
+  override def getPackageNameFetcher: NullableFunction[CharSequence, String] =
     ScalaSourceRootFinder.packageStatement(_: CharSequence)
 }
 

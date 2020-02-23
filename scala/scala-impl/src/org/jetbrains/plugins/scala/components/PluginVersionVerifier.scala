@@ -27,7 +27,7 @@ abstract class ScalaPluginVersionVerifier {
 object ScalaPluginVersionVerifier {
 
   class Version(private val major: Int, private val minor: Int, private val build: Int) extends Ordered[Version] with Serializable {
-    def compare(that: Version): Int = implicitly[Ordering[(Int, Int, Int)]]
+    override def compare(that: Version): Int = implicitly[Ordering[(Int, Int, Int)]]
       .compare((major, minor, build), (that.major, that.minor, that.build))
 
     val presentation: String = if (major == Int.MaxValue) "SNAPSHOT" else s"$major.$minor.$build"
@@ -145,7 +145,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
       }
       NotificationGroup.balloonGroup(Scala_Group)
       val notification = new Notification(Scala_Group, "Incompatible plugin detected", message, NotificationType.ERROR, new NotificationListener {
-        def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
+        override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
           notification.expire()
           val description = event.getDescription
           callback(description)

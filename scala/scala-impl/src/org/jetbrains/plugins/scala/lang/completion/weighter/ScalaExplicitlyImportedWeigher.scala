@@ -121,7 +121,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
     None
   }
 
-  def weigh(element: PsiElement, location: ProximityLocation): Integer = {
+  override def weigh(element: PsiElement, location: ProximityLocation): Integer = {
     val position: PsiElement = location.getPosition
     if (position == null) {
       return 0

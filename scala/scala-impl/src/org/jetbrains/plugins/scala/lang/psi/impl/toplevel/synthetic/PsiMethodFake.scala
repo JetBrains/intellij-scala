@@ -18,44 +18,44 @@ import org.jetbrains.plugins.scala.icons.Icons
  */
 
 trait PsiMethodFake extends PsiMethod {
-  def setName(name: String): PsiElement = null
+  override def setName(name: String): PsiElement = null
 
-  def hasModifierProperty(name: String): Boolean = false
+  override def hasModifierProperty(name: String): Boolean = false
 
   override def getIcon(flags: Int): Icon = Icons.FUNCTION
 
-  def getDocComment: PsiDocComment = null
+  override def getDocComment: PsiDocComment = null
 
-  def isDeprecated: Boolean = false
+  override def isDeprecated: Boolean = false
 
-  def hasTypeParameters: Boolean = false
+  override def hasTypeParameters: Boolean = false
 
   def psiTypeParameters: Array[PsiTypeParameter] = null
 
-  def getTypeParameterList: PsiTypeParameterList = null
+  override def getTypeParameterList: PsiTypeParameterList = null
 
-  def getHierarchicalMethodSignature: HierarchicalMethodSignature = null
+  override def getHierarchicalMethodSignature: HierarchicalMethodSignature = null
 
-  def isVarArgs: Boolean = false
+  override def isVarArgs: Boolean = false
 
   override def getParameterList: PsiParameterList = null
 
-  def getBody: PsiCodeBlock = null
+  override def getBody: PsiCodeBlock = null
 
-  def isConstructor: Boolean = false
+  override def isConstructor: Boolean = false
 
-  def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
+  override def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
+  override def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def findDeepestSuperMethod: PsiMethod = null
+  override def findDeepestSuperMethod: PsiMethod = null
 
-  def findDeepestSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
+  override def findDeepestSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def getReturnTypeElement: PsiTypeElement = null
+  override def getReturnTypeElement: PsiTypeElement = null
 
-  def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): List[MethodSignatureBackedByPsiMethod] =
+  override def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): List[MethodSignatureBackedByPsiMethod] =
     new ArrayList[MethodSignatureBackedByPsiMethod]()
 
-  def findSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
+  override def findSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 }

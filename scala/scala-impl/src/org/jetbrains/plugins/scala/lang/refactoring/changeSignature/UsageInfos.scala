@@ -62,7 +62,7 @@ private[changeSignature] object ScalaNamedElementUsageInfo {
   }
 }
 
-private[changeSignature] case class FunUsageInfo(namedElement: ScFunction)
+private[changeSignature] case class FunUsageInfo(override val namedElement: ScFunction)
         extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
 
 private[changeSignature] case class PrimaryConstructorUsageInfo(pc: ScPrimaryConstructor)
@@ -70,10 +70,10 @@ private[changeSignature] case class PrimaryConstructorUsageInfo(pc: ScPrimaryCon
           override val namedElement = pc.containingClass.asInstanceOf[ScClass]
         } with UsageInfo(pc) with ScalaNamedElementUsageInfo
 
-private[changeSignature] case class OverriderValUsageInfo(namedElement: ScBindingPattern)
+private[changeSignature] case class OverriderValUsageInfo(override val namedElement: ScBindingPattern)
         extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
 
-private[changeSignature] case class OverriderClassParamUsageInfo(namedElement: ScClassParameter)
+private[changeSignature] case class OverriderClassParamUsageInfo(override val namedElement: ScClassParameter)
         extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
 
 private[changeSignature] trait MethodUsageInfo {
@@ -86,13 +86,13 @@ private[changeSignature] trait MethodUsageInfo {
   }
 }
 
-private[changeSignature] case class MethodCallUsageInfo(ref: ScReferenceExpression, call: ScMethodCall)
+private[changeSignature] case class MethodCallUsageInfo(override val ref: ScReferenceExpression, call: ScMethodCall)
         extends UsageInfo(call) with MethodUsageInfo {
 
   private val resolveResult = Option(ref).flatMap(_.bind())
   val substitutor = resolveResult.map(_.substitutor)
-  val expr = call
-  val argsInfo = OldArgsInfo(allArgs(call), method)
+  override val expr = call
+  override val argsInfo = OldArgsInfo(allArgs(call), method)
 
   private def allArgs(call: ScMethodCall): Seq[ScExpression] = {
     call.getInvokedExpr match {
@@ -104,35 +104,35 @@ private[changeSignature] case class MethodCallUsageInfo(ref: ScReferenceExpressi
 
 private[changeSignature] case class RefExpressionUsage(refExpr: ScReferenceExpression)
         extends UsageInfo(refExpr: PsiReference) with MethodUsageInfo {
-  val expr = refExpr
-  val ref = refExpr
-  val argsInfo = OldArgsInfo(Seq.empty, method)
+  override val expr = refExpr
+  override val ref = refExpr
+  override val argsInfo = OldArgsInfo(Seq.empty, method)
 }
 
 private[changeSignature] case class InfixExprUsageInfo(infix: ScInfixExpr)
         extends UsageInfo(infix) with MethodUsageInfo {
-  val expr = infix
-  val ref = infix.operation
-  val argsInfo = OldArgsInfo(infix.argumentExpressions, method)
+  override val expr = infix
+  override val ref = infix.operation
+  override val argsInfo = OldArgsInfo(infix.argumentExpressions, method)
 }
 
 private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
         extends UsageInfo(postfix) with MethodUsageInfo {
-  val expr = postfix
-  val ref = postfix.operation
-  val argsInfo = OldArgsInfo(postfix.argumentExpressions, method)
+  override val expr = postfix
+  override val ref = postfix.operation
+  override val argsInfo = OldArgsInfo(postfix.argumentExpressions, method)
 }
 
-private[changeSignature] case class ConstructorUsageInfo(ref: ScReference, constrInvocation: ScConstructorInvocation)
+private[changeSignature] case class ConstructorUsageInfo(override val ref: ScReference, constrInvocation: ScConstructorInvocation)
         extends UsageInfo(constrInvocation) with MethodUsageInfo {
 
   private val resolveResult = Option(ref).flatMap(_.bind())
   val substitutor = resolveResult.map(_.substitutor)
-  val expr = {
+  override val expr = {
     val newText = s"new ${constrInvocation.getText}"
     createExpressionFromText(newText)(constrInvocation.getManager)
   }
-  val argsInfo = OldArgsInfo(constrInvocation.arguments.flatMap(_.exprs), method)
+  override val argsInfo = OldArgsInfo(constrInvocation.arguments.flatMap(_.exprs), method)
 }
 
 private[changeSignature] case class AnonFunUsageInfo(expr: ScExpression, ref: ScReferenceExpression)
@@ -160,9 +160,9 @@ private[changeSignature] trait PatternUsageInfo {
   def pattern: ScPattern
 }
 
-private[changeSignature] case class ConstructorPatternUsageInfo(pattern: ScConstructorPattern) extends UsageInfo(pattern) with PatternUsageInfo
+private[changeSignature] case class ConstructorPatternUsageInfo(override val pattern: ScConstructorPattern) extends UsageInfo(pattern) with PatternUsageInfo
 
-private[changeSignature] case class InfixPatternUsageInfo(pattern: ScInfixPattern) extends UsageInfo(pattern) with PatternUsageInfo
+private[changeSignature] case class InfixPatternUsageInfo(override val pattern: ScInfixPattern) extends UsageInfo(pattern) with PatternUsageInfo
 
 private[changeSignature] object UsageUtil {
 

@@ -9,20 +9,20 @@ import org.junit.Assert
   * @author mutcianm
   * @since 16.05.17.
   */
-class ConsoleReporter(val filesWithProblems: Map[String, Set[TextRange]]) extends ProgressReporter {
+class ConsoleReporter(override val filesWithProblems: Map[String, Set[TextRange]]) extends ProgressReporter {
   private val report = new StringBuilder("\n")
 
   private def formatMessage(fileName: String, range: TextRange, message: String) =
     s"Error: $fileName${range.toString} - $message\n"
 
-  def showError(fileName: String, range: TextRange, message: String): Unit =
+  override def showError(fileName: String, range: TextRange, message: String): Unit =
     report.append(formatMessage(fileName, range, message))
 
-  def updateHighlightingProgress(percent: Int): Unit = {
+  override def updateHighlightingProgress(percent: Int): Unit = {
     println(s"ExternalHighlighting -  $percent%")
   }
 
-  def reportResults(): Unit = {
+  override def reportResults(): Unit = {
     val errorsTip = expectedErrorsTip(expectedErrors ++ unexpectedErrors)
 
     val noErrorsButExpected = unexpectedSuccess

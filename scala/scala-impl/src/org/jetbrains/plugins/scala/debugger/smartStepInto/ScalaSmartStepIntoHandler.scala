@@ -88,7 +88,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
             .foreach(_.accept(collector))
     collector.result.sortBy(_.getHighlightElement.getTextOffset).asJava
   }
-  def isAvailable(position: SourcePosition): Boolean = {
+  override def isAvailable(position: SourcePosition): Boolean = {
     val file: PsiFile = position.getFile
     file.isInstanceOf[ScalaFile]
   }

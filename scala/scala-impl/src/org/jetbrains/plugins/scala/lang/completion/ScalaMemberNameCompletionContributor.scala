@@ -18,7 +18,7 @@ class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
   //suggest class name
   extend(CompletionType.BASIC, identifierWithParentPattern(classOf[ScTypeDefinition]),
     new CompletionProvider[CompletionParameters]() {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
         val position = positionFromParameters(parameters)
         val classesNames: mutable.HashSet[String] = mutable.HashSet.empty
         val objectNames: mutable.HashSet[String] = mutable.HashSet.empty

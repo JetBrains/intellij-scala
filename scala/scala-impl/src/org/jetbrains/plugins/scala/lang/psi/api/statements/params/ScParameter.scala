@@ -87,7 +87,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
     case _ => getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
   }
 
-  def getType: PsiType = getRealParameterType.getOrNothing.toPsiType
+  override def getType: PsiType = getRealParameterType.getOrNothing.toPsiType
 
   def isAnonymousParameter: Boolean = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {

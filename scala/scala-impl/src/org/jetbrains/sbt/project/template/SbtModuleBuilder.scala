@@ -48,7 +48,7 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
     settings.setResolveJavadocs(false)
   }
 
-  def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
+  override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     new File(getModuleFileDirectory) match {

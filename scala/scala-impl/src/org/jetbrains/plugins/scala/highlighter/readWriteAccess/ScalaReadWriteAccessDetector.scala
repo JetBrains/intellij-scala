@@ -15,23 +15,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
  */
 
 class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
-  def getExpressionAccess(expression: PsiElement): Access = {
+  override def getExpressionAccess(expression: PsiElement): Access = {
     expression match {
       case expression: ScExpression if ScalaReadWriteAccessDetector.isAccessedForWriting(expression) => Access.Write
       case _ => Access.Read
     }
   }
-  def isReadWriteAccessible(element: PsiElement): Boolean = {
+  override def isReadWriteAccessible(element: PsiElement): Boolean = {
     element match {
       case x: PsiNamedElement =>
         x.isInstanceOf[ScalaPsiElement] && ScalaPsiUtil.nameContext(x) != null
       case _ => false
     }
   }
-  def getReferenceAccess(referencedElement: PsiElement, reference: PsiReference): Access =
+  override def getReferenceAccess(referencedElement: PsiElement, reference: PsiReference): Access =
     getExpressionAccess(reference.getElement)
 
-  def isDeclarationWriteAccess(element: PsiElement): Boolean = {
+  override def isDeclarationWriteAccess(element: PsiElement): Boolean = {
     element match {
       case x: PsiNamedElement =>
         ScalaPsiUtil.nameContext(x) match {

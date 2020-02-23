@@ -26,10 +26,10 @@ class ScImportSelectorsImpl private (stub: ScImportSelectorsStub, node: ASTNode)
 
   override def toString: String = "ImportSelectors"
 
-  def hasWildcard: Boolean = byStubOrPsi(_.hasWildcard)(wildcardElement.nonEmpty)
+  override def hasWildcard: Boolean = byStubOrPsi(_.hasWildcard)(wildcardElement.nonEmpty)
 
-  def wildcardElement: Option[PsiElement] = Option(findChildByType(ScalaTokenTypes.tUNDER))
+  override def wildcardElement: Option[PsiElement] = Option(findChildByType(ScalaTokenTypes.tUNDER))
 
-  def selectors: Seq[ScImportSelector] =
+  override def selectors: Seq[ScImportSelector] =
     getStubOrPsiChildren(ScalaElementType.IMPORT_SELECTOR, JavaArrayFactoryUtil.ScImportSelectorFactory)
 }

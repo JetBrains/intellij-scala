@@ -32,5 +32,5 @@ class ContextsIteratorTest extends IteratorTestCase {
     assertIterates("", "0 (1.1)")
   }
 
-  def createIterator(element: PsiElement) = new ContextsIterator(element)
+  override def createIterator(element: PsiElement) = new ContextsIterator(element)
 }

@@ -12,5 +12,5 @@ import com.intellij.psi.JVMElementFactoryProvider
  */
 final class ScalaFactoryProvider extends JVMElementFactoryProvider {
 
-  def getFactory(project: Project) = new ScalaPsiElementFactoryImpl(project)
+  override def getFactory(project: Project) = new ScalaPsiElementFactoryImpl(project)
 }

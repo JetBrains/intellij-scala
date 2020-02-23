@@ -44,7 +44,7 @@ object RenameSuperMembersUtil {
   def chooseSuper(named: ScNamedElement): PsiNamedElement = {
     var chosen: PsiNamedElement = null
     val processor = new PsiElementProcessor[PsiNamedElement]() {
-      def execute(element: PsiNamedElement): Boolean = {
+      override def execute(element: PsiNamedElement): Boolean = {
         chosen = element
         false
       }
@@ -93,7 +93,7 @@ object RenameSuperMembersUtil {
     val selection = classesToNamed.keys.head
 
     val processor = new PsiElementProcessor[PsiClass] {
-      def execute(aClass: PsiClass): Boolean = {
+      override def execute(aClass: PsiClass): Boolean = {
         if (aClass != renameAllMarker(aClass)) action(classesToNamed(aClass))
         else {
           val mainOne = classesToNamed(classes.head)

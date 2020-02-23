@@ -188,7 +188,7 @@ object MixinNodes {
       fromSuper = true
     }
 
-    def put(signature: T) {
+    override def put(signature: T) {
       val name = signature.name
       val buffer =
         if (fromSuper) supersSignaturesByName.computeIfAbsent(name, _ => new SmartList[T])
@@ -303,9 +303,9 @@ object MixinNodes {
       private val iter1 = publics.values.iterator
       private val iter2 = privates.nodesIterator
 
-      def hasNext: Boolean = iter1.hasNext || iter2.hasNext
+      override def hasNext: Boolean = iter1.hasNext || iter2.hasNext
 
-      def next(): Node[T] = if (iter1.hasNext) iter1.next() else iter2.next()
+      override def next(): Node[T] = if (iter1.hasNext) iter1.next() else iter2.next()
     }
 
     def iterator: Iterator[T] = nodesIterator.map(_.info)
@@ -355,8 +355,8 @@ object MixinNodes {
   object NodesMap {
     private def hashingStrategy[T <: Signature]: TObjectHashingStrategy[T] =
       new TObjectHashingStrategy[T] {
-        def computeHashCode(t: T): Int = t.equivHashCode
-        def equals(t: T, t1: T): Boolean = t.equiv(t1)
+        override def computeHashCode(t: T): Int = t.equivHashCode
+        override def equals(t: T, t1: T): Boolean = t.equiv(t1)
       }
 
     def empty[T <: Signature]: NodesMap[T] = new THashMap[T, Node[T]](2, hashingStrategy[T])

@@ -97,9 +97,9 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
     val parentMember = Option(PsiTreeUtil.getParentOfType(this, classOf[ScMember], false))
     new ItemPresentation {
-      def getPresentableText: String = name
+      override def getPresentableText: String = name
       def getTextAttributesKey: TextAttributesKey = null
-      def getLocationString: String = clazz match {
+      override def getLocationString: String = clazz match {
         case _: ScTypeDefinition => "(" + clazz.qualifiedName + ")"
         case _: ScNewTemplateDefinition => "(<anonymous>)"
         case _ => parentMember.map(m => StringUtil.first(m.getText, 30, true)).getOrElse("")

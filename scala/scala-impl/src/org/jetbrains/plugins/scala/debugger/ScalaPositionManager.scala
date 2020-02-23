@@ -60,7 +60,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   ScalaPositionManager.cacheInstance(this)
 
   @Nullable
-  def getSourcePosition(@Nullable location: Location): SourcePosition = {
+  override def getSourcePosition(@Nullable location: Location): SourcePosition = {
     if (debugProcess.getProject.isDisposed || shouldSkip(location)) return null
 
     val position =
@@ -78,7 +78,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   @NotNull
-  def getAllClasses(@NotNull position: SourcePosition): ju.List[ReferenceType] = {
+  override def getAllClasses(@NotNull position: SourcePosition): ju.List[ReferenceType] = {
     import JavaConverters._
 
     val file = position.getFile
@@ -153,7 +153,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   @NotNull
-  def locationsOfLine(@NotNull refType: ReferenceType, @NotNull position: SourcePosition): ju.List[Location] = {
+  override def locationsOfLine(@NotNull refType: ReferenceType, @NotNull position: SourcePosition): ju.List[Location] = {
     throwIfNotScalaFile(position.getFile)
     checkForIndyLambdas(refType)
 
@@ -169,7 +169,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
   }
 
-  def createPrepareRequest(@NotNull requestor: ClassPrepareRequestor, @NotNull position: SourcePosition): ClassPrepareRequest = {
+  override def createPrepareRequest(@NotNull requestor: ClassPrepareRequestor, @NotNull position: SourcePosition): ClassPrepareRequest = {
     throw new IllegalStateException("This class implements MultiRequestPositionManager, corresponding createPrepareRequests version should be used")
   }
 
@@ -897,7 +897,7 @@ object ScalaPositionManager {
     private val sourceName = sourceFile.getName
     private def sourceNameOf(refType: ReferenceType): Option[String] = ScalaPositionManager.cachedSourceName(refType)
 
-    def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType) {
+    override def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType) {
       val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
 
       if (!sourceNameOf(referenceType).contains(sourceName)) return

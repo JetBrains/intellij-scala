@@ -11,7 +11,7 @@ class MapGetGetTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val hint = InspectionBundle.message("get.get.hint")
+  override val hint = InspectionBundle.message("get.get.hint")
   override val classOfInspection = classOf[MapGetGetInspection]
 
   def test_1() {

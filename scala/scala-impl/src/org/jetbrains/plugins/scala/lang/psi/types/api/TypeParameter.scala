@@ -69,12 +69,12 @@ object TypeParameter {
     manager.javaPsiTypeParameterUpperType(typeParameter)
   }
 
-  private case class StrictTp(psiTypeParameter: PsiTypeParameter,
-                              typeParameters: Seq[TypeParameter],
+  private case class StrictTp(override val psiTypeParameter: PsiTypeParameter,
+                              override val typeParameters: Seq[TypeParameter],
                               override val lowerType: ScType,
                               override val upperType: ScType) extends TypeParameter
 
-  private case class ScalaTypeParameter(psiTypeParameter: ScTypeParam) extends TypeParameter {
+  private case class ScalaTypeParameter(override val psiTypeParameter: ScTypeParam) extends TypeParameter {
     override val typeParameters: Seq[TypeParameter] = psiTypeParameter.typeParameters.map(ScalaTypeParameter)
 
     override def lowerType: ScType = psiTypeParameter.lowerBound.getOrNothing
@@ -82,7 +82,7 @@ object TypeParameter {
     override def upperType: ScType = psiTypeParameter.upperBound.getOrAny
   }
 
-  private case class JavaTypeParameter(psiTypeParameter: PsiTypeParameter) extends TypeParameter {
+  private case class JavaTypeParameter(override val psiTypeParameter: PsiTypeParameter) extends TypeParameter {
     override val typeParameters: Seq[TypeParameter] = Seq.empty
 
     override def lowerType: ScType = Nothing(psiTypeParameter.getProject)
@@ -91,7 +91,7 @@ object TypeParameter {
   }
 
   private case class LightTypeParameter(override val name: String,
-                                        typeParameters: Seq[TypeParameter],
+                                        override val typeParameters: Seq[TypeParameter],
                                         override val lowerType: ScType,
                                         override val upperType: ScType) extends TypeParameter {
 

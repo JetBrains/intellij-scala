@@ -127,7 +127,7 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
 
   private def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
-  def inferValueType: ValueType = {
+  override def inferValueType: ValueType = {
     polymorphicTypeSubstitutor(internalType.inferValueType).asInstanceOf[ValueType]
   }
 

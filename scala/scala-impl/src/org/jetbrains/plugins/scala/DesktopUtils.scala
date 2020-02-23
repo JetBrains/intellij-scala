@@ -38,7 +38,7 @@ object DesktopUtils {
   }
 
    private object Listener extends NotificationListener.Adapter {
-    def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
+    override def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
       Option(event.getURL).foreach { url =>
          val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
          clipboard.setContents(new StringSelection(url.toExternalForm), null)
@@ -47,7 +47,7 @@ object DesktopUtils {
   }
 
   object LinkHandler extends NotificationListener.Adapter {
-    def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
+    override def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
       Option(e.getURL).foreach(browse)
     }
   }

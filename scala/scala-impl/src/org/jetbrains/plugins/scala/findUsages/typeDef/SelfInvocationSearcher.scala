@@ -28,7 +28,7 @@ class SelfInvocationSearcher extends QueryExecutor[PsiReference, ReferencesSearc
         localScope.forall { scope =>
           val helper: PsiSearchHelper = PsiSearchHelper.getInstance(queryParameters.getProject)
           val processor = new TextOccurenceProcessor {
-            def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+            override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
               inReadAction {
                 element match {
                   case si: ScSelfInvocation if si.bind.contains(ml) => consumer.process(si)

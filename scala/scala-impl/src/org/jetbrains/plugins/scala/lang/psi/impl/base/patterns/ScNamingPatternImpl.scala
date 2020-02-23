@@ -32,9 +32,9 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
 
   override def toString: String = "NamingPattern: " + ifReadAllowed(name)("")
 
-  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
+  override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
   override def `type`(): TypeResult = {
     if (getLastChild.isInstanceOf[ScSeqWildcard]) {

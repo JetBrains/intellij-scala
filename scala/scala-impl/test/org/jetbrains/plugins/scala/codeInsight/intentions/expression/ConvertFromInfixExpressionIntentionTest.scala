@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
  */
 
 class ConvertFromInfixExpressionIntentionTest extends ScalaIntentionTestBase {
-  val familyName = ConvertFromInfixExpressionIntention.familyName
+  override val familyName = ConvertFromInfixExpressionIntention.familyName
 
   def testConvertFromInfixExpression() {
     val text = "1 <caret>to 5"

@@ -45,7 +45,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   override def toString: String = "ExtendsBlock"
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def templateBody: Option[ScTemplateBody] = {
+  override def templateBody: Option[ScTemplateBody] = {
     def childStubTemplate(stub: ScExtendsBlockStub) =
       Option(stub.findChildStubByType(TEMPLATE_BODY))
         .map(_.getPsi)
@@ -58,9 +58,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     byPsiOrStub(lastChildTemplateBody)(childStubTemplate)
   }
 
-  def empty: Boolean = getNode.getFirstChildNode == null
+  override def empty: Boolean = getNode.getFirstChildNode == null
 
-  def selfType: Option[ScType] =
+  override def selfType: Option[ScType] =
     selfTypeElement.flatMap {
       _.typeElement
     }.flatMap {
@@ -68,7 +68,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
 
   @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
-  def superTypes: List[ScType] = {
+  override def superTypes: List[ScType] = {
     val buffer = ArrayBuffer.empty[ScType]
 
     val stdTypes = projectContext.stdTypes
@@ -141,7 +141,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     if (so != null) ScDesignatorType(so) else null
   }
 
-  def isAnonymousClass: Boolean =
+  override def isAnonymousClass: Boolean =
     getParent match {
       case _: ScNewTemplateDefinition => templateBody.isDefined
       case _ => false
@@ -157,7 +157,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   }
 
   @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
-  def supers: Seq[PsiClass] = {
+  override def supers: Seq[PsiClass] = {
     val typeElements = templateParents.fold(syntheticTypeElements) {
       _.allTypeElements
     }
@@ -189,7 +189,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     buffer
   }
 
-  def members: Seq[ScMember] = {
+  override def members: Seq[ScMember] = {
     templateBodies.flatMap {
       _.members
     } ++ earlyDefinitions.toSeq.flatMap {
@@ -197,32 +197,32 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
   }
 
-  def typeDefinitions: Seq[ScTypeDefinition] =
+  override def typeDefinitions: Seq[ScTypeDefinition] =
     templateBodies.flatMap {
       _.typeDefinitions
     }
 
   def nameId = null
 
-  def aliases: Seq[ScTypeAlias] =
+  override def aliases: Seq[ScTypeAlias] =
     templateBodies.flatMap {
       _.aliases
     }
 
-  def functions: Seq[ScFunction] =
+  override def functions: Seq[ScFunction] =
     templateBodies.flatMap {
       _.functions
     }
 
-  def selfTypeElement: Option[ScSelfTypeElement] =
+  override def selfTypeElement: Option[ScSelfTypeElement] =
     templateBody.flatMap {
       _.selfTypeElement
     }
 
-  def templateParents: Option[ScTemplateParents] =
+  override def templateParents: Option[ScTemplateParents] =
     getStubOrPsiChildren(TEMPLATE_PARENTS, ScTemplateParentsFactory).headOption
 
-  def earlyDefinitions: Option[ScEarlyDefinitions] =
+  override def earlyDefinitions: Option[ScEarlyDefinitions] =
     this.stubOrPsiChild(EARLY_DEFINITIONS)
 
   override def addEarlyDefinitions(): ScEarlyDefinitions = {
@@ -240,7 +240,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
   }
 
-  def isUnderCaseClass: Boolean = getParentByStub match {
+  override def isUnderCaseClass: Boolean = getParentByStub match {
     case td: ScTypeDefinition if td.isCase => true
     case _ => false
   }

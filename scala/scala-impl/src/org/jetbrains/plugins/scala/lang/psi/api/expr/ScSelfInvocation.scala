@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 trait ScSelfInvocation extends ScalaPsiElement with PsiReference with ConstructorInvocationLike {
   def args: Option[ScArgumentExprList]
 
-  def arguments: Seq[ScArgumentExprList]
+  override def arguments: Seq[ScArgumentExprList]
 
   def bind: Option[PsiElement]
 

@@ -17,7 +17,7 @@ final class ScalaUnusedImportsPassFactory
   extends MainHighlightingPassFactory
     with TextEditorHighlightingPassFactoryRegistrar {
 
-  def registerHighlightingPassFactory(registrar: TextEditorHighlightingPassRegistrar, project: Project): Unit = {
+  override def registerHighlightingPassFactory(registrar: TextEditorHighlightingPassRegistrar, project: Project): Unit = {
     registrar.registerTextEditorHighlightingPass(
       this,
       Array(Pass.UPDATE_ALL),

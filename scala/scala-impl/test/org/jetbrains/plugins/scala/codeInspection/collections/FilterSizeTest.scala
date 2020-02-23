@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  * 5/30/13
  */
 class FilterSizeTest extends OperationsOnCollectionInspectionTest {
-  val hint = InspectionBundle.message("filter.size.hint")
+  override val hint = InspectionBundle.message("filter.size.hint")
   def test_1() {
     val selected = s"Array().${START}filter(x => true).size$END"
     checkTextHasError(selected)

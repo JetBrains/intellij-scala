@@ -42,7 +42,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
     case _ => null
   }
 
-  def getOriginalElement: PsiElement = {
+  override def getOriginalElement: PsiElement = {
     val ccontainingClass = containingClass
     if (ccontainingClass == null) return this
     val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
@@ -66,14 +66,14 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
     this
   }
 
-  def getDocComment: PsiDocComment = {
+  override def getDocComment: PsiDocComment = {
     nameContext match {
       case d: PsiDocCommentOwner => d.getDocComment
       case _ => null
     }
   }
 
-  def isDeprecated: Boolean = {
+  override def isDeprecated: Boolean = {
     nameContext match {
       case d: PsiDocCommentOwner => d.isDeprecated
       case _ => false
@@ -85,21 +85,21 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
   /**
    * It's for Java only
    */
-  def getContainingClass: PsiClass = {
+  override def getContainingClass: PsiClass = {
     nameContext match {
       case m: PsiMember => m.getContainingClass
       case _ => null
     }
   }
 
-  def getModifierList: PsiModifierList = {
+  override def getModifierList: PsiModifierList = {
     nameContext match {
       case owner: PsiModifierListOwner => owner.getModifierList
       case _ => null
     }
   }
 
-  def hasModifierProperty(name: String): Boolean = {
+  override def hasModifierProperty(name: String): Boolean = {
     nameContext match {
       case owner: PsiModifierListOwner => owner.hasModifierProperty(name)
       case _ => false

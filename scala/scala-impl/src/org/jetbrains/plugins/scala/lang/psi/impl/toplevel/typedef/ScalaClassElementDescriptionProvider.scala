@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
  */
 
 class ScalaClassElementDescriptionProvider extends ElementDescriptionProvider {
-  def getElementDescription(element: PsiElement, location: ElementDescriptionLocation): String = {
+  override def getElementDescription(element: PsiElement, location: ElementDescriptionLocation): String = {
     element match {
       case o: ScObject => o.name
       case PsiClassWrapper(definition) => definition.name

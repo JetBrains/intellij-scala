@@ -167,7 +167,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
   final def getModule: Module =
     getConfigurationModule.getModule
 
-  def getValidModules: java.util.List[Module] =
+  override def getValidModules: java.util.List[Module] =
     getProject.modulesWithScala.asJava
 
   def classKey: String = "-s"
@@ -223,7 +223,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
   override def getModules: Array[Module] = {
     ApplicationManager.getApplication.runReadAction(new Computable[Array[Module]] {
       @SuppressWarnings(Array("ConstantConditions"))
-      def compute: Array[Module] = {
+      override def compute: Array[Module] = {
         testConfigurationData.searchTest match {
           case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
             val buffer = new ArrayBuffer[Module]()
@@ -262,7 +262,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
     JavaRunConfigurationExtensionManager.checkConfigurationIsValid(this)
   }
 
-  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
+  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
     val group: SettingsEditorGroup[AbstractTestRunConfiguration] = new SettingsEditorGroup
     group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"),
       new AbstractTestRunConfigurationEditor(project, this))
@@ -453,7 +453,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
           with PropertiesExtension {
           override def getTestLocator = new ScalaTestLocationProvider
 
-          def getRunConfigurationBase: RunConfigurationBase[_] = config
+          override def getRunConfigurationBase: RunConfigurationBase[_] = config
         }
 
         consoleProperties.setIdBasedTestTree(true)
@@ -474,7 +474,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
             val rerunFailedTestsAction = new AbstractTestRerunFailedTestsAction(testConsole)
             rerunFailedTestsAction.init(testConsole.getProperties)
             rerunFailedTestsAction.setModelProvider(new Getter[TestFrameworkRunningModel] {
-              def get: TestFrameworkRunningModel = {
+              override def get: TestFrameworkRunningModel = {
                 testConsole.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
               }
             })

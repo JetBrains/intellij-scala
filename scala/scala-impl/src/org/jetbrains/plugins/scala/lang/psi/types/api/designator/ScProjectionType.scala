@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
  * member can be class or type alias
  */
 final class ScProjectionType private(val projected: ScType,
-                                     val element: PsiNamedElement) extends DesignatorOwner {
+                                     override val element: PsiNamedElement) extends DesignatorOwner {
 
   override protected def calculateAliasType: Option[AliasType] = {
     actualElement match {

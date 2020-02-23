@@ -51,7 +51,7 @@ object ScalaGenerateEqualsAction {
           else CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.warning", aClass.qualifiedName)
         if (Messages.showYesNoDialog(project, text, CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.title"), Messages.getQuestionIcon) == DialogWrapper.OK_EXIT_CODE) {
           val deletedOk = ApplicationManager.getApplication.runWriteAction(new Computable[Boolean] {
-            def compute: Boolean = {
+            override def compute: Boolean = {
               try {
                 equalsMethod.get.delete()
                 hashCodeMethod.get.delete()

@@ -34,7 +34,7 @@ object ScalaProjectSettingsUtil {
   }
 
   def getPatternValidator: InputValidator = new InputValidator {
-    def checkInput(inputString: String): Boolean = {
+    override def checkInput(inputString: String): Boolean = {
       checkInput(inputString, checkExcludes = true)
     }
 
@@ -46,17 +46,17 @@ object ScalaProjectSettingsUtil {
         inputString.contains(".") && ScalaProjectSettingsUtil.isValidPackage(inputString)
     }
 
-    def canClose(inputString: String): Boolean = {
+    override def canClose(inputString: String): Boolean = {
       checkInput(inputString)
     }
   }
 
   def getPackageValidator: InputValidator = new InputValidator {
-    def checkInput(inputString: String): Boolean = {
+    override def checkInput(inputString: String): Boolean = {
       ScalaProjectSettingsUtil.isValidPackage(inputString, checkPlaceholder = false)
     }
 
-    def canClose(inputString: String): Boolean = {
+    override def canClose(inputString: String): Boolean = {
       checkInput(inputString)
     }
   }
@@ -77,7 +77,7 @@ object ScalaProjectSettingsUtil {
     }
 
     ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction(new AnActionButtonRunnable {
-      def run(button: AnActionButton) {
+      override def run(button: AnActionButton) {
         val validator: InputValidator = ScalaProjectSettingsUtil.getPatternValidator
         val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
         addPattern(pattern, patternJBList)
@@ -100,13 +100,13 @@ object ScalaProjectSettingsUtil {
     }
 
     ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction(new AnActionButtonRunnable {
-      def run(button: AnActionButton) {
+      override def run(button: AnActionButton) {
         val validator: InputValidator = ScalaProjectSettingsUtil.getPackageValidator
         val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
         addPattern(pattern, patternJBList)
       }
     }).addExtraAction(new AnActionButton(ApplicationBundle.message("button.add.blank"), IconUtil.getAddBlankLineIcon) {
-      def actionPerformed(e: AnActionEvent) {
+      override def actionPerformed(e: AnActionEvent) {
         addPattern(ScalaCodeStyleSettings.BLANK_LINE, patternJBList)
       }
     }).setRemoveAction(new AnActionButtonRunnable {

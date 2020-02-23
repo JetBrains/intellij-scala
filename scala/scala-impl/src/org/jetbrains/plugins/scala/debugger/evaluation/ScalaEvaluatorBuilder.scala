@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
  * 2014-09-28
  */
 object ScalaEvaluatorBuilder extends EvaluatorBuilder {
-  def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
+  override def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
     if (codeFragment.getLanguage.isInstanceOf[JavaLanguage])
       return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
 

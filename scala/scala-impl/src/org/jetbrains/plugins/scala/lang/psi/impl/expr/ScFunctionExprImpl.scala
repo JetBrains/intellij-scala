@@ -21,20 +21,20 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Singleton
   */
 class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFunctionExpr {
 
-  def parameters: Seq[ScParameter] = params.params
+  override def parameters: Seq[ScParameter] = params.params
 
-  def params: ScParameters = findChildByClass(classOf[ScParameters])
+  override def params: ScParameters = findChildByClass(classOf[ScParameters])
 
-  def result: Option[ScExpression] = findChild(classOf[ScExpression])
+  override def result: Option[ScExpression] = findChild(classOf[ScExpression])
 
   override def hasParentheses: Boolean = leftParen.isDefined && rightParen.isDefined
 
-  def leftParen: Option[PsiElement] = params.clauses.head.getFirstChild match {
+  override def leftParen: Option[PsiElement] = params.clauses.head.getFirstChild match {
     case (e: LeafPsiElement) if e.textMatches("(") => Some(e)
     case _ => None
   }
 
-  def rightParen: Option[PsiElement] = params.clauses.head.getLastChild match {
+  override def rightParen: Option[PsiElement] = params.clauses.head.getLastChild match {
     case (e: LeafPsiElement) if e.textMatches(")") => Some(e)
     case _ => None
   }

@@ -216,11 +216,11 @@ object ScalafmtDynamicService {
   }
 
   object ScalafmtResolveError {
-    case class NotFound(version: ScalafmtVersion) extends ScalafmtResolveError
-    case class DownloadInProgress(version: ScalafmtVersion) extends ScalafmtResolveError
-    case class DownloadError(version: String, cause: Throwable) extends ScalafmtResolveError
-    case class CorruptedClassPath(version: ScalafmtVersion, urls: Seq[URL], cause: Throwable) extends ScalafmtResolveError
-    case class UnknownError(version: ScalafmtVersion, cause: Throwable) extends ScalafmtResolveError
+    case class NotFound(override val version: ScalafmtVersion) extends ScalafmtResolveError
+    case class DownloadInProgress(override val version: ScalafmtVersion) extends ScalafmtResolveError
+    case class DownloadError(override val version: String, cause: Throwable) extends ScalafmtResolveError
+    case class CorruptedClassPath(override val version: ScalafmtVersion, urls: Seq[URL], cause: Throwable) extends ScalafmtResolveError
+    case class UnknownError(override val version: ScalafmtVersion, cause: Throwable) extends ScalafmtResolveError
 
     object DownloadError {
       def apply(f: DownloadFailure): DownloadError = new DownloadError(f.version, f.cause)

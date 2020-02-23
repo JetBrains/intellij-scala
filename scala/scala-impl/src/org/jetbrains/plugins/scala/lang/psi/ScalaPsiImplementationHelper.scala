@@ -24,7 +24,7 @@ object ScalaPsiImplementationHelper {
     if (fqn == null) return psiClass
     val classes: Array[PsiClass] = ScalaPsiManager.instance(project).getCachedClasses(new GlobalSearchScope(project) {
       override def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
-      def contains(file: VirtualFile): Boolean = {
+      override def contains(file: VirtualFile): Boolean = {
         val entries: List[OrderEntry] = idx.getOrderEntriesForFile(file)
         var i: Int = 0
         while (i < entries.size) {
@@ -36,8 +36,8 @@ object ScalaPsiImplementationHelper {
         }
         false
       }
-      def isSearchInModuleContent(aModule: Module): Boolean = false
-      def isSearchInLibraries: Boolean = true
+      override def isSearchInModuleContent(aModule: Module): Boolean = false
+      override def isSearchInLibraries: Boolean = true
     }, fqn)
     if (classes.length == 0) psiClass
     else if (classes.length == 1) classes(0)

@@ -30,19 +30,19 @@ object EnumSetProvider {
 
       type EnumSet[E <: Enum[E]] = Int
 
-      def empty[E <: Enum[E]]: EnumSet[E] = 0
+      override def empty[E <: Enum[E]]: EnumSet[E] = 0
 
-      def single[E <: Enum[E]](e: E): EnumSet[E] = 1 << e.ordinal()
+      override def single[E <: Enum[E]](e: E): EnumSet[E] = 1 << e.ordinal()
 
-      def union[E <: Enum[E]](set1: EnumSet[E], set2: EnumSet[E]): EnumSet[E] = set1 | set2
+      override def union[E <: Enum[E]](set1: EnumSet[E], set2: EnumSet[E]): EnumSet[E] = set1 | set2
 
       def intersect[E <: Enum[E]](set1: EnumSet[E], set2: EnumSet[E]): EnumSet[E] = set1 & set2
 
-      def add[E <: Enum[E]](set: EnumSet[E], e: E): EnumSet[E] = union(set, single(e))
+      override def add[E <: Enum[E]](set: EnumSet[E], e: E): EnumSet[E] = union(set, single(e))
 
-      def contains[E <: Enum[E]](set: EnumSet[E], e: E): Boolean = intersect(set, single(e)) == single(e)
+      override def contains[E <: Enum[E]](set: EnumSet[E], e: E): Boolean = intersect(set, single(e)) == single(e)
 
-      def readFromInt[E <: Enum[E]](i: Int): EnumSet[E] = i
+      override def readFromInt[E <: Enum[E]](i: Int): EnumSet[E] = i
     }
 
 }

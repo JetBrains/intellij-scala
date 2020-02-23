@@ -27,16 +27,16 @@ final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDecl
 
   override def toString: String = "ScValueDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
-  def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
+  override def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
   override def `type`(): TypeResult = typeElement match {
     case Some(te) => te.`type`()
     case None => Failure(ScalaBundle.message("no.type.element.found", getText))
   }
 
-  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST)
+  override def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST)
 
   override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitValueDeclaration(this)

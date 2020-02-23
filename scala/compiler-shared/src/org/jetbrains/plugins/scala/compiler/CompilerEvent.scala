@@ -23,7 +23,7 @@ sealed trait CompilerEvent {
 object CompilerEvent {
 
   @SerialVersionUID(-1920831455397960151L)
-  case class MessageEmitted(compilationId: CompilationId, msg: Client.ClientMsg)
+  case class MessageEmitted(override val compilationId: CompilationId, msg: Client.ClientMsg)
     extends CompilerEvent {
 
     override def eventType: String = MessageEmitted.EventType
@@ -34,7 +34,7 @@ object CompilerEvent {
   }
 
 
-  final case class RangeMessageEmitted(compilationId: CompilationId, msg: RangeMessage)
+  final case class RangeMessageEmitted(override val compilationId: CompilationId, msg: RangeMessage)
     extends CompilerEvent {
     override def eventType: String = RangeMessageEmitted.EventType
   }
@@ -48,7 +48,7 @@ object CompilerEvent {
     toLine: Option[Int], toColumn: Option[Int])
 
   @SerialVersionUID(2805617802395239646L)
-  case class CompilationFinished(compilationId: CompilationId, source: File)
+  case class CompilationFinished(override val compilationId: CompilationId, source: File)
     extends CompilerEvent {
 
     override def eventType: String = CompilationFinished.EventType

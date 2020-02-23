@@ -16,7 +16,7 @@ trait ScalaPsiElement extends PsiElement
 
   implicit def elementScope: ElementScope = ElementScope(this)
 
-  implicit def projectContext: project.ProjectContext = this.getProject
+  override implicit def projectContext: project.ProjectContext = this.getProject
 
   final def isInCompiledFile: Boolean = getContainingFile match {
     case sf: ScalaFile => sf.isCompiled

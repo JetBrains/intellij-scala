@@ -69,12 +69,12 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def toString: String = "TypeParameter: " + ifReadAllowed(name)("")
 
-  def getContainingFileName: String = byStubOrPsi(_.containingFileName) {
+  override def getContainingFileName: String = byStubOrPsi(_.containingFileName) {
     Option(getContainingFile).map(_.name).getOrElse("NoFile")
   }
 
-  def getIndex: Int = 0
-  def getOwner: PsiTypeParameterListOwner = getContext.getContext match {
+  override def getIndex: Int = 0
+  override def getOwner: PsiTypeParameterListOwner = getContext.getContext match {
     case c : PsiTypeParameterListOwner => c
     case _ => null
   }
@@ -82,24 +82,24 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   override def getContainingClass: ScTemplateDefinition = null
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def isCovariant: Boolean = byStubOrPsi(_.isCovariant) {
+  override def isCovariant: Boolean = byStubOrPsi(_.isCovariant) {
     Option(findChildByType[PsiElement](tIDENTIFIER))
       .exists(_.getText == "+")
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def isContravariant: Boolean = byStubOrPsi(_.isContravariant) {
+  override def isContravariant: Boolean = byStubOrPsi(_.isContravariant) {
     Option(findChildByType[PsiElement](tIDENTIFIER))
       .exists(_.getText == "-")
   }
 
-  def typeParameterText: String = byStubOrPsi(_.text)(getText)
+  override def typeParameterText: String = byStubOrPsi(_.text)(getText)
 
-  def owner: ScTypeParametersOwner = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
+  override def owner: ScTypeParametersOwner = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
 
   override def getUseScope: SearchScope = new LocalSearchScope(owner).intersectWith(super.getUseScope)
 
-  def nameId: PsiElement = findLastChildByType(TokenSets.ID_SET)
+  override def nameId: PsiElement = findLastChildByType(TokenSets.ID_SET)
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 

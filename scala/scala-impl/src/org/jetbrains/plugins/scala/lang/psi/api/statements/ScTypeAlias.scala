@@ -34,7 +34,7 @@ trait ScTypeAlias extends ScPolymorphicElement
 
   def getTypeToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTYPE)
 
-  def getOriginalElement: PsiElement = {
+  override def getOriginalElement: PsiElement = {
     val ccontainingClass = containingClass
     if (ccontainingClass == null) return this
     val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]

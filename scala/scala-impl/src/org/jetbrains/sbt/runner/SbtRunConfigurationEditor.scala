@@ -12,9 +12,9 @@ class SbtRunConfigurationEditor(project: Project, configuration: SbtRunConfigura
         extends SettingsEditor[SbtRunConfiguration] {
   val form = new SbtRunConfigurationForm(project, configuration)
 
-  def resetEditorFrom(configuration: SbtRunConfiguration): Unit = form(configuration)
+  override def resetEditorFrom(configuration: SbtRunConfiguration): Unit = form(configuration)
 
-  def applyEditorTo(configuration: SbtRunConfiguration): Unit = configuration(form)
+  override def applyEditorTo(configuration: SbtRunConfiguration): Unit = configuration(form)
 
-  def createEditor: JComponent = form.getMainPanel
+  override def createEditor: JComponent = form.getMainPanel
 }

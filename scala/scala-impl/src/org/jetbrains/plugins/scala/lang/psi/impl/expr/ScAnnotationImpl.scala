@@ -34,22 +34,22 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
 
   override def toString: String = "Annotation"
 
-  def getParameterList: PsiAnnotationParameterList = new ScAnnotationParameterList(annotationExpr)
+  override def getParameterList: PsiAnnotationParameterList = new ScAnnotationParameterList(annotationExpr)
 
   private def getClazz: Option[PsiClass] =
     typeElement.`type`().getOrAny.extractClass
 
-  def getQualifiedName: String = getClazz.map {
+  override def getQualifiedName: String = getClazz.map {
     _.qualifiedName
   }.orNull
 
-  def typeElement: ScTypeElement =
+  override def typeElement: ScTypeElement =
     byPsiOrStub(Option(annotationExpr.constructorInvocation.typeElement))(_.typeElement).orNull
 
   override def annotationExpr: ScAnnotationExpr =
     byPsiOrStub(Option(findChildByClassScala(classOf[ScAnnotationExpr])))(_.annotationExpr).orNull
 
-  def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
+  override def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructorInvocation.args match {
       case Some(args) => args.exprs.map {
         case expr@(ass: ScAssignment) => ass.leftExpression match {
@@ -66,7 +66,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
     }
   }
 
-  def findAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
+  override def findAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     val value = findDeclaredAttributeValue(attributeName)
     if (value != null) return value
 
@@ -87,11 +87,11 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
     null
   }
 
-  def getNameReferenceElement: PsiJavaCodeReferenceElement = null
+  override def getNameReferenceElement: PsiJavaCodeReferenceElement = null
 
-  def getOwner: PsiAnnotationOwner = null
+  override def getOwner: PsiAnnotationOwner = null
 
-  def setDeclaredAttributeValue[T <: PsiAnnotationMemberValue](attributeName: String, value: T): T = {
+  override def setDeclaredAttributeValue[T <: PsiAnnotationMemberValue](attributeName: String, value: T): T = {
     val existing: PsiAnnotationMemberValue = findDeclaredAttributeValue(attributeName)
     if (value == null) {
       if (existing == null) {

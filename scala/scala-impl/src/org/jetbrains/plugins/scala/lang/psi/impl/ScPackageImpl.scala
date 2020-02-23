@@ -62,7 +62,7 @@ final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
   }
 
   @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
-  def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
+  override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
     ScalaShortNamesCacheManager.getInstance(getProject).findPackageObjectByName(getQualifiedName, scope)
 
   override def getParentPackage: PsiPackageImpl =

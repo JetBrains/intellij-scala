@@ -35,25 +35,25 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
           withSuperParent(2, classOf[ScArgumentExprList]).withSuperParent(3, classOf[ScMethodCall])
 
   extend(CompletionType.BASIC, constructorFilter, new CompletionProvider[CompletionParameters]() {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       addConstructorCompletions(parameters, result)
     }
   })
 
   extend(CompletionType.SMART, constructorFilter, new CompletionProvider[CompletionParameters]() {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       addConstructorCompletions(parameters, result)
     }
   })
 
   extend(CompletionType.BASIC, superCallFilter, new CompletionProvider[CompletionParameters]() {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       addSuperCallCompletions(parameters, result)
     }
   })
 
   extend(CompletionType.SMART, superCallFilter, new CompletionProvider[CompletionParameters]() {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       addSuperCallCompletions(parameters, result)
     }
   })
@@ -158,7 +158,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
         icon.setIcon(Icons.PARAMETER, 0, 2 * w / 5, 0)
         icon.setIcon(Icons.PARAMETER, 1)
         val element = LookupElementBuilder.create(res).withIcon(icon).withInsertHandler(new InsertHandler[LookupElement] {
-          def handleInsert(context: InsertionContext, item: LookupElement) {
+          override def handleInsert(context: InsertionContext, item: LookupElement) {
             val completionChar = context.getCompletionChar
             if (completionChar == ')') return
 

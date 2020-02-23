@@ -13,9 +13,9 @@ class DepthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) 
     if (element == null)  List.empty
     else                  List(element)
 
-  def hasNext: Boolean = stack.nonEmpty
+  override def hasNext: Boolean = stack.nonEmpty
 
-  def next(): PsiElement = {
+  override def next(): PsiElement = {
     val element = stack.head
     stack = stack.tail
     if (predicate(element)) pushChildren(element)
