@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
  * AnnotType ::= {Annotation} SimpleType
  */
 object AnnotType extends AnnotType {
-  override protected def simpleType = SimpleType
+  override protected def simpleType: SimpleType = SimpleType
 }
 
 trait AnnotType {

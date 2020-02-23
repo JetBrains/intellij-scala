@@ -13,7 +13,7 @@ class TypeVisibilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL13138() = {
+  def testSCL13138(): Unit = {
     val text =
       """
         |trait A[T] {

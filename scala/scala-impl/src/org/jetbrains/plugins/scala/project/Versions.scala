@@ -84,25 +84,25 @@ object Versions {
 
     import buildinfo.BuildInfo._
 
-    val ScalaEntity = Entity(
+    val ScalaEntity: Entity = Entity(
       "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       Scala_2_10.major + ".0",
       scalaVersion :: Scala_2_11.minor :: Scala_2_10.minor :: Nil
     )
 
-    val Sbt013Entity = Entity(
+    val Sbt013Entity: Entity = Entity(
       "https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       "0.13.5",
       sbtLatest_0_13 :: Nil
     )
 
-    val Sbt1Entity = Entity(
+    val Sbt1Entity: Entity = Entity(
       "https://dl.bintray.com/sbt/maven-releases/org/scala-sbt/sbt-launch/",
       "1.0.0",
       (sbtLatestVersion :: sbtLatest_1_0 :: Nil).distinct
     )
 
-    val DottyEntity = Entity(
+    val DottyEntity: Entity = Entity(
       s"https://repo1.maven.org/maven2/ch/epfl/lamp/dotty_${Scala_3_0.major}/",
       Scala_3_0.major + ".0",
       Scala_3_0.minor :: Nil,

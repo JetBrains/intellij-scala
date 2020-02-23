@@ -5,30 +5,30 @@ class TypeParameterInfoSimpleTestsTest extends TypeParameterInfoTestBase {
   override def getTestDataPath: String =
     s"${super.getTestDataPath}SimpleTests/"
 
-  def testApplyMethodA() = doTest()
+  def testApplyMethodA(): Unit = doTest()
 
   // TODO
   // def testApplyMethodB = doTest
 
-  def testContravariant() = doTest()
+  def testContravariant(): Unit = doTest()
 
-  def testCovariant() = doTest()
+  def testCovariant(): Unit = doTest()
 
-  def testFunDecl() = doTest()
+  def testFunDecl(): Unit = doTest()
 
-  def testFunDef() = doTest()
+  def testFunDef(): Unit = doTest()
 
-  def testJavaMethod() = doTest()
+  def testJavaMethod(): Unit = doTest()
 
-  def testJustGeneric() = doTest()
+  def testJustGeneric(): Unit = doTest()
 
-  def testTypeAliasDef() = doTest()
+  def testTypeAliasDef(): Unit = doTest()
 
-  def testTypeParam() = doTest()
+  def testTypeParam(): Unit = doTest()
 
-  def testAliasedClassTypeParams() = doTest()
+  def testAliasedClassTypeParams(): Unit = doTest()
 
-  def testApplyFromVal() = doTest()
+  def testApplyFromVal(): Unit = doTest()
 
-  def testInfixCall() = doTest()
+  def testInfixCall(): Unit = doTest()
 }

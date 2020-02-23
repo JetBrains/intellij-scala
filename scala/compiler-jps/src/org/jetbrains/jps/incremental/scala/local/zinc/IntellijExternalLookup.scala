@@ -37,7 +37,7 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
 
   override def shouldDoIncrementalCompilation(changedClasses: Set[String], analysis: CompileAnalysis): Boolean = {
     if (compilationData.zincData.isCompile){
-      def invalidateClass(source: File) = client.sourceStarted(source.getAbsolutePath)
+      def invalidateClass(source: File): Unit = client.sourceStarted(source.getAbsolutePath)
 
       changedClasses.flatMap(analysis.asInstanceOf[Analysis].relations.definesClass).foreach(invalidateClass)
     }

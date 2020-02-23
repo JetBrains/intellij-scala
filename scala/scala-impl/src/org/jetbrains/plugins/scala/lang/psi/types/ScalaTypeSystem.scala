@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.roots.ProjectRootManager
+import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -16,9 +17,9 @@ final class ScalaTypeSystem private (implicit override val projectContext: Proje
 
   override val name = "Scala"
 
-  override def andType(types: Seq[ScType]) = ScCompoundType(types)
+  override def andType(types: Seq[ScType]): ScType = ScCompoundType(types)
 
-  override def parameterizedType(designator: ScType, typeArguments: Seq[ScType]) =
+  override def parameterizedType(designator: ScType, typeArguments: Seq[ScType]): ValueType =
     ScParameterizedType(designator, typeArguments)
 }
 

@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
@@ -47,7 +48,7 @@ final class ScalaPullUpProcessor(project: Project,
   def moveMembersToBase(): Unit = {
     import ScalaChangeContextUtil._
 
-    implicit val projectContext = targetClass.projectContext
+    implicit val projectContext: ProjectContext = targetClass.projectContext
     val extendsBlock = targetClass.extendsBlock
     val templateBody = extendsBlock.templateBody match {
       case Some(tb) => tb

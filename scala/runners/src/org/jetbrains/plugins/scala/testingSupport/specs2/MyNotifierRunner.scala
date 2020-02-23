@@ -12,9 +12,9 @@ import org.specs2.specification.{ExecutedSpecification, ExecutingSpecification}
 
 class MyNotifierRunner(notifier: Notifier) { outer =>
 
-  def classRunner = new ClassRunner {
+  def classRunner: ClassRunner = new ClassRunner {
     override lazy val reporter: Reporter = new NotifierReporter {
-      override val notifier = outer.notifier
+      override val notifier: Notifier = outer.notifier
       override def export(implicit arguments: Arguments): ExecutingSpecification => ExecutedSpecification = (spec: ExecutingSpecification) => {
         super.export(arguments)(spec)
         //TODO !!!  Worked in Specs2 2.9.2 - 1.12.2

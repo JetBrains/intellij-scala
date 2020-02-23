@@ -271,7 +271,7 @@ trait OverridingAnnotator {
       case _ => None
     }
 
-    implicit val tpc = TypePresentationContext(memberNameId)
+    implicit val tpc: TypePresentationContext = TypePresentationContext(memberNameId)
     for {
       overridingType <- comparableType(namedElement)
       superSig <- superSignatures.filterBy[TermSignature]

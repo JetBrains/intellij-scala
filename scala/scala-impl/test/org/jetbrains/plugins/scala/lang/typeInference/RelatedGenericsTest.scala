@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
   */
 class RelatedGenericsTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  def testSCL9347() = checkTextHasNoErrors(
+  def testSCL9347(): Unit = checkTextHasNoErrors(
     """
       |object SCL9347 {
       |  trait Record

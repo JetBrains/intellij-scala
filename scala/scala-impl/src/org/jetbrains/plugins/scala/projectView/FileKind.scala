@@ -57,13 +57,13 @@ object FileKind {
 
   private case class PackageObject(override protected val delegate: ScObject) extends SingleDefinition {
 
-    override def node(implicit project: Project, settings: ViewSettings) =
+    override def node(implicit project: Project, settings: ViewSettings): Option[Node with IconableNode] =
       Some(new PackageObjectNode(delegate))
   }
 
   private case class TypeDefinition(override protected val delegate: ScTypeDefinition) extends SingleDefinition {
 
-    override def node(implicit project: Project, settings: ViewSettings) =
+    override def node(implicit project: Project, settings: ViewSettings): Option[Node with IconableNode] =
       Some(new TypeDefinitionNode(delegate))
   }
 

@@ -44,7 +44,7 @@ class ScStringLiteralImpl(node: ASTNode,
     case _ => text
   }
 
-  override protected final def wrappedValue(value: String) =
+  override protected final def wrappedValue(value: String): ScLiteral.Value[String] =
     Value(value)
 
   override def isString: Boolean = literalElementType != `tWRONG_STRING`

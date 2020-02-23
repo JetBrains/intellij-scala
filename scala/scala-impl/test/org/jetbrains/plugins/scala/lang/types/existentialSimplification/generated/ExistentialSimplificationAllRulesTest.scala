@@ -5,5 +5,5 @@ import org.jetbrains.plugins.scala.lang.types.existentialSimplification.Existent
 class ExistentialSimplificationAllRulesTest extends ExistentialSimplificationTestBase {
   override def folderPath: String = super.folderPath + "allRules/"
 
-  def testAllRules() = doTest()
+  def testAllRules(): Unit = doTest()
 }

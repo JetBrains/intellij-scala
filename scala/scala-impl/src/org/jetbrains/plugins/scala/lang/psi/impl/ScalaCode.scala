@@ -108,7 +108,7 @@ object ScalaCode {
 
   class Context(val format: String => String, val select: ScalaPsiElement => ScalaPsiElement)
 
-  implicit val Block = new Context(identity, identity)
+  implicit val Block: Context = new Context(identity, identity)
 
   val Type = new Context("val v: " + _, _.getLastChild.asInstanceOf[ScTypeElement])
 }

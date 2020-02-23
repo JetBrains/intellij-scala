@@ -157,7 +157,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(code)
   }
 
-  def testIncompatibleExtractorMatchStmtNonFinalType() = {
+  def testIncompatibleExtractorMatchStmtNonFinalType(): Unit = {
     val code =
       """
         |class B
@@ -170,7 +170,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(code)
   }
 
-  def testNonFinalClass() = {
+  def testNonFinalClass(): Unit = {
     //the reason this compiles without errors is that equals in A can be overridden.
     //for more see https://stackoverflow.com/questions/33354987/stable-identifier-conformance-check/
     emptyMessages(
@@ -208,7 +208,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(code)
   }
 
-  def testLiteral() = {
+  def testLiteral(): Unit = {
     val text = """
       |object Foo {
       |  def foo(i: String) = {

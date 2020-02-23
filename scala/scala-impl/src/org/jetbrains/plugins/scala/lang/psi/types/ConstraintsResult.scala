@@ -70,7 +70,7 @@ object ConstraintSystem {
   final case class SubstitutionBounds(tvMap: LongMap[ScType],
                                       lowerMap: LongMap[ScType],
                                       upperMap: LongMap[ScType]) {
-    val substitutor = ScSubstitutor(tvMap)
+    val substitutor: ScSubstitutor = ScSubstitutor(tvMap)
   }
 
   def apply(constraintsSet: Set[ConstraintSystem]): ConstraintSystem = {

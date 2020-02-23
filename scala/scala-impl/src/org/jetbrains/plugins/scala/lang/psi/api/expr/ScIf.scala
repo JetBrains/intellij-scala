@@ -29,5 +29,5 @@ trait ScIf extends ScExpression {
 }
 
 object ScIf {
-  def unapply(ifStmt: ScIf) = Some(ifStmt.condition, ifStmt.thenExpression, ifStmt.elseExpression)
+  def unapply(ifStmt: ScIf): Some[(Option[ScExpression], Option[ScExpression], Option[ScExpression])] = Some(ifStmt.condition, ifStmt.thenExpression, ifStmt.elseExpression)
 }

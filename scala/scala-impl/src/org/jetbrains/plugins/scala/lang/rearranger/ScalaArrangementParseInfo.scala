@@ -28,9 +28,9 @@ private class ScalaArrangementParseInfo {
   private val javaPropertiesData = mutable.HashMap[(String/*property name*/, PsiElement/*PSI parent*/), ScalaPropertyInfo]()
   private val scalaPropertiesData = mutable.HashMap[(String/*property name*/, PsiElement/*PSI parent*/), ScalaPropertyInfo]()
 
-  def onMethodEntryCreated(method: ScFunction, entry: ScalaArrangementEntry) = methodToEntry += ((method, entry))
+  def onMethodEntryCreated(method: ScFunction, entry: ScalaArrangementEntry): Unit = methodToEntry += ((method, entry))
 
-  def addEntry(entry: ScalaArrangementEntry) = myEntries += entry
+  def addEntry(entry: ScalaArrangementEntry): Unit = myEntries += entry
 
   def entries: immutable.List[ScalaArrangementEntry] = myEntries.toList
 

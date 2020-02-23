@@ -7,19 +7,19 @@ package org.jetbrains.plugins.scala.lang.completion.postfix
 class ScalaNotPostfixTemplateTest extends PostfixTemplateTest {
   override def testPath(): String = super.testPath() + "not/"
 
-  def testDoubleNot() = doTest()
+  def testDoubleNot(): Unit = doTest()
 
-  def testInMiddle() = doTest()
+  def testInMiddle(): Unit = doTest()
 
-  def testParenthesized() = doTest()
+  def testParenthesized(): Unit = doTest()
 
-  def testSimple() = doTest()
+  def testSimple(): Unit = doTest()
 
-  def testSimplified() = doTest()
+  def testSimplified(): Unit = doTest()
 
-  def testUnknownType() = doTest()
+  def testUnknownType(): Unit = doTest()
 
-  def testNotApplicable() = doNotApplicableTest()
+  def testNotApplicable(): Unit = doNotApplicableTest()
 
-  def testScl10247() = doTest()
+  def testScl10247(): Unit = doTest()
 }

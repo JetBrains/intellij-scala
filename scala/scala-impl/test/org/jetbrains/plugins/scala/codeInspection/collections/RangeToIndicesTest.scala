@@ -17,7 +17,7 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
   override protected val hint: String =
     "Replace with seq.indices"
 
-  def testRange() = {
+  def testRange(): Unit = {
     doTest(
       s"val seq = Seq(1); ${START}Range(0, seq.size)$END",
       "val seq = Seq(1); Range(0, seq.size)",
@@ -25,7 +25,7 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
-  def testUntil() = {
+  def testUntil(): Unit = {
     doTest(
       s"val seq = Seq(1); ${START}0 until seq.size$END",
       "val seq = Seq(1); 0 until seq.size",
@@ -33,7 +33,7 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
-  def testUntil2() = {
+  def testUntil2(): Unit = {
     doTest(
       s"val seq = Seq(1); ${START}0.until(seq.size)$END",
       "val seq = Seq(1); 0.until(seq.size)",
@@ -41,7 +41,7 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
-  def testTo() = {
+  def testTo(): Unit = {
     doTest(
       s"val seq = Seq(1); ${START}0 to (seq.length - 1)$END",
       "val seq = Seq(1); 0 to (seq.length - 1)",
@@ -49,7 +49,7 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
-  def testArray() = {
+  def testArray(): Unit = {
     doTest(
       s"val seq = Array(1); ${START}Range(0, seq.length)$END",
       "val seq = Array(1); Range(0, seq.length)",
@@ -57,7 +57,7 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
-  def testSet() = {
+  def testSet(): Unit = {
     checkTextHasNoErrors("val seq = Set(1); Range(0, seq.size)")
   }
 }

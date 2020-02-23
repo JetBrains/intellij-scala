@@ -77,7 +77,7 @@ class BundledInspectionsUiTableModel(pathToInspections: util.Map[String, util.Ar
     }
   }
   
-  def getDisabledIdsWithPreservedOrder = {
+  def getDisabledIdsWithPreservedOrder: util.HashSet[String] = {
     val set = new util.HashSet[String]()
     rows.foreach {
       case (cb, _, id, _) if !cb.booleanValue() => set.add(id)

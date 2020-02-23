@@ -11,8 +11,8 @@ import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
-import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, EditorColorsScheme}
+import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, MarkupModel, RangeHighlighter, TextAttributes}
 import com.intellij.openapi.editor.{Editor, RangeMarker, SelectionModel, VisualPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
@@ -486,14 +486,14 @@ object ScalaRefactoringUtil {
                             presentation: T => String,
                             toHighlight: T => PsiElement): Unit = {
     class Selection {
-      val selectionModel = editor.getSelectionModel
+      val selectionModel: SelectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
-      val scheme = editor.getColorsScheme
+      val scheme: EditorColorsScheme = editor.getColorsScheme
       val textAttributes = new TextAttributes
       textAttributes.setForegroundColor(scheme.getColor(EditorColors.SELECTION_FOREGROUND_COLOR))
       textAttributes.setBackgroundColor(scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR))
       var selectionHighlighter: RangeHighlighter = _
-      val markupModel = editor.getMarkupModel
+      val markupModel: MarkupModel = editor.getMarkupModel
 
       def addHighlighter(): Unit = if (selectionHighlighter == null) {
         selectionHighlighter = markupModel.addRangeHighlighter(start, end, HighlighterLayer.SELECTION + 1,

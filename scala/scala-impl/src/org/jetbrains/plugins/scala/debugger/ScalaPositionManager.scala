@@ -114,7 +114,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           nonStrictParents.find(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
         } else None
 
-      def addExactClasses(td: ScTypeDefinition) = {
+      def addExactClasses(td: ScTypeDefinition): Unit = {
         val qName = getSpecificNameForDebugger(td)
         val additional = td match {
           case _: ScTrait =>

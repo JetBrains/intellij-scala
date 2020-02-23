@@ -12,6 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
@@ -43,7 +44,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
     super.isAvailable(project, editor, file) && goodQualifier
   }
 
-  override protected def invokeInner(project: Project, editor: Editor, file: PsiFile) = {
+  override protected def invokeInner(project: Project, editor: Editor, file: PsiFile): Unit = {
     inWriteAction {
       ref.qualifier match {
         case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => createInnerClassIn(typeDef)
@@ -98,7 +99,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
   }
 
   private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]): Unit = {
-    val renderer = new PsiElementListCellRenderer[PsiElement] {
+    val renderer: PsiElementListCellRenderer[PsiElement] = new PsiElementListCellRenderer[PsiElement] {
       override def getElementText(element: PsiElement): String = element match {
         case _: PsiFile => "New file"
         case td: ScTypeDefinition if td.isTopLevel => "Top level in this file"
@@ -108,9 +109,9 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
         case _ => "Local scope"
       }
 
-      override def getContainerText(element: PsiElement, name: String) = null
+      override def getContainerText(element: PsiElement, name: String): String = null
       override def getIconFlags = 0
-      override def getIcon(element: PsiElement) = null
+      override def getIcon(element: PsiElement): Icon = null
     }
     siblings match {
       case Seq() =>
@@ -140,7 +141,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
     }
   }
   
-  private def createClassInDirectory(directory: PsiDirectory) = {
+  private def createClassInDirectory(directory: PsiDirectory): Unit = {
     val clazz = ScalaDirectoryService.createClassFromTemplate(directory, name, kind.templateName, askToDefineVariables = false)
     afterCreationWork(clazz.asInstanceOf[ScTypeDefinition])
   }

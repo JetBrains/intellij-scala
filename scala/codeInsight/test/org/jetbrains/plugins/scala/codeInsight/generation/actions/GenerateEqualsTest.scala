@@ -159,7 +159,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
     performTest(text, result)
   }
 
-  def testInheritsMethodsFromJavaLangObject() = {
+  def testInheritsMethodsFromJavaLangObject(): Unit = {
     val text = s"""class A {
                  |  val a = 0
                  |}

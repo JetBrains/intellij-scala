@@ -5,15 +5,15 @@ class PatternParameterInfoUnapplyTest extends PatternParameterInfoTestBase {
   override def getTestDataPath: String =
     s"${super.getTestDataPath}unapply/"
 
-  def testCompoundTypeField() = doTest()
+  def testCompoundTypeField(): Unit = doTest()
 
-  def testCompoundTypeParam() = doTest()
+  def testCompoundTypeParam(): Unit = doTest()
 
-  def testUnapply() = doTest()
+  def testUnapply(): Unit = doTest()
 
-  def testUnapplySeq() = doTest()
+  def testUnapplySeq(): Unit = doTest()
 
-  def testWithLocalTypeInference() = doTest()
+  def testWithLocalTypeInference(): Unit = doTest()
 
-  def testSelfType() = doTest()
+  def testSelfType(): Unit = doTest()
 }

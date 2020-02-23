@@ -24,7 +24,7 @@ import scala.annotation.tailrec
   */
 
 object ComparingUnrelatedTypesInspection {
-  val inspectionName = InspectionBundle.message("comparing.unrelated.types.name")
+  val inspectionName: String = InspectionBundle.message("comparing.unrelated.types.name")
   val inspectionId = "ComparingUnrelatedTypes"
 
   private val seqFunctions = Seq("contains", "indexOf", "lastIndexOf")

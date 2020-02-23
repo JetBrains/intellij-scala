@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * InfixType ::= CompoundType {id [nl] CompoundType}
  */
 object InfixType extends InfixType {
-  override protected def componentType = CompoundType
-  override protected def errorMessage = ScalaBundle.message("compound.type.expected")
+  override protected def componentType: Type = CompoundType
+  override protected def errorMessage: String = ScalaBundle.message("compound.type.expected")
 }
 
 trait InfixType {

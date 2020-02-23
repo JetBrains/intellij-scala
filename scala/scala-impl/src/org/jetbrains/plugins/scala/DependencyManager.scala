@@ -117,7 +117,7 @@ abstract class DependencyManagerBase {
     processIvyReport(report)
   }
 
-  protected def artToDep(id: ModuleRevisionId) = DependencyDescription(id.getOrganisation, id.getName, id.getRevision)
+  protected def artToDep(id: ModuleRevisionId): DependencyDescription = DependencyDescription(id.getOrganisation, id.getName, id.getRevision)
 
   protected def processIvyReport(report: ResolveReport): Seq[ResolvedDependency] = {
 
@@ -206,9 +206,9 @@ object DependencyManagerBase {
 
   implicit class RichStr(private val org: String) extends AnyVal {
 
-    def %(artId: String) = DependencyDescription(org, artId, "")
+    def %(artId: String): DependencyDescription = DependencyDescription(org, artId, "")
 
-    def %%(artId: String)(implicit scalaVersion: ScalaVersion) = DependencyDescription(
+    def %%(artId: String)(implicit scalaVersion: ScalaVersion): DependencyDescription = DependencyDescription(
       org,
       artId + "_" + scalaVersion.major,
       ""

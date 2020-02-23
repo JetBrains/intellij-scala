@@ -10,21 +10,21 @@ class FunctionOperatorTest extends ResolveTestBase {
     super.folderPath + "function/operator/"
   }
 
-  def testDot() = doTest()
-  def testDotAndParentheses() = doTest()
-  def testNameArbitrary() = doTest()
-  def testNameLong() = doTest()
+  def testDot(): Unit = doTest()
+  def testDotAndParentheses(): Unit = doTest()
+  def testNameArbitrary(): Unit = doTest()
+  def testNameLong(): Unit = doTest()
   //TODO
 //  def testParametersEmpty = doTest
   //TODO
 //  def testParametersNone = doTest
-  def testParametersTwo() = doTest()
-  def testParametersType() = doTest()
-  def testParentheses() = doTest()
-  def testQualifierInstance() = doTest()
+  def testParametersTwo(): Unit = doTest()
+  def testParametersType(): Unit = doTest()
+  def testParentheses(): Unit = doTest()
+  def testQualifierInstance(): Unit = doTest()
   //TODO
 //  def testQualifierNone = doTest
-  def testQualifierObject() = doTest()
+  def testQualifierObject(): Unit = doTest()
   //TODO
 //  def testQualifierThis = doTest
 }

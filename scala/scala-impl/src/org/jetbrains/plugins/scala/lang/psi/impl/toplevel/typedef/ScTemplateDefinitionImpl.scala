@@ -454,7 +454,7 @@ object ScTemplateDefinitionImpl {
 
   object Path {
 
-    val JavaObject = Path(
+    val JavaObject: Path = Path(
       CommonClassNames.JAVA_LANG_OBJECT_SHORT,
       Some(CommonClassNames.JAVA_LANG_OBJECT),
       Kind.NonScala

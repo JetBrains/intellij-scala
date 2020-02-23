@@ -34,15 +34,15 @@ package object transformation {
   // TODO create a separate unit test for this method
   // Tries to use simple name, then partially qualified name, then fully qualified name instead of adding imports
   def bindTo(reference: ScReference, target: String): Unit = {
-    implicit val context = reference.getParent
+    implicit val context: PsiElement = reference.getParent
 
-    implicit val isExpression = reference.isInstanceOf[ScReferenceExpression]
+    implicit val isExpression: Boolean = reference.isInstanceOf[ScReferenceExpression]
 
     @tailrec
     def bindTo0(r1: ScReference, paths: Seq[String]): Unit = {
       paths match {
         case Seq(path, alternatives @ _*)  =>
-          implicit val projectContext = r1.projectContext
+          implicit val projectContext: ProjectContext = r1.projectContext
           val r2 = r1.replace(createReferenceElement(path)).asInstanceOf[ScReference]
           if (!isResolvedTo(r2, target)) {
             bindTo0(r2, alternatives)

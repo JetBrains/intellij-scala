@@ -28,38 +28,38 @@ package object api {
     }
   }
 
-  def Any(implicit pc: ProjectContext) = StdTypes.instance.Any
+  def Any(implicit pc: ProjectContext): StdType = StdTypes.instance.Any
 
-  def AnyRef(implicit pc: ProjectContext) = StdTypes.instance.AnyRef
+  def AnyRef(implicit pc: ProjectContext): StdType = StdTypes.instance.AnyRef
 
-  def Null(implicit pc: ProjectContext) = StdTypes.instance.Null
+  def Null(implicit pc: ProjectContext): StdType = StdTypes.instance.Null
 
-  def Nothing(implicit pc: ProjectContext) = StdTypes.instance.Nothing
+  def Nothing(implicit pc: ProjectContext): StdType = StdTypes.instance.Nothing
 
-  def Singleton(implicit pc: ProjectContext) = StdTypes.instance.Singleton
+  def Singleton(implicit pc: ProjectContext): StdType = StdTypes.instance.Singleton
 
-  def AnyVal(implicit pc: ProjectContext) = StdTypes.instance.AnyVal
+  def AnyVal(implicit pc: ProjectContext): StdType = StdTypes.instance.AnyVal
 
-  def Unit(implicit pc: ProjectContext) = StdTypes.instance.Unit
+  def Unit(implicit pc: ProjectContext): ValType = StdTypes.instance.Unit
 
-  def Boolean(implicit pc: ProjectContext) = StdTypes.instance.Boolean
+  def Boolean(implicit pc: ProjectContext): ValType = StdTypes.instance.Boolean
 
-  def Char(implicit pc: ProjectContext) = StdTypes.instance.Char
+  def Char(implicit pc: ProjectContext): ValType = StdTypes.instance.Char
 
-  def Byte(implicit pc: ProjectContext) = StdTypes.instance.Byte
+  def Byte(implicit pc: ProjectContext): ValType = StdTypes.instance.Byte
 
-  def Short(implicit pc: ProjectContext) = StdTypes.instance.Short
+  def Short(implicit pc: ProjectContext): ValType = StdTypes.instance.Short
 
-  def Int(implicit pc: ProjectContext) = StdTypes.instance.Int
+  def Int(implicit pc: ProjectContext): ValType = StdTypes.instance.Int
 
-  def Long(implicit pc: ProjectContext) = StdTypes.instance.Long
+  def Long(implicit pc: ProjectContext): ValType = StdTypes.instance.Long
 
-  def Float(implicit pc: ProjectContext) = StdTypes.instance.Float
+  def Float(implicit pc: ProjectContext): ValType = StdTypes.instance.Float
 
-  def Double(implicit pc: ProjectContext) = StdTypes.instance.Double
+  def Double(implicit pc: ProjectContext): ValType = StdTypes.instance.Double
 
-  val Bivariant     = Variance.Bivariant
-  val Covariant     = Variance.Covariant
-  val Contravariant = Variance.Contravariant
-  val Invariant     = Variance.Invariant
+  val Bivariant: Variance = Variance.Bivariant
+  val Covariant: Variance = Variance.Covariant
+  val Contravariant: Variance = Variance.Contravariant
+  val Invariant: Variance = Variance.Invariant
 }

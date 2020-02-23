@@ -18,7 +18,7 @@ object DefinesClassCache {
     }
   }
 
-  def invalidateCacheIfRequired(stamp: Long) = synchronized {
+  def invalidateCacheIfRequired(stamp: Long): Unit = synchronized {
     if (stamp != cacheStamp)
       cache.clear()
 

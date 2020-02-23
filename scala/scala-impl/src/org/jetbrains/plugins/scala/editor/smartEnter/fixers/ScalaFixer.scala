@@ -20,10 +20,10 @@ trait ScalaFixer {
 
   protected def startLine(editor: Editor, psiElement: PsiElement): Int = startLine(editor.getDocument, psiElement)
 
-  protected def moveToStart(editor: Editor, psiElement: PsiElement) =
+  protected def moveToStart(editor: Editor, psiElement: PsiElement): Unit =
     editor.getCaretModel.moveToOffset(psiElement.getTextRange.getStartOffset)
 
-  protected def moveToEnd(editor: Editor, psiElement: PsiElement) =
+  protected def moveToEnd(editor: Editor, psiElement: PsiElement): Unit =
     editor.getCaretModel.moveToOffset(psiElement.getTextRange.getEndOffset)
 
   protected def getOffsetOrParent(parent: PsiElement, child: PsiElement): Int = {
@@ -43,8 +43,8 @@ trait ScalaFixer {
   }
 
   protected def placeInWholeBlock(block: ScBlockExpr, editor: Editor): OperationPerformed = {
-    @inline def move2start(psi: PsiElement) = editor.getCaretModel.moveToOffset(psi.getTextRange.getStartOffset)
-    @inline def move2end(psi: PsiElement) = editor.getCaretModel.moveToOffset(psi.getTextRange.getEndOffset)
+    @inline def move2start(psi: PsiElement): Unit = editor.getCaretModel.moveToOffset(psi.getTextRange.getStartOffset)
+    @inline def move2end(psi: PsiElement): Unit = editor.getCaretModel.moveToOffset(psi.getTextRange.getEndOffset)
 
     if (block.exprs.nonEmpty) {
       move2end(block.getFirstChild)

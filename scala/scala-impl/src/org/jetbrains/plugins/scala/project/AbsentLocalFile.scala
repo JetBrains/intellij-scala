@@ -12,13 +12,13 @@ class AbsentLocalFile(url: String, path: String) extends VirtualFile {
 
   override def getLength = throw new UnsupportedOperationException()
 
-  override def getFileSystem = AbsentLocalFileSystem
+  override def getFileSystem: VirtualFileSystem = AbsentLocalFileSystem
 
   override def contentsToByteArray() = throw new UnsupportedOperationException()
 
   override def getParent = throw new UnsupportedOperationException()
 
-  override def refresh(asynchronous: Boolean, recursive: Boolean, postRunnable: Runnable) =
+  override def refresh(asynchronous: Boolean, recursive: Boolean, postRunnable: Runnable): Unit =
     throw new UnsupportedOperationException()
 
   override def getTimeStamp = throw new UnsupportedOperationException()
@@ -44,13 +44,13 @@ class AbsentLocalFile(url: String, path: String) extends VirtualFile {
 object AbsentLocalFileSystem extends VirtualFileSystem {
   override def getProtocol = throw new UnsupportedOperationException()
 
-  override def renameFile(requestor: AnyRef, vFile: VirtualFile, newName: String) =
+  override def renameFile(requestor: AnyRef, vFile: VirtualFile, newName: String): Unit =
     throw new UnsupportedOperationException()
 
   override def createChildFile(requestor: AnyRef, vDir: VirtualFile, fileName: String) =
     throw new UnsupportedOperationException()
 
-  override def addVirtualFileListener(virtualFileListener: VirtualFileListener) =
+  override def addVirtualFileListener(virtualFileListener: VirtualFileListener): Unit =
     throw new UnsupportedOperationException()
 
   override def refreshAndFindFileByPath(s: String) = throw new UnsupportedOperationException()
@@ -58,22 +58,22 @@ object AbsentLocalFileSystem extends VirtualFileSystem {
   override def copyFile(requestor: AnyRef, virtualFile: VirtualFile, newParent: VirtualFile, copyName: String) =
     throw new UnsupportedOperationException()
 
-  override def refresh(asynchronous: Boolean) = throw new UnsupportedOperationException()
+  override def refresh(asynchronous: Boolean): Unit = throw new UnsupportedOperationException()
 
   override def isReadOnly = throw new UnsupportedOperationException()
 
   override def createChildDirectory(requestor: AnyRef, vDir: VirtualFile, dirName: String) =
     throw new UnsupportedOperationException()
 
-  override def removeVirtualFileListener(virtualFileListener: VirtualFileListener) =
+  override def removeVirtualFileListener(virtualFileListener: VirtualFileListener): Unit =
     throw new UnsupportedOperationException()
 
-  override def moveFile(requestor: AnyRef, vFile: VirtualFile, newParent: VirtualFile) =
+  override def moveFile(requestor: AnyRef, vFile: VirtualFile, newParent: VirtualFile): Unit =
     throw new UnsupportedOperationException()
 
   override def findFileByPath(path: String) = throw new UnsupportedOperationException()
 
-  override def deleteFile(requestor: AnyRef, vFile: VirtualFile) = throw new UnsupportedOperationException()
+  override def deleteFile(requestor: AnyRef, vFile: VirtualFile): Unit = throw new UnsupportedOperationException()
 
   override def extractPresentableUrl(path: String): String = path.replace('/', File.separatorChar)
 }

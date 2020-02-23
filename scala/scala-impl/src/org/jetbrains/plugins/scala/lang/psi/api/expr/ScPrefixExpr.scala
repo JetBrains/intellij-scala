@@ -29,5 +29,5 @@ trait ScPrefixExpr extends ScExpression with ScSugarCallExpr {
 }
 
 object ScPrefixExpr {
-  def unapply(e: ScPrefixExpr) = Some(e.operation, e.operand)
+  def unapply(e: ScPrefixExpr): Some[(ScReferenceExpression, ScExpression)] = Some(e.operation, e.operand)
 }

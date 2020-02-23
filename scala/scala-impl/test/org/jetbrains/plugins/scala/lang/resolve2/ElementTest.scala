@@ -11,39 +11,39 @@ class ElementTest extends ResolveTestBase {
     super.folderPath + "element/"
   }
 
-  def testCaseClass() = doTest()
-  def testCaseObject() = doTest()
-  def testClass() = doTest()
-  def testClassParameter() = doTest()
-  def testClassParameterValue() = doTest()
-  def testClassParameterVariable() = doTest()
-  def testObject() = doTest()
-  def testTrait() = doTest()
-  def testFunctionDefinition() = doTest()
-  def testFunctionParameter() = doTest()
-  def testFunctionParameterClause() = doTest()
-  def testMacroDefinition() = doTest()
-  def testNamedParameter() = doTest()
-  def testConstructorParameter() = doTest()
-  def testTypeAlias() = doTest()
-  def testValue() = doTest()
-  def testVariable() = doTest()
+  def testCaseClass(): Unit = doTest()
+  def testCaseObject(): Unit = doTest()
+  def testClass(): Unit = doTest()
+  def testClassParameter(): Unit = doTest()
+  def testClassParameterValue(): Unit = doTest()
+  def testClassParameterVariable(): Unit = doTest()
+  def testObject(): Unit = doTest()
+  def testTrait(): Unit = doTest()
+  def testFunctionDefinition(): Unit = doTest()
+  def testFunctionParameter(): Unit = doTest()
+  def testFunctionParameterClause(): Unit = doTest()
+  def testMacroDefinition(): Unit = doTest()
+  def testNamedParameter(): Unit = doTest()
+  def testConstructorParameter(): Unit = doTest()
+  def testTypeAlias(): Unit = doTest()
+  def testValue(): Unit = doTest()
+  def testVariable(): Unit = doTest()
   //TODO answer? classof, it's internal compiler error, should be resolved, but another error in annotator
 //  def testTypeParameterClass = doTest
   //TODO answer? classof, it's internal compiler error, should be resolved, but another error in annotator
 //  def testTypeParameterFunction = doTest
   //TODO answer? classof, it's internal compiler error, should be resolved, but another error in annotator
 //  def testTypeParameterTrait = doTest
-  def testBinding() = doTest()
-  def testValues() = doTest()
-  def testStatementForValue() = doTest()
-  def testStatementForValues() = doTest()
-  def testStatementForBinding() = doTest()
-  def testStatementForAssignment() = doTest()
-  def testFunctionExpressionParameter() = doTest()
-  def testCaseClauseParameter() = doTest()
-  def testCaseClauseNamed() = doTest()
-  def testCaseClauseBinding() = doTest()
+  def testBinding(): Unit = doTest()
+  def testValues(): Unit = doTest()
+  def testStatementForValue(): Unit = doTest()
+  def testStatementForValues(): Unit = doTest()
+  def testStatementForBinding(): Unit = doTest()
+  def testStatementForAssignment(): Unit = doTest()
+  def testFunctionExpressionParameter(): Unit = doTest()
+  def testCaseClauseParameter(): Unit = doTest()
+  def testCaseClauseNamed(): Unit = doTest()
+  def testCaseClauseBinding(): Unit = doTest()
 
   //TODO answer? classof, it's internal compiler error, should be resolved, but another error in annotator
 //  def testPackage = doTest

@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
  */
 abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHandler {
 
-  val REFACTORING_NAME = ScalaBundle.message("introduce.field.title")
+  val REFACTORING_NAME: String = ScalaBundle.message("introduce.field.title")
 
   protected def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean
 

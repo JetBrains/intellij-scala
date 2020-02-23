@@ -66,7 +66,7 @@ class TermSignature(_name: String,
   def javaErasedEquiv(other: TermSignature): Boolean = {
     (this, other) match {
       case (ps1: PhysicalMethodSignature, ps2: PhysicalMethodSignature) if ps1.isJava && ps2.isJava =>
-        implicit val elementScope = ps1.method.elementScope
+        implicit val elementScope: ElementScope = ps1.method.elementScope
         val psiSub1 = ScalaPsiUtil.getPsiSubstitutor(ps1.substitutor)
         val psiSub2 = ScalaPsiUtil.getPsiSubstitutor(ps2.substitutor)
         val psiSig1 = ps1.method.getSignature(psiSub1)
@@ -225,14 +225,14 @@ object TermSignature {
   def withoutParams(name: String, subst: ScSubstitutor, namedElement: PsiNamedElement): TermSignature =
     TermSignature(name, Seq.empty, subst, namedElement)
 
-  def setter(name: String, definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty) = TermSignature(
+  def setter(name: String, definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty): TermSignature = TermSignature(
     name,
     Seq(() => definition.`type`().getOrAny),
     subst,
     definition
   )
 
-  def scalaSetter(definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty) =
+  def scalaSetter(definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty): TermSignature =
     setter(methodName(definition.name, PropertyMethods.EQ), definition, subst)
 
   private val Parameterless = 1

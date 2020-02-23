@@ -30,7 +30,7 @@ class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_with_map_as_val() = {
+  def test_with_map_as_val(): Unit = {
     val selected =
       s"""val m = Map("k" -> "5", "v" -> "6")
           m.${START}find(_ == "5").map(_._2)$END"""

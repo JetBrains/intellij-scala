@@ -48,7 +48,7 @@ class ImplicitConversionData private (element: PsiNamedElement,
                                                place: PsiElement,
                                                constraints: ConstraintSystem): Either[String, (ScType, ScSubstitutor)] = {
 
-    implicit val projectContext = function.projectContext
+    implicit val projectContext: ProjectContext = function.projectContext
 
     constraints match {
       case ConstraintSystem(unSubst) =>

@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * Nikolay.Tropin
@@ -117,7 +118,7 @@ object SimplifyBooleanUtil {
   }
 
   private def simplifyInfixWithLiteral(value: Boolean, operation: String, expr: ScExpression): ScExpression = {
-    implicit val projectContext = expr.projectContext
+    implicit val projectContext: ProjectContext = expr.projectContext
     val text: String = booleanConst(expr) match {
       case Some(bool: Boolean) =>
         val result: Boolean = operation match {

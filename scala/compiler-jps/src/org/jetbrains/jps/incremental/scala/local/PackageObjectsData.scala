@@ -55,7 +55,7 @@ object PackageObjectsData {
   }
 
   def getFor(context: CompileContext): PackageObjectsData = {
-    def warning(message: String) = {
+    def warning(message: String): Unit = {
       context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
     }
 

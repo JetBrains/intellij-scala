@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * SubtypeBounds : == [>: Type] [<: Type]
  */
 object Type extends Type {
-  override protected def infixType = InfixType
+  override protected def infixType: InfixType = InfixType
 
   // TODO: handle changes for later Dotty versions https://dotty.epfl.ch/docs/reference/changed-features/wildcards.html
   //   In Scala 3.0, both _ and ? are legal names for wildcards.

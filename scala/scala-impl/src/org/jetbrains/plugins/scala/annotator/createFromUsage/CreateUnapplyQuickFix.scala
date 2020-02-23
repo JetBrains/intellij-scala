@@ -16,9 +16,9 @@ class CreateUnapplyQuickFix(clazz: ScTypeDefinition, pattern: ScPattern)
 
   override protected def methodType: Some[String] = Some(unapplyMethodTypeText(pattern))
 
-  override protected def methodText = unapplyMethodText(pattern)
+  override protected def methodText: String = unapplyMethodText(pattern)
 
-  override protected def addElementsToTemplate(method: ScFunction, builder: TemplateBuilder) = {
+  override protected def addElementsToTemplate(method: ScFunction, builder: TemplateBuilder): Unit = {
     addParametersToTemplate(method, builder)
     addUnapplyResultTypesToTemplate(method, builder)
     addQmarksToTemplate(method, builder)

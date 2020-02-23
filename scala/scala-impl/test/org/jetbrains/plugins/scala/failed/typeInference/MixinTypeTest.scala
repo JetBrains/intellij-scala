@@ -13,7 +13,7 @@ class MixinTypeTest extends ScalaLightCodeInsightFixtureTestAdapter{
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL13112() = {
+  def testSCL13112(): Unit = {
     val text =
       """
         |trait A

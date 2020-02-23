@@ -11,16 +11,16 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 class ScalaExtractMethodInnerClass extends ScalaExtractMethodTestBase {
   override def folderPath: String = super.folderPath + "innerClass/"
 
-  def testNoReturnSeveralOutput() = {
+  def testNoReturnSeveralOutput(): Unit = {
     val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
     doTest(settings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
 
-  def testReturnSeveralOutput1() = doTest()
+  def testReturnSeveralOutput1(): Unit = doTest()
 
-  def testReturnSeveralOutput2() = doTest()
+  def testReturnSeveralOutput2(): Unit = doTest()
 
-  def testUnitReturnSeveralOutput1() = doTest()
+  def testUnitReturnSeveralOutput1(): Unit = doTest()
 
-  def testUnitReturnSeveralOutput2() = doTest()
+  def testUnitReturnSeveralOutput2(): Unit = doTest()
 }

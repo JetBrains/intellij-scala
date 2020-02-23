@@ -27,7 +27,7 @@ abstract class SpecializedRendererTestBase extends RendererTestBase {
     case _ => nodeDescriptor.getName
   }
 
-  private def checkChildrenNames(varName: String, childrenNames: Seq[String]) = {
+  private def checkChildrenNames(varName: String, childrenNames: Seq[String]): Unit = {
     runDebugger() {
       waitForBreakpoint()
       val (_, names) = renderLabelAndChildren(varName, calcName)

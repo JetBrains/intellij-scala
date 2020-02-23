@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -125,7 +126,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
   }
 
   private def paramsInClause(m: PsiMethod, subst: ScSubstitutor, clauseIndex: Int): Seq[(String, ScType)] = {
-    implicit val projectContext = m.projectContext
+    implicit val projectContext: ProjectContext = m.projectContext
     m match {
       case fun: ScMethodLike =>
         val clauses = fun.effectiveParameterClauses

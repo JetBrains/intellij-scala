@@ -7,7 +7,7 @@ package org.jetbrains.plugins.scala.lang.completion.postfix
 class ScalaAssertPostfixTemplateTest extends PostfixTemplateTest {
   override def testPath(): String = super.testPath() + "assert/"
 
-  def testAssert() = doTest()
+  def testAssert(): Unit = doTest()
 
-  def testNotApplicable() = doNotApplicableTest()
+  def testNotApplicable(): Unit = doNotApplicableTest()
 }

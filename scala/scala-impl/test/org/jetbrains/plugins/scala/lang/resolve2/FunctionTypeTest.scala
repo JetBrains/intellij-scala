@@ -10,13 +10,13 @@ class FunctionTypeTest extends ResolveTestBase {
     super.folderPath + "function/type/"
   }
 
-  def testChoiceOne() = doTest()
-  def testChoiceTwo() = doTest()
-  def testIncompatible() = doTest()
-  def testIncompatibleFirst() = doTest()
-  def testIncompatibleSecond() = doTest()
-  def testIncompatibleWithCount() = doTest()
-  def testInheritanceChild() = doTest()
-  def testInheritanceParent() = doTest()
-  def testParentheses() = doTest()
+  def testChoiceOne(): Unit = doTest()
+  def testChoiceTwo(): Unit = doTest()
+  def testIncompatible(): Unit = doTest()
+  def testIncompatibleFirst(): Unit = doTest()
+  def testIncompatibleSecond(): Unit = doTest()
+  def testIncompatibleWithCount(): Unit = doTest()
+  def testInheritanceChild(): Unit = doTest()
+  def testInheritanceParent(): Unit = doTest()
+  def testParentheses(): Unit = doTest()
 }

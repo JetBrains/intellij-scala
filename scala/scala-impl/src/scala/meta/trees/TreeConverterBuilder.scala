@@ -15,33 +15,33 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInl
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
+import scala.meta.Tree
 import scala.{meta => m, Seq => _}
 
 trait TreeConverterBuilder {
   self: TreeConverter =>
 
 
-  def convert(elem:PsiElement) = {
-    val v = new ScalaRecursiveElementVisitor {
-      var ret: m.Tree = _
+  def convert(elem:PsiElement): Tree = {
+    var ret: m.Tree = null
+    val v: ScalaRecursiveElementVisitor = new ScalaRecursiveElementVisitor {
+      override def visitTypeAliasDefinition(alias: ScTypeAliasDefinition): Unit = super.visitTypeAliasDefinition(alias)
 
-      override def visitTypeAliasDefinition(alias: ScTypeAliasDefinition) = super.visitTypeAliasDefinition(alias)
-
-      override def visitElement(element: PsiElement) = {
+      override def visitElement(element: PsiElement): Unit = {
         super.visitElement(element)
       }
 
-      override def visitTypeAlias(alias: ScTypeAlias) = super.visitTypeAlias(alias)
+      override def visitTypeAlias(alias: ScTypeAlias): Unit = super.visitTypeAlias(alias)
 
-      override def visitTypeAliasDeclaration(alias: ScTypeAliasDeclaration) = super.visitTypeAliasDeclaration(alias)
+      override def visitTypeAliasDeclaration(alias: ScTypeAliasDeclaration): Unit = super.visitTypeAliasDeclaration(alias)
 
-      override def visitParameters(parameters: ScParameters) = super.visitParameters(parameters)
+      override def visitParameters(parameters: ScParameters): Unit = super.visitParameters(parameters)
 
-      override def visitModifierList(modifierList: ScModifierList) = super.visitModifierList(modifierList)
+      override def visitModifierList(modifierList: ScModifierList): Unit = super.visitModifierList(modifierList)
 
-      override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) = super.visitConstructorInvocation(constrInvocation)
+      override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation): Unit = super.visitConstructorInvocation(constrInvocation)
 
-      override def visitFunctionDefinition(fun: ScFunctionDefinition) = {
+      override def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {
         fun.body.get.accept(this)
         val body = ret.asInstanceOf[m.Term]
         ret = m.Defn.Def(convertMods(fun), toTermName(fun),
@@ -52,148 +52,148 @@ trait TreeConverterBuilder {
         )
       }
 
-      override def visitFunctionDeclaration(fun: ScFunctionDeclaration) = super.visitFunctionDeclaration(fun)
+      override def visitFunctionDeclaration(fun: ScFunctionDeclaration): Unit = super.visitFunctionDeclaration(fun)
 
-      override def visitMacroDefinition(fun: ScMacroDefinition) = super.visitMacroDefinition(fun)
+      override def visitMacroDefinition(fun: ScMacroDefinition): Unit = super.visitMacroDefinition(fun)
 
-      override def visitCatchBlock(c: ScCatchBlock) = super.visitCatchBlock(c)
+      override def visitCatchBlock(c: ScCatchBlock): Unit = super.visitCatchBlock(c)
 
-      override def visitFile(file: PsiFile) = super.visitFile(file)
+      override def visitFile(file: PsiFile): Unit = super.visitFile(file)
 
       //Override also visitReferenceExpression! and visitTypeProjection!
-      override def visitReference(ref: ScReference) = super.visitReference(ref)
+      override def visitReference(ref: ScReference): Unit = super.visitReference(ref)
 
-      override def visitParameter(parameter: ScParameter) = super.visitParameter(parameter)
+      override def visitParameter(parameter: ScParameter): Unit = super.visitParameter(parameter)
 
-      override def visitClassParameter(parameter: ScClassParameter) = super.visitClassParameter(parameter)
+      override def visitClassParameter(parameter: ScClassParameter): Unit = super.visitClassParameter(parameter)
 
-      override def visitPatternDefinition(pat: ScPatternDefinition) = super.visitPatternDefinition(pat)
+      override def visitPatternDefinition(pat: ScPatternDefinition): Unit = super.visitPatternDefinition(pat)
 
-      override def visitValueDeclaration(v: ScValueDeclaration) = super.visitValueDeclaration(v)
+      override def visitValueDeclaration(v: ScValueDeclaration): Unit = super.visitValueDeclaration(v)
 
-      override def visitVariableDefinition(varr: ScVariableDefinition) = super.visitVariableDefinition(varr)
+      override def visitVariableDefinition(varr: ScVariableDefinition): Unit = super.visitVariableDefinition(varr)
 
-      override def visitVariableDeclaration(varr: ScVariableDeclaration) = super.visitVariableDeclaration(varr)
+      override def visitVariableDeclaration(varr: ScVariableDeclaration): Unit = super.visitVariableDeclaration(varr)
 
-      override def visitVariable(varr: ScVariable) = super.visitVariable(varr)
+      override def visitVariable(varr: ScVariable): Unit = super.visitVariable(varr)
 
-      override def visitValue(v: ScValue) = super.visitValue(v)
+      override def visitValue(v: ScValue): Unit = super.visitValue(v)
 
-      override def visitCaseClause(cc: ScCaseClause) = super.visitCaseClause(cc)
+      override def visitCaseClause(cc: ScCaseClause): Unit = super.visitCaseClause(cc)
 
-      override def visitPattern(pat: ScPattern) = super.visitPattern(pat)
+      override def visitPattern(pat: ScPattern): Unit = super.visitPattern(pat)
 
-      override def visitForBinding(forBinding: ScForBinding) = super.visitForBinding(forBinding)
+      override def visitForBinding(forBinding: ScForBinding): Unit = super.visitForBinding(forBinding)
 
-      override def visitGenerator(gen: ScGenerator) = super.visitGenerator(gen)
+      override def visitGenerator(gen: ScGenerator): Unit = super.visitGenerator(gen)
 
-      override def visitGuard(guard: ScGuard) = super.visitGuard(guard)
+      override def visitGuard(guard: ScGuard): Unit = super.visitGuard(guard)
 
-      override def visitFunction(fun: ScFunction) = super.visitFunction(fun)
+      override def visitFunction(fun: ScFunction): Unit = super.visitFunction(fun)
 
-      override def visitTypeDefinition(typedef: ScTypeDefinition) = super.visitTypeDefinition(typedef)
+      override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = super.visitTypeDefinition(typedef)
 
-      override def visitImportExpr(expr: ScImportExpr) = super.visitImportExpr(expr)
+      override def visitImportExpr(expr: ScImportExpr): Unit = super.visitImportExpr(expr)
 
-      override def visitSelfInvocation(self: ScSelfInvocation) = super.visitSelfInvocation(self)
+      override def visitSelfInvocation(self: ScSelfInvocation): Unit = super.visitSelfInvocation(self)
 
-      override def visitAnnotation(annotation: ScAnnotation) = super.visitAnnotation(annotation)
+      override def visitAnnotation(annotation: ScAnnotation): Unit = super.visitAnnotation(annotation)
 
       // Expressions
-      override def visitExpression(expr: ScExpression) = super.visitExpression(expr)
+      override def visitExpression(expr: ScExpression): Unit = super.visitExpression(expr)
 
-      override def visitThisReference(t: ScThisReference) = super.visitThisReference(t)
+      override def visitThisReference(t: ScThisReference): Unit = super.visitThisReference(t)
 
-      override def visitSuperReference(t: ScSuperReference) = super.visitSuperReference(t)
+      override def visitSuperReference(t: ScSuperReference): Unit = super.visitSuperReference(t)
 
-      override def visitPostfixExpression(p: ScPostfixExpr) = super.visitPostfixExpression(p)
+      override def visitPostfixExpression(p: ScPostfixExpr): Unit = super.visitPostfixExpression(p)
 
-      override def visitPrefixExpression(p: ScPrefixExpr) = super.visitPrefixExpression(p)
+      override def visitPrefixExpression(p: ScPrefixExpr): Unit = super.visitPrefixExpression(p)
 
-      override def visitIf(stmt: ScIf) = super.visitIf(stmt)
+      override def visitIf(stmt: ScIf): Unit = super.visitIf(stmt)
 
-      override def visitLiteral(l: ScLiteral) = super.visitLiteral(l)
+      override def visitLiteral(l: ScLiteral): Unit = super.visitLiteral(l)
 
-      override def visitAssignment(stmt: ScAssignment) = super.visitAssignment(stmt)
+      override def visitAssignment(stmt: ScAssignment): Unit = super.visitAssignment(stmt)
 
-      override def visitMethodCallExpression(call: ScMethodCall) = super.visitMethodCallExpression(call)
+      override def visitMethodCallExpression(call: ScMethodCall): Unit = super.visitMethodCallExpression(call)
 
-      override def visitGenericCallExpression(call: ScGenericCall) = super.visitGenericCallExpression(call)
+      override def visitGenericCallExpression(call: ScGenericCall): Unit = super.visitGenericCallExpression(call)
 
-      override def visitInfixExpression(infix: ScInfixExpr) = super.visitInfixExpression(infix)
+      override def visitInfixExpression(infix: ScInfixExpr): Unit = super.visitInfixExpression(infix)
 
-      override def visitWhile(ws: ScWhile) = super.visitWhile(ws)
+      override def visitWhile(ws: ScWhile): Unit = super.visitWhile(ws)
 
-      override def visitReturn(ret: ScReturn) = super.visitReturn(ret)
+      override def visitReturn(ret: ScReturn): Unit = super.visitReturn(ret)
 
-      override def visitMatch(ms: ScMatch) = super.visitMatch(ms)
+      override def visitMatch(ms: ScMatch): Unit = super.visitMatch(ms)
 
-      override def visitFor(expr: ScFor) = super.visitFor(expr)
+      override def visitFor(expr: ScFor): Unit = super.visitFor(expr)
 
-      override def visitDo(stmt: ScDo) = super.visitDo(stmt)
+      override def visitDo(stmt: ScDo): Unit = super.visitDo(stmt)
 
-      override def visitFunctionExpression(stmt: ScFunctionExpr) = super.visitFunctionExpression(stmt)
+      override def visitFunctionExpression(stmt: ScFunctionExpr): Unit = super.visitFunctionExpression(stmt)
 
-      override def visitThrow(throwStmt: ScThrow) = super.visitThrow(throwStmt)
+      override def visitThrow(throwStmt: ScThrow): Unit = super.visitThrow(throwStmt)
 
-      override def visitTry(tryStmt: ScTry) = super.visitTry(tryStmt)
+      override def visitTry(tryStmt: ScTry): Unit = super.visitTry(tryStmt)
 
-      override def visitParenthesisedExpr(expr: ScParenthesisedExpr) = super.visitParenthesisedExpr(expr)
+      override def visitParenthesisedExpr(expr: ScParenthesisedExpr): Unit = super.visitParenthesisedExpr(expr)
 
-      override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) = super.visitNewTemplateDefinition(templ)
+      override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = super.visitNewTemplateDefinition(templ)
 
-      override def visitTypedStmt(stmt: ScTypedExpression) = super.visitTypedStmt(stmt)
+      override def visitTypedStmt(stmt: ScTypedExpression): Unit = super.visitTypedStmt(stmt)
 
-      override def visitTuple(tuple: ScTuple) = super.visitTuple(tuple)
+      override def visitTuple(tuple: ScTuple): Unit = super.visitTuple(tuple)
 
-      override def visitBlockExpression(block: ScBlockExpr) = super.visitBlockExpression(block)
+      override def visitBlockExpression(block: ScBlockExpr): Unit = super.visitBlockExpression(block)
 
-      override def visitUnderscoreExpression(under: ScUnderscoreSection) = super.visitUnderscoreExpression(under)
+      override def visitUnderscoreExpression(under: ScUnderscoreSection): Unit = super.visitUnderscoreExpression(under)
 
-      override def visitConstrBlock(constr: ScConstrBlock) = super.visitConstrBlock(constr)
+      override def visitConstrBlock(constr: ScConstrBlock): Unit = super.visitConstrBlock(constr)
 
       //type elements
-      override def visitTypeElement(te: ScTypeElement) = super.visitTypeElement(te)
+      override def visitTypeElement(te: ScTypeElement): Unit = super.visitTypeElement(te)
 
-      override def visitSimpleTypeElement(simple: ScSimpleTypeElement) = super.visitSimpleTypeElement(simple)
+      override def visitSimpleTypeElement(simple: ScSimpleTypeElement): Unit = super.visitSimpleTypeElement(simple)
 
-      override def visitWildcardTypeElement(wildcard: ScWildcardTypeElement) = super.visitWildcardTypeElement(wildcard)
+      override def visitWildcardTypeElement(wildcard: ScWildcardTypeElement): Unit = super.visitWildcardTypeElement(wildcard)
 
-      override def visitTupleTypeElement(tuple: ScTupleTypeElement) = super.visitTupleTypeElement(tuple)
+      override def visitTupleTypeElement(tuple: ScTupleTypeElement): Unit = super.visitTupleTypeElement(tuple)
 
-      override def visitParenthesisedTypeElement(parenthesised: ScParenthesisedTypeElement) = super.visitParenthesisedTypeElement(parenthesised)
+      override def visitParenthesisedTypeElement(parenthesised: ScParenthesisedTypeElement): Unit = super.visitParenthesisedTypeElement(parenthesised)
 
-      override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) = super.visitParameterizedTypeElement(parameterized)
+      override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement): Unit = super.visitParameterizedTypeElement(parameterized)
 
-      override def visitInfixTypeElement(infix: ScInfixTypeElement) = super.visitInfixTypeElement(infix)
+      override def visitInfixTypeElement(infix: ScInfixTypeElement): Unit = super.visitInfixTypeElement(infix)
 
-      override def visitFunctionalTypeElement(fun: ScFunctionalTypeElement) = super.visitFunctionalTypeElement(fun)
+      override def visitFunctionalTypeElement(fun: ScFunctionalTypeElement): Unit = super.visitFunctionalTypeElement(fun)
 
-      override def visitExistentialTypeElement(exist: ScExistentialTypeElement) = super.visitExistentialTypeElement(exist)
+      override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = super.visitExistentialTypeElement(exist)
 
-      override def visitCompoundTypeElement(compound: ScCompoundTypeElement) = super.visitCompoundTypeElement(compound)
+      override def visitCompoundTypeElement(compound: ScCompoundTypeElement): Unit = super.visitCompoundTypeElement(compound)
 
-      override def visitAnnotTypeElement(annot: ScAnnotTypeElement) = super.visitAnnotTypeElement(annot)
+      override def visitAnnotTypeElement(annot: ScAnnotTypeElement): Unit = super.visitAnnotTypeElement(annot)
 
-      override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement) = super.visitTypeVariableTypeElement(tvar)
+      override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = super.visitTypeVariableTypeElement(tvar)
 
       //scaladoc
-      override def visitDocComment(s: ScDocComment) = super.visitDocComment(s)
+      override def visitDocComment(s: ScDocComment): Unit = super.visitDocComment(s)
 
-      override def visitScaladocElement(s: ScalaPsiElement) = super.visitScaladocElement(s)
+      override def visitScaladocElement(s: ScalaPsiElement): Unit = super.visitScaladocElement(s)
 
-      override def visitWikiSyntax(s: ScDocSyntaxElement) = super.visitWikiSyntax(s)
+      override def visitWikiSyntax(s: ScDocSyntaxElement): Unit = super.visitWikiSyntax(s)
 
-      override def visitInlinedTag(s: ScDocInlinedTag) = super.visitInlinedTag(s)
+      override def visitInlinedTag(s: ScDocInlinedTag): Unit = super.visitInlinedTag(s)
 
-      override def visitTag(s: ScDocTag) = super.visitTag(s)
+      override def visitTag(s: ScDocTag): Unit = super.visitTag(s)
 
       //xml
-      override def visitXmlStartTag(s: ScXmlStartTag) = super.visitXmlStartTag(s)
+      override def visitXmlStartTag(s: ScXmlStartTag): Unit = super.visitXmlStartTag(s)
 
-      override def visitXmlEndTag(s: ScXmlEndTag) = super.visitXmlEndTag(s)
+      override def visitXmlEndTag(s: ScXmlEndTag): Unit = super.visitXmlEndTag(s)
     }
     elem.accept(v)
-    v.ret
+    ret
   }
 }

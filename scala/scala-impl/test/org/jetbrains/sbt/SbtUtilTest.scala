@@ -10,13 +10,13 @@ import org.junit.Test
 
 class SbtUtilTest {
 
-  val v0120 = Version("0.12.0")
-  val v0130 = Version("0.13.0")
-  val v01317 = Version("0.13.17")
-  val v100 = Version("1.0.0")
-  val v112 = Version("1.1.2")
-  val v200 = Version("2.0.0")
-  val v223 = Version("2.2.3")
+  val v0120: Version = Version("0.12.0")
+  val v0130: Version = Version("0.13.0")
+  val v01317: Version = Version("0.13.17")
+  val v100: Version = Version("1.0.0")
+  val v112: Version = Version("1.1.2")
+  val v200: Version = Version("2.0.0")
+  val v223: Version = Version("2.2.3")
 
   val globalBase012: File = defaultGlobalBase / "0.12"
   val globalBase013: File = defaultGlobalBase / "0.13"

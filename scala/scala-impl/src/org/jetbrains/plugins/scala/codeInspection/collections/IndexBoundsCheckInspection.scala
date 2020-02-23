@@ -14,7 +14,7 @@ class IndexBoundsCheckInspection extends OperationOnCollectionInspection {
 
 private object IndexBoundsCheckInspection {
 
-  private val IndexBoundsCheck = new SimplificationType {
+  private val IndexBoundsCheck: SimplificationType = new SimplificationType {
 
     override def hint: String = InspectionBundle.message("ifstmt.to.lift")
 

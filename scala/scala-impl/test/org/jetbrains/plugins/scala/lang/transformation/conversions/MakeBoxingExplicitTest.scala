@@ -38,7 +38,7 @@ class MakeBoxingExplicitTest extends TransformerTest(new MakeBoxingExplicit()) {
     after = "val v: Any = A"
   )()
 
-  def testSpecializedParameter() = check(
+  def testSpecializedParameter(): Unit = check(
     before = "  f(1)",
     after = "  f(1)"
   )(

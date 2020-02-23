@@ -39,81 +39,81 @@ class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
     new ScalaParameterInfo(name, oldIdx, tpe, getProjectAdapter, isRep, isByName, defVal)
   }
 
-  def testSimpleMethod() = {
+  def testSimpleMethod(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("ii", 0, Int), parameterInfo("b", 2, Boolean))
     doTest(null, "bar", null, Seq(params))
   }
 
-  def testSimpleMethodAdd() = {
+  def testSimpleMethodAdd(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("s", -1, AnyRef, "\"hi\""), parameterInfo("b", 1, Boolean))
     doTest(null, "foo", null, Seq(params))
   }
 
-  def testAddWithDefault() = {
+  def testAddWithDefault(): Unit = {
     isAddDefaultValue = true
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("s", -1, AnyRef, "\"hi\""), parameterInfo("b", 1, Boolean))
     doTest(null, "foo", null, Seq(params))
   }
 
-  def testParameterless() = {
+  def testParameterless(): Unit = {
     isAddDefaultValue = true
     val params = Seq(parameterInfo("i", -1, Int, "1"))
     doTest(null, "bar", null, Seq(params))
   }
 
-  def testAddByName() = {
+  def testAddByName(): Unit = {
     val params = Seq(parameterInfo("x", 0, Int), parameterInfo("s", 1, AnyRef, isByName = true))
     doTest(null, "foo", null, Seq(params))
   }
 
-  def testReturnTypeChange() = {
+  def testReturnTypeChange(): Unit = {
     val params = Seq(Seq.empty)
     doTest(null, "foo", "Unit", params)
   }
 
-  def testGenerics() = {
+  def testGenerics(): Unit = {
     def tpe = createTypeFromText("T", targetMethod, targetMethod).get
     doTest(null, "foo", "T", Seq(Seq(parameterInfo("t", 0, tpe))))
   }
 
-  def testSecConstructor() = {
+  def testSecConstructor(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("j", -1, Int, "0"))
     doTest(null, "Constructor", null, Seq(params))
   }
 
-  def testPrimConstructor() = {
+  def testPrimConstructor(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("b", -1, Boolean, "true"))
     doTest("protected", "Constructor", null, Seq(params))
   }
 
-  def testDifferentParamNames() = {
+  def testDifferentParamNames(): Unit = {
     val params = Seq(parameterInfo("newName", 0, Int))
     doTest(null, "foo", null, Seq(params))
   }
 
-  def testPrimConstructorDefault() = {
+  def testPrimConstructorDefault(): Unit = {
     isAddDefaultValue = true
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("b", -1, Boolean, "true"))
     doTest("protected", "Constructor", null, Seq(params))
   }
 
-  def testAddNewClauseWithDefault() = {
+  def testAddNewClauseWithDefault(): Unit = {
     isAddDefaultValue = true
     val params = Seq(Seq(parameterInfo("b", -1, Boolean, "true")), Seq(parameterInfo("x", 0, Int), parameterInfo("y", -1, Int, "0")))
     doTest(null, "foo", null, params)
   }
 
-  def testAddNewClause() = {
+  def testAddNewClause(): Unit = {
     isAddDefaultValue = false
     val params = Seq(Seq(parameterInfo("b", -1, Boolean, "true")), Seq(parameterInfo("x", 0, Int), parameterInfo("y", -1, Int, "0")))
     doTest(null, "foo", null, params)
   }
 
-  def testRemoveClause() = {
+  def testRemoveClause(): Unit = {
     val params = Seq(parameterInfo("b", 1, Boolean), parameterInfo("i", 0, Int))
     doTest(null, "RemoveClauseConstructor", null, Seq(params))
   }

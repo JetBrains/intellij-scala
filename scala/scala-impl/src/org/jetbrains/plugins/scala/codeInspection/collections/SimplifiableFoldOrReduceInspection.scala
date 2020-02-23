@@ -9,27 +9,27 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
  * 2014-05-05
  */
 class SimplifiableFoldOrReduceInspection extends OperationOnCollectionInspection {
-  val foldSum = new FoldSimplificationType(this, "0", "+", "sum") {
+  val foldSum: FoldSimplificationType = new FoldSimplificationType(this, "0", "+", "sum") {
     override def hint: String = InspectionBundle.message("fold.sum.hint")
     override def description: String = InspectionBundle.message("fold.sum.short")
   }
-  val foldProduct = new FoldSimplificationType(this, "1", "*", "product") {
+  val foldProduct: FoldSimplificationType = new FoldSimplificationType(this, "1", "*", "product") {
     override def hint: String = InspectionBundle.message("fold.product.hint")
     override def description: String = InspectionBundle.message("fold.product.short")
   }
-  val reduceSum = new ReduceSimplificationType(this, "+", "sum") {
+  val reduceSum: ReduceSimplificationType = new ReduceSimplificationType(this, "+", "sum") {
     override def hint: String = InspectionBundle.message("reduce.sum.hint")
     override def description: String = InspectionBundle.message("reduce.sum.short")
   }
-  val reduceProduct = new ReduceSimplificationType(this,"*", "product") {
+  val reduceProduct: ReduceSimplificationType = new ReduceSimplificationType(this,"*", "product") {
     override def hint: String = InspectionBundle.message("reduce.product.hint")
     override def description: String = InspectionBundle.message("reduce.product.short")
   }
-  val reduceMin = new ReduceSimplificationType(this, "min", "min") {
+  val reduceMin: ReduceSimplificationType = new ReduceSimplificationType(this, "min", "min") {
     override def hint: String = InspectionBundle.message("reduce.min.hint")
     override def description: String = InspectionBundle.message("reduce.min.short")
   }
-  val reduceMax = new ReduceSimplificationType(this, "max", "max") {
+  val reduceMax: ReduceSimplificationType = new ReduceSimplificationType(this, "max", "max") {
     override def hint: String = InspectionBundle.message("reduce.max.hint")
     override def description: String = InspectionBundle.message("reduce.max.short")
   }

@@ -34,7 +34,7 @@ class VariableNullInitializerInspection extends AbstractInspection(inspectionNam
 }
 
 object VariableNullInitializerInspection {
-  val inspectionName = InspectionBundle.message("convert.null.initializer.to.underscore")
+  val inspectionName: String = InspectionBundle.message("convert.null.initializer.to.underscore")
   val inspectionId = "ScalaConvertNullInitializerToUnderscore"
 
   private def isApplicable(`type`: ScType): Boolean = {

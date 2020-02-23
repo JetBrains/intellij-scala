@@ -14,7 +14,7 @@ class DropTakeToSliceInspection extends OperationOnCollectionInspection {
 
 object DropTakeToSlice extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.drop.take.with.slice")
-  val takeDropHint = InspectionBundle.message("replace.take.drop.with.slice")
+  val takeDropHint: String = InspectionBundle.message("replace.take.drop.with.slice")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.drop`(m)`.take`(n) =>

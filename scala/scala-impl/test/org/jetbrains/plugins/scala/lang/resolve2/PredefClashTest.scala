@@ -10,8 +10,8 @@ class PredefClashTest extends ResolveTestBase {
     super.folderPath + "predef/clash/"
   }
 
-  def testInherited() = doTest()
-  def testLocal1() = doTest()
-  def testLocal2() = doTest()
-  def testOuterScope() = doTest()
+  def testInherited(): Unit = doTest()
+  def testLocal1(): Unit = doTest()
+  def testLocal2(): Unit = doTest()
+  def testOuterScope(): Unit = doTest()
 }

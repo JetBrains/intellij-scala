@@ -84,5 +84,5 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
 
   override def getIconFlags: Int = 0
 
-  override def getContainerText(element: PsiNamedElement, name: String) = null //todo: add package name
+  override def getContainerText(element: PsiNamedElement, name: String): String = null //todo: add package name
 }

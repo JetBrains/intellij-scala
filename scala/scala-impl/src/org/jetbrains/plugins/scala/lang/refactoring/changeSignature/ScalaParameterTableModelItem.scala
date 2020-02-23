@@ -26,7 +26,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
 
   var typeText: String = generateTypeText(parameter)
 
-  def keywordsAndAnnotations = parameter.keywordsAndAnnotations
+  def keywordsAndAnnotations: String = parameter.keywordsAndAnnotations
 
   override def isEllipsisType: Boolean = parameter.isRepeatedParameter
 

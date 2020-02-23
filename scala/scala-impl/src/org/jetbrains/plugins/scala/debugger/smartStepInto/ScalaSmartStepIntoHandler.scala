@@ -4,6 +4,7 @@ import java.util.{Collections, List => JList}
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
+import com.intellij.debugger.engine.MethodFilter
 import com.intellij.debugger.impl.DebuggerSession
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
@@ -93,7 +94,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     file.isInstanceOf[ScalaFile]
   }
 
-  override def createMethodFilter(stepTarget: SmartStepTarget) = {
+  override def createMethodFilter(stepTarget: SmartStepTarget): MethodFilter = {
     stepTarget match {
       case methodTarget: MethodSmartStepTarget =>
         val scalaFilter = methodTarget.getMethod match {
@@ -122,7 +123,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
   }
 
   private class TargetCollector(noStopAtLines: Range[Integer], elementFilter: PsiElement => Boolean) extends ScalaRecursiveElementVisitor {
-    val result = ArrayBuffer[SmartStepTarget]()
+    val result: ArrayBuffer[SmartStepTarget] = ArrayBuffer[SmartStepTarget]()
 
     override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = {
       if (!elementFilter(templ)) return

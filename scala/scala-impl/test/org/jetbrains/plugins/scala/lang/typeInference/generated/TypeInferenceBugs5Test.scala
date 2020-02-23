@@ -816,7 +816,7 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
 
   def testSCL9877(): Unit = doTest()
 
-  def testSCL10037() = doTest {
+  def testSCL10037(): Unit = doTest {
     """
       |import scala.language.existentials
       |class SCL10037 {
@@ -868,7 +868,7 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
       """.stripMargin)
   }
 
-  def testSCL9929() = doTest()
+  def testSCL9929(): Unit = doTest()
 
   def testSOE(): Unit = doTest()
 

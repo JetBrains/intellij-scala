@@ -22,7 +22,7 @@ import scala.collection.mutable
 class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/dataFlow/reachingDefs/"
 
-  override def setUp() = {
+  override def setUp(): Unit = {
     super.setUp()
     myFixture.setTestDataPath(getBasePath)
   }
@@ -61,7 +61,7 @@ class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
     builder.toString
   }
 
-  def testFirst() = doTest
-  def testSecond() = doTest
+  def testFirst(): Unit = doTest
+  def testSecond(): Unit = doTest
 
 }

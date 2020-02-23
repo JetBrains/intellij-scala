@@ -10,16 +10,16 @@ class ScopeTest extends ResolveTestBase {
     super.folderPath + "scope/"
   }
 
-  def testBlock() = doTest()
-  def testOuterBlock() = doTest()
-  def testOuterBlockNested() = doTest()
-  def testInnerBlock() = doTest()
+  def testBlock(): Unit = doTest()
+  def testOuterBlock(): Unit = doTest()
+  def testOuterBlockNested(): Unit = doTest()
+  def testInnerBlock(): Unit = doTest()
   //TODO packageobject
 //  def testPackageObject = doTest
-  def testPackageObjectChild() = doTest()
+  def testPackageObjectChild(): Unit = doTest()
   //TODO packageobject
 //  def testPackageObjectParent = doTest
-  def testTwoBlocks() = doTest()
+  def testTwoBlocks(): Unit = doTest()
 
   def testDefaultParameterInNextClause(): Unit = {doTest()}
 }

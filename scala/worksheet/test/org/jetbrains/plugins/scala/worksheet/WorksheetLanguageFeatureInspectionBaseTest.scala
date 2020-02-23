@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet
 
+import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.feature.{LanguageFeatureInspection, LanguageFeatureInspectionTestBase}
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 abstract class WorksheetLanguageFeatureInspectionBaseTest extends LanguageFeatureInspectionTestBase {
 
   override protected val fileType: LanguageFileType = WorksheetFileType
-  override protected val classOfInspection = classOf[LanguageFeatureInspection]
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[LanguageFeatureInspection]
   override protected val description = "Advanced language feature: higher-kinded type "
 }
 

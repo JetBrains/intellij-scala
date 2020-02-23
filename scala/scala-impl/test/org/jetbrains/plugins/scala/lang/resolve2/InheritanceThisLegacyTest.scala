@@ -10,10 +10,10 @@ class InheritanceThisLegacyTest extends ResolveTestBase {
     super.folderPath + "inheritance/this/legacy/"
   }
 
-  def testClass() = doTest()
-  def testObject() = doTest()
-  def testTrait() = doTest()
-  def testClashClass() = doTest()
-  def testClashObject() = doTest()
-  def testClashTrait() = doTest()
+  def testClass(): Unit = doTest()
+  def testObject(): Unit = doTest()
+  def testTrait(): Unit = doTest()
+  def testClashClass(): Unit = doTest()
+  def testClashObject(): Unit = doTest()
+  def testClashTrait(): Unit = doTest()
 }

@@ -185,6 +185,6 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
   val ReassignmentToVal = StartWith("Reassignment to val")
 
   case class StartWith(fragment: String) {
-    def unapply(s: String) = s.startsWith(fragment)
+    def unapply(s: String): Boolean = s.startsWith(fragment)
   }
 }

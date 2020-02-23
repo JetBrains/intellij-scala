@@ -12,7 +12,7 @@ class ContravarianceTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false
 
-  def testScl4123() = {
+  def testScl4123(): Unit = {
     val text =
       s"""object Test {
         |  class A

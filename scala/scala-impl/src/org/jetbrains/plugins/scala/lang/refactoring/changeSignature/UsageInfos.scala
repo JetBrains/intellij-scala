@@ -90,9 +90,9 @@ private[changeSignature] case class MethodCallUsageInfo(override val ref: ScRefe
         extends UsageInfo(call) with MethodUsageInfo {
 
   private val resolveResult = Option(ref).flatMap(_.bind())
-  val substitutor = resolveResult.map(_.substitutor)
-  override val expr = call
-  override val argsInfo = OldArgsInfo(allArgs(call), method)
+  val substitutor: Option[ScSubstitutor] = resolveResult.map(_.substitutor)
+  override val expr: ScExpression = call
+  override val argsInfo: OldArgsInfo = OldArgsInfo(allArgs(call), method)
 
   private def allArgs(call: ScMethodCall): Seq[ScExpression] = {
     call.getInvokedExpr match {
@@ -104,35 +104,35 @@ private[changeSignature] case class MethodCallUsageInfo(override val ref: ScRefe
 
 private[changeSignature] case class RefExpressionUsage(refExpr: ScReferenceExpression)
         extends UsageInfo(refExpr: PsiReference) with MethodUsageInfo {
-  override val expr = refExpr
-  override val ref = refExpr
-  override val argsInfo = OldArgsInfo(Seq.empty, method)
+  override val expr: ScExpression = refExpr
+  override val ref: ScReference = refExpr
+  override val argsInfo: OldArgsInfo = OldArgsInfo(Seq.empty, method)
 }
 
 private[changeSignature] case class InfixExprUsageInfo(infix: ScInfixExpr)
         extends UsageInfo(infix) with MethodUsageInfo {
-  override val expr = infix
-  override val ref = infix.operation
-  override val argsInfo = OldArgsInfo(infix.argumentExpressions, method)
+  override val expr: ScExpression = infix
+  override val ref: ScReference = infix.operation
+  override val argsInfo: OldArgsInfo = OldArgsInfo(infix.argumentExpressions, method)
 }
 
 private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
         extends UsageInfo(postfix) with MethodUsageInfo {
-  override val expr = postfix
-  override val ref = postfix.operation
-  override val argsInfo = OldArgsInfo(postfix.argumentExpressions, method)
+  override val expr: ScExpression = postfix
+  override val ref: ScReference = postfix.operation
+  override val argsInfo: OldArgsInfo = OldArgsInfo(postfix.argumentExpressions, method)
 }
 
 private[changeSignature] case class ConstructorUsageInfo(override val ref: ScReference, constrInvocation: ScConstructorInvocation)
         extends UsageInfo(constrInvocation) with MethodUsageInfo {
 
   private val resolveResult = Option(ref).flatMap(_.bind())
-  val substitutor = resolveResult.map(_.substitutor)
-  override val expr = {
+  val substitutor: Option[ScSubstitutor] = resolveResult.map(_.substitutor)
+  override val expr: ScExpression = {
     val newText = s"new ${constrInvocation.getText}"
     createExpressionFromText(newText)(constrInvocation.getManager)
   }
-  override val argsInfo = OldArgsInfo(constrInvocation.arguments.flatMap(_.exprs), method)
+  override val argsInfo: OldArgsInfo = OldArgsInfo(constrInvocation.arguments.flatMap(_.exprs), method)
 }
 
 private[changeSignature] case class AnonFunUsageInfo(expr: ScExpression, ref: ScReferenceExpression)
@@ -202,7 +202,7 @@ private[changeSignature] object UsageUtil {
 
 private[changeSignature] case class OldArgsInfo(args: Seq[ScExpression], namedElement: PsiNamedElement) {
 
-  val byOldParameterIndex = {
+  val byOldParameterIndex: Map[Int, Seq[ScExpression]] = {
     args.groupBy(a => ScalaPsiUtil.parameterOf(a).fold(-1)(_.index))
             .updated(-1, Seq.empty)
   }

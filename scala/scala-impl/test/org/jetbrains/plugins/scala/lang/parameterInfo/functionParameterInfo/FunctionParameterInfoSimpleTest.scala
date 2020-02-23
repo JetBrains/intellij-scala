@@ -11,7 +11,7 @@ class FunctionParameterInfoSimpleTest_since_2_12 extends FunctionParameterInfoTe
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
-  def testJavaLibrary() = doTest()
+  def testJavaLibrary(): Unit = doTest()
 }
 
 
@@ -20,61 +20,61 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
   override def getTestDataPath: String =
     s"${super.getTestDataPath}simple/"
   
-  def testAnnotation() = doTest()
+  def testAnnotation(): Unit = doTest()
 
-  def testProperty() = doTest()
+  def testProperty(): Unit = doTest()
 
-  def testPropertyInArgumentList() = doTest()
+  def testPropertyInArgumentList(): Unit = doTest()
 
-  def testPropertyWithImplicitParameterInArgumentList() = doTest()
+  def testPropertyWithImplicitParameterInArgumentList(): Unit = doTest()
 
-  def testPropertyGeneric() = doTest()
+  def testPropertyGeneric(): Unit = doTest()
 
-  def testPropertyInBlockArg() = doTest()
+  def testPropertyInBlockArg(): Unit = doTest()
 
-  def testPropertyCaretAfter() = doTest()
+  def testPropertyCaretAfter(): Unit = doTest()
 
-  def testPropertyInInfix() = doTest()
+  def testPropertyInInfix(): Unit = doTest()
 
-  def testPropertyInInfixTuple() = doTest()
+  def testPropertyInInfixTuple(): Unit = doTest()
 
-  def testPropertyWithQualifier() = doTest()
+  def testPropertyWithQualifier(): Unit = doTest()
 
-  def testDefaultParameter() = doTest()
+  def testDefaultParameter(): Unit = doTest()
 
-  def testDefaultParameterFromSources() = doTest()
+  def testDefaultParameterFromSources(): Unit = doTest()
 
-  def testFromPositionalToNaming() = doTest()
+  def testFromPositionalToNaming(): Unit = doTest()
 
-  def testGenericJavaLibrary() = doTest()
+  def testGenericJavaLibrary(): Unit = doTest()
 
-  def testImplicitParameter() = doTest()
+  def testImplicitParameter(): Unit = doTest()
 
-  def testInfixExpression() = doTest()
+  def testInfixExpression(): Unit = doTest()
 
-  def testInfixTuple() = doTest()
+  def testInfixTuple(): Unit = doTest()
 
-  def testInfixUnit() = doTest()
+  def testInfixUnit(): Unit = doTest()
 
-  def testLocal() = doTest()
+  def testLocal(): Unit = doTest()
 
-  def testNothingExprType() = doTest()
+  def testNothingExprType(): Unit = doTest()
 
-  def testPositionalAfterNamed() = doTest()
+  def testPositionalAfterNamed(): Unit = doTest()
 
-  def testScalaLibrary() = doTest()
+  def testScalaLibrary(): Unit = doTest()
 
-  def testSimple() = doTest()
+  def testSimple(): Unit = doTest()
 
-  def testSyntheticParameter() = doTest()
+  def testSyntheticParameter(): Unit = doTest()
 
-  def testTypeRefinement() = doTest()
+  def testTypeRefinement(): Unit = doTest()
 
-  def testAliasedMethod() = doTest()
+  def testAliasedMethod(): Unit = doTest()
 
-  def testSeveralParameterLists() = doTest()
+  def testSeveralParameterLists(): Unit = doTest()
 
-  def testSeveralParameterLists2() = doTest()
+  def testSeveralParameterLists2(): Unit = doTest()
 
-  def testSeveralParameterListsWithImplicit() = doTest()
+  def testSeveralParameterListsWithImplicit(): Unit = doTest()
 }

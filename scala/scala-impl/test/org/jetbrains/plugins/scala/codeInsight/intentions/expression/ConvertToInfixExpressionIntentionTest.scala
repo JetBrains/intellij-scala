@@ -96,7 +96,7 @@ class ConvertToInfixExpressionIntentionTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
-  def testConvertToInfix12() = {
+  def testConvertToInfix12(): Unit = {
     val text =
       """
         |case class M[A](a: A) {

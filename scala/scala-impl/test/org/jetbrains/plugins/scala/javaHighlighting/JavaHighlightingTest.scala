@@ -1046,7 +1046,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
-  def testSCL7525() = {
+  def testSCL7525(): Unit = {
     val scala =
       """
         |package SCL7525

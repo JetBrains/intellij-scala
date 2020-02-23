@@ -16,7 +16,7 @@ abstract class ScalaUnwrapper extends AbstractUnwrapper[ScalaUnwrapContext]("") 
 trait ShortTextDescription {
   this: ScalaUnwrapper =>
 
-  protected def shortText(element: PsiElement) = {
+  protected def shortText(element: PsiElement): String = {
     val text = element.getText
     if (text.length > 20) text.substring(0, 17) + "..." else text
   }

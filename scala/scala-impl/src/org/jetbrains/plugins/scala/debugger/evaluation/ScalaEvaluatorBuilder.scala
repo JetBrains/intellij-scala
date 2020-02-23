@@ -162,7 +162,7 @@ private[evaluation] trait SyntheticVariablesHelper {
 }
 
 private object needsCompilation {
-  def message(kind: String) = Some(s"Evaluation of $kind needs compilation")
+  def message(kind: String): Some[String] = Some(s"Evaluation of $kind needs compilation")
 
   def unapply(elem: PsiElement): Option[String] = elem match {
     case m: ScMember => m match {

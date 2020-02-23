@@ -43,7 +43,7 @@ sealed class InstructionImpl(override val num: Int,
     builder.toString()
   }
 
-  protected def getPresentation = "element: " + (element match {
+  protected def getPresentation: String = "element: " + (element match {
     case Some(x) => x
     case z => z
   })
@@ -67,5 +67,5 @@ case class ReadWriteVariableInstruction(override val num: Int,
         extends InstructionImpl(num, Some(ref)) {
   private val myName = ref.getText
   def getName: String = myName
-  override protected def getPresentation = (if (write) "WRITE " else "READ ") + getName
+  override protected def getPresentation: String = (if (write) "WRITE " else "READ ") + getName
 }

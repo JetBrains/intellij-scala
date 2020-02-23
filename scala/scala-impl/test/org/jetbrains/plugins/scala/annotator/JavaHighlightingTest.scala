@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.javaHighlighting.JavaHighlightingTestBase
   */
 class JavaHighlightingTest extends JavaHighlightingTestBase() {
 
-  def testSCL12136() = {
+  def testSCL12136(): Unit = {
     val scala =
       """
         |import OfferRepository._

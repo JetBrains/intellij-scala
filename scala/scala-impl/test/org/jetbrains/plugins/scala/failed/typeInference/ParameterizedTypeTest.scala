@@ -13,7 +13,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL9014() = {
+  def testSCL9014(): Unit = {
     val text =
       """
         |import scala.util.{Success, Try}
@@ -29,7 +29,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL10118() = {
+  def testSCL10118(): Unit = {
     val text =
       """
         |object SCL10118{
@@ -95,7 +95,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     )
   }
 
-  def testSCL12656() = {
+  def testSCL12656(): Unit = {
     checkTextHasNoErrors(
       """import scala.concurrent.{ExecutionContext, Future}
         |import scala.util.Success
@@ -124,7 +124,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     )
   }
 
-  def testSCL12908() = {
+  def testSCL12908(): Unit = {
     val text =
       """
         |def check[T](array: Array[T]): Unit = {
@@ -139,7 +139,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL13746() = {
+  def testSCL13746(): Unit = {
     val text =
       """
         |import scala.annotation.tailrec

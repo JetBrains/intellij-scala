@@ -10,7 +10,7 @@ class FunctionAliasTest extends ResolveTestBase {
     super.folderPath + "function/alias/"
   }
 
-  def testApply() = doTest()
+  def testApply(): Unit = doTest()
   // TODO
 //  def testCallThenApply = doTest
   //TODO how to be with syntetic method?

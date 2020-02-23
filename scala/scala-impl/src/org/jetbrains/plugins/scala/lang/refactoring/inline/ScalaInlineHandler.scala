@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.highlightOccurrences
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -45,7 +46,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScalaInlineHandler extends InlineHandler {
 
   override def removeDefinition(element: PsiElement, settings: InlineHandler.Settings): Unit = {
-    def removeElementWithNonSignificantSibilings(value: PsiElement) = {
+    def removeElementWithNonSignificantSibilings(value: PsiElement): Unit = {
       val children = new ArrayBuffer[PsiElement]
       var psiElement = value.getNextSibling
       while (psiElement != null && (psiElement.getNode.getElementType == ScalaTokenTypes.tSEMICOLON || psiElement.getText.trim == "")) {
@@ -140,7 +141,7 @@ class ScalaInlineHandler extends InlineHandler {
 
     Stats.trigger(FeatureKey.inline)
 
-    implicit val project = element.projectContext
+    implicit val project: ProjectContext = element.projectContext
 
     def isFunctionalType(typedDef: ScTypedDefinition) =
       FunctionType.unapply(typedDef.`type`().getOrAny).exists(_._2.nonEmpty) &&

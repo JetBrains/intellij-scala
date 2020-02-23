@@ -31,6 +31,6 @@ case class ManifestHandler(jarFile: java.io.File) {
 
   def getArbitraryAttribute(attrName: String): Option[String] = manifest flatMap (m => Option(m.getMainAttributes getValue attrName))
 
-  def checkAttribute(name: String, value: String) =
+  def checkAttribute(name: String, value: String): Boolean =
     if (value == null) getArbitraryAttribute(name).isEmpty else getArbitraryAttribute(name) contains value
 }

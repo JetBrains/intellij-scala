@@ -12,7 +12,7 @@ class InheritanceTraitTest extends ResolveTestBase {
 
   //TODO abstractoverride
 //  def testAbstractOverrideExtendsClass = doTest
-  def testAbstractOverrideExtendsFunction() = doTest()
+  def testAbstractOverrideExtendsFunction(): Unit = doTest()
   //TODO abstractoverride
 //  def testAbstractOverrideSelfClass = doTest
   //TODO abstractoverride
@@ -25,10 +25,10 @@ class InheritanceTraitTest extends ResolveTestBase {
   //TODO abstractoverride
 //  def testClashAbstractOverrideSelf = doTest
 
-  def testClashTwo1() = doTest()
-  def testClashTwo2() = doTest()
-  def testMixOne() = doTest()
-  def testMixTwo() = doTest()
-  def testSelfTypeElements() = doTest()
-  def testSelfTypeModifiers() = doTest()
+  def testClashTwo1(): Unit = doTest()
+  def testClashTwo2(): Unit = doTest()
+  def testMixOne(): Unit = doTest()
+  def testMixTwo(): Unit = doTest()
+  def testSelfTypeElements(): Unit = doTest()
+  def testSelfTypeModifiers(): Unit = doTest()
 }

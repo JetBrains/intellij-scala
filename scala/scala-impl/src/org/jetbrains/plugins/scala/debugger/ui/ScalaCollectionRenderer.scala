@@ -234,11 +234,11 @@ object ScalaCollectionRenderer {
   }
 
   private class CachedEvaluators {
-    val hasDefiniteSizeEval = ScalaMethodEvaluator(new ScalaThisEvaluator(), "hasDefiniteSize", JVMNameUtil.getJVMRawText("()Z"), Nil)
-    val nonEmptyEval = ScalaMethodEvaluator(new ScalaThisEvaluator(), "nonEmpty", JVMNameUtil.getJVMRawText("()Z"), Nil)
-    val sizeEval = ScalaMethodEvaluator(new ScalaThisEvaluator(), "size", JVMNameUtil.getJVMRawText("()I"), Nil)
+    val hasDefiniteSizeEval: ScalaMethodEvaluator = ScalaMethodEvaluator(new ScalaThisEvaluator(), "hasDefiniteSize", JVMNameUtil.getJVMRawText("()Z"), Nil)
+    val nonEmptyEval: ScalaMethodEvaluator = ScalaMethodEvaluator(new ScalaThisEvaluator(), "nonEmpty", JVMNameUtil.getJVMRawText("()Z"), Nil)
+    val sizeEval: ScalaMethodEvaluator = ScalaMethodEvaluator(new ScalaThisEvaluator(), "size", JVMNameUtil.getJVMRawText("()I"), Nil)
 
-    val toArrayEvaluator = {
+    val toArrayEvaluator: ScalaMethodEvaluator = {
       val classTagObjectEval = {
         val classTagEval = stableObjectEval("scala.reflect.ClassTag$")
         ScalaMethodEvaluator(classTagEval, "Object", null, Nil)

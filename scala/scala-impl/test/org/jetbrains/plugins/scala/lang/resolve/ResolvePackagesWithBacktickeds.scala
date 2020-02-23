@@ -11,22 +11,22 @@ class ResolvePackagesWithBacktickeds extends ScalaResolveTestCase {
 
   override protected def sourceRootPath: String = folderPath
 
-  private def checkReference() = {
+  private def checkReference(): Unit = {
     val ref: PsiReference = findReferenceAtCaret
     assertTrue(ref.resolve != null)
   }
 
-  def testInFileBacktickedPackage() = checkReference()
+  def testInFileBacktickedPackage(): Unit = checkReference()
 
-  def testFromJavaPackage() = checkReference()
+  def testFromJavaPackage(): Unit = checkReference()
 
-  def testClassInPackageWithJavaKeyword() = checkReference()
+  def testClassInPackageWithJavaKeyword(): Unit = checkReference()
 
-  def testJavaClass() =
+  def testJavaClass(): Unit =
     checkReference()
 
-  def testScalaClass() = checkReference()
+  def testScalaClass(): Unit = checkReference()
 
-  def testMethodInBactickedsPackage() = checkReference()
+  def testMethodInBactickedsPackage(): Unit = checkReference()
 
 }

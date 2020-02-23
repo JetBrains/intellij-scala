@@ -50,7 +50,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
     Assert.assertEquals("Wrong set of smart step targets:", expected, targets)
   }
 
-  def checkSmartStepInto(target: String, source: String, methodName: String, line: Int) = {
+  def checkSmartStepInto(target: String, source: String, methodName: String, line: Int): Unit = {
     val sst = inReadAction {
       availableSmartStepTargets().find(_.getPresentation == target)
     }

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
   * @since 01.04.2016.
   */
 class CurriedTypeInferenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  def testSCL7332() = checkTextHasNoErrors(
+  def testSCL7332(): Unit = checkTextHasNoErrors(
     """
       |class Foo[A, B](a: A, b: B)(f: B => A)
       |

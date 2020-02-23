@@ -12,32 +12,32 @@ class ElementMixTest extends ResolveTestBase {
   }
   //TODO classes clash
 //  def testCaseClassAndClass = doTest
-  def testCaseClassAndObject() = doTest()
+  def testCaseClassAndObject(): Unit = doTest()
   //TODO classes clash
 //  def testCaseClassAndTrait = doTest
-  def testCaseClassAndTypeAlias() = doTest()
-  def testFunctionAndClass() = doTest()
+  def testCaseClassAndTypeAlias(): Unit = doTest()
+  def testFunctionAndClass(): Unit = doTest()
   //TODO object also can be applicable! do not filter object
 //  def testFunctionAndObject = doTest
-  def testFunctionAndTrait() = doTest()
-  def testFunctionAndTypeAlias() = doTest()
+  def testFunctionAndTrait(): Unit = doTest()
+  def testFunctionAndTypeAlias(): Unit = doTest()
   //TODO classparameter
 //  def testClassParameterAndFunction = doTest
-  def testClassParameterAndValue() = doTest()
-  def testClassParameterAndVariable() = doTest()
-  def testFunctionParameterAndObject() = doTest()
-  def testFunctionParameterAndValue1() = doTest()
-  def testFunctionParameterAndValue2() = doTest()
-  def testFunctionParameterAndVariable() = doTest()
-  def testFunctionTypeParameterAndClass() = doTest()
-  def testFunctionTypeParameterAndTrait() = doTest()
-  def testFunctionTypeParameterAndValue() = doTest()
-  def testClassAndObject() = doTest()
+  def testClassParameterAndValue(): Unit = doTest()
+  def testClassParameterAndVariable(): Unit = doTest()
+  def testFunctionParameterAndObject(): Unit = doTest()
+  def testFunctionParameterAndValue1(): Unit = doTest()
+  def testFunctionParameterAndValue2(): Unit = doTest()
+  def testFunctionParameterAndVariable(): Unit = doTest()
+  def testFunctionTypeParameterAndClass(): Unit = doTest()
+  def testFunctionTypeParameterAndTrait(): Unit = doTest()
+  def testFunctionTypeParameterAndValue(): Unit = doTest()
+  def testClassAndObject(): Unit = doTest()
   //TODO classes clash
 //  def testClassAndTrait = doTest
-  def testClassAndTypeAlias() = doTest()
-  def testObjectAndTrait() = doTest()
-  def testObjectAndTypeAlias() = doTest()
-  def testTraitAndTypeAlias() = doTest()
+  def testClassAndTypeAlias(): Unit = doTest()
+  def testObjectAndTrait(): Unit = doTest()
+  def testObjectAndTypeAlias(): Unit = doTest()
+  def testTraitAndTypeAlias(): Unit = doTest()
 
 }

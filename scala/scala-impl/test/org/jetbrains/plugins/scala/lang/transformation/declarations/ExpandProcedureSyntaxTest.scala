@@ -24,8 +24,8 @@ class ExpandProcedureSyntaxTest extends TransformerTest(new ExpandProcedureSynta
   )()
 
   def testImplicitUnitType(): Unit = check(
-    before = "def f() = {}",
-    after = "def f() = {}"
+    before = "def f(): Unit = {}",
+    after = "def f(): Unit = {}"
   )()
 
   def testExplicitUnityType(): Unit = check(

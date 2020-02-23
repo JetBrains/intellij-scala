@@ -33,7 +33,7 @@ import scala.collection.mutable
  */
 class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
 
-  val REFACTORING_NAME = ScalaBundle.message("extract.trait.title")
+  val REFACTORING_NAME: String = ScalaBundle.message("extract.trait.title")
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {

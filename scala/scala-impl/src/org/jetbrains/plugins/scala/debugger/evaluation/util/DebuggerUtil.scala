@@ -258,7 +258,7 @@ object DebuggerUtil {
   }
 
   class JVMConstructorSignature(clazz: PsiClass) extends JVMName {
-    val position = SourcePosition.createFromElement(clazz)
+    val position: SourcePosition = SourcePosition.createFromElement(clazz)
 
     override def getName(process: DebugProcessImpl): String = {
       jvmClassAtPosition(position, process) match {

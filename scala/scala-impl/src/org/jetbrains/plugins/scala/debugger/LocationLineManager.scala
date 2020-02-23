@@ -282,78 +282,78 @@ trait LocationLineManager {
 
 object LocationLineManager {
 
-  val iconst_0 = 0x03.toByte
+  val iconst_0: Byte = 0x03.toByte
 
-  val istore_0 = 0x3b.toByte
-  val istore_1 = 0x3c.toByte
-  val istore_2 = 0x3d.toByte
-  val istore_3 = 0x3e.toByte
-  val istore = 0x36.toByte
+  val istore_0: Byte = 0x3b.toByte
+  val istore_1: Byte = 0x3c.toByte
+  val istore_2: Byte = 0x3d.toByte
+  val istore_3: Byte = 0x3e.toByte
+  val istore: Byte = 0x36.toByte
 
-  val iload_0 = 0x1a.toByte
-  val iload_1 = 0x1b.toByte
-  val iload_2 = 0x1c.toByte
-  val iload_3 = 0x1d.toByte
-  val iload = 0x15.toByte
+  val iload_0: Byte = 0x1a.toByte
+  val iload_1: Byte = 0x1b.toByte
+  val iload_2: Byte = 0x1c.toByte
+  val iload_3: Byte = 0x1d.toByte
+  val iload: Byte = 0x15.toByte
 
-  val aload = 0x19.toByte
-  val aload_0 = 0x2a.toByte
-  val aload_1 = 0x2b.toByte
-  val aload_2 = 0x2c.toByte
-  val aload_3 = 0x2d.toByte
+  val aload: Byte = 0x19.toByte
+  val aload_0: Byte = 0x2a.toByte
+  val aload_1: Byte = 0x2b.toByte
+  val aload_2: Byte = 0x2c.toByte
+  val aload_3: Byte = 0x2d.toByte
 
-  val astore = 0x3a.toByte
-  val astore_0 = 0x4b.toByte
-  val astore_1 = 0x4c.toByte
-  val astore_2 = 0x4d.toByte
-  val astore_3 = 0x4e.toByte
+  val astore: Byte = 0x3a.toByte
+  val astore_0: Byte = 0x4b.toByte
+  val astore_1: Byte = 0x4c.toByte
+  val astore_2: Byte = 0x4d.toByte
+  val astore_3: Byte = 0x4e.toByte
 
-  val dload = 0x18.toByte
-  val dload_0 = 0x26.toByte
-  val dload_1 = 0x27.toByte
-  val dload_2 = 0x28.toByte
-  val dload_3 = 0x29.toByte
+  val dload: Byte = 0x18.toByte
+  val dload_0: Byte = 0x26.toByte
+  val dload_1: Byte = 0x27.toByte
+  val dload_2: Byte = 0x28.toByte
+  val dload_3: Byte = 0x29.toByte
 
-  val dstore = 0x39.toByte
-  val dstore_0 = 0x47.toByte
-  val dstore_1 = 0x48.toByte
-  val dstore_2 = 0x49.toByte
-  val dstore_3 = 0x4a.toByte
+  val dstore: Byte = 0x39.toByte
+  val dstore_0: Byte = 0x47.toByte
+  val dstore_1: Byte = 0x48.toByte
+  val dstore_2: Byte = 0x49.toByte
+  val dstore_3: Byte = 0x4a.toByte
 
-  val fload = 0x17.toByte
-  val fload_0 = 0x22.toByte
-  val fload_1 = 0x23.toByte
-  val fload_2 = 0x24.toByte
-  val fload_3 = 0x25.toByte
+  val fload: Byte = 0x17.toByte
+  val fload_0: Byte = 0x22.toByte
+  val fload_1: Byte = 0x23.toByte
+  val fload_2: Byte = 0x24.toByte
+  val fload_3: Byte = 0x25.toByte
 
-  val fstore = 0x38.toByte
-  val fstore_0 = 0x43.toByte
-  val fstore_1 = 0x44.toByte
-  val fstore_2 = 0x45.toByte
-  val fstore_3 = 0x46.toByte
+  val fstore: Byte = 0x38.toByte
+  val fstore_0: Byte = 0x43.toByte
+  val fstore_1: Byte = 0x44.toByte
+  val fstore_2: Byte = 0x45.toByte
+  val fstore_3: Byte = 0x46.toByte
 
-  val lload = 0x16.toByte
-  val lload_0 = 0x1e.toByte
-  val lload_1 = 0x1f.toByte
-  val lload_2 = 0x20.toByte
-  val lload_3 = 0x21.toByte
+  val lload: Byte = 0x16.toByte
+  val lload_0: Byte = 0x1e.toByte
+  val lload_1: Byte = 0x1f.toByte
+  val lload_2: Byte = 0x20.toByte
+  val lload_3: Byte = 0x21.toByte
 
-  val lstore = 0x37.toByte
-  val lstore_0 = 0x3f.toByte
-  val lstore_1 = 0x40.toByte
-  val lstore_2 = 0x41.toByte
-  val lstore_3 = 0x42.toByte
+  val lstore: Byte = 0x37.toByte
+  val lstore_0: Byte = 0x3f.toByte
+  val lstore_1: Byte = 0x40.toByte
+  val lstore_2: Byte = 0x41.toByte
+  val lstore_3: Byte = 0x42.toByte
 
-  val invokeStatic = 0xB8.toByte
+  val invokeStatic: Byte = 0xB8.toByte
 
-  val areturn = 0xB0.toByte
-  val dreturn = 0xAF.toByte
-  val freturn = 0xAE.toByte
-  val ireturn = 0xAC.toByte
-  val lreturn = 0xAD.toByte
-  val voidReturn = 0xB1.toByte
+  val areturn: Byte = 0xB0.toByte
+  val dreturn: Byte = 0xAF.toByte
+  val freturn: Byte = 0xAE.toByte
+  val ireturn: Byte = 0xAC.toByte
+  val lreturn: Byte = 0xAD.toByte
+  val voidReturn: Byte = 0xB1.toByte
 
-  val goto = 0xA7.toByte
+  val goto: Byte = 0xA7.toByte
 
   private val oneByteCodes = Map(
     istore_0 -> iload_0,
@@ -378,8 +378,8 @@ object LocationLineManager {
     lstore_3 -> lload_3
   )
 
-  val oneByteLoadCodes = oneByteCodes.values.toSet
-  val oneByteStoreCodes = oneByteCodes.keySet
+  val oneByteLoadCodes: Set[Byte] = oneByteCodes.values.toSet
+  val oneByteStoreCodes: Set[Byte] = oneByteCodes.keySet
 
   private val twoBytesCodes = Map(
     istore -> iload,
@@ -389,8 +389,8 @@ object LocationLineManager {
     lstore -> lload
   )
 
-  val twoBytesLoadCodes = twoBytesCodes.values.toSet
-  val twoBytesStoreCodes = twoBytesCodes.keySet
+  val twoBytesLoadCodes: Set[Byte] = twoBytesCodes.values.toSet
+  val twoBytesStoreCodes: Set[Byte] = twoBytesCodes.keySet
 
   val returnCodes = Set(areturn, dreturn, freturn, ireturn, lreturn, voidReturn)
 

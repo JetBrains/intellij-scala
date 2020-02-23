@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class UpdateMethodTest extends FailedResolveTest("updateMethod") {
-  def testSCL5739() = doTest()
+  def testSCL5739(): Unit = doTest()
 
   override protected def additionalAsserts(variants: Array[ScalaResolveResult], ref: ScReference): Boolean = {
     val elementFile = variants(0).getElement.getContainingFile

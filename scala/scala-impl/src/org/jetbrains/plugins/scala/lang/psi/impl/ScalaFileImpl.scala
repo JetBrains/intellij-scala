@@ -217,7 +217,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   override def firstPackaging: Option[ScPackaging] = packagings.headOption
 
-  protected def packagings = foldStub(findChildrenByClassScala(classOf[ScPackaging])) {
+  protected def packagings: Array[ScPackaging] = foldStub(findChildrenByClassScala(classOf[ScPackaging])) {
     _.getChildrenByType(PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory)
   }
 

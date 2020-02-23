@@ -14,7 +14,7 @@ class SizeToLengthInspection extends OperationOnCollectionInspection {
 
 object SizeToLength extends SimplificationType {
   override def hint: String = InspectionBundle.message("size.to.length")
-  val `.size` = invocation("size").from(likeCollectionClasses)
+  val `.size`: Qualified = invocation("size").from(likeCollectionClasses)
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

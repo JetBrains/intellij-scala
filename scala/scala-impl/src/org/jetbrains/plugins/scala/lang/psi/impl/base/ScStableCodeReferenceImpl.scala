@@ -249,7 +249,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   }
 
   override def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
-    override protected val forName = Some(refName)
+    override protected val forName: Option[String] = Some(refName)
   })
 
   override def delete(): Unit = {

@@ -10,10 +10,10 @@ class ScopeElementTest extends ResolveTestBase {
     super.folderPath + "scope/element/"
   }
 
-  def testBlock() = doTest()
-  def testCaseClass() = doTest()
-  def testClass() = doTest()
-  def testFunction() = doTest()
-  def testObject() = doTest()
-  def testTrait() = doTest()
+  def testBlock(): Unit = doTest()
+  def testCaseClass(): Unit = doTest()
+  def testClass(): Unit = doTest()
+  def testFunction(): Unit = doTest()
+  def testObject(): Unit = doTest()
+  def testTrait(): Unit = doTest()
 }

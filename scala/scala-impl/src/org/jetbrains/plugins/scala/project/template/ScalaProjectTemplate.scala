@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package project.template
 
 import javax.swing.Icon
-
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectTemplate
 import org.jetbrains.plugins.scala.project.template.WizardEntity.{Module, Project}
 
@@ -28,5 +28,5 @@ class ScalaProjectTemplate(entity: WizardEntity) extends ProjectTemplate {
 
   override def createModuleBuilder() = new ScalaModuleBuilder()
 
-  override def validateSettings() = null
+  override def validateSettings(): ValidationInfo = null
 }

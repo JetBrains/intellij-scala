@@ -516,10 +516,10 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           def collectForType(typez: ScType): Unit = {
             def process(functionName: String): Unit = {
               val i = if (functionName == "update") -1 else 0
-              val processor = new CompletionProcessor(StdKinds.refExprQualRef, call, isImplicit = true) {
+              val processor: CompletionProcessor = new CompletionProcessor(StdKinds.refExprQualRef, call, isImplicit = true) {
 
 
-                override protected val forName = Some(functionName)
+                override protected val forName: Option[String] = Some(functionName)
               }
               processor.processType(typez, call)
               val variants: Array[ScalaResolveResult] = processor.candidates

@@ -10,7 +10,7 @@ object PresentationTypeUpdaters {
 
   private[this] val uselessTypeNames = Set(JavaObjectCanonical, ProductCanonical, SerializableCanonical, AnyRefCanonical)
 
-  val cleanUp = SimpleUpdate {
+  val cleanUp: SimpleUpdate = SimpleUpdate {
     case tpe @ ScCompoundType(components, signatureMap, _) =>
       val withoutUselessComponents = components.filterNot(tp => uselessTypeNames.contains(tp.canonicalText))
       val refinementsAreNecessary = withoutUselessComponents.isEmpty

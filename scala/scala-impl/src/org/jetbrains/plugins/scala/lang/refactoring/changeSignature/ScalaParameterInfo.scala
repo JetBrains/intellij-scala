@@ -37,7 +37,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
       keywordsAndAnnotations = ScalaParameterInfo.keywordsAndAnnotations(p))
   }
 
-  var defaultForJava = defaultValue
+  var defaultForJava: String = defaultValue
 
   @BooleanBeanProperty
   var useAnySingleVariable: Boolean = false

@@ -5,9 +5,9 @@ import org.jetbrains.plugins.scala.refactoring.inline.InlineRefactoringTestBase
 class InlineRefactoringTypeAliasTest extends InlineRefactoringTestBase {
   override def folderPath: String = super.folderPath + "typeAlias/"
 
-  def testInlineSimple() = doTest()
+  def testInlineSimple(): Unit = doTest()
 
-  def testMultiple() = doTest()
+  def testMultiple(): Unit = doTest()
 
-  def testStablePath() = doTest()
+  def testStablePath(): Unit = doTest()
 }

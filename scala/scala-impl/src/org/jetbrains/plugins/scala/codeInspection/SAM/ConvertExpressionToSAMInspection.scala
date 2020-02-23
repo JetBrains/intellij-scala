@@ -106,6 +106,6 @@ class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String)
 }
 
 object ConvertExpressionToSAMInspection {
-  val inspectionName = InspectionBundle.message("convert.expression.to.sam")
+  val inspectionName: String = InspectionBundle.message("convert.expression.to.sam")
   val inspectionId = "ConvertExpressionToSAM"
 }

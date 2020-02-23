@@ -202,7 +202,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       _.typeDefinitions
     }
 
-  def nameId = null
+  def nameId: Null = null
 
   override def aliases: Seq[ScTypeAlias] =
     templateBodies.flatMap {

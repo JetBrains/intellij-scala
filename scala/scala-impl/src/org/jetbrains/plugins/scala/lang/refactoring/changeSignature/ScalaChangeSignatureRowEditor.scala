@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 import java.awt.event.MouseEvent
 import java.awt.{BorderLayout, Color, Font, Toolkit}
 
+import com.intellij.openapi.editor.Document
 import javax.swing.border.MatteBorder
 import javax.swing.{JComponent, JPanel, JTable}
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorFontType}
@@ -27,11 +28,11 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
   private val separatorColor: Color = dialog.clauseSeparatorColor
 
   private val table = dialog.parametersTable
-  val typeDoc = PsiDocumentManager.getInstance(project).getDocument(item.typeCodeFragment)
+  val typeDoc: Document = PsiDocumentManager.getInstance(project).getDocument(item.typeCodeFragment)
   val myTypeEditor: EditorTextField = new EditorTextField(typeDoc, project, fileType)
 
   val myNameEditor: EditorTextField = new EditorTextField(item.parameter.getName, project, fileType)
-  val defaultValueDoc = PsiDocumentManager.getInstance(project).getDocument(item.defaultValueCodeFragment)
+  val defaultValueDoc: Document = PsiDocumentManager.getInstance(project).getDocument(item.defaultValueCodeFragment)
 
   val myDefaultValueEditor = new EditorTextField(defaultValueDoc, project, fileType)
 

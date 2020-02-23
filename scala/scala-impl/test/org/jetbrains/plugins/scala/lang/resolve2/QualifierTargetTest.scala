@@ -10,16 +10,16 @@ class QualifierTargetTest extends ResolveTestBase {
     super.folderPath + "qualifier/target/"
   }
 
-  def testCaseClass() = doTest()
-  def testCaseObject() = doTest()
-  def testClass() = doTest()
-  def testClassParameter() = doTest()
-  def testClassParameterValue() = doTest()
-  def testClassParameterVariable() = doTest()
-  def testClassTypeParameter() = doTest()
-  def testFunction() = doTest()
-  def testImport() = doTest()
-  def testObject() = doTest()
-  def testTrait() = doTest()
-  def testTypeAlias() = doTest()
+  def testCaseClass(): Unit = doTest()
+  def testCaseObject(): Unit = doTest()
+  def testClass(): Unit = doTest()
+  def testClassParameter(): Unit = doTest()
+  def testClassParameterValue(): Unit = doTest()
+  def testClassParameterVariable(): Unit = doTest()
+  def testClassTypeParameter(): Unit = doTest()
+  def testFunction(): Unit = doTest()
+  def testImport(): Unit = doTest()
+  def testObject(): Unit = doTest()
+  def testTrait(): Unit = doTest()
+  def testTypeAlias(): Unit = doTest()
 }

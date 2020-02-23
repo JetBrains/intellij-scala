@@ -25,21 +25,21 @@ class PsiElementMock(val name: String, children: PsiElementMock*) extends Abstra
     }
   }
 
-  override def getParent = parent
+  override def getParent: PsiElement = parent
 
-  override def getContext = parent
+  override def getContext: PsiElement = parent
 
-  override def getPrevSibling = prevSibling
+  override def getPrevSibling: PsiElement = prevSibling
 
-  override def getNextSibling = nextSibling
+  override def getNextSibling: PsiElement = nextSibling
 
-  override def getChildren = children.toArray
+  override def getChildren: Array[PsiElement] = children.toArray
 
-  override def getFirstChild = firstChild
+  override def getFirstChild: PsiElement = firstChild
 
-  override def getLastChild = lastChild
+  override def getLastChild: PsiElement = lastChild
 
-  override def toString = name
+  override def toString: String = name
   
   override def getText: String = {
     if(children.isEmpty) 

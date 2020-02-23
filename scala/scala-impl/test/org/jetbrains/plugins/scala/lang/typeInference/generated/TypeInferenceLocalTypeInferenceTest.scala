@@ -99,7 +99,7 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testSCL2507_5(): Unit = {doTest()}
 
-  def testSCL12598() = doTest()
+  def testSCL12598(): Unit = doTest()
 
   def testSCL5809(): Unit = doTest {
     """

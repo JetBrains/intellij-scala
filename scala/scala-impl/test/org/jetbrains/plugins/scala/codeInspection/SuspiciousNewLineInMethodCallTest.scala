@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 
 class SuspiciousNewLineInMethodCallTest extends SimpleTestCase {
 
-  def testStub() = {}
+  def testStub(): Unit = {}
 
   /*val message = ScalaBundle.message("suspicicious.newline")
 

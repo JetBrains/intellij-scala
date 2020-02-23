@@ -147,7 +147,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
 
 
   def collectData(exprWithTypes: ExprWithTypes, elems: Seq[PsiElement], methodLike: ScMethodLike, editor: Editor): Option[ScalaIntroduceParameterData] = {
-    implicit val project = methodLike.getProject
+    implicit val project: Project = methodLike.getProject
 
     val info = ReachingDefinitionsCollector.collectVariableInfo(elems, methodLike)
     val input = info.inputVariables
@@ -299,5 +299,5 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
 }
 
 object ScalaIntroduceParameterHandler {
-  val REFACTORING_NAME = ScalaBundle.message("introduce.parameter.title")
+  val REFACTORING_NAME: String = ScalaBundle.message("introduce.parameter.title")
 }

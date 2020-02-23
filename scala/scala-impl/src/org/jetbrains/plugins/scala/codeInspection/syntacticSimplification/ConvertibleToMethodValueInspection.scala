@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.util.KindProjectorUtil.PolymorphicLambda
  * 5/30/13
  */
 object ConvertibleToMethodValueInspection {
-  val inspectionName = InspectionBundle.message("convertible.to.method.value.name")
+  val inspectionName: String = InspectionBundle.message("convertible.to.method.value.name")
   val inspectionId = "ConvertibleToMethodValue"
 
   /**

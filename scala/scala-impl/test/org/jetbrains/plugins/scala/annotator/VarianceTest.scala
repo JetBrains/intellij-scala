@@ -139,7 +139,7 @@ class VarianceTest extends VarianceTestBase {
     }
   }
 
-  def testSCL8863() = {
+  def testSCL8863(): Unit = {
     assertMatches(messages(
       """
         |class Test[+T]{
@@ -150,7 +150,7 @@ class VarianceTest extends VarianceTestBase {
     }
   }
 
-  def testUV() = {
+  def testUV(): Unit = {
     assertMatches(messages(
       """
         |import scala.annotation.unchecked.{ uncheckedVariance => uV }

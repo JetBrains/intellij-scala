@@ -190,13 +190,13 @@ object ScSubstitutor {
   def apply(updateThisType: ScType): ScSubstitutor =
     ScSubstitutor(ThisTypeSubstitution(updateThisType))
 
-  def paramToExprType(parameters: Seq[Parameter], expressions: Seq[Expression], useExpected: Boolean = true) =
+  def paramToExprType(parameters: Seq[Parameter], expressions: Seq[Expression], useExpected: Boolean = true): ScSubstitutor =
     ScSubstitutor(ParamsToExprs(parameters, expressions, useExpected))
 
-  def paramToParam(fromParams: Seq[ScParameter], toParams: Seq[ScParameter]) =
+  def paramToParam(fromParams: Seq[ScParameter], toParams: Seq[ScParameter]): ScSubstitutor =
     ScSubstitutor(ParamToParam(fromParams, toParams))
 
-  def paramToType(fromParams: Seq[Parameter], types: Seq[ScType]) =
+  def paramToType(fromParams: Seq[Parameter], types: Seq[ScType]): ScSubstitutor =
     ScSubstitutor(ParamToType(fromParams, types))
 
   def bind[T: TypeParamId](typeParamsLike: Seq[T])(toScType: T => ScType): ScSubstitutor = {

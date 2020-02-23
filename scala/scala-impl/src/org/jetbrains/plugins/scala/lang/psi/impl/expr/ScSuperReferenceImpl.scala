@@ -68,9 +68,9 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     if (id == null) None else findSuper(id)
   }
 
-  override def staticSuperName = Option(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)).map(_.getText).getOrElse("")
+  override def staticSuperName: String = Option(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)).map(_.getText).getOrElse("")
 
-  override def getReference = {
+  override def getReference: PsiReference = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) null else new PsiReference {
       override def getElement: ScSuperReferenceImpl = ScSuperReferenceImpl.this
@@ -160,7 +160,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     case None => ResolveUtils.enclosingTypeDef(this).map(_.extendsBlock.superTypes)
   }
 
-  protected override def innerType = Failure(ScalaBundle.message("cannot.infer.type.of.super.expression"))
+  protected override def innerType: TypeResult = Failure(ScalaBundle.message("cannot.infer.type.of.super.expression"))
 
   override def toString = "SuperReference"
 }

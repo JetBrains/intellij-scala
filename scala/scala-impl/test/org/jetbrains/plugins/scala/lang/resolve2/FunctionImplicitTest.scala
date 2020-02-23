@@ -9,7 +9,7 @@ class FunctionImplicitTest extends ResolveTestBase {
     super.folderPath + "function/implicit/"
   }
 
-  def testClashHierarchy() = doTest()
+  def testClashHierarchy(): Unit = doTest()
   //TODO implicitparameter
 //  def testClashScope = doTest
   //TODO implicitparameter
@@ -18,39 +18,39 @@ class FunctionImplicitTest extends ResolveTestBase {
 //  def testClashValueAndImport2 = doTest
   //TODO implicitparameter
 //  def testClashValues = doTest
-  def testContextBoundImplicit() = doTest()
-  def testCurrying() = doTest()
-  def testCurryingPassAll() = doTest()
-  def testCurryingPassEmpty() = doTest()
-  def testFunctionImplicit() = doTest()
-  def testImportObjectImplicit() = doTest()
-  def testImportObjectOrdinary() = doTest()
-  def testPackageObjectImplicit() = doTest()
-  def testPackageObjectImplicitChild() = doTest()
+  def testContextBoundImplicit(): Unit = doTest()
+  def testCurrying(): Unit = doTest()
+  def testCurryingPassAll(): Unit = doTest()
+  def testCurryingPassEmpty(): Unit = doTest()
+  def testFunctionImplicit(): Unit = doTest()
+  def testImportObjectImplicit(): Unit = doTest()
+  def testImportObjectOrdinary(): Unit = doTest()
+  def testPackageObjectImplicit(): Unit = doTest()
+  def testPackageObjectImplicitChild(): Unit = doTest()
   //TODO implicitparameter
 //  def testPackageObjectImplicitEmpty = doTest
-  def testImportValueImplicit() = doTest()
+  def testImportValueImplicit(): Unit = doTest()
   //TODO implicitparameter
 //  def testImportValueOrdinary = doTest
-  def testNoScope() = doTest()
-  def testObjectImplicit() = doTest()
+  def testNoScope(): Unit = doTest()
+  def testObjectImplicit(): Unit = doTest()
   //TODO implicitparameter
 //  def testObjectOrdinary = doTest
-  def testParameterImplicit() = doTest()
-  def testTwoAsOne() = doTest()
-  def testValueImplicit1() = doTest()
-  def testValueImplicit2() = doTest()
-  def testValueImplicitAsContextBound() = doTest()
-  def testValueImplicitAsViewBound() = doTest()
-  def testValueImplicitPass() = doTest()
-  def testValueImplicitPassNone() = doTest()
-  def testValueImplicitScope() = doTest()
+  def testParameterImplicit(): Unit = doTest()
+  def testTwoAsOne(): Unit = doTest()
+  def testValueImplicit1(): Unit = doTest()
+  def testValueImplicit2(): Unit = doTest()
+  def testValueImplicitAsContextBound(): Unit = doTest()
+  def testValueImplicitAsViewBound(): Unit = doTest()
+  def testValueImplicitPass(): Unit = doTest()
+  def testValueImplicitPassNone(): Unit = doTest()
+  def testValueImplicitScope(): Unit = doTest()
   //TODO implicitparameter
 //  def testValueNone = doTest
   //TODO implicitparameter
 //  def testValueNoneAsContextBound = doTest
   //TODO implicitparameter
 //  def testValueOrdinary = doTest
-  def testVariableImplicit() = doTest()
-  def testViewBoundImplicit() = doTest()
+  def testVariableImplicit(): Unit = doTest()
+  def testViewBoundImplicit(): Unit = doTest()
 }

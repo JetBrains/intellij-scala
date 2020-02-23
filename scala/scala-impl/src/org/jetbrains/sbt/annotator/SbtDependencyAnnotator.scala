@@ -3,6 +3,7 @@ package annotator
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleType}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
@@ -51,7 +52,7 @@ class SbtDependencyAnnotator extends Annotator {
       case _ => module
     }
 
-    implicit val p = element.getProject
+    implicit val p: Project = element.getProject
 
     val module = Option(ScalaPsiUtil.getModule(element))
 

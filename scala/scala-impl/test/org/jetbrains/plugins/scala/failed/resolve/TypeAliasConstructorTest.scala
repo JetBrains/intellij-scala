@@ -9,5 +9,5 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class TypeAliasConstructorTest extends FailedResolveTest("typeAlias") {
-  def testSCL13742() = doTest()
+  def testSCL13742(): Unit = doTest()
 }

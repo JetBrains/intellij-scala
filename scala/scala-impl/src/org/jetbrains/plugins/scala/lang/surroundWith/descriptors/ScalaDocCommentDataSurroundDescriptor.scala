@@ -16,7 +16,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
-  val surrounders = Array[Surrounder](new ScalaDocWithBoldSurrounder, new ScalaDocWithUnderlinedSurrounder,
+  val surrounders: Array[Surrounder] = Array[Surrounder](new ScalaDocWithBoldSurrounder, new ScalaDocWithUnderlinedSurrounder,
     new ScalaDocWithMonospaceSurrounder, new ScalaDocWithItalicSurrounder, new ScalaDocWithSubscriptSurrounder,
     new ScalaDocWithSuperscriptSurrounder)
 

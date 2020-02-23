@@ -42,7 +42,7 @@ object TypeDiff {
   def forBoth(expected: ScType, actual: ScType)(implicit context: TypePresentationContext): (Tree[TypeDiff], Tree[TypeDiff]) =
     (forExpected(expected, actual), forActual(expected, actual))
 
-  def lengthOf(nodeLength: Int)(diff: Tree[TypeDiff]) = diff match {
+  def lengthOf(nodeLength: Int)(diff: Tree[TypeDiff]): Int = diff match {
     case Node(_ @_*) => nodeLength
     case Leaf(element) => element.text.length
   }

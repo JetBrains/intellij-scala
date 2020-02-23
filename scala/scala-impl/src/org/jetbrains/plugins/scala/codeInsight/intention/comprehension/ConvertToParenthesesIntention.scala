@@ -22,7 +22,7 @@ object ConvertToParenthesesIntention {
 }
 
 class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
-  override def getFamilyName = FamilyName
+  override def getFamilyName: String = FamilyName
 
   override def getText: String = getFamilyName
 

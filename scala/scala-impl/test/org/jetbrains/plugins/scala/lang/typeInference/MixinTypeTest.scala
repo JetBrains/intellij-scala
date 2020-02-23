@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
   */
 class MixinTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  def testSCL6573() = {
+  def testSCL6573(): Unit = {
     val text =
       """
         |class SCL6573 {

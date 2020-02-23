@@ -17,7 +17,7 @@ final class ScBooleanLiteralImpl(node: ASTNode,
   extends ScLiteralImplBase(node, toString)
     with literals.ScBooleanLiteral {
 
-  override protected def wrappedValue(value: JBoolean) =
+  override protected def wrappedValue(value: JBoolean): ScLiteral.Value[JBoolean] =
     ScBooleanLiteralImpl.Value(value)
 
   override def getValue: JBoolean = {

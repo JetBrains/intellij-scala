@@ -10,5 +10,5 @@ class BasedFileTest extends ResolveTestBase {
     super.folderPath + "dir/"
   }
 
-  def testFileBased() = doTest()
+  def testFileBased(): Unit = doTest()
 }

@@ -85,5 +85,5 @@ object DocStubGenerationTest {
   val standartHeader = "class A {\n"
   val standartFooter = " {} }"
   val standartDocCommentStart = "    /**\n"
-  val headerAndDocCommentStart = standartHeader + standartDocCommentStart
+  val headerAndDocCommentStart: String = standartHeader + standartDocCommentStart
 }

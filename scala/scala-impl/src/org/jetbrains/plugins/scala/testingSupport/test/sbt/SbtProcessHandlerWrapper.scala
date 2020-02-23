@@ -53,5 +53,5 @@ case class SbtProcessHandlerWrapper(inner: OSProcessHandler) extends ProcessHand
 
   override def notifyProcessDetached(): Unit =  destroyProcessImpl()
 
-  override def notifyProcessTerminated(exit: Int) = destroyProcessImpl()
+  override def notifyProcessTerminated(exit: Int): Unit = destroyProcessImpl()
 }

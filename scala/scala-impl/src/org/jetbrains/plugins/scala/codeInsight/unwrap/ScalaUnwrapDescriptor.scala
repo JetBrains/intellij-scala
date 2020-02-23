@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInsight.unwrap
 
-import com.intellij.codeInsight.unwrap.UnwrapDescriptorBase
+import com.intellij.codeInsight.unwrap.{UnwrapDescriptorBase, Unwrapper}
 
 /**
  * Nikolay.Tropin
  * 2014-06-26
  */
 class ScalaUnwrapDescriptor extends UnwrapDescriptorBase {
-  override def createUnwrappers() = Array (
+  override def createUnwrappers(): Array[Unwrapper] = Array (
     new ScalaInfixUnwrapper,
     new ScalaMethodCallArgUnwrapper,
     new ScalaTupleUnwrapper,

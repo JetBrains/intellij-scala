@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf}
  * 2014-06-27
  */
 class ScalaElseUnwrapper extends ScalaElseUnwrapperBase {
-  override protected def unwrapElseBranch(expr: ScExpression, ifStmt: ScIf, context: ScalaUnwrapContext) = {
+  override protected def unwrapElseBranch(expr: ScExpression, ifStmt: ScIf, context: ScalaUnwrapContext): Unit = {
     val from = maxIfStmt(ifStmt)
     val branch = expr match {
       case ScIf(_, Some(thenBr), _) => thenBr

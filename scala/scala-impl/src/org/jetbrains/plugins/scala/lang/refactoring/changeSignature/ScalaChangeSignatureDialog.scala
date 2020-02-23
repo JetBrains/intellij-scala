@@ -312,7 +312,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   override protected def postponeValidation: Boolean = false
 
-  def signatureUpdater = mySignatureUpdater
+  def signatureUpdater: ChangeSignatureDialogBase[ScalaParameterInfo, ScFunction, String, ScalaMethodDescriptor, ScalaParameterTableModelItem, ScalaParameterTableModel]#UpdateSignatureListener = mySignatureUpdater
 
   def getTypesMaxLength: Int = {
     parameterItems.map(_.typeText.length) match {

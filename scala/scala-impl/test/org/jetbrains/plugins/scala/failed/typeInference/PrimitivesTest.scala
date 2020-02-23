@@ -13,7 +13,7 @@ class PrimitivesTest extends TypeInferenceTestBase {
   override protected def shouldPass: Boolean = false
 
   override def folderPath: String = super.folderPath + "bugs5/"
-  def testSCL2045() = doTest(
+  def testSCL2045(): Unit = doTest(
     """    def returnsANumber = {
       |      if (1==1) {
       |        /*start*/0/*end*/

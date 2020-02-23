@@ -12,7 +12,7 @@ import org.junit.experimental.categories.Category
 class JavaHighlightingTest extends JavaHighlightingTestBase() {
   override protected def shouldPass: Boolean = false
 
-  def testSCL8982() = {
+  def testSCL8982(): Unit = {
     val scala =
       """
         |object Foo {
@@ -33,7 +33,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromJavaCode(scala, java, "Main"))
   }
 
-  def testSCL9663B() = {
+  def testSCL9663B(): Unit = {
     val scala =
       """
         |class Foo(val cell: String) extends AnyVal {
@@ -53,7 +53,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromJavaCode(scala, java, "Test"))
   }
 
-  def testSCL6409() = {
+  def testSCL6409(): Unit = {
     val java =
       """
         |public class JavaDummy<T> {
@@ -69,7 +69,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
-  def testSCL6114() = {
+  def testSCL6114(): Unit = {
     val scala =
       """
         |package foo;
@@ -200,7 +200,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
-  def testSCL10930() = {
+  def testSCL10930(): Unit = {
     val scala =
       """
         |  def testThis2(): Range[Integer] = {

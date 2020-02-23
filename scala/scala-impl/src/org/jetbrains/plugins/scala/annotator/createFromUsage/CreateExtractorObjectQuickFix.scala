@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMe
 class CreateExtractorObjectQuickFix(ref: ScReference, p: ScPattern)
         extends CreateTypeDefinitionQuickFix(ref, "extractor object", Object) {
 
-  override protected def afterCreationWork(clazz: ScTypeDefinition) = {
+  override protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
     addUnapplyMethod(clazz)
     super.afterCreationWork(clazz)
   }

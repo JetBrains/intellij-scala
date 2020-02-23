@@ -96,7 +96,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   }
 
   // create a dedicated pass for the preview
-  private lazy val previewPass = new ScalaMethodChainInlayHintsPass {
+  private lazy val previewPass: ScalaMethodChainInlayHintsPass = new ScalaMethodChainInlayHintsPass {
     private def globalSettings = ScalaMethodChainInlayHintsSettingsModel.this.settings
 
     override val settings: ScalaHintsSettings = new ScalaHintsSettings.Defaults {

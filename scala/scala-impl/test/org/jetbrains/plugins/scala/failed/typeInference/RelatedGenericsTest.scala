@@ -13,7 +13,7 @@ class RelatedGenericsTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL11156() = checkTextHasNoErrors(
+  def testSCL11156(): Unit = checkTextHasNoErrors(
     """
       |trait Parser[T] extends Function[String, Option[(T, String)]]
       |

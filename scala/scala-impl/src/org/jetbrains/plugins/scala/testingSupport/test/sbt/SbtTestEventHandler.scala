@@ -4,6 +4,7 @@ import java.util.regex.{Matcher, Pattern}
 
 import com.intellij.execution.process.{ProcessHandler, ProcessOutputTypes}
 import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ShellEvent, TaskComplete, TaskStart}
@@ -116,8 +117,8 @@ object SbtTestEventHandler {
   val regexes: List[Pattern] = List(testStartRegex, testSuccessfulRegex, testFailedRegex, suiteStartRegex,
     suiteFinishedRegex, scopeOpenedRegex, scopeClosedRegex, testPendingRegex, testIgnoredRegex)
 
-  val consoleViewContentType = ConsoleViewContentType.NORMAL_OUTPUT
-  val processOutputType = ProcessOutputTypes.STDOUT
+  val consoleViewContentType: ConsoleViewContentType = ConsoleViewContentType.NORMAL_OUTPUT
+  val processOutputType: Key[_] = ProcessOutputTypes.STDOUT
 
   def getDuration(duration: String): Long = {
     val durationMatcher = timePattern.matcher(duration)

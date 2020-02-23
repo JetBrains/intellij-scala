@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClassTemplateParents
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.JavaConverters._
 
@@ -87,7 +88,7 @@ object ExtractSuperUtil {
     val name = typeToExtend.name
     val text = name + parameters
     val oldExtBlock = clazz.extendsBlock
-    implicit val projectContext = clazz.projectContext
+    implicit val projectContext: ProjectContext = clazz.projectContext
 
     val templParents = oldExtBlock.templateParents match {
       case Some(tp: ScTemplateParents) =>

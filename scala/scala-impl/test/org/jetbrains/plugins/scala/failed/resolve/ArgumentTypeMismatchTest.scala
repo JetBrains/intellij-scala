@@ -17,7 +17,7 @@ import org.junit.experimental.categories.Category
 class ArgumentTypeMismatchTest extends SimpleTestCase {
   override protected def shouldPass: Boolean = false
 
-  def testSCL4687() = {
+  def testSCL4687(): Unit = {
     val code =
       """
         |object A {
@@ -35,7 +35,7 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
     assertNothing(messages(code))
   }
 
-  def testSCL9686() = assertNothing(
+  def testSCL9686(): Unit = assertNothing(
     messages {
       """
         |class Scl9686 {

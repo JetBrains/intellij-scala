@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 
+import scala.util.matching.Regex
+
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
@@ -63,8 +65,8 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 }
 
 object FunctionTupleSyntacticSugarInspection {
-  val FunctionN = raw"${FunctionType.TypeName}(\d)".r
-  val TupleN = raw"${TupleType.TypeName}(\d)".r
+  val FunctionN: Regex = raw"${FunctionType.TypeName}(\d)".r
+  val TupleN: Regex = raw"${TupleType.TypeName}(\d)".r
   
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 

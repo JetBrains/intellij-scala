@@ -10,10 +10,10 @@ class InheritanceSuperNoneTest extends ResolveTestBase {
     super.folderPath + "inheritance/super/none/"
   }
 
-  def testBlock() = doTest()
-  def testClass() = doTest()
-  def testFile() = doTest()
-  def testFunction() = doTest()
-  def testObject() = doTest()
-  def testTrait() = doTest()
+  def testBlock(): Unit = doTest()
+  def testClass(): Unit = doTest()
+  def testFile(): Unit = doTest()
+  def testFunction(): Unit = doTest()
+  def testObject(): Unit = doTest()
+  def testTrait(): Unit = doTest()
 }

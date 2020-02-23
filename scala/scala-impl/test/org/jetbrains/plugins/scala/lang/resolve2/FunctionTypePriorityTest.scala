@@ -10,11 +10,11 @@ class FunctionTypePriorityTest extends ResolveTestBase {
     super.folderPath + "function/type/priority/"
   }
 
-  def testInheritanceHierarchy() = doTest()
+  def testInheritanceHierarchy(): Unit = doTest()
   //TODO answer?
 //  def testInheritanceIncompatible = doTest
-  def testInheritanceOne1() = doTest()
-  def testInheritanceOne2() = doTest()
-  def testInheritanceTwo1() = doTest()
-  def testInheritanceTwo2() = doTest()
+  def testInheritanceOne1(): Unit = doTest()
+  def testInheritanceOne2(): Unit = doTest()
+  def testInheritanceTwo1(): Unit = doTest()
+  def testInheritanceTwo2(): Unit = doTest()
 }

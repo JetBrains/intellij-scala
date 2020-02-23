@@ -12,7 +12,7 @@ abstract class IntermediateNode {
 
   import IntermediateNode._
 
-  val comments = Comments()
+  val comments: Comments = Comments()
 
   def setComments(c: Comments): Unit = {
     comments.beforeComments ++= c.beforeComments

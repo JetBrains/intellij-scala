@@ -8,6 +8,8 @@ import org.jetbrains.jps.incremental.scala.local.JavacOutputParsing._
 import xsbti.Logger
 import java.util.function.Supplier
 
+import scala.util.matching.Regex
+
 /**
  * @author Pavel Fatin
  */
@@ -53,8 +55,8 @@ trait JavacOutputParsing extends Logger {
 }
 
 object JavacOutputParsing {
-  val HeaderPattern = "(.*?):(\\d+):( warning:)?(.*)".r
-  val PointerPattern = "(\\s*)\\^".r
-  val NotePattern = "Note: (.*)".r
-  val TotalsPattern = "\\d+ (errors?|warnings?)".r
+  val HeaderPattern: Regex = "(.*?):(\\d+):( warning:)?(.*)".r
+  val PointerPattern: Regex = "(\\s*)\\^".r
+  val NotePattern: Regex = "Note: (.*)".r
+  val TotalsPattern: Regex = "\\d+ (errors?|warnings?)".r
 }

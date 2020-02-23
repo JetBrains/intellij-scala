@@ -11,6 +11,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScFunctionExpr, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createAnonFunBlockFromFunExpr, createBlockFromExpr}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -28,7 +29,7 @@ final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAc
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val list = element.getParent.asInstanceOf[ScArgumentExprList]
     val exp = list.exprs.head
-    implicit val projectContext = list.projectContext
+    implicit val projectContext: ProjectContext = list.projectContext
     val block = exp match {
       case funExpr: ScFunctionExpr => createAnonFunBlockFromFunExpr(funExpr)
       case _ => createBlockFromExpr(exp)

@@ -10,5 +10,5 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ProjectionTypeTest extends FailedResolveTest("projectionType") {
-  def testSCL9789() = doTest()
+  def testSCL9789(): Unit = doTest()
 }

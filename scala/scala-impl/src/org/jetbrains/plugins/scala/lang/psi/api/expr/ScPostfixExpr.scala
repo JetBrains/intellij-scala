@@ -26,5 +26,5 @@ trait ScPostfixExpr extends ScExpression with ScSugarCallExpr {
 }
 
 object ScPostfixExpr {
-  def unapply(e: ScPostfixExpr) = Some(e.operand, e.operation)
+  def unapply(e: ScPostfixExpr): Some[(ScExpression, ScReferenceExpression)] = Some(e.operand, e.operation)
 }
