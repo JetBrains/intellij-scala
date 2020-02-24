@@ -21,7 +21,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{JavaPsiFacade, PsiFile}
 import com.intellij.psi.search.GlobalSearchScope
 import javax.swing.Icon
-import org.jetbrains.bsp.{BSP, Icons}
+import org.jetbrains.bsp.{BSP, BspUtil, Icons}
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
@@ -77,7 +77,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
                            task: BspFetchTestEnvironmentTask): Boolean = {
     configuration match {
       case config: ModuleBasedConfiguration[_, _]
-        if BSP.isBspModule(config.getConfigurationModule.getModule) && BspTesting.isBspRunnerSupportedConfiguration(config) => {
+        if BspUtil.isBspModule(config.getConfigurationModule.getModule) && BspTesting.isBspRunnerSupportedConfiguration(config) => {
         val module = config.getConfigurationModule.getModule
         val taskResult: Either[BspGetEnvironmentError, Unit] = for {
           potentialTargets <- getBspTargets(module)
@@ -170,7 +170,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
 
   private def getApplicableClasses(configuration: RunConfiguration) = {
     configuration match {
-      case scalaConfig: ModuleBasedConfiguration[_, _] if BSP.isBspModule(scalaConfig.getConfigurationModule.getModule) => {
+      case scalaConfig: ModuleBasedConfiguration[_, _] if BspUtil.isBspModule(scalaConfig.getConfigurationModule.getModule) => {
         val classes = scalaConfig match {
           case p: ScalaTestRunConfiguration =>
             p.testConfigurationData match {

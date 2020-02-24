@@ -17,8 +17,4 @@ object BSP {
   val ProjectSystemId = new ProjectSystemId("BSP", Name)
 
   val balloonNotification: NotificationGroup = NotificationGroup.balloonGroup(Name)
-
-  def isBspModule(module: Module) = {
-    ExternalSystemApiUtil.isExternalSystemAwareModule(BSP.ProjectSystemId.getId, module)
-  }
 }
