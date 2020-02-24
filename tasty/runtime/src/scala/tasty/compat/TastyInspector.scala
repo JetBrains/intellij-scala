@@ -4,7 +4,7 @@ import scala.language.reflectiveCalls
 import scala.tasty.reflect.CompilerInterface
 
 // Adds "compat" extensions to https://github.com/lampepfl/dotty/blob/master/tasty-inspector/src/scala/tasty/inspector/TastyInspector.scala
-trait TastyInspector extends scala.tasty.inspector.TastyInspector {
+private trait TastyInspector extends scala.tasty.inspector.TastyInspector {
   override protected final def processCompilationUnit(reflect: scala.tasty.Reflection)(tree: reflect.Tree): Unit = {
     // There are no extension meethods in Scala 2.x, so we have to add them separately on top of the ABI.
     // (we cannot define a
