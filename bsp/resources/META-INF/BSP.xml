@@ -41,6 +41,7 @@
         <statusBarWidgetProvider implementation="org.jetbrains.bsp.BspServerWidgetProvider"/>
 
         <postStartupActivity implementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskInstaller$Startup"/>
+        <java.programPatcher implementation="org.jetbrains.bsp.project.test.environment.BspJvmEnvironmentProgramPatcher"/>
     </extensions>
 
     <actions>
