@@ -113,7 +113,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     var chosenTarget: Option[String] = None
     ApplicationManager.getApplication.invokeAndWait { () => {
       chosenTarget = Option(Messages.showEditableChooseDialog(
-        "Could not infer Pants target, please choose one from the list",
+        "Could not infer BSP target, please choose one from the list",
         "Choose pants target",
         Icons.BSP_TOOLWINDOW,
         targetIds.toArray,
