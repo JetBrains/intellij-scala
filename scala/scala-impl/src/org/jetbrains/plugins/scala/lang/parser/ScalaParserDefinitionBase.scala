@@ -41,7 +41,7 @@ abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
 
     import ParserDefinition.SpaceRequirements._
     rightNode.getElementType match {
-      case `tWHITE_SPACE_IN_LINE` if rightNode.getText.contains('\n') => MAY
+      case `tWHITE_SPACE_IN_LINE` if rightNode.textContains('\n') => MAY
       case _ if isNeighbour => MUST_LINE_BREAK
       case `kIMPORT` => MUST_LINE_BREAK
       case _ => MAY
