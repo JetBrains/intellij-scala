@@ -1678,12 +1678,6 @@
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
     </extensions>
 
-<project-components>
-    <component>
-        <implementation-class>org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskInstaller</implementation-class>
-      </component>
-</project-components>
-
 <applicationListeners>
         <listener topic="com.intellij.ide.AppLifecycleListener"
                   class="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
