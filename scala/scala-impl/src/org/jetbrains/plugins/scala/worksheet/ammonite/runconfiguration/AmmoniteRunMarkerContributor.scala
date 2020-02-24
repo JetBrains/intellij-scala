@@ -15,9 +15,7 @@ class AmmoniteRunMarkerContributor extends RunLineMarkerContributor {
   override def getInfo(element: PsiElement): RunLineMarkerContributor.Info = {
     element.getParent match {
       case ammoniteFile: ScalaFile if AmmoniteUtil.isAmmoniteFile(ammoniteFile) && ammoniteFile.getFirstChild == element =>
-        new RunLineMarkerContributor.Info(AllIcons.RunConfigurations.TestState.Run, new Function[PsiElement, String] {
-          override def fun(param: PsiElement): String = "Run script..."
-        }, new AmmoniteRunScriptAction(ammoniteFile))
+        new RunLineMarkerContributor.Info(AllIcons.RunConfigurations.TestState.Run, (param: PsiElement) => "Run script...", new AmmoniteRunScriptAction(ammoniteFile))
       case _ => null
     }
   }

@@ -62,16 +62,14 @@ class ImplicitHintsAdviser extends ApplicationInitializedListener {
       group.createNotification(message, NotificationType.INFORMATION)
     }
 
-    notification.addAction(new AnAction("Learn more") {
-      override def actionPerformed(event: AnActionEvent): Unit = {
-        disable()
-        notification.hideBalloon()
+    notification.addAction((event: AnActionEvent) => {
+      disable()
+      notification.hideBalloon()
 
-        DesktopUtils.browse(
-          "https://blog.jetbrains.com/scala/2018/07/25/" +
-            "intellij-scala-plugin-2018-2-advanced-implicit-support-improved-patterns-autocompletion-semantic-highlighting-scalafmt-and-more/"
-        )
-      }
+      DesktopUtils.browse(
+        "https://blog.jetbrains.com/scala/2018/07/25/" +
+          "intellij-scala-plugin-2018-2-advanced-implicit-support-improved-patterns-autocompletion-semantic-highlighting-scalafmt-and-more/"
+      )
     })
 
     Notifications.Bus.notify(notification)

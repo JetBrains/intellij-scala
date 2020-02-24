@@ -318,16 +318,14 @@ object ScalaPluginUpdater {
         """Please select Scala plugin update channel:<p/>
           |<a href="Nightly">Nightly</a>, <a href="EAP">EAP</a>, <a href="Release">Release</a>""".stripMargin
 
-      val notification = new Notification(updGroupId, title, message, NotificationType.INFORMATION, new NotificationListener {
-        override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
-          notification.expire()
-          applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
-          event.getDescription match {
-            case "EAP"     => doUpdatePluginHostsAndCheck(EAP)
-            case "Nightly" => doUpdatePluginHostsAndCheck(Nightly)
-            case "Release" => doUpdatePluginHostsAndCheck(Release)
-            case _         => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
-          }
+      val notification = new Notification(updGroupId, title, message, NotificationType.INFORMATION, (notification: Notification, event: HyperlinkEvent) => {
+        notification.expire()
+        applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
+        event.getDescription match {
+          case "EAP" => doUpdatePluginHostsAndCheck(EAP)
+          case "Nightly" => doUpdatePluginHostsAndCheck(Nightly)
+          case "Release" => doUpdatePluginHostsAndCheck(Release)
+          case _ => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
         }
       })
       val project = ProjectManager.getInstance().getOpenProjects.headOption.orNull

@@ -144,12 +144,10 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
         app.getMessageBus.syncPublisher(Notifications.TOPIC).register(Scala_Group, NotificationDisplayType.STICKY_BALLOON)
       }
       NotificationGroup.balloonGroup(Scala_Group)
-      val notification = new Notification(Scala_Group, "Incompatible plugin detected", message, NotificationType.ERROR, new NotificationListener {
-        override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
-          notification.expire()
-          val description = event.getDescription
-          callback(description)
-        }
+      val notification = new Notification(Scala_Group, "Incompatible plugin detected", message, NotificationType.ERROR, (notification: Notification, event: HyperlinkEvent) => {
+        notification.expire()
+        val description = event.getDescription
+        callback(description)
       })
 
       Notifications.Bus.notify(notification)

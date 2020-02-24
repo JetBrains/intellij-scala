@@ -22,9 +22,7 @@ class ScalaChangeSignatureRefactoringHelper extends RefactoringHelper[Unit] {
     }
 
     if (usages.exists(UsageUtil.scalaUsage)) {
-      util.Arrays.sort(usages, new Comparator[UsageInfo] {
-        override def compare(o1: UsageInfo, o2: UsageInfo): Int = priority(o1) - priority(o2)
-      })
+      util.Arrays.sort(usages, (o1: UsageInfo, o2: UsageInfo) => priority(o1) - priority(o2))
     }
   }
 

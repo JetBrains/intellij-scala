@@ -84,11 +84,9 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
   }
 
   private def addTestFileToModuleSources(): Unit = {
-    ModuleRootModificationUtil.updateModel(getModule, new Consumer[ModifiableRootModel] {
-      override def consume(model: ModifiableRootModel): Unit = {
-        val testdataUrl = VfsUtilCore.pathToUrl(testdataPath)
-        model.addContentEntry(testdataUrl).addSourceFolder(testdataUrl, false)
-      }
+    ModuleRootModificationUtil.updateModel(getModule, (model: ModifiableRootModel) => {
+      val testdataUrl = VfsUtilCore.pathToUrl(testdataPath)
+      model.addContentEntry(testdataUrl).addSourceFolder(testdataUrl, false)
     })
   }
 }

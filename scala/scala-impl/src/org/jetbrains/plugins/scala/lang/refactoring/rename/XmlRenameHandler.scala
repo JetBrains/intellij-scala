@@ -80,30 +80,26 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
     }
 
     def rename(): Unit = {
-      CommandProcessor.getInstance().executeCommand(project, new Runnable {
-        override def run(): Unit = {
-          extensions.inWriteAction {
-            val offset = editor.getCaretModel.getOffset
-            val template = buildTemplate()
-            editor.getCaretModel.moveToOffset(element.getParent.getTextOffset)
+      CommandProcessor.getInstance().executeCommand(project, () => {
+        extensions.inWriteAction {
+          val offset = editor.getCaretModel.getOffset
+          val template = buildTemplate()
+          editor.getCaretModel.moveToOffset(element.getParent.getTextOffset)
 
-            TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
-              override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
-                templateCancelled(template)
-              }
+          TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
+            override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
+              templateCancelled(template)
+            }
 
-              override def templateCancelled(template: Template): Unit = {
-                val highlightManager = HighlightManager.getInstance(project)
-                rangeHighlighters.forEach { a => highlightManager.removeSegmentHighlighter(editor, a) }
-              }
-            },
-              new PairProcessor[String, String] {
-                override def process(s: String, t: String): Boolean = !(t.length == 0 || t.charAt(t.length - 1) == ' ')
-              })
+            override def templateCancelled(template: Template): Unit = {
+              val highlightManager = HighlightManager.getInstance(project)
+              rangeHighlighters.forEach { a => highlightManager.removeSegmentHighlighter(editor, a) }
+            }
+          },
+            (s: String, t: String) => !(t.length == 0 || t.charAt(t.length - 1) == ' '))
 
-            highlightMatched()
-            editor.getCaretModel.moveToOffset(offset)
-          }
+          highlightMatched()
+          editor.getCaretModel.moveToOffset(offset)
         }
       }, RefactoringBundle.message("rename.title"), null)
 

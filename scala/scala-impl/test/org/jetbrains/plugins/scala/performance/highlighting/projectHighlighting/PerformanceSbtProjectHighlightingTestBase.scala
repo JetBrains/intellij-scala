@@ -17,25 +17,23 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndI
   def doTest(filename: String, timeoutInMillis: Int): Unit = {
     val file = findFile(filename)
     val fileManager: FileManager = PsiManager.getInstance(myProject).asInstanceOf[PsiManagerEx].getFileManager
-    PlatformTestUtil.startPerformanceTest(s"Performance test $filename", timeoutInMillis, new ThrowableRunnable[Nothing] {
-      override def run(): Unit = {
-        val annotator = ScalaAnnotator.forProject(myProject)
-        file.refresh(true, false)
-        val psiFile = fileManager.findFile(file)
-        val mock = new AnnotatorHolderMock(psiFile)
-        val visitor = new ScalaRecursiveElementVisitor {
-          override def visitScalaElement(element: ScalaPsiElement): Unit = {
-            try {
-              annotator.annotate(element)(mock)
-              super.visitScalaElement(element)
-            } catch {
-              case ignored: Throwable => //this should be checked in AllProjectHighlightingTest
-            }
+    PlatformTestUtil.startPerformanceTest(s"Performance test $filename", timeoutInMillis, () => {
+      val annotator = ScalaAnnotator.forProject(myProject)
+      file.refresh(true, false)
+      val psiFile = fileManager.findFile(file)
+      val mock = new AnnotatorHolderMock(psiFile)
+      val visitor = new ScalaRecursiveElementVisitor {
+        override def visitScalaElement(element: ScalaPsiElement): Unit = {
+          try {
+            annotator.annotate(element)(mock)
+            super.visitScalaElement(element)
+          } catch {
+            case ignored: Throwable => //this should be checked in AllProjectHighlightingTest
           }
         }
-        psiFile.accept(visitor)
-        fileManager.cleanupForNextTest()
       }
+      psiFile.accept(visitor)
+      fileManager.cleanupForNextTest()
     }).assertTiming()
   }
 

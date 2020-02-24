@@ -99,11 +99,9 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]): Unit = {
     val named = element match {case named: ScNamedElement => named; case _ => return}
-    RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
-      override def execute(named: PsiNamedElement): Boolean = {
-        renameCallback.pass(named)
-        false
-      }
+    RenameSuperMembersUtil.chooseAndProcessSuper(named, (named: PsiNamedElement) => {
+      renameCallback.pass(named)
+      false
     }, editor)
   }
 

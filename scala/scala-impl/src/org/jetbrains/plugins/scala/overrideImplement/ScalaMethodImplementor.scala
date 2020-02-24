@@ -21,9 +21,7 @@ import scala.collection.mutable
  * 12/25/13
  */
 class ScalaMethodImplementor extends MethodImplementor {
-  val emptyConsumer: Consumer[PsiMethod] = new Consumer[PsiMethod] {
-    override def consume(t: PsiMethod): Unit = {}
-  }
+  val emptyConsumer: Consumer[PsiMethod] = (t: PsiMethod) => {}
 
   private val prototypeToBaseMethod = mutable.WeakHashMap[PsiMethod, PsiMethod]()
 

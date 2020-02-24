@@ -24,25 +24,23 @@ abstract class ChooseValueExpression[T](lookupItems: Seq[T], defaultItem: T) ext
   val lookupElements: Array[LookupElement] = calcLookupElements().toArray
 
   def calcLookupElements(): Seq[LookupElementBuilder] = lookupItems.map { elem =>
-    LookupElementBuilder.create(elem, lookupString(elem)).withInsertHandler(new InsertHandler[LookupElement] {
-      override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-        val topLevelEditor = InjectedLanguageUtil.getTopLevelEditor(context.getEditor)
-        val templateState = TemplateManagerImpl.getTemplateState(topLevelEditor)
-        if (templateState != null) {
-          val range = templateState.getCurrentVariableRange
-          if (range != null) {
-            //need to insert with FQNs
-            val newText = result(item.getObject.asInstanceOf[T])
-            val document = topLevelEditor.getDocument
-            val startOffset = range.getStartOffset
-            document.replaceString(startOffset, range.getEndOffset, newText)
+    LookupElementBuilder.create(elem, lookupString(elem)).withInsertHandler((context: InsertionContext, item: LookupElement) => {
+      val topLevelEditor = InjectedLanguageUtil.getTopLevelEditor(context.getEditor)
+      val templateState = TemplateManagerImpl.getTemplateState(topLevelEditor)
+      if (templateState != null) {
+        val range = templateState.getCurrentVariableRange
+        if (range != null) {
+          //need to insert with FQNs
+          val newText = result(item.getObject.asInstanceOf[T])
+          val document = topLevelEditor.getDocument
+          val startOffset = range.getStartOffset
+          document.replaceString(startOffset, range.getEndOffset, newText)
 
-            val file = context.getFile
-            PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
-            val newRange = TextRange.create(startOffset, startOffset + newText.length)
-            val elem = ScalaRefactoringUtil.commonParent(file, newRange)
-            TypeAdjuster.markToAdjust(elem)
-          }
+          val file = context.getFile
+          PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+          val newRange = TextRange.create(startOffset, startOffset + newText.length)
+          val elem = ScalaRefactoringUtil.commonParent(file, newRange)
+          TypeAdjuster.markToAdjust(elem)
         }
       }
     })

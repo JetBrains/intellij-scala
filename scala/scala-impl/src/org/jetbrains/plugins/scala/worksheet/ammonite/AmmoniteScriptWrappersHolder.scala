@@ -152,33 +152,29 @@ class AmmoniteScriptWrappersHolder(project: Project) {
                 val acc = mutable.ArrayBuffer.empty[CreateImportedLibraryQuickFix]
 
                 DocumentMarkupModel.forDocument(textEditor.getDocument, project, true).asInstanceOf[MarkupModelEx].processRangeHighlightersOverlappingWith(
-                  0, ammFile.getTextLength, new Processor[RangeHighlighterEx] {
-                    override def process(t: RangeHighlighterEx): Boolean = {
-                      t.getErrorStripeTooltip match {
-                        case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WEAK_WARNING =>
-                          val it = hInfo.quickFixActionRanges.iterator()
-                          while (it.hasNext) {
-                            it.next().first.getAction match {
-                              case wrapper: QuickFixWrapper =>
-                                wrapper.getFix match {
-                                  case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
-                                  case _ =>
-                                }
-                              case _ =>
-                            }
+                  0, ammFile.getTextLength, (t: RangeHighlighterEx) => {
+                    t.getErrorStripeTooltip match {
+                      case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WEAK_WARNING =>
+                        val it = hInfo.quickFixActionRanges.iterator()
+                        while (it.hasNext) {
+                          it.next().first.getAction match {
+                            case wrapper: QuickFixWrapper =>
+                              wrapper.getFix match {
+                                case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
+                                case _ =>
+                              }
+                            case _ =>
                           }
-                        case _ =>
-                      }
-                      true
+                        }
+                      case _ =>
                     }
+                    true
                   })
 
-                CommandProcessor.getInstance().executeCommand(project, new Runnable {
-                  override def run(): Unit = {
-                    acc.foreach {
-                      fix =>
-                        fix.invoke(project, ammFile, ammFile, ammFile)
-                    }
+                CommandProcessor.getInstance().executeCommand(project, () => {
+                  acc.foreach {
+                    fix =>
+                      fix.invoke(project, ammFile, ammFile, ammFile)
                   }
                 }, null, null)
             }

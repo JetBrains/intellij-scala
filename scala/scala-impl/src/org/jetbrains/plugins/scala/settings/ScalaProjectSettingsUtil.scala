@@ -76,12 +76,10 @@ object ScalaProjectSettingsUtil {
       IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
     }
 
-    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction(new AnActionButtonRunnable {
-      override def run(button: AnActionButton): Unit = {
-        val validator: InputValidator = ScalaProjectSettingsUtil.getPatternValidator
-        val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
-        addPattern(pattern, patternJBList)
-      }
+    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction((button: AnActionButton) => {
+      val validator: InputValidator = ScalaProjectSettingsUtil.getPatternValidator
+      val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
+      addPattern(pattern, patternJBList)
     }).disableUpDownActions.createPanel
   }
 
@@ -99,12 +97,10 @@ object ScalaProjectSettingsUtil {
       IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
     }
 
-    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction(new AnActionButtonRunnable {
-      override def run(button: AnActionButton): Unit = {
-        val validator: InputValidator = ScalaProjectSettingsUtil.getPackageValidator
-        val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
-        addPattern(pattern, patternJBList)
-      }
+    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction((button: AnActionButton) => {
+      val validator: InputValidator = ScalaProjectSettingsUtil.getPackageValidator
+      val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
+      addPattern(pattern, patternJBList)
     }).addExtraAction(new AnActionButton(ApplicationBundle.message("button.add.blank"), IconUtil.getAddBlankLineIcon) {
       override def actionPerformed(e: AnActionEvent): Unit = {
         addPattern(ScalaCodeStyleSettings.BLANK_LINE, patternJBList)
