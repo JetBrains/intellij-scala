@@ -8,13 +8,17 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil._
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ReferencePassedToNlsInspection._
+
+import scala.collection.mutable
 
 class ReferencePassedToNlsInspection extends AbstractRegisteredInspection {
 
@@ -23,29 +27,22 @@ class ReferencePassedToNlsInspection extends AbstractRegisteredInspection {
                                            descriptionTemplate: String = getDisplayName,
                                            highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
-    val passedToNls = ScalaI18nUtil.isPassedToAnnotated(_: PsiElement, AnnotationUtil.NLS)
     val expr = element match {
-      case (expr: ScExpression) && ResolvesTo(ref) if passedToNls(expr) =>
-        Some(expr -> ref)
-      case invocation: MethodInvocation if passedToNls(invocation) =>
-        invocation.getEffectiveInvokedExpr match {
-          case ResolvesTo(ref) =>
-            Some(invocation -> ref)
-          case _ => None
-        }
-      case _ => None
+      case _: PsiReference | _: MethodInvocation if isPassedToAnnotated(element, AnnotationUtil.NLS) =>
+        resolveToNotNlsAnnotated(element)
+      case _ =>
+        None
     }
 
     expr
-      .filterNot { case (_, ref) => ScalaI18nUtil.isAnnotatedWith(ref, AnnotationUtil.NLS) }
       .map {
-        case (expr, Annotatable(ref)) if isInProjectSource(ref) =>
+        case Annotatable(ref) if isInProjectSource(ref) =>
           val quickFixes = Array[LocalQuickFix](new AnnotateWithNls(ref)) ++ maybeQuickFix
-          manager.createProblemDescriptor(expr, descriptionTemplate, isOnTheFly, quickFixes, highlightType)
+          manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, quickFixes, highlightType)
 
-        case (expr, _) =>
+        case _ =>
           val quickFixes = Array[LocalQuickFix]() ++ maybeQuickFix
-          manager.createProblemDescriptor(expr, descriptionTemplate, isOnTheFly, quickFixes, highlightType)
+          manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, quickFixes, highlightType)
       }
   }
 }
@@ -65,12 +62,37 @@ object ReferencePassedToNlsInspection {
     }
   }
 
-  object Annotatable {
+  private object Annotatable {
     def unapply(psiElement: PsiElement): Option[ScAnnotationsHolder] =
       psiElement match {
         case holder: ScAnnotationsHolder => Some(holder)
         case pattern: ScBindingPattern => pattern.nameContext.asOptionOf[ScAnnotationsHolder]
         case _ => None
       }
+  }
+
+  private def resolveToNotNlsAnnotated(element: PsiElement, found: mutable.Set[PsiElement] = mutable.Set.empty): Option[PsiElement] =
+    if (!found.add(element)) None
+    else element match {
+      case ResolvesTo(ref) if evaluatesNotToNls(ref, found) => Some(ref)
+      case invocation: MethodInvocation =>
+        invocation.getEffectiveInvokedExpr match {
+          case ResolvesTo(ref) if evaluatesNotToNls(ref, found) =>
+            Some(ref)
+          case _ => None
+        }
+      case _ => None
+    }
+
+  private def evaluatesNotToNls(ref: PsiElement, found: mutable.Set[PsiElement]): Boolean = {
+    if (!found.add(ref)) false
+    else ref match {
+      case _ if isAnnotatedWith(ref, AnnotationUtil.NLS) => false
+      case _: PsiReference | _: MethodInvocation => resolveToNotNlsAnnotated(ref, found).isDefined
+      case pattern: ScBindingPattern => evaluatesNotToNls(pattern.nameContext, found)
+      case pd: ScPatternDefinition => pd.expr.exists(evaluatesNotToNls(_, found))
+      case func: ScFunctionDefinition => func.returnUsages.exists(evaluatesNotToNls(_, found))
+      case _ => true
+    }
   }
 }
