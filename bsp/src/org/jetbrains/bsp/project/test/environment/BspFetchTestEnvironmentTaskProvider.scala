@@ -21,7 +21,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{JavaPsiFacade, PsiFile}
 import com.intellij.psi.search.GlobalSearchScope
 import javax.swing.Icon
-import org.jetbrains.bsp.{BSP, BspUtil, Icons}
+import org.jetbrains.bsp.{BSP, BspBundle, BspUtil, Icons}
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
@@ -140,7 +140,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
 
     implicit val reporter = new BuildToolWindowReporter(project = project,
       buildId = bspTaskId,
-      title = "bsp fetch sources",
+      title = BspBundle.message("bsp.task.fetching.sources"),
       cancelAction)
     val sources: util.List[SourcesItem] = Await.result(communication.run(
       bspSessionTask =  getFiles(potentialTargets)(_, _),
@@ -193,11 +193,11 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     val bspTaskId: EventId = BuildMessages.randomEventId
     val cancelToken = scala.concurrent.Promise[Unit]()
     val cancelAction = new CancelBuildAction(cancelToken)
-    implicit val report = new BuildToolWindowReporter(project, bspTaskId, "bsp build", cancelAction)
+    implicit val reporter = new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.fetchng.jvm.test.environment"), cancelAction)
     val response = Await.result(communication.run(
       bspSessionTask = jvmTestEnvironmentBspRequest(List(target))(_, _),
       notifications = _ => (),
-      processLogger = processLog(report),
+      processLogger = processLog(reporter),
     ).future, 300.millis)
     val environment = response.getItems.asScala.head
     JvmTestEnvironment(
