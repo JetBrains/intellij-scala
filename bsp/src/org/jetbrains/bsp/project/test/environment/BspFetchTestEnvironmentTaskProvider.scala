@@ -36,6 +36,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTes
 
 import scala.concurrent.Await
 import com.intellij.openapi.util.Key
+import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.concurrency.{Promise, Promises}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 
@@ -137,11 +138,13 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     val cancelAction = new CancelBuildAction(cancelToken)
 
 
-    val reporter = new BuildToolWindowReporter(project = project, buildId = bspTaskId, title = "bsp fetch sources", cancelAction)
+    implicit val reporter = new BuildToolWindowReporter(project = project,
+      buildId = bspTaskId,
+      title = "bsp fetch sources",
+      cancelAction)
     val sources: util.List[SourcesItem] = Await.result(communication.run(
-      bspSessionTask = getFiles(potentialTargets)(_, _),
-      notifications = _ => (),
-      reporter = reporter,
+      bspSessionTask =  getFiles(potentialTargets)(_, _),
+      notifications = _  => (),
       processLogger = processLog(reporter),
     ).future, 300.millis).getItems
     filterTargetsContainingSources(sources.asScala, files)
@@ -190,11 +193,10 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     val bspTaskId: EventId = BuildMessages.randomEventId
     val cancelToken = scala.concurrent.Promise[Unit]()
     val cancelAction = new CancelBuildAction(cancelToken)
-    val report = new BuildToolWindowReporter(project, bspTaskId, "bsp build", cancelAction)
+    implicit val report = new BuildToolWindowReporter(project, bspTaskId, "bsp build", cancelAction)
     val response = Await.result(communication.run(
       bspSessionTask = jvmTestEnvironmentBspRequest(List(target))(_, _),
       notifications = _ => (),
-      reporter = report,
       processLogger = processLog(report),
     ).future, 300.millis)
     val environment = response.getItems.asScala.head
