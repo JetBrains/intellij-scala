@@ -210,17 +210,10 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
 
   private def getBspTargets(module: Module): Option[Seq[BuildTargetIdentifier]] =
     for {
+      data <- BspMetadata.get(module.getProject, module)
       moduleId <- Option(ES.getExternalProjectId(module))
-      projectPath <- Option(ES.getExternalProjectPath(module))
-      projectData <- Option(ES.findProjectData(module.getProject, BSP.ProjectSystemId, projectPath))
-      moduleDataNode <- Option(ES.find(
-        projectData, ProjectKeys.MODULE,
-        (node: DataNode[ModuleData]) => node.getData.getId == moduleId))
-      metadata <- Option(ES.find(moduleDataNode, BspMetadata.Key))
-    } yield {
-      val data: BspMetadata = metadata.getData
-      data.targetIds.asScala.map(id => new BuildTargetIdentifier(id.toString)).filterNot(_.getUri == moduleId)
-    }
+      res = data.targetIds.asScala.map(id => new BuildTargetIdentifier(id.toString)).filterNot(_.getUri == moduleId)
+    } yield res
 
   private def jvmTestEnvironmentBspRequest(targets: Seq[BuildTargetIdentifier])
                                           (implicit server: BspServer,
