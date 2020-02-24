@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.build
 
+import java.io.File
+
 import com.intellij.build.events.MessageEvent.Kind
 import com.intellij.build.events._
 import com.intellij.build.{FilePosition, SyncViewManager}
@@ -121,6 +123,8 @@ class ExternalSystemNotificationReporter(workingDir: String,
       notifications.onStatusChange(statusEvent)
     }
   }
+
+  override def clear(file: File): Unit = ()
 
   private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
     BuildMessages.message(taskId, message, kind, position)

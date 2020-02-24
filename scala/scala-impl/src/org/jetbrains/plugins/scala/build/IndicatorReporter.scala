@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.build
 
+import java.io.File
+
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import com.intellij.openapi.progress.ProgressIndicator
@@ -56,4 +58,5 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
   override def startTask(eventId: BuildMessages.EventId, parent: Option[BuildMessages.EventId], message: String, time: Long): Unit = ()
   override def progressTask(eventId: BuildMessages.EventId, total: Long, progress: Long, unit: String, message: String, time: Long): Unit = ()
   override def finishTask(eventId: BuildMessages.EventId, message: String, result: EventResult, time: Long): Unit = ()
+  override def clear(file: File): Unit = ()
 }

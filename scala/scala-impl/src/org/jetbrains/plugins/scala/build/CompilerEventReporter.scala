@@ -40,6 +40,12 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
     publisher.eventReceived(event)
   }
 
+  /** Clear any messages associated with file. */
+  override def clear(file: File): Unit = {
+    files.add(file)
+    val event = CompilerEvent.CompilationFinished(compilationId, file)
+    publisher.eventReceived(event)
+  }
 
   override def finish(messages: BuildMessages): Unit = finishFiles()
   override def finishWithFailure(err: Throwable): Unit = finishFiles()
@@ -56,7 +62,8 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
 
   override def start(): Unit = ()
   override def log(message: String): Unit = ()
-  override def startTask(eventId: BuildMessages.EventId, parent: Option[BuildMessages.EventId], message: String, time: CompilationId): Unit = ()
-  override def progressTask(eventId: BuildMessages.EventId, total: CompilationId, progress: CompilationId, unit: String, message: String, time: CompilationId): Unit = ()
-  override def finishTask(eventId: BuildMessages.EventId, message: String, result: EventResult, time: CompilationId): Unit = ()
+  override def startTask(eventId: BuildMessages.EventId, parent: Option[BuildMessages.EventId], message: String, time: Long): Unit = ()
+  override def progressTask(eventId: BuildMessages.EventId, total: Long, progress: Long, unit: String, message: String, time: Long): Unit = ()
+  override def finishTask(eventId: BuildMessages.EventId, message: String, result: EventResult, time: Long): Unit = ()
+
 }

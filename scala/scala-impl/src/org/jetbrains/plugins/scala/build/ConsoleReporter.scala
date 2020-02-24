@@ -1,4 +1,6 @@
 package org.jetbrains.plugins.scala.build
+import java.io.File
+
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 
@@ -48,7 +50,9 @@ class ConsoleReporter(val name: String) extends BuildReporter {
   override def finishTask(eventId: BuildMessages.EventId, message: String, result: EventResult, time: Long): Unit =
     println(s"[$name] task ${eventId.id} finish. time: $time. message: $message. result: $result")
 
+  override def clear(file: File): Unit = ()
 
   private def positionString(position: Option[FilePosition]) =
-    position.map("at" + _.toString).getOrElse("")
+  position.map("at" + _.toString).getOrElse("")
+
 }

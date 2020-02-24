@@ -56,8 +56,6 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       case task: ModuleBuildTask => task
     }
 
-    val dataManager = ProjectDataManager.getInstance()
-
     val targetsAndRebuild = validTasks.flatMap { task =>
       val moduleId = ES.getExternalProjectId(task.getModule)
 

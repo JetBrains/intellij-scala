@@ -244,35 +244,40 @@ class BspTask[T](project: Project,
     val previousDiagnostics = diagnostics.getOrElse(uri, List.empty)
     diagnostics.put(uri, uriDiagnostics.toList)
 
-    uriDiagnostics
-      .filterNot(previousDiagnostics.contains)
-      .foldLeft(buildMessages) { (messages, diagnostic) =>
+    if (uriDiagnostics.isEmpty) {
+      reporter.clear(uri.toFile)
+      buildMessages
+    } else
+      uriDiagnostics
+        .filterNot(previousDiagnostics.contains)
+        .foldLeft(buildMessages) { (messages, diagnostic) =>
 
-      val start = diagnostic.getRange.getStart
-      val end = diagnostic.getRange.getEnd
-      val position = Some(new FilePosition(uri.toFile, start.getLine, start.getCharacter, end.getLine, end.getCharacter))
-      val text = s"${diagnostic.getMessage} [${start.getLine + 1}:${start.getCharacter + 1}]"
+          val start = diagnostic.getRange.getStart
+          val end = diagnostic.getRange.getEnd
+          val position = Some(new FilePosition(uri.toFile, start.getLine, start.getCharacter, end.getLine, end.getCharacter))
+          val text = s"${diagnostic.getMessage} [${start.getLine + 1}:${start.getCharacter + 1}]"
 
-      import bsp4j.DiagnosticSeverity._
-      Option(diagnostic.getSeverity).map {
-        case ERROR =>
-          reporter.error(text, position)
-          messages.addError(text)
-        case WARNING =>
-          reporter.warning(text, position)
-          messages.addWarning(text)
-        case INFORMATION =>
-          reporter.info(text, position)
-          messages
-        case HINT =>
-          reporter.info(text, position)
-          messages
-      }
-        .getOrElse {
-          reporter.info(text, position)
-          messages
+          import bsp4j.DiagnosticSeverity._
+          Option(diagnostic.getSeverity)
+            .map {
+              case ERROR =>
+                reporter.error(text, position)
+                messages.addError(text)
+              case WARNING =>
+                reporter.warning(text, position)
+                messages.addWarning(text)
+              case INFORMATION =>
+                reporter.info(text, position)
+                messages
+              case HINT =>
+                reporter.info(text, position)
+                messages
+            }
+            .getOrElse {
+              reporter.info(text, position)
+              messages
+            }
         }
-    }
   }
 
   private def reportTaskStart(params: TaskStartParams)(implicit reporter: BuildReporter): Unit = {

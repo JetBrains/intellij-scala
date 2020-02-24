@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.build
 
+import java.io.File
+
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -38,6 +40,11 @@ class CompositeReporter(reporters: BuildReporter*) extends BuildReporter {
   override def finishTask(eventId: EventId, message: String, result: EventResult, time: Long): Unit =
     reporters.foreach(_.finishTask(eventId, message, result, time))
 
+  override def clear(file: File): Unit =
+    reporters.foreach(_.clear(file))
+
   def compose(reporter: BuildReporter) =
-    new CompositeReporter(reporters :+ reporter : _*)
+  new CompositeReporter(reporters :+ reporter : _*)
+
+  /** Clear any messages associated with file. */
 }

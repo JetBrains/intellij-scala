@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.build
 
+import java.io.File
+
 import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, EventResult, MessageEvent}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition}
@@ -87,6 +89,8 @@ class BuildToolWindowReporter(project: Project,
     viewManager.onEvent(buildId, event)
   }
 
+  override def clear(file: File): Unit = ()
+
   override def warning(message: String, position: Option[FilePosition]): Unit =
     viewManager.onEvent(buildId, event(message, Kind.WARNING, position))
 
@@ -104,7 +108,6 @@ class BuildToolWindowReporter(project: Project,
 
   private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
     BuildMessages.message(buildId, message, kind, position)
-
 }
 
 object BuildToolWindowReporter {
