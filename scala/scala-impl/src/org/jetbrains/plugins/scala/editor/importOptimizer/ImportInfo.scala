@@ -128,7 +128,7 @@ object ImportInfo {
     }
 
     val deepRef = deepestQualifier(qualifier)
-    val rootUsed = deepRef.getText == _root_prefix
+    val rootUsed = deepRef.textMatches(_root_prefix)
 
     val (prefixQualifier, isRelative) =
       if (rootUsed) (explicitQualifierString(qualifier, withDeepest = false), false)
@@ -139,7 +139,7 @@ object ImportInfo {
             case _: IllegalStateException => return None
           }
         val prefixQual = qualifiedDeepRef + withDot(explicitQualifierString(qualifier, withDeepest = false))
-        val relative = qualifiedDeepRef != deepRef.getText
+        val relative = !deepRef.textMatches(qualifiedDeepRef)
         (prefixQual, relative)
       }
 
@@ -274,7 +274,7 @@ object ImportInfo {
   }
 
   private def qualifiedRef(ref: ScStableCodeReference): String = {
-    if (ref.getText == _root_prefix) return _root_prefix
+    if (ref.textMatches(_root_prefix)) return _root_prefix
 
     val refName = ref.refName
     ref.bind() match {

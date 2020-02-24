@@ -44,7 +44,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
         val offset = editor.getCaretModel.getOffset
 
         if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
-        if (ref.isQualified && ref.nameId.getText == "apply") return true
+        if (ref.isQualified && ref.nameId.textMatches("apply")) return true
       case _ =>
     }
 

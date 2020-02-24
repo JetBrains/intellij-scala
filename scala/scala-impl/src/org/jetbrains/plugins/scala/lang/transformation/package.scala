@@ -53,7 +53,7 @@ package object transformation {
 
     val variants = variantsOf(target)
 
-    if (!(reference.getText == variants.head && isResolvedTo(reference, target))) {
+    if (!(reference.textMatches(variants.head) && isResolvedTo(reference, target))) {
       bindTo0(reference, variants)
     }
   }
@@ -100,7 +100,7 @@ package object transformation {
     def unapply(r: ScReference): Option[(String, String)] = {
       val id = r.nameId
       r.bind().flatMap(_.innerResolveResult).orElse(r.bind()).map(_.element) collect  {
-        case target: PsiNamedElement if id.getText != target.name => (id.getText, target.name)
+        case target: PsiNamedElement if !id.textMatches(target.name) => (id.getText, target.name)
       }
     }
   }

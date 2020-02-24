@@ -150,7 +150,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           if (!ResolveUtils.kindMatches(c.element, suitableKinds)) {
             reportWrongKind(c, suitableKinds)
           }
-          if (nameId.getText != c.name) {
+          if (!nameId.textMatches(c.name)) {
             val ref = createReferenceFromText(c.name)
             return this.replace(ref).asInstanceOf[ScStableCodeReference].bindToElement(c.element)
           }

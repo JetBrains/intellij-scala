@@ -158,7 +158,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   protected override def getStatementAtCaret(editor: Editor, psiFile: PsiFile): PsiElement = {
     val atCaret: PsiElement = super.getStatementAtCaret(editor, psiFile)
     if (atCaret.isInstanceOf[PsiWhiteSpace] || atCaret == null) return null
-    if (("}" == atCaret.getText) && !atCaret.getParent.isInstanceOf[PsiArrayInitializerExpression]) return null
+    if (atCaret.textMatches("}") && !atCaret.getParent.isInstanceOf[PsiArrayInitializerExpression]) return null
 
     var statementAtCaret: PsiElement =
       PsiTreeUtil.getParentOfType(atCaret, classOf[ScPatternDefinition], classOf[ScIf], classOf[ScWhile],

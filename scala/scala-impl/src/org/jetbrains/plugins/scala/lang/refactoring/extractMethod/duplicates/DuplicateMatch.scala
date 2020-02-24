@@ -82,7 +82,7 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
         }
       case (intd1: ScInterpolatedStringLiteral, intd2: ScInterpolatedStringLiteral) => checkChildren(intd1, intd2)
       case (ElementType(ScalaTokenTypes.tINTERPOLATED_STRING), ElementType(ScalaTokenTypes.tINTERPOLATED_STRING)) =>
-        subPattern.getText == candidate.getText
+        subPattern.textMatches(candidate.getText)
       case (lit1: ScLiteral, lit2: ScLiteral) => lit1.getValue == lit2.getValue
       case _ => checkChildren(subPattern, candidate)
     }

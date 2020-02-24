@@ -40,7 +40,7 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   private def extractSubprojectPath(element: PsiElement): Option[String] = {
     Option(element.getParent).safeMap(_.getParent) match {
       case Some(ScPatternDefinition.expr(e)) => e match {
-        case expr: ScReferenceExpression if expr.getText == "project" => Some(element.getText)
+        case expr: ScReferenceExpression if expr.textMatches("project") => Some(element.getText)
         case call: ScMethodCall => extractSubprojectPathFromProjectCall(call, element)
         case _ => None
       }
@@ -52,7 +52,7 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
     var result: Option[String] = None
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitMethodCallExpression(call: ScMethodCall): Unit = call match {
-        case ScMethodCall(expr, Seq(_: ScLiteral, pathElt)) if expr.getText == "Project" =>
+        case ScMethodCall(expr, Seq(_: ScLiteral, pathElt)) if expr.textMatches("Project") =>
           result = extractPathFromFileParam(pathElt)
         case ScMethodCall(expr, Seq(pathElt)) if expr.getText.matches("^project.+?in$") =>
           result = extractPathFromFileParam(pathElt)
@@ -74,11 +74,11 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
       newFileDef.extendsBlock.getChildren.toSeq.headOption.collect {
         case classParent: ScTemplateParents => classParent.constructorInvocation.flatMap(extractPathFromFileCtor)
       }.flatten
-    case expr@ScInfixExpr(_, op, _) if op.getText == "/" =>
+    case expr@ScInfixExpr(_, op, _) if op.textMatches("/") =>
       extractPathFromConcatenation(expr)
     case expr : ScReferenceExpression =>
       Option(expr.resolve()).flatMap(extractPathFromReference)
-    case ScMethodCall(expr, ScStringLiteral(path) :: _) if expr.getText == "file" =>
+    case ScMethodCall(expr, ScStringLiteral(path) :: _) if expr.textMatches("file") =>
       Option(path)
     case _ => None
   }

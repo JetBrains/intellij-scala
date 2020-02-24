@@ -45,7 +45,7 @@ class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
     case interpolated: ScInterpolatedStringLiteral =>
       val children = interpolated.children.toList
       val interpolatedPrefix = children.headOption
-      if (interpolatedPrefix.exists(prefix => prefix.getNode.getElementType != ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE || prefix.getText != "s")) null
+      if (interpolatedPrefix.exists(prefix => prefix.getNode.getElementType != ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE || !prefix.textMatches("s"))) null
       else {
         val quotes = children(1).getText
         children.foldLeft(("", false)) {
@@ -56,7 +56,7 @@ class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
               case block: ScBlockExpr => block.resultExpression.flatMap(evaluateHelper).getOrElse(return null)
               case ref: ScReferenceExpression if expectingRef => evaluateHelper(ref).getOrElse(return null)
               case _ if child.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION => (acc, true)
-              case _ if (child.getText != quotes) && child.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING => (acc + child.getText, false)
+              case _ if !child.textMatches(quotes) && child.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING => (acc + child.getText, false)
               case _ => (acc, false)
             }
         }._1

@@ -921,7 +921,7 @@ object ScalaPsiUtil {
             val text = expr.getText
             val dummyFile = createScalaFileFromText(text)(expr.getManager)
             dummyFile.firstChild match {
-              case Some(newExpr: ScExpression) => newExpr.getText != text
+              case Some(newExpr: ScExpression) => !newExpr.textMatches(text)
               case _ => true
             }
           case _ => false
@@ -936,7 +936,7 @@ object ScalaPsiUtil {
         //order of these case clauses is important!
         case (_: ScGuard, _: ScMatch) => true
         case _ if !parent.isInstanceOf[ScExpression] => false
-        case _ if expr.getText == "_" => false
+        case _ if expr.textMatches("_") => false
         case (_: ScTuple | _: ScBlock | _: ScXmlExpr, _) => false
         case (infix: ScInfixExpr, tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from, tuple)
         case (_: ScSugarCallExpr |
@@ -1150,7 +1150,7 @@ object ScalaPsiUtil {
     }
 
     private def isSimpleUnderscore(expr: ScExpression) = expr match {
-      case _: ScUnderscoreSection => expr.getText == "_"
+      case _: ScUnderscoreSection => expr.textMatches("_")
       case typed: ScTypedExpression => Option(typed.expr).map(_.getText).contains("_")
       case _ => false
     }

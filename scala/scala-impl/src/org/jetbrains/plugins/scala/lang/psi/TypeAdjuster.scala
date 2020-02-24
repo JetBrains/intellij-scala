@@ -184,7 +184,7 @@ object TypeAdjuster extends ApplicationListener {
   }
 
   private def replaceElem: ReplacementInfo => Unit = {
-    case SimpleInfo(place, replacement, _, _) if place.getText != replacement =>
+    case SimpleInfo(place, replacement, _, _) if !place.textMatches(replacement) =>
       val maybeNewElement = place match {
         case _: ScTypeElement => Some(newTypeElem(replacement, place))
         case _: ScReference => newRef(replacement, place)
@@ -237,7 +237,7 @@ object TypeAdjuster extends ApplicationListener {
           .flatMap(unapply)
           .filter { info =>
             val SimpleInfo(place, replacement, _, _) = info
-            replacement != place.getText
+            !place.textMatches(replacement)
           }
 
       @tailrec

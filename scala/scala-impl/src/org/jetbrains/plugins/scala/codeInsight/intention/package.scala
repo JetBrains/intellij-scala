@@ -57,7 +57,7 @@ package object intention {
     else {
       val doIt = () => {
         argsAndMatchedParams.foreach {
-          case (_ childOf (a: ScAssignment), param) if a.leftExpression.getText == param.name =>
+          case (_ childOf (a: ScAssignment), param) if a.leftExpression.textMatches(param.name) =>
           case (argExpr, param) =>
             if (!onlyBoolean || (onlyBoolean && param.paramType.isBoolean)) {
               inWriteAction {
@@ -94,7 +94,7 @@ package object intention {
   }
 
   def negate(expression: ScExpression): String = expression match {
-    case ScPrefixExpr(operation, operand) if operation.getText == "!" =>
+    case ScPrefixExpr(operation, operand) if operation.textMatches("!") =>
       val target = operand match {
         case ScParenthesisedExpr(scExpression) => scExpression
         case _ => operand

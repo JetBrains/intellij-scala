@@ -268,7 +268,7 @@ object JavaToScala {
         def isOk: Boolean = {
           if (be.getLOperand.getType.isInstanceOf[PsiPrimitiveType]) return false
           be.getROperand match {
-            case l: PsiLiteralExpression if l.getText == "null" => return false
+            case l: PsiLiteralExpression if l.textMatches("null") => return false
             case _ =>
           }
           true

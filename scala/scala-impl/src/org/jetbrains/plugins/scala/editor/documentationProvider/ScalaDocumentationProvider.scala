@@ -908,7 +908,7 @@ object ScalaDocumentationProvider {
               case _ => result.append(element.getText)
             }
           case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
-            if element.getParent.getParent.getFirstChild.getText == MyScaladocParsing.TYPE_PARAM_TAG =>
+            if element.getParent.getParent.getFirstChild.textMatches(MyScaladocParsing.TYPE_PARAM_TAG) =>
             result.append("<" + element.getText + ">")
           case ScalaDocTokenType.DOC_INNER_CODE_TAG => result.append(" <pre> {@code ")
           case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG => result.append(" } </pre> ")

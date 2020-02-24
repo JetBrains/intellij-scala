@@ -68,7 +68,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
             commentOwner.getDocComment match {
               case comment: ScDocComment =>
                 comment.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG).foreach {
-                  b => if (b.getValueElement != null && b.getValueElement.getText == docTagParam.name)
+                  b => if (b.getValueElement != null && b.getValueElement.textMatches(docTagParam.name))
                     allRenames.put(b.getValueElement, newName)
                 }
               case _ =>

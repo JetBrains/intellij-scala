@@ -264,7 +264,7 @@ object SafeDeleteProcessorUtil {
   }
 
   @Nullable def getOverridingConstructorOfSuperCall(element: PsiElement): PsiMethod = {
-    if (element.isInstanceOf[PsiReferenceExpression] && "super".equals(element.getText)) {
+    if (element.isInstanceOf[PsiReferenceExpression] && element.textMatches("super")) {
       var parent: PsiElement = element.getParent
       if (parent.isInstanceOf[PsiMethodCallExpression]) {
         parent = parent.getParent
@@ -405,7 +405,7 @@ object SafeDeleteProcessorUtil {
         element.getParent.getParent match {
           case call: PsiMethodCallExpression =>
             val methodExpression: PsiReferenceExpression = call.getMethodExpression
-            if (methodExpression.getText.equals(PsiKeyword.SUPER)) {
+            if (methodExpression.textMatches(PsiKeyword.SUPER)) {
               isSafeDelete = true
             }
             else if (methodExpression.getQualifierExpression.isInstanceOf[PsiSuperExpression]) {

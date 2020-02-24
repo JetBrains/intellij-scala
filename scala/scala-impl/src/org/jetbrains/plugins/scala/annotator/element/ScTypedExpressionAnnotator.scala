@@ -59,7 +59,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   def mismatchRangesIn(expected: ScTypeElement, actual: ScType)(implicit context: TypePresentationContext): Seq[TextRange] = {
     val diff = TypeDiff.forExpected(expected.calcType, actual)
 
-    if (asString(diff) == expected.getText) { // make sure that presentations match
+    if (expected.textMatches(asString(diff))) { // make sure that presentations match
       val (ranges, _) =  diff.flatten.foldLeft((Seq.empty[TextRange], expected.getTextOffset)) { case ((acc, offset), x) =>
         val length = asString(x).length
         val isMismatch: Tree[TypeDiff] => Boolean = { case Leaf(Mismatch(_, _)) => true; case _ => false }

@@ -102,7 +102,7 @@ object CreateFromUsageUtil {
 
   def addQmarksToTemplate(elem: PsiElement, builder: TemplateBuilder): Unit = {
     val Q_MARKS = "???"
-    elem.depthFirst().instancesOf[ScReferenceExpression].filter(_.getText == Q_MARKS)
+    elem.depthFirst().instancesOf[ScReferenceExpression].filter(_.textMatches(Q_MARKS))
             .foreach { qmarks =>
       builder.replaceElement(qmarks, Q_MARKS)
     }

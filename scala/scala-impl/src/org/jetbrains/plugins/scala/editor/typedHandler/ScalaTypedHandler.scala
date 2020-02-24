@@ -86,7 +86,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (element != null && isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
       chooseXmlTask(withAttr = true)
     } else if (file.findElementAt(offset - 2) match {
-      case el: PsiElement if !ScalaNamesUtil.isOperatorName(el.getText) && el.getText != "=" =>
+      case el: PsiElement if !ScalaNamesUtil.isOperatorName(el.getText) && !el.textMatches("=") =>
         c == '>' || c == '/'
       case _ => false
     }) {
@@ -404,7 +404,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     element.getNode.getElementType match {
       case ScalaTokenTypes.tFUNTYPE if settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR =>
         replaceElement(ScalaTypedHandler.unicodeCaseArrow)
-      case ScalaTokenTypes.tIDENTIFIER if settings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR && element.getText == "->" =>
+      case ScalaTokenTypes.tIDENTIFIER if settings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR && element.textMatches("->") =>
         replaceElement(ScalaTypedHandler.unicodeMapArrow)
       case ScalaTokenTypes.tCHOOSE if settings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR =>
         replaceElement(ScalaTypedHandler.unicodeForGeneratorArrow)
@@ -468,7 +468,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     }
 
   private def completeEmptyXmlTag(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    if (element != null && element.getNode.getElementType == ScalaXmlTokenTypes.XML_DATA_CHARACTERS && element.getText == "/" &&
+    if (element != null && element.getNode.getElementType == ScalaXmlTokenTypes.XML_DATA_CHARACTERS && element.textMatches("/") &&
       element.getPrevSibling != null && element.getPrevSibling.isInstanceOf[ScXmlStartTag]) {
       val xmlLexer = new ScalaXmlLexer
       xmlLexer.start(element.getPrevSibling.getText + "/>")

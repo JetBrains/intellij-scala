@@ -62,12 +62,12 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
             remove(comma.getTreeNext)
           }
         }
-        if (next.getText == ",") {
+        if (next.textMatches(",")) {
           val comma = next.getNode
           removeWhitespaceAfterComma(comma)
           remove(comma)
         } else {
-          if (next.getNextSibling != null && next.getNextSibling.getText == ",") {
+          if (next.getNextSibling != null && next.getNextSibling.textMatches(",")) {
             val comma = next.getNextSibling
             removeWhitespaceAfterComma(comma.getNode)
             remove(next.getNode)
@@ -75,10 +75,10 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
           } else {
             val prev = getPrevSibling
             if (prev != null) {
-              if (prev.getText == ",") {
+              if (prev.textMatches(",")) {
                 remove(prev.getNode)
               } else {
-                if (prev.getPrevSibling != null && prev.getPrevSibling.getText == ",") {
+                if (prev.getPrevSibling != null && prev.getPrevSibling.textMatches(",")) {
                   remove(prev.getPrevSibling.getNode)
                 }
               }
@@ -88,10 +88,10 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
       } else {
         val prev = getPrevSibling
         if (prev != null) {
-          if (prev.getText == ",") {
+          if (prev.textMatches(",")) {
             remove(prev.getNode)
           } else {
-            if (prev.getPrevSibling != null && prev.getPrevSibling.getText == ",") {
+            if (prev.getPrevSibling != null && prev.getPrevSibling.textMatches(",")) {
               val prevSibling = prev.getPrevSibling
               remove(prev.getNode)
               remove(prevSibling.getNode)

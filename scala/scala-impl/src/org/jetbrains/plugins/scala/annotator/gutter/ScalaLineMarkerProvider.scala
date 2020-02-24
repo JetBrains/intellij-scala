@@ -144,7 +144,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
           if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
           else None
         case v: ScValueOrVariable if !v.isLocal && containsNamedElement(v) =>
-          val bindings   = v.declaredElements.filter(e => e.name == element.getText)
+          val bindings   = v.declaredElements.filter(e => element.textMatches(e.name))
           val signatures = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
           val icon       = getOverridesOrImplementsIcon(v, signatures)
           val markerType = overridingMember

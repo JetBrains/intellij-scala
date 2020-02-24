@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class AddTypeToReferencePattern extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScReferencePattern) && Parent(_: ScCaseClause | _: ScGenerator | _: ScPattern | _: ScPatternArgumentList) && Typeable(t)
-      if !e.nextSibling.exists(_.getText == ":") =>
+      if !e.nextSibling.exists(_.textMatches(":")) =>
 
       appendTypeAnnotation(t) { annotation =>
         val typedPattern = createPatternFromText(e.getText + ": " + annotation.getText)

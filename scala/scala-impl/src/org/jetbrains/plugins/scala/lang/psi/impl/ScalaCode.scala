@@ -46,7 +46,7 @@ object ScalaCode {
     val file = parse(format.replace("%e", Placeholder))
 
     // we can optionally supplement element types to disambiguate target elements
-    val placeholders = file.depthFirst(_.getText != Placeholder).filter(_.getText == Placeholder).toVector
+    val placeholders = file.depthFirst(!_.textMatches(Placeholder)).filter(_.textMatches(Placeholder)).toVector
 
     if (placeholders.length != elements.length) {
       throw new IllegalArgumentException("Format string / arguments mismatch: %s VS %s".format(

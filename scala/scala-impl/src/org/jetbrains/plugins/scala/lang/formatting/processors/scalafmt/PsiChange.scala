@@ -41,7 +41,7 @@ private object PsiChange {
 
   // NOTE: sometimes replaced element returned from `original.replace(formatted)` is invalid and is inside DummyHolder
   def findReplacedElement(parent: PsiElement, formatted: PsiElement, offset: Int): Option[PsiElement] =
-    parent.children.find(child => child.getTextRange.getStartOffset == offset && child.getText == formatted.getText)
+    parent.children.find(child => child.getTextRange.getStartOffset == offset && child.textMatches(formatted.getText))
 
   final class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
     override def doApply(nextChange: PsiChange): Int = {

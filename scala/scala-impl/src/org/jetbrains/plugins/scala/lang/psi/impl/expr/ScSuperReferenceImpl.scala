@@ -98,7 +98,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
       }
 
       override def isReferenceTo(element: PsiElement): Boolean = element match {
-        case c: PsiClass => c.name == id.getText && resolve == c
+        case c: PsiClass => id.textMatches(c.name) && resolve == c
         case _ => false
       }
 

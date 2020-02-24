@@ -265,7 +265,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case ws: PsiWhiteSpace =>
         val oldTextNoIndent = ws.getText.reverse.dropWhile(c => c == ' ' || c == '\t').reverse
         val newText = oldTextNoIndent + indent
-        if (newText != ws.getText) {
+        if (!ws.textMatches(newText)) {
           val indented = ScalaPsiElementFactory.createNewLine(newText)
           ws.replace(indented)
         }

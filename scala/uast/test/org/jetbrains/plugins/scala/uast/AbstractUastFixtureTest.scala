@@ -46,7 +46,7 @@ object AbstractUastFixtureTest {
     elem.accept(new AbstractUastVisitor {
       override def visitElement(node: UElement): Boolean = {
         node match {
-          case e: T if Option(node.getSourcePsi).exists(_.getText == refText) =>
+          case e: T if Option(node.getSourcePsi).exists(_.textMatches(refText)) =>
             matchingElements += e; false
           case _ => false
         }
@@ -106,7 +106,7 @@ object AbstractUastFixtureTest {
       )
 
     val uElemSourcePsi = uElemContainingText.getSourcePsi
-    if (strict && uElemSourcePsi != null && uElemSourcePsi.getText != refText)
+    if (strict && uElemSourcePsi != null && !uElemSourcePsi.textMatches(refText))
       throw new AssertionError(
         s"requested text '$refText' found as '${uElemSourcePsi.getText}' in $uElemContainingText"
       )

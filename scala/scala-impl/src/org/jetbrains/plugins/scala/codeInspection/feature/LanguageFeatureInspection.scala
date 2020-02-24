@@ -53,7 +53,7 @@ class LanguageFeatureInspection extends AbstractInspection("Advanced language fe
       case e: ScExistentialClause => e.firstChild.getOrElse(e) // TODO Exclude reducible existential types
     },
     Feature("macro definition", "scala.language.experimental", "macros", _.macros, _.copy(macros = true)) {
-      case e: ScMacroDefinition => e.children.find(it => it.getText == "macro").getOrElse(e)
+      case e: ScMacroDefinition => e.children.find(it => it.textMatches("macro")).getOrElse(e)
     }
   )
 

@@ -144,7 +144,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
         (inv, args)  <- maybeInvokedAndArgs
         targetMethod <- inv.bind().collect { case ScalaResolveResult(m: PsiMethod, _) => m }
         if !targetMethod.hasTypeParameters // if the function is polymorphic -- bail out
-        targetArg <- args.find(_.getText == name)
+        targetArg <- args.find(_.textMatches(name))
         eTpe      <- targetArg.expectedType(false)
       } yield eTpe
     }

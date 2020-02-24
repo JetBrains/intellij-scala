@@ -171,7 +171,7 @@ object TestConfigurationUtil {
             }
           case _ => None
         }
-      case refExpr: ScReferenceExpression if refExpr.getText == "+" =>
+      case refExpr: ScReferenceExpression if refExpr.textMatches("+") =>
         getStaticTestNameRaw(refExpr.getParent, allowSymbolLiterals)
       case refExpr: ScReferenceExpression if NoArgMethods.contains(refExpr.refName) =>
         processNoArgMethod(refExpr)

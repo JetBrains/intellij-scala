@@ -121,10 +121,10 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     })
 
   private def needCorrectWiki(element: PsiElement): Boolean = {
-    (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType] || element.getText == "{{{") &&
+    (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType] || element.textMatches("{{{")) &&
       (element.getParent.getLastChild != element ||
-        element.getText == "'''" && element.getPrevSibling != null &&
-          element.getPrevSibling.getText == "'")
+        element.textMatches("'''") && element.getPrevSibling != null &&
+          element.getPrevSibling.textMatches("'"))
   }
 
   private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {

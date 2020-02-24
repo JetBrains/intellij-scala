@@ -52,7 +52,7 @@ object MultilineStringUtil {
       parent match {
         case _: ScReference => //if (ref.nameId.getText == methodName) return false
         case l: ScLiteral => if (!l.isMultiLineString) return false
-        case i: ScInfixExpr => if (i.operation.getText == methodName) return false
+        case i: ScInfixExpr => if (i.operation.textMatches(methodName)) return false
         case call: ScMethodCall =>
           if (Option(call.getEffectiveInvokedExpr).forall {
             case expr: ScExpression => expr.getText endsWith "." + methodName
@@ -140,7 +140,7 @@ object MultilineStringUtil {
       parent match {
         case lit: ScLiteral => if (!lit.isMultiLineString) return Array.empty
         case inf: ScInfixExpr =>
-          if (inf.operation.getText == methodName) {
+          if (inf.operation.textMatches(methodName)) {
             if (prevParent != parent.getFirstChild) return callsArray
             calls += Array(inf.right)
           }

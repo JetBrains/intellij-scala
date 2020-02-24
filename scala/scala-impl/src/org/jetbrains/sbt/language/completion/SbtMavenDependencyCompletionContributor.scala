@@ -50,7 +50,7 @@ final class SbtMavenDependencyCompletionContributor extends CompletionContributo
       val place = positionFromParameters(params)
       implicit val p: Project = place.getProject
 
-      if (place.getText == CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
+      if (place.textMatches(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED))
         return
 
       val resolvers = SbtResolverUtils.projectResolvers(place)

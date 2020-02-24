@@ -76,7 +76,7 @@ object AddOrRemoveStrategy {
 
   def removeTypeAnnotation(typeElement: ScTypeElement): Boolean = {
     typeElement.prevSiblings
-      .find(_.getText == ":")
+      .find(_.textMatches(":"))
       .foreach(_.delete())
     typeElement.delete()
 

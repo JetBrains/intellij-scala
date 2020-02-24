@@ -28,14 +28,14 @@ private object SbtDependenciesVisitor {
     def processSettings(settings: ScMethodCall): Unit = {
       settings.args.exprsArray.foreach({
         case typedStmt: ScTypedExpression => processTypedStmt(typedStmt)(f)
-        case infix: ScInfixExpr if infix.left.getText == LIBRARY_DEPENDENCIES => processInfix(infix)(f)
+        case infix: ScInfixExpr if infix.left.textMatches(LIBRARY_DEPENDENCIES) => processInfix(infix)(f)
         case call: ScMethodCall => processMethodCall(call)(f)
         case ref: ScReferenceExpression => processReferenceExpr(ref)(f)
         case _ =>
       })
     }
 
-    if (call.deepestInvokedExpr.getText == SEQ) {
+    if (call.deepestInvokedExpr.textMatches(SEQ)) {
       for {
         callType <- call.`type`().toOption
         formalSeq <- ScalaPsiElementFactory.createTypeFromText(SBT_SEQ_TYPE, call, call)

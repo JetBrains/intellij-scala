@@ -53,9 +53,9 @@ class BuiltinMatcherExistsInspection
 
   private def equalToOperator(expr: ScExpression) = EqualToOperators.contains(expr.getText)
 
-  private def optional(expr: ScExpression) = expr.getText == "Some" || expr.getText == "None"
+  private def optional(expr: ScExpression) = expr.textMatches("Some") || expr.textMatches("None")
 
-  private def either(expr: ScExpression) = expr.getText == "Left" || expr.getText == "Right"
+  private def either(expr: ScExpression) = expr.textMatches("Left") || expr.textMatches("Right")
 
   private class ReplaceWithBeSomeOrNoneQuickFix(element: PsiElement)
     extends AbstractFixOnPsiElement(InspectionBundle.message("specs2.builtin.matcher.alternative.exists"), element) {

@@ -66,7 +66,7 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
         val fileText = injectedFile.getText
         assertEquals("injected file text is not equal to the expected one", text, fileText)
       case _ =>
-        sameLanguageInjections.find(_._2.getText == text) match {
+        sameLanguageInjections.find(_._2.textMatches(text)) match {
           case None =>
             val remains = foundInjections
               .map { case (psi, injectedFile) => s"'${psi.getText}' -> '${injectedFile.getLanguage.getID}'" }
