@@ -143,7 +143,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
               (params.head.getManager)
           )
         }
-        var allowNoName: Boolean = params.isEmpty &&
+        val allowNoName: Boolean = params.isEmpty &&
           (PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME.equals(attributeName) || null == attributeName)
         var namePrefix: String = null
         if (allowNoName) {

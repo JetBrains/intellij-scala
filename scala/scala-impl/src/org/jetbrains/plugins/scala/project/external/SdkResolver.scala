@@ -11,6 +11,6 @@ abstract class SdkResolver {
 }
 
 object SdkResolver {
-  var EP_NAME: ExtensionPointName[SdkResolver] =
+  val EP_NAME: ExtensionPointName[SdkResolver] =
     ExtensionPointName.create("org.intellij.scala.sdkResolver")
 }

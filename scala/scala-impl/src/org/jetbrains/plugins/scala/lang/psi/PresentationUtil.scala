@@ -75,7 +75,7 @@ object PresentationUtil {
         }
         paramText
       case param: PsiTypeParameter =>
-        var paramText = param.name
+        val paramText = param.name
         //todo: possibly add supers and extends?
         paramText
       case params: PsiParameterList =>

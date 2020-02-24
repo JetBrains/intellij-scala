@@ -48,7 +48,7 @@ class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
   }
 
   protected def dumpDataFlow(markup: mutable.Map[Instruction, Set[Instruction]]): String = {
-    var builder: StringBuilder = new StringBuilder
+    val builder: StringBuilder = new StringBuilder
     for (instruction <- markup.keySet.toSeq.sortBy(_.num)) {
       builder.append(instruction.toString)
       val defs: Set[Instruction] = markup(instruction)
