@@ -53,7 +53,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
     GuiUtils.replaceJSplitPaneWithIDEASplitter(splitPane)
     myResultList.setCellRenderer(new PlacesCellRenderer)
 
-    myResultList.addListSelectionListener { _: ListSelectionEvent =>
+    myResultList.addListSelectionListener { (_: ListSelectionEvent) =>
       val place = myResultList.getSelectedValue
       if (place != null) {
         if (myCurEditor == null)

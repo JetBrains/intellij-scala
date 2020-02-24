@@ -172,7 +172,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
         downloader.download(version)
           .left.map(f => ScalafmtDynamicError.CannotDownload(f.version, Some(f.cause)))
           .flatMap(resolveClassPath)
-          .map { scalafmt: ScalafmtReflect =>
+          .map { (scalafmt: ScalafmtReflect) =>
             fmtsCache(version) = scalafmt
             scalafmt
           }

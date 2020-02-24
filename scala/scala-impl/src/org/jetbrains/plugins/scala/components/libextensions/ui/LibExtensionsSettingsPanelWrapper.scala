@@ -61,7 +61,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
     val extensionsPane = new JPanel(new BorderLayout())
     extensionsPane.add(ScrollPaneFactory.createScrollPane(extensionsList))
     extensionsList.setEmptyText("Select library from the list above")
-    extensionsList.installCellRenderer { ext: ExtensionDescriptor =>
+    extensionsList.installCellRenderer { (ext: ExtensionDescriptor) =>
       val ExtensionDescriptor(_, impl, name, description, _) = ext
       val builder = new StringBuilder
       if (name.nonEmpty) builder.append(name) else builder.append(impl)
@@ -108,7 +108,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
         extensionsList.setModel(model)
       }
     }
-    librariesList.installCellRenderer{ ld: ExtensionJarData =>
+    librariesList.installCellRenderer{ (ld: ExtensionJarData) =>
       val ExtensionJarData(LibraryDescriptor(name, _, description, vendor, version, _), file, _) = ld
       val builder = new StringBuilder
       if (vendor.nonEmpty) builder.append(s"($vendor) ")

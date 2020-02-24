@@ -228,7 +228,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
   }
 
   private def findMethodRefUsages(named: PsiNamedElement, results: ArrayBuffer[UsageInfo], searchInJava: Boolean): Unit = {
-    val process = { ref: PsiReference =>
+    val process = { (ref: PsiReference) =>
         val refElem = ref.getElement
         refElem match {
           case isAnonFunUsage(anonFunUsageInfo) => results += anonFunUsageInfo

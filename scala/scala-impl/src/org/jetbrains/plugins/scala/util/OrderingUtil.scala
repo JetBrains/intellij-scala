@@ -80,7 +80,7 @@ object OrderingUtil {
         .map(_.qualName)
     val ctxImportQualifiers = ctxImportRawQualifiers.distinct.map(_.split('.')).toArray
 
-    fullQualifedName: String => {
+    (fullQualifedName: String) => {
       val candidateQualifier = fullQualifedName.split('.').init
       assert(candidateQualifier.nonEmpty)
 

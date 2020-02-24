@@ -120,7 +120,7 @@ object ScalaFmtPreFormatProcessor {
 
     val rangeUpdated = fixRangeStartingOnPsiElement(file, range)
 
-    formatRange(file, config, rangeUpdated).foreach { delta: Int =>
+    formatRange(file, config, rangeUpdated).foreach { (delta: Int) =>
       def moveRanges(textRanges: TextRanges): TextRanges = {
         textRanges.ranges.map { otherRange =>
           if (otherRange.getEndOffset <= rangeUpdated.getStartOffset) otherRange

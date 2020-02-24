@@ -45,7 +45,7 @@ class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
   }
 
   override def getInformationHint(element: PsiElement): String =
-    extractType(element).fold(unknownType) { t: ScType =>
+    extractType(element).fold(unknownType) { (t: ScType) =>
       val original  = "Type"      -> t
       val dealiased = "Dealiased" -> t.removeAliasDefinitions()
       val widened   = "Widened"   -> t.tryExtractDesignatorSingleton

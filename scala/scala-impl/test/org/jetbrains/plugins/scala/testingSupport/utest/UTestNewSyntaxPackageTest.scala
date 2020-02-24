@@ -53,7 +53,7 @@ trait UTestNewSyntaxPackageTest extends UTestTestCase {
   def testPackageTestRun(): Unit = {
     runTestByConfig2(createTestFromPackage(packageName),
       assertPackageConfigAndSettings(_, packageName),
-      assertFromCheck { root: AbstractTestProxy =>
+      assertFromCheck { (root: AbstractTestProxy) =>
         checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "tests", "test1") &&
           checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "tests", "test2") &&
           checkResultTreeHasExactNamedPath(root, "[root]", "Test2", "tests", "test1") &&
@@ -66,7 +66,7 @@ trait UTestNewSyntaxPackageTest extends UTestTestCase {
   def testModuleTestRun(): Unit = {
     runTestByConfig2(createTestFromModule(testClassName),
       assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
-      assertFromCheck { root: AbstractTestProxy =>
+      assertFromCheck { (root: AbstractTestProxy) =>
         checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "tests", "test1") &&
           checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "tests", "test2") &&
           checkResultTreeHasExactNamedPath(root, "[root]", "Test2", "tests", "test1") &&

@@ -80,7 +80,7 @@ object TestConfigurationUtil {
       } else {
         refExpr.smartQualifier
           .flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
-          .flatMap { name: String =>
+          .flatMap { (name: String) =>
             methodName match {
               case ToLowerCase => Some(name.toLowerCase)
               case ToUpperCase => Some(name.toUpperCase)

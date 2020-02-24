@@ -18,19 +18,19 @@ class SettingQueryHandler private (settingName: String, taskName: Option[String]
     //noinspection TypeAnnotation
     val listener = new BufferedListener(this)
     comm.command("show " + settingColon, DefaultResult, listener, showShell = false).map {
-      _: Result => filterSettingValue(listener.getBufferedOutput)
+      (_: Result) => filterSettingValue(listener.getBufferedOutput)
     }
   }
 
   def addToSettingValue(add: String): Future[Boolean] = {
     comm.command("set " + settingIn + "+=" + add, DefaultResult, EmptyListener, showShell = false).map {
-      p: Result => !p.isAborted && !p.hasErrors
+      (p: Result) => !p.isAborted && !p.hasErrors
     }
   }
 
   def setSettingValue(value: String): Future[Boolean] = {
     comm.command("set " + settingIn + ":=" + value, DefaultResult, EmptyListener, showShell = false).map {
-      p: Result => !p.isAborted && !p.hasErrors
+      (p: Result) => !p.isAborted && !p.hasErrors
     }
   }
 

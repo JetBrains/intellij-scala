@@ -89,7 +89,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
 
       val entries = ju.Collections.singletonList(new IdIndexEntry(text, caseSensitively))
       val collectProcessor = new CommonProcessors.CollectProcessor[VirtualFile]
-      val condition: Condition[Integer] = { value: Integer =>
+      val condition: Condition[Integer] = { (value: Integer) =>
         (value.intValue & searchContext) != 0
       }
 
@@ -97,7 +97,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
         FileBasedIndex.getInstance.processFilesContainingAllKeys(IdIndex.NAME, entries, scope, condition, collectProcessor)
       }
 
-      val readActionProcessor: ReadActionProcessor[VirtualFile] = { virtualFile: VirtualFile =>
+      val readActionProcessor: ReadActionProcessor[VirtualFile] = { (virtualFile: VirtualFile) =>
         processor.process(virtualFile)
       }
       ContainerUtil.process(collectProcessor.getResults, readActionProcessor)

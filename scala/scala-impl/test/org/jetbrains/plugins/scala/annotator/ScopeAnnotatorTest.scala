@@ -47,7 +47,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertFine("null match { case a @ _ => }")
     assertFine("for(v <- Nil) {}")
     assertFine("for(x <- Nil; v = null) {}")
-    assertFine("{ v: Any => }")
+    assertFine("{ (v: Any) => }")
     assertFine("class X { def this(x: Any) { this() } }")
   }
   
@@ -167,7 +167,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("null match { case _ => class C; class C }", "C")
     assertClashes("val x: (Any => Unit) = { case _ => class C; class C }", "C")
     assertClashes("for(x <- Nil) { class C; class C }", "C")
-    assertClashes("{ x: Any => class C; class C }", "C")
+    assertClashes("{ (x: Any) => class C; class C }", "C")
   }
 
   def testScopeBoundary(): Unit = {
@@ -216,7 +216,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertFine("for(v <- Nil) { val v = null }")
     assertFine("for(x <- Nil; v = null) { val v = null }")
     assertFine("null match ( case v => val v = null }")
-    assertFine("{ v: Any => val v = null }")
+    assertFine("{ (v: Any) => val v = null }")
   }
   
   def testNestedScopes(): Unit = {
