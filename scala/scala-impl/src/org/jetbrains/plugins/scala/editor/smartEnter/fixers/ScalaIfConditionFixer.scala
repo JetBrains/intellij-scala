@@ -27,9 +27,9 @@ class ScalaIfConditionFixer extends ScalaFixer {
         val ifStartOffset = ifStatement.getTextRange.getStartOffset
         var stopOffset = doc.getLineEndOffset(doc getLineNumber ifStartOffset)
 
-        ifStatement.thenExpression.foreach {
-          case thenBranch => stopOffset = Math.min(stopOffset, thenBranch.getTextRange.getStartOffset)
-        }
+        ifStatement.thenExpression.foreach(
+          thenBranch => stopOffset = Math.min(stopOffset, thenBranch.getTextRange.getStartOffset)
+        )
 
         doc.replaceString(ifStartOffset, stopOffset, "if () {\n\n}")
 

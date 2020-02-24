@@ -97,9 +97,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
           }
         this.expectedType match {
           case Some(expectedType) =>
-            typeElementType.map {
-              case resType => expectedType.glb(resType, checkWeak = false)
-            }
+            typeElementType.map(resType => expectedType.glb(resType, checkWeak = false))
           case _ => typeElementType
         }
       case None => Failure(ScalaBundle.message("no.type.pattern"))

@@ -38,9 +38,7 @@ object ComparingUnrelatedTypesInspection {
 
     types = types.map(extractActualType)
     if (!types.contains(Null)) {
-      types = types.map {
-        case tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp)
-      }
+      types = types.map(tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp))
     }
 
     if (types.forall(isNumericType)) return false

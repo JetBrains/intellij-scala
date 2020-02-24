@@ -25,7 +25,7 @@ class ScalaMissingWhileBodyFixer extends ScalaFixer {
       case Some(_) if startLine(doc, body) == startLine(doc, whileStatement) && whileStatement.condition.isDefined => NoOperation
       case _ =>
         whileStatement.rightParen map {
-          case rParenth =>
+          rParenth =>
             moveToEnd(editor, rParenth)
 
             doc.insertString(rParenth.getTextRange.getEndOffset, " {}")

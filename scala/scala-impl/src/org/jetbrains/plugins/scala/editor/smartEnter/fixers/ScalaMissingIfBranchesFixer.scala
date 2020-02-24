@@ -23,10 +23,10 @@ class ScalaMissingIfBranchesFixer extends ScalaFixer {
 
     ifStatement.thenExpression match {
       case Some(block: ScBlockExpr) =>
-        ifStatement.condition.foreach {
-          case cond =>
-            if (cond.getTextRange.containsOffset(editor.getCaretModel.getOffset)) return placeInWholeBlock(block, editor)
-        }
+        ifStatement.condition.foreach(cond =>
+          if (cond.getTextRange.containsOffset(editor.getCaretModel.getOffset))
+            return placeInWholeBlock(block, editor)
+        )
         return NoOperation
       case Some(branch) if startLine(doc, branch) == startLine(doc, ifStatement) =>
         if (ifStatement.condition.isDefined) return NoOperation

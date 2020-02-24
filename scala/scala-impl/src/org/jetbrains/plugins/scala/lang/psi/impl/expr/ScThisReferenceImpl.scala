@@ -59,12 +59,13 @@ object ScThisReferenceImpl {
           ScThisType(td)
         case _ =>
 
-          td.getTypeWithProjections(thisProjections = true).map {
-            case scType => td.selfType.map(scType.glb(_)).getOrElse(scType)
-          } match {
-            case Right(scType) => scType
-            case _ => return Failure(ScalaBundle.message("no.clazz.type.found"))
-          }
+          td.getTypeWithProjections(thisProjections = true)
+            .map(scType => td.selfType.map(scType.glb(_))
+              .getOrElse(scType)
+            ) match {
+              case Right(scType) => scType
+              case _ => return Failure(ScalaBundle.message("no.clazz.type.found"))
+            }
       }
     }
     Right(result)
