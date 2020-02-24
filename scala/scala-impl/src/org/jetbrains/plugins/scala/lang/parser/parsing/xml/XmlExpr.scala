@@ -18,15 +18,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object XmlExpr {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val xmlMarker = builder.mark
-    builder.disableNewlines
+    builder.disableNewlines()
     if (!XmlContent.parse(builder)) {
       xmlMarker.drop()
-      builder.restoreNewlinesState
+      builder.restoreNewlinesState()
       return false
     }
     while (Element.parse(builder)) {}
     xmlMarker.done(ScalaElementType.XML_EXPR)
-    builder.restoreNewlinesState
+    builder.restoreNewlinesState()
     return true
   }
 }

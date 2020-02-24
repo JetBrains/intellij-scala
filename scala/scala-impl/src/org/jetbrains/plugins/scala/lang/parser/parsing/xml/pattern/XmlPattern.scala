@@ -19,20 +19,20 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object XmlPattern {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val patternMarker = builder.mark
-    builder.disableNewlines
+    builder.disableNewlines()
     if (EmptyElemTagP.parse(builder)) {
       patternMarker.done(ScalaElementType.XML_PATTERN)
-      builder.restoreNewlinesState
+      builder.restoreNewlinesState()
       return true
     }
     if (!STagP.parse(builder)) {
       patternMarker.drop()
-      builder.restoreNewlinesState
+      builder.restoreNewlinesState()
       return false
     }
     ContentP parse builder
     if (!ETagP.parse(builder)) builder error ErrMsg("xml.end.tag.expected")
-    builder.restoreNewlinesState
+    builder.restoreNewlinesState()
     patternMarker.done(ScalaElementType.XML_PATTERN)
     return true
   }

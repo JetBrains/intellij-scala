@@ -61,7 +61,7 @@ class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
     builder.toString
   }
 
-  def testFirst(): Unit = doTest
-  def testSecond(): Unit = doTest
+  def testFirst(): Unit = doTest()
+  def testSecond(): Unit = doTest()
 
 }

@@ -12,7 +12,7 @@ class ResolvePackagesWithBacktickeds extends ScalaResolveTestCase {
   override protected def sourceRootPath: String = folderPath
 
   private def checkReference(): Unit = {
-    val ref: PsiReference = findReferenceAtCaret
+    val ref: PsiReference = findReferenceAtCaret()
     assertTrue(ref.resolve != null)
   }
 

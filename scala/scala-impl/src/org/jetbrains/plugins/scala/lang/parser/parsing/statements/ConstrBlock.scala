@@ -19,13 +19,13 @@ object ConstrBlock {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
-        builder.enableNewlines
+        builder.enableNewlines()
         SelfInvocation parse builder
         while (true) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE => {
               builder.advanceLexer() //Ate }
-              builder.restoreNewlinesState
+              builder.restoreNewlinesState()
               constrExprMarker.done(ScalaElementType.CONSTR_BLOCK)
               return true
             }
@@ -36,7 +36,7 @@ object ConstrBlock {
             case _ if builder.newlineBeforeCurrentToken =>
               if (!BlockStat.parse(builder)) {
                 builder error ErrMsg("rbrace.expected")
-                builder.restoreNewlinesState
+                builder.restoreNewlinesState()
                 while (!builder.eof && !ScalaTokenTypes.tRBRACE.eq(builder.getTokenType) &&
                   !builder.newlineBeforeCurrentToken) {
                   builder.advanceLexer()
@@ -46,7 +46,7 @@ object ConstrBlock {
               }
             case _ => {
               builder error ErrMsg("rbrace.expected")
-              builder.restoreNewlinesState
+              builder.restoreNewlinesState()
               while (!builder.eof && !ScalaTokenTypes.tRBRACE.eq(builder.getTokenType) &&
                 !builder.newlineBeforeCurrentToken) {
                 builder.advanceLexer()
