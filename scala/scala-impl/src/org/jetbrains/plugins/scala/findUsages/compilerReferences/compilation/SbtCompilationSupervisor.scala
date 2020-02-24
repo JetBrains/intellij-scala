@@ -84,7 +84,7 @@ class SbtCompilationSupervisor {
     var id: Option[UUID]        = None
 
     try {
-      val in            = new DataInputStream(client.getInputStream())
+      val in            = new DataInputStream(client.getInputStream)
       val projectBase   = ProjectBase(Paths.get(in.readUTF()))
       val compilationId = UUID.fromString(in.readUTF())
       base = projectBase
@@ -93,7 +93,7 @@ class SbtCompilationSupervisor {
       try bus.syncPublisher(SbtCompilationListener.topic).beforeCompilationStart(projectBase, compilationId)
       catch { case NonFatal(e) => logger.error(e) }
 
-      val out = new DataOutputStream(client.getOutputStream())
+      val out = new DataOutputStream(client.getOutputStream)
       logger.info(s"sbt compilation started id: $compilationId, project base: $base")
       out.writeUTF(ideaACK)
 
