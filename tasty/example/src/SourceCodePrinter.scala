@@ -1,5 +1,3 @@
-package org.jetbrains.tasty.impl
-
 import scala.annotation.switch
 import scala.quoted.show.SyntaxHighlight
 import scala.tasty.reflect._
