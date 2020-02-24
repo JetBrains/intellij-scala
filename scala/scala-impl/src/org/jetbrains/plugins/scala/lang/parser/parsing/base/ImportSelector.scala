@@ -18,18 +18,18 @@ object ImportSelector {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         val sel = builder.mark()
-        builder.advanceLexer // Ate identifier
+        builder.advanceLexer() // Ate identifier
         sel.done(ScalaElementType.REFERENCE)
       case _ =>
-        importSelectorMarker.drop
+        importSelectorMarker.drop()
         return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
-        builder.advanceLexer //Ate =>
+        builder.advanceLexer() //Ate =>
         builder.getTokenType match {
           case ScalaTokenTypes.tUNDER | ScalaTokenTypes.tIDENTIFIER => {
-            builder.advanceLexer //Ate _ | identifier
+            builder.advanceLexer() //Ate _ | identifier
             importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
             return true
           }
