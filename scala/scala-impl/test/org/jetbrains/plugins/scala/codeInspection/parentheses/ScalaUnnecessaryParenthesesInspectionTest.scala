@@ -47,7 +47,7 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
   }
 
   private def checkTextHasErrors(text: String): Unit = {
-    val TestPrepareResult(expectedHighlights, actualHighlights) = configureByText(text)
+    val TestPrepareResult(fileText, expectedHighlights, actualHighlights) = configureByText(text)
     val expectedParenthesesHighlights: Seq[ExpectedHighlight] = {
       val ExpectedHighlight(range) = expectedHighlights.head
       val left  = TextRange.from(range.getStartOffset, 1)
@@ -60,7 +60,7 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
       }
       ranges.map(ExpectedHighlight)
     }
-    super.checkTextHasError(expectedParenthesesHighlights, actualHighlights, allowAdditionalHighlights = true)
+    super.checkTextHasError(expectedParenthesesHighlights, actualHighlights, allowAdditionalHighlights = true, fileText)
   }
 
   // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case
