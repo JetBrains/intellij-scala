@@ -73,7 +73,7 @@ package object params {
   }
 
   object TypeParamId {
-    implicit val psi: TypeParamId[PsiTypeParameter] = psiTypeParameter => psiTypeParameter match {
+    implicit val psi: TypeParamId[PsiTypeParameter] = {
       case sc: ScTypeParam => sc.typeParamId
       case null => -1
       case p => cachedId(p, p.name)

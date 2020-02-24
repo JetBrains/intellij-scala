@@ -199,22 +199,20 @@ package object types {
 
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
-          `type` => `type` match {
-            case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _) => ProcessSubtypes
-            case AliasType(ta: ScTypeAliasDefinition, _, Failure(_)) if needExpand(ta) =>
-              ReplaceWith(projectContext.stdTypes.Any)
-            case AliasType(ta: ScTypeAliasDefinition, _, Right(upper)) if needExpand(ta) =>
-              if (visited.contains(`type`)) throw RecursionException
-              val updated =
-                try innerUpdate(upper, visited + `type`)
-                catch {
-                  case RecursionException =>
-                    if (visited.nonEmpty) throw RecursionException
-                    else `type`
-                }
-              ReplaceWith(updated)
-            case _ => ProcessSubtypes
-          }
+          case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _) => ProcessSubtypes
+          case AliasType(ta: ScTypeAliasDefinition, _, Failure(_)) if needExpand(ta) =>
+            ReplaceWith(projectContext.stdTypes.Any)
+          case `type`@AliasType(ta: ScTypeAliasDefinition, _, Right(upper)) if needExpand(ta) =>
+            if (visited.contains(`type`)) throw RecursionException
+            val updated =
+              try innerUpdate(upper, visited + `type`)
+              catch {
+                case RecursionException =>
+                  if (visited.nonEmpty) throw RecursionException
+                  else `type`
+              }
+            ReplaceWith(updated)
+          case _ => ProcessSubtypes
         }
       }
 
