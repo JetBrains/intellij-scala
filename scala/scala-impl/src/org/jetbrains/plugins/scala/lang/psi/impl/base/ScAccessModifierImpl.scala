@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 /**
@@ -107,6 +108,7 @@ final class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNo
         null
       }
 
+      @tailrec
       def find(e: PsiElement): PsiNamedElement = e match {
         case null => null
         case td: ScTypeDefinition if td.name == text => td
@@ -129,6 +131,7 @@ final class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNo
         }
       }
 
+      @scala.annotation.tailrec
       def append(e: PsiElement): Unit = {
         e match {
           case null =>

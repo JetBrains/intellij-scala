@@ -464,6 +464,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     } else result
   }
 
+  @tailrec
   private def computeExpectedParamType(expr: ScExpression,
                                        invokedExprType: TypeResult,
                                        argExprs: Seq[ScExpression],

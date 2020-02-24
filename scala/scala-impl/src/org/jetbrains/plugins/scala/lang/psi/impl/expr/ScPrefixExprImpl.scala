@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.tailrec
 import scala.collection.Seq
 
 /**
@@ -33,6 +34,7 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
 
     operation.bind().collect {
       case ScalaResolveResult(synth: ScSyntheticFunction, _) =>
+        @tailrec
         def fold(expr: Option[ScType]): TypeResult = expr match {
           case Some(literal: ScLiteralType) =>
             foldUnOpTypes(literal, synth.name)(getProject)

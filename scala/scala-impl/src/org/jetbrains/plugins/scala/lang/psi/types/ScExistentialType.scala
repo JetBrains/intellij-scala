@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
+import scala.annotation.tailrec
+
 /**
   * @author ilyas
   */
@@ -140,6 +142,7 @@ object ScExistentialType {
     * 1. and 2. are always true by construction.
     * Simplification by 3. and 4. is computed once when existential type is created.
     */
+  @tailrec
   final def apply(quantified: ScType): ScExistentialType = {
     quantified match {
       case e: ScExistentialType =>

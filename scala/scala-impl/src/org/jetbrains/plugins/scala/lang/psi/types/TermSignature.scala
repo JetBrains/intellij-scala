@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
+import scala.annotation.tailrec
 import scala.collection.{Seq, mutable}
 
 class TermSignature(_name: String,
@@ -246,6 +247,7 @@ object TermSignature {
 
 import com.intellij.psi.PsiMethod
 object PhysicalMethodSignature {
+  @tailrec
   def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
     case fun: ScFunction =>
       fun.effectiveParameterClauses.toList

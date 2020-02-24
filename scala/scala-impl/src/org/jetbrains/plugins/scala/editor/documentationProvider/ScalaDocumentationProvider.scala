@@ -797,6 +797,7 @@ object ScalaDocumentationProvider {
   }
 
 
+  @tailrec
   private def parseDocComment(elem: PsiDocCommentOwner, withDescription: Boolean = false): String = {
     def getParams(fun: ScParameterOwner): String =
       fun.parameters.map(param => "int     " + escapeHtml(param.name)).mkString("(", ",\n", ")")

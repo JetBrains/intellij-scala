@@ -22,6 +22,7 @@ class ReflectExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvide
   }
 
   private def expandReflectMacro(element: PsiElement, expansion: MacroExpansion) = {
+    @tailrec
     def walkUp(elem: PsiElement, findAnnotee: Boolean = false): Option[PsiElement] = elem match {
       case null => None
       case a: ScAnnotation  => walkUp(a.getParent, findAnnotee = true)

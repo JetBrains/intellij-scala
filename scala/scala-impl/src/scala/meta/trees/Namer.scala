@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.{impl, api => p, types => ptype}
 
+import scala.annotation.tailrec
 import scala.language.postfixOps
 import scala.meta.Ctor.Ref
 //import scala.meta.internal.ast.Type
@@ -150,6 +151,7 @@ trait Namer {
 
   // only raw type names can be used as super selector
   def getSuperName(tp: ScSuperReference): m.Name.Qualifier = {
+    @tailrec
     def loop(mtp: m.Type): m.Name.Qualifier = {
       mtp match {
         case n@m.Type.Name(value) => m.Name.Indeterminate(value)
