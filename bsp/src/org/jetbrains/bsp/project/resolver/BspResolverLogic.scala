@@ -376,10 +376,11 @@ private[resolver] object BspResolverLogic {
       case (first, _) => first
     }
 
-  private[resolver] def projectNode(projectRootPath: String,
-                                    moduleFilesDirectoryPath: String,
+  private[resolver] def projectNode(workspace: File,
                                     projectModules: ProjectModules): DataNode[ProjectData] = {
 
+    val projectRootPath = workspace.getCanonicalPath
+    val moduleFilesDirectoryPath = moduleFilesDirectory(workspace).getCanonicalPath
     val projectRoot = new File(projectRootPath)
     val projectData = new ProjectData(BSP.ProjectSystemId, projectRoot.getName, projectRootPath, projectRootPath)
     val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
@@ -432,6 +433,8 @@ private[resolver] object BspResolverLogic {
   } yield {
     (TargetId(target.getId.getUri), module)
   }
+
+  private[resolver] def moduleFilesDirectory(workspace: File) = new File(workspace, ".idea/modules")
 
   private[resolver] def createModuleNode(projectRootPath: String,
                                          moduleFilesDirectoryPath: String,

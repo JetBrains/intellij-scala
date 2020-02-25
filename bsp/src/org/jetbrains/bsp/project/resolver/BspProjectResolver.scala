@@ -17,7 +17,7 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.resolver.BspProjectResolver._
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.project.resolver.BspResolverLogic._
-import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled}
@@ -53,41 +53,63 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       if (workspaceCreationFile.isDirectory) workspaceCreationFile
       else workspaceCreationFile.getParentFile
 
-    val moduleFilesDirectoryPath = new File(workspace, ".idea/modules").getAbsolutePath
+    importState = Active
 
-    def requests(implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[DataNode[ProjectData]] = {
-      val structureEventId = BuildMessages.randomEventId
-      reporter.startTask(structureEventId, None, BspBundle.message("bsp.resolver.resolving.build.structure"))
-      val targetsEventId = BuildMessages.randomEventId
-      reporter.startTask(targetsEventId, Some(structureEventId), BspBundle.message("bsp.resolver.build.targets"))
-      val targetsRequest = server.workspaceBuildTargets()
+    reporter.start()
 
-      val projectNodeFuture: CompletableFuture[DataNode[ProjectData]] =
-        targetsRequest.thenCompose { targetsResponse =>
-          reporter.finishTask(targetsEventId, BspBundle.message("bsp.resolver.build.targets"), new SuccessResultImpl())
-
-          val targets = targetsResponse.getTargets.asScala.toList
-          val td = targetData(targets, isPreviewMode, reporter, structureEventId)
-
-          td.thenApply[DataNode[ProjectData]] { data =>
-            val sources = data.sources.map(_.getItems.asScala).getOrElse {List.empty[SourcesItem]}
-            val depSources = data.dependencySources.map(_.getItems.asScala).getOrElse {List.empty[DependencySourcesItem]}
-            val resources = data.resources.map(_.getItems.asScala).getOrElse {List.empty[ResourcesItem]}
-            val scalacOptions = data.scalacOptions.map(_.getItems.asScala).getOrElse {List.empty[ScalacOptionsItem]}
-
-            val descriptions = calculateModuleDescriptions(
-              targets, scalacOptions, sources, resources, depSources
-            )
-            projectNode(workspace.getCanonicalPath, moduleFilesDirectoryPath, descriptions)
-          }
-            .reportFinished(reporter, structureEventId,
-              BspBundle.message("bsp.resolver.build.structure"),
-              BspBundle.message("bsp.resolver.resolving.build.structure.failed"))
-        }
-
-      projectNodeFuture
+    val result = if (isPreviewMode) {
+      val modules = ProjectModules(Nil, Nil)
+      reporter.finish(BuildMessages.empty.status(BuildMessages.OK))
+      projectNode(workspace, modules)
+    } else {
+      runImport(workspace, executionSettings)
     }
 
+    importState = Inactive
+
+    result
+
+  }
+
+  private def requests(workspace: File)
+                      (implicit server: BspServer, capabilities: BuildServerCapabilities, reporter: BuildReporter)
+  : CompletableFuture[DataNode[ProjectData]] = {
+
+    val structureEventId = BuildMessages.randomEventId
+    reporter.startTask(structureEventId, None, BspBundle.message("bsp.resolver.resolving.build.structure"))
+    val targetsEventId = BuildMessages.randomEventId
+    reporter.startTask(targetsEventId, Some(structureEventId), BspBundle.message("bsp.resolver.build.targets"))
+    val targetsRequest = server.workspaceBuildTargets()
+
+    val projectNodeFuture: CompletableFuture[DataNode[ProjectData]] =
+      targetsRequest.thenCompose { targetsResponse =>
+        reporter.finishTask(targetsEventId, BspBundle.message("bsp.resolver.build.targets"), new SuccessResultImpl())
+
+        val targets = targetsResponse.getTargets.asScala.toList
+
+        val td = targetData(targets, structureEventId)
+
+        td.thenApply[DataNode[ProjectData]] { data =>
+          val sources = data.sources.map(_.getItems.asScala).getOrElse {List.empty[SourcesItem]}
+          val depSources = data.dependencySources.map(_.getItems.asScala).getOrElse {List.empty[DependencySourcesItem]}
+          val resources = data.resources.map(_.getItems.asScala).getOrElse {List.empty[ResourcesItem]}
+          val scalacOptions = data.scalacOptions.map(_.getItems.asScala).getOrElse {List.empty[ScalacOptionsItem]}
+
+          val descriptions = calculateModuleDescriptions(
+            targets, scalacOptions, sources, resources, depSources
+          )
+          projectNode(workspace, descriptions)
+        }
+          .reportFinished(reporter, structureEventId,
+            BspBundle.message("bsp.resolver.build.structure"),
+            BspBundle.message("bsp.resolver.resolving.build.structure.failed"))
+      }
+
+    projectNodeFuture
+  }
+
+  private def runImport(workspace: File, executionSettings: BspExecutionSettings)
+                       (implicit reporter: BuildReporter) = {
     val notifications: NotificationCallback = {
       case BspNotifications.LogMessage(params) =>
         // TODO use params.id for tree structure?
@@ -95,31 +117,22 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case _ =>
     }
 
-    val processLogger: ProcessLogger = { msg =>
-      listener.onTaskOutput(id, msg, true)
-    }
-
-    importState = Active
-
-    reporter.start()
-
-
     // special handling for sbt projects: run bloopInstall first
     // TODO support other bloop-enabled build tools as well
-    val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspaceCreationFile)
+    val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspace)
     val sbtMessages = if (
       executionSettings.runPreImportTask &&
-      SbtProjectImportProvider.canImport(vfile)
+        SbtProjectImportProvider.canImport(vfile)
     ) {
-      runBloopInstall(workspaceCreationFile, reporter)
+      runBloopInstall(workspace)
     } else Success(BuildMessages.empty.status(BuildMessages.OK))
 
-    val communication = BspCommunication.forWorkspace(new File(workspaceCreationPath))
+    val communication = BspCommunication.forWorkspace(workspace)
     importState = BspTask(communication)
 
-    val result = sbtMessages match {
+    sbtMessages match {
       case Success(messages) if messages.status == BuildMessages.OK =>
-        val projectJob = communication.run(requests(_,_), notifications, processLogger)
+        val projectJob = communication.run(requests(workspace)(_,_,reporter), notifications, reporter.log)
         waitForProjectCancelable(projectJob) match {
           case Success(data) =>
             reporter.finish(messages)
@@ -138,11 +151,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         reporter.finishWithFailure(x)
         throw x
     }
-
-    importState = Inactive
-
-    result
-
   }
 
   @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[DataNode[ProjectData]]): Try[DataNode[ProjectData]] =
@@ -193,7 +201,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
 
-  private def runBloopInstall(baseDir: File, reporter: BuildReporter) = {
+  private def runBloopInstall(baseDir: File)(implicit reporter: BuildReporter) = {
 
     val jdkType = JavaSdk.getInstance()
     val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType)
@@ -248,77 +256,69 @@ object BspProjectResolver {
   private case class PreImportTask(dumper: SbtStructureDump) extends ImportState
   private case class BspTask(communication: BspCommunication) extends ImportState
 
-  private[resolver] def targetData(targets: List[BuildTarget], isPreview: Boolean, reporter: BuildReporter, parentId: EventId)
-                                  (implicit bsp: BspServer, capabilities: BuildServerCapabilities):
-  CompletableFuture[TargetData] =
-    if (isPreview) {
-      val emptySources = Success(new SourcesResult(Collections.emptyList()))
-      val emptyResources = Success(new ResourcesResult(Collections.emptyList()))
-      val emptyDepSources = Success(new DependencySourcesResult(Collections.emptyList()))
-      val emptyScalacOpts = Success(new ScalacOptionsResult(Collections.emptyList()))
+  private[resolver] def targetData(targets: List[BuildTarget], parentId: EventId)
+                                  (implicit bsp: BspServer, capabilities: BuildServerCapabilities, reporter: BuildReporter):
+  CompletableFuture[TargetData] = {
+    val targetIds = targets.map(_.getId).asJava
 
-      CompletableFuture.completedFuture(TargetData(emptySources, emptyDepSources, emptyResources, emptyScalacOpts))
-    } else {
-      val targetIds = targets.map(_.getId).asJava
+    val sourcesEventId = BuildMessages.randomEventId
+    val sourcesParams = new SourcesParams(targetIds)
+    val message = BspBundle.message("bsp.resolver.sources")
+    reporter.startTask(sourcesEventId, Some(parentId), message)
+    val sources = bsp.buildTargetSources(sourcesParams)
+      .catchBspErrors
+      .reportFinished(reporter, sourcesEventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.sources"))
 
-      val sourcesEventId = BuildMessages.randomEventId
-      val sourcesParams = new SourcesParams(targetIds)
-      val message = BspBundle.message("bsp.resolver.sources")
-      reporter.startTask(sourcesEventId, Some(parentId), message)
-      val sources = bsp.buildTargetSources(sourcesParams)
+    val depSources = if (isDependencySourcesProvider) {
+      val eventId = BuildMessages.randomEventId
+      val depSourcesParams = new DependencySourcesParams(targetIds)
+      val message = "dependency sources"
+      reporter.startTask(eventId, Some(parentId), message)
+      bsp.buildTargetDependencySources(depSourcesParams)
         .catchBspErrors
-        .reportFinished(reporter, sourcesEventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.sources"))
-
-      val depSources = if (isDependencySourcesProvider) {
-        val eventId = BuildMessages.randomEventId
-        val depSourcesParams = new DependencySourcesParams(targetIds)
-        val message = "dependency sources"
-        reporter.startTask(eventId, Some(parentId), message)
-        bsp.buildTargetDependencySources(depSourcesParams)
-          .catchBspErrors
-          .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.dependencysources"))
-      } else {
-        val emptyResult = new DependencySourcesResult(Collections.emptyList())
-        CompletableFuture.completedFuture[Try[DependencySourcesResult]](Success(emptyResult))
-      }
-
-      val resources = if (isResourcesProvider) {
-        val eventId = BuildMessages.randomEventId
-        val resourcesParams = new ResourcesParams(targetIds)
-        val message = "resources"
-        reporter.startTask(eventId, Some(parentId), message)
-        bsp.buildTargetResources(resourcesParams)
-          .catchBspErrors
-          .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.resources"))
-      } else {
-        val emptyResult = new ResourcesResult(Collections.emptyList())
-        CompletableFuture.completedFuture[Try[ResourcesResult]](Success(emptyResult))
-      }
-
-      val scalaTargetIds = targets
-        .filter(_.getLanguageIds.contains("scala"))
-        .map(_.getId).asJava
-
-      val scalacOptions = if (!scalaTargetIds.isEmpty) {
-        val eventId = BuildMessages.randomEventId
-        val message = "scalac options"
-        reporter.startTask(eventId, Some(parentId), message)
-
-        val scalacOptionsParams = new ScalacOptionsParams(scalaTargetIds)
-        bsp.buildTargetScalacOptions(scalacOptionsParams)
-          .catchBspErrors
-          .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.scalacoptions"))
-
-      } else {
-        val emptyResult = new ScalacOptionsResult(Collections.emptyList())
-        CompletableFuture.completedFuture[Try[ScalacOptionsResult]](Success(emptyResult))
-      }
-
-
-      CompletableFuture
-        .allOf(sources, depSources, resources, scalacOptions)
-        .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, scalacOptions.get))
+        .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.dependencysources"))
+    } else {
+      val emptyResult = new DependencySourcesResult(Collections.emptyList())
+      CompletableFuture.completedFuture[Try[DependencySourcesResult]](Success(emptyResult))
     }
+
+    val resources = if (isResourcesProvider) {
+      val eventId = BuildMessages.randomEventId
+      val resourcesParams = new ResourcesParams(targetIds)
+      val message = "resources"
+      reporter.startTask(eventId, Some(parentId), message)
+      bsp.buildTargetResources(resourcesParams)
+        .catchBspErrors
+        .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.resources"))
+    } else {
+      val emptyResult = new ResourcesResult(Collections.emptyList())
+      CompletableFuture.completedFuture[Try[ResourcesResult]](Success(emptyResult))
+    }
+
+    val scalaTargetIds = targets
+      .filter(_.getLanguageIds.contains("scala"))
+      .map(_.getId).asJava
+
+    val scalacOptions = if (!scalaTargetIds.isEmpty) {
+      val eventId = BuildMessages.randomEventId
+      val message = "scalac options"
+      reporter.startTask(eventId, Some(parentId), message)
+
+      val scalacOptionsParams = new ScalacOptionsParams(scalaTargetIds)
+      bsp.buildTargetScalacOptions(scalacOptionsParams)
+        .catchBspErrors
+        .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.scalacoptions"))
+
+    } else {
+      val emptyResult = new ScalacOptionsResult(Collections.emptyList())
+      CompletableFuture.completedFuture[Try[ScalacOptionsResult]](Success(emptyResult))
+    }
+
+
+    CompletableFuture
+      .allOf(sources, depSources, resources, scalacOptions)
+      .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, scalacOptions.get))
+  }
 
 
   private def isDependencySourcesProvider(implicit capabilities: BuildServerCapabilities) =

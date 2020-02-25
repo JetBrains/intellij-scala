@@ -40,16 +40,17 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
 
     val argv = cmdLine.getCommandLineList(null)
 
+    reporter.log("Starting Bloop ...")
+    reporter.log(cmdLine.getCommandLineString)
+
     val details = new BspConnectionDetails("Bloop", argv, bloopVersion, bspVersion, List("java","scala").asJava)
     Right(prepareBspSession(details))
   }
 
   private def prepareBspSession(details: BspConnectionDetails): Builder = {
 
-    val process =
-      new java.lang.ProcessBuilder(details.getArgv)
-        .directory(base)
-        .start()
+    val processBuilder = new java.lang.ProcessBuilder(details.getArgv).directory(base)
+    val process = processBuilder.start()
 
     val cleanup = () => {
       process.destroy()

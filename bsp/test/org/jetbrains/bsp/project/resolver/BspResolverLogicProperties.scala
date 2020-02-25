@@ -128,7 +128,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
 
         val projectRootPath = root.toString
         val projectModules = ProjectModules(moduleDescriptions, Seq.empty)
-        val node = projectNode(projectRootPath, moduleFilesDir.toString, projectModules)
+        val node = projectNode(root.toFile, projectModules)
 
         // TODO more thorough properties
         node.getChildren.size >= moduleDescriptions.size
