@@ -1,6 +1,5 @@
 <!--suppress PluginXmlValidity -->
 <idea-plugin>
-    <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
     <extensionPoints>
         <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker"/>

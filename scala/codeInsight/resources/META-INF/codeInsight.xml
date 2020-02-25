@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-    <resource-bundle xmlns="">messages.ScalaCodeInsightBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <generation.toStringClassFilter
