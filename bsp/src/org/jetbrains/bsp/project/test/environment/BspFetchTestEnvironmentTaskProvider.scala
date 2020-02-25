@@ -16,7 +16,7 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.{JavaPsiFacade, PsiFile}
+import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiFile}
 import com.intellij.psi.search.GlobalSearchScope
 import javax.swing.Icon
 import org.jetbrains.bsp.{BspBundle, BspUtil, Icons}
@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData}
 import com.intellij.openapi.util.Key
+import org.apache.commons.lang3.concurrent.Computable
 import org.jetbrains.concurrency.{Promise, Promises}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 
@@ -175,7 +176,16 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
   private def class2File(clazz: String, project: Project): Option[PsiFile] = {
     val psiFacade = JavaPsiFacade.getInstance(project);
     val scope = GlobalSearchScope.allScope(project)
-    val matchedClasses = psiFacade.findClasses(clazz, scope);
+    var matchedClasses: Array[PsiClass] = Array()
+    ApplicationManager.getApplication.invokeAndWait{
+      () => ApplicationManager.getApplication.runReadAction{
+        new Runnable {
+          override def run(): Unit = {
+            matchedClasses = psiFacade.findClasses(clazz, scope)
+          }
+        }
+      }
+    }
     if (matchedClasses.length <= 1) matchedClasses.headOption.map(_.getContainingFile) else None
   }
 
