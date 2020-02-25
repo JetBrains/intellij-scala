@@ -200,9 +200,9 @@ object ScalaExtractStringToBundleInspection {
       else fullKey.substring(0, lastDotIdx) + "..."
     }
 
-    private val lastwordRegex = raw"\w+$$".r
+    private val lastwordRegex = raw"\w+".r
     private def lastWord(string: String): Option[String] =
-      lastwordRegex.findFirstIn(string)
+      lastwordRegex.findAllIn(string).toSeq.lastOption
 
 
     def toKeyAndTextAndArgs(parts: Seq[StringPart]): (String, String, Seq[String]) = {
@@ -211,7 +211,7 @@ object ScalaExtractStringToBundleInspection {
         case Text(s) => (s, s, None)
         case injection: Injection =>
           val value = injection.value
-          def keyAlternative = value.substring(0, value.length max 20)
+          def keyAlternative = value.substring(0, value.length min 20)
           val argNum = argNums.next()
           (lastWord(value).getOrElse(keyAlternative), s"{$argNum}", Some(value))
       }
