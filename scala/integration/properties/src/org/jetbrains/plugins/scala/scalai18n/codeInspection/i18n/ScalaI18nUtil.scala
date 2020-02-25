@@ -95,7 +95,7 @@ object ScalaI18nUtil {
         // in match:      caseClause -> caseClauses -> matchExpr (in some other expression)
         // in call block: caseClause -> caseClauses -> block of expression (in argumentList)
         isPassedToAnnotated(matchCase.getParent.getParent, annFqn, annotationAttributeValues)
-      case ifExpr: ScIf =>
+      case ifExpr: ScIf if !ifExpr.condition.contains(element) =>
         isPassedToAnnotated(ifExpr, annFqn, annotationAttributeValues)
       case _ => false
     }
