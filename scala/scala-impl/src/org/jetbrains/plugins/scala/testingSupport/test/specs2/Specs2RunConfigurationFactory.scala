@@ -5,13 +5,10 @@ import com.intellij.execution.configurations.{ConfigurationType, RunConfiguratio
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurationFactory
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 03.05.2009
- */
-
 class Specs2RunConfigurationFactory(override val typez: ConfigurationType)
   extends AbstractTestRunConfigurationFactory(typez) {
+
+  override def getIdExplicit: String = "Specs2"
 
   override def createTemplateConfiguration(project: Project): RunConfiguration =
     new Specs2RunConfiguration(project, this, "")

@@ -31,6 +31,9 @@ class BspTestRunType extends ConfigurationType {
 }
 
 class BspTestRunFactory(t: ConfigurationType) extends ConfigurationFactory(t) {
+
+  override def getId: String = "BSP test"
+
   override def createTemplateConfiguration(project: Project): RunConfiguration = new BspTestRunConfiguration(project, this, "BSP_TEST_RUN")
 
   override def getName: String = "BspTestRunFactory"

@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 class UTestRunConfigurationFactory(override val typez: ConfigurationType)
   extends AbstractTestRunConfigurationFactory(typez) {
 
+  override def getIdExplicit: String = "utest"
+
   override def createTemplateConfiguration(project: Project): RunConfiguration =
     new UTestRunConfiguration(project, this, "")
 }
