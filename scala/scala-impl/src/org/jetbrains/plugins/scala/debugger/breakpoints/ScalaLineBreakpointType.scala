@@ -46,7 +46,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
   override def canPutAt(@NotNull file: VirtualFile, line: Int, @NotNull project: Project): Boolean = {
     val psiFile = PsiManager.getInstance(project).findFile(file)
     if (psiFile == null) return false
-    if (psiFile.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return false
+    if (!psiFile.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return false
     val document = FileDocumentManager.getInstance.getDocument(file)
     if (document == null) return false
     psiFile match {
