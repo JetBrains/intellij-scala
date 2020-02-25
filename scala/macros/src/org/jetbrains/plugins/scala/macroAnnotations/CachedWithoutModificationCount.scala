@@ -20,7 +20,7 @@ import scala.reflect.macros.whitebox
   * Date: 10/20/15.
   */
 class CachedWithoutModificationCount(valueWrapper: ValueWrapper,
-                                     addToBuffer: ArrayBuffer[_ <: java.util.Map[_ <: Any , _ <: Any]],
+                                     cleanupScheduler: Any,
                                      tracked: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithoutModificationCount.cachedWithoutModificationCountImpl
 }
@@ -42,14 +42,14 @@ object CachedWithoutModificationCount {
       c.prefix.tree match {
         case q"new CachedWithoutModificationCount(..$params)" if params.nonEmpty =>
           val valueWrapper = valueWrapperParam(params.head)
-          val buffers = params(1)
-          (valueWrapper, buffers, params.drop(2))
+          val cleanupScheduler = params(1)
+          (valueWrapper, q"$cleanupScheduler.asInstanceOf[$cleanupSchedulerTypeFqn]", params.drop(2))
         case _ => abort("Wrong parameters")
       }
     }
 
     //annotation parameters
-    val (valueWrapper, bufferToAddTo, trackedExprs) = parameters
+    val (valueWrapper, cleanupScheduler, trackedExprs) = parameters
 
     annottees.toList match {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -79,17 +79,16 @@ object CachedWithoutModificationCount {
           case ValueWrapper.SofterReference => tq"_root_.com.intellij.util.SofterReference[$retTp]"
         }
 
-        val addToBuffers = q"$bufferToAddTo += $mapName"
-
         val fields = if (hasParameters) {
           q"""
             private val $mapName = new java.util.concurrent.ConcurrentHashMap[(..${flatParams.map(_.tpt)}), $wrappedRetTp]()
-            $addToBuffers
+            $cleanupScheduler.subscribe(() => $mapName.clear())
           """
         } else {
           q"""
             new _root_.scala.volatile()
             private var $cacheVarName: $wrappedRetTp = null.asInstanceOf[$wrappedRetTp]
+            $cleanupScheduler.subscribe(() => $cacheVarName = null)
           """
         }
 

@@ -51,6 +51,12 @@ object CachedMacroUtil {
     import c.universe.Quasiquote
     q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.CacheCapabilties"
   }
+
+  def cleanupSchedulerTypeFqn(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    tq"_root_.org.jetbrains.plugins.scala.caches.CleanupScheduler"
+  }
+
   def defaultValue(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
     import c.universe.Quasiquote
     tp match {

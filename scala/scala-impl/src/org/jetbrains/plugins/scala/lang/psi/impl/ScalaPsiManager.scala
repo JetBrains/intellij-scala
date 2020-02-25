@@ -3,7 +3,6 @@ package lang
 package psi
 package impl
 
-import java.util
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.diagnostic.Logger
@@ -18,7 +17,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.{ArrayUtil, ObjectUtils}
 import org.jetbrains.annotations.{CalledInAwt, TestOnly}
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, CleanupScheduler, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -56,9 +55,9 @@ class ScalaPsiManager(implicit val project: Project) {
 
   def isInJavaPsiFacade: Boolean = inJavaPsiFacade.get
 
-  private val clearCacheOnChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
-  private val clearCacheOnTopLevelChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
-  private val clearCacheOnRootsChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
+  private val clearCacheOnChange = new CleanupScheduler
+  private val clearCacheOnTopLevelChange = new CleanupScheduler
+  private val clearCacheOnRootsChange = new CleanupScheduler
 
   val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
     ContainerUtil.newConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]]()
@@ -300,7 +299,7 @@ class ScalaPsiManager(implicit val project: Project) {
   }
 
   private def clearOnChange(): Unit = {
-    clearCacheOnChange.foreach(_.clear())
+    clearCacheOnChange.fireCleanup()
     clearCaches()
   }
 
@@ -308,13 +307,13 @@ class ScalaPsiManager(implicit val project: Project) {
 
   private def clearOnTopLevelChange(): Unit = {
     clearOnChange()
-    clearCacheOnTopLevelChange.foreach(_.clear())
+    clearCacheOnTopLevelChange.fireCleanup()
     syntheticPackages.clear()
   }
 
   private def clearOnRootsChange(): Unit = {
     clearOnTopLevelChange()
-    clearCacheOnRootsChange.foreach(_.clear())
+    clearCacheOnRootsChange.fireCleanup()
   }
 
   private val psiChangeListener = ScalaPsiChangeListener(clearOnScalaElementChange, clearOnNonScalaChange)
@@ -398,8 +397,8 @@ class ScalaPsiManager(implicit val project: Project) {
     private val forLibraryMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
     private val forTopLevelMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
 
-    clearCacheOnRootsChange += forLibraryMap
-    clearCacheOnTopLevelChange += forTopLevelMap
+    clearCacheOnRootsChange.subscribe(() => forLibraryMap.clear())
+    clearCacheOnTopLevelChange.subscribe(() => forTopLevelMap.clear())
 
     private def forLibraryClasses(clazz: PsiClass): nodes.Map = forLibraryMap.computeIfAbsent(clazz, nodes.build)
 
