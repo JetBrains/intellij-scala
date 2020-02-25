@@ -7,6 +7,7 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -81,9 +82,9 @@ sealed abstract class FormatConversionIntention(override val getText: String,
 }
 
 object FormatConversionIntention {
-  val ConvertToStringConcat = "Convert to string concatenation"
-  val ConvertToInterpolated = "Convert to interpolated string"
-  val ConvertToFormatted = "Convert to formatted string"
+  val ConvertToStringConcat: String = ScalaCodeInsightBundle.message("convert.to.string.concatenation")
+  val ConvertToInterpolated: String = ScalaCodeInsightBundle.message("convert.to.interpolated.string")
+  val ConvertToFormatted: String = ScalaCodeInsightBundle.message("convert.to.formatted.string")
 
   final class FormattedToInterpolated extends FormatConversionIntention(
     ConvertToInterpolated,

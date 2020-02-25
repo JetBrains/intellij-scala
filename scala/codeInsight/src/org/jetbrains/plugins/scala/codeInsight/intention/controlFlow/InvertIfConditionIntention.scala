@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -96,15 +97,12 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
       thenBranch.getTextRange.getEndOffset <= offset && offset < elseBranch.getTextRange.getStartOffset
   }
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.invert.if.condition")
 
   override def getText: String = getFamilyName
 }
 
 object InvertIfConditionIntention {
-
-  private[controlFlow] val FamilyName = "Invert If condition"
-
   private val Replacement = Map(
     "==" -> "!=",
     "!=" -> "==",

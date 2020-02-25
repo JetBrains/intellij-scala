@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 
@@ -27,7 +28,7 @@ final class NegateComparisonIntention extends PsiElementBaseIntentionAction {
     val refName = operation.refName
     Replacement.get(refName) match {
       case Some(replacement) if caretIsInRange(operation)(editor) =>
-        setText(s"Negate '$refName' to $replacement'")
+        setText(ScalaCodeInsightBundle.message("negate.operation.to.inverse", refName, replacement))
         true
       case _ => false
     }
@@ -42,14 +43,11 @@ final class NegateComparisonIntention extends PsiElementBaseIntentionAction {
     negateAndValidateExpression(infixExpr, text)(project, editor)
   }
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.negate.comparison")
 }
 
 
 object NegateComparisonIntention {
-
-  private[booleans] val FamilyName = "Negate comparison"
-
   private val Replacement = Map(
     "==" -> "!=",
     "!=" -> "==",

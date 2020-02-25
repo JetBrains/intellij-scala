@@ -15,7 +15,7 @@ class ArgumentToBlockExpressionIntentionTest extends intentions.ScalaIntentionTe
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = ArgumentToBlockExpressionIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.convert.to.block.expression")
 
   def test(): Unit = {
     val text =

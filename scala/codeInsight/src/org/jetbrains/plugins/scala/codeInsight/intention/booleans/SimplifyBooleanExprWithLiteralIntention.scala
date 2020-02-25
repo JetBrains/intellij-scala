@@ -5,6 +5,7 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -36,15 +37,12 @@ final class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntent
     }
   }
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.simplify.boolean.expression.with.a.literal")
 
-  override def getText = "Simplify boolean expression"
+  override def getText: String = ScalaCodeInsightBundle.message("simplify.boolean.expression")
 }
 
 object SimplifyBooleanExprWithLiteralIntention {
-
-  private[booleans] val FamilyName = "Simplify boolean expression with a literal"
-
   @tailrec
   private def findSimplifiableParent(element: PsiElement): Option[ScExpression] = element.getParent match {
     case expr: ScExpression =>

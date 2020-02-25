@@ -26,6 +26,7 @@ import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.util.RefactoringUIUtil
 import com.intellij.util.containers.MultiMap
 import javax.swing.ListSelectionModel
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.intention.declarations.ChangeAccessModifierIntention._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -132,6 +133,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
       try StartMarkAction.start(editor, project, actionName)
       catch {
         case e: StartMarkAction.AlreadyStartedException =>
+          //noinspection ReferencePassedToNls
           Messages.showErrorDialog(project, e.getMessage, StringUtil.toTitleCase(actionName))
           return
       }
@@ -274,7 +276,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
       ReadAction.run(() => {
         for (declaredElement <- getElementsToSearch(member)) {
           val search = ReferencesSearch.search(declaredElement, useScope)
-          search.asScala.foreach { reference: PsiReference =>
+          search.asScala.foreach { (reference: PsiReference) =>
             val referencedElement = reference.getElement
             if (!ResolveUtils.isAccessibleWithNewModifiers(member, referencedElement, newModifierList)) {
               val context = PsiTreeUtil.getParentOfType(referencedElement, classOf[PsiMethod], classOf[PsiField], classOf[PsiClass], classOf[PsiFile])
@@ -343,7 +345,7 @@ object ChangeAccessModifierIntention {
     modifierSeq.result()
   }
 
-  private class ModifierTextUpdater(val myFile: PsiFile, val myDocument: Document, val range: TextRange, val myActionName: String) {
+  private class ModifierTextUpdater(val myFile: PsiFile, val myDocument: Document, val range: TextRange, @Nls val myActionName: String) {
     private val sequence: CharSequence = myDocument.getCharsSequence
     private val myExtendLeft = range.getStartOffset > 0 && !StringUtil.isWhiteSpace(sequence.charAt(range.getStartOffset - 1))
     private val myExtendRight = range.getEndOffset < sequence.length && !StringUtil.isWhiteSpace(sequence.charAt(range.getEndOffset))

@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -29,7 +30,7 @@ final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIn
 
     Replacement.get(refName) match {
       case Some(replacement) if caretIsInRange(operation)(editor) =>
-        setText(s"Replace '$refName' with '$replacement'")
+        setText(ScalaCodeInsightBundle.message("replace.refname.with.replacement", refName, replacement))
         true
       case _ => false
     }
@@ -54,13 +55,10 @@ final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIn
     }
   }
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.replace.equals.or.equality.in.infix.expression")
 }
 
 object ReplaceEqualsOrEqualityInInfixExprIntention {
-
-  private[booleans] val FamilyName = "Replace equals or equality in infix expression"
-
   private val Replacement = Map(
     "equals" -> "==",
     "==" -> "equals"

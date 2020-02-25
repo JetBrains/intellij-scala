@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
@@ -26,7 +27,7 @@ final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
     val refName = operation.refName
     Replacement.get(refName) match {
       case Some(replacement) if caretIsInRange(operation)(editor) =>
-        setText(s"Replace '$refName' with $replacement'")
+        setText(ScalaCodeInsightBundle.message("replace.refname.with.replacement", refName, replacement))
         true
       case _ => false
     }
@@ -42,13 +43,10 @@ final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
     negateAndValidateExpression(infixExpr, text)(project, editor)
   }
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.demorgan.law")
 }
 
 object DeMorganLawIntention {
-
-  private[booleans] val FamilyName = "DeMorgan Law"
-
   private val Replacement = Map("" +
     "&&" -> "||",
     "||" -> "&&"

@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScFunctionExpr, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createAnonFunBlockFromFunExpr, createBlockFromExpr}
@@ -40,12 +41,7 @@ final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAc
     CodeStyleManager.getInstance(project).reformat(block)
   }
 
-  override def getFamilyName: String = ArgumentToBlockExpressionIntention.FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.convert.to.block.expression")
 
   override def getText: String = getFamilyName
-}
-
-object ArgumentToBlockExpressionIntention {
-
-  private[argument] val FamilyName = "Convert to block expression"
 }

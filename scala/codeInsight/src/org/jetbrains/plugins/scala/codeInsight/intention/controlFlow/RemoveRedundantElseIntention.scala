@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiManager}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -70,12 +71,8 @@ final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def getFamilyName: String = RemoveRedundantElseIntention.FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.remove.redundant.else")
 
-  override def getText: String = "Remove redundant 'else'"
+  override def getText: String = ScalaCodeInsightBundle.message("remove.redundant.else")
 }
 
-object RemoveRedundantElseIntention {
-
-  private[controlFlow] val FamilyName = "Remove redundant Else"
-}

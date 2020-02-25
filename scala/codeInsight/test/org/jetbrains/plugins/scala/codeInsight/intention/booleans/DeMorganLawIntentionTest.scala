@@ -13,7 +13,7 @@ class DeMorganLawIntentionTest extends intentions.ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = DeMorganLawIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.demorgan.law")
 
   def test1(): Unit = {
     val text = s"if (a |$CARET| b) {}"

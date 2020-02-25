@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral
-
-import org.jetbrains.plugins.scala.codeInsight.intentions
+package org.jetbrains.plugins.scala.codeInsight
+package intention
+package stringLiteral
 
 class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTestBase {
 
-  override def familyName: String = StringToMultilineStringIntention.FAMILY_NAME
+  override def familyName: String = ScalaCodeInsightBundle.message("family.name.regular.multi.line.string.conversion")
 
   // ATTENTION:
   //   We shouldn't do .stripMargin for before/after strings because it is for some reason .stripMargin is called inside

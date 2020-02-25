@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -39,10 +40,10 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
 
     val notChanged = mutable.HashSet[String]("==", "!=", "equals", "eq", "ne")
     if (notChanged.contains(oper)) {
-      setText("Flip '" + oper + "'" )
+      setText(ScalaCodeInsightBundle.message("flip.operation", oper))
     }   else  {
       val replaceOper = Map(">" -> "<", "<" -> ">", ">=" -> "<=", "<=" -> ">=")
-      setText("Flip '" + oper + "' to '" + replaceOper(oper) + "'")
+      setText(ScalaCodeInsightBundle.message("flip.operation.to.inverse", oper, replaceOper(oper)))
     }
 
     if (methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].isQualified) return true
@@ -101,12 +102,7 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
     }
   }
 
-  override def getFamilyName: String = FlipComparisonInMethodCallExprIntention.FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.flip.comparison.in.method.call.expression")
 
   override def getText: String = getFamilyName
-}
-
-object FlipComparisonInMethodCallExprIntention {
-
-  private[booleans] val FamilyName = "Flip comparison in method call expression."
 }

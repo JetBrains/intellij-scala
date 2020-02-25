@@ -13,7 +13,7 @@ class ReplaceWhileWithDoWhileIntentionTest extends intentions.ScalaIntentionTest
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = ReplaceWhileWithDoWhileIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.replace.while.with.do.while")
 
   def testReplaceWhile1(): Unit = {
     val text =

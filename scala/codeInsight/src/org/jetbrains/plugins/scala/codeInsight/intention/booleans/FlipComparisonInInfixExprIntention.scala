@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -29,8 +30,10 @@ final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAc
 
     Replacement.get(refName) match {
       case Some(replacement) if caretIsInRange(operation)(editor) =>
-        val suffix = if (replacement != refName) s" to '$replacement'" else ""
-        setText(s"Flip '$refName' $suffix")
+        val text =
+          if (replacement == refName) ScalaCodeInsightBundle.message("flip.operation", refName)
+          else ScalaCodeInsightBundle.message("flip.operation.to.inverse", refName, replacement)
+        setText(text)
         true
       case _ => false
     }
@@ -58,13 +61,10 @@ final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAc
     }
   }
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.flip.comparison.in.infix.expression")
 }
 
 object FlipComparisonInInfixExprIntention {
-
-  private[booleans] val FamilyName = "Flip comparison in infix expression."
-
   private val Replacement = Map(
     "equals" -> "equals",
     "==" -> "==",

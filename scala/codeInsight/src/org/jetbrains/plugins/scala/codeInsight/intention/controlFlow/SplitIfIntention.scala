@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -61,15 +62,7 @@ final class SplitIfIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def getFamilyName: String = SplitIfIntention.FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.split.if")
 
-  override def getText: String = "Split into 2 'if's"
+  override def getText: String = ScalaCodeInsightBundle.message("split.into.2.if.s")
 }
-
-object SplitIfIntention {
-
-  private[controlFlow] val FamilyName = "Split If"
-}
-
-
-

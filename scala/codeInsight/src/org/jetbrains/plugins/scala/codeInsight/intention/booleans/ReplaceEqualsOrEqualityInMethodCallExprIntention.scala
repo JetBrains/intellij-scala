@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -63,13 +64,10 @@ final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementB
     }
   }
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.replace.equals.or.equality.in.method.call.expression")
 }
 
 object ReplaceEqualsOrEqualityInMethodCallExprIntention {
-
-  private[booleans] val FamilyName = "Replace equals or equality in method call expression"
-
   private val replaceOper = Map("equals" -> "==", "==" -> "equals")
 
   @tailrec

@@ -13,7 +13,7 @@ class FlipComparisonInMethodCallExprIntentionTest extends intentions.ScalaIntent
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = FlipComparisonInMethodCallExprIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.flip.comparison.in.method.call.expression")
 
   def testFlip1(): Unit = {
     val text = s"if (f.=$CARET=(false)) return"

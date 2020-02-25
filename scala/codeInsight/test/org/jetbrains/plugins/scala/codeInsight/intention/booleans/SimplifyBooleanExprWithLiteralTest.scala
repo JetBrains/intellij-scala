@@ -13,7 +13,7 @@ class SimplifyBooleanExprWithLiteralTest extends intentions.ScalaIntentionTestBa
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName: String = SimplifyBooleanExprWithLiteralIntention.FamilyName
+  override def familyName: String = ScalaCodeInsightBundle.message("family.name.simplify.boolean.expression.with.a.literal")
 
   def test_NotTrue(): Unit = {
     val text = s"$CARET!true"

@@ -5,6 +5,7 @@ package impl
 
 import com.intellij.codeInsight.template.{FileTypeBasedContextType, TemplateContextType}
 import com.intellij.psi._
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 
 /**
@@ -21,8 +22,8 @@ object ScalaFileTemplateContextType {
 
   private val PresentableName = "Scala"
 
-  private[impl] abstract class ElementContextType(presentableName: String)
-    extends TemplateContextType(s"${PresentableName}_$presentableName".toUpperCase, presentableName, classOf[ScalaFileTemplateContextType]) {
+  private[impl] abstract class ElementContextType(idSuffix: String, @Nls presentableName: String)
+    extends TemplateContextType(s"${PresentableName}_$idSuffix".toUpperCase, presentableName, classOf[ScalaFileTemplateContextType]) {
 
     protected def isInContext(offset: Int)
                              (implicit file: ScalaFile): Boolean

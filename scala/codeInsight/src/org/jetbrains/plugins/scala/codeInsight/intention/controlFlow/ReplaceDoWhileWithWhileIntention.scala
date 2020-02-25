@@ -11,6 +11,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -126,15 +127,12 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
     }
   }
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.replace.do.while.with.while")
 
   override def getText: String = getFamilyName
 }
 
 object ReplaceDoWhileWithWhileIntention {
-
-  private[controlFlow] val FamilyName = "Replace do while with while"
-
   private def declaredNames(element: PsiElement): Set[String] = {
     implicit val ctx: ProjectContext = element
 
