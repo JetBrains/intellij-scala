@@ -30,12 +30,11 @@ import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, ProcessLogger}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData}
-
 import com.intellij.openapi.util.Key
 import org.jetbrains.concurrency.{Promise, Promises}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 case class JvmTestEnvironment(
                                classpath: Seq[String],
@@ -43,6 +42,10 @@ case class JvmTestEnvironment(
                                environmentVariables: Map[String, String],
                                jvmOptions: Seq[String]
                              )
+
+case object JvmTestEnvironmentNotSupported extends Throwable {
+  val msg = "Build Server does not support 'buildTarget/jvmTestEnvironment' endpoint"
+}
 
 class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchTestEnvironmentTask] {
   private val logger = Logger.getInstance(classOf[BspCommunication])
@@ -95,6 +98,9 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
           testEnvironment <-
             fetchJvmTestEnvironment(new BuildTargetIdentifier(chosenTargetId), workspaceUri, module.getProject)
               .map(Right(_))
+              .recover{
+                case err: JvmTestEnvironmentNotSupported.type => Left(BspGetEnvironmentError(err.msg))
+              }
               .getOrElse(Left(BspGetEnvironmentError("Failed to fetch test JVM environment")))
           _ = config.putUserData(BspFetchTestEnvironmentTask.jvmTestEnvironmentKey, testEnvironment)
         } yield ()
@@ -145,21 +151,21 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
       title = BspBundle.message("bsp.task.fetching.sources"),
       cancelAction)
     val job = communication.run(
-      bspSessionTask =  getFiles(potentialTargets)(_, _),
-      notifications = _  => (),
+      bspSessionTask = getFiles(potentialTargets)(_, _),
+      notifications = _ => (),
       processLogger = processLog(reporter),
     )
-    BspJob.waitForJob(job, 10).map{
+    BspJob.waitForJob(job, 10).map {
       sources =>
         filterTargetsContainingSources(sources.getItems.asScala, files)
     }
   }
 
   /**
-    * @param files       List of sources you are looking for
-    * @param sourceLists List of targets with their sources, that will be searched
-    * @return All targets from `sourceLists` that contain any of the sources from `sources`
-    */
+   * @param files       List of sources you are looking for
+   * @param sourceLists List of targets with their sources, that will be searched
+   * @return All targets from `sourceLists` that contain any of the sources from `sources`
+   */
   private def filterTargetsContainingSources(sourceLists: Seq[SourcesItem],
                                              files: Seq[PsiFile]): Seq[BuildTargetIdentifier] = {
     val fileUris = files.map(_.getVirtualFile.getPath).map(path => Paths.get(path).toUri.toString)
@@ -205,15 +211,17 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
       processLogger = processLog(reporter),
     )
 
-    BspJob.waitForJob(job, retries = 10).map {
-      response =>
-        val environment = response.getItems.asScala.head
-        JvmTestEnvironment(
-          classpath = environment.getClasspath.asScala.map(x => new URI(x).getPath),
-          workdir = environment.getWorkingDirectory,
-          environmentVariables = environment.getEnvironmentVariables.asScala.toMap,
-          jvmOptions = environment.getJvmOptions.asScala.toList
-        )
+    BspJob.waitForJob(job, retries = 10).flatMap {
+          case Left(value) => Failure(value)
+          case Right(value) => {
+            val environment = value.getItems.asScala.head
+            Success(JvmTestEnvironment(
+              classpath = environment.getClasspath.asScala.map(x => new URI(x).getPath),
+              workdir = environment.getWorkingDirectory,
+              environmentVariables = environment.getEnvironmentVariables.asScala.toMap,
+              jvmOptions = environment.getJvmOptions.asScala.toList
+            ))
+          }
     }
   }
 
@@ -226,8 +234,12 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
 
   private def jvmTestEnvironmentBspRequest(targets: Seq[BuildTargetIdentifier])
                                           (implicit server: BspServer,
-                                           capabilities: BuildServerCapabilities): CompletableFuture[JvmTestEnvironmentResult] =
-    server.jvmTestEnvironment(new JvmTestEnvironmentParams(targets.asJava))
+                                           capabilities: BuildServerCapabilities): CompletableFuture[Either[JvmTestEnvironmentNotSupported.type ,JvmTestEnvironmentResult]] =
+    if (Option(capabilities.getJvmTestEnvironmentProvider).forall(_.booleanValue())) {
+      server.jvmTestEnvironment(new JvmTestEnvironmentParams(targets.asJava)).thenApply(Right(_))
+    } else {
+      CompletableFuture.completedFuture(Left(JvmTestEnvironmentNotSupported))
+    }
 
   private def getFiles(target: Seq[BuildTargetIdentifier])
                       (implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[SourcesResult] =
