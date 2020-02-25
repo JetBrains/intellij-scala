@@ -6,12 +6,13 @@ import java.util.regex.Pattern
 import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.format.WithStrippedMargin
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference, literals}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -27,23 +28,14 @@ object MultilineStringUtil {
 
   private val escaper = Pattern.compile("([^a-zA-z0-9])")
 
-  def escapeForRegexp(s: String): String = {
+  def escapeForRegexp(s: String): String =
     escaper.matcher(s).replaceAll("\\\\$1")
-  }
 
-  def inMultilineString(element: PsiElement): Boolean = {
-    if (element == null) return false
-    element.getNode.getElementType match {
-      case ScalaTokenTypes.tMULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING => true
-      case ScalaTokenTypes.tINTERPOLATED_STRING_END | ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION |
-           ScalaTokenTypes.tINTERPOLATED_STRING_ESCAPE =>
-        element.getParent match {
-          case lit: ScLiteral if lit.isMultiLineString => true
-          case _ => false
-        }
-      case _ => false
+  def inMultilineString(element: PsiElement): Boolean =
+    element.getParent match {
+      case literal: ScLiteral => literal.isMultiLineString
+      case _                  => false
     }
-  }
 
   def needAddMethodCallToMLString(stringElement: PsiElement, methodName: String): Boolean = {
     var parent = stringElement.getParent
@@ -262,6 +254,27 @@ object MultilineStringUtil {
         throw new IllegalStateException(s"Need multiline string literal, but get: ${something.getText}")
     }
   }
+
+  /**
+   * @return range of content inside string quotes e.g. for """abc""" returns (3, 6)
+   * maybe move to psi?
+   */
+  def contentRange(string: ScLiteral): TextRange =
+    string match {
+      case interpolated: ScInterpolatedStringLiteral =>
+        val refLength = interpolated.reference.map(_.getTextLength).getOrElse(0)
+        val delta = quotesLength(string)
+        val rangeWithoutRef = string.getTextRange.shiftStart(refLength)
+        rangeWithoutRef.shrink(delta)
+      case _: ScStringLiteral =>
+        val delta = if(string.isMultiLineString) 3 else 1
+        string.getTextRange.shrink(delta)
+      case _ =>
+        string.getTextRange
+    }
+
+  private def quotesLength(string: ScLiteral): Int =
+    if (string.isMultiLineString) 3 else 1
 }
 
 class MultilineStringSettings(project: Project) {

@@ -499,7 +499,8 @@
 
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaAttributeValueSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner"/>
-        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner"/>
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStringLiteralSelectioner"/>
+        <basicWordSelectionFilter implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectionerFilter"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaSemicolonSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStatementGroupSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaCodeBlockSelectioner"/>

@@ -522,6 +522,8 @@ package object extensions {
   implicit class TextRangeExt(private val target: TextRange) extends AnyVal {
     def expand(delta: Int): TextRange = TextRange.create(target.getStartOffset - delta, target.getEndOffset + delta)
     def shrink(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset - delta)
+    def shiftStart(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset)
+    def shiftEnd(delta: Int): TextRange = TextRange.create(target.getStartOffset, target.getEndOffset + delta)
   }
 
   object TextRangeExt {

@@ -12,14 +12,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScArguments, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 10.09.2008
- */
-
 class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
+
+  override def canSelect(e: PsiElement): Boolean =
+    e match {
+      case _: ScParameterClause | _: ScArguments => true
+      case _: ScExtendsBlock                     => true
+      case _: ScReference                        => true
+      case _: ScMethodCall                       => true
+      case _                                     => false
+    }
+
   override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): java.util.List[TextRange] = {
     val result = super.select(e, editorText, cursorOffset, editor)
+
     e match {
       //case for selecting parameters without parenthesises
       case _: ScParameterClause | _: ScArguments =>
@@ -55,7 +61,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
         //clear result if method call
         if (x.getParent.isInstanceOf[ScMethodCall]) result.clear()
         x.qualifier match {
-          case Some(qual) => {
+          case Some(qual) =>
             //get ranges for previos qualifier
             val ranges = select(qual, editorText, cursorOffset, editor).toArray(new Array[TextRange](0))
             for (fRange <- ranges if fRange.getEndOffset == qual.getTextRange.getEndOffset) {
@@ -77,7 +83,6 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
             }
             //adding dummy range for recursion
             result.add(new TextRange(offset, offset))
-          }
           case None => result.add(new TextRange(offset, offset)) //adding dummy range for recursion
         }
       case x: ScMethodCall =>
@@ -87,15 +92,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
         }
       case _ =>
     }
+
     result
-  }
-  override def canSelect(e: PsiElement): Boolean = {
-    e match {
-      case _: ScParameterClause | _: ScArguments => true
-      case _: ScExtendsBlock => true
-      case _: ScReference => true
-      case _: ScMethodCall => true
-      case _ => false
-    }
   }
 }
