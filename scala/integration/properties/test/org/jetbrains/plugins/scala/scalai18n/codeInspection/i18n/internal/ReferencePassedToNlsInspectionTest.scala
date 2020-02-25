@@ -78,7 +78,7 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
     checkTextHasNoErrors(
       s"""
          |def ref = {
-         |  if (null) nls
+         |  if ("blub" == null) nls
          |  else ref
          |}
          |toNls(ref)
@@ -88,7 +88,7 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
     checkTextHasError(
       s"""
          |def ref = {
-         |  if (null) "blub"
+         |  if ("blub" == null) "blub"
          |  else ref
          |}
          |toNls(${START}ref$END)
@@ -99,6 +99,21 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
       s"""
          |def ref = true
          |toNls(if (ref) nls else nls)
+         |""".stripMargin)
+
+  def test_reffed_if(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |
+         |val ref = if ("blub" != null) nls else nls
+         |toNls(ref)
+         |""".stripMargin)
+
+  def test_reffed_if_neg(): Unit =
+    checkTextHasError(
+      s"""
+         |val ref = if ("blub" != null) nls else "blub"
+         |toNls(${START}ref$END)
          |""".stripMargin)
 
   def test_switch(): Unit =

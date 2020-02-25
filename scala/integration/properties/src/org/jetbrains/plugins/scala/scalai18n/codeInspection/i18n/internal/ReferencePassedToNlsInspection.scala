@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil._
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ReferencePassedToNlsInspection._
 
@@ -90,7 +90,7 @@ object ReferencePassedToNlsInspection {
       case _ if isAnnotatedWith(ref, AnnotationUtil.NLS) => false
       case _: PsiReference | _: MethodInvocation => resolveToNotNlsAnnotated(ref, found).isDefined
       case pattern: ScBindingPattern => evaluatesNotToNls(pattern.nameContext, found)
-      case pd: ScPatternDefinition => pd.expr.exists(evaluatesNotToNls(_, found))
+      case pd: ScPatternDefinition => pd.expr.exists(_.calculateTailReturns.exists(evaluatesNotToNls(_, found)))
       case func: ScFunctionDefinition => func.returnUsages.exists(evaluatesNotToNls(_, found))
       case _ => true
     }
