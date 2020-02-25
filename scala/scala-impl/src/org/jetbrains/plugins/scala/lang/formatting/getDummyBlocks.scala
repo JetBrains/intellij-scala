@@ -5,11 +5,12 @@ package formatting
 import java.util
 
 import com.intellij.formatting._
-import com.intellij.lang.ASTNode
+import com.intellij.lang.{ASTNode, FileASTNode}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang3.StringUtils
@@ -541,41 +542,40 @@ class getDummyBlocks(private val block: ScalaBlock) {
   private def getIfSubBlocks(node: ASTNode, alignment: Alignment): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
-    val firstChildNode = node.getFirstChildNode
-    var child = firstChildNode
+    val firstChildFirstNode = node.getFirstChildNode
+    val firstChildLastNode = firstChildFirstNode
+      .treeNextNodes
+      .takeWhile(e => e.getElementType != kELSE && !isComment(e))
+      .lastOption
+      .getOrElse(firstChildFirstNode)
 
-    var next = child.getTreeNext
-    while (next != null && next.getElementType != kELSE && !isComment(next)) {
-      child = next
-      next = child.getTreeNext
-    }
-
-    val firstBlock = subBlock(firstChildNode, child, alignment)
+    val firstBlock = subBlock(firstChildFirstNode, firstChildLastNode, alignment)
     subBlocks.add(firstBlock)
 
-    while (next != null && isComment(next)) {
-      subBlocks.add(subBlock(next))
-      child = next
-      next = next.getTreeNext
+    val elseFirstChild: ASTNode = {
+      val commentsHandled = firstChildLastNode
+        .treeNextNodes
+        .takeWhile(isComment)
+        .map { c =>
+          val next = c.getTreeNext
+          subBlocks.add(subBlock(c, next))
+          next
+        }
+        .lastOption
+        .getOrElse(firstChildLastNode)
+      commentsHandled.getTreeNext
     }
 
-    var specialIf = false
-    if (child.getTreeNext != null) {
-      // child is at `else`
-      val firstChild = child.getTreeNext
-      child = firstChild
-      while (child.getTreeNext != null) {
-        child.getTreeNext.getPsi match {
-          case _: ScIf if cs.SPECIAL_ELSE_IF_TREATMENT =>
-            subBlocks.add(subBlock(firstChild, child, alignment, Some(firstBlock.indent)))
-            subBlocks.addAll(getIfSubBlocks(child.getTreeNext, alignment))
-            specialIf = true
-          case _ =>
-        }
-        child = child.getTreeNext
-      }
-      if (!specialIf) {
-        subBlocks.add(subBlock(firstChild, child, alignment, Some(firstBlock.indent)))
+    if (elseFirstChild != null) {
+      val elseLastNode = elseFirstChild.treeNextNodes
+        .takeWhile(n => if (cs.SPECIAL_ELSE_IF_TREATMENT) n.getElementType != kIF else true)
+        .lastOption
+        .getOrElse(elseFirstChild)
+
+      subBlocks.add(subBlock(elseFirstChild, elseLastNode, alignment, Some(firstBlock.indent)))
+      val next = elseLastNode.getTreeNext
+      if (next != null && next.getElementType == kIF) {
+        subBlocks.addAll(getIfSubBlocks(next, alignment))
       }
     }
 

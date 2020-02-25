@@ -3466,7 +3466,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       """object A {
         |  if (false) 1
         |  else //-- this is a comment
-        |  if (true) 2
+        |    if (true) 2
         |}
       """.stripMargin
     doTextTest(before)
@@ -3885,14 +3885,14 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     getCommonSettings.SPECIAL_ELSE_IF_TREATMENT = false
 
     doTextTest(
-      """class Ф {
+      """class A {
         |  if (true) {} // qwe
         |  else {}
         |
         |  if (true) {} // qwe
         |  else
-        |  if (false) {} else
-        |    if (false) {} else {}
+        |    if (false) {} else
+        |      if (false) {} else {}
         |}
         |""".stripMargin)
   }

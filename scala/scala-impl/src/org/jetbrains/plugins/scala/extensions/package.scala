@@ -11,6 +11,7 @@ import java.util.{Arrays, Set => JSet}
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
@@ -972,6 +973,11 @@ package object extensions {
         _.setModifierProperty(name, value)
       }
 
+  }
+
+  implicit class ASTNodeExt(private val node: ASTNode) extends AnyVal {
+    def treeNextNodes: Iterator[ASTNode] = new ASTNodeTreeNextIterator(node)
+    def treePrevNodes: Iterator[ASTNode] = new ASTNodeTreePrevIterator(node)
   }
 
   implicit class PipedObject[T](private val value: T) extends AnyVal {
