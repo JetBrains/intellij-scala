@@ -107,4 +107,24 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
          |def ref = true
          |toNls(ref match { case `ref` if ref => nls)
          |""".stripMargin)
+
+  def test_multi_param_clauses(): Unit =
+    checkTextHasError(
+      s"""
+         |def toNls2(@Nls a: String)(@Nls b: String): Unit = ()
+         |def ref1 = "blub"
+         |def ref2 = "blub2"
+         |toNls2(${START}ref1$END)(${START}ref2$END)
+         |""".stripMargin
+    )
+
+  def test_multi_param_clauses2(): Unit =
+    checkTextHasError(
+      s"""
+         |def toNls2(a: String)(@Nls b: String): Unit = ()
+         |def ref1 = "blub"
+         |def ref2 = "blub2"
+         |toNls2(ref1)(${START}ref2$END)
+         |""".stripMargin
+    )
 }

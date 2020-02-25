@@ -81,16 +81,6 @@ class ScalaExtractStringToBundleInspectionTest extends ScalaInspectionTestBase{
            |}
            |""".stripMargin)
 
-  def test_string_in_callblock_witch_cases(): Unit =
-    checkTextHasError(
-      raw"""
-           |toNls {
-           |  case "not to nls" if "not to nls" =>
-           |    "not to nls"
-           |    $START"blub"$END
-           |}
-           |""".stripMargin)
-
   def test_string_in_infix(): Unit =
     checkTextHasError(
       raw"""

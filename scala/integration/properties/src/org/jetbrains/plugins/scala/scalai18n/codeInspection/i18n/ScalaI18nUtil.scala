@@ -15,14 +15,15 @@ import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo, _}
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -51,25 +52,19 @@ object ScalaI18nUtil {
   def isPassedToAnnotated(@NotNull element: PsiElement, annFqn: String,
                           @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean = {
     def isAnnotated(member: PsiElement): Boolean = isAnnotatedWith(member, annFqn, annotationAttributeValues)
+    def checkParam(matchedParameters: Seq[(ScExpression, Parameter)]): Boolean =
+      matchedParameters
+        .find(_._1 == element)
+        .flatMap { case (_, param) => param.psiParam }
+        .exists(isAnnotated)
+
     element.getParent match {
       case argList: ScArgumentExprList =>
-        val idx = argList.exprs.indexOf(element)
-        if (idx == -1) return false
-
-        argList.getParent match {
-          case ScMethodCall(ResolvesTo(method: PsiMethod), _) =>
-            isMethodParameterAnnotatedWith(method, idx, annFqn, annotationAttributeValues)
-          case ScConstructorInvocation.reference(ResolvesTo(method: PsiMethod)) =>
-            isMethodParameterAnnotatedWith(method, idx, annFqn, annotationAttributeValues)
-          case _ =>
-            false
-        }
-      case ScInfixExpr(_, ResolvesTo(method: PsiMethod), `element`) =>
-        isMethodParameterAnnotatedWith(method, 0, annFqn, annotationAttributeValues)
-      case (tuple: ScTuple) && Parent(ScInfixExpr(_, ResolvesTo(method: PsiMethod), arg)) if tuple == arg =>
-        val idx = tuple.exprs.indexOf(element)
-        if (idx == -1) return false
-        isMethodParameterAnnotatedWith(method, idx, annFqn, annotationAttributeValues)
+        checkParam(argList.matchedParameters)
+      case infix@ScInfixExpr(_, _, `element`) =>
+        checkParam(infix.matchedParameters)
+      case (tuple: ScTuple) && Parent(infix@ScInfixExpr(_, _, arg)) if tuple == arg =>
+        checkParam(infix.matchedParameters)
       case assign: ScAssignment =>
         assign
           .resolveAssignment
