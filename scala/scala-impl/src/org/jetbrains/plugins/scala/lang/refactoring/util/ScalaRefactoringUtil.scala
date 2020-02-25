@@ -841,22 +841,22 @@ object ScalaRefactoringUtil {
       .contains(textRange)
   }
 
-  def showErrorHintWithException(message: String,
-                                 refactoringName: String,
+  def showErrorHintWithException(@Nls message: String,
+                                 @Nls refactoringName: String,
                                  helpId: String = null)
                                 (implicit project: Project, editor: Editor): Nothing = {
     showErrorHint(message, refactoringName, helpId)
     throw new IntroduceException
   }
 
-  def showErrorHint(message: String,
-                    refactoringName: String,
+  def showErrorHint(@Nls message: String,
+                    @Nls refactoringName: String,
                     helpId: String = null)
                    (implicit project: Project, editor: Editor): Unit = {
     CommonRefactoringUtil.showErrorHint(project, editor, message, refactoringName, helpId)
   }
 
-  def writableScalaFile(file: PsiFile, refactoringName: String)
+  def writableScalaFile(file: PsiFile, @Nls refactoringName: String)
                        (implicit project: Project, editor: Editor): ScalaFile =
     file match {
       case scalaFile: ScalaFile if ensureFileWritable(file) => scalaFile
@@ -867,7 +867,7 @@ object ScalaRefactoringUtil {
         }
     }
 
-  def maybeWritableScalaFile(file: PsiFile, refactoringName: String)
+  def maybeWritableScalaFile(file: PsiFile, @Nls refactoringName: String)
                             (implicit project: Project, editor: Editor): Option[ScalaFile] =
     file match {
       case scalaFile: ScalaFile if ensureFileWritable(file) => Some(scalaFile)
@@ -1122,7 +1122,7 @@ object ScalaRefactoringUtil {
     elements
   }
 
-  def showNotPossibleWarnings(elements: Seq[PsiElement], refactoringName: String)
+  def showNotPossibleWarnings(elements: Seq[PsiElement], @Nls refactoringName: String)
                              (implicit project: Project, editor: Editor): Boolean = {
     def errors(elem: PsiElement): Option[String] = elem match {
       case funDef: ScFunctionDefinition if hasOutsideUsages(funDef) => ScalaBundle.message("cannot.extract.used.function.definition").toOption

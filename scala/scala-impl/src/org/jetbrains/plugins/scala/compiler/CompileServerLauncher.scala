@@ -18,6 +18,7 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -90,7 +91,7 @@ object CompileServerLauncher {
     result match {
       case Right(_)     => true
       case Left(error)  =>
-        val title = "Cannot start Scala compile server"
+        val title = ScalaBundle.message("cannot.start.scala.compile.server")
         Notifications.Bus.notify(new Notification("scala", title, error, NotificationType.ERROR))
         LOG.error(title, error)
         false

@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.settings
 
 import java.util
-import javax.swing.{JComponent, JPanel}
 
+import javax.swing.{JComponent, JPanel}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui._
 import com.intellij.util.IconUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -61,7 +62,7 @@ object ScalaProjectSettingsUtil {
     }
   }
 
-  def getPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, inputTitle: String): JPanel = {
+  def getPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, @Nls inputTitle: String): JPanel = {
     def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
       if (pattern == null) return
       val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {
@@ -83,7 +84,7 @@ object ScalaProjectSettingsUtil {
     }).disableUpDownActions.createPanel
   }
 
-  def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, inputTitle: String): JPanel = {
+  def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, @Nls inputTitle: String): JPanel = {
     def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
       if (pattern == null) return
       val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {

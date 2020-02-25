@@ -25,6 +25,7 @@ class ScalaSdkProvider(implicit indicator: ProgressIndicator, contextDirectory: 
       jarStream
         .map[ScalaSdkComponent] { f =>
           indicator.checkCanceled()
+          //noinspection ReferencePassedToNls
           indicator.setText2(f.toString)
           ScalaSdkComponent.fromFile(f.toFile).orNull
         }

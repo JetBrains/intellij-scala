@@ -11,6 +11,7 @@ import com.intellij.profile.codeInspection.ui.table.ThreeStateCheckBoxRenderer
 import com.intellij.ui.treeStructure.treetable.{ListTreeTableModel, TreeColumnInfo, TreeTable}
 import com.intellij.util.ui.ColumnInfo
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.transformation.annotations._
 import org.jetbrains.plugins.scala.lang.transformation.calls._
@@ -97,7 +98,7 @@ class SelectionDialog {
     )
   )
 
-  def show(title: String): Option[Set[Transformer]] = {
+  def show(@Nls title: String): Option[Set[Transformer]] = {
     val dialog = new MyDialog(RootGroup)
     dialog.setTitle(title)
 

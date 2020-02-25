@@ -17,6 +17,7 @@ trait ScalaSdkDetector {
 
   protected def progress(text2: String)(implicit indicator: ProgressIndicator): Unit = {
     indicator.checkCanceled()
+    //noinspection ReferencePassedToNls
     indicator.setText2(text2)
   }
 }

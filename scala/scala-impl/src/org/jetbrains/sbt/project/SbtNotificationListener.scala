@@ -20,6 +20,7 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListenerAdap
     text match {
       case WarningMessage(message) =>
         val title = SbtBundle.message("sbt.project.import")
+        //noinspection ReferencePassedToNls
         Notifications.Bus.notify(new Notification(title, title, message, NotificationType.WARNING))
       case _ => // do nothing
     }

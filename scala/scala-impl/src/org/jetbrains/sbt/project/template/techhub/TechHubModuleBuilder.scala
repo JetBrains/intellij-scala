@@ -2,8 +2,8 @@ package org.jetbrains.sbt.project.template.techhub
 
 
 import java.io.File
-import javax.swing.Icon
 
+import javax.swing.Icon
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
@@ -13,8 +13,9 @@ import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.io.ZipUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.{Sbt, SbtBundle}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.tryToSetupRootModel
@@ -67,7 +68,7 @@ class TechHubModuleBuilder extends
     } {
       doWithProgress(
         createTemplate(info, moduleDir, getName),
-        "Downloading template..."
+        SbtBundle.message("downloading.template")
       )
 
       tryToSetupRootModel(model, getContentEntryPath, getExternalProjectSettings)
@@ -87,27 +88,27 @@ class TechHubModuleBuilder extends
 
       override def validate(): Boolean = {
         val selected = settingsComponents.getSelectedTemplate
-        if (selected == null) error("Select template")
+        if (selected == null) error(SbtBundle.message("select.template"))
 
         val text = settingsStep.getModuleNameLocationSettings.getModuleName
         if (!isIdentifier(text))
-          error("sbt Project name must be valid Scala identifier")
+          error(SbtBundle.message("sbt.project.name.must.be.valid.scala.identifier"))
 
         true
       }
     }
   }
 
-  private def error(msg: String) = throw new ConfigurationException(msg, "Error")
+  private def error(@Nls msg: String) = throw new ConfigurationException(msg, "Error")
 
   private def downloadTemplateList(): Unit =
     doWithProgress(
       // TODO report errors
       {allTemplates = TechHubStarterProjects.downloadIndex().get},
-      "Downloading list of templates..."
+      SbtBundle.message("downloading.list.of.templates")
     )
 
-  private def doWithProgress(body: => Unit, title: String): Unit =
+  private def doWithProgress(body: => Unit, @Nls title: String): Unit =
     ProgressManager.getInstance().runProcessWithProgressSynchronously(
       new Runnable { override def run(): Unit = body },
       title, false, null

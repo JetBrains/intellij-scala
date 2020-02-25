@@ -16,8 +16,9 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, invokeLaterInTransaction, executeWriteActionCommand, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -276,7 +277,7 @@ trait IntroduceTypeAlias {
   }
 
 
-  def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, title: String, elementName: T => String): Unit = {
+  def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, @Nls title: String, elementName: T => String): Unit = {
     class Selection {
       val selectionModel: SelectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)

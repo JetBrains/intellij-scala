@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.usages.impl.rules.UsageType._
 import com.intellij.usages.impl.rules.{UsageType, UsageTypeProviderEx}
 import com.intellij.usages.{PsiElementUsageTarget, UsageTarget}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -106,7 +107,7 @@ object ScalaUsageTypeProvider {
     }
   }
 
-  implicit def stringToUsageType(name: String): UsageType = new UsageType(name)
+  implicit def stringToUsageType(@Nls name: String): UsageType = new UsageType(name)
   val Extractor: UsageType                 = ScalaBundle.message("usage.extractor")
   val ClassTypedPattern: UsageType         = ScalaBundle.message("usage.typed.pattern")
   val TypedStatement: UsageType            = ScalaBundle.message("usage.typed.statement")

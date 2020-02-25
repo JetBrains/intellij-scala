@@ -1083,7 +1083,7 @@ package object extensions {
       null
     )
 
-  def executeWriteActionCommand(commandName: String = "",
+  def executeWriteActionCommand(@Nls commandName: String = "",
                                 policy: UndoConfirmationPolicy = UndoConfirmationPolicy.DEFAULT)
                                (body: => Unit)
                                (implicit project: Project): Unit =
@@ -1096,7 +1096,7 @@ package object extensions {
     )
 
   def executeWriteActionCommand(runnable: Runnable,
-                                commandName: String,
+                                @Nls commandName: String,
                                 policy: UndoConfirmationPolicy)
                                (implicit project: Project): Unit =
     CommandProcessor.getInstance().executeCommand(
@@ -1148,14 +1148,14 @@ package object extensions {
     Disposer.register(parentDisposable, () => task.cancel(true))
   }
 
-  def withProgressSynchronously[T](title: String)(body: => T): T = {
+  def withProgressSynchronously[T](@Nls title: String)(body: => T): T = {
     withProgressSynchronouslyTry[T](title)(_ => body) match {
       case Success(result) => result
       case Failure(exception) => throw exception
     }
   }
 
-  def withProgressSynchronouslyTry[T](title: String, canBeCanceled: Boolean = false)(body: ProgressManager => T): Try[T] = {
+  def withProgressSynchronouslyTry[T](@Nls title: String, canBeCanceled: Boolean = false)(body: ProgressManager => T): Try[T] = {
     val manager = ProgressManager.getInstance
     catching(classOf[Exception]).withTry {
       manager.runProcessWithProgressSynchronously(new ThrowableComputable[T, Exception] {

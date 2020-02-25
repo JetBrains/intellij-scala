@@ -9,6 +9,7 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
@@ -32,7 +33,7 @@ package object compilerReferences {
     }
   }
 
-  def task(project: Project, title: String)(body: ProgressIndicator => Any): Task.Backgroundable =
+  def task(project: Project, @Nls title: String)(body: ProgressIndicator => Any): Task.Backgroundable =
     new Task.Backgroundable(project, title, false) {
       override def run(indicator: ProgressIndicator): Unit = body(indicator)
     }

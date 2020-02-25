@@ -9,7 +9,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.util.xmlb.XmlSerializerUtil
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError._
@@ -143,7 +143,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
     }
   }
 
-  private class DownloadScalafmtNotificationActon(version: String, title: String)
+  private class DownloadScalafmtNotificationActon(version: String, @Nls title: String)
     extends NotificationAction(title) {
 
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {

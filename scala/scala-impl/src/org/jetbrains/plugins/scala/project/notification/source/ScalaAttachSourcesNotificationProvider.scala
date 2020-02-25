@@ -17,6 +17,7 @@ import com.intellij.openapi.util.{ActionCallback, Comparing}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.ui.{EditorNotificationPanel, GuiUtils}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -86,7 +87,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project)
       panel.createActionLabel(GuiUtils.getTextWithoutMnemonicEscaping(each.getName), new Runnable {
         override def run(): Unit = {
           if (!Comparing.equal(libraries, findOrderEntriesContainingFile(file))) {
-            Messages.showErrorDialog(myProject, "Cannot find library for " + StringUtil.getShortName(fqn), "Error")
+            Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.find.library.for", StringUtil.getShortName(fqn)), ScalaBundle.message("cannot.find.library.error.title"))
             return
           }
           panel.setText(each.getBusyText)

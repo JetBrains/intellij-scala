@@ -27,7 +27,7 @@ class DesugarCodeAction extends AnAction {
 
     val selection = editor.getSelectionModel
 
-    val title = ScalaBundle.message("desugar.scala.code.in.scope", selection.hasSelection.fold(ScalaBundle.message("scope.selection"), ScalaBundle.message("scope.file")))
+    val title = ScalaBundle.message("desugar.scala.code.in.scope", selection.hasSelection.fold(ScalaBundle.message("scope.selection"), ScalaBundle.message("scope.file", file)))
 
     new SelectionDialog().show(title).filter(_.nonEmpty).foreach { transformers =>
       inWriteCommandAction {

@@ -6,6 +6,7 @@ package types
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -19,6 +20,7 @@ object InfixType extends InfixType {
 
 trait InfixType {
   protected def componentType: Type
+  @Nls
   protected def errorMessage: String
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, star = false)

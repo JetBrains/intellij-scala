@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.project.settings
+package org.jetbrains.plugins.scala
+package project
+package settings
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.compiler.server.BuildManager
@@ -6,7 +8,6 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.options.Configurable.Composite
 import com.intellij.openapi.project.Project
 import javax.swing.JPanel
-import org.jetbrains.plugins.scala.project.AbstractConfigurable
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerConfiguration)
@@ -52,6 +53,5 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
 }
 
 object ScalaCompilerConfigurable {
-
-  val Name = "Scala Compiler"
+  val Name: String = ScalaBundle.message("scala.compiler")
 }

@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.ui.HyperlinkLabel
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrategy
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaTabbedCodeStylePanel
@@ -101,7 +102,7 @@ object TypeAnnotationUtil {
     }
   }
 
-  def createTypeAnnotationsHLink(project: Project, msg: String): HyperlinkLabel = {
+  def createTypeAnnotationsHLink(project: Project, @Nls msg: String): HyperlinkLabel = {
     val typeAnnotationsSettings: HyperlinkLabel = new HyperlinkLabel(msg)
     typeAnnotationsSettings.addHyperlinkListener((e: HyperlinkEvent) => {
       if (e.getEventType eq HyperlinkEvent.EventType.ACTIVATED) {

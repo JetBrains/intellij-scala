@@ -17,6 +17,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 import com.intellij.util.FilteredQuery
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -78,7 +79,7 @@ class ScalaInlineHandler extends InlineHandler {
   override def prepareInlineElement(element: PsiElement, editor: Editor, invokedOnReference: Boolean): InlineHandler.Settings = {
     def title(suffix: String) = "Scala Inline " + suffix
 
-    def showErrorHint(message: String, titleSuffix: String): InlineHandler.Settings = {
+    def showErrorHint(@Nls message: String, titleSuffix: String): InlineHandler.Settings = {
       val inlineTitle = title(titleSuffix)
       CommonRefactoringUtil.showErrorHint(element.getProject, editor, message, inlineTitle, HelpID.INLINE_VARIABLE)
       Settings.CANNOT_INLINE_SETTINGS

@@ -46,6 +46,7 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
 
     if (shortcuts.nonEmpty) {
       val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
+      //noinspection ReferencePassedToNls
       e.getPresentation.setText(genericText + shortcutText)
     }
   }

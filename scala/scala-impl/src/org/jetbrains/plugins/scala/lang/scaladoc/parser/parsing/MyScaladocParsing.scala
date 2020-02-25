@@ -6,6 +6,7 @@ package parsing
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.PsiBuilderExt
@@ -307,7 +308,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     true
   }
 
-  private def scaladocError(builder: PsiBuilder, message: String): Unit = {
+  private def scaladocError(builder: PsiBuilder, @Nls message: String): Unit = {
     builder.error(message)
   }
 }

@@ -6,7 +6,8 @@ import java.net.URL
 import com.intellij.notification._
 import com.intellij.openapi.project.Project
 import javax.swing.event.HyperlinkEvent
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.plugins.scala.ScalaBundle
 
 import scala.collection.mutable
 
@@ -16,18 +17,19 @@ import scala.collection.mutable
  */
 // TODO Why do we need a mutable builder when we have named / default arguments?
 object NotificationUtil  {
-  def builder(project: Project, message: String) = new NotificationBuilder(project, message)
+  def builder(project: Project, @Nls message: String) = new NotificationBuilder(project, message)
 
-  class NotificationBuilder protected[NotificationUtil] (project: Project, message: String) {
+  class NotificationBuilder protected[NotificationUtil] (project: Project, @Nls message: String) {
     private var group: String = "Scala"
-    private var title: String = "Warning" // TODO Should be "null"
+    @Nls
+    private var title: String = ScalaBundle.message("default.notification.title") // TODO Should be "null"
     private var notificationType: NotificationType = NotificationType.WARNING
     private var displayType: NotificationDisplayType = NotificationDisplayType.BALLOON // TODO Why it's present but not applied?
     private var handler: Handler = IdHandler
     private val actions: mutable.Buffer[NotificationAction] = mutable.Buffer()
 
     def setGroup(@NonNls group: String): this.type = {this.group = group; this}
-    def setTitle(title: String): this.type = {this.title = title; this}
+    def setTitle(@Nls title: String): this.type = {this.title = title; this}
     def removeTitle(): this.type = {this.title = null; this}
     def setNotificationType(notificationType: NotificationType): this.type = {this.notificationType = notificationType; this}
     @deprecated
@@ -44,12 +46,13 @@ object NotificationUtil  {
     def show(): Unit = Notifications.Bus.notify(notification, project)
   }
 
-  def showMessage(project: Project, message: String,
-             group: String = "scala",
-             title: String = "Warning",
-             notificationType: NotificationType = NotificationType.WARNING,
-             displayType: NotificationDisplayType = NotificationDisplayType.BALLOON,
-             handler: Handler = IdHandler): Unit = {
+  def showMessage(project: Project,
+                  @Nls message: String,
+                  group: String = "scala",
+                  @Nls title: String = ScalaBundle.message("default.notification.title"),
+                  notificationType: NotificationType = NotificationType.WARNING,
+                  displayType: NotificationDisplayType = NotificationDisplayType.BALLOON,
+                  handler: Handler = IdHandler): Unit = {
 
     builder(project, message).
       setGroup(group).

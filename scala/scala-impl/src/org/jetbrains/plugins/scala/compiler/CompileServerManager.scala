@@ -17,6 +17,8 @@ import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
 import javax.swing.{Icon, Timer}
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
@@ -61,7 +63,8 @@ final class CompileServerManager(project: Project) extends Disposable {
 
   private def statusBar = Option(WindowManager.getInstance.getStatusBar(project))
 
-  private def title = "Scala Compile Server"
+  @Nls
+  private def title = ScalaBundle.message("scala.compile.server.title")
 
   private def configureWidget(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
@@ -104,6 +107,7 @@ final class CompileServerManager(project: Project) extends Disposable {
 
       override def getClickConsumer: Consumer[MouseEvent] = ClickConsumer
 
+      //noinspection ReferencePassedToNls
       override def getTooltipText: String = title + launcher.port.map(_.formatted(" (TCP %d)")).getOrElse("")
 
       private object ClickConsumer extends Consumer[MouseEvent] {
@@ -122,7 +126,7 @@ final class CompileServerManager(project: Project) extends Disposable {
     popup.show(new RelativePoint(e.getComponent, at))
   }
 
-  private object Start extends AnAction("&Run", "Start compile server", AllIcons.Actions.Execute) with DumbAware {
+  private object Start extends AnAction(ScalaBundle.message("action.run"), ScalaBundle.message("start.compile.server"), AllIcons.Actions.Execute) with DumbAware {
     override def update(e: AnActionEvent): Unit =
       e.getPresentation.setEnabled(!launcher.running)
 
@@ -130,7 +134,7 @@ final class CompileServerManager(project: Project) extends Disposable {
       launcher.tryToStart(project)
   }
 
-  private object Stop extends AnAction("&Stop", "Shutdown compile server", AllIcons.Actions.Suspend) with DumbAware {
+  private object Stop extends AnAction(ScalaBundle.message("action.stop"), ScalaBundle.message("shutdown.compile.server"), AllIcons.Actions.Suspend) with DumbAware {
     override def update(e: AnActionEvent): Unit =
       e.getPresentation.setEnabled(launcher.running)
 
@@ -138,7 +142,7 @@ final class CompileServerManager(project: Project) extends Disposable {
       launcher.stop(e.getProject)
   }
 
-  private object Configure extends AnAction("&Configure...", "Configure compile server", AllIcons.General.Settings) with DumbAware {
+  private object Configure extends AnAction(ScalaBundle.message("action.configure"), ScalaBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {
     override def actionPerformed(e: AnActionEvent): Unit =
       showCompileServerSettingsDialog(project)
   }

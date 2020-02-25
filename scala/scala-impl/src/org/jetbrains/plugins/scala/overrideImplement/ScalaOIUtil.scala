@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.Constructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -103,7 +104,7 @@ object ScalaOIUtil {
                 isImplement: Boolean,
                 clazz: ScTemplateDefinition)
                (implicit project: Project, editor: Editor): Unit =
-    executeWriteActionCommand(if (isImplement) "Implement method" else "Override method") {
+    executeWriteActionCommand(if (isImplement) ScalaBundle.message("action.implement.method") else ScalaBundle.message("action.override.method")) {
       val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
       val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
       val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)

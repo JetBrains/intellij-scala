@@ -238,6 +238,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
     def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
 
     private def fqNamesFromJarFile(file: File): Set[String] = {
+      //noinspection ReferencePassedToNls
       progressIndicator.foreach(_.setText2(file.getAbsolutePath))
 
       using(new JarFile(file)) { jarFile =>

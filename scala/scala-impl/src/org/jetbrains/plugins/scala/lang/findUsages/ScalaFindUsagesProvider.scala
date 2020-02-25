@@ -26,6 +26,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   @Nullable
   override def getHelpId(psiElement: PsiElement): String = null
 
+  //noinspection ReferencePassedToNls
   @NotNull
   override def getType(element: PsiElement): String = ScalaFindUsagesUtil.getType(element)
 
