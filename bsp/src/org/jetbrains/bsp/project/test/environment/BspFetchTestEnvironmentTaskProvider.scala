@@ -2,7 +2,7 @@ package org.jetbrains.bsp.project.test.environment
 
 import java.net.URI
 import java.nio.file.Paths
-import java.{lang, util}
+import java.lang
 import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j.{BuildServerCapabilities, BuildTargetIdentifier, JvmTestEnvironmentParams, JvmTestEnvironmentResult, SourcesItem, SourcesParams, SourcesResult}
@@ -12,8 +12,6 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
-import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -21,12 +19,11 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{JavaPsiFacade, PsiFile}
 import com.intellij.psi.search.GlobalSearchScope
 import javax.swing.Icon
-import org.jetbrains.bsp.{BSP, BspBundle, BspUtil, Icons}
+import org.jetbrains.bsp.{BspBundle, BspUtil, Icons}
 import org.jetbrains.bsp.data.BspMetadata
-import org.jetbrains.bsp.protocol.BspCommunication
+import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 
-import scala.concurrent.duration._
 import scala.collection.JavaConverters._
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, ProcessLogger}
@@ -34,11 +31,11 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData}
 
-import scala.concurrent.Await
 import com.intellij.openapi.util.Key
-import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.concurrency.{Promise, Promises}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
+
+import scala.util.Try
 
 case class JvmTestEnvironment(
                                classpath: Seq[String],
@@ -88,17 +85,22 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
           testClasses <- getApplicableClasses(configuration)
             .toRight(BspGetEnvironmentError(s"Could not detect run classes for configuration ${configuration.getName}"))
           testSources = testClasses.flatMap(class2File(_, module.getProject))
-          targetsMatchingSources = fetchTargetIdsFromFiles(testSources, workspaceUri, module.getProject, potentialTargets)
+          targetsMatchingSources <- fetchTargetIdsFromFiles(testSources, workspaceUri, module.getProject, potentialTargets)
+            .map(Right(_))
+            .getOrElse(Left(BspGetEnvironmentError("Could not fetch sources lists from BSP server. 'buildTarget/sources' request failed")))
           chosenTargetId <- task.state
             .orElse(if (targetsMatchingSources.length == 1) targetsMatchingSources.headOption.map(_.getUri) else None)
             .orElse(askUserForTargetId(potentialTargets.map(_.getUri), task))
             .toRight(BspGetEnvironmentError("Could not choose any target ID"))
-          testEnvironment = fetchJvmTestEnvironment(new BuildTargetIdentifier(chosenTargetId), workspaceUri, module.getProject)
+          testEnvironment <-
+            fetchJvmTestEnvironment(new BuildTargetIdentifier(chosenTargetId), workspaceUri, module.getProject)
+              .map(Right(_))
+              .getOrElse(Left(BspGetEnvironmentError("Failed to fetch test JVM environment")))
           _ = config.putUserData(BspFetchTestEnvironmentTask.jvmTestEnvironmentKey, testEnvironment)
         } yield ()
         taskResult match {
           case Left(value) => {
-            logger.error(s"Error while getting envoronment from BSP: ${value.msg}")
+            logger.error(s"Error while fetching test environment from BSP: ${value.msg}")
             false
           }
           case Right(_) => true
@@ -131,7 +133,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
   private def fetchTargetIdsFromFiles(files: Seq[PsiFile],
                                       workspace: URI,
                                       project: Project,
-                                      potentialTargets: Seq[BuildTargetIdentifier]): Seq[BuildTargetIdentifier] = {
+                                      potentialTargets: Seq[BuildTargetIdentifier]): Try[Seq[BuildTargetIdentifier]] = {
     val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile)
     val bspTaskId: EventId = BuildMessages.randomEventId
     val cancelToken = scala.concurrent.Promise[Unit]()
@@ -142,12 +144,15 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
       buildId = bspTaskId,
       title = BspBundle.message("bsp.task.fetching.sources"),
       cancelAction)
-    val sources: util.List[SourcesItem] = Await.result(communication.run(
+    val job = communication.run(
       bspSessionTask =  getFiles(potentialTargets)(_, _),
       notifications = _  => (),
       processLogger = processLog(reporter),
-    ).future, 300.millis).getItems
-    filterTargetsContainingSources(sources.asScala, files)
+    )
+    BspJob.waitForJob(job, 10).map{
+      sources =>
+        filterTargetsContainingSources(sources.getItems.asScala, files)
+    }
   }
 
   /**
@@ -188,24 +193,28 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     report.log(message)
   }
 
-  private def fetchJvmTestEnvironment(target: BuildTargetIdentifier, workspace: URI, project: Project): JvmTestEnvironment = {
+  private def fetchJvmTestEnvironment(target: BuildTargetIdentifier, workspace: URI, project: Project): Try[JvmTestEnvironment] = {
     val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile)
     val bspTaskId: EventId = BuildMessages.randomEventId
     val cancelToken = scala.concurrent.Promise[Unit]()
     val cancelAction = new CancelBuildAction(cancelToken)
     implicit val reporter = new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.fetchng.jvm.test.environment"), cancelAction)
-    val response = Await.result(communication.run(
+    val job = communication.run(
       bspSessionTask = jvmTestEnvironmentBspRequest(List(target))(_, _),
       notifications = _ => (),
       processLogger = processLog(reporter),
-    ).future, 300.millis)
-    val environment = response.getItems.asScala.head
-    JvmTestEnvironment(
-      classpath = environment.getClasspath.asScala.map(x => new URI(x).getPath),
-      workdir = environment.getWorkingDirectory,
-      environmentVariables = environment.getEnvironmentVariables.asScala.toMap,
-      jvmOptions = environment.getJvmOptions.asScala.toList
     )
+
+    BspJob.waitForJob(job, retries = 10).map {
+      response =>
+        val environment = response.getItems.asScala.head
+        JvmTestEnvironment(
+          classpath = environment.getClasspath.asScala.map(x => new URI(x).getPath),
+          workdir = environment.getWorkingDirectory,
+          environmentVariables = environment.getEnvironmentVariables.asScala.toMap,
+          jvmOptions = environment.getJvmOptions.asScala.toList
+        )
+    }
   }
 
   private def getBspTargets(module: Module): Option[Seq[BuildTargetIdentifier]] =

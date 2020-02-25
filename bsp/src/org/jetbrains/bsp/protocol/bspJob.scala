@@ -47,6 +47,19 @@ object BspJob {
     } catch {
       case _ : TimeoutException => waitForJobCancelable(job, cancelCheck)
     }
+
+  @tailrec def waitForJob[R](job: BspJob[R], retries: Int): Try[R] =
+    try {
+      if (retries <= 0) {
+        job.cancel()
+        Failure(BspTaskCancelled)
+      } else {
+        val res = Await.result(job.future, 300.millis)
+        Try(res)
+      }
+    } catch {
+      case _ : TimeoutException => waitForJob(job, retries)
+    }
 }
 
 class NonAggregatingBspJob[T,A](job: BspJob[(T,A)]) extends BspJob[T] {
