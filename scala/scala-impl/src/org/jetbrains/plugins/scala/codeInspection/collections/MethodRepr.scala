@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -15,7 +16,15 @@ class MethodRepr private (val itself: ScExpression,
 
 object MethodRepr {
   //method represented by optional base expression, optional method reference and arguments
-  def unapply(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] = {
+  def unapply(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] =
+    expr match {
+      case null => None
+      case expr => unapplyInner(expr)
+    }
+
+  //it is invoked very often in inspection, so BlockModificationTracker would be to heavy
+  @CachedInUserData(expr, ModCount.anyScalaPsiModificationCount)
+  private def unapplyInner(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] = {
     expr match {
       case call: ScMethodCall =>
         val args = call.args match {
