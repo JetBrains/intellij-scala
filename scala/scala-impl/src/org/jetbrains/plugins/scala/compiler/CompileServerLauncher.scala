@@ -132,7 +132,7 @@ object CompileServerLauncher {
         val shutdownDelayArg = if (settings.COMPILE_SERVER_SHUTDOWN_IDLE && shutdownDelay >= 0) {
           Seq(s"-Dshutdown.delay=$shutdownDelay")
         } else Nil
-        val isInternalProperty = if (isInternalMode) Seq("-Didea.is.internal=true") else Nil
+        val isScalaCompileServer = "-Dij.scala.compile.server=true"
 
         val extraJvmParameters = CompileServerVmOptionsProvider.implementations.flatMap(_.vmOptionsFor(project))
 
@@ -141,7 +141,7 @@ object CompileServerLauncher {
             "-cp" +: nailgunClasspath +:
             jvmParameters ++:
             shutdownDelayArg ++:
-            isInternalProperty ++:
+            isScalaCompileServer +:
             extraJvmParameters ++:
             NailgunRunnerFQN +:
             freePort.toString +:
