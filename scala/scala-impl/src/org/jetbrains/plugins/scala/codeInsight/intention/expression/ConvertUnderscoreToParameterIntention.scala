@@ -10,7 +10,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
-import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
@@ -30,17 +29,8 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author Ksenia.Sautina
- * @since 4/13/12
- */
-
-object ConvertUnderscoreToParameterIntention {
-  def familyName = "Convert underscore section to parameter"
-}
-
 class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionAction {
-  override def getFamilyName: String = ConvertUnderscoreToParameterIntention.familyName
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.underscore.section.to.parameter")
 
   override def getText: String = getFamilyName
 

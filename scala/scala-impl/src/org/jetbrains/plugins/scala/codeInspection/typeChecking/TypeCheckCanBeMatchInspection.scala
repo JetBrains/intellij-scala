@@ -8,6 +8,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -77,7 +79,8 @@ final class TypeCheckCanBeMatchInspection extends AbstractInspection(TypeCheckCa
 
 object TypeCheckCanBeMatchInspection {
   val inspectionId = "TypeCheckCanBeMatch"
-  val inspectionName = "Type check can be replaced by pattern matching"
+  @Nls
+  val inspectionName: String = InspectionBundle.message("type.check.can.be.replaced.by.pattern.matching")
 
   private type RenameData = mutable.ArrayBuffer[(Int, Seq[String])]
 

@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiMethod, PsiNamedElement}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
@@ -20,17 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-/**
- * @author Ksenia.Sautina
- * @since 4/12/12
- */
-
-object RemoveApplyIntention {
-  val familyName = "Remove unnecessary apply"
-}
-
 class RemoveApplyIntention extends PsiElementBaseIntentionAction {
-  override def getFamilyName: String = RemoveApplyIntention.familyName
+  override def getFamilyName: String = ScalaBundle.message("family.name.remove.unnecessary.apply")
 
   override def getText: String = getFamilyName
 

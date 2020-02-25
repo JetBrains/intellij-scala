@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
@@ -56,7 +57,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
       blockFor(expr) match {
         case Success(bl) => Some(bl)
         case Failure(e) =>
-          CommonRefactoringUtil.showErrorHint(project, editor, e.getMessage, "Create entity quickfix", null)
+          CommonRefactoringUtil.showErrorHint(project, editor, e.getMessage, ScalaBundle.message("error.message.title.create.entity.quickfix"), null)
           None
       }
     }

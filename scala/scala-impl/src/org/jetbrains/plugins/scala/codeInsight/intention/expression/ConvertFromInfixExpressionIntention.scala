@@ -7,20 +7,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-/**
- * @author Ksenia.Sautina
- * @since 4/9/12
- */
-object ConvertFromInfixExpressionIntention {
-  val familyName = "Convert from infix expression"
-}
-
 class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction {
-  override def getFamilyName: String = ConvertFromInfixExpressionIntention.familyName
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.from.infix.expression")
 
   override def getText: String = getFamilyName
 

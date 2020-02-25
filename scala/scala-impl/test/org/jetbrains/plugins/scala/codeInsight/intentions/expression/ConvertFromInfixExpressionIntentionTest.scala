@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
  */
 
 class ConvertFromInfixExpressionIntentionTest extends ScalaIntentionTestBase {
-  override val familyName = ConvertFromInfixExpressionIntention.familyName
+  override val familyName = ScalaBundle.message("family.name.convert.from.infix.expression")
 
   def testConvertFromInfixExpression(): Unit = {
     val text = "1 <caret>to 5"

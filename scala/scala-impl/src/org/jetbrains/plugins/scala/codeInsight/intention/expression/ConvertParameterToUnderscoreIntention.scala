@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention._
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -23,14 +24,48 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-/**
- * @author Ksenia.Sautina
- * @since 4/18/12
- */
+
+class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionAction {
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.parameter.to.underscore.section")
+
+  override def getText: String = getFamilyName
+
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+    val expr: ScFunctionExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr], false)
+    if (expr == null) return false
+
+    val range: TextRange = expr.params.getTextRange
+    val offset = editor.getCaretModel.getOffset
+    if (range.getStartOffset <= offset && offset <= range.getEndOffset + 3) return true
+
+    false
+  }
+
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
+    def showErrorHint(hint: String): Unit = {
+      if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(hint)
+      else HintManager.getInstance().showErrorHint(editor, hint)
+    }
+
+    val expr: ScFunctionExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr], false)
+    if (expr == null || !expr.isValid) return
+
+    val startOffset = expr.getTextRange.getStartOffset
+
+    createExpressionToIntroduce(expr, withoutParameterTypes = false) match {
+      case Left(newExpr) =>
+        inWriteAction {
+          expr.replace(newExpr)
+          editor.getCaretModel.moveToOffset(startOffset)
+          PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        }
+      case Right(message) =>
+        showErrorHint(message)
+    }
+  }
+}
 
 object ConvertParameterToUnderscoreIntention {
-  def familyName = "Convert parameter to underscore section"
-
   def createExpressionToIntroduce(expr: ScFunctionExpr, withoutParameterTypes: Boolean): Either[ScExpression, String] = {
     implicit val ctx: ProjectContext = expr
 
@@ -107,44 +142,4 @@ object ConvertParameterToUnderscoreIntention {
     Left(newExpr)
   }
 
-}
-
-class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionAction {
-  override def getFamilyName: String = familyName
-
-  override def getText: String = getFamilyName
-
-  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val expr: ScFunctionExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr], false)
-    if (expr == null) return false
-
-    val range: TextRange = expr.params.getTextRange
-    val offset = editor.getCaretModel.getOffset
-    if (range.getStartOffset <= offset && offset <= range.getEndOffset + 3) return true
-
-    false
-  }
-
-  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    def showErrorHint(hint: String): Unit = {
-      if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(hint)
-      else HintManager.getInstance().showErrorHint(editor, hint)
-    }
-
-    val expr: ScFunctionExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr], false)
-    if (expr == null || !expr.isValid) return
-
-    val startOffset = expr.getTextRange.getStartOffset
-
-    createExpressionToIntroduce(expr, withoutParameterTypes = false) match {
-      case Left(newExpr) =>
-        inWriteAction {
-          expr.replace(newExpr)
-          editor.getCaretModel.moveToOffset(startOffset)
-          PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-        }
-      case Right(message) =>
-        showErrorHint(message)
-    }
-  }
 }

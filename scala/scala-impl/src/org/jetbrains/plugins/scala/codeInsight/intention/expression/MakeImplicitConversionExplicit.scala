@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getNonStrictParentOfType
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.MakeExplicitAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -20,9 +21,9 @@ class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
 
   import MakeImplicitConversionExplicit._
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaBundle.message("family.name.make.implicit.conversion.explicit")
 
-  override def getText: String = FamilyName
+  override def getText: String = getFamilyName
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     findImplicitElement(element).isDefined
@@ -36,9 +37,6 @@ class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
 }
 
 object MakeImplicitConversionExplicit {
-
-  val FamilyName = "Make implicit conversion explicit"
-
   private def findImplicitElement(element: PsiElement) = for {
     parent <- Option(getNonStrictParentOfType(element, classOf[ScExpression]))
     if parent.isValid

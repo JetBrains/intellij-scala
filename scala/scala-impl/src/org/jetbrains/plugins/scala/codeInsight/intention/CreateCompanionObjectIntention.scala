@@ -54,10 +54,5 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def getFamilyName: String = CreateCompanionObjectIntention.getFamilyName
-}
-
-
-object CreateCompanionObjectIntention {
-  def getFamilyName: String = "Create companion object"
+  override def getFamilyName: String = ScalaBundle.message("family.name.create.companion.object")
 }

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.expression
 
-import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertUnderscoreToParameterIntention
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
@@ -10,7 +9,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
  */
 
 class ConvertUnderscoreToParameterIntentionTest extends ScalaIntentionTestBase{
-  override def familyName = ConvertUnderscoreToParameterIntention.familyName
+  override def familyName = ScalaBundle.message("family.name.convert.underscore.section.to.parameter")
 
   def testIntroduceExplicitParameter(): Unit = {
     val text = "some.map(_<caret> > 5)"

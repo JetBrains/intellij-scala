@@ -9,6 +9,7 @@ import com.intellij.ui.table.TableView
 import com.intellij.ui.{SpeedSearchComparator, TableViewSpeedSearch}
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import javax.swing.JTable
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
 import scala.collection.JavaConverters.enumerationAsScalaIteratorConverter
@@ -31,7 +32,7 @@ class DataById[Data](id: Data => String) {
     newData.forEach(d => dataBuffer.put(getId(d), d))
   }
 
-  private def column[T](name: String, value: Data => T, comparator: Comparator[T]): ColumnInfo[String, T] =
+  private def column[T](@Nls name: String, value: Data => T, comparator: Comparator[T]): ColumnInfo[String, T] =
 
     new ColumnInfo[String, T](name) {
 
@@ -40,10 +41,10 @@ class DataById[Data](id: Data => String) {
       override def getComparator: Comparator[String] = Comparator.comparing[String, T](valueOf _, comparator)
     }
 
-  def stringColumn(name: String, value: Data => String): ColumnInfo[String, String] =
+  def stringColumn(@Nls name: String, value: Data => String): ColumnInfo[String, String] =
     column(name, value, Comparator.naturalOrder())
 
-  def numColumn[T: Numeric](name: String, value: Data => T): ColumnInfo[String, T] =
+  def numColumn[T: Numeric](@Nls name: String, value: Data => T): ColumnInfo[String, T] =
     column(name, value, implicitly[Numeric[T]])
 }
 

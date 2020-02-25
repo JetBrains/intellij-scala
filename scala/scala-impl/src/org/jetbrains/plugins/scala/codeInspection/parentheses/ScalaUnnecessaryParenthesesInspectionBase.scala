@@ -6,6 +6,7 @@ import com.intellij.codeInspection.{LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspec
  * 4/25/13
  */
 abstract class ScalaUnnecessaryParenthesesInspectionBase
-  extends AbstractInspection("Remove unnecessary parentheses") {
+  extends AbstractInspection(ScalaBundle.message("remove.unnecessary.parentheses")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case p: ScParenthesizedElement if isProblem(p) =>
@@ -64,8 +65,9 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
       isParenthesesRedundant(elem, currentSettings)
 
 
-  private def registerProblem(parenthesized: ScParenthesizedElement)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit =
-    registerProblem(parenthesized, new AbstractFixOnPsiElement("Remove unnecessary parentheses " + getShortText(parenthesized), parenthesized) {
+  private def registerProblem(parenthesized: ScParenthesizedElement)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
+    val description = InspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(parenthesized))
+    registerProblem(parenthesized, new AbstractFixOnPsiElement(description, parenthesized) {
       override protected def doApplyFix(element: ScParenthesizedElement)(implicit project: Project): Unit = {
         val keepParentheses = element.isNestingParenthesis
         // remove first the duplicate parentheses
@@ -83,9 +85,10 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
         ScalaPsiUtil padWithWhitespaces replaced
       }
     })
+  }
 
   private def registerProblem(elt: ScParameterClause)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
-    val quickFix = new AbstractFixOnPsiElement[ScParameterClause]("Remove unnecessary parentheses " + getShortText(elt), elt) {
+    val quickFix = new AbstractFixOnPsiElement[ScParameterClause](InspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(elt)), elt) {
       override protected def doApplyFix(element: ScParameterClause)(implicit project: Project): Unit = {
         if (isParenthesised(element)) {
           elt.getNode.removeChild(elt.getNode.getFirstChildNode)
@@ -98,6 +101,6 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
   }
 
   private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
-    registerRedundantParensProblem("Unnecessary parentheses", elt, qf)
+    registerRedundantParensProblem(InspectionBundle.message("unnecessary.parentheses"), elt, qf)
   }
 }

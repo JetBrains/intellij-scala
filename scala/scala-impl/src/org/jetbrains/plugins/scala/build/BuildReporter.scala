@@ -16,7 +16,7 @@ trait BuildReporter {
   def error(@Nls message: String, position: Option[FilePosition]): Unit
   def info(@Nls message: String, position: Option[FilePosition]): Unit
 
-  def log(message: String): Unit
+  def log(@Nls message: String): Unit
 
   def startTask(eventId: EventId, parent: Option[EventId], @Nls message: String, time: Long = System.currentTimeMillis()): Unit
   def progressTask(eventId: EventId, total: Long, progress: Long, unit: String, @Nls message: String, time: Long = System.currentTimeMillis()): Unit

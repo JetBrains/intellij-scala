@@ -3,8 +3,9 @@ package org.jetbrains.plugins.scala.codeInspection.deprecation
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.deprecation.DeprecatedKindProjectorSyntaxInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
@@ -29,7 +30,8 @@ class DeprecatedKindProjectorSyntaxInspection extends AbstractRegisteredInspecti
 }
 
 object DeprecatedKindProjectorSyntaxInspection {
-  private[deprecation] val quickFixId = "Replace with `*`-syntax"
+  @Nls
+  private[deprecation] val quickFixId = InspectionBundle.message("replace.with.star.syntax")
 
   private def kindProjectorMessage(hasUpToDateVersion: Boolean): String = {
     val updateSuggestion =

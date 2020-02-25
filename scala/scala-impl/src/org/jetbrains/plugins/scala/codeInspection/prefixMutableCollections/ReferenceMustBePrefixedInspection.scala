@@ -4,8 +4,9 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference.qualifier
@@ -20,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.withActual
   * @author Alefas
   * @since 26.05.12
   */
-class ReferenceMustBePrefixedInspection extends AbstractInspection(ReferenceMustBePrefixedInspection.DESCRIPTION) {
+class ReferenceMustBePrefixedInspection extends AbstractInspection(InspectionBundle.message("reference.must.be.prefixed")) {
 
   import ReferenceMustBePrefixedInspection._
 
@@ -40,10 +41,6 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection(ReferenceMust
 }
 
 object ReferenceMustBePrefixedInspection {
-
-  private val ID = "ReferenceMustBePrefixed"
-  val DESCRIPTION = "Reference must be prefixed"
-
   private def isValid(clazz: PsiClass, reference: ScReference): Boolean =
     ScalaPsiUtil.hasStablePath(clazz) && !PsiTreeUtil.isAncestor(clazz.containingClass, reference, true)
 
@@ -59,7 +56,7 @@ object ReferenceMustBePrefixedInspection {
   }
 
   private class AddPrefixQuickFix(reference: ScReference, segments: Seq[String])
-    extends AbstractFixOnPsiElement(AddPrefixQuickFix.HINT, reference) {
+    extends AbstractFixOnPsiElement(InspectionBundle.message("add.prefix.to.reference"), reference) {
 
     import AddPrefixQuickFix._
 
@@ -91,9 +88,6 @@ object ReferenceMustBePrefixedInspection {
   }
 
   object AddPrefixQuickFix {
-
-    val HINT = "Add prefix to reference"
-
     private def findPackage(fqn: String)
                            (implicit project: Project) = {
       val psiFacade = JavaPsiFacade.getInstance(project)

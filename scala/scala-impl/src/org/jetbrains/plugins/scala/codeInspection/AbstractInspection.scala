@@ -12,10 +12,9 @@ import org.jetbrains.annotations.{Nls, Nullable}
 @deprecated("use org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection instead")
 abstract class AbstractInspection protected(@Nullable @Nls customDisplayName: String = null) extends LocalInspectionTool {
 
-  override final def getDisplayName: String = customDisplayName match {
-    case null => AbstractInspection.byClassName(this)
-    case name => name
-  }
+  override final def getDisplayName: String =
+    if (customDisplayName == null) AbstractInspection.byClassName(this)
+    else customDisplayName
 
   protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any]
 

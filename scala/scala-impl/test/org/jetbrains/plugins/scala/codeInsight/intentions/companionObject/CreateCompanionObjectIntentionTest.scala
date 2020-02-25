@@ -1,14 +1,14 @@
-package org.jetbrains.plugins.scala.codeInsight.intentions.companionObject
-
-import org.jetbrains.plugins.scala.codeInsight.intention.CreateCompanionObjectIntention
-import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+package org.jetbrains.plugins.scala
+package codeInsight
+package intentions
+package companionObject
 
 /**
   * mattfowler
   * 5/21/2016
   */
 class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
-  override val familyName = CreateCompanionObjectIntention.getFamilyName
+  override val familyName = ScalaBundle.message("family.name.create.companion.object")
 
   def testShouldCreateCompanion(): Unit = {
     val text =

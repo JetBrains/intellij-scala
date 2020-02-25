@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 import com.intellij.codeInspection.{LocalQuickFixOnPsiElement, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, Transformer}
 
 /**
   * @author Pavel Fatin
   */
-class TransformerBasedInspection(name: String, solution: String, transformer: AbstractTransformer) extends AbstractInspection(name) {
+class TransformerBasedInspection(@Nls name: String, @Nls solution: String, transformer: AbstractTransformer) extends AbstractInspection(name) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = new PartialFunction[PsiElement, Any] {
     override def isDefinedAt(e: PsiElement): Boolean = transformer.isApplicableTo(e)

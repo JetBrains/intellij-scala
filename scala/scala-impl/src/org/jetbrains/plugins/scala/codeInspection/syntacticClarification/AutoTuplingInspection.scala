@@ -4,9 +4,7 @@ package codeInspection.syntacticClarification
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTuplingInspection.message
-import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.MakeTuplesExplicitFix.hint
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
@@ -14,19 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
  * Nikolay.Tropin
  * 2014-09-26
  */
-class AutoTuplingInspection extends AbstractInspection("Auto-tupling") {
+class AutoTuplingInspection extends AbstractInspection(InspectionBundle.message("display.name.auto.tupling")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case mc @ ScMethodCall(ref: ScReferenceExpression, _) if ref.bind().exists(_.tuplingUsed) =>
-      holder.registerProblem(mc.args, message, new MakeTuplesExplicitFix(mc))
+      holder.registerProblem(mc.args, InspectionBundle.message("scala.compiler.will.replace.this.argument.list.with.tuple"), new MakeTuplesExplicitFix(mc))
   }
 }
 
-object AutoTuplingInspection {
-  val message = "Scala compiler will replace this argument list with tuple"
-}
-
-class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFixOnPsiElement(hint, invoc) {
+class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFixOnPsiElement(InspectionBundle.message("make.tuple.explicit"), invoc) {
 
   override protected def doApplyFix(element: MethodInvocation)
                                    (implicit project: Project): Unit = element match {
@@ -38,8 +32,4 @@ class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFixOnPsiEle
     case _ =>
 
   }
-}
-
-object MakeTuplesExplicitFix {
-  val hint = "Make tuple explicit"
 }

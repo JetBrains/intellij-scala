@@ -8,6 +8,7 @@ import com.intellij.codeInspection.{InspectionsBundle, SuppressionUtil, Suppress
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -59,7 +60,7 @@ class ScalaSuppressForStatementFix(key: HighlightDisplayKey) extends ScalaSuppre
   }
 }
 
-abstract class ScalaSuppressForDefinitionFix(key: HighlightDisplayKey, text: String, defClasses: Class[_ <: PsiElement]*)
+abstract class ScalaSuppressForDefinitionFix(key: HighlightDisplayKey, @Nls text: String, defClasses: Class[_ <: PsiElement]*)
         extends ScalaSuppressByLineCommentFix(key) {
 
   override def getText: String = text

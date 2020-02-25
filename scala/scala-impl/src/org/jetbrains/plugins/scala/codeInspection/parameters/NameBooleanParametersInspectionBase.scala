@@ -5,6 +5,7 @@ package parameters
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
@@ -88,7 +89,7 @@ object NameBooleanParametersInspectionBase {
   private def addNameToArgumentsFix(literal: ScBooleanLiteral) =
     codeInsight.intention.addNameToArgumentsFix(literal, onlyBoolean = true)
 
-  private class NameBooleanParametersQuickFix(name: String, literal: ScBooleanLiteral)
+  private class NameBooleanParametersQuickFix(@Nls name: String, literal: ScBooleanLiteral)
     extends AbstractFixOnPsiElement(name, literal) {
 
     override protected def doApplyFix(literal: ScBooleanLiteral)

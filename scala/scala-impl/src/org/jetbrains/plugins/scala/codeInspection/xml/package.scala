@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection
 
-package object xml {
+import org.jetbrains.annotations.Nls
 
-  private[xml] val FamilyName = "Scala: General"
+package object xml {
+  @Nls
+  private[xml] val FamilyName = InspectionBundle.message("family.name.scala.general")
 }

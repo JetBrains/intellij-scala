@@ -5,6 +5,7 @@ package typeAnnotation
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScTypedExpression, ScUnderscoreSection}
@@ -58,7 +59,7 @@ object TypeAnnotationInspection {
         canBePrivate.seq(new MakePrivateQuickFix(element.asInstanceOf[ScModifierListOwner])) ++
           Seq(new AddTypeAnnotationQuickFix(anchor), new ModifyCodeStyleQuickFix(), new LearnWhyQuickFix())
 
-      holder.registerProblem(anchor, DescriptionPrefix + reason, fixes: _*)
+      holder.registerProblem(anchor, InspectionBundle.message("type.annotation.required.for", reason), fixes: _*)
     }
   }
 

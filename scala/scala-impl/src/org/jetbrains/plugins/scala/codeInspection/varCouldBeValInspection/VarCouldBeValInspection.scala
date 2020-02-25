@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{HighlightingPassInspection, ProblemInfo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isLocalOrPrivate, isPossiblyAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -25,7 +26,7 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = element match {
     case variable: ScVariableDefinition
       if variable.declaredElements.forall(if (isOnTheFly) hasNoWriteUsagesOnTheFly else hasNoWriteUsages) =>
-      Seq(ProblemInfo(variable.keywordToken, DESCRIPTION, ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new VarToValFix(variable))))
+      Seq(ProblemInfo(variable.keywordToken, InspectionBundle.message("var.could.be.a.val"), ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new VarToValFix(variable))))
     case _ => Seq.empty
   }
 
@@ -40,12 +41,8 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
 object VarCouldBeValInspection {
 
   val ID: String = "VarCouldBeVal"
-  val DESCRIPTION: String = "var could be a val"
 
   class VarToValFix(variable: ScVariableDefinition) extends LocalQuickFixAndIntentionActionOnPsiElement(variable) {
-
-    import VarToValFix._
-
     override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
       val fileModificationService = FileModificationService.getInstance
       startElement match {
@@ -56,14 +53,9 @@ object VarCouldBeValInspection {
       }
     }
 
-    override def getText: String = HINT
+    override def getText: String = InspectionBundle.message("convert.var.to.val")
 
     override def getFamilyName: String = getText
-  }
-
-  object VarToValFix {
-
-    val HINT: String = "Convert 'var' to 'val'"
   }
 
   def findReferences(element: PsiElement): (Iterable[PsiElement], Iterable[PsiElement]) = {

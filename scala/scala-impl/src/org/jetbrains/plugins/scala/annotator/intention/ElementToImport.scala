@@ -3,6 +3,7 @@ package annotator
 package intention
 
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -22,8 +23,8 @@ sealed trait ElementToImport {
 }
 
 object ElementToImport {
-
-  def messageByType(toImport: Array[ElementToImport])(classes: String, packages: String, mixed: String): String = {
+  @Nls
+  def messageByType(toImport: Array[ElementToImport])(@Nls classes: String, @Nls packages: String, @Nls mixed: String): String = {
     val toImportSeq = toImport.toSeq
     if (toImportSeq.forall(_.element.isInstanceOf[PsiClass])) classes
     else if (toImportSeq.forall(_.element.isInstanceOf[PsiPackage])) packages

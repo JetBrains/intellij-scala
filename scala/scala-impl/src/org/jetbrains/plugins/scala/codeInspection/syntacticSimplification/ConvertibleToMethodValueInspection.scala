@@ -4,6 +4,7 @@ package codeInspection.syntacticSimplification
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
@@ -109,7 +110,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
     }
   }
 
-  private def registerProblem(holder: ProblemsHolder, expr: ScExpression, hint: String): Unit = {
+  private def registerProblem(holder: ProblemsHolder, expr: ScExpression, @Nls hint: String): Unit = {
     possibleReplacements(expr).find(isSuitableForReplace(expr, _)).foreach { replacement =>
       holder.registerProblem(expr, inspectionName,
         ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
@@ -168,7 +169,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
   }
 }
 
-class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, hint: String)
+class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, @Nls hint: String)
   extends AbstractFixOnPsiElement(hint, expr) {
 
   override protected def doApplyFix(scExpr: ScExpression)

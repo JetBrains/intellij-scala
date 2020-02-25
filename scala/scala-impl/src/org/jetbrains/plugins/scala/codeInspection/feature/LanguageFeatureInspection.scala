@@ -6,6 +6,7 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -23,7 +24,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 /**
  * @author Pavel Fatin
  */
-class LanguageFeatureInspection extends AbstractInspection("Advanced language features") {
+class LanguageFeatureInspection extends AbstractInspection(InspectionBundle.message("display.name.advanced.language.features")) {
 
   private val Features = Seq(
     Feature("postfix operator notation", "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true)) {
@@ -103,7 +104,7 @@ private case class Feature(name: String,
 }
 
 private class ImportFeatureFlagFix(e: PsiElement, name: String, flag: String)
-        extends AbstractFixOnPsiElement("Import feature flag for %ss".format(name), e) {
+        extends AbstractFixOnPsiElement(InspectionBundle.message("import.feature.flag.for.language.feature").format(name), e) {
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {
@@ -116,7 +117,7 @@ private class EnableFeatureFix(profile: => ScalaCompilerSettingsProfile,
                                e: PsiElement,
                                name: String,
                                update: ScalaCompilerSettings => ScalaCompilerSettings)
-        extends AbstractFixOnPsiElement("Enable " + name + "s", e) {
+        extends AbstractFixOnPsiElement(InspectionBundle.message("enable.language.feature.plural", name), e) {
 
   override protected def doApplyFix(element: PsiElement)
                                    (implicit project: Project): Unit = {

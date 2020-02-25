@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.prefix
+package codeInspection
+package prefix
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
@@ -13,13 +12,12 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
   */
 class ReferenceMustBePrefixedInspectionTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
   import ReferenceMustBePrefixedInspection._
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ReferenceMustBePrefixedInspection]
 
-  override protected val description: String = DESCRIPTION
+  override protected val description: String = InspectionBundle.message("reference.must.be.prefixed")
 
   def testType(): Unit = testQuickFix(
     text =
@@ -164,6 +162,6 @@ class ReferenceMustBePrefixedInspectionTest extends ScalaQuickFixTestBase {
   )
 
   private def testQuickFix(text: String, expected: String): Unit = {
-    testQuickFix(text, expected, AddPrefixQuickFix.HINT)
+    testQuickFix(text, expected, InspectionBundle.message("add.prefix.to.reference"))
   }
 }

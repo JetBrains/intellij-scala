@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
  */
 
 class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
-  override val familyName = RemoveApplyIntention.familyName
+  override val familyName = ScalaBundle.message("family.name.remove.unnecessary.apply")
 
   def testRemoveApply(): Unit = {
     val text = "val l = List.apply<caret>(1, 3, 4)"

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
   * Nikolay.Tropin
   * 5/28/13
   */
-class OperationOnCollectionQuickFix(hint: String,
+class OperationOnCollectionQuickFix(@Nls hint: String,
                                     expression: ScExpression,
                                     replacementText: String) extends AbstractFixOnPsiElement(hint, expression) {
 
