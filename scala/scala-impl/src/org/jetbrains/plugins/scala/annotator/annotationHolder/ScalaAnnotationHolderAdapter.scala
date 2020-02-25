@@ -16,46 +16,52 @@ class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaA
     ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(innerHolder.getCurrentAnnotationSession.getFile)
 
   override def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
-    innerHolder.createErrorAnnotation(elt, ?(message))
+    convert1(elt, message)(innerHolder.createErrorAnnotation)
 
   override def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation =
-    innerHolder.createErrorAnnotation(node, ?(message))
+    convert2(node, message)(innerHolder.createErrorAnnotation)
 
   override def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation =
-    innerHolder.createErrorAnnotation(range, ?(message))
+    convert3(range, message)(innerHolder.createErrorAnnotation)
 
   override def createWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
-    innerHolder.createWarningAnnotation(elt, ?(message))
+    convert1(elt, message)(innerHolder.createWarningAnnotation)
 
   override def createWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation =
-    innerHolder.createWarningAnnotation(node, ?(message))
+    convert2(node, message)(innerHolder.createWarningAnnotation)
 
   override def createWarningAnnotation(range: TextRange, message: String): ScalaAnnotation =
-    innerHolder.createWarningAnnotation(range, ?(message))
+    convert3(range, message)(innerHolder.createWarningAnnotation)
 
   override def createWeakWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
-    innerHolder.createWeakWarningAnnotation(elt, ?(message))
+    convert1(elt, message)(innerHolder.createWeakWarningAnnotation)
 
   override def createWeakWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation =
-    innerHolder.createWeakWarningAnnotation(node, ?(message))
+    convert2(node, message)(innerHolder.createWeakWarningAnnotation)
 
   override def createWeakWarningAnnotation(range: TextRange, message: String): ScalaAnnotation =
-    innerHolder.createWeakWarningAnnotation(range, ?(message))
+    convert3(range, message)(innerHolder.createWeakWarningAnnotation)
 
   override def createInfoAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
-    innerHolder.createInfoAnnotation(elt, ?(message))
+    convert1(elt, message)(innerHolder.createInfoAnnotation)
 
   override def createInfoAnnotation(node: ASTNode, message: String): ScalaAnnotation =
-    innerHolder.createInfoAnnotation(node, ?(message))
+    convert2(node, message)(innerHolder.createInfoAnnotation)
 
   override def createInfoAnnotation(range: TextRange, message: String): ScalaAnnotation =
-    innerHolder.createInfoAnnotation(range, ?(message))
+    convert3(range, message)(innerHolder.createInfoAnnotation)
 
   override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): ScalaAnnotation =
-    innerHolder.createAnnotation(severity, range, ?(message))
+    if (showCompilerErrors)
+      innerHolder.createAnnotation(HighlightSeverity.INFORMATION, range, "")
+    else
+      innerHolder.createAnnotation(severity, range, message)
 
   override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): ScalaAnnotation =
-    innerHolder.createAnnotation(severity, range, ?(message), ?(htmlTooltip))
+    if (showCompilerErrors)
+      innerHolder.createAnnotation(HighlightSeverity.INFORMATION, range, "", "")
+    else
+      innerHolder.createAnnotation(severity, range, message, htmlTooltip)
 
   override def getCurrentAnnotationSession: AnnotationSession =
     innerHolder.getCurrentAnnotationSession
@@ -74,8 +80,24 @@ class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaA
       new ScalaAnnotation(annotation)
     }
 
-  private def ?(msg: String): String =
-    Option(msg)
-      .filterNot(_ => showCompilerErrors)
-      .orNull
+  private def convert1(elt: PsiElement, message: String)
+                      (f: (PsiElement, String) => Annotation): Annotation =
+    if (showCompilerErrors)
+      innerHolder.createInfoAnnotation(elt, "")
+    else
+      f(elt, message)
+
+  private def convert2(node: ASTNode, message: String)
+                      (f: (ASTNode, String) => Annotation): Annotation =
+    if (showCompilerErrors)
+      innerHolder.createInfoAnnotation(node, "")
+    else
+      f(node, message)
+
+  private def convert3(range: TextRange, message: String)
+                      (f: (TextRange, String) => Annotation): Annotation =
+    if (showCompilerErrors)
+      innerHolder.createInfoAnnotation(range, "")
+    else
+      f(range, message)
 }
