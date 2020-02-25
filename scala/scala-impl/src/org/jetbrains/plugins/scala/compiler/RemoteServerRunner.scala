@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths}
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
+import org.jetbrains.jps.incremental.scala.remote.{Commands, RemoteResourceOwner}
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 
 import scala.util.control.NonFatal
@@ -19,7 +19,9 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
 
   override protected val port: Int = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
 
-  def buildProcess(arguments: Seq[String], client: Client): CompilationProcess = new CompilationProcess {
+  def buildProcess(command: String,
+                   arguments: Seq[String],
+                   client: Client): CompilationProcess = new CompilationProcess {
     val COUNT = 10
 
     var callbacks: Seq[Option[Throwable] => Unit] = Seq.empty
@@ -34,7 +36,7 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
           try {
             Thread.sleep(i*20)
             val token = readToken(port)
-            send(serverAlias, token +: arguments, client)
+            send(command, token +: arguments, client)
             return
           } catch {
             case _: ConnectException | _: CantFindSecureTokenException => Thread.sleep(100)
@@ -42,7 +44,7 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
         }
 
         val token = readToken(port)
-        send(serverAlias, token +: arguments, client)
+        send(command, token +: arguments, client)
       } catch {
         case e: ConnectException =>
           val message = "Cannot connect to compile server at %s:%s".format(address.toString, port)

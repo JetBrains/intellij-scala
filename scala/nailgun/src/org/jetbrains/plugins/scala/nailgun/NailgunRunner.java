@@ -29,7 +29,7 @@ import static java.util.Arrays.asList;
 public class NailgunRunner {
   public static final String SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main";
 
-  private static final String SERVER_ALIAS = "compile-server";
+  private static final String[] COMMANDS = {"compile", "compile-jps"};
   private static final String SERVER_DESCRIPTION = "Scala compile server";
 
   private static final String STOP_ALIAS_START = "stop_";
@@ -106,7 +106,9 @@ public class NailgunRunner {
     server.setAllowNailsByClassName(false);
 
     Class<?> serverClass = classLoader.loadClass(SERVER_CLASS_NAME);
-    server.getAliasManager().addAlias(new Alias(SERVER_ALIAS, SERVER_DESCRIPTION, serverClass));
+    for (String command : COMMANDS) {
+      server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, serverClass));
+    }
 
     Class<?> stopClass = classLoader.loadClass(STOP_CLASS_NAME);
     String stopAlias = STOP_ALIAS_START + id;

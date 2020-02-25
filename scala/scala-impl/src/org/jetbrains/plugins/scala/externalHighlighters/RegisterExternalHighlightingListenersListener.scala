@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManagerEvent, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.externalHighlighters.compiler.{HighlightingCompiler, HighlightingCompilerImpl}
+import org.jetbrains.plugins.scala.externalHighlighters.compiler.{JpsCompiler, JpsCompilerImpl, DocumentCompiler, DocumentCompilerImpl}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -15,8 +16,9 @@ import org.jetbrains.plugins.scala.util.ExclusiveDelayedExecutor
 class RegisterExternalHighlightingListenersListener(project: Project)
   extends FileEditorManagerListener {
 
-  private val compiler: HighlightingCompiler = new HighlightingCompilerImpl
-  private val saveAllDocumentsExecutor = new ExclusiveDelayedExecutor
+  private val documentCompiler: DocumentCompiler = new DocumentCompilerImpl
+  private val jpsCompiler: JpsCompiler = new JpsCompilerImpl
+  private val jpsCompilerExecutor = new ExclusiveDelayedExecutor
 
   private var listeners: Option[Listeners] = None
 
@@ -41,14 +43,23 @@ class RegisterExternalHighlightingListenersListener(project: Project)
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
       action
 
-  private case class Listeners(documentListener: CompilingDocumentListener,
-                               psiTreeListener: SavingProjectPsiTreeChangeListener)
+  private def saveDocument(document: Document): Unit =
+    FileDocumentManager.getInstance.saveDocument(document)
+
+  private def compileProject(selectedFile: VirtualFile): Unit =
+    jpsCompilerExecutor.execute(ScalaHighlightingMode.compilationJpsDelay) {
+      invokeAndWait(selectedFile.toDocument.foreach(saveDocument))
+      jpsCompiler.compile(project)
+    }
+
+  private case class Listeners(selectedFileListener: SelectedFileListener,
+                               otherFilesListener: OtherFilesListener)
     extends Registering {
 
     def this(selectedFile: VirtualFile) =
       this(
-        documentListener = new CompilingDocumentListener(selectedFile),
-        psiTreeListener = new SavingProjectPsiTreeChangeListener(selectedFile)
+        selectedFileListener = new SelectedFileListener(selectedFile),
+        otherFilesListener = new OtherFilesListener(selectedFile)
       )
 
     private def allRegistering: Seq[Registering] =
@@ -61,7 +72,7 @@ class RegisterExternalHighlightingListenersListener(project: Project)
       allRegistering.foreach(_.deregister())
   }
 
-  private class CompilingDocumentListener(selectedFile: VirtualFile)
+  private class SelectedFileListener(selectedFile: VirtualFile)
     extends DocumentListener
       with Registering {
 
@@ -71,21 +82,21 @@ class RegisterExternalHighlightingListenersListener(project: Project)
     final override def documentChanged(event: DocumentEvent): Unit = ifEnabled {
       wasChanged = true
       executor.execute(ScalaHighlightingMode.compilationDelay) {
-        compiler.compile(project, event.getDocument)
+        documentCompiler.compile(project, event.getDocument)
       }
     }
 
     override def deregister(): Unit =
-      selectedFile.toDocument.foreach { document =>
-        document.removeDocumentListener(this)
-        if (wasChanged) FileDocumentManager.getInstance.saveDocument(document)
+      selectedFile.toDocument.foreach { selectedDocument =>
+        selectedDocument.removeDocumentListener(this)
+        compileProject(selectedFile)
       }
 
     override def register(): Unit =
       selectedFile.toDocument.foreach(_.addDocumentListener(this))
   }
 
-  private class SavingProjectPsiTreeChangeListener(val selectedFile: VirtualFile)
+  private class OtherFilesListener(val selectedFile: VirtualFile)
     extends PsiTreeChangeAdapter
       with Registering {
 
@@ -93,10 +104,10 @@ class RegisterExternalHighlightingListenersListener(project: Project)
       Option(event.getFile)
         .flatMap(_.getVirtualFile.toOption)
         .filter(_ != selectedFile)
-        .foreach { _ =>
-          saveAllDocumentsExecutor.execute(ScalaHighlightingMode.compilationJpsDelay) {
-            invokeAndWait(FileDocumentManager.getInstance.saveAllDocuments())
-          }
+        .flatMap(_.toDocument)
+        .foreach { document =>
+          saveDocument(document)
+          compileProject(selectedFile)
         }
     }
 

@@ -519,9 +519,9 @@
                      description="Show errors from scala compiler in the editor"/>
         <registryKey key="dotty.highlighting.compiler.errors.in.editor" defaultValue="true" restartRequired="false"
                      description="Show errors from dotty compiler in the editor"/>
-        <registryKey key="scala.highlighting.compiler.selected.delay.millis" defaultValue="300" restartRequired="false"
+        <registryKey key="scala.highlighting.compiler.selected.delay.millis" defaultValue="250" restartRequired="false"
                      description="Delay between runs of the selected file compiler for highlighting, millis"/>
-        <registryKey key="scala.highlighting.compiler.jps.delay.millis" defaultValue="500" restartRequired="false"
+        <registryKey key="scala.highlighting.compiler.jps.delay.millis" defaultValue="600" restartRequired="false"
                      description="Delay between runs of the jps compilation for highlighting, millis"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>

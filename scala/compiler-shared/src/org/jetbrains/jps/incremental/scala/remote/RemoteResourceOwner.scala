@@ -19,7 +19,6 @@ trait RemoteResourceOwner {
   protected val port: Int
   
   protected val currentDirectory: String = System.getProperty("user.dir")
-  protected val serverAlias = "compile-server"
 
   def send(command: String, arguments: Seq[String], client: Client): Unit = {
     val encodedArgs = arguments.map(s =>

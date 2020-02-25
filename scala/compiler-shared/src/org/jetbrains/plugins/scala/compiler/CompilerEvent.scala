@@ -64,7 +64,7 @@ object CompilerEvent {
       .filter(_.getBuilderId == BuilderId)
       .map(_.getMessageType)
       .collect {
-        case MessageEmitted.EventType | CompilationFinished.EventType =>
+        case MessageEmitted.EventType | CompilationFinished.EventType | RangeMessageEmitted.EventType =>
           ObjectSerialization.fromBase64(text)
       }
   }

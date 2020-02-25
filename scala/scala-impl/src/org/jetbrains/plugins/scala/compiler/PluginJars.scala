@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler
 
 import java.io.File
 
+import com.google.protobuf.GeneratedMessageLite
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
@@ -45,4 +46,5 @@ object PlatformJars {
   val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
   val utilJar        = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
   val trove4jJar     = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
+  val protobufJava = new File(PathUtil.getJarPathForClass(classOf[GeneratedMessageLite[_, _]]))
 }

@@ -4,6 +4,7 @@ package compiler
 import java.io.{File, IOException}
 import java.util.UUID
 
+import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.compiler.server.{BuildManager, BuildManagerListener}
 import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManagerCore}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
@@ -18,6 +19,7 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -117,9 +119,12 @@ object CompileServerLauncher {
         val (nailgunCpFiles, classpathFiles) = presentFiles.partition(_.getName contains "nailgun")
         val nailgunClasspath = nailgunCpFiles
           .map(_.canonicalPath).mkString(File.pathSeparator)
-        val classpath = (jdk.tools ++ (classpathFiles ++ compilerServerAdditionalCP()))
-          .map(_.canonicalPath).mkString(File.pathSeparator)
-
+        val buildProcessPluginsClasspath = new BuildProcessClasspathManager(() => ()).getBuildProcessPluginsClasspath(project)
+        val buildProcessApplicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath
+        val buildProcessClasspath = buildProcessPluginsClasspath.asScala ++ buildProcessApplicationClasspath.asScala
+        val classpath = ((jdk.tools ++ (classpathFiles ++ compilerServerAdditionalCP()))
+          .map(_.canonicalPath) ++ buildProcessClasspath)
+          .mkString(File.pathSeparator)
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
           new RemoteServerStopper(settings.COMPILE_SERVER_PORT).sendStop()
@@ -217,6 +222,7 @@ object CompileServerLauncher {
     PlatformJars.jpsBuildersJar,
     PlatformJars.utilJar,
     PlatformJars.trove4jJar,
+    PlatformJars.protobufJava,
     PluginJars.scalaLibraryJar,
     PluginJars.scalaReflectJar,
     PluginJars.scalaNailgunRunnerJar,

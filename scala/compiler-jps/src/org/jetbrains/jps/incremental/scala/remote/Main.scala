@@ -5,11 +5,21 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import java.util.{Base64, Timer, TimerTask}
 
+import com.intellij.openapi.application.PathManager
 import com.martiansoftware.nailgun.NGContext
-import org.jetbrains.jps.incremental.scala.data.ArgumentsParser
+import org.jetbrains.jps.api.{BuildType, CanceledStatus, CmdlineProtoUtil}
+import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
+import org.jetbrains.jps.incremental.{MessageHandler, Utils}
+import org.jetbrains.jps.incremental.fs.BuildFSState
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage}
+import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.data.CompileServerArgsParser
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
+import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
+
+import scala.util.{Failure, Success, Try}
 
 /**
  * Nailgun Nail, used in:
@@ -35,33 +45,43 @@ object Main {
    */
   def nailMain(context: NGContext): Unit = {
     cancelShutdownTimer()
-    make(context.getArgs.toSeq, context.out, context.getNGServer.getPort, standalone = false)
+    serverLogic(
+      command = context.getCommand,
+      argsEncoded = context.getArgs.toSeq,
+      out = context.out,
+      port = context.getNGServer.getPort,
+      standalone = false
+    )
     resetShutdownTimer(context)
   }
 
   def main(args: Array[String]): Unit = {
-    make(args, System.out, -1, standalone = true)
+    serverLogic(Commands.Compile, args, System.out, -1, standalone = true)
   }
 
-  private def make(argsEncoded: Seq[String], out: PrintStream, port: Int, standalone: Boolean): Unit = {
+  private def serverLogic(command: String,
+                          argsEncoded: Seq[String],
+                          out: PrintStream,
+                          port: Int,
+                          standalone: Boolean): Unit = {
     val client = new EncodingEventGeneratingClient(out, standalone)
     val oldOut = System.out
     // Suppress any stdout data, interpret such data as error
     System.setOut(System.err)
 
     try {
-      val args: Arguments = decodeArguments(argsEncoded) match {
-        case Right(a) => a
-        case Left(error) =>
+      val compileServerArgs = parseArgs(command, argsEncoded) match {
+        case Success(result) =>
+          result
+        case Failure(error) =>
           client.trace(error)
           return
       }
 
-
       // Don't check token in non-server mode
       if (port != -1) {
         try {
-          compareTokenWith(tokenPathFor(port), args.token)
+          compareTokenWith(tokenPathFor(port), compileServerArgs.token)
         } catch {
           // We must abort the process on _any_ error
           case e: Throwable =>
@@ -70,15 +90,11 @@ object Main {
         }
       }
 
-      val worksheetArgs = args.worksheetArgs
-      if (!worksheetArgs.exists(_.isRepl)) {
-        server.compile(args.sbtData, args.compilerData, args.compilationData, client)
-      }
-
-      worksheetArgs match {
-        case Some(wa) if !client.hasErrors=>
-          worksheetServer.loadAndRun(wa, args, client)
-        case _ =>
+      compileServerArgs match {
+        case CompileServerArgs.Compile(arguments) =>
+          compileLogic(arguments, client)
+        case compileJpsArgs: CompileServerArgs.CompileJps =>
+          compileJpsLogic(compileJpsArgs, client)
       }
     } catch {
       case e: Throwable =>
@@ -90,9 +106,58 @@ object Main {
     }
   }
 
-  private def decodeArguments(argsEncoded: Seq[String]): Either[ArgumentsParser.ArgumentsParserError, Arguments] = {
+  private def compileLogic(args: Arguments, client: EncodingEventGeneratingClient): Unit = {
+    val worksheetArgs = args.worksheetArgs
+    if (!worksheetArgs.exists(_.isRepl)) {
+      server.compile(args.sbtData, args.compilerData, args.compilationData, client)
+    }
+
+    worksheetArgs match {
+      case Some(wa) if !client.hasErrors =>
+        worksheetServer.loadAndRun(wa, args, client)
+      case _ =>
+    }
+  }
+
+  private def compileJpsLogic(args: CompileServerArgs.CompileJps, client: Client): Unit = {
+    val CompileServerArgs.CompileJps(_, projectPath, globalOptionsPath) = args
+    val dataStorageRoot = Utils.getDataStorageRoot(projectPath)
+    val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
+    val buildRunner = new BuildRunner(loader)
+    var compiledFiles = Set.empty[File]
+    val messageHandler = new MessageHandler {
+      override def processMessage(msg: BuildMessage): Unit =
+        Option(msg)
+          .collect { case customMessage: CustomBuilderMessage => customMessage }
+          .flatMap(CompilerEvent.fromCustomMessage)
+          .foreach {
+            case CompilerEvent.MessageEmitted(_, msg) => client.message(msg)
+            case CompilerEvent.CompilationFinished(_, source) => compiledFiles += source
+            case _ => ()
+          }
+    }
+    val descriptor = buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
+    val scopes = CmdlineProtoUtil.createAllModulesScopes(false)
+
+    try {
+      buildRunner.runBuild(
+        descriptor,
+        CanceledStatus.NULL,
+        null,
+        messageHandler,
+        BuildType.BUILD,
+        scopes,
+        true
+      )
+      client.compilationEnd(compiledFiles)
+    } finally {
+      descriptor.release()
+    }
+  }
+
+  private def parseArgs(command: String, argsEncoded: Seq[String]): Try[CompileServerArgs] = {
     val args = argsEncoded.map(decodeArgument)
-    ArgumentsParser.parse(args)
+    CompileServerArgsParser.parse(command, args)
   }
 
   private def decodeArgument(argEncoded: String): String = {
