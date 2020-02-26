@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
-import com.intellij.execution.configurations.{ConfigurationType, RunConfiguration}
+import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, LazyRunConfigurationProducer}
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, ConfigurationTypeUtil, RunConfiguration}
 import com.intellij.execution.junit.{InheritorChooser, JavaRuntimeConfigurationProducerBase}
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.ide.util.PsiClassListCellRenderer
@@ -17,19 +17,23 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import javax.swing.ListCellRenderer
-import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData, TestConfigurationData}
 
 import scala.collection.JavaConverters._
+import scala.reflect.ClassTag
 
-abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfiguration](configurationType: ConfigurationType)
-  extends RunConfigurationProducer[T](configurationType) {
+abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfiguration]
+  extends LazyRunConfigurationProducer[T] {
+
+  override final def getConfigurationFactory: ConfigurationFactory = configurationFactory
+
+  def configurationFactory: ConfigurationFactory
 
   protected def suitePaths: List[String]
 

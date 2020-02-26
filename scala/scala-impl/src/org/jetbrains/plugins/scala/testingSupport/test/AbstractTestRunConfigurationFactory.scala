@@ -6,7 +6,7 @@ import com.intellij.execution.configurations.{ConfigurationFactory, Configuratio
 abstract class AbstractTestRunConfigurationFactory(val typez: ConfigurationType)
   extends ConfigurationFactory(typez)  {
 
-  final override def getId: String = getIdExplicit
+  override final def getId: String = getIdExplicit
   def getIdExplicit: String
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration =

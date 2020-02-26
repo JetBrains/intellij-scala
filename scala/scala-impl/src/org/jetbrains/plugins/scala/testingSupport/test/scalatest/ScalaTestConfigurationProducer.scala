@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
 import com.intellij.execution._
-import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil, RunConfiguration}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -14,10 +14,12 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, 
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 import org.scalatest.finders.{Selection => TestFindersSelection}
 
-class ScalaTestConfigurationProducer extends {
-  val confType = new ScalaTestConfigurationType
-  val confFactory = confType.confFactory
-} with AbstractTestConfigurationProducer[ScalaTestRunConfiguration](confType) {
+class ScalaTestConfigurationProducer extends AbstractTestConfigurationProducer[ScalaTestRunConfiguration] {
+
+  override def configurationFactory: ConfigurationFactory = {
+    val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[ScalaTestConfigurationType])
+    configurationType.confFactory
+  }
 
   override def suitePaths: List[String] = List("org.scalatest.Suite")
 

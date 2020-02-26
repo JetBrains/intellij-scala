@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.specs2
 
 import com.intellij.execution._
-import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil, RunConfiguration}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
@@ -13,11 +13,12 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 
-class Specs2ConfigurationProducer extends {
-  val confType = new Specs2ConfigurationType
-  val confFactory = confType.confFactory
-} with AbstractTestConfigurationProducer[Specs2RunConfiguration](confType) {
+class Specs2ConfigurationProducer extends AbstractTestConfigurationProducer[Specs2RunConfiguration] {
 
+  override def configurationFactory: ConfigurationFactory = {
+    val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[Specs2ConfigurationType])
+    configurationType.confFactory
+  }
 
   override def suitePaths = List(
     "org.specs2.specification.SpecificationStructure",

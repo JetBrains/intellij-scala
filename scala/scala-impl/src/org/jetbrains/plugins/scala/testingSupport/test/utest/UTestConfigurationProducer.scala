@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
 import com.intellij.execution.Location
-import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil, RunConfiguration}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiPackage}
@@ -17,13 +17,14 @@ import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
 
-// TODO: eliminate early initializers
 // TODO: there are to many redundant TestNodeProvider.* method calls that actually check the same thing on same elements
 //  eliminate this
-class UTestConfigurationProducer extends {
-  val confType = new UTestConfigurationType
-  val confFactory = confType.confFactory
-} with AbstractTestConfigurationProducer[UTestRunConfiguration](confType) {
+class UTestConfigurationProducer extends AbstractTestConfigurationProducer[UTestRunConfiguration] {
+
+  override def configurationFactory: ConfigurationFactory = {
+    val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[UTestConfigurationType])
+    configurationType.confFactory
+  }
 
   override def suitePaths: List[String] = UTestUtil.suitePaths
 
