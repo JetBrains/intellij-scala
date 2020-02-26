@@ -119,7 +119,7 @@ object CompileServerLauncher {
         val (nailgunCpFiles, classpathFiles) = presentFiles.partition(_.getName contains "nailgun")
         val nailgunClasspath = nailgunCpFiles
           .map(_.canonicalPath).mkString(File.pathSeparator)
-        val buildProcessPluginsClasspath = new BuildProcessClasspathManager(() => ()).getBuildProcessPluginsClasspath(project)
+        val buildProcessPluginsClasspath = new BuildProcessClasspathManager(project).getBuildProcessPluginsClasspath(project)
         val buildProcessApplicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath
         val buildProcessClasspath = buildProcessPluginsClasspath.asScala ++ buildProcessApplicationClasspath.asScala
         val classpath = ((jdk.tools ++ (classpathFiles ++ compilerServerAdditionalCP()))

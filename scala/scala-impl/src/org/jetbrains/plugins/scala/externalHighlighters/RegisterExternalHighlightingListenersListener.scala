@@ -23,8 +23,9 @@ class RegisterExternalHighlightingListenersListener(project: Project)
   private var listeners: Option[Listeners] = None
 
   override def selectionChanged(event: FileEditorManagerEvent): Unit = {
+    println("selectionChanged")
     deregisterListeners()
-    registerListeners(event.getNewFile)
+    registerListeners(event.getNewFile.toOption)
   }
 
   private def deregisterListeners(): Unit = {
@@ -32,12 +33,11 @@ class RegisterExternalHighlightingListenersListener(project: Project)
     listeners = None
   }
 
-  private def registerListeners(selectedFile: VirtualFile): Unit =
-    Option(selectedFile).flatMap(_.toDocument).foreach { _ =>
-      val newListeners = new Listeners(selectedFile)
-      listeners = Some(newListeners)
-      newListeners.register()
-    }
+  private def registerListeners(selectedFile: Option[VirtualFile]): Unit = {
+    val newListeners = new Listeners(selectedFile)
+    listeners = Some(newListeners)
+    newListeners.register()
+  }
 
   private def ifEnabled(action: => Unit): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
@@ -46,24 +46,31 @@ class RegisterExternalHighlightingListenersListener(project: Project)
   private def saveDocument(document: Document): Unit =
     FileDocumentManager.getInstance.saveDocument(document)
 
-  private def compileProject(selectedFile: VirtualFile): Unit =
-    jpsCompilerExecutor.execute(ScalaHighlightingMode.compilationJpsDelay) {
-      invokeAndWait(selectedFile.toDocument.foreach(saveDocument))
+  private def saveSelectedAndCompileProject(selectedDocument: Option[Document]): Unit = {
+    val result = jpsCompilerExecutor.execute(ScalaHighlightingMode.compilationJpsDelay) {
+      invokeAndWait(selectedDocument.foreach(saveDocument))
       jpsCompiler.compile(project)
     }
+    println(s"Project compiled: $result")
+  }
 
-  private case class Listeners(selectedFileListener: SelectedFileListener,
+  private case class Listeners(selectedDocumentListener: Option[SelectedDocumentListener],
                                otherFilesListener: OtherFilesListener)
     extends Registering {
 
-    def this(selectedFile: VirtualFile) =
+    def this(selectedFile: Option[VirtualFile]) =
       this(
-        selectedFileListener = new SelectedFileListener(selectedFile),
+        selectedDocumentListener = selectedFile.flatMap(_.toDocument).map(new SelectedDocumentListener(_)),
         otherFilesListener = new OtherFilesListener(selectedFile)
       )
 
     private def allRegistering: Seq[Registering] =
-      productIterator.toList.asInstanceOf[Seq[Registering]]
+      productIterator.toSeq.flatMap {
+        case option: Option[_] => option.toSeq
+        case flatValue => Seq(flatValue)
+      }.collect {
+        case registering: Registering => registering
+      }
 
     override def register(): Unit =
       allRegistering.foreach(_.register())
@@ -72,7 +79,7 @@ class RegisterExternalHighlightingListenersListener(project: Project)
       allRegistering.foreach(_.deregister())
   }
 
-  private class SelectedFileListener(selectedFile: VirtualFile)
+  private class SelectedDocumentListener(selectedDocument: Document)
     extends DocumentListener
       with Registering {
 
@@ -86,29 +93,39 @@ class RegisterExternalHighlightingListenersListener(project: Project)
       }
     }
 
-    override def deregister(): Unit =
-      selectedFile.toDocument.foreach { selectedDocument =>
-        selectedDocument.removeDocumentListener(this)
-        compileProject(selectedFile)
-      }
+    override def deregister(): Unit = {
+      selectedDocument.removeDocumentListener(this)
+      if (wasChanged) saveSelectedAndCompileProject(Some(selectedDocument))
+    }
 
     override def register(): Unit =
-      selectedFile.toDocument.foreach(_.addDocumentListener(this))
+      selectedDocument.addDocumentListener(this)
   }
 
-  private class OtherFilesListener(val selectedFile: VirtualFile)
+  private class OtherFilesListener(val selectedFile: Option[VirtualFile])
     extends PsiTreeChangeAdapter
       with Registering {
 
-    override def childrenChanged(event: PsiTreeChangeEvent): Unit = ifEnabled {
-      Option(event.getFile)
-        .flatMap(_.getVirtualFile.toOption)
-        .filter(_ != selectedFile)
-        .flatMap(_.toDocument)
-        .foreach { document =>
-          saveDocument(document)
-          compileProject(selectedFile)
-        }
+    override def childrenChanged(event: PsiTreeChangeEvent): Unit =
+      for {
+        psiFile <- event.getFile.toOption
+        changedFile <- psiFile.getVirtualFile.toOption
+        if !selectedFile.contains(changedFile)
+      } handle(changedFile)
+
+    override def childRemoved(event: PsiTreeChangeEvent): Unit =
+      if (event.getFile eq null)
+        for {
+          child <- event.getChild.toOption
+          containingFile <- child.getContainingFile.toOption
+          removedFile <- containingFile.getVirtualFile.toOption
+        } handle(removedFile)
+
+    private def handle(virtualFile: VirtualFile): Unit = ifEnabled {
+      virtualFile.toDocument.foreach { document =>
+        saveDocument(document)
+        saveSelectedAndCompileProject(selectedFile.flatMap(_.toDocument))
+      }
     }
 
     override def deregister(): Unit =

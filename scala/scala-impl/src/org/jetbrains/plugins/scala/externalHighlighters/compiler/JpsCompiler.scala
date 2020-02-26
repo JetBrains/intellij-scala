@@ -19,7 +19,7 @@ class JpsCompilerImpl
       token = "",
       projectPath = project.getBasePath,
       globalOptionsPath = PathManager.getOptionsPath
-    ).asStrings.tail
+    ).asStringsWithoutToken
     val client = new CompilationClient(project)
     new RemoteServerRunner(project).buildProcess(command, args, client).runSync()
   }

@@ -9,6 +9,9 @@ sealed trait CompileServerArgs {
   def token: String
 
   def asStrings: Seq[String]
+
+  final def asStringsWithoutToken: Seq[String] =
+    asStrings.tail // token must be the first argument
 }
 
 object CompileServerArgs {
