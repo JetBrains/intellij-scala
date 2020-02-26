@@ -110,7 +110,10 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
   }
 
 
-  override def getWidget(project: Project): StatusBarWidget = new Widget(project)
+  override def getWidget(project: Project): StatusBarWidget = {
+    if (BspUtil.hasBspModule(project)) new Widget(project)
+    else null
+  }
 
   override def getAnchor: String = Anchors.before("Position")
 }
