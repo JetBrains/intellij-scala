@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 object UnnecessaryPartialFunctionInspection {
   private val PartialFunctionClassName = classOf[PartialFunction[_, _]].getCanonicalName
   private val Function1ClassName       = classOf[(_) => _].getCanonicalName
-  val inspectionName: String           = InspectionBundle.message("unnecessary.partial.function")
+  val inspectionName: String           = ScalaInspectionBundle.message("unnecessary.partial.function")
 }
 
 class UnnecessaryPartialFunctionInspection

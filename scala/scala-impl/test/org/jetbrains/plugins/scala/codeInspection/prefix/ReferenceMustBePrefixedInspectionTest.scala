@@ -17,7 +17,7 @@ class ReferenceMustBePrefixedInspectionTest extends ScalaQuickFixTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ReferenceMustBePrefixedInspection]
 
-  override protected val description: String = InspectionBundle.message("reference.must.be.prefixed")
+  override protected val description: String = ScalaInspectionBundle.message("reference.must.be.prefixed")
 
   def testType(): Unit = testQuickFix(
     text =
@@ -162,6 +162,6 @@ class ReferenceMustBePrefixedInspectionTest extends ScalaQuickFixTestBase {
   )
 
   private def testQuickFix(text: String, expected: String): Unit = {
-    testQuickFix(text, expected, InspectionBundle.message("add.prefix.to.reference"))
+    testQuickFix(text, expected, ScalaInspectionBundle.message("add.prefix.to.reference"))
   }
 }

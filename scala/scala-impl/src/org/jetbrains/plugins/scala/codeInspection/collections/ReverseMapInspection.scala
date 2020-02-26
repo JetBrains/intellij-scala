@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -8,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
  */
 
 object ReverseMap extends SimplificationType() {
-  override def hint: String = InspectionBundle.message("replace.reverse.map")
+  override def hint: String = ScalaInspectionBundle.message("replace.reverse.map")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

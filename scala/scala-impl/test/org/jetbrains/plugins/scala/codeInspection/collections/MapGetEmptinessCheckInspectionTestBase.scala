@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 abstract class MapGetEmptinessCheckInspectionTestBase extends OperationsOnCollectionInspectionTest {
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
@@ -8,7 +9,7 @@ abstract class MapGetEmptinessCheckInspectionTestBase extends OperationsOnCollec
 }
 
 class MapGetNonEmptyTest extends MapGetEmptinessCheckInspectionTestBase {
-  override protected val hint = InspectionBundle.message("replace.get.nonEmpty.with.contains")
+  override protected val hint = ScalaInspectionBundle.message("replace.get.nonEmpty.with.contains")
 
   def testMap(): Unit = doTest(
     s"Map(1 -> 2).${START}get(3).nonEmpty$END",
@@ -18,7 +19,7 @@ class MapGetNonEmptyTest extends MapGetEmptinessCheckInspectionTestBase {
 }
 
 class MapGetIsEmptyTest extends MapGetEmptinessCheckInspectionTestBase {
-  override protected val hint = InspectionBundle.message("replace.get.isEmpty.with.not.contains")
+  override protected val hint = ScalaInspectionBundle.message("replace.get.isEmpty.with.not.contains")
 
   def testMap(): Unit = doTest(
     s"Map(1 -> 2).${START}get(3).isEmpty$END",

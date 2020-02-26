@@ -11,7 +11,7 @@ class MapGetEmptinessCheckInspection extends OperationOnCollectionInspection {
 
 object MapGetNonEmpty extends SimplificationType() {
 
-  override def hint: String = InspectionBundle.message("replace.get.nonEmpty.with.contains")
+  override def hint: String = ScalaInspectionBundle.message("replace.get.nonEmpty.with.contains")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
@@ -26,7 +26,7 @@ object MapGetNonEmpty extends SimplificationType() {
 
 object MapGetIsEmpty extends SimplificationType() {
 
-  override def hint: String = InspectionBundle.message("replace.get.isEmpty.with.not.contains")
+  override def hint: String = ScalaInspectionBundle.message("replace.get.isEmpty.with.not.contains")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

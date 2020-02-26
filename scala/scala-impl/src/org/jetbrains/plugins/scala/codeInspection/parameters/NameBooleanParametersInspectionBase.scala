@@ -35,7 +35,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
           expr match {
             case literal: ScBooleanLiteral if isArgForBooleanParam(expr, argList) &&
               addNameToArgumentsFix(literal).isDefined =>
-              val message = InspectionBundle.message("name.boolean.params")
+              val message = ScalaInspectionBundle.message("name.boolean.params")
               val quickFix = new NameBooleanParametersQuickFix(message, literal)
               val descriptor = holder.getManager.createProblemDescriptor(
                 expr,

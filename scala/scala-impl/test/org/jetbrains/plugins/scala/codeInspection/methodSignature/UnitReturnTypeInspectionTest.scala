@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 
 class UnitReturnTypeInspectionTest extends ScalaQuickFixTestBase {
@@ -13,7 +13,7 @@ class UnitReturnTypeInspectionTest extends ScalaQuickFixTestBase {
     classOf[AccessorLikeMethodInspection.UnitReturnType]
 
   protected override val description: String =
-    InspectionBundle.message("method.signature.accessor.unit.return.type")
+    ScalaInspectionBundle.message("method.signature.accessor.unit.return.type")
 
 
   def test_definition(): Unit = {

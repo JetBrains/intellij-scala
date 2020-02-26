@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.suppression
+package org.jetbrains.plugins.scala
+package codeInspection
+package suppression
 
 import java.util
 
@@ -10,7 +12,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
@@ -72,10 +73,10 @@ class ScalaSuppressForClassFix(key: HighlightDisplayKey)
         extends ScalaSuppressForDefinitionFix(key, InspectionsBundle.message("suppress.inspection.class"), classOf[ScTypeDefinition])
 
 class ScalaSuppressForFunctionFix(key: HighlightDisplayKey)
-        extends ScalaSuppressForDefinitionFix(key, InspectionBundle.message("suppress.inspection.function"), classOf[ScFunctionDefinition], classOf[ScMacroDefinition])
+        extends ScalaSuppressForDefinitionFix(key, ScalaInspectionBundle.message("suppress.inspection.function"), classOf[ScFunctionDefinition], classOf[ScMacroDefinition])
 
 class ScalaSuppressForVariableFix(key: HighlightDisplayKey)
-        extends ScalaSuppressForDefinitionFix(key, InspectionBundle.message("suppress.inspection.variable"), classOf[ScVariableDefinition], classOf[ScPatternDefinition])
+        extends ScalaSuppressForDefinitionFix(key, ScalaInspectionBundle.message("suppress.inspection.variable"), classOf[ScVariableDefinition], classOf[ScPatternDefinition])
 
 class ScalaSuppressForTypeAliasFix(key: HighlightDisplayKey)
-        extends ScalaSuppressForDefinitionFix(key, InspectionBundle.message("suppress.inspection.typeAlias"), classOf[ScTypeAliasDefinition])
+        extends ScalaSuppressForDefinitionFix(key, ScalaInspectionBundle.message("suppress.inspection.typeAlias"), classOf[ScTypeAliasDefinition])

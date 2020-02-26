@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -12,7 +12,7 @@ class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override val hint = InspectionBundle.message("filter.headOption.hint")
+  override val hint = ScalaInspectionBundle.message("filter.headOption.hint")
   def test_1(): Unit = {
     val selected = s"List(0).${START}filter(x => true).headOption$END"
     checkTextHasError(selected)

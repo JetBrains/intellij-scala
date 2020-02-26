@@ -15,7 +15,7 @@ final class ComparingLengthInspection extends OperationOnCollectionInspection {
 
 object ComparingLengthInspection {
 
-  val hint: String = InspectionBundle.message("replace.with.lengthCompare")
+  val hint: String = ScalaInspectionBundle.message("replace.with.lengthCompare")
 
   private val ComparingLength: SimplificationType = new SimplificationType() {
     override def hint: String = ComparingLengthInspection.hint

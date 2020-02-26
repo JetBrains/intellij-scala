@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -12,7 +13,7 @@ class FindAndMapToApplyInspection extends OperationOnCollectionInspection {
 }
 
 object FindAndMapToApply extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.find.and.map.with.apply")
+  override def hint: String = ScalaInspectionBundle.message("replace.find.and.map.with.apply")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

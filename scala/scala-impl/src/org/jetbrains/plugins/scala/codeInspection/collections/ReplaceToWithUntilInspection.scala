@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -14,7 +15,7 @@ class ReplaceToWithUntilInspection extends OperationOnCollectionInspection {
 
 object ReplaceToWithUntil extends SimplificationType {
 
-  override def hint: String = InspectionBundle.message("replace.to.with.until")
+  override def hint: String = ScalaInspectionBundle.message("replace.to.with.until")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
@@ -26,11 +26,11 @@ object ComparingDiffCollectionKinds extends SimplificationType {
     case object Left extends Side
   }
 
-  override def hint: String = InspectionBundle.message("hint.comparing.different.collection.kinds")
+  override def hint: String = ScalaInspectionBundle.message("hint.comparing.different.collection.kinds")
   @Nls
   def convertHint(side: Side, toCollection: String): String = side match {
-    case Side.Left => InspectionBundle.message("hint.convert.left.hand.side.to.collection", toCollection)
-    case Side.Right => InspectionBundle.message("hint.convert.right.hand.side.to.collection", toCollection)
+    case Side.Left => ScalaInspectionBundle.message("hint.convert.left.hand.side.to.collection", toCollection)
+    case Side.Right => ScalaInspectionBundle.message("hint.convert.right.hand.side.to.collection", toCollection)
   }
 
   override def getSimplifications(expr: ScExpression): Seq[Simplification] = expr match {

@@ -10,7 +10,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiMethod, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -119,7 +119,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
             }
 
             if (flag) {
-              showErrorHint(InspectionBundle.message("remove.apply.overloaded",
+              showErrorHint(ScalaInspectionBundle.message("remove.apply.overloaded",
                 namedElement.name))
               return
             }
@@ -135,7 +135,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
               case fun: ScFunction =>
                 val clauses = fun.effectiveParameterClauses
                 if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == cmc + 1) {
-                  showErrorHint(InspectionBundle.message("remove.apply.implicit.parameter",
+                  showErrorHint(ScalaInspectionBundle.message("remove.apply.implicit.parameter",
                     resolve.asInstanceOf[PsiNamedElement].name))
                   return
                 }
@@ -155,7 +155,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
               val argsCount = constrInvocation.arguments.length
               val clauses = constr.effectiveParameterClauses
               if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter", constrInvocation.getText))
+                showErrorHint(ScalaInspectionBundle.message("remove.apply.constructor.implicit.parameter", constrInvocation.getText))
                 return
               }
             case _ =>

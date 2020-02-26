@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
-package codeInspection.imports
+package codeInspection
+package imports
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
@@ -23,7 +23,7 @@ class SingleImportInspection extends LocalInspectionTool {
             return
           }
           holder.registerProblem(holder.getManager.createProblemDescriptor(importExpr.selectorSet.get,
-            InspectionBundle.message("single.import"),
+            ScalaInspectionBundle.message("single.import"),
             new RemoveBracesForSingleImportQuickFix(importExpr),
             ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
         }

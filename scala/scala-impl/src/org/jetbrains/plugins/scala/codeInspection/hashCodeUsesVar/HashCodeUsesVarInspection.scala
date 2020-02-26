@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.hashCodeUsesVar
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi._
 import com.siyeh.ig.psiutils.MethodUtils
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -24,7 +24,7 @@ class HashCodeUsesVarInspection extends AbstractInspection {
             case field: ScReferencePattern =>
               field.nameContext match {
                 case variable: ScVariable if !variable.isLocal =>
-                  holder.registerProblem(exp, InspectionBundle.message("non.value.field.is.accessed.in.hashcode"))
+                  holder.registerProblem(exp, ScalaInspectionBundle.message("non.value.field.is.accessed.in.hashcode"))
                 case _ =>
               }
             case _ =>

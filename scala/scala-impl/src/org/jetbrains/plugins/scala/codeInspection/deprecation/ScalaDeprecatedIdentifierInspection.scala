@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.deprecation
 
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
@@ -25,14 +25,14 @@ class ScalaDeprecatedIdentifierInspection extends AbstractRegisteredInspection {
       super.problemDescriptor(
         ref.nameId,
         None,
-        InspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", ref.refName),
+        ScalaInspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", ref.refName),
         ProblemHighlightType.LIKE_DEPRECATED
       )
     case named: ScNamedElement if deprecatedNames.contains(named.name) =>
       super.problemDescriptor(
         named.nameId,
         None,
-        InspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", named.name),
+        ScalaInspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", named.name),
         ProblemHighlightType.LIKE_DEPRECATED
       )
     case _ => None

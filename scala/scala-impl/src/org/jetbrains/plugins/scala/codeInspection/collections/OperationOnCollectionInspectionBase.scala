@@ -12,7 +12,7 @@ import com.intellij.ui._
 import javax.swing._
 import javax.swing.event.ChangeEvent
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsUtil}
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -22,8 +22,8 @@ import org.jetbrains.plugins.scala.util.JListCompatibility
  * 5/17/13
  */
 object OperationOnCollectionInspectionBase {
-  val inspectionId: String = InspectionBundle.message("operation.on.collection.id")
-  val inspectionName: String = InspectionBundle.message("operation.on.collection.name")
+  val inspectionId: String = ScalaInspectionBundle.message("operation.on.collection.id")
+  val inspectionName: String = ScalaInspectionBundle.message("operation.on.collection.name")
 
   val likeOptionClassesDefault: Array[String] = Array("scala.Option", "scala.Some", "scala.None")
   val likeCollectionClassesDefault: Array[String] = Array("scala.collection._", "scala.Array", "scala.Option", "scala.Some", "scala.None")
@@ -32,18 +32,18 @@ object OperationOnCollectionInspectionBase {
   private val likeCollectionKey = "operation.on.collection.like.collection"
 
   private val inputMessages = Map(
-    likeCollectionKey -> InspectionBundle.message("operation.on.collection.like.collection.input.message"),
-    likeOptionKey -> InspectionBundle.message("operation.on.collection.like.option.input.message")
+    likeCollectionKey -> ScalaInspectionBundle.message("operation.on.collection.like.collection.input.message"),
+    likeOptionKey -> ScalaInspectionBundle.message("operation.on.collection.like.option.input.message")
   )
 
   private val inputTitles = Map(
-    likeCollectionKey -> InspectionBundle.message("operation.on.collection.like.collection.input.title"),
-    likeOptionKey -> InspectionBundle.message("operation.on.collection.like.option.input.title")
+    likeCollectionKey -> ScalaInspectionBundle.message("operation.on.collection.like.collection.input.title"),
+    likeOptionKey -> ScalaInspectionBundle.message("operation.on.collection.like.option.input.title")
   )
 
   private val panelTitles = Map(
-    likeCollectionKey -> InspectionBundle.message("operation.on.collection.like.collection.panel.title"),
-    likeOptionKey -> InspectionBundle.message("operation.on.collection.like.option.panel.title")
+    likeCollectionKey -> ScalaInspectionBundle.message("operation.on.collection.like.collection.panel.title"),
+    likeOptionKey -> ScalaInspectionBundle.message("operation.on.collection.like.option.panel.title")
   )
 
   object SimplifiableExpression {

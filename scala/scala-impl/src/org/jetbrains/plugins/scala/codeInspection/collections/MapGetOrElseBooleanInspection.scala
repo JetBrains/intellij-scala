@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -23,6 +23,6 @@ abstract class MapGetOrElseBoolean(defaultValue: String, newMethodName: String, 
   }
 }
 
-object MapGetOrElseFalse extends MapGetOrElseBoolean("false", "exists", InspectionBundle.message("map.getOrElse.false.hint"))
+object MapGetOrElseFalse extends MapGetOrElseBoolean("false", "exists", ScalaInspectionBundle.message("map.getOrElse.false.hint"))
 
-object MapGetOrElseTrue extends MapGetOrElseBoolean("true", "forall", InspectionBundle.message("map.getOrElse.true.hint"))
+object MapGetOrElseTrue extends MapGetOrElseBoolean("true", "forall", ScalaInspectionBundle.message("map.getOrElse.true.hint"))

@@ -12,7 +12,7 @@ abstract class ExistsEqualsTestBase extends OperationsOnCollectionInspectionTest
 
 abstract class ReplaceWithContainsTestBase extends ExistsEqualsTestBase {
   override protected val hint: String =
-    InspectionBundle.message("exists.equals.hint")
+    ScalaInspectionBundle.message("exists.equals.hint")
 }
 
 class ReplaceWithContainsTest extends ReplaceWithContainsTestBase {
@@ -87,7 +87,7 @@ class ReplaceWithContainsTest_without_OptionContains extends ReplaceWithContains
 class ReplaceWithNotContainsTest extends ExistsEqualsTestBase {
 
   override protected val hint: String =
-    InspectionBundle.message("forall.notEquals.hint")
+    ScalaInspectionBundle.message("forall.notEquals.hint")
 
   def testForallNotEquals(): Unit = {
     val selected = s"Seq(1, 2).${START}forall(_ != 2)$END"

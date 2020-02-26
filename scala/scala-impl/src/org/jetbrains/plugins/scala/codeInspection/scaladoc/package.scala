@@ -5,5 +5,5 @@ import org.jetbrains.annotations.Nls
 package object scaladoc {
 
   @Nls
-  private[scaladoc] val FamilyName = InspectionBundle.message("family.name.scala.scaladoc")
+  private[scaladoc] val FamilyName = ScalaInspectionBundle.message("family.name.scala.scaladoc")
 }

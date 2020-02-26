@@ -14,7 +14,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[ComparingLengthInspection]
 
-  override protected val hint: String = InspectionBundle.message("replace.with.lengthCompare")
+  override protected val hint: String = ScalaInspectionBundle.message("replace.with.lengthCompare")
 
   def testLengthEqual(): Unit = {
     doTest(

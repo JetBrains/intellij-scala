@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -15,7 +15,7 @@ class FoldTrueAndInspection extends OperationOnCollectionInspection {
 
 object FoldTrueAnd extends SimplificationType(){
 
-  override def hint: String = InspectionBundle.message("fold.true.and.hint")
+  override def hint: String = ScalaInspectionBundle.message("fold.true.and.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

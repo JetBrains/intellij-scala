@@ -6,7 +6,6 @@ import com.intellij.codeInspection.{LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -66,7 +65,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
 
 
   private def registerProblem(parenthesized: ScParenthesizedElement)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
-    val description = InspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(parenthesized))
+    val description = ScalaInspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(parenthesized))
     registerProblem(parenthesized, new AbstractFixOnPsiElement(description, parenthesized) {
       override protected def doApplyFix(element: ScParenthesizedElement)(implicit project: Project): Unit = {
         val keepParentheses = element.isNestingParenthesis
@@ -88,7 +87,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
   }
 
   private def registerProblem(elt: ScParameterClause)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
-    val quickFix = new AbstractFixOnPsiElement[ScParameterClause](InspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(elt)), elt) {
+    val quickFix = new AbstractFixOnPsiElement[ScParameterClause](ScalaInspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(elt)), elt) {
       override protected def doApplyFix(element: ScParameterClause)(implicit project: Project): Unit = {
         if (isParenthesised(element)) {
           elt.getNode.removeChild(elt.getNode.getFirstChildNode)
@@ -101,6 +100,6 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
   }
 
   private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
-    registerRedundantParensProblem(InspectionBundle.message("unnecessary.parentheses"), elt, qf)
+    registerRedundantParensProblem(ScalaInspectionBundle.message("unnecessary.parentheses"), elt, qf)
   }
 }

@@ -15,7 +15,7 @@ class MapFlattenTest extends OperationsOnCollectionInspectionTest {
     classOf[MapFlattenInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.map.flatten.with.flatMap")
+    ScalaInspectionBundle.message("replace.map.flatten.with.flatMap")
 
   def test1(): Unit = {
     doTest(

@@ -15,9 +15,9 @@ class ScalaRenamePackageQuickFix(myFile: ScalaFile, name: String)
 
   override protected def doApplyFix(file: ScalaFile)
                                    (implicit project: Project): Unit =
-    startCommand(InspectionBundle.message("rename.package.quickfix.command.name")) {
+    startCommand(ScalaInspectionBundle.message("rename.package.quickfix.command.name")) {
       file.setPackageName(name)
     }
 
-  override def getFamilyName: String = InspectionBundle.message("family.name.rename.package")
+  override def getFamilyName: String = ScalaInspectionBundle.message("family.name.rename.package")
 }

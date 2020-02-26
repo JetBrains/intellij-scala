@@ -15,7 +15,7 @@ class EqualityToSameElementsTest extends OperationsOnCollectionInspectionTest {
     classOf[EqualityToSameElementsInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.equals.with.sameElements")
+    ScalaInspectionBundle.message("replace.equals.with.sameElements")
 
   def testArraysEquals(): Unit = {
     doTest(

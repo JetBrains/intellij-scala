@@ -64,7 +64,7 @@ final class ScalaEnableOptimizeImportsOnTheFlyFix extends ScalaOptimizeImportsFi
 
 final class MarkImportAsAlwaysUsed(importText: String) extends IntentionAction with LowPriorityAction {
 
-  override def getText: String = InspectionBundle.message("mark.import.as.always.used.in.this.project")
+  override def getText: String = ScalaInspectionBundle.message("mark.import.as.always.used.in.this.project")
 
   override def startInWriteAction: Boolean = true
 
@@ -78,5 +78,5 @@ final class MarkImportAsAlwaysUsed(importText: String) extends IntentionAction w
     FileContentUtil.reparseFiles(project, Seq(file.getVirtualFile).asJava, true)
   }
 
-  override def getFamilyName: String = InspectionBundle.message("mark.import.as.always.used.in.this.project")
+  override def getFamilyName: String = ScalaInspectionBundle.message("mark.import.as.always.used.in.this.project")
 }

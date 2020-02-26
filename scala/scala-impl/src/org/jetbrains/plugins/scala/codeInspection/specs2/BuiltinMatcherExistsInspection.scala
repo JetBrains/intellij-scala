@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.codeInspection.specs2
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 
 class BuiltinMatcherExistsInspection
-  extends AbstractInspection(InspectionBundle.message("specs2.builtin.matcher.alternative.exists")) {
+  extends AbstractInspection(ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case elem@ScMethodCall(matcher, Seq(ScMethodCall(inner, _))) if equalToMatcher(matcher) && optional(inner) =>
@@ -28,22 +28,22 @@ class BuiltinMatcherExistsInspection
 
   private def suggestFixForOptional(elem: PsiElement)
                                    (implicit holder: ProblemsHolder): Unit =
-    holder.registerProblem(elem, InspectionBundle.message("specs2.use.builtin.matcher"),
+    holder.registerProblem(elem, ScalaInspectionBundle.message("specs2.use.builtin.matcher"),
       new ReplaceWithBeSomeOrNoneQuickFix(elem))
 
   private def suggestFixForMustOptional(elem: PsiElement)
                                        (implicit holder: ProblemsHolder): Unit =
-    holder.registerProblem(elem, InspectionBundle.message("specs2.use.builtin.matcher"),
+    holder.registerProblem(elem, ScalaInspectionBundle.message("specs2.use.builtin.matcher"),
       new ReplaceMustWithBeSomeOrNoneQuickFix(elem))
 
   private def suggestFixForEither(elem: PsiElement)
                                  (implicit holder: ProblemsHolder): Unit =
-    holder.registerProblem(elem, InspectionBundle.message("specs2.use.builtin.matcher"),
+    holder.registerProblem(elem, ScalaInspectionBundle.message("specs2.use.builtin.matcher"),
       new ReplaceWithBeLeftOrRightQuickFix(elem))
 
   private def suggestFixForMustEither(elem: PsiElement)
                                      (implicit holder: ProblemsHolder): Unit =
-    holder.registerProblem(elem, InspectionBundle.message("specs2.use.builtin.matcher"),
+    holder.registerProblem(elem, ScalaInspectionBundle.message("specs2.use.builtin.matcher"),
       new ReplaceWithMustBeLeftOrRightQuickFix(elem))
 
   private val EqualToMatchers = Seq("be_===", "be_==", "beEqualTo", "equalTo", "beTypedEqualTo", "typedEqualTo")
@@ -58,7 +58,7 @@ class BuiltinMatcherExistsInspection
   private def either(expr: ScExpression) = expr.textMatches("Left") || expr.textMatches("Right")
 
   private class ReplaceWithBeSomeOrNoneQuickFix(element: PsiElement)
-    extends AbstractFixOnPsiElement(InspectionBundle.message("specs2.builtin.matcher.alternative.exists"), element) {
+    extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists"), element) {
 
     override protected def doApplyFix(element: PsiElement)
                                      (implicit project: Project): Unit = element match {
@@ -70,7 +70,7 @@ class BuiltinMatcherExistsInspection
   }
 
   private class ReplaceMustWithBeSomeOrNoneQuickFix(element: PsiElement)
-    extends AbstractFixOnPsiElement(InspectionBundle.message("specs2.builtin.matcher.alternative.exists"), element) {
+    extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists"), element) {
 
     override protected def doApplyFix(element: PsiElement)
                                      (implicit project: Project): Unit = element match {
@@ -82,7 +82,7 @@ class BuiltinMatcherExistsInspection
   }
 
   private class ReplaceWithBeLeftOrRightQuickFix(element: PsiElement)
-    extends AbstractFixOnPsiElement(InspectionBundle.message("specs2.builtin.matcher.alternative.exists"), element) {
+    extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists"), element) {
 
     override protected def doApplyFix(element: PsiElement)
                                      (implicit project: Project): Unit = element match {
@@ -92,7 +92,7 @@ class BuiltinMatcherExistsInspection
   }
 
   private class ReplaceWithMustBeLeftOrRightQuickFix(element: PsiElement)
-    extends AbstractFixOnPsiElement(InspectionBundle.message("specs2.builtin.matcher.alternative.exists"), element) {
+    extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists"), element) {
 
     override protected def doApplyFix(element: PsiElement)
                                      (implicit project: Project): Unit = element match {

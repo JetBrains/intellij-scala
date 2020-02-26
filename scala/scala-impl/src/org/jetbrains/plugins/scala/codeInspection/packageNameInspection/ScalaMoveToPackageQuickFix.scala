@@ -52,13 +52,13 @@ final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
 
   override def startInWriteAction(): Boolean = false
 
-  override def getFamilyName: String = InspectionBundle.message("fimaly.name.move.file.to.package")
+  override def getFamilyName: String = ScalaInspectionBundle.message("fimaly.name.move.file.to.package")
 }
 
 object ScalaMoveToPackageQuickFix {
   @Nls
   def hint(fileName: String, packageName: String): String = {
-    if (packageName.isEmpty) InspectionBundle.message("move.file.to.default.package", fileName)
-    else InspectionBundle.message("move.file.to.package.with.packagename", fileName, packageName)
+    if (packageName.isEmpty) ScalaInspectionBundle.message("move.file.to.default.package", fileName)
+    else ScalaInspectionBundle.message("move.file.to.package.with.packagename", fileName, packageName)
   }
 }

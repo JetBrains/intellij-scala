@@ -15,7 +15,7 @@ class SizeToLengthTest extends OperationsOnCollectionInspectionTest {
     classOf[SizeToLengthInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("size.to.length")
+    ScalaInspectionBundle.message("size.to.length")
 
   def testString(): Unit = {
     doTest(s"""|"".${START}size$END""".stripMargin, "\"\".size", "\"\".length")

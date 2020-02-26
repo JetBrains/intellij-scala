@@ -15,7 +15,7 @@ class CollectHeadOptionTest extends OperationsOnCollectionInspectionTest {
     classOf[CollectHeadOptionInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.collect.headOption.with.collectFirst")
+    ScalaInspectionBundle.message("replace.collect.headOption.with.collectFirst")
 
   def testSeq(): Unit = {
     doTest(

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
@@ -15,7 +15,7 @@ class SortFilterInspection extends OperationOnCollectionInspection {
 
 object SortFilter extends SimplificationType {
 
-  override def hint: String = InspectionBundle.message("sort.filter.hint")
+  override def hint: String = ScalaInspectionBundle.message("sort.filter.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

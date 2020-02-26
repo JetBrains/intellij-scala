@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -16,7 +16,7 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
     classOf[SortFilterInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("sort.filter.hint")
+    ScalaInspectionBundle.message("sort.filter.hint")
 
   def testWithoutParams(): Unit = {
     val selected = s"List(0, 1).${START}sorted.filter(_ => true)$END"

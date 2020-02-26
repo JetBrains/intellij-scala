@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturn
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExpressionExt, ScFunction, ScFunctionDefinition}
 
-class RemoveRedundantReturnInspection extends AbstractInspection(InspectionBundle.message("display.name.redundant.return")) {
+class RemoveRedundantReturnInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.return")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case function: ScFunctionDefinition =>
@@ -21,7 +21,8 @@ class RemoveRedundantReturnInspection extends AbstractInspection(InspectionBundl
           case r: ScReturn =>
             if (returns.contains(r)) {
               holder.registerProblem(
-                r.keyword, InspectionBundle.message("return.keyword.is.redundant"),
+                r.keyword,
+                ScalaInspectionBundle.message("return.keyword.is.redundant"),
                 ProblemHighlightType.LIKE_UNUSED_SYMBOL,
                 new RemoveReturnKeywordQuickFix(r)
               )

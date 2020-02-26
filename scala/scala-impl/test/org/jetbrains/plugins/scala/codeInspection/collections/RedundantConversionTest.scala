@@ -15,7 +15,7 @@ class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
     classOf[RedundantCollectionConversionInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("redundant.collection.conversion")
+    ScalaInspectionBundle.message("redundant.collection.conversion")
 
   def test_1(): Unit = {
     doTest(s"List(1, 2).${START}toList$END",

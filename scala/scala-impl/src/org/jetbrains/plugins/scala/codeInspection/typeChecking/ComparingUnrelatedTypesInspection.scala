@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import com.siyeh.ig.psiutils.MethodUtils
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -24,7 +24,7 @@ import scala.annotation.tailrec
   */
 
 object ComparingUnrelatedTypesInspection {
-  val inspectionName: String = InspectionBundle.message("comparing.unrelated.types.name")
+  val inspectionName: String = ScalaInspectionBundle.message("comparing.unrelated.types.name")
   val inspectionId = "ComparingUnrelatedTypes"
 
   private val seqFunctions = Seq("contains", "indexOf", "lastIndexOf")
@@ -116,7 +116,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
     val nonSingleton1 = firstType.extractDesignatorSingleton.getOrElse(firstType)
     val nonSingleton2 = secondType.extractDesignatorSingleton.getOrElse(secondType)
     val (firstTypeText, secondTypeText) = ScTypePresentation.different(nonSingleton1, nonSingleton2)
-    InspectionBundle.message("comparing.unrelated.types.hint", firstTypeText, secondTypeText)
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", firstTypeText, secondTypeText)
   }
 
   private def mayNeedHighlighting(fun: ScFunction): Boolean = {

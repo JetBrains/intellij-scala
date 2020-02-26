@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
@@ -16,7 +16,7 @@ class MapGetOrElseInspection extends OperationOnCollectionInspection {
 }
 
 object MapGetOrElse extends SimplificationType() {
-  override def hint: String = InspectionBundle.message("map.getOrElse.hint")
+  override def hint: String = ScalaInspectionBundle.message("map.getOrElse.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

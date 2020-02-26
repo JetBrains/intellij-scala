@@ -15,7 +15,7 @@ class LastIndexToLastTest extends OperationsOnCollectionInspectionTest {
     classOf[LastIndexToLastInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.last")
+    ScalaInspectionBundle.message("replace.with.last")
 
   def testExplicitApply(): Unit = {
     doTest(

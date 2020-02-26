@@ -11,7 +11,7 @@ class ScalaShouldBeTextMatchesInspection extends OperationOnCollectionInspection
 }
 
 object ScalaShouldBeTextMatchesInspection extends SimplificationType() {
-  override val hint: String = InspectionBundle.message("internal.replace.with.textMatches")
+  override val hint: String = ScalaInspectionBundle.message("internal.replace.with.textMatches")
 
   private val `.getText`: Qualified = invocation("getText").from(Array(psiElementFqn))
 

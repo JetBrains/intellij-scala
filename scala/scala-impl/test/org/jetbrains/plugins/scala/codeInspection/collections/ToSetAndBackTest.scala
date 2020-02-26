@@ -15,7 +15,7 @@ class ToSetAndBackTest extends OperationsOnCollectionInspectionTest {
     classOf[ToSetAndBackInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.toSet.and.back.with.distinct")
+    ScalaInspectionBundle.message("replace.toSet.and.back.with.distinct")
 
   def testSeq(): Unit = {
     doTest(

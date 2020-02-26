@@ -4,7 +4,7 @@ package codeInspection.booleans
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -20,19 +20,19 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  * 4/23/13
  *
  */
-class SimplifyBooleanInspection extends AbstractInspection(InspectionBundle.message("simplify.boolean.expression")) {
+class SimplifyBooleanInspection extends AbstractInspection(ScalaInspectionBundle.message("simplify.boolean.expression")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case _: ScParenthesisedExpr => //do nothing to avoid many similar expressions
     case expr: ScExpression if SimplifyBooleanUtil.canBeSimplified(expr) =>
-        holder.registerProblem(expr, InspectionBundle.message("simplify.boolean.expression"),
+        holder.registerProblem(expr, ScalaInspectionBundle.message("simplify.boolean.expression"),
                                ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanQuickFix(expr))
   }
 
 }
 
 class SimplifyBooleanQuickFix(expr: ScExpression)
-  extends AbstractFixOnPsiElement(InspectionBundle.message("simplify.with.text", getShortText(expr)), expr) {
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("simplify.with.text", getShortText(expr)), expr) {
 
   override protected def doApplyFix(scExpr: ScExpression)
                                    (implicit project: Project): Unit = {

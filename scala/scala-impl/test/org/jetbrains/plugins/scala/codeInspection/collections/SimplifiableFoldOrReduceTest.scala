@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
   * Nikolay.Tropin
@@ -16,7 +16,7 @@ class FoldSumTest extends OperationsOnCollectionInspectionTest {
     classOf[SimplifiableFoldOrReduceInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("fold.sum.hint")
+    ScalaInspectionBundle.message("fold.sum.hint")
 
   def test_1(): Unit = {
     val selected = s"List(0).$START/:(0)(_ + _)$END"
@@ -54,7 +54,7 @@ class ReduceMinTest extends OperationsOnCollectionInspectionTest {
     classOf[SimplifiableFoldOrReduceInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("reduce.min.hint")
+    ScalaInspectionBundle.message("reduce.min.hint")
 
   def test_1(): Unit = {
     val text = "List(1, 2, 3).reduceLeft(_ min _)"
@@ -82,7 +82,7 @@ class ReduceProductTest extends OperationsOnCollectionInspectionTest {
     classOf[SimplifiableFoldOrReduceInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("reduce.product.hint")
+    ScalaInspectionBundle.message("reduce.product.hint")
 
   def test_1(): Unit = {
     val text = "List(1, 2, 3).reduceLeft(_ * _)"

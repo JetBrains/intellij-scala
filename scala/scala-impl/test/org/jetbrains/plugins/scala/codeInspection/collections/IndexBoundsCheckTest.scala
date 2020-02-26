@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
   * @author t-kameyama
@@ -14,7 +15,7 @@ class IndexBoundsCheckTest extends OperationsOnCollectionInspectionTest {
     classOf[IndexBoundsCheckInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("ifstmt.to.lift")
+    ScalaInspectionBundle.message("ifstmt.to.lift")
 
   def testSeqLess(): Unit = {
     doTest(

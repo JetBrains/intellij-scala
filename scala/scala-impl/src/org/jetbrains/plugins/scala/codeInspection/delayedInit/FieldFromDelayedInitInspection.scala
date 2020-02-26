@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 /**
   * @author Nikolay.Tropin
   */
-final class FieldFromDelayedInitInspection extends AbstractInspection(InspectionBundle.message("display.name.field.from.delayedinit")) {
+final class FieldFromDelayedInitInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.field.from.delayedinit")) {
 
   import FieldFromDelayedInitInspection._
 
@@ -24,7 +24,7 @@ final class FieldFromDelayedInitInspection extends AbstractInspection(Inspection
         FieldInDelayedInit(delayedInitClass) <- ref.bind()
         parents = parentDefinitions(ref)
         if !parents.exists(_.sameOrInheritor(delayedInitClass))
-      } holder.registerProblem(ref.nameId, InspectionBundle.message("field.defined.in.delayedinit.is.likely.to.be.null"))
+      } holder.registerProblem(ref.nameId, ScalaInspectionBundle.message("field.defined.in.delayedinit.is.likely.to.be.null"))
   }
 }
 

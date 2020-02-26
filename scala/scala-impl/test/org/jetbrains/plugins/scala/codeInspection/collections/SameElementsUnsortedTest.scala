@@ -16,7 +16,7 @@ abstract class CorrespondsUnsortedInspectionTest extends OperationsOnCollectionI
 class SameElementsUnsortedTest extends CorrespondsUnsortedInspectionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("sameElements.unsorted")
+    ScalaInspectionBundle.message("sameElements.unsorted")
 
   def testSeqSet(): Unit = {
     checkTextHasError(s"Seq(1) ${START}sameElements$END Set(1)")
@@ -62,7 +62,7 @@ class SameElementsUnsortedTest extends CorrespondsUnsortedInspectionTest {
 class CorrespondsUnsortedTest extends CorrespondsUnsortedInspectionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("corresponds.unsorted")
+    ScalaInspectionBundle.message("corresponds.unsorted")
 
   def testCorrespondsSet(): Unit = {
     checkTextHasError(s"Iterator(1).${START}corresponds$END(Set(1))((x, y) => true)")

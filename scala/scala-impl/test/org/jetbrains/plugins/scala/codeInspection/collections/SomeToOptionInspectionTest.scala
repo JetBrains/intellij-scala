@@ -14,7 +14,7 @@ class SomeToOptionInspectionTest extends OperationsOnCollectionInspectionTest {
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[SomeToOptionInspection]
 
-  override protected val hint: String = InspectionBundle.message("replace.with.option")
+  override protected val hint: String = ScalaInspectionBundle.message("replace.with.option")
 
   def testVal(): Unit = {
     doTest(

@@ -12,7 +12,6 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -47,7 +46,7 @@ object MatchToPartialFunctionInspection {
 
   private[functionExpressions] val ID = "MatchToPartialFunction"
   @Nls
-  private[functionExpressions] val DESCRIPTION = InspectionBundle.message("convert.match.statement.to.pattern.matching.function")
+  private[functionExpressions] val DESCRIPTION = ScalaInspectionBundle.message("convert.match.statement.to.pattern.matching.function")
 
   private def isValid(function: ScFunctionExpr): Boolean =
     (function.parameters.head.typeElement.isEmpty ||

@@ -4,7 +4,7 @@ package codeInspection.format
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
@@ -16,7 +16,7 @@ class LegacyStringFormattingInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case element if FormattedStringParser.extractFormatCall(element).isDefined =>
-      holder.registerProblem(element, InspectionBundle.message("legacy.string.formatting.use.interpolated.string"), new QuickFix(element))
+      holder.registerProblem(element, ScalaInspectionBundle.message("legacy.string.formatting.use.interpolated.string"), new QuickFix(element))
   }
 
   private class QuickFix(e: PsiElement) extends AbstractFixOnPsiElement("Convert to interpolated string", e) {

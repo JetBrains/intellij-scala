@@ -16,7 +16,7 @@ abstract class ExistsForallReplaceTest extends OperationsOnCollectionInspectionT
 class ReplaceForallWithExistsTest extends ExistsForallReplaceTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.exists")
+    ScalaInspectionBundle.message("replace.with.exists")
 
   def test_1(): Unit = {
     val selected = s"""$START!Seq("").forall(!_.isEmpty)$END"""
@@ -38,7 +38,7 @@ class ReplaceForallWithExistsTest extends ExistsForallReplaceTest {
 class ReplaceSmthWithNotContainsTest extends ExistsForallReplaceTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.forall")
+    ScalaInspectionBundle.message("replace.with.forall")
 
   def test_1(): Unit = {
     val selected = s"""$START!Seq("").exists(!_.isEmpty)$END"""

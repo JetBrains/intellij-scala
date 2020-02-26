@@ -5,13 +5,13 @@ package i18n
 package internal
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
 class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ReferencePassedToNlsInspection]
 
-  override protected val description = InspectionBundle.message("internal.expression.without.nls.passed.to.nls")
+  override protected val description = ScalaInspectionBundle.message("internal.expression.without.nls.passed.to.nls")
 
   override protected def createTestText(text: String): String =
     s"""

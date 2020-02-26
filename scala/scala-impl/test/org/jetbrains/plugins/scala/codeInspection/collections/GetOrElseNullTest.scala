@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -12,7 +12,7 @@ class GetOrElseNullTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override val hint: String = InspectionBundle.message("getOrElse.null.hint")
+  override val hint: String = ScalaInspectionBundle.message("getOrElse.null.hint")
 
   def test_1(): Unit = {
     val selected = s"None.${START}getOrElse(null)$END"

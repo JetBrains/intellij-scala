@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocInlinedTag
 class ScalaDocInlinedTagInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getDisplayName: String = InspectionBundle.message("display.name.inlined.tag")
+  override def getDisplayName: String = ScalaInspectionBundle.message("display.name.inlined.tag")
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {

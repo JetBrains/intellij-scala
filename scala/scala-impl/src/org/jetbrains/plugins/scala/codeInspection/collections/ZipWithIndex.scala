@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
  * @author Nikolay.Tropin
  */
 object ZipWithIndex extends SimplificationType() {
-  override def hint: String = InspectionBundle.message("replace.with.zipWithIndex")
+  override def hint: String = ScalaInspectionBundle.message("replace.with.zipWithIndex")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

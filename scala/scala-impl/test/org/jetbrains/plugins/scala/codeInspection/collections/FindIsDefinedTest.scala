@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  */
 class FindIsDefinedTest extends OperationsOnCollectionInspectionTest {
   override val classOfInspection = classOf[FindEmptyCheckInspection]
-  override val hint = InspectionBundle.message("find.isDefined.hint")
+  override val hint = ScalaInspectionBundle.message("find.isDefined.hint")
 
   def testFindIsDefined(): Unit = {
     val selected = s"""val valueIsGoodEnough: (Any) => Boolean = _ => true
@@ -50,7 +50,7 @@ class FindIsDefinedTest extends OperationsOnCollectionInspectionTest {
 
 class FindIsEmptyTest extends OperationsOnCollectionInspectionTest {
   override val classOfInspection = classOf[FindEmptyCheckInspection]
-  override val hint = InspectionBundle.message("find.isEmpty.hint")
+  override val hint = ScalaInspectionBundle.message("find.isEmpty.hint")
 
   def testEqNone(): Unit = {
     val selected = s"Nil$START.find(_ => true) == None$END"

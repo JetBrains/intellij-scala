@@ -5,13 +5,13 @@ package i18n
 package internal
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
 class ScalaExtractStringToBundleInspectionTest extends ScalaInspectionTestBase{
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaExtractStringToBundleInspection]
 
-  override protected val description = InspectionBundle.message("internal.string.should.be.in.bundle")
+  override protected val description = ScalaInspectionBundle.message("internal.string.should.be.in.bundle")
 
   override protected def createTestText(text: String): String =
     s"""

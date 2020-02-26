@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
   * @author Nikolay.Tropin
@@ -15,7 +16,7 @@ abstract class MapKeysTest extends OperationsOnCollectionInspectionTest {
 class ReplaceWithKeysTest extends MapKeysTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.keys")
+    ScalaInspectionBundle.message("replace.with.keys")
 
   def test1(): Unit = {
     doTest(
@@ -41,7 +42,7 @@ class ReplaceWithKeysTest extends MapKeysTest {
 class ReplaceWithKeySetTest extends MapKeysTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.keySet")
+    ScalaInspectionBundle.message("replace.with.keySet")
 
   def test(): Unit = {
     checkTextHasError(s"Map(1 -> 2).${START}map(_._1).toSet$END")
@@ -53,7 +54,7 @@ class ReplaceWithKeySetTest extends MapKeysTest {
 class ReplaceWithKeysIteratorTest extends MapKeysTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.keysIterator")
+    ScalaInspectionBundle.message("replace.with.keysIterator")
 
   def test(): Unit = {
     checkTextHasError(s"Map(1 -> 2).${START}map(_._1).toIterator$END")

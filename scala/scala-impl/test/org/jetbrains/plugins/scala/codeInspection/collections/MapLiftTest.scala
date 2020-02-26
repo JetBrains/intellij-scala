@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
   * @author t-kameyama
@@ -12,7 +12,7 @@ class MapLiftTest extends OperationsOnCollectionInspectionTest {
     classOf[MapLiftInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.get")
+    ScalaInspectionBundle.message("replace.with.get")
 
   def test1(): Unit = {
     doTest(

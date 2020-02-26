@@ -68,7 +68,7 @@ object AnnotatorBasedErrorInspection {
     if (highlightInfoHolder.hasErrorResults) {
       holder.registerProblem(
         element,
-        InspectionBundle.message("error.detected"),
+        ScalaInspectionBundle.message("error.detected"),
         ERROR,
         null: TextRange
       )
@@ -105,37 +105,37 @@ object AnnotatorBasedErrorInspection {
     def createInformationAnnotation(elt: PsiElement, message: String): ScalaAnnotation = FakeAnnotation
 
     override def createWarningAnnotation(range: TextRange, message: String): ScalaAnnotation = {
-      holder.registerProblem(element, InspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
+      holder.registerProblem(element, ScalaInspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
     override def createWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
-      holder.registerProblem(element, InspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
+      holder.registerProblem(element, ScalaInspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
     override def createWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
-      holder.registerProblem(element, InspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
+      holder.registerProblem(element, ScalaInspectionBundle.message("warning.with.message", message), GENERIC_ERROR_OR_WARNING)
       FakeAnnotation
     }
 
     override def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation = {
       if (message != null) {
-        holder.registerProblem(element, InspectionBundle.message("error.detected.with.message", message), ERROR)
+        holder.registerProblem(element, ScalaInspectionBundle.message("error.detected.with.message", message), ERROR)
       }
       FakeAnnotation
     }
 
     override def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
       if (message != null) {
-        holder.registerProblem(element, InspectionBundle.message("error.detected.with.message", message), ERROR)
+        holder.registerProblem(element, ScalaInspectionBundle.message("error.detected.with.message", message), ERROR)
       }
       FakeAnnotation
     }
 
     override def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
       if (message != null) {
-        holder.registerProblem(element, InspectionBundle.message("error.detected.with.message", message), ERROR)
+        holder.registerProblem(element, ScalaInspectionBundle.message("error.detected.with.message", message), ERROR)
       }
       FakeAnnotation
     }

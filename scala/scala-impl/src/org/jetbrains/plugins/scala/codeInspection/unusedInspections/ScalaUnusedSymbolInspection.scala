@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def isEnabledByDefault: Boolean = true
 
-  override def getDisplayName: String = InspectionBundle.message("display.name.unused.symbol")
+  override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.symbol")
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
     if (isOnTheFly) {
@@ -85,7 +85,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
 object ScalaUnusedSymbolInspection {
   @Nls
-  val annotationDescription: String = InspectionBundle.message("declaration.is.never.used")
+  val annotationDescription: String = ScalaInspectionBundle.message("declaration.is.never.used")
 
   val shortName: String = "ScalaUnusedSymbol"
 

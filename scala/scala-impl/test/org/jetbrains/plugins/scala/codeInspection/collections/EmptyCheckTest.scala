@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
   * @author Nikolay.Tropin
@@ -14,7 +15,7 @@ abstract class CheckEmptinessTest extends OperationsOnCollectionInspectionTest {
 class ReplaceIsEmptyTest extends CheckEmptinessTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.isEmpty")
+    ScalaInspectionBundle.message("replace.with.isEmpty")
 
   def testNotNonEmpty(): Unit = {
     val selected = s"$START!Seq().nonEmpty$END"
@@ -75,7 +76,7 @@ class ReplaceIsEmptyTest extends CheckEmptinessTest {
 
 class ReplaceWithIsDefinedTest extends CheckEmptinessTest {
   override protected val hint: String =
-    InspectionBundle.message("replace.with.isDefined")
+    ScalaInspectionBundle.message("replace.with.isDefined")
 
   def testNotEqualsNone(): Unit = {
     val selected = s"Option(1)$START != None$END"
@@ -114,7 +115,7 @@ class ReplaceWithIsDefinedTest extends CheckEmptinessTest {
 class ReplaceWithNonEmptyTest extends CheckEmptinessTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.nonEmpty")
+    ScalaInspectionBundle.message("replace.with.nonEmpty")
 
   def testNotIsEmpty(): Unit = {
     val selected = s"$START!Seq().isEmpty$END"

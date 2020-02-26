@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.parentheses.registerRedundantParensProblem
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
@@ -23,14 +23,14 @@ class RedundantBlockInspection extends AbstractInspection {
     case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
       if block.hasRBrace && block.getFirstChild.textMatches("{") &&
         blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.isInstanceOf[ScCaseClauses]) =>
-      holder.registerProblem(block, new TextRange(0, 1), InspectionBundle.message("remove.redundant.braces"), new InCaseClauseQuickFix(block))
+      holder.registerProblem(block, new TextRange(0, 1), ScalaInspectionBundle.message("remove.redundant.braces"), new InCaseClauseQuickFix(block))
     case block: ScBlockExpr if block.getChildren.length == 3 =>
       if (RedundantBlockInspection.isRedundantBlock(block)) {
         registerRedundantParensProblem("The enclosing block is redundant", block, new QuickFix(block))
       }
   }
 
-  private class QuickFix(e: PsiElement) extends AbstractFixOnPsiElement(InspectionBundle.message("unwrap.the.expression"), e) {
+  private class QuickFix(e: PsiElement) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("unwrap.the.expression"), e) {
 
     override protected def doApplyFix(elem: PsiElement)
                                      (implicit project: Project): Unit = {
@@ -38,7 +38,7 @@ class RedundantBlockInspection extends AbstractInspection {
     }
   }
 
-  private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFixOnPsiElement(InspectionBundle.message("remove.redundant.braces"), block) {
+  private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.redundant.braces"), block) {
 
     override protected def doApplyFix(bl: ScBlock)
                                      (implicit project: Project): Unit = {

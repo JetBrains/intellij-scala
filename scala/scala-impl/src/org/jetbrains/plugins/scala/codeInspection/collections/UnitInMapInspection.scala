@@ -4,7 +4,7 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
@@ -36,7 +36,7 @@ final class UnitInMapInspection extends OperationOnCollectionInspection {
         if hasUnitReturnType(expression, argumentType)(call.projectContext)
       } holder.registerProblem(
         expression,
-        InspectionBundle.message("expression.unit.return.in.map"),
+        ScalaInspectionBundle.message("expression.unit.return.in.map"),
         highlightType,
         quickFixes: _*
       )
@@ -84,7 +84,7 @@ object UnitInMapInspection {
 
   private class ChangeReferenceNameQuickFix(reference: ScReference)
     extends AbstractFixOnPsiElement(
-      InspectionBundle.message("use.foreach.instead.of.map"),
+      ScalaInspectionBundle.message("use.foreach.instead.of.map"),
       reference
     ) {
 

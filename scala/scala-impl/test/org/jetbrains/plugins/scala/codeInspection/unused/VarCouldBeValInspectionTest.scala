@@ -17,7 +17,7 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
 
   import VarCouldBeValInspection._
 
-  override protected val description: String = InspectionBundle.message("var.could.be.a.val")
+  override protected val description: String = ScalaInspectionBundle.message("var.could.be.a.val")
 
   def testPrivateField(): Unit = testQuickFix(
     text =
@@ -176,5 +176,5 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
   )
 
   private def testQuickFix(text: String, expected: String): Unit =
-    testQuickFix(text, expected, InspectionBundle.message("convert.var.to.val"))
+    testQuickFix(text, expected, ScalaInspectionBundle.message("convert.var.to.val"))
 }

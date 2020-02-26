@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 class ScalaShouldBeTextMatchesInspectionTest extends ScalaQuickFixTestBase {
 
@@ -9,7 +9,7 @@ class ScalaShouldBeTextMatchesInspectionTest extends ScalaQuickFixTestBase {
     classOf[ScalaShouldBeTextMatchesInspection]
 
   override protected val description: String =
-    InspectionBundle.message("internal.replace.with.textMatches")
+    ScalaInspectionBundle.message("internal.replace.with.textMatches")
 
   override def createTestText(text: String): String =
     s"""

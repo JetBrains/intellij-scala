@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.codeInspection
+package org.jetbrains.plugins.scala
+package codeInspection
 package methodSignature
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel
@@ -15,9 +16,9 @@ class OverrideAbstractMemberInspectionTest extends ScalaQuickFixTestBase with Fo
     HighlightDisplayLevel.WARNING
 
   override protected val description: String =
-    InspectionBundle.message("method.signature.override.abstract.member")
+    ScalaInspectionBundle.message("method.signature.override.abstract.member")
 
-  val quickfixHint = InspectionBundle.message("add.override.modifier.quickfix")
+  val quickfixHint = ScalaInspectionBundle.message("add.override.modifier.quickfix")
 
   def test_override_trait(): Unit = {
     val baseText =

@@ -15,7 +15,7 @@ abstract class SameElementsToEqualsInspectionTest extends OperationsOnCollection
 
 class SameElementsToEqualsTest extends SameElementsToEqualsInspectionTest {
 
-  override protected val hint: String = InspectionBundle.message("replace.sameElements.with.equals")
+  override protected val hint: String = ScalaInspectionBundle.message("replace.sameElements.with.equals")
 
   def testSeqs(): Unit = {
     doTest(
@@ -58,7 +58,7 @@ class SameElementsToEqualsTest extends SameElementsToEqualsInspectionTest {
 class CorrespondsToEqualsTest extends SameElementsToEqualsInspectionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.corresponds.with.equals")
+    ScalaInspectionBundle.message("replace.corresponds.with.equals")
 
   def test1(): Unit = {
     doTest(

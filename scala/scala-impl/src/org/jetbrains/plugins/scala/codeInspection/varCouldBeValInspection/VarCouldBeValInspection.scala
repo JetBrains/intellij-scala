@@ -2,15 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package varCouldBeValInspection
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.codeInsight.FileModificationService
-import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement
+import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{HighlightingPassInspection, ProblemInfo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isLocalOrPrivate, isPossiblyAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -26,7 +24,7 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = element match {
     case variable: ScVariableDefinition
       if variable.declaredElements.forall(if (isOnTheFly) hasNoWriteUsagesOnTheFly else hasNoWriteUsages) =>
-      Seq(ProblemInfo(variable.keywordToken, InspectionBundle.message("var.could.be.a.val"), ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new VarToValFix(variable))))
+      Seq(ProblemInfo(variable.keywordToken, ScalaInspectionBundle.message("var.could.be.a.val"), ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new VarToValFix(variable))))
     case _ => Seq.empty
   }
 
@@ -53,7 +51,7 @@ object VarCouldBeValInspection {
       }
     }
 
-    override def getText: String = InspectionBundle.message("convert.var.to.val")
+    override def getText: String = ScalaInspectionBundle.message("convert.var.to.val")
 
     override def getFamilyName: String = getText
   }

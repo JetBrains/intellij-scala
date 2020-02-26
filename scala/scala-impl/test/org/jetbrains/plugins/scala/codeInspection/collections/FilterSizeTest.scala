@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
  * 5/30/13
  */
 class FilterSizeTest extends OperationsOnCollectionInspectionTest {
-  override val hint = InspectionBundle.message("filter.size.hint")
+  override val hint = ScalaInspectionBundle.message("filter.size.hint")
   def test_1(): Unit = {
     val selected = s"Array().${START}filter(x => true).size$END"
     checkTextHasError(selected)

@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -11,7 +12,7 @@ class RangeToIndicesInspection extends OperationOnCollectionInspection {
 }
 
 object RangeToIndices extends SimplificationType {
-  override def hint: String = InspectionBundle.message("hint.replace.with.indices")
+  override def hint: String = ScalaInspectionBundle.message("hint.replace.with.indices")
   //noinspection ScalaExtractStringToBundle
   override def description: String = "Range(0, seq.size)"
 
@@ -25,7 +26,7 @@ object RangeToIndices extends SimplificationType {
   def toIndicesSimplification(expr: ScExpression, qual: ScExpression): Some[Simplification] = {
     Some(replace(expr)
       .withText(invocationText(qual, "indices"))
-      .withHint(InspectionBundle.message("hint.replace.with.indices.with.preview", qual.getText))
+      .withHint(ScalaInspectionBundle.message("hint.replace.with.indices.with.preview", qual.getText))
       .highlightAll
     )
   }

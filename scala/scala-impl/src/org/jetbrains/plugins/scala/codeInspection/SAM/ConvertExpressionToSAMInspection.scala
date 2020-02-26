@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -106,6 +106,6 @@ class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String)
 }
 
 object ConvertExpressionToSAMInspection {
-  val inspectionName: String = InspectionBundle.message("convert.expression.to.sam")
+  val inspectionName: String = ScalaInspectionBundle.message("convert.expression.to.sam")
   val inspectionId = "ConvertExpressionToSAM"
 }

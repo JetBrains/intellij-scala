@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -11,7 +12,7 @@ class MapGetGetTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override val hint = InspectionBundle.message("get.get.hint")
+  override val hint = ScalaInspectionBundle.message("get.get.hint")
   override val classOfInspection = classOf[MapGetGetInspection]
 
   def test_1(): Unit = {

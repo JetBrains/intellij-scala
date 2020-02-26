@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBase {
 
@@ -14,9 +14,9 @@ class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBa
     classOf[ParameterlessOverrideInspection.JavaMutator]
 
   protected override val description: String =
-    InspectionBundle.message("method.signature.parameterless.override.java.mutator")
+    ScalaInspectionBundle.message("method.signature.parameterless.override.java.mutator")
 
-  private val hint = InspectionBundle.message("empty.parentheses")
+  private val hint = ScalaInspectionBundle.message("empty.parentheses")
 
 
   def test_non_unit_with_mutator_name(): Unit = {

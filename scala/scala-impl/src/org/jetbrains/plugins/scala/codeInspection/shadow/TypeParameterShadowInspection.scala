@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.shadow
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
  * User: Alefas
  * Date: 06.02.12
  */
-class TypeParameterShadowInspection extends AbstractInspection(InspectionBundle.message("display.name.suspicious.shadowing.by.a.type.parameter")) {
+class TypeParameterShadowInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.suspicious.shadowing.by.a.type.parameter")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case refPat: ScTypeParam => check(refPat, holder)
@@ -43,4 +43,4 @@ class TypeParameterShadowInspection extends AbstractInspection(InspectionBundle.
   }
 }
 
-class RenameTypeParameterFix(tp: ScTypeParam) extends RenameElementQuickfix(tp, InspectionBundle.message("Rename Variable Pattern"))
+class RenameTypeParameterFix(tp: ScTypeParam) extends RenameElementQuickfix(tp, ScalaInspectionBundle.message("Rename Variable Pattern"))

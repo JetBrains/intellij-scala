@@ -25,7 +25,7 @@ class RemoveValQuickFix(param: ScClassParameter)
 
 class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends IntentionAction {
 
-  override def getText: String = InspectionBundle.message("remove.unnecessary.val")
+  override def getText: String = ScalaInspectionBundle.message("remove.unnecessary.val")
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
 
@@ -36,12 +36,12 @@ class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends I
 
   override def startInWriteAction(): Boolean = true
 
-  override def getFamilyName: String = InspectionBundle.message("remove.val.from.definition")
+  override def getFamilyName: String = ScalaInspectionBundle.message("remove.val.from.definition")
 }
 
 class RemoveValFromGeneratorIntentionAction(generator: ScGenerator) extends IntentionAction {
 
-  override def getText: String = InspectionBundle.message("remove.unnecessary.val")
+  override def getText: String = ScalaInspectionBundle.message("remove.unnecessary.val")
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
 
@@ -52,5 +52,5 @@ class RemoveValFromGeneratorIntentionAction(generator: ScGenerator) extends Inte
 
   override def startInWriteAction() = true
 
-  override def getFamilyName: String = InspectionBundle.message("remove.val.from.definition")
+  override def getFamilyName: String = ScalaInspectionBundle.message("remove.val.from.definition")
 }

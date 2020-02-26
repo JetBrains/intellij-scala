@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.codeInspection.ProblemHighlightType
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  */
 
 object RedundantCollectionConversion extends SimplificationType {
-  override def hint: String = InspectionBundle.message("redundant.collection.conversion")
+  override def hint: String = ScalaInspectionBundle.message("redundant.collection.conversion")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     val typeAfterConversion = expr.`type`().getOrAny

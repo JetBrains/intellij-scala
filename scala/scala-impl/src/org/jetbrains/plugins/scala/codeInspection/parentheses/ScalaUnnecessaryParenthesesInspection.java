@@ -4,7 +4,7 @@ import com.intellij.codeInspection.ui.MultipleCheckboxOptionsPanel;
 import com.intellij.codeInspection.ui.OptionAccessor;
 import com.intellij.ui.components.JBLabel;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle;
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle;
 
 import javax.swing.*;
 
@@ -37,10 +37,10 @@ public class ScalaUnnecessaryParenthesesInspection extends ScalaUnnecessaryParen
   public JComponent createOptionsPanel() {
     MultipleCheckboxOptionsPanel panel = new MultipleCheckboxOptionsPanel(new OptionAccessor.Default(this));
     panel.add(new JBLabel("Ignore"));
-    panel.addCheckbox(InspectionBundle.message("clarifying.parentheses"), "ignoreClarifying");
-    panel.addCheckbox(InspectionBundle.message("around.function.type"), "ignoreAroundFunctionType");
-    panel.addCheckbox(InspectionBundle.message("around.function.type.parameter"), "ignoreAroundFunctionTypeParam");
-    panel.addCheckbox(InspectionBundle.message("around.function.expr.parameter"), "ignoreAroundFunctionExprParam");
+    panel.addCheckbox(ScalaInspectionBundle.message("clarifying.parentheses"), "ignoreClarifying");
+    panel.addCheckbox(ScalaInspectionBundle.message("around.function.type"), "ignoreAroundFunctionType");
+    panel.addCheckbox(ScalaInspectionBundle.message("around.function.type.parameter"), "ignoreAroundFunctionTypeParam");
+    panel.addCheckbox(ScalaInspectionBundle.message("around.function.expr.parameter"), "ignoreAroundFunctionExprParam");
     return panel;
   }
 }

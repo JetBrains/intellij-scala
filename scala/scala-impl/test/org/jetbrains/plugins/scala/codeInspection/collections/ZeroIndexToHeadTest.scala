@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 
 /**
  * @author Nikolay.Tropin
@@ -14,7 +14,7 @@ class ZeroIndexToHeadTest extends OperationsOnCollectionInspectionTest {
     classOf[ZeroIndexToHeadInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.head")
+    ScalaInspectionBundle.message("replace.with.head")
 
   def testApply(): Unit = {
     doTest(s"List(1, 2).${START}apply(0)$END",

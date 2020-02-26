@@ -1,8 +1,9 @@
-package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
+package org.jetbrains.plugins.scala
+package codeInspection
+package packageNameInspection
 
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.settings._
 
 /**
@@ -21,10 +22,10 @@ class EnablePerformanceProblemsQuickFix(project: Project) extends LocalQuickFix 
   private def enable: Boolean = !ignoreSettings
 
   override def getName: String =
-    if (enable) InspectionBundle.message("enable.setting")
-    else InspectionBundle.message("disable.setting")
+    if (enable) ScalaInspectionBundle.message("enable.setting")
+    else ScalaInspectionBundle.message("disable.setting")
 
   override def getFamilyName: String =
-    if (enable) InspectionBundle.message("family.name.enable.setting")
-    else InspectionBundle.message("fimaly.name.disable.setting")
+    if (enable) ScalaInspectionBundle.message("family.name.enable.setting")
+    else ScalaInspectionBundle.message("fimaly.name.disable.setting")
 }

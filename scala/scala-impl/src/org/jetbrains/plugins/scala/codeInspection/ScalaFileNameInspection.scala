@@ -77,7 +77,7 @@ object ScalaFileNameInspection {
                                                                          name: String,
                                                                          override final val getFamilyName: String)
     extends AbstractFixOnPsiElement(
-      InspectionBundle.message("fileName.rename.text", getFamilyName, element.name, name),
+      ScalaInspectionBundle.message("fileName.rename.text", getFamilyName, element.name, name),
       element
     ) {
 
@@ -91,7 +91,7 @@ object ScalaFileNameInspection {
   }
 
   private final class RenameClassQuickFix(clazz: ScTypeDefinition, name: String)
-    extends RenameQuickFixBase(clazz, name, InspectionBundle.message("fileName.rename.class")) {
+    extends RenameQuickFixBase(clazz, name, ScalaInspectionBundle.message("fileName.rename.class")) {
 
     override protected def onElement(clazz: ScTypeDefinition)
                                     (implicit project: Project): Unit =
@@ -99,7 +99,7 @@ object ScalaFileNameInspection {
   }
 
   private final class RenameFileQuickFix(file: ScalaFile, name: String)
-    extends RenameQuickFixBase(file, name, InspectionBundle.message("fileName.rename.file")) {
+    extends RenameQuickFixBase(file, name, ScalaInspectionBundle.message("fileName.rename.file")) {
 
     override protected def onElement(file: ScalaFile)
                                     (implicit project: Project): Unit =

@@ -38,7 +38,7 @@ class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
           val highlightedElement = if (s.getNextSibling != null) s.getNextSibling else s
           holder.registerProblem(holder.getManager.createProblemDescriptor(
             highlightedElement, highlightedElement,
-            InspectionBundle.message("all.text.from.header.closing.tag.to.end.of.line.will.be.lost"),
+            ScalaInspectionBundle.message("all.text.from.header.closing.tag.to.end.of.line.will.be.lost"),
             ProblemHighlightType.WEAK_WARNING, isOnTheFly,
             new ScalaDocMoveTextToNewLineQuickFix(firstSibl)
           ))

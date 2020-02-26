@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionQuickFix._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 object UnnecessaryPartialFunctionQuickFix {
-  val hint: String = InspectionBundle.message("convert.to.anonymous.function")
+  val hint: String = ScalaInspectionBundle.message("convert.to.anonymous.function")
 }
 
 class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -22,5 +22,5 @@ object GetOrElseNull extends SimplificationType {
     }
   }
 
-  override def hint: String = InspectionBundle.message("getOrElse.null.hint")
+  override def hint: String = ScalaInspectionBundle.message("getOrElse.null.hint")
 }

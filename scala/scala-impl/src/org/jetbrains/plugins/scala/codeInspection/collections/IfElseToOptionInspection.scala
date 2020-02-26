@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -12,7 +13,7 @@ class IfElseToOptionInspection extends OperationOnCollectionInspection {
 }
 
 object IfElseToOption extends SimplificationType {
-  override def hint: String = InspectionBundle.message("hint.replace.with.option.expr")
+  override def hint: String = ScalaInspectionBundle.message("hint.replace.with.option.expr")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     val inner = expr match {
@@ -32,7 +33,10 @@ object IfElseToOption extends SimplificationType {
     }
     inner.map { x =>
       val text = x.getText
-      replace(expr).withText(s"Option($text)").withHint(InspectionBundle.message("hint.replace.with.option.expr.with.preview", text)).highlightAll
+      replace(expr)
+        .withText(s"Option($text)")
+        .withHint(ScalaInspectionBundle.message("hint.replace.with.option.expr.with.preview", text))
+        .highlightAll
     }
   }
 }

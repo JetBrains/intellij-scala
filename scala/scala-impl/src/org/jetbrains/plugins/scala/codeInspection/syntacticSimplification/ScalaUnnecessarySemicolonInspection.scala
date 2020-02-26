@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -55,7 +55,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
             if (elem2 == null) return
             if (shiftInNewFile(startOffset(elem2), offset) > startOffset(elem1) ||
                     shiftInNewFile(endOffset(elem2), offset) < endOffset(elem1)) return
-            holder.registerProblem(holder.getManager.createProblemDescriptor(element, InspectionBundle.message("unnecessary.semicolon"), true,
+            holder.registerProblem(holder.getManager.createProblemDescriptor(element, ScalaInspectionBundle.message("unnecessary.semicolon"), true,
               ProblemHighlightType.LIKE_UNUSED_SYMBOL, isOnTheFly, new RemoveSemicolonFix(element)))
           }
         }
@@ -72,7 +72,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
   }
 }
 
-class RemoveSemicolonFix(element: PsiElement) extends AbstractFixOnPsiElement(InspectionBundle.message("remove.unnecessary.semicolon"), element) {
+class RemoveSemicolonFix(element: PsiElement) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.unnecessary.semicolon"), element) {
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {

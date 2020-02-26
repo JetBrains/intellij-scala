@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.codeInspection
+package org.jetbrains.plugins.scala
+package codeInspection
 package typeAnnotation
 
 import java.{util => ju}
@@ -10,17 +11,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AbstractTypeAnnotationIntention.complete
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.AddTypeAnnotationQuickFix._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.collection.mutable
 
 class AddTypeAnnotationQuickFix(element: PsiElement)
-  extends AbstractFixOnPsiElement(InspectionBundle.message("add.type.annotation"), element) with BatchQuickFix[CommonProblemDescriptor] {
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("add.type.annotation"), element) with BatchQuickFix[CommonProblemDescriptor] {
 
   override protected def doApplyFix(element: PsiElement)
                                    (implicit project: Project): Unit = {

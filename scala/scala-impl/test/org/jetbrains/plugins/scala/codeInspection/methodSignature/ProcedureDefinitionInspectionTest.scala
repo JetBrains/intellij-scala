@@ -19,9 +19,9 @@ class ProcedureDefinitionInspectionTest extends ScalaQuickFixTestBase {
     classOf[UnitMethodInspection.ProcedureDefinition]
 
   protected override val description: String =
-    InspectionBundle.message("method.signature.procedure.definition")
+    ScalaInspectionBundle.message("method.signature.procedure.definition")
 
-  private val hint = InspectionBundle.message("convert.to.function.syntax")
+  private val hint = ScalaInspectionBundle.message("convert.to.function.syntax")
 
   def test1(): Unit = {
     checkTextHasError(

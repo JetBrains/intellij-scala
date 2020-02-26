@@ -10,13 +10,13 @@ import org.jetbrains.annotations.PropertyKey;
  * @author Ksenia.Sautina
  * @since 4/12/12
  */
-public class InspectionBundle extends DynamicBundle {
+public class ScalaInspectionBundle extends DynamicBundle {
   @NonNls
   private static final String BUNDLE = "messages.ScalaInspectionBundle";
 
-  private static final InspectionBundle INSTANCE = new InspectionBundle();
+  private static final ScalaInspectionBundle INSTANCE = new ScalaInspectionBundle();
 
-  private InspectionBundle() {
+  private ScalaInspectionBundle() {
     super(BUNDLE);
   }
 

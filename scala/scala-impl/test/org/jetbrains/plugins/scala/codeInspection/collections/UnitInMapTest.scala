@@ -15,10 +15,10 @@ class UnitInMapTest extends OperationsOnCollectionInspectionTest {
     classOf[UnitInMapInspection]
 
   override protected lazy val description: String =
-    InspectionBundle.message("expression.unit.return.in.map")
+    ScalaInspectionBundle.message("expression.unit.return.in.map")
 
   override protected val hint: String =
-    InspectionBundle.message("use.foreach.instead.of.map")
+    ScalaInspectionBundle.message("use.foreach.instead.of.map")
 
   def test1(): Unit = {
     doTest(

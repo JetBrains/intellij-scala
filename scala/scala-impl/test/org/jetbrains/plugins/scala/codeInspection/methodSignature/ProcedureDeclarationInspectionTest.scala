@@ -18,9 +18,9 @@ class ProcedureDeclarationInspectionTest extends ScalaQuickFixTestBase {
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[UnitMethodInspection.ProcedureDeclaration]
 
-  protected override val description: String =InspectionBundle.message("method.signature.procedure.declaration")
+  protected override val description: String = ScalaInspectionBundle.message("method.signature.procedure.declaration")
 
-  private val hint = InspectionBundle.message("convert.to.function.syntax")
+  private val hint = ScalaInspectionBundle.message("convert.to.function.syntax")
 
   def test1(): Unit = {
     checkTextHasError(s"def ${START}foo$END()")

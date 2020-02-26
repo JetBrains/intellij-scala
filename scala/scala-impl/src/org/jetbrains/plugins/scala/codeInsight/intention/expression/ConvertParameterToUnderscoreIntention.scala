@@ -9,9 +9,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention._
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -101,7 +100,7 @@ object ConvertParameterToUnderscoreIntention {
       }
     }
 
-    val result = expr.result.getOrElse(return Right(InspectionBundle.message("introduce.implicit.not.allowed.here")))
+    val result = expr.result.getOrElse(return Right(ScalaInspectionBundle.message("introduce.implicit.not.allowed.here")))
 
     val buf = new StringBuilder
     buf.append(result.getText)
@@ -112,11 +111,11 @@ object ConvertParameterToUnderscoreIntention {
     occurrences = seekParams(expr)
 
     if (occurrences.isEmpty || occurrences.size != expr.parameters.size)
-      return Right(InspectionBundle.message("introduce.implicit.incorrect.count"))
+      return Right(ScalaInspectionBundle.message("introduce.implicit.incorrect.count"))
 
     for (p <- expr.parameters) {
       if (!occurrences.keySet.contains(p.name) || occurrences(p.name) < previousOffset)
-        return Right(InspectionBundle.message("introduce.implicit.incorrect.order"))
+        return Right(ScalaInspectionBundle.message("introduce.implicit.incorrect.order"))
       previousOffset = occurrences(p.name)
     }
 
@@ -137,7 +136,7 @@ object ConvertParameterToUnderscoreIntention {
     val newExpr = createExpressionFromText(buf.toString())(expr.getManager)
 
     if (!isValidExpr(newExpr, expr.parameters.length))
-      return Right(InspectionBundle.message("introduce.implicit.not.allowed.here"))
+      return Right(ScalaInspectionBundle.message("introduce.implicit.not.allowed.here"))
 
     Left(newExpr)
   }

@@ -16,7 +16,7 @@ abstract class HeadOrLastOptionTest extends OperationsOnCollectionInspectionTest
 class HeadOptionTest extends HeadOrLastOptionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.headOption")
+    ScalaInspectionBundle.message("replace.with.headOption")
 
   def test1(): Unit = {
     doTest(
@@ -63,7 +63,7 @@ class HeadOptionTest extends HeadOrLastOptionTest {
 class LastOptionTest extends HeadOrLastOptionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.lastOption")
+    ScalaInspectionBundle.message("replace.with.lastOption")
 
   def test1(): Unit = {
     doTest(

@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -13,7 +14,7 @@ class MapFlattenInspection extends OperationOnCollectionInspection {
 }
 
 object MapFlatten extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.map.flatten.with.flatMap")
+  override def hint: String = ScalaInspectionBundle.message("replace.map.flatten.with.flatMap")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

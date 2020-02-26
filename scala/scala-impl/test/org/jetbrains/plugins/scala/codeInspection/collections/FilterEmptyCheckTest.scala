@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -13,7 +13,7 @@ class FilterIsEmptyCheckTest extends OperationsOnCollectionInspectionTest {
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[FilterEmptyCheckInspection]
 
-  override protected val hint: String = InspectionBundle.message("filter.empty.check.hint")
+  override protected val hint: String = ScalaInspectionBundle.message("filter.empty.check.hint")
 
   def test_1(): Unit = {
     val selected = s"(Map()$START filter (x => true)).size == 0$END"
@@ -68,7 +68,7 @@ class FilterNonEmptyCheckTest extends OperationsOnCollectionInspectionTest {
     classOf[FilterEmptyCheckInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("filter.nonempty.check.hint")
+    ScalaInspectionBundle.message("filter.nonempty.check.hint")
 
   def testArraySizeGrZero(): Unit = {
     val selected = s"Array()$START.filter(x => true).size > 0$END"
@@ -119,7 +119,7 @@ class FilterNonEmptyCheckTest extends OperationsOnCollectionInspectionTest {
 
 class FilterNotIsEmptyCheckTest extends OperationsOnCollectionInspectionTest {
   override val classOfInspection = classOf[FilterEmptyCheckInspection]
-  override val hint = InspectionBundle.message("filterNot.empty.check.hint")
+  override val hint = ScalaInspectionBundle.message("filterNot.empty.check.hint")
 
   def testFilterNotSizeEqZero(): Unit = {
     val selected = s"List()$START.filterNot(x => true).size == 0$END"
@@ -149,7 +149,7 @@ class FilterNotIsEmptyCheckTest extends OperationsOnCollectionInspectionTest {
 
 class FilterNotNonEmptyCheckTest extends OperationsOnCollectionInspectionTest {
   override val classOfInspection = classOf[FilterEmptyCheckInspection]
-  override val hint = InspectionBundle.message("filterNot.nonempty.check.hint")
+  override val hint = ScalaInspectionBundle.message("filterNot.nonempty.check.hint")
 
   def testFilterNotSizeGrZero(): Unit = {
     val selected = s"List()$START.filterNot(x => true).size > 0$END"

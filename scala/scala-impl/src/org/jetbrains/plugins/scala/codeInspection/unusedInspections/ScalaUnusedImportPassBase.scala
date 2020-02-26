@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package codeInspection.unusedInspections
+package codeInspection
+package unusedInspections
 
 import java.util
 
@@ -11,7 +12,6 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 
@@ -41,7 +41,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
         val qName = imp.qualName
 
         psiOption.toSeq.flatMap { psi =>
-          val annotation = annotationHolder.createWarningAnnotation(psi, InspectionBundle.message("unused.import.statement"))
+          val annotation = annotationHolder.createWarningAnnotation(psi, ScalaInspectionBundle.message("unused.import.statement"))
           annotation setHighlightType ProblemHighlightType.LIKE_UNUSED_SYMBOL
           getFixes.foreach(annotation.registerFix)
           qName.foreach(name => annotation.registerFix(new MarkImportAsAlwaysUsed(name)))

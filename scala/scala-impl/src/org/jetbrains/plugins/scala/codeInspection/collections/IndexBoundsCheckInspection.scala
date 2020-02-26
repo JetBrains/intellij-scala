@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.codeInsight.PsiEquivalenceUtil.areElementsEquivalent
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.IndexBoundsCheckInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
@@ -16,7 +17,7 @@ private object IndexBoundsCheckInspection {
 
   private val IndexBoundsCheck: SimplificationType = new SimplificationType {
 
-    override def hint: String = InspectionBundle.message("ifstmt.to.lift")
+    override def hint: String = ScalaInspectionBundle.message("ifstmt.to.lift")
 
     override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
       case IfStmt(IndexLessThanLengthCondition(seq1, index1), Then(seq2, index2), scalaNone())

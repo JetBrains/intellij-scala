@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter._
 import org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 
 /**
@@ -33,7 +33,7 @@ class ConvertToImplicitParametersQuickFix(owner: ScTypeBoundsOwner) extends Abst
 object DeprecatedViewBoundInspection {
   val id = "DeprecatedViewBound"
   @Nls
-  val description: String = InspectionBundle.message("view.bounds.are.deprecated")
+  val description: String = ScalaInspectionBundle.message("view.bounds.are.deprecated")
   @Nls
-  val fixDescription: String = InspectionBundle.message("replace.with.implicit.parameters")
+  val fixDescription: String = ScalaInspectionBundle.message("replace.with.implicit.parameters")
 }

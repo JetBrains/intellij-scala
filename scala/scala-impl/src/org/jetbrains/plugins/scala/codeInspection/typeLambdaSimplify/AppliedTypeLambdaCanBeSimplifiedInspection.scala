@@ -85,7 +85,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
 
 object AppliedTypeLambdaCanBeSimplifiedInspection {
   private val inspectionId: String = "ScalaAppliedTypeLambdaCanBeSimplified"
-  private val inspectionName: String = InspectionBundle.message("applied.type.lambda.can.be.simplified")
+  private val inspectionName: String = ScalaInspectionBundle.message("applied.type.lambda.can.be.simplified")
 
   def simplifyTypeProjection(alias: ScTypeAliasDefinition, typeArgs: Seq[ScTypeElement])(implicit tpc: TypePresentationContext): String = {
     val aliased     = alias.aliasedType.getOrAny
@@ -95,7 +95,7 @@ object AppliedTypeLambdaCanBeSimplifiedInspection {
   }
 
   class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, replacement: => String)
-    extends AbstractFixOnPsiElement(InspectionBundle.message("simplify.type"), paramType) {
+    extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("simplify.type"), paramType) {
 
     override protected def doApplyFix(element: ScParameterizedTypeElement)(implicit project: Project): Unit =
       element.replace(createTypeElementFromText(replacement))

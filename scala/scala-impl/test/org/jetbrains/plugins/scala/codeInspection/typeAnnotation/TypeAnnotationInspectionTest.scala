@@ -11,13 +11,13 @@ abstract class TypeAnnotationInspectionTest extends ScalaQuickFixTestBase {
     classOf[TypeAnnotationInspection]
 
   override protected val description: String =
-    InspectionBundle.message("type.annotation.required.for", "")
+    ScalaInspectionBundle.message("type.annotation.required.for", "")
 
   override protected def descriptionMatches(s: String): Boolean =
     Option(s).exists(_.startsWith(description))
 
   protected def testQuickFix(text: String, expected: String): Unit =
-    testQuickFix(text, expected, InspectionBundle.message("add.type.annotation"))
+    testQuickFix(text, expected, ScalaInspectionBundle.message("add.type.annotation"))
 }
 
 class MembersTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {

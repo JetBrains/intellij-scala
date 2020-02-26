@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11}
 
@@ -29,7 +29,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertExpressionToSAMInspection]
 
-  override protected val description: String = InspectionBundle.message("convert.expression.to.sam")
+  override protected val description: String = ScalaInspectionBundle.message("convert.expression.to.sam")
 
   def testOverloads(): Unit = {
     val code =

@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
   * @author Lukasz Piepiora
@@ -14,7 +15,7 @@ class EmulateFlattenInspectionTest extends OperationsOnCollectionInspectionTest 
     classOf[EmulateFlattenInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.flatten")
+    ScalaInspectionBundle.message("replace.with.flatten")
 
   def testSuggests1(): Unit = {
     val selected = s"Seq(Seq(1), Seq(2), Seq(2)).${START}flatMap(identity)$END"

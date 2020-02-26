@@ -15,7 +15,7 @@ class ReverseTakeReverseTest extends OperationsOnCollectionInspectionTest {
     classOf[ReverseTakeReverseInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.reverse.take.reverse.with.takeRight")
+    ScalaInspectionBundle.message("replace.reverse.take.reverse.with.takeRight")
 
   def test1(): Unit = {
     doTest(

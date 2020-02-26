@@ -19,11 +19,11 @@ class NotImplementedCodeInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case reference @ ReferenceTarget(Member("???", "scala.Predef")) =>
-      holder.registerProblem(reference, InspectionBundle.message("not.implemented"),
+      holder.registerProblem(reference, ScalaInspectionBundle.message("not.implemented"),
         ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new ImplementQuickFix(reference))
   }
 
-  private class ImplementQuickFix(e: PsiElement) extends AbstractFixOnPsiElement(InspectionBundle.message("implement.quickfix.name"), e) {
+  private class ImplementQuickFix(e: PsiElement) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("implement.quickfix.name"), e) {
 
     override protected def doApplyFix(elem: PsiElement)
                                      (implicit project: Project): Unit = {

@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
-package codeInspection.deprecation
+package codeInspection
+package deprecation
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -41,7 +40,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       result.element match {
         case param: ScParameter if result.isNamedParameter && !ScalaNamesUtil.equivalent(param.name, name) =>
           param.deprecatedName.foreach { deprecatedName =>
-            registerDeprecationProblem(InspectionBundle.message("parameter.name.is.deprecated", deprecatedName), elementToHighlight)
+            registerDeprecationProblem(ScalaInspectionBundle.message("parameter.name.is.deprecated", deprecatedName), elementToHighlight)
           }
         case named: PsiNamedElement =>
           val context = ScalaPsiUtil.nameContext(named)
@@ -59,7 +58,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
 
           deprecatedElement.foreach { deprecatedElement =>
             val message = deprecationMessage(deprecatedElement).getOrElse("")
-            registerDeprecationProblem(InspectionBundle.message("symbol.name.is.deprecated.with.message", name, message), elementToHighlight)
+            registerDeprecationProblem(ScalaInspectionBundle.message("symbol.name.is.deprecated.with.message", name, message), elementToHighlight)
           }
         case _ => ()
       }
@@ -70,7 +69,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
         case _ => return
       }
       val message = deprecationMessage(owner).getOrElse("")
-      registerDeprecationProblem(InspectionBundle.message("super.method.name.is.deprecated.with.message", method.name, message), method.nameId)
+      registerDeprecationProblem(ScalaInspectionBundle.message("super.method.name.is.deprecated.with.message", method.name, message), method.nameId)
     }
 
     new ScalaElementVisitor {

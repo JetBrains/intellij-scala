@@ -4,7 +4,7 @@ import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemsHo
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorUseCorrectLambdaKeywordInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
@@ -24,12 +24,12 @@ class KindProjectorUseCorrectLambdaKeywordInspection extends AbstractInspection(
           simple.getText match {
             case "Lambda" if useGreekLambda =>
               val changeKeywordFix = new KindProjectorUseCorrectLambdaKeywordQuickFix(simple, "λ")
-              holder.registerProblem(simple, InspectionBundle.message("kind.projector.replace.lambda.with.lamda.char"), changeKeywordFix)
+              holder.registerProblem(simple, ScalaInspectionBundle.message("kind.projector.replace.lambda.with.lamda.char"), changeKeywordFix)
               val changeSettingsFix = new ChangeLambdaCodeStyleSetting(!useGreekLambda)
               holder.registerProblem(simple, codeStyleSettingUseWordLambda, changeSettingsFix)
             case "λ" if !useGreekLambda =>
               val changeKeywordFix = new KindProjectorUseCorrectLambdaKeywordQuickFix(simple, "Lambda")
-              holder.registerProblem(simple, InspectionBundle.message("kind.projector.replace.lambda.char.with.lambda"), changeKeywordFix)
+              holder.registerProblem(simple, ScalaInspectionBundle.message("kind.projector.replace.lambda.char.with.lambda"), changeKeywordFix)
               val changeSettingsFix = new ChangeLambdaCodeStyleSetting(!useGreekLambda)
               holder.registerProblem(simple, codeStyleSettingUseGreekLambda, changeSettingsFix)
             case _ =>
@@ -61,8 +61,8 @@ class ChangeLambdaCodeStyleSetting(useGreekLambda: Boolean) extends LocalQuickFi
 }
 
 object KindProjectorUseCorrectLambdaKeywordInspection {
-  val inspectionName: String = InspectionBundle.message("kind.projector.use.correct.lambda.keyword")
+  val inspectionName: String = ScalaInspectionBundle.message("kind.projector.use.correct.lambda.keyword")
   val inspectionId: String = "KindProjectorUseCorrectLambdaKeyword"
-  val codeStyleSettingUseGreekLambda: String = InspectionBundle.message("kind.projector.code.style.setting.use.lamda.char")
-  val codeStyleSettingUseWordLambda: String = InspectionBundle.message("kind.projector.code.style.setting.use.lamda.word")
+  val codeStyleSettingUseGreekLambda: String = ScalaInspectionBundle.message("kind.projector.code.style.setting.use.lamda.char")
+  val codeStyleSettingUseWordLambda: String = ScalaInspectionBundle.message("kind.projector.code.style.setting.use.lamda.word")
 }

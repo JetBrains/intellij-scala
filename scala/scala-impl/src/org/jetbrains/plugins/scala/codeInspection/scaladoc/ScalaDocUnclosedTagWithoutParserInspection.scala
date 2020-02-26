@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getDisplayName: String = InspectionBundle.message("display.name.unclosed.tag")
+  override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unclosed.tag")
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 
 class FunctionDefinitionInspectionTest extends ScalaQuickFixTestBase {
@@ -15,7 +15,7 @@ class FunctionDefinitionInspectionTest extends ScalaQuickFixTestBase {
     classOf[UnitMethodInspection.FunctionDefinition]
 
   protected override val description: String =
-    InspectionBundle.message("method.signature.unit.functional.definition")
+    ScalaInspectionBundle.message("method.signature.unit.functional.definition")
 
   private val hint = "Remove redundant type annotation and equals sign"
 

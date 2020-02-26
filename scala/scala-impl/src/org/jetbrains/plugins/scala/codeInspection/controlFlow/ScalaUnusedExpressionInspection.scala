@@ -28,8 +28,8 @@ final class ScalaUnusedExpressionInspection extends AbstractRegisteredInspection
         expressionResultIsNotUsed(expression) =>
 
         for {
-          descriptionTemplate <- if (hasNoSideEffects(expression)) Some(InspectionBundle.message("unused.expression.no.side.effects"))
-          else if (mayOnlyThrow(expression)) Some(InspectionBundle.message("unused.expression.throws"))
+          descriptionTemplate <- if (hasNoSideEffects(expression)) Some(ScalaInspectionBundle.message("unused.expression.no.side.effects"))
+          else if (mayOnlyThrow(expression)) Some(ScalaInspectionBundle.message("unused.expression.throws"))
           else None
 
         } yield manager.createProblemDescriptor(expression, descriptionTemplate, isOnTheFly, createQuickFixes(expression), ProblemHighlightType.LIKE_UNUSED_SYMBOL)

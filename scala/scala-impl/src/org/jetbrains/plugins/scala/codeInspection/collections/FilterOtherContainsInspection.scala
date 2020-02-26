@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderscoreSection}
 
@@ -46,7 +47,7 @@ object `!.contains _` {
 }
 
 object FilterContainsToIntersect extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.filter.with.intersect")
+  override def hint: String = ScalaInspectionBundle.message("replace.filter.with.intersect")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.filter`(other`.contains _`()) if isSet(qual) && isSet(other) =>
@@ -58,7 +59,7 @@ object FilterContainsToIntersect extends SimplificationType {
 }
 
 object FilterNotContainsToDiff extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.filter.with.diff")
+  override def hint: String = ScalaInspectionBundle.message("replace.filter.with.diff")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.filter`(other`!.contains _`()) if isSet(qual) && isSet(other) =>

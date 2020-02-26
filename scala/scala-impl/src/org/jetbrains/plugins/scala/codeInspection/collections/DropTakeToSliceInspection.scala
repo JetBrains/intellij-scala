@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -13,8 +14,8 @@ class DropTakeToSliceInspection extends OperationOnCollectionInspection {
 }
 
 object DropTakeToSlice extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.drop.take.with.slice")
-  val takeDropHint: String = InspectionBundle.message("replace.take.drop.with.slice")
+  override def hint: String = ScalaInspectionBundle.message("replace.drop.take.with.slice")
+  val takeDropHint: String = ScalaInspectionBundle.message("replace.take.drop.with.slice")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.drop`(m)`.take`(n) =>

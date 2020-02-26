@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -14,7 +15,7 @@ class ToSetAndBackInspection extends OperationOnCollectionInspection {
 }
 
 object ToSetAndBackToDistinct extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.toSet.and.back.with.distinct")
+  override def hint: String = ScalaInspectionBundle.message("replace.toSet.and.back.with.distinct")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
 

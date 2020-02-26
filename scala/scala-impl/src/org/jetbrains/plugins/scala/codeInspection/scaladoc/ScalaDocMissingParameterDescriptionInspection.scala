@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
 class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool {
 
-  override def getDisplayName: String = InspectionBundle.message("display.name.missing.parameter.description")
+  override def getDisplayName: String = ScalaInspectionBundle.message("display.name.missing.parameter.description")
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {

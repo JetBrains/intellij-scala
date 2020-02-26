@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaWhileUnwrapper}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScDo}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
@@ -128,7 +127,7 @@ object ScalaUnreachableCodeInspection {
   }
 
   private[this] class RemoveRangeQuickFix(from: PsiElement, to: PsiElement) extends AbstractFixOnTwoPsiElements(
-    InspectionBundle.message("remove.unreachable.code"),
+    ScalaInspectionBundle.message("remove.unreachable.code"),
     from,
     to
   ) {
@@ -139,7 +138,7 @@ object ScalaUnreachableCodeInspection {
   }
 
   private[this] class RemoveFragmentQuickFix(fragment: PsiElement) extends AbstractFixOnPsiElement(
-    InspectionBundle.message("remove.unreachable.code"),
+    ScalaInspectionBundle.message("remove.unreachable.code"),
     fragment
   ) {
     override protected def doApplyFix(element: PsiElement)
@@ -149,7 +148,7 @@ object ScalaUnreachableCodeInspection {
   }
 
   private[this] class UnwrapDoStmtFix(doStatement: ScDo) extends AbstractFixOnPsiElement(
-    InspectionBundle.message("unwrap.do.statement"),
+    ScalaInspectionBundle.message("unwrap.do.statement"),
     doStatement
   ) {
     override protected def doApplyFix(doStatement: ScDo)

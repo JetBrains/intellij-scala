@@ -32,13 +32,13 @@ class ScalaDocUnknownTagInspection extends LocalInspectionTool {
              tagNameElement.getNextSibling.getNextSibling.getNode.getElementType != ScalaDocTokenType.DOC_TAG_VALUE_TOKEN))
         {
           holder.registerProblem(holder.getManager.createProblemDescriptor(tagNameElement,
-            InspectionBundle.message("missing.tag.parameter"), true, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
+            ScalaInspectionBundle.message("missing.tag.parameter"), true, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
         }
       }
     }
   }
 
-  override def getDisplayName: String = InspectionBundle.message("unknown.scaladoc.tag")
+  override def getDisplayName: String = ScalaInspectionBundle.message("unknown.scaladoc.tag")
 }
 
 

@@ -10,7 +10,7 @@ class ScalaShouldBeTextContainsInspectionTest extends ScalaQuickFixTestBase {
     classOf[ScalaShouldBeTextContainsInspection]
 
   override protected val description: String =
-    InspectionBundle.message("internal.replace.with.textContains")
+    ScalaInspectionBundle.message("internal.replace.with.textContains")
 
   override def createTestText(text: String): String =
     s"""

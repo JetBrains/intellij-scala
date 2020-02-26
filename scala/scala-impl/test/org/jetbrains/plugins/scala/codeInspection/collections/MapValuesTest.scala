@@ -13,7 +13,7 @@ abstract class MapValuesTest extends OperationsOnCollectionInspectionTest {
 class ReplaceWithValuesTest extends MapValuesTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.values")
+    ScalaInspectionBundle.message("replace.with.values")
 
   def test1(): Unit = {
     doTest(
@@ -39,7 +39,7 @@ class ReplaceWithValuesTest extends MapValuesTest {
 class ReplaceWithValuesIteratorTest extends MapValuesTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.valuesIterator")
+    ScalaInspectionBundle.message("replace.with.valuesIterator")
 
   def test(): Unit = {
     checkTextHasError(s"Map(1 -> 2).${START}map(_._2).toIterator$END")

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 /**
  * Nikolay.Tropin
@@ -14,9 +14,9 @@ class ConvertibleToMethodValueInspectionTest extends ScalaQuickFixTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertibleToMethodValueInspection]
 
-  override val description = InspectionBundle.message("convertible.to.method.value.name")
-  val hintAnon = InspectionBundle.message("convertible.to.method.value.anonymous.hint")
-  val hintEta = InspectionBundle.message("convertible.to.method.value.eta.hint")
+  override val description = ScalaInspectionBundle.message("convertible.to.method.value.name")
+  val hintAnon = ScalaInspectionBundle.message("convertible.to.method.value.anonymous.hint")
+  val hintEta = ScalaInspectionBundle.message("convertible.to.method.value.eta.hint")
 
   def test_methodCallUntyped(): Unit = {
     val selected = s"""object A {

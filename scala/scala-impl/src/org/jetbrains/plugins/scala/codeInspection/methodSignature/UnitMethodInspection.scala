@@ -107,7 +107,7 @@ object UnitMethodInspection {
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
       val quickFix = new AbstractFixOnPsiElement(
-        InspectionBundle.message("convert.to.function.syntax"),
+        ScalaInspectionBundle.message("convert.to.function.syntax"),
         function.asInstanceOf[ScFunctionDefinition]
       ) {
         override protected def doApplyFix(function: ScFunctionDefinition)(implicit project: Project): Unit = {
@@ -129,7 +129,7 @@ object UnitMethodInspection {
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
       val quickFix = new AbstractFixOnPsiElement(
-        InspectionBundle.message("convert.to.function.syntax"),
+        ScalaInspectionBundle.message("convert.to.function.syntax"),
         function
       ) {
         override protected def doApplyFix(function: ScFunction)(implicit project: Project): Unit = {

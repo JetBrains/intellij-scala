@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -16,7 +16,7 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     classOf[MapGetOrElseInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("map.getOrElse.hint")
+    ScalaInspectionBundle.message("map.getOrElse.hint")
 
   def test_1(): Unit = {
     val selected = s"None.${START}map(x => 1).getOrElse(0)$END"

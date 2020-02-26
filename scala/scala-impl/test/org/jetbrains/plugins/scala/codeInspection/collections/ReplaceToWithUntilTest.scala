@@ -15,7 +15,7 @@ class ReplaceToWithUntilTest extends OperationsOnCollectionInspectionTest {
     classOf[ReplaceToWithUntilInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.to.with.until")
+    ScalaInspectionBundle.message("replace.to.with.until")
 
   def testInfix(): Unit = {
     doTest(

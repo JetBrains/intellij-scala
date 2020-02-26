@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 class JavaAccessorEmptyParenCallInspectionTest extends ScalaQuickFixTestBase {
 
@@ -14,9 +14,9 @@ class JavaAccessorEmptyParenCallInspectionTest extends ScalaQuickFixTestBase {
     classOf[JavaAccessorEmptyParenCallInspection]
 
   protected override val description: String =
-    InspectionBundle.message("method.signature.java.accessor.empty.paren")
+    ScalaInspectionBundle.message("method.signature.java.accessor.empty.paren")
 
-  private val hint = InspectionBundle.message("remove.call.parentheses")
+  private val hint = ScalaInspectionBundle.message("remove.call.parentheses")
 
 
   def test_non_unit_with_accessor_name(): Unit = {

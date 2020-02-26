@@ -5,7 +5,6 @@ package typeAnnotation
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScTypedExpression, ScUnderscoreSection}
@@ -59,11 +58,11 @@ object TypeAnnotationInspection {
         canBePrivate.seq(new MakePrivateQuickFix(element.asInstanceOf[ScModifierListOwner])) ++
           Seq(new AddTypeAnnotationQuickFix(anchor), new ModifyCodeStyleQuickFix(), new LearnWhyQuickFix())
 
-      holder.registerProblem(anchor, InspectionBundle.message("type.annotation.required.for", reason), fixes: _*)
+      holder.registerProblem(anchor, ScalaInspectionBundle.message("type.annotation.required.for", reason), fixes: _*)
     }
   }
 
-  private class MakePrivateQuickFix(element: ScModifierListOwner) extends AbstractFixOnPsiElement(InspectionBundle.message("quickfix.make.private"), element) {
+  private class MakePrivateQuickFix(element: ScModifierListOwner) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("quickfix.make.private"), element) {
 
     override protected def doApplyFix(element: ScModifierListOwner)
                                      (implicit project: Project): Unit = {
@@ -71,12 +70,12 @@ object TypeAnnotationInspection {
     }
   }
 
-  private class LearnWhyQuickFix extends LocalQuickFixBase(InspectionBundle.message("learn.why")) {
+  private class LearnWhyQuickFix extends LocalQuickFixBase(ScalaInspectionBundle.message("learn.why")) {
     override def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
       DesktopUtils.browse("https://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/")
   }
 
-  private class ModifyCodeStyleQuickFix extends LocalQuickFixBase(InspectionBundle.message("quickfix.modify.code.style")) {
+  private class ModifyCodeStyleQuickFix extends LocalQuickFixBase(ScalaInspectionBundle.message("quickfix.modify.code.style")) {
     override def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
       TypeAnnotationUtil.showTypeAnnotationsSettings(project)
   }

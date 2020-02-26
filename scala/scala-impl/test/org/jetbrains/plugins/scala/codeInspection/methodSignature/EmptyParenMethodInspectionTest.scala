@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 class EmptyParenMethodInspectionTest extends ScalaQuickFixTestBase {
 
@@ -14,9 +14,9 @@ class EmptyParenMethodInspectionTest extends ScalaQuickFixTestBase {
     classOf[ParameterlessOverrideInspection.EmptyParenMethod]
 
   protected override val description: String =
-    InspectionBundle.message("method.signature.parameterless.override.empty.paren")
+    ScalaInspectionBundle.message("method.signature.parameterless.override.empty.paren")
 
-  private val hint = InspectionBundle.message("empty.parentheses")
+  private val hint = ScalaInspectionBundle.message("empty.parentheses")
 
 
   def test(): Unit = {

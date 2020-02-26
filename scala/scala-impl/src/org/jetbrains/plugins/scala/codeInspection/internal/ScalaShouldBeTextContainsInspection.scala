@@ -12,7 +12,7 @@ class ScalaShouldBeTextContainsInspection extends OperationOnCollectionInspectio
 }
 
 object ScalaShouldBeTextContainsInspection extends SimplificationType() {
-  override val hint: String = InspectionBundle.message("internal.replace.with.textContains")
+  override val hint: String = ScalaInspectionBundle.message("internal.replace.with.textContains")
 
   private val `.getText`: Qualified = invocation("getText").from(Array(psiElementFqn, psiASTNodeFqn))
   private val `.contains`: Qualified = invocation("contains")

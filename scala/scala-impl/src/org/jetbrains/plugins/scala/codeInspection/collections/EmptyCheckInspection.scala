@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
@@ -13,7 +14,7 @@ class EmptyCheckInspection extends OperationOnCollectionInspection {
 }
 
 object CheckIsEmpty extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.with.isEmpty")
+  override def hint: String = ScalaInspectionBundle.message("replace.with.isEmpty")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case _`.isEmpty`() => None
@@ -48,7 +49,7 @@ object CheckIsEmpty extends SimplificationType {
 }
 
 object CheckNonEmpty extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.with.nonEmpty")
+  override def hint: String = ScalaInspectionBundle.message("replace.with.nonEmpty")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.nonEmpty`() => None
@@ -83,7 +84,7 @@ object CheckNonEmpty extends SimplificationType {
 }
 
 object CheckIsDefined extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.with.isDefined")
+  override def hint: String = ScalaInspectionBundle.message("replace.with.isDefined")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case _`.isDefined`() => None
