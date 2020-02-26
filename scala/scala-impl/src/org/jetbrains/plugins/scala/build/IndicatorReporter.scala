@@ -5,42 +5,44 @@ import java.io.File
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import com.intellij.openapi.progress.ProgressIndicator
+import org.jetbrains.plugins.scala.ScalaBundle
 
 class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
   override def start(): Unit = {
-    indicator.setText("build running ...")
+    indicator.setText(ScalaBundle.message("report.build.running"))
   }
 
   override def finish(messages: BuildMessages): Unit = {
+    //noinspection ScalaExtractStringToBundle
     indicator.setText2("")
 
     if (messages.errors.isEmpty)
-      indicator.setText("build completed")
+      indicator.setText(ScalaBundle.message("report.build.completed"))
     else
-      indicator.setText("build failed")
+      indicator.setText(ScalaBundle.message("report.build.failed"))
   }
 
   override def finishWithFailure(err: Throwable): Unit = {
-    indicator.setText(s"errored: ${err.getMessage}")
+    indicator.setText(ScalaBundle.message("report.failed.with.message", err.getMessage))
   }
 
   override def finishCanceled(): Unit = {
-    indicator.setText("canceled")
+    indicator.setText(ScalaBundle.message("report.canceled"))
   }
 
 
   override def warning(message: String, position: Option[FilePosition]): Unit = {
-    indicator.setText(s"WARNING: $message")
+    indicator.setText(ScalaBundle.message("report.warning.with.message", message))
     indicator.setText2(positionString(position))
   }
 
   override def error(message: String, position: Option[FilePosition]): Unit = {
-    indicator.setText(s"ERROR: $message")
+    indicator.setText(ScalaBundle.message("report.error.with.message", message))
     indicator.setText2(positionString(position))
   }
 
   override def log(message: String): Unit = {
-    indicator.setText("building ...")
+    indicator.setText(ScalaBundle.message("report.building"))
     indicator.setText2(message)
   }
 

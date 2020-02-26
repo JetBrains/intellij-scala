@@ -25,10 +25,10 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: Implicit
       case Seq(tp) => tp.presentableText(place)
       case _ => "..."
     }
-    s"Search implicit instances for $typeOrEllipsis"
+    ScalaBundle.message("search.implicit.instances.for", typeOrEllipsis)
   }
 
-  override def getFamilyName: String = "Search implicit instances"
+  override def getFamilyName: String = ScalaBundle.message("family.name.search.implicit.instances")
 
   override def isAvailable(project: Project, editor: Editor, psiFile: PsiFile): Boolean = true
 

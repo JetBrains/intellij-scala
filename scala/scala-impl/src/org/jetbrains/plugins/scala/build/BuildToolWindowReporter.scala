@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import javax.swing.JComponent
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
 import scala.concurrent.Promise
@@ -112,7 +113,7 @@ class BuildToolWindowReporter(project: Project,
 
 object BuildToolWindowReporter {
   class CancelBuildAction(cancelToken: Promise[_])
-    extends DumbAwareAction("Cancel Build", "Cancel build", AllIcons.Actions.Suspend) {
+    extends DumbAwareAction(ScalaBundle.message("cancel.build"), ScalaBundle.message("cancel.build"), AllIcons.Actions.Suspend) {
 
     override def actionPerformed(e: AnActionEvent): Unit = {
       cancelToken.failure(new ProcessCanceledException())

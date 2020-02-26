@@ -7,6 +7,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ObjectKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -41,9 +42,9 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
 
 class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAction {
 
-  override def getText: String = "Add empty parentheses"
+  override def getFamilyName: String = ScalaBundle.message("family.name.add.empty.parentheses")
 
-  override def getFamilyName: String = getText
+  override def getText: String = getFamilyName
 
   override def startInWriteAction: Boolean = true
 
@@ -57,9 +58,9 @@ class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAc
 }
 
 final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
-  override def getText: String = "Convert to object"
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.to.object")
 
-  override def getFamilyName: String = getText
+  override def getText: String = getFamilyName
 
   override def startInWriteAction: Boolean = true
 

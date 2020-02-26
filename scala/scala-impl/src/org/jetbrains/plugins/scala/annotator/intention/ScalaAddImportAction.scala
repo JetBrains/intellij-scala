@@ -90,7 +90,7 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
           }
 
           override def getTextFor(value: String): String = {
-            "Exclude '" + value + "' from auto-import"
+            ScalaBundle.message("exclude.value.from.auto.import", value)
           }
         }
       }
@@ -106,7 +106,7 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
   private def addImport(toImport: ElementToImport): Unit = {
     ApplicationManager.getApplication.invokeLater(() =>
       if (place.isValid && FileModificationService.getInstance.prepareFileForWrite(place.getContainingFile))
-        executeWriteActionCommand("Add import action") {
+        executeWriteActionCommand(ScalaBundle.message("add.import.action")) {
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
           if (place.isValid) {
             doAddImport(toImport)

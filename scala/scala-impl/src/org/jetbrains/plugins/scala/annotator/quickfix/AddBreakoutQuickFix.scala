@@ -4,6 +4,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScInfixExpr, ScMethodCall}
@@ -15,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  * @author Nikolay.Tropin
  */
 class AddBreakoutQuickFix(expr: ScExpression) extends IntentionAction {
-  override def getText: String = "Add `collection.breakOut` argument"
+  override def getText: String = ScalaBundle.message("add.collection.breakout.argument")
 
-  override def getFamilyName: String = "Add `collection.breakOut`"
+  override def getFamilyName: String = ScalaBundle.message("family.name.add.collection.breakout")
 
   override def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = {
     def createWithClauses(text: String) =

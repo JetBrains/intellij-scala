@@ -5,13 +5,14 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 
 /**
  * @author Svyatoslav ILINSKIY
  */
 class AddElementToMethodCallFix(call: ScMethodCall, elementToAdd: PsiElement, nameOfElement: String) extends IntentionAction {
-  override def getText: String = s"Add $nameOfElement"
+  override def getText: String = ScalaBundle.message("add.element", nameOfElement)
 
   override def getFamilyName: String = getText
 

@@ -25,8 +25,8 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.util.{Failure, Success, Try}
 
-abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, keyword: String)
-  extends CreateFromUsageQuickFixBase(ref, entity) {
+abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
+  extends CreateFromUsageQuickFixBase(ref) {
   // TODO add private modifiers for unqualified entities ?
   // TODO use Java CFU when needed
   // TODO find better place for fields, create methods after

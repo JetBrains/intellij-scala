@@ -32,7 +32,7 @@ object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] {
 
     override def startInWriteAction(): Boolean = true
 
-    override def getFamilyName: String = "Remove all erroneous semicolons from for expression"
+    override def getFamilyName: String = ScalaBundle.message("remove.all.erroneous.semicolons.from.forexpression")
   }
 
   private def findErroneousSemicolons(enumerators: ScEnumerators): Seq[PsiElement] = {

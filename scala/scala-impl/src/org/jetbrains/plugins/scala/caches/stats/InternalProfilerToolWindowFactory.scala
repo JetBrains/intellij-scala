@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.{Content, ContentFactory}
 import javax.swing.{Icon, JPanel, JScrollPane}
 
@@ -34,6 +35,7 @@ class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware
     ApplicationManager.getApplication.isInternal
 }
 
+//noinspection ScalaExtractStringToBundle
 object InternalProfilerToolWindowFactory {
   val ID = "internal-profiler"
   val notificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scala Cache Profiler")

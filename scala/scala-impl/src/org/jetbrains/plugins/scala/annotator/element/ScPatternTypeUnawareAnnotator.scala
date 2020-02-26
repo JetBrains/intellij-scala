@@ -68,9 +68,9 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
     }
 
   private class ReplaceNamingPatternBindingElementFix(binder: PsiElement, replaceWithType: IElementType) extends IntentionAction with DumbAware {
-    override def getText: String = s"Replace with '${text(replaceWithType)}'"
+    override def getText: String = ScalaBundle.message("replace.with.type", text(replaceWithType))
 
-    override def getFamilyName: String = s"Replace '${text(binder.elementType)}' with '${text(replaceWithType)}' in vararg pattern"
+    override def getFamilyName: String = ScalaBundle.message("family.name.replace.type.with.type.in.vararg.pattern", text(binder.elementType), text(replaceWithType))
 
     override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
 
@@ -91,9 +91,9 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
   }
 
   private class ReplaceWithScala3WildcardVarargFix(varargShort: ScSeqWildcard) extends IntentionAction with DumbAware {
-    override def getText: String = s"Replace with '_: _*'"
+    override def getText: String = ScalaBundle.message("replace.with.scala3.wildcard.varargs")
 
-    override def getFamilyName: String = s"Replace '_*' with '_: _*' in vararg pattern"
+    override def getFamilyName: String = ScalaBundle.message("family.name.replace.old.varags.with.scala3.varargs.pattern")
 
     override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
 

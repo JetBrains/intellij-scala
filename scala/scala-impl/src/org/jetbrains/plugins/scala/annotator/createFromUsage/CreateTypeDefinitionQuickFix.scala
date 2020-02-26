@@ -13,6 +13,7 @@ import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
@@ -28,8 +29,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
  * Nikolay.Tropin
  * 2014-07-28
  */
-abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: String, kind: ClassKind)
-        extends CreateFromUsageQuickFixBase(ref, description) {
+abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
+        extends CreateFromUsageQuickFixBase(ref) {
   private final val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.annotator.createFromUsage.CreateTemplateDefinitionQuickFix")
   private val name = ref.refName
 
@@ -207,10 +208,18 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
 }
 
 class CreateObjectQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, "object", Object)
+        extends CreateTypeDefinitionQuickFix(ref, Object) {
+
+  override val getText: String = ScalaBundle.message("create.object.named", ref.nameId.getText)
+  override val getFamilyName: String = ScalaBundle.message("family.name.create.object")
+}
+
 
 class CreateTraitQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, "trait", Trait) {
+        extends CreateTypeDefinitionQuickFix(ref, Trait) {
+
+  override val getText: String = ScalaBundle.message("create.trait.named", ref.nameId.getText)
+  override val getFamilyName: String = ScalaBundle.message("family.name.create.trait")
   
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     super.isAvailable(project, editor, file) && parametersText(ref).isEmpty
@@ -218,10 +227,17 @@ class CreateTraitQuickFix(ref: ScReference)
 }
 
 class CreateClassQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, "class", Class)
+        extends CreateTypeDefinitionQuickFix(ref, Class) {
+
+  override val getText: String = ScalaBundle.message("create.class.named", ref.nameId.getText)
+  override val getFamilyName: String = ScalaBundle.message("family.name.create.class")
+}
 
 class CreateCaseClassQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, "case class", Class) {
+        extends CreateTypeDefinitionQuickFix(ref, Class) {
+
+  override val getText: String = ScalaBundle.message("create.case.class.named", ref.nameId.getText)
+  override val getFamilyName: String = ScalaBundle.message("family.name.create.case.class")
 
   override protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
     clazz.setModifierProperty("case")
