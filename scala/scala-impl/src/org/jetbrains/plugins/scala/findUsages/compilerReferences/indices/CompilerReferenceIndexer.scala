@@ -73,11 +73,11 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
 
   def toTask(job: IndexingStage): Task.Backgroundable =
     job match {
-      case OpenWriter(isCleanBuild) => task(project, "Initializing compiler indices writer") { _ =>
+      case OpenWriter(isCleanBuild) => task(project, ScalaBundle.message("title.initializing.compiler.indices.writer")) { _ =>
         initialiseExecutorIfNeeded()
         indexWriter = indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, expectedIndexVersion, isCleanBuild))
       }
-      case CloseWriter(onFinish) => task(project, "Closing compiler indices writer") { _ =>
+      case CloseWriter(onFinish) => task(project, ScalaBundle.message("title.closing.compiler.indices.writer")) { _ =>
         val maybeFatalFailure = fatalFailure.get().map(FatalFailure)
 
         val maybeFailure = maybeFatalFailure.orElse {
@@ -90,7 +90,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
       }
       case ProcessCompilationInfo(info, onFinish) => new IndexCompilationInfoTask(info, onFinish)
       case InvalidateIndex(index) =>
-        task(project, "Invalidating compiler indices") { _ =>
+        task(project, ScalaBundle.message("title.invalidating.compiler.indices")) { _ =>
           index.foreach(_.close())
           cleanUp(shouldClearIndex = true)
         }

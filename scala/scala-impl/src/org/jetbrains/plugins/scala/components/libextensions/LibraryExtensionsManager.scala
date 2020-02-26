@@ -18,6 +18,7 @@ import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.util.lang.UrlClassLoader
 import com.intellij.util.messages.Topic
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.libextensions.ui._
 import org.jetbrains.plugins.scala.extensions.using
@@ -93,7 +94,7 @@ final class LibraryExtensionsManager(project: Project) {
 
   def searchExtensions(sbtResolvers: Set[SbtResolver]): Unit = {
     ProgressManager.getInstance().run(
-      new Task.Backgroundable(project, "Searching for library extensions", true) {
+      new Task.Backgroundable(project, ScalaBundle.message("title.searching.for.library.extensions"), true) {
         override def run(indicator: ProgressIndicator): Unit = {
           implicit val project: Project = myProject
           val resolved              = new ExtensionDownloader(indicator, sbtResolvers).getExtensionJars

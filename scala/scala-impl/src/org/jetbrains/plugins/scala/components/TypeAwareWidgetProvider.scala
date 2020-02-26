@@ -62,6 +62,7 @@ object TypeAwareWidgetProvider {
       }
 
       val status = if (isEnabled) ScalaBundle.message("enabled.word") else ScalaBundle.message("disabled.word")
+      //noinspection ScalaExtractStringToBundle
       s"$title: $status $toChange"
     }
 

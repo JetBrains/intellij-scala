@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package project
 
 import com.intellij.util.net.HttpConfigurable
+import org.jetbrains.plugins.scala.ScalaBundle
 
 import scala.io.Source
 import scala.util.Try
@@ -21,7 +22,7 @@ object Versions {
 
     final def apply(): Versions = {
       val versions = extensions
-        .withProgressSynchronously(s"Fetching available $this versions")(loadVersions())
+        .withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this))(loadVersions())
         .sorted
         .reverse
         .map(_.presentation)

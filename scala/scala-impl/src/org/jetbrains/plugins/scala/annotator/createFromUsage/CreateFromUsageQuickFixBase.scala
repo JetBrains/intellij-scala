@@ -19,10 +19,6 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReference)
   extends IntentionAction with ProjectContextOwner {
 
   override implicit val projectContext: ProjectContext = ref
-  
-  //override val getText = s"Create $description '${ref.nameId.getText}'"
-
-  //override val getFamilyName = s"Create $description"
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!ref.isValid) return false

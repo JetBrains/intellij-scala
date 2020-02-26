@@ -14,7 +14,7 @@ import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.util.download.DownloadableFileService
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, IvyResolver, MavenResolver}
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 
@@ -64,7 +64,7 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
     val description = fileService.createFileDescription(props.urlOverride, s"$fileName.part")
     val downloader  = fileService.createDownloader(Collections.singletonList(description), props.urlOverride)
 
-    progress.setText(s"Downloading ${props.urlOverride}")
+    progress.setText(ScalaBundle.message("downloading.url", props.urlOverride))
     val files = downloader.download(downloadRoot)
     if (files == null || files.isEmpty) {
       LOG.error(s"Failed to download extension from ${props.urlOverride}")

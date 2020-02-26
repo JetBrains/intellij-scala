@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.ui.Messages
 import org.jetbrains.jps.model.java.JavaSourceRootType
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
 
@@ -61,9 +62,12 @@ class ServerMediatorTask extends BuildManagerListener with CompileTask {
 
     def showSplitDialog(modulesWithClashes: Seq[Module]) = {
       Messages.showYesNoDialog(project,
-        "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
-        "Shared compile output paths in Scala module(s)",
-        "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
+        ScalaBundle.message("production.and.test.output.paths.are.shared.in", modulesWithClashes.map(_.getName).mkString(" ")),
+        ScalaBundle.message("shared.compile.output.paths.in.scala.modules"),
+        ScalaBundle.message("split.output.paths.automatically"),
+        ScalaBundle.message("cancel.compilation"),
+        Messages.getErrorIcon
+      )
     }
 
     val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter(hasClashes)

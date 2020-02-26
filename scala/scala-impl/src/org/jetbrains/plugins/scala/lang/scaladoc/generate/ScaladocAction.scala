@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.Scalado
  * Date: 01.10.11
  */
 class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.scaladoc"), "Scaladoc": @NonNls) {
-  private var configurationDialog: ScaladocConsoleRunConfigurationForm = null
+  private var configurationDialog: ScaladocConsoleRunConfigurationForm = _
 
   private def disposeForm(): Unit = {
     configurationDialog = null

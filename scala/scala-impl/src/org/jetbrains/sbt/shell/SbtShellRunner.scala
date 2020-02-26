@@ -62,6 +62,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
       invokeLater {
         val label = new JLabel(s"Initializing ${SbtShellToolWindowFactory.Title}...", SwingConstants.CENTER)
         label.setOpaque(true)
+        //noinspection ScalaExtractStringToBundle
         toolWindow.setContent(new ContentImpl(label, "", false))
       }
     }
@@ -143,6 +144,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     mainPanel.add(toolbarPanel, BorderLayout.WEST)
     mainPanel.add(consoleView.getComponent, BorderLayout.CENTER)
 
+    //noinspection ScalaExtractStringToBundle
     val content = ContentFactory.SERVICE.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)
     val toolWindowTitle = project.getName
     content.setTabName(toolWindowTitle)

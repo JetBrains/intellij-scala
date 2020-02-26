@@ -63,5 +63,6 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
     }
   }
 
+  //noinspection ScalaExtractStringToBundle
   override def getFamilyName: String = "Scala"
 }

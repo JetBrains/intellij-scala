@@ -117,7 +117,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       showChooser(editor, siblings, { (selectedValue: PsiElement) =>
         invokeDialog(array, hasReturn, lastReturn, selectedValue,
           siblings(siblings.length - 1) == selectedValue, lastExprType)
-      }, "Choose level for Extract Method", getTextForElement, (e: PsiElement) => e.getParent)
+      }, ScalaBundle.message("choose.level.for.extract.method"), getTextForElement, (e: PsiElement) => e.getParent)
     }
     else if (siblings.length == 1) {
       invokeDialog(array, hasReturn, lastReturn, siblings(0), smallestScope = true, lastExprType)

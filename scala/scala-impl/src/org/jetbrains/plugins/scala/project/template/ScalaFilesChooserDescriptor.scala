@@ -3,13 +3,14 @@ package project.template
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * @author Pavel Fatin
  */
 class ScalaFilesChooserDescriptor extends FileChooserDescriptor(true, true, true, true, false, true) {
-  setTitle("Scala SDK files")
-  setDescription("Choose either a Scala SDK directory or Scala jar files (allowed: binaries, sources, docs)")
+  setTitle(ScalaBundle.message("title.scala.sdk.files"))
+  setDescription(ScalaBundle.message("choose.either.a.scala.sdk.directory.or.scala.jar.files"))
 
   override def isFileSelectable(file: VirtualFile): Boolean = {
     super.isFileSelectable(file) && file.isDirectory || file.getExtension == "jar"

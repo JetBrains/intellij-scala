@@ -6,6 +6,7 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.ui.Messages
 import javax.swing.JComponent
 import org.apache.ivy.util.MessageLogger
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 
 /**
@@ -16,15 +17,15 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
   {
     init()
 
-    setTitle("Download")
+    setTitle(ScalaBundle.message("title.download"))
     myVersion.setTextRenderer(Version.abbreviate)
 
     Versions.Scala().versions match {
       case Array() =>
         Messages.showErrorDialog(
           createCenterPanel(),
-          "No versions available for download",
-          s"Error Downloading Scala libraries"
+          ScalaBundle.message("no.versions.available.for.download"),
+          ScalaBundle.message("title.error.downloading.scala.libraries")
         )
       case versions => myVersion.setItems(versions)
     }
@@ -34,7 +35,7 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
     if (showAndGet()) {
       val version = myVersion.getSelectedItem.asInstanceOf[String]
 
-      extensions.withProgressSynchronouslyTry(s"Downloading Scala $version", canBeCanceled = true) { manager =>
+      extensions.withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", version), canBeCanceled = true) { manager =>
         import DependencyManagerBase._
         val dependencyManager = new DependencyManagerBase {
           override def createLogger: MessageLogger = new ProgressIndicatorLogger(manager.getProgressIndicator)
@@ -49,7 +50,7 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
         case exception => Messages.showErrorDialog(
           parent,
           exception.getMessage,
-          s"Error downloading Scala $version"
+          ScalaBundle.message("error.downloading.scala.version", version)
         )
       }.map { _ =>
         version

@@ -10,6 +10,7 @@ import com.intellij.ui._
 import com.intellij.ui.components.{JBLabel, JBList}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
 import org.jetbrains.plugins.scala.components.libextensions._
 
@@ -19,7 +20,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
   private val libraryExtensionsManager = LibraryExtensionsManager.getInstance(project)
 
   // Exported components
-  val enabledCB: JCheckBox = new JCheckBox("Enable loading external extensions", true)
+  val enabledCB: JCheckBox = new JCheckBox(ScalaBundle.message("enable.loading.external.extensions"), true)
 
   class LibraryListModel(val extensionsModel: LibraryDetailsModel) extends AbstractListModel[ExtensionJarData] {
     private val extensionsManager: LibraryExtensionsManager = libraryExtensionsManager
@@ -48,7 +49,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
     val checkBoxes  = new JPanel()
     checkBoxes.setLayout(new BoxLayout(checkBoxes, BoxLayout.Y_AXIS))
     checkBoxes.add(UI.PanelFactory.panel(enabledCB)
-      .withTooltip("IDEA will try to search for extra support for particular libraries in your project")
+      .withTooltip(ScalaBundle.message("idea.will.try.to.search.for.extra.support.for.particular.libraries"))
       .createPanel())
 
     val settingsPanel = new JPanel(new BorderLayout())
@@ -60,7 +61,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
     val extensionsList = new JBList[ExtensionDescriptor](detailsModel)
     val extensionsPane = new JPanel(new BorderLayout())
     extensionsPane.add(ScrollPaneFactory.createScrollPane(extensionsList))
-    extensionsList.setEmptyText("Select library from the list above")
+    extensionsList.setEmptyText(ScalaBundle.message("select.library.from.the.list.above"))
     extensionsList.installCellRenderer { (ext: ExtensionDescriptor) =>
       val ExtensionDescriptor(_, impl, name, description, _) = ext
       val builder = new StringBuilder
@@ -93,13 +94,13 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
           librariesList.setModel(new LibraryListModel(detailsModel))
         } catch {
           case ex: ExtensionException =>
-            Messages.showErrorDialog(ex.getMessage, "Failed to load extension JAR")
+            Messages.showErrorDialog(ex.getMessage, ScalaBundle.message("title.failed.to.load.extension.jar"))
           case ex: Exception =>
-            Messages.showErrorDialog(ex.toString, "Failed to load extension JAR")
+            Messages.showErrorDialog(ex.toString, ScalaBundle.message("title.failed.to.load.extension.jar"))
         }
     }
 
-    librariesList.setEmptyText("No known extension libraries")
+    librariesList.setEmptyText(ScalaBundle.message("no.known.extension.libraries"))
     librariesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     librariesList.addListSelectionListener { event =>
       if (!event.getValueIsAdjusting) {
@@ -125,8 +126,8 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
     listsPane.setFirstComponent(librariesPane)
     listsPane.setSecondComponent(extensionsPane)
 
-    UIUtil.addBorder(librariesPane,IdeBorderFactory.createTitledBorder("Known extension libraries", false))
-    UIUtil.addBorder(extensionsPane, IdeBorderFactory.createTitledBorder("Extensions in selected library", false))
+    UIUtil.addBorder(librariesPane,IdeBorderFactory.createTitledBorder(ScalaBundle.message("known.extension.libraries"), false))
+    UIUtil.addBorder(extensionsPane, IdeBorderFactory.createTitledBorder(ScalaBundle.message("extensions.in.selected.library"), false))
 
     enabledCB.addActionListener { _ =>
       libraryExtensionsManager.setEnabled(enabledCB.isSelected)

@@ -39,10 +39,10 @@ final class SbtIndexesManager(val project: Project) extends Disposable {
       return
 
     if (!project.isDisposed) {
-      ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating Indices") {
+      ProgressManager.getInstance().run(new Task.Backgroundable(project, SbtBundle.message("title.updating.indices")) {
         override def run(indicator: ProgressIndicator): Unit = {
           indicator.setIndeterminate(true)
-          indicator.setText(s"Updating: $name")
+          indicator.setText(SbtBundle.message("indicator.updating.name", name))
           try {
             index.doUpdate(Some(indicator))
           } catch {
@@ -56,7 +56,7 @@ final class SbtIndexesManager(val project: Project) extends Disposable {
                   LOG.error("Error while closing index while recovering from another error", e)
               }
               try {
-                indicator.setText("Force rebuilding dependency index")
+                indicator.setText(SbtBundle.message("indicator.force.rebuilding.dependency.index"))
                 FileUtil.delete(ResolverIndex.indexesDir)
                 index.doUpdate(Some(indicator))
               } catch {
