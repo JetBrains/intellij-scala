@@ -10,6 +10,8 @@
                 implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaAnnotatorHighlightVisitor"/>
         <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
 
+        <daemon.changeLocalityDetector implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaChangeLocalityDetector"/>
+
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPassFactory"/>
 
         <highlightErrorFilter
