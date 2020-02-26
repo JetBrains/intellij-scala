@@ -89,7 +89,8 @@ class ScalaTestConfigurationProducer extends AbstractTestConfigurationProducer[S
         .orElse(testClassWithTestNameForParent(location))
         .getOrElse(nullResult)
     } else {
-      ScalaTestTestLocationFinder.testClassWithTestName(element, clazz, templateBody)
+      val finder = new ScalaTestTestLocationFinder(element, clazz, templateBody)
+      finder.testClassWithTestName
     }
   }
 
