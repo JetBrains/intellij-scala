@@ -19,6 +19,7 @@ import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, SourceFilterScope}
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
@@ -284,7 +285,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     this.depthFirst().instancesOf[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
   override def getFileResolveScope: GlobalSearchScope = getOriginalFile.getVirtualFile match {
-    case file if file != null && file.isValid => defaultFileResolveScope(file)
+    case file if file != null && file.isValid => ResolveFilterScope(defaultFileResolveScope(file))(getProject)
     case _ => GlobalSearchScope.allScope(getProject)
   }
 
