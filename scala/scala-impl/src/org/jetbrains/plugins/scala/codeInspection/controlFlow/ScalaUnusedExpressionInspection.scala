@@ -5,6 +5,7 @@ package controlFlow
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, SideEffectsUtil}
@@ -45,7 +46,7 @@ object ScalaUnusedExpressionInspection {
   }
 
   private[this] class AddReturnQuickFix(expression: ScExpression) extends AbstractFixOnPsiElement(
-    "Add return keyword",
+    ScalaInspectionBundle.message("add.return.keyword"),
     expression
   ) {
     override protected def doApplyFix(expression: ScExpression)
@@ -56,7 +57,7 @@ object ScalaUnusedExpressionInspection {
   }
 
   private[this] class RemoveExpressionQuickFix(expression: ScExpression) extends AbstractFixOnPsiElement(
-    "Remove expression",
+    ScalaInspectionBundle.message("remove.expression"),
     expression
   ) {
     override protected def doApplyFix(expression: ScExpression)

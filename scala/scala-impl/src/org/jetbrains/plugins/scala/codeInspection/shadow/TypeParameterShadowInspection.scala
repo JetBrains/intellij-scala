@@ -35,8 +35,7 @@ class TypeParameterShadowInspection extends AbstractInspection(ScalaInspectionBu
   private def check(typeParam: ScTypeParam, holder: ProblemsHolder): Unit = {
     isShadowing(typeParam) match {
       case Some(_) =>
-        //noinspection ScalaExtractStringToBundle
-        //noinspection ReferencePassedToNls
+        //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
         holder.registerProblem(typeParam.nameId, getDisplayName + ": " + typeParam.name, new RenameTypeParameterFix(typeParam))
       case _ =>
     }

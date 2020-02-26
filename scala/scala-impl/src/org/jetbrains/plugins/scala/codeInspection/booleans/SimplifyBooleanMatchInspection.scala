@@ -5,6 +5,7 @@ package booleans
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil.isOfBooleanType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 import scala.language.implicitConversions
 
-class SimplifyBooleanMatchInspection extends AbstractInspection("Trivial match can be simplified") {
+class SimplifyBooleanMatchInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.trivial.match.can.be.simplified")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case stmt: ScMatch if stmt.isValid && SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(stmt) =>
@@ -24,7 +25,7 @@ class SimplifyBooleanMatchInspection extends AbstractInspection("Trivial match c
   }
 }
 
-class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends AbstractFixOnPsiElement("Simplify match to if statement", stmt) {
+class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("simplify.match.to.if.statement"), stmt) {
 
   override protected def doApplyFix(scStmt: ScMatch)
                                    (implicit project: Project): Unit = {

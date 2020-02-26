@@ -8,14 +8,14 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection("Floating point literal ending with '.'") {
+class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.floating.point.literal.ending.with.dot")) {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case lit: ScLiteral if lit.getText.endsWith(".") =>
       holder.registerProblem(lit, getDisplayName, new MakeDoubleFix(lit), new MakeFloatFix(lit), new AddZeroAfterDecimalPoint(lit))
   }
 }
 
-class MakeDoubleFix(lit: ScLiteral) extends AbstractFixOnPsiElement("Convert to %s".format(lit.getText.dropRight(1) + "d"), lit) {
+class MakeDoubleFix(lit: ScLiteral) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("convert.to.floating.point", lit.getText.dropRight(1) + "d"), lit) {
 
   override protected def doApplyFix(l: ScLiteral)
                                    (implicit project: Project): Unit = {
@@ -23,7 +23,7 @@ class MakeDoubleFix(lit: ScLiteral) extends AbstractFixOnPsiElement("Convert to 
   }
 }
 
-class MakeFloatFix(lit: ScLiteral) extends AbstractFixOnPsiElement("Convert to %s".format(lit.getText.dropRight(1) + "f"), lit) {
+class MakeFloatFix(lit: ScLiteral) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("convert.to.floating.point", lit.getText.dropRight(1) + "f"), lit) {
 
   override protected def doApplyFix(l: ScLiteral)
                                    (implicit project: Project): Unit = {
@@ -31,7 +31,7 @@ class MakeFloatFix(lit: ScLiteral) extends AbstractFixOnPsiElement("Convert to %
   }
 }
 
-class AddZeroAfterDecimalPoint(lit: ScLiteral) extends AbstractFixOnPsiElement("Convert to %s".format(lit.getText + "0"), lit) {
+class AddZeroAfterDecimalPoint(lit: ScLiteral) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("convert.to.floating.point", lit.getText + "0"), lit) {
 
   override protected def doApplyFix(l: ScLiteral)
                                    (implicit project: Project): Unit = {

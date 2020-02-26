@@ -6,7 +6,7 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationCo
  * Pavel Fatin
  */
 
-class ScalaRedundantConversionInspection extends AbstractInspection("Redundant conversion") {
+class ScalaRedundantConversionInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.conversion")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case element @ ScReferenceExpression.withQualifier(qualifier) && PsiReferenceEx.resolve(target) =>
@@ -60,7 +60,7 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
   }
 
   private class RemoveConversionQuickFix(element: PsiElement, expr: ScExpression)
-          extends AbstractFixOnTwoPsiElements("Remove Redundant Conversion", element, expr) {
+          extends AbstractFixOnTwoPsiElements(ScalaInspectionBundle.message("remove.redundant.conversion"), element, expr) {
 
     override protected def doApplyFix(elem: PsiElement, scExpr: ScExpression)
                                      (implicit project: Project): Unit = {

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.bundled
 import com.intellij.codeInspection.{LocalInspectionTool, LocalInspectionToolSession, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.bundled.BundledCompoundInspection.MyInspectionVisitorWrapper
 import org.jetbrains.plugins.scala.components.libextensions.DynamicExtensionPoint
 
@@ -14,7 +15,7 @@ class BundledCompoundInspection extends LocalInspectionTool {
 
   val EP = new DynamicExtensionPoint[BundledInspectionBase]
 
-  override def getDisplayName: String = "Scala bundled inspections runner"
+  override def getDisplayName: String = ScalaInspectionBundle.message("display.name.scala.bundled.inspections.runner")
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     implicit val ctx: Project = holder.getProject

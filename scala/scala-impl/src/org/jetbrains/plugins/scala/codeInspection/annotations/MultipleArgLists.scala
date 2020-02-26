@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.annotations
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 
 /**
@@ -13,7 +13,6 @@ class MultipleArgLists extends AbstractInspection("MultipleArgListsInAnnotation"
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case annotation: ScAnnotation if annotation.constructorInvocation.arguments.length > 1 =>
-      holder.registerProblem(annotation, 
-        "Implementation limitation: multiple argument lists on annotations are currently not supported")
+      holder.registerProblem(annotation, ScalaInspectionBundle.message("implementation.limitation.multiple.argument.lists"))
   }
 }

@@ -323,6 +323,7 @@ class BspSession private(bspIn: InputStream,
       lines.foreach { message =>
         lastProcessOutput = System.currentTimeMillis()
         lastActivity = lastProcessOutput
+        //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
         currentJob.log(message + '\n')
       }
     }

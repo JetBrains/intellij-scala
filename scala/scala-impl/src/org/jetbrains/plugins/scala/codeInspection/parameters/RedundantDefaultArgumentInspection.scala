@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.parameters
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
-class RedundantDefaultArgumentInspection extends AbstractInspection("Argument duplicates corresponding parameter default value") {
+class RedundantDefaultArgumentInspection
+  extends AbstractInspection(ScalaInspectionBundle.message("argument.duplicates.corresponding.parameter.default.value")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case ScMethodCall(referenceExpression: ScReferenceExpression, arguments: Seq[ScExpression]) =>
@@ -31,7 +32,8 @@ class RedundantDefaultArgumentInspection extends AbstractInspection("Argument du
   }
 }
 
-class DeleteRedundantDefaultArgumentQuickFix(arg: ScExpression) extends AbstractFixOnPsiElement("Delete redundant default argument", arg) {
+class DeleteRedundantDefaultArgumentQuickFix(arg: ScExpression)
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("delete.redundant.default.argument"), arg) {
 
   override protected def doApplyFix(element: ScExpression)
                                    (implicit project: Project): Unit = {

@@ -26,7 +26,7 @@ class RedundantBlockInspection extends AbstractInspection {
       holder.registerProblem(block, new TextRange(0, 1), ScalaInspectionBundle.message("remove.redundant.braces"), new InCaseClauseQuickFix(block))
     case block: ScBlockExpr if block.getChildren.length == 3 =>
       if (RedundantBlockInspection.isRedundantBlock(block)) {
-        registerRedundantParensProblem("The enclosing block is redundant", block, new QuickFix(block))
+        registerRedundantParensProblem(ScalaInspectionBundle.message("the.enclosing.block.is.redundant"), block, new QuickFix(block))
       }
   }
 

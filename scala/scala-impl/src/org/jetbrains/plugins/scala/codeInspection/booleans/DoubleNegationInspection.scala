@@ -4,7 +4,7 @@ package codeInspection.booleans
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
@@ -16,17 +16,17 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 4/23/13
  */
-class DoubleNegationInspection extends AbstractInspection("Double negation") {
+class DoubleNegationInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.double.negation")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression if DoubleNegationUtil.hasDoubleNegation(expr) =>
-      holder.registerProblem(expr, "Double negation", ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DoubleNegationQuickFix(expr))
+      holder.registerProblem(expr, ScalaInspectionBundle.message("display.name.double.negation"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DoubleNegationQuickFix(expr))
     case _ =>
   }
 }
 
 class DoubleNegationQuickFix(expr: ScExpression)
-  extends AbstractFixOnPsiElement("Remove double negation", expr) {
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.double.negation"), expr) {
 
   override protected def doApplyFix(scExpr: ScExpression)
                                    (implicit project: Project): Unit = {

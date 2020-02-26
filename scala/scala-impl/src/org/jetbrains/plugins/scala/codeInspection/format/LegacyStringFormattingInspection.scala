@@ -19,7 +19,7 @@ class LegacyStringFormattingInspection extends AbstractInspection {
       holder.registerProblem(element, ScalaInspectionBundle.message("legacy.string.formatting.use.interpolated.string"), new QuickFix(element))
   }
 
-  private class QuickFix(e: PsiElement) extends AbstractFixOnPsiElement("Convert to interpolated string", e) {
+  private class QuickFix(e: PsiElement) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("convert.to.interpolated.string"), e) {
 
     override protected def doApplyFix(elem: PsiElement)
                                      (implicit project: Project): Unit = {

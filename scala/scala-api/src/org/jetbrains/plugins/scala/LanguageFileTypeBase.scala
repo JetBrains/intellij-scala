@@ -7,10 +7,12 @@ import com.intellij.openapi.vfs.VirtualFile
 abstract class LanguageFileTypeBase(language: Language) extends LanguageFileType(language)
   with ex.FileTypeIdentifiableByVirtualFile {
 
+  //noinspection ReferencePassedToNls
   override def getName: String = getLanguage.getID
 
   override def getDefaultExtension: String = getName.toLowerCase
 
+  //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
   override def getDescription: String = getName + " files"
 
   // TODO Temporary fix for Upsource
