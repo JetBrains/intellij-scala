@@ -17,7 +17,6 @@ import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
-import org.jetbrains.plugins.scala.compiler.PluginJars
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceT
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.collection.JavaConverters._
@@ -378,6 +378,6 @@ package object project {
         case e: IllegalArgumentException => throw new ExecutionException(e.getMessage.replace("SDK", "facet"))
       }
 
-    def addRunners(): Unit = list.add(PluginJars.runnersJar)
+    def addRunners(): Unit = list.add(ScalaPluginJars.runnersJar)
   }
 }

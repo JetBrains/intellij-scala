@@ -4,12 +4,12 @@ package testingSupport.test.specs2
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.compiler.PluginJars
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, RegexpTestData}
+import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.sbt.shell.SbtShellCommunication
 
 import scala.concurrent.Future
@@ -45,8 +45,8 @@ class Specs2RunConfiguration(project: Project,
 
   override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
     modifySetting(SettingMap(), "fullClasspath", "test", "Test",
-      "Attributed(new File(\"" + PluginJars.runnersJar.getAbsolutePath.replace("\\", "\\\\") + "\"))(AttributeMap.empty)",
-      comm, !_.contains(PluginJars.runnersJarName), shouldRevert = false)
+      "Attributed(new File(\"" + ScalaPluginJars.runnersJar.getAbsolutePath.replace("\\", "\\\\") + "\"))(AttributeMap.empty)",
+      comm, !_.contains(ScalaPluginJars.runnersJarName), shouldRevert = false)
 
   override def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     testConfigurationData match {

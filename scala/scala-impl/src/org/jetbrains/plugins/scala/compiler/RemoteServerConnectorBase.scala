@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 //noinspection SameParameterValue
 abstract class RemoteServerConnectorBase(
@@ -27,7 +28,7 @@ abstract class RemoteServerConnectorBase(
 
   private val sbtData = {
     val javaClassVersion = System.getProperty("java.class.version")
-    SbtData.from(PluginJars.jpsRoot, javaClassVersion) match {
+    SbtData.from(ScalaPluginJars.jpsRoot, javaClassVersion) match {
       case Left(msg)   => throw new IllegalArgumentException(msg)
       case Right(data) => data
     }
@@ -41,7 +42,7 @@ abstract class RemoteServerConnectorBase(
 
   private val compilerClasspath: Seq[File] = module.scalaCompilerClasspath
 
-  val additionalCp: Seq[File] = compilerClasspath :+ PluginJars.runnersJar :+ PluginJars.compilerSharedJar :+ outputDir
+  val additionalCp: Seq[File] = compilerClasspath :+ ScalaPluginJars.runnersJar :+ ScalaPluginJars.compilerSharedJar :+ outputDir
 
   protected def additionalScalaParameters: Seq[String] = Seq.empty
 

@@ -18,10 +18,11 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.remote.Commands
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
-import org.jetbrains.plugins.scala.compiler.{NonServerRunner, PluginJars, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
@@ -59,7 +60,7 @@ class RemoteServerConnector(
           case None     =>
             WorksheetArgsPlain(
               worksheetClassName,
-              PluginJars.runnersJar,
+              ScalaPluginJars.runnersJar,
               worksheet,
               worksheet.getName,
               output +: outputDirs,

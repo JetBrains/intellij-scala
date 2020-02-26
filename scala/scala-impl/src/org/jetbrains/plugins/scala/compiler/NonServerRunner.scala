@@ -13,6 +13,7 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.BaseDataReader
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{ClientEventProcessor, Event, TraceEvent}
+import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 import _root_.scala.collection.JavaConverters._
 
@@ -40,7 +41,7 @@ class NonServerRunner(project: Project) {
       case Some(jdk) =>
         val commands: Seq[String] = {
           val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)
-          val runnerClassPath = classPathArg(jdk.tools.toSeq :+ PluginJars.scalaNailgunRunnerJar)
+          val runnerClassPath = classPathArg(jdk.tools.toSeq :+ ScalaPluginJars.scalaNailgunRunnerJar)
           val mainClassPath = classPathArg(jdk.tools.toSeq ++ CompileServerLauncher.compileServerJars)
           (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++
             (SERVER_CLASS_NAME +: "-classpath" +: mainClassPath +: args)

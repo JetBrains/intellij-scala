@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler
+package org.jetbrains.plugins.scala.util
 
 import java.io.File
 
@@ -9,7 +9,7 @@ import com.intellij.util.PathUtil
 import gnu.trove.TByteArrayList
 import org.jetbrains.jps.incremental.BuilderService
 
-object PluginJars {
+object ScalaPluginJars {
 
   val libRoot: File = {
     if (ApplicationManager.getApplication.isUnitTestMode) {
@@ -41,7 +41,8 @@ object PluginJars {
   val compilerJpsJar         = new File(jpsRoot, "compiler-jps.jar")
 }
 
-object PlatformJars {
+
+object IntellijPlatformJars {
 
   val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
   val utilJar        = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))

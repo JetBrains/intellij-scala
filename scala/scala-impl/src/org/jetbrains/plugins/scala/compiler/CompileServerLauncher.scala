@@ -23,6 +23,7 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, ScalaPluginJars}
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -219,18 +220,18 @@ object CompileServerLauncher {
   }
 
   def compileServerJars: Seq[File] = Seq(
-    PlatformJars.jpsBuildersJar,
-    PlatformJars.utilJar,
-    PlatformJars.trove4jJar,
-    PlatformJars.protobufJava,
-    PluginJars.scalaLibraryJar,
-    PluginJars.scalaReflectJar,
-    PluginJars.scalaNailgunRunnerJar,
-    PluginJars.compilerSharedJar,
-    PluginJars.nailgunJar,
-    PluginJars.sbtInterfaceJar,
-    PluginJars.incrementalCompilerJar,
-    PluginJars.compilerJpsJar,
+    IntellijPlatformJars.jpsBuildersJar,
+    IntellijPlatformJars.utilJar,
+    IntellijPlatformJars.trove4jJar,
+    IntellijPlatformJars.protobufJava,
+    ScalaPluginJars.scalaLibraryJar,
+    ScalaPluginJars.scalaReflectJar,
+    ScalaPluginJars.scalaNailgunRunnerJar,
+    ScalaPluginJars.compilerSharedJar,
+    ScalaPluginJars.nailgunJar,
+    ScalaPluginJars.sbtInterfaceJar,
+    ScalaPluginJars.incrementalCompilerJar,
+    ScalaPluginJars.compilerJpsJar,
   )
 
   def jvmParameters: Seq[String] = {
