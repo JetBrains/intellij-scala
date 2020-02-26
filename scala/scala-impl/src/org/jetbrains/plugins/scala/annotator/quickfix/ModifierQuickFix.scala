@@ -70,7 +70,7 @@ object ModifierQuickFix {
 
   sealed class Add(listOwner: ScModifierListOwner, nameId: PsiElement, modifier: ScalaModifier)
     extends ModifierQuickFix(listOwner)(
-      if (nameId == null) ScalaBundle.message("add.modifier.fix", _)
+      if (nameId == null) ScalaBundle.message("add.modifier.fix.without.name", _)
       else daemon.QuickFixBundle.message("add.modifier.fix", nameId.getText, _)
     )(modifier, value = true)
 

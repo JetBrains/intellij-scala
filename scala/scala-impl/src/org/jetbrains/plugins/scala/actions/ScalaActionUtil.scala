@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import com.intellij.ui.LightweightHint
 import com.intellij.util.ui.{StartupUiUtil, UIUtil}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 object ScalaActionUtil {
@@ -39,7 +40,7 @@ object ScalaActionUtil {
 
   def getFileFrom(e: AnActionEvent): Option[PsiFile] = Option(CommonDataKeys.PSI_FILE.getData(e.getDataContext))
   
-  def showHint(editor: Editor, text: String): Unit = {
+  def showHint(editor: Editor, @Nls text: String): Unit = {
     val label = HintUtil.createInformationLabel(text)
     label.setFont(StartupUiUtil.getLabelFont)
 

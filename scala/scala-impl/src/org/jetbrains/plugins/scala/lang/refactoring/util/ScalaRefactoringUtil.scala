@@ -482,7 +482,7 @@ object ScalaRefactoringUtil {
   def showChooserGeneric[T](editor: Editor,
                             elements: Array[T],
                             onChosen: T => Unit,
-                            title: String,
+                            @Nls title: String,
                             presentation: T => String,
                             toHighlight: T => PsiElement): Unit = {
     class Selection {
@@ -563,7 +563,7 @@ object ScalaRefactoringUtil {
   def showChooser[T <: PsiElement](editor: Editor,
                                    elements: Array[T],
                                    onChosen: T => Unit,
-                                   title: String,
+                                   @Nls title: String,
                                    presentation: T => String,
                                    toHighlight: T => PsiElement = (t: T) => t.asInstanceOf[PsiElement]): Unit =
     showChooserGeneric(editor, elements, onChosen, title, presentation, toHighlight)

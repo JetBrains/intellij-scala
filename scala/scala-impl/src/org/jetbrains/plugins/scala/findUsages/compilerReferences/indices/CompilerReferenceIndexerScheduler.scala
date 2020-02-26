@@ -4,6 +4,7 @@ package indices
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{BackgroundTaskQueue, EmptyProgressIndicator}
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexingStage.InvalidateIndex
 
@@ -27,7 +28,7 @@ private[compilerReferences] class CompilerReferenceIndexerScheduler(
     jobQueue.run(task, null, new EmptyProgressIndicator)
   }
 
-  def schedule(title: String, runnable: () => Unit): Unit = synchronized {
+  def schedule(@Nls title: String, runnable: () => Unit): Unit = synchronized {
     val t = task(project, title)(_ => runnable())
     jobQueue.run(t, null, new EmptyProgressIndicator)
   }

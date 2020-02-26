@@ -42,7 +42,9 @@ object CompilerIndicesConfigurable {
     val action =
       if (canRestart) IdeBundle.message("ide.restart.action")
       else IdeBundle.message("ide.shutdown.action")
-    val message = ScalaBundle.message("bytecode.indices.restart.message", action)
+    val message =
+      if (canRestart) ScalaBundle.message("bytecode.indices.restart.message")
+      else ScalaBundle.message("bytecode.indices.shutdown.message")
     val title   = ScalaBundle.message("bytecode.indices.restart.title")
 
     Messages.showYesNoDialog(message, title, action, IdeBundle.message("ide.postpone.action"), Messages.getQuestionIcon)

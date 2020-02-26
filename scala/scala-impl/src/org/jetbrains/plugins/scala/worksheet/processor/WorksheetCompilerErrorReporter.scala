@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerManager, ScalaCompileServerForm}
 import org.jetbrains.plugins.scala.util.NotificationUtil
@@ -39,16 +40,17 @@ class WorksheetCompilerErrorReporter(
   private def reportUnexpectedError(exception: Throwable): Unit =
     log.error("Unexpected error occurred during worksheet evaluation", exception)
 
+  @Nls
   private def preconditionMessage(precondition: Precondition): String = precondition match {
     case Precondition.ReplRequiresCompileServerProcess => ScalaBundle.message("worksheet.configuration.errors.repl.is.available.only.in.compile.server.process")
   }
 
-  private def showConfigErrorNotification(msg: String): Unit = {
+  private def showConfigErrorNotification(@Nls msg: String): Unit = {
     if (project.isDisposed) return
     configErrorNotification(msg).show()
   }
 
-  private def showReplRequiresCompileServerNotification(message: String): Unit =
+  private def showReplRequiresCompileServerNotification(@Nls message: String): Unit =
     configErrorNotification(message)
       .removeTitle()
       .addAction(new NotificationAction(ScalaBundle.message("worksheet.configuration.errors.enable.compile.server")) {
@@ -66,7 +68,7 @@ class WorksheetCompilerErrorReporter(
       })
       .show()
 
-  private def configErrorNotification(msg: String): NotificationUtil.NotificationBuilder =
+  private def configErrorNotification(@Nls msg: String): NotificationUtil.NotificationBuilder =
     NotificationUtil.builder(project, msg)
       .setGroup("Scala")
       .setNotificationType(NotificationType.ERROR)

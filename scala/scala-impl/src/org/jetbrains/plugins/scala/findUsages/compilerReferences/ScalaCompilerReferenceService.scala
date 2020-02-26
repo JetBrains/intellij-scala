@@ -17,6 +17,7 @@ import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexerFailure._
@@ -84,7 +85,7 @@ final private[findUsages] class ScalaCompilerReferenceService(project: Project) 
     }
 
     override def onCompilationFinish(success: Boolean): Unit = {
-      indexerScheduler.schedule("Open compiler index reader", () => {
+      indexerScheduler.schedule(ScalaBundle.message("open.compiler.index.reader"), () => {
         openReader(success)
         logCompilerIndicesEvent(
           s"onCompilationFinish. success: $success, active indexing phases: ${activeIndexingPhases.get()}"
@@ -131,7 +132,7 @@ final private[findUsages] class ScalaCompilerReferenceService(project: Project) 
     dirtyScopeHolder.reset()
     messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingPhaseFinished(success = false)
     indexerScheduler.schedule(InvalidateIndex(index))
-    indexerScheduler.schedule("Index invalidation callback", () => {
+    indexerScheduler.schedule(ScalaBundle.message("index.invalidation.callback"), () => {
       logger.warn(s"Compiler indices were corrupted and invalidated.")
       activeIndexingPhases.set(0)
       failedToParse.clear()

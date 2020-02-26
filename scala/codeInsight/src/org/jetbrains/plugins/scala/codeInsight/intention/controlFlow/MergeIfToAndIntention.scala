@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -69,17 +70,12 @@ final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
       append(innerThenBranch.getText)
 
     inWriteAction {
-      ifStmt.replaceExpression(createExpressionFromText(expr.toString())(element.getManager), true)
+      ifStmt.replaceExpression(createExpressionFromText(expr.toString())(element.getManager), removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
 
-  override def getFamilyName: String = MergeIfToAndIntention.FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.merge.nested.ifs.to.anded.condition")
 
-  override def getText: String = "Merge nested 'if's"
-}
-
-object MergeIfToAndIntention {
-
-  private[controlFlow] val FamilyName = "Merge nested Ifs to ANDed condition"
+  override def getText: String = ScalaCodeInsightBundle.message("merge.nested.ifs")
 }

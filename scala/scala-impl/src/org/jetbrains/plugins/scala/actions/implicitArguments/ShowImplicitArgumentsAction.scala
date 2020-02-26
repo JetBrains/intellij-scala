@@ -20,6 +20,7 @@ import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
 import javax.swing.tree.{DefaultMutableTreeNode, TreePath}
 import javax.swing.{JPanel, JTree}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -34,7 +35,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
   * Date: 25.10.11
   */
 
-class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments action") {
+class ShowImplicitArgumentsAction extends AnAction(ScalaBundle.message("show.implicit.arguments.action")) {
   import ShowImplicitArgumentsAction._
 
   override def update(e: AnActionEvent): Unit = ScalaActionUtil.enableAndShowIfInScalaFile(e)
@@ -53,12 +54,12 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     val targets = findAllTargets(file)
 
     if (targets.length == 0)
-      ScalaActionUtil.showHint(editor, "No implicit arguments")
+      ScalaActionUtil.showHint(editor, ScalaBundle.message("no.implicit.arguments"))
     else if (targets.length == 1)
       onChosen(targets(0))
     else
       ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
-        editor, targets, onChosen, "Expressions", _.presentation, _.expression
+        editor, targets, onChosen, ScalaBundle.message("title.expressions"), _.presentation, _.expression
       )
   }
 
@@ -155,7 +156,7 @@ object ShowImplicitArgumentsAction {
         succeeded.set(false)
       }
       IdeDocumentHistory.getInstance(project).includeCurrentCommandAsNavigation()
-    }, "Navigate", null)
+    }, ScalaBundle.message("navigate"), null)
     succeeded.get
   }
 

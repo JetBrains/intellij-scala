@@ -8,6 +8,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.Ivy2IndexingMode
@@ -125,7 +126,7 @@ object SbtIndexesManager {
     }
   }
 
-  private def notifyWarning(message: String): Unit =
-    NotificationUtil.showMessage(null, message, title = "Resolver Indexer")
+  private def notifyWarning(@Nls message: String): Unit =
+    NotificationUtil.showMessage(null, message, title = SbtBundle.message("title.resolver.indexer"))
 
 }

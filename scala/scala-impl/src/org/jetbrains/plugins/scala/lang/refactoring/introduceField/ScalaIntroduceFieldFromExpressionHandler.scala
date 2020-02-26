@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.refactoring.HelpID
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -181,7 +182,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     document.getLineNumber(range.getStartOffset) == document.getLineNumber(range.getEndOffset)
   }
 
-  private def showErrorHint(message: String)
+  private def showErrorHint(@Nls message: String)
                            (implicit project: Project, editor: Editor): Unit = {
     ScalaRefactoringUtil.showErrorHint(message, REFACTORING_NAME, HelpID.INTRODUCE_FIELD)
   }
