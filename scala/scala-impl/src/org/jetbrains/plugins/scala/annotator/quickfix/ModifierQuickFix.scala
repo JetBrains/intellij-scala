@@ -50,7 +50,7 @@ object ModifierQuickFix {
 
   final class Remove(listOwner: ScModifierListOwner, nameId: PsiElement, modifier: ScalaModifier)
     extends ModifierQuickFix(listOwner)(
-      if (nameId == null) ScalaBundle.message("remove.modifier.fix", _)
+      if (nameId == null) ScalaBundle.message("remove.named.modifier.fix", _)
       else daemon.QuickFixBundle.message("remove.modifier.fix", nameId.getText, _)
     )(modifier) {
 

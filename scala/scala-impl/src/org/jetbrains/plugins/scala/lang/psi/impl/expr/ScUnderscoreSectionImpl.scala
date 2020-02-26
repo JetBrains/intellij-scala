@@ -63,7 +63,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
         }
 
         overExpr match {
-          case None                     => Failure(ScalaBundle.message("no.type.inferred"))
+          case None                     => Failure(ScalaBundle.message("no.type.inferred.for.unknown.expression"))
           case Some(expr: ScExpression) =>
             val unders      = ScUnderScoreSectionUtil.underscores(expr)
             var startOffset = if (expr.getTextRange != null) expr.getTextRange.getStartOffset else 0

@@ -82,7 +82,7 @@ private object ImplicitUsagesSearchDialogs {
 
     def shouldCompile: Boolean = shouldCompileCB.isSelected
 
-    setTitle(ScalaBundle.message("bytecode.indices.find.usages", title))
+    setTitle(ScalaBundle.message("bytecode.indices.find.usages.with.title", title))
     setResizable(false)
     init()
 

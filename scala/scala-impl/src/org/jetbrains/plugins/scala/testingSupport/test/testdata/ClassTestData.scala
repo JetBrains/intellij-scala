@@ -27,7 +27,7 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
       _ <- checkModule
       _ <- check(StringUtils.isNotBlank(getTestClassPath), exception(ScalaBundle.message("test.config.test.class.is.not.specified")))
       testClass = getClassPathClazz
-      _ <- check(testClass != null, exception(ScalaBundle.message("test.config.test.class.not.found.in.module").format(getTestClassPath, getModule.getName)))
+      _ <- check(testClass != null, exception(ScalaBundle.message("test.config.test.class.not.found.in.module", getTestClassPath, getModule.getName)))
       //TODO: config.isInvalidSuite calls config.getSuiteClass and we call config.getSuiteClass again on the next line
       //  we should refactor how isInvalidSuite is currently implemented to avoid this
       _ <- check(config.isValidSuite(testClass), {

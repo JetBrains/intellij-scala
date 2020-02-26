@@ -78,7 +78,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             fun.paramClauses.clauses.head.parameters.head.`type`().map(subst)
           case _ => Right(Nothing)
         }
-      case _ => Failure(ScalaBundle.message("cannot.resolve.symbol"))
+      case _ => Failure(ScalaBundle.message("cannot.resolve.unknown.symbol"))
     }
   }
 
