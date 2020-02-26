@@ -1677,6 +1677,8 @@
     </extensions>
 
     <applicationListeners>
+        <listener class="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
         <listener topic="com.intellij.ide.AppLifecycleListener"
                   class="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
