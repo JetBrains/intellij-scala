@@ -12,14 +12,14 @@ import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteSe
  * @param sourceFileOriginal original source file.
  * @param sourceFileCopy source file copy. Note: This file will be compiled!
  */
-private[compiler] class SelectedFileRemoteServerConnector(module: Module,
-                                                          sourceFileOriginal: File,
-                                                          sourceFileCopy: File)
+private[compiler] class DocumentRemoteServerConnector(module: Module,
+                                                      sourceFileOriginal: File,
+                                                      sourceFileCopy: File)
   extends RemoteServerConnectorBase(module, Seq(sourceFileCopy), new File("")) {
 
   override protected def additionalScalaParameters: Seq[String] = Seq("-Ystop-after:patmat")
 
-  import SelectedFileRemoteServerConnector.ReplacedSourcesClient
+  import DocumentRemoteServerConnector.ReplacedSourcesClient
 
   /**
    * Compiles specified file and returns all compiler messages.
@@ -38,7 +38,7 @@ private[compiler] class SelectedFileRemoteServerConnector(module: Module,
   }
 }
 
-object SelectedFileRemoteServerConnector {
+object DocumentRemoteServerConnector {
 
   private trait ReplacedSourcesClient
     extends Client {

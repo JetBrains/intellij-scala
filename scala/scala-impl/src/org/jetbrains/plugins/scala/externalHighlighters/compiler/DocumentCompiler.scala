@@ -33,7 +33,7 @@ class DocumentCompilerImpl
       _ <- Opt.?(acceptableExtensions contains sourceFileOriginal.getExtension, "wrong extension")
       module <- Opt.fromOption(getModule(sourceFileOriginal, index), "no module")
       sourceFileCopy = copyDocumentContentToFile(source)
-      connector = new SelectedFileRemoteServerConnector(
+      connector = new DocumentRemoteServerConnector(
         module = module,
         sourceFileOriginal = new File(sourceFileOriginal.getCanonicalPath),
         sourceFileCopy = sourceFileCopy

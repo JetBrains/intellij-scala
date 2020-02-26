@@ -12,5 +12,4 @@ final case class ExternalHighlighting(severity: HighlightSeverity,
                                       fromLine: Int,
                                       fromColumn: Int,
                                       toLine: Option[Int],
-                                      toColumn: Option[Int]
-                                     )
+                                      toColumn: Option[Int])
