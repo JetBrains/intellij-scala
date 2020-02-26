@@ -7,15 +7,6 @@ import dotty.tools.dotc.tastyreflect.TastyTreeExpr
 import dotty.tools.dotc.core.Contexts.{Context => InternalContext}
 import dotty.tools.dotc.ast.{Trees => InternalTrees}
 
-package org.jetbrains.plugins.scala.worksheet
-
-import scala.quoted._
-import scala.quoted.matching._
-
-import dotty.tools.dotc.tastyreflect.TastyTreeExpr
-import dotty.tools.dotc.core.Contexts.{Context => InternalContext}
-import dotty.tools.dotc.ast.{Trees => InternalTrees}
-
 object MacroPrinter3_22 {
 
   inline def showType[T](inline expr: => T): String = ${ showTypeImpl('expr) }
