@@ -127,18 +127,22 @@ private[resolver] object BspResolverLogic {
 
     val allSourcesBase = commonBase(idToSources.values.flatten.map(_.directory)).map(_.toPath)
 
-    val syntheticModules = sharedSources.map { case (src, targetIds) =>
-      val targets = targetIds.map(idToTarget)
-      val sharingModules = targetIds.map(idToModule)
-      createSyntheticModuleDescription(allSourcesBase, targets, Seq(src), sharingModules)
-    }
+    val syntheticModules = sharedSources.toSeq
+      .groupBy(d => d._2.sortBy(_.getUri))
+      .mapValues(_.map(_._1)).toSeq
+      .map(_.swap)
+      .map { case (srcs, targetIds) =>
+        val targets = targetIds.map(idToTarget)
+        val sharingModules = targetIds.map(idToModule)
+        createSyntheticModuleDescription(allSourcesBase, targets, srcs, sharingModules)
+      }
 
     // merge modules with the same module base
     val (noBase, withBase) = moduleDescriptions.partition(_.data.basePath.isEmpty)
     val mergedBase = withBase.groupBy(_.data.basePath).values.map(mergeModules)
     val modules = noBase ++ mergedBase
 
-    ProjectModules(modules, syntheticModules.toSeq)
+    ProjectModules(modules, syntheticModules)
   }
 
   private def sharedSourceDirs(idToSources: Map[BuildTargetIdentifier, Seq[SourceDirectory]]): Map[SourceDirectory, Seq[BuildTargetIdentifier]] = {
@@ -299,7 +303,7 @@ private[resolver] object BspResolverLogic {
     // the synthetic module "inherits" most of the "ancestors" data
     val merged = mergeModules(ancestors)
     val sharedPrefix = "shared:"
-    val id = sourceRoots.headOption
+    val id = sourceRoots.sortBy(_.directory).headOption
       .map { dir =>
         val idPath = allSourcesBase
             .map(_.relativize(dir.directory.toPath))
@@ -313,7 +317,8 @@ private[resolver] object BspResolverLogic {
       name = id,
       targets = targets,
       sourceDirs = sourceRoots,
-      testSourceDirs = Seq.empty
+      testSourceDirs = Seq.empty,
+      basePath = None
     )
     merged.copy(data = inheritorData)
   }
@@ -467,7 +472,7 @@ private[resolver] object BspResolverLogic {
       (TEST_RESOURCE, dir)
     }
 
-    val allSourceRoots = (sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots).toSet
+    val allSourceRoots = (sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots)
 
     val moduleName = moduleDescriptionData.name
     val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
@@ -510,12 +515,13 @@ private[resolver] object BspResolverLogic {
     val libraryTestDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
     moduleNode.addChild(libraryTestDependencyNode)
 
-    allSourceRoots.map { case (sourceType, root) =>
+    val contentRootData = allSourceRoots.map { case (sourceType, root) =>
       val data = getContentRoot(root.directory, moduleBase)
       data.storePath(sourceType, root.directory.getCanonicalPath)
-      data
-    }.foreach { data =>
-      // because we map on a set, `data` is deduplicated before creating content root data nodes. thus each node is only added once
+      data.getRootPath -> data
+    }.toMap.values // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
+
+    contentRootData.foreach { data =>
       val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, data, moduleNode)
       moduleNode.addChild(contentRootDataNode)
     }

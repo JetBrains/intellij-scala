@@ -82,25 +82,27 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val targetsRequest = server.workspaceBuildTargets()
 
     val projectNodeFuture: CompletableFuture[DataNode[ProjectData]] =
-      targetsRequest.thenCompose { targetsResponse =>
-        reporter.finishTask(targetsEventId, BspBundle.message("bsp.resolver.build.targets"), new SuccessResultImpl())
+      targetsRequest
+        .thenCompose { targetsResponse =>
+          reporter.finishTask(targetsEventId, BspBundle.message("bsp.resolver.build.targets"), new SuccessResultImpl())
 
-        val targets = targetsResponse.getTargets.asScala.toList
+          val targets = targetsResponse.getTargets.asScala.toList
 
-        val td = targetData(targets, structureEventId)
+          val td = targetData(targets, structureEventId)
 
-        td.thenApply[DataNode[ProjectData]] { data =>
-          val sources = data.sources.map(_.getItems.asScala).getOrElse {List.empty[SourcesItem]}
-          val depSources = data.dependencySources.map(_.getItems.asScala).getOrElse {List.empty[DependencySourcesItem]}
-          val resources = data.resources.map(_.getItems.asScala).getOrElse {List.empty[ResourcesItem]}
-          val scalacOptions = data.scalacOptions.map(_.getItems.asScala).getOrElse {List.empty[ScalacOptionsItem]}
+          td.thenApply[DataNode[ProjectData]] { data =>
+            val sources = data.sources.map(_.getItems.asScala).getOrElse {List.empty[SourcesItem]}
+            val depSources = data.dependencySources.map(_.getItems.asScala).getOrElse {List.empty[DependencySourcesItem]}
+            val resources = data.resources.map(_.getItems.asScala).getOrElse {List.empty[ResourcesItem]}
+            val scalacOptions = data.scalacOptions.map(_.getItems.asScala).getOrElse {List.empty[ScalacOptionsItem]}
 
-          val descriptions = calculateModuleDescriptions(
-            targets, scalacOptions, sources, resources, depSources
-          )
-          projectNode(workspace, descriptions)
-        }
-          .reportFinished(reporter, structureEventId,
+            val descriptions = calculateModuleDescriptions(
+              targets, scalacOptions, sources, resources, depSources
+            )
+            projectNode(workspace, descriptions)
+          }
+          .reportFinished(
+            reporter, structureEventId,
             BspBundle.message("bsp.resolver.build.structure"),
             BspBundle.message("bsp.resolver.resolving.build.structure.failed"))
       }
