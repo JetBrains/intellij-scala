@@ -7,6 +7,7 @@ import java.net.{URL, URLClassLoader}
 import com.intellij.execution.Location
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.roots.{OrderEntry, OrderEnumerator, OrderRootType}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
@@ -58,6 +59,8 @@ object ScalaTestAstTransformer {
     for (clazz <- classes) {
       clazz match {
         case td: ScTypeDefinition =>
+          ProgressManager.checkCanceled()
+
           val finderFqn: String = getFinderClassFqn(td, module, "org.scalatest.Style", "org.scalatest.Finders")
           if (finderFqn != null) try {
             val finderClass: Class[_] = Class.forName(finderFqn)

@@ -81,6 +81,8 @@ object ScalaTestTestLocationsFinder {
   ): TestLocations = {
 
     def inner(expressions: Seq[ScExpression]): Seq[ScReferenceExpression] = expressions.flatMap { expr =>
+      ProgressManager.checkCanceled()
+
       val (methodCall, target) = expr match {
         case call: ScMethodInvocation if infixStyle => (call, call.getInvokedExpr)
         case call: ScMethodCall                     => (call, call.deepestInvokedExpr)
