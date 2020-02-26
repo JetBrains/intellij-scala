@@ -18,7 +18,7 @@
           <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.sbt.runner.form.vmParameters"/>
+          <text resource-bundle="messages/ScalaBundle" key="test.run.config.sbt.runner.form.vmParameters"/>
         </properties>
       </component>
       <component id="c94e9" class="com.intellij.ui.RawCommandLineEditor" binding="VMParamsTextField">
@@ -32,7 +32,7 @@
           <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.test.options"/>
+          <text resource-bundle="messages/ScalaBundle" key="test.run.config.test.options"/>
         </properties>
       </component>
       <component id="251d8" class="com.intellij.ui.RawCommandLineEditor" binding="testOptionsTextField">
@@ -60,7 +60,7 @@
               <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.test.package"/>
+              <text resource-bundle="messages/ScalaBundle" key="test.run.config.test.package"/>
             </properties>
           </component>
           <component id="d591b" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="testClassTextField">
@@ -74,7 +74,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.test.class"/>
+              <text resource-bundle="messages/ScalaBundle" key="test.run.config.test.class"/>
             </properties>
           </component>
           <grid id="df9b7" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -90,7 +90,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.test.kind"/>
+                  <text resource-bundle="messages/ScalaBundle" key="test.run.config.test.kind"/>
                 </properties>
               </component>
               <hspacer id="e1e35">
@@ -121,7 +121,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.search.for.tests"/>
+                  <text resource-bundle="messages/ScalaBundle" key="test.run.config.search.for.tests"/>
                 </properties>
               </component>
               <hspacer id="ec23e">
@@ -142,7 +142,7 @@
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.test.name"/>
+              <text resource-bundle="messages/ScalaBundle" key="test.run.config.test.name"/>
             </properties>
           </component>
           <scrollpane id="dc82a" binding="testNameScrollPane">
@@ -165,7 +165,7 @@
               <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.regular.expressions"/>
+              <text resource-bundle="messages/ScalaBundle" key="test.run.config.regular.expressions"/>
             </properties>
           </component>
           <grid id="26710" binding="regexpPanel" custom-create="true" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -184,7 +184,7 @@
           <grid row="9" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.use.classpath.of.module"/>
+          <text resource-bundle="messages/ScalaBundle" key="test.run.config.use.classpath.of.module"/>
         </properties>
       </component>
       <component id="e300" class="com.intellij.application.options.ModulesComboBox" binding="moduleComboBox">
@@ -198,7 +198,7 @@
           <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.working.directory"/>
+          <text resource-bundle="messages/ScalaBundle" key="test.run.config.working.directory"/>
         </properties>
       </component>
       <component id="73423" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="workingDirectoryField">
@@ -212,7 +212,7 @@
           <grid row="12" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.print.information.messages.to.console"/>
+          <text resource-bundle="messages/ScalaBundle" key="test.run.config.print.information.messages.to.console"/>
         </properties>
       </component>
       <component id="2bd70" class="com.intellij.execution.configuration.EnvironmentVariablesComponent" binding="environmentVariables">
@@ -226,7 +226,7 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.use.sbt"/>
+          <text resource-bundle="messages/ScalaBundle" key="test.run.config.use.sbt"/>
         </properties>
       </component>
       <component id="b8eea" class="javax.swing.JCheckBox" binding="useUiWithSbt">
@@ -234,7 +234,7 @@
           <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="test.run.config.use.ui.with.sbt"/>
+          <text resource-bundle="messages/ScalaBundle" key="test.run.config.use.ui.with.sbt"/>
         </properties>
       </component>
       <component id="2d034" class="com.intellij.execution.ui.JrePathEditor" binding="jreSelector">
