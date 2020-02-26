@@ -97,7 +97,6 @@
         <programRunner implementation="org.jetbrains.sbt.runner.SbtDebugProgramRunner" order="first"/>
 
         <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunner"/>
-        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectListener"/>
 
         <runAnything.executionProvider implementation="org.jetbrains.sbt.SbtRunAnythingProvider"/>
 
