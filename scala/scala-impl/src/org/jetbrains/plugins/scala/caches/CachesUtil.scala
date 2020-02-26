@@ -145,9 +145,15 @@ object CachesUtil {
   //Tuple2 class doesn't have half-specialized variants, so (T, Long) almost always have boxed long inside
   case class Timestamped[@specialized(Boolean, Int, AnyRef) T](data: T, modCount: Long)
 
-  def fileModCount(file: PsiFile): Long =  {
-    val topLevel = scalaTopLevelModTracker(file.getProject).getModificationCount
-    topLevel + file.getModificationStamp
+  def fileModCount(file: PsiFile): Long = fileModTracker(file).getModificationCount
+
+  def fileModTracker(file: PsiFile): ModificationTracker = {
+    if (file == null) ModificationTracker.NEVER_CHANGED
+    else new ModificationTracker {
+      private val topLevel = scalaTopLevelModTracker(file.getProject)
+
+      override def getModificationCount: Long = topLevel.getModificationCount + file.getModificationStamp
+    }
   }
 
   def scalaTopLevelModTracker(project: Project): ModificationTracker =

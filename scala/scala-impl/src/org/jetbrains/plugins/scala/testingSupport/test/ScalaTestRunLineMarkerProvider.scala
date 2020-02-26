@@ -1,38 +1,27 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
-import java.util.concurrent.TimeUnit
-
 import com.intellij.codeInsight.TestFrameworks
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.execution.TestStateStorage
 import com.intellij.execution.lineMarker.{ExecutorAction, RunLineMarkerContributor}
 import com.intellij.execution.testframework.TestIconMapper
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import com.intellij.icons.AllIcons.RunConfigurations.TestState
-import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.TestRunLineMarkerProvider
-import com.intellij.util.Function
 import javax.swing.Icon
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.{inReadAction, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestRunLineMarkerProvider._
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestLocationsFinder.TestLocations
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestTestFramework, ScalaTestTestLocationsFinder}
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework
-
-import scala.annotation.tailrec
 
 class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
 
@@ -106,29 +95,8 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
       case _ => return None
     }
 
-    /*
-     * - if a single file contains several test classes then recalculation will re-run on sibling classes modifications
-     * cause `fileModCount` is used to track changes
-     * - if test locations calculation is in process then no other/parallel calculation for the same class will be run
-     * - if the class was modified during calculation then after calculation is finished CodeAnalyzer will restart
-     * highlighting pass and calculation will be restarted because modification count will be increased
-     * - there is no way to cancel the started calculation right now
-     */
-    val calculationState = definition.getUserData(TestPositionsCalculationStateKey)
-    val testLocations: Option[TestLocations] = calculationState match {
-      case null =>
-        calculateTestLocationsInBackgroundAndRestart(definition, None)
-        None
-      case Calculating(prevResult) =>
-        prevResult
-      case Calculated(result, modCountCached, timestamp)  =>
-        val modCountCurrent = CachesUtil.fileModCount(definition.getContainingFile)
-        if (modCountCached != modCountCurrent) {
-          //println(s"### recalculating test locations ($modCountCached -> $modCountCurrent) !")
-          calculateTestLocationsInBackgroundAndRestart(definition, result, timestamp)
-        }
-        result
-    }
+    val testLocations: Option[TestLocations] =
+      ScalaTestTestLocationsFinder.calculateTestLocations(definition)
 
     testLocations match {
       case Some(locations) if locations.contains(parent) =>
@@ -137,62 +105,6 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
         None
     }
   }
-
-  private def calculateTestLocationsInBackgroundAndRestart(
-    definition: ScTypeDefinition,
-    prevResult: Option[Seq[PsiElement]],
-    prevResultsTimestamp: Long = 0L
-  ): Unit = {
-    val project = definition.getProject
-    definition.putUserData(TestPositionsCalculationStateKey, Calculating(prevResult))
-
-    debounce(prevResultsTimestamp, Math.max(0, TestPositionsCalculationDebounceMs)) {
-      DumbService.getInstance(project).runWhenSmart { () =>
-        executeOnPooledThread {
-          inReadAction {
-            if (definition.isValid) {
-              doCalculateTestLocationsAndRestart(definition)
-            }
-          }
-        }
-      }
-    }
-  }
-
-  private def debounce(prevResultsTimestamp: Long, debounceTime: Long)(body: => Unit): Unit = {
-    val currentTime             = System.currentTimeMillis()
-    val timePassed              = currentTime - prevResultsTimestamp
-    val timeUntilNextInvocation = Math.max(debounceTime - timePassed, 0)
-    if (timeUntilNextInvocation > 0) {
-      //println(s"### debounced $timeUntilNextInvocation")
-      scheduleOnPooledThread(timeUntilNextInvocation, TimeUnit.MILLISECONDS)(body)
-    } else {
-      body
-    }
-  }
-
-  private def doCalculateTestLocationsAndRestart(definition: ScTypeDefinition): Unit = try {
-    val file = definition.getContainingFile
-    val fileModCount = CachesUtil.fileModCount(file)
-    val testLocations: Option[Seq[PsiElement]] =
-      for {
-        module    <- definition.module
-        locations <- ScalaTestTestLocationsFinder.calculateTestLocations(definition, module)
-      } yield locations
-
-    definition.putUserData(TestPositionsCalculationStateKey, Calculated(testLocations, fileModCount, System.currentTimeMillis()))
-
-    val project = definition.getProject
-    if (file != null && !project.isDisposed) {
-      // TODO: can we restart only a single highlighting pass (LineMarkersPass or even only TestRunLineMarkerProvider)?
-      DaemonCodeAnalyzer.getInstance(project).restart(file)
-    }
-  } catch {
-    case ex: Throwable =>
-      definition.putUserData(TestPositionsCalculationStateKey, null)
-      throw ex
-  }
-
 
   private def scalaTestLineInfo(element: PsiElement, definition: ScTypeDefinition, testName: String): RunLineMarkerContributor.Info = {
     val url = scalaTestLineUrl(element, definition, testName)
@@ -235,32 +147,6 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
       case ERROR_INDEX | FAILED_INDEX    => TestState.Red2
       case PASSED_INDEX | COMPLETE_INDEX => TestState.Green2
       case _                             => defaultIcon
-    }
-  }
-}
-
-private object ScalaTestRunLineMarkerProvider {
-
-  private val TestPositionsCalculationStateKey = new Key[TestLocationsCalculationState]("TestPositionsCalculationState")
-  private val TestPositionsCalculationDebounceMs: Long = 2000L
-
-  private sealed trait TestLocationsCalculationState
-  // prev results is saved just to show at least old gutters if test locations are being recalculated
-  private case class Calculating(prevResult: Option[TestLocations]) extends TestLocationsCalculationState
-  private case class Calculated(result: Option[TestLocations], classModCount: Long, timestamp: Long) extends TestLocationsCalculationState
-
-  implicit final class PsiElementExt2(private val element: PsiElement) extends AnyVal {
-
-    @tailrec
-    @Nullable
-    def getParentN(depth: Int): PsiElement = {
-      require(depth >= 0)
-      if (depth == 0) element else {
-        val parent = element.getParent
-        if (parent == null) null
-        else if (depth == 1) parent
-        else parent.getParentN(depth - 1)
-      }
     }
   }
 }
