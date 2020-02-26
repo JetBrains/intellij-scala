@@ -119,12 +119,12 @@ object WorksheetEditorPrinterFactory {
     override def isSyncScrollEnabled: Boolean = true
   }
 
-  def saveWorksheetEvaluation(file: ScalaFile, result: String, ratio: Float = DEFAULT_WORKSHEET_VIEWERS_RATIO): Unit = {
+  def saveWorksheetEvaluation(file: ScalaFile, result: String, ratio: Float): Unit = {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, result)
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
   }
 
-  def saveOnlyRatio(file: ScalaFile, ratio: Float = DEFAULT_WORKSHEET_VIEWERS_RATIO): Unit =
+  def saveOnlyRatio(file: ScalaFile, ratio: Float): Unit =
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
 
   def loadWorksheetEvaluation(file: ScalaFile): Option[(String, Float)] = {

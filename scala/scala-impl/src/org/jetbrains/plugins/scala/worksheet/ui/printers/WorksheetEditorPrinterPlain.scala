@@ -17,8 +17,11 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterP
 
 import scala.collection.mutable.ArrayBuffer
 
-final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer: Editor, file: ScalaFile)
-  extends WorksheetEditorPrinterBase(editor, viewer) {
+final class WorksheetEditorPrinterPlain private[printers](
+  editor: Editor,
+  viewer: Editor,
+  file: ScalaFile
+) extends WorksheetEditorPrinterBase(editor, viewer) {
 
   // used to flush collected output if there is some long process generating running
   private val flushTimer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, _ => midFlush())
@@ -97,6 +100,10 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
 
     invokeLater {
       worksheetViewer.getMarkupModel.removeAllHighlighters()
+
+      inWriteAction {
+        saveEvaluationResult(viewerDocument.getText)
+      }
     }
   }
 
