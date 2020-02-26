@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaE
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent.{BundleInfo, BundleUsageInfo, Entry}
 
+//noinspection ScalaExtractStringToBundle
 class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection {
 
   override protected def problemDescriptor(element: PsiElement,
@@ -54,6 +55,7 @@ class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection 
   }
 }
 
+//noinspection ScalaExtractStringToBundle
 object ScalaExtractStringToBundleInspection {
   private def containsNaturalLangString(element: PsiElement, parts: Seq[StringPart]): Boolean =
     parts.exists {

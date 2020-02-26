@@ -8,6 +8,7 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
@@ -34,9 +35,9 @@ final class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAct
     }
   }
 
-  override def getFamilyName: String = "Add .stripMargin"
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.add.stripmargin")
 
-  override def getText: String = "Add 'stripMargin'"
+  override def getText: String = ScalaCodeInsightBundle.message("add.stripmargin")
 
   private def getMarginChar(project: Project): String =
     CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings]).MULTILINE_STRING_MARGIN_CHAR

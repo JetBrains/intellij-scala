@@ -54,6 +54,7 @@ object ReferencePassedToNlsInspection {
   }
 
 
+  //noinspection ScalaExtractStringToBundle
   private class AnnotateWithNls(_element: ScAnnotationsHolder)
     extends AbstractFixOnPsiElement("Annotate with @Nls", _element) {
 

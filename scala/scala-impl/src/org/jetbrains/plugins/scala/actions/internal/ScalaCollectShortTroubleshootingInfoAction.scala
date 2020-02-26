@@ -13,9 +13,10 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.text.DateFormatUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 
 class ScalaCollectShortTroubleshootingInfoAction
-  extends AnAction("(Scala) Collect Troubleshooting Information Short") {
+  extends AnAction(ScalaBundle.message("action.scala.collect.troubleshooting.information.short")) {
 
   private val Unknown = "unknown"
 
@@ -63,7 +64,7 @@ class ScalaCollectShortTroubleshootingInfoAction
     val component = WindowManager.getInstance.getFrame(project).getRootPane
     if (component == null) return
 
-    val message = s"Short troubleshooting summary coped to your clipboard\n$summary"
+    val message = ScalaBundle.message("short.troubleshooting.summary.copied.to.your.clipboard.with.summary", summary)
     JBPopupFactory.getInstance
       .createHtmlTextBalloonBuilder(message, MessageType.INFO, null).createBalloon()
       .show(RelativePoint.getNorthEastOf(component), Balloon.Position.atLeft)

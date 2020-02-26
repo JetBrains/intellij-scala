@@ -27,16 +27,6 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
         extends IntentionAction {
   private implicit val ctx: ProjectContext = td.projectContext
 
-  override val getText: String = {
-    val classKind = td match {
-      case _: ScObject => "object"
-      case _: ScTrait => "trait"
-      case _: ScClass => "class"
-      case _ => ""
-    }
-    s"$getFamilyName in $classKind ${td.name}"
-  }
-
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!td.isValid) return false
     td.getContainingFile match {

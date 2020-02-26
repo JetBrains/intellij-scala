@@ -7,6 +7,7 @@ import com.intellij.lang.ExpressionTypeProvider
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.ui.ColorUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
@@ -22,7 +23,7 @@ class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
 
   import ScalaExpressionTypeProvider._
 
-  override def getErrorHint: String = "No expression found"
+  override def getErrorHint: String = ScalaBundle.message("no.expression.found")
 
   override def getExpressionsAt(elementAt: PsiElement): ju.List[PsiElement] = {
     @scala.annotation.tailrec

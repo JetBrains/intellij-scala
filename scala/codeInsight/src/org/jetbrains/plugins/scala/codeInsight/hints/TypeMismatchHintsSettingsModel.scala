@@ -12,6 +12,7 @@ import com.intellij.ui.components.labels.LinkLabel
 import javax.swing.{JComponent, JLabel, JPanel}
 import org.jetbrains.plugins.scala.DesktopUtils
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(true, "Scala.TypeMismatchHintsSettingsModel") {
@@ -36,7 +37,7 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
 
   override val getComponent: JComponent = {
     val linePanel = {
-      val link = new LinkLabel[Any]("more info", null)
+      val link = new LinkLabel[Any](ScalaCodeInsightBundle.message("link.label.more.info"), null)
       val url = "https://blog.jetbrains.com/scala/2019/07/02/functional-highlighting-for-functional-programming/"
       link.setToolTipText(url)
       link.setListener((_, _) => DesktopUtils.browse(url), null)
@@ -46,7 +47,7 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
         layout.setAlignment(FlowLayout.LEFT)
         new JPanel(layout)
       }
-      linePanel.add(new JLabel("(instead of underlining the code, "))
+      linePanel.add(new JLabel(s"(${ScalaCodeInsightBundle.message("instead.of.underlining.the.code")}, "))
       linePanel.add(link)
       linePanel.add(new JLabel(")"))
       linePanel
@@ -57,9 +58,9 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
     panel
   }
 
-  override def getMainCheckBoxLabel: String = "Show type mismatch hints"
+  override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("show.type.mismatch.hints")
 
-  override def getName: String = "Type mismatch hints"
+  override def getName: String = ScalaCodeInsightBundle.message("type.mismatch.hints")
 
   override def getPreviewText: String = null
 

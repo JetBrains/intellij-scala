@@ -65,17 +65,17 @@ class RenameJavaToScalaAction extends AnAction {
         case jFile: PsiJavaFile if jFile.isInScalaModule =>
           val dir = jFile.getContainingDirectory
           if (dir.isWritable) {
-            executeWriteActionCommand("Convert to Scala") {
+            executeWriteActionCommand(ScalaConversionBundle.message("convert.to.scala")) {
               val directory = jFile.getContainingDirectory
               val name = jFile.getName.substring(0, jFile.getName.length - 5)
               val nameWithExtension: String = name + ".scala"
               val existingFile: VirtualFile = directory.getVirtualFile.findChild(nameWithExtension)
               if (existingFile != null) {
-                NotificationUtil.builder(directory.getProject, s"File $nameWithExtension already exists").
+                NotificationUtil.builder(directory.getProject, ScalaConversionBundle.message("file.already.exists", nameWithExtension)).
                   setDisplayType(NotificationDisplayType.BALLOON).
                   setNotificationType(NotificationType.ERROR).
                   setGroup("rename.java.to.scala").
-                  setTitle("Cannot create file").
+                  setTitle(ScalaConversionBundle.message("cannot.create.file")).
                   show()
                 return
               }

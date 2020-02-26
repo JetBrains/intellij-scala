@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala
 import java.awt.datatransfer.StringSelection
 import java.awt.{Desktop, Toolkit}
 import java.net.{URI, URL}
-import javax.swing.event.HyperlinkEvent
 
+import javax.swing.event.HyperlinkEvent
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import org.intellij.lang.annotations.Language
 
@@ -13,16 +13,6 @@ import org.intellij.lang.annotations.Language
  */
 
 object DesktopUtils {
-  @Language("HTML")
-  private val MessageFormat = """
-  <html>
-  <body>
-  Unable to launch web browser, please manually open:<br>
-  %1$s (<a href="%1$s">copy to clipboard</a>)>
-  </body>
-  </html>
-  """
-
   def browse(url: URL): Unit = {
     browse(url.toExternalForm)
   }
@@ -33,8 +23,8 @@ object DesktopUtils {
     if(supported)
       Desktop.getDesktop.browse(new URI(url))
     else
-      Notifications.Bus.notify(new Notification("scala", "Problem opening web page",
-        MessageFormat.format(url), NotificationType.WARNING, Listener))
+      Notifications.Bus.notify(new Notification("scala", ScalaBundle.message("title.problem.opening.web.page"),
+        ScalaBundle.message("html.unable.to.launch.web.browser", url), NotificationType.WARNING, Listener))
   }
 
    private object Listener extends NotificationListener.Adapter {

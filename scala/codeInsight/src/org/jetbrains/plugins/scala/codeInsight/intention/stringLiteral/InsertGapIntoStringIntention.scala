@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 
 /**
   * User: Dmitry Naydanov
@@ -29,9 +30,9 @@ final class InsertGapIntoStringIntention extends PsiElementBaseIntentionAction {
       }
     }
 
-  override def getFamilyName: String = "Insert gap"
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.insert.gap")
 
-  override def getText: String = "Insert gap with concatenation: (\" +  + \")"
+  override def getText: String = ScalaCodeInsightBundle.message("insert.gap.with.concatenation")
 }
 
 object InsertGapIntoStringIntention {

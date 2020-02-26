@@ -17,6 +17,7 @@ import com.intellij.util.Alarm
 import javax.swing._
 import javax.swing.border.Border
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -32,7 +33,7 @@ import scala.collection.mutable
   * User: Alexander Podkhalyuzin
   * Date: 02.06.2010
   */
-final class ShowImplicitConversionsAction extends AnAction("Show implicit conversions") {
+final class ShowImplicitConversionsAction extends AnAction(ScalaBundle.message("action.show.implicit.conversions")) {
 
   import MakeExplicitAction._
 
@@ -158,7 +159,7 @@ final class ShowImplicitConversionsAction extends AnAction("Show implicit conver
         chooseExpression(expressions(0))
       } else {
         ScalaRefactoringUtil.showChooser(editor, expressions, (elem: ScExpression)=>
-          chooseExpression(elem), "Expressions", (expr: ScExpression) => {
+          chooseExpression(elem), ScalaBundle.message("title.expressions"), (expr: ScExpression) => {
           ScalaRefactoringUtil.getShortText(expr)
         })
       }

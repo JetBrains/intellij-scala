@@ -39,7 +39,7 @@ final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementB
     val offset = editor.getCaretModel.getOffset
     if (range.getStartOffset > offset || range.getEndOffset < offset) return false
 
-    setText(s"Replace '$oper' with '${replaceOper(oper)}'")
+    setText(ScalaCodeInsightBundle.message("replace.operator.with.replacement", oper, replaceOper(oper)))
 
     invokedExpression.isQualified
   }

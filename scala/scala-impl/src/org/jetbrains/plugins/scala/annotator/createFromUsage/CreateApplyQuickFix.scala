@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.codeInsight.template.TemplateBuilder
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
@@ -14,7 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
  */
 
 class CreateApplyQuickFix(td: ScTypeDefinition, call: ScMethodCall)
-        extends {override val getFamilyName = "Create 'apply' method"} with CreateApplyOrUnapplyQuickFix(td) {
+  extends CreateApplyOrUnapplyQuickFix(td) {
+
+  override def getFamilyName: String = ScalaBundle.message("family.name.create.apply.method")
+
+  override def getText: String = ScalaBundle.message("create.apply.method.in", td.shortDefinition)
 
   override val methodType: Option[String] = call.expectedType().map(_.canonicalText)
 

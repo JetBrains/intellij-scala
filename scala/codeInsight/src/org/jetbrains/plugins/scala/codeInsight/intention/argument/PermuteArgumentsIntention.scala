@@ -8,7 +8,10 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression}
+
+import scala.annotation.tailrec
 
 /**
   * Jason Zaugg
@@ -25,9 +28,9 @@ final class PermuteArgumentsIntention extends PsiElementBaseIntentionAction {
     check(project, editor, element).foreach(_.apply())
   }
 
-  override def getFamilyName = "Permute arguments"
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.permute.arguments")
 
-  override def getText = "Permute arguments to match the parameter declaration order"
+  override def getText: String = ScalaCodeInsightBundle.message("permute.arguments.to.match.the.parameter.declaration.order")
 }
 
 object PermuteArgumentsIntention {
@@ -53,6 +56,7 @@ object PermuteArgumentsIntention {
     })
   }
 
+  @tailrec
   private[this] def argOrNamedArg(expr: ScExpression): Option[ScExpression] = expr.getContext match {
     case argList: ScArgumentExprList => Some(expr)
     case context: ScExpression => argOrNamedArg(context)
