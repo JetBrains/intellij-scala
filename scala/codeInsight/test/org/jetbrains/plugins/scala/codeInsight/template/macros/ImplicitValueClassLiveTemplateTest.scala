@@ -40,7 +40,7 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
     doTest(before, after, parameters)
   }
 
-  def test_it_should_add_generic_type_params_to_type_arts_of_implicit_class(): Unit = {
+  def test_it_should_add_generic_type_params_to_type_args_of_implicit_class(): Unit = {
     val before     =
       s"""class Example[A, B, C]
          |object Example {
@@ -58,14 +58,14 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
     doTest(before, after, parameters)
   }
 
-  def should_be_applicable_in_object(): Unit = assertIsApplicable {
+  def test_should_be_applicable_in_object(): Unit = assertIsApplicable {
     s"""object A1 {
        |  $CARET
        |}
        |""".stripMargin
   }
 
-  def should_be_applicable_in_nested_object(): Unit = assertIsApplicable {
+  def test_should_be_applicable_in_nested_object(): Unit = assertIsApplicable {
     s"""object O1 {
        |  object O2 {
        |    object O3 {
@@ -76,14 +76,14 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
        |""".stripMargin
   }
 
-  def should_be_applicable_in_package_object(): Unit = assertIsApplicable {
+  def test_should_be_applicable_in_package_object(): Unit = assertIsApplicable {
     s"""package object PO {
        |  $CARET
        |}
        |""".stripMargin
   }
 
-  def should_be_applicable_in_nested_object_in_package_object(): Unit = assertIsApplicable {
+  def test_should_be_applicable_in_nested_object_in_package_object(): Unit = assertIsApplicable {
     s"""package object PO {
        |  object O1 {
        |    object O2 {
@@ -150,10 +150,42 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
     val after = expectedResult("AnyOps", "value", "Any")
     doTest(before, after)
   }
+
+  def test_should_be_applicable_with_package_statements(): Unit = assertIsApplicable {
+    s"""package a
+       |package b
+       |
+       |object A1 {
+       |  $CARET
+       |}
+       |""".stripMargin
+  }
+
+  def test_should_be_applicable_with_import_statements(): Unit = assertIsApplicable {
+    s"""import a.b.c._
+       |import q.w.e._
+       |
+       |object A1 {
+       |  $CARET
+       |}
+       |""".stripMargin
+  }
+
+  def test_should_be_applicable_with_package_and_import_statements(): Unit = assertIsApplicable {
+    s"""package a
+       |package b
+       |
+       |import a.b.c._
+       |import q.w.e._
+       |
+       |object A1 {
+       |  $CARET
+       |}
+       |""".stripMargin
+  }
 }
 
 object ImplicitValueClassLiveTemplateTest {
-
   implicit class StringExt(private val str: String) extends AnyVal {
     def indented(spaces: Int): String = str.replace("\n", "\n" + " " * spaces)
   }
