@@ -6,7 +6,7 @@ import java.net.URL
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project}
@@ -17,6 +17,7 @@ import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
+import org.jetbrains.plugins.scala.compiler.PluginJars
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
@@ -377,6 +378,6 @@ package object project {
         case e: IllegalArgumentException => throw new ExecutionException(e.getMessage.replace("SDK", "facet"))
       }
 
-    def addRunners(): Unit = list.add(util.ScalaUtil.runnersPath())
+    def addRunners(): Unit = list.add(PluginJars.runnersJar)
   }
 }
