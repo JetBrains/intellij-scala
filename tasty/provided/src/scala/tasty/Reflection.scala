@@ -142,15 +142,8 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   object TreeOps {
     def pos(self: Tree)(implicit ctx: Context): Position = ???
     def symbol(self: Tree)(implicit ctx: Context): Symbol = ???
-    def showExtractors(tree: Tree)(implicit ctx: Context): String = ???
-    def show(tree: Tree)(implicit ctx: Context): String = ???
-    def showWith(tree: Tree, syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
   }
   implicit def given_IsInstanceOf_PackageClause(implicit v: Context): IsInstanceOf[PackageClause] = ???
-  object IsPackageClause {
-    @deprecated("Use _: PackageClause", "")
-    def unapply(x: PackageClause): Some[PackageClause] = ???
-  }
   object PackageClause {
     def apply(pid: Ref, stats: List[Tree])(implicit ctx: Context): PackageClause = ???
     def copy(original: Tree)(pid: Ref, stats: List[Tree])(implicit ctx: Context): PackageClause = ???
@@ -161,10 +154,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def stats(self: PackageClause)(implicit ctx: Context): List[Tree] = ???
   }
   implicit def given_IsInstanceOf_Import(implicit v: Context): IsInstanceOf[Import] = ???
-  object IsImport {
-    @deprecated("Use _: Import", "")
-    def unapply(x: Import): Some[Import] = ???
-  }
   object Import {
     def apply(expr: Term, selectors: List[ImportSelector])(implicit ctx: Context): Import = ???
     def copy(original: Tree)(expr: Term, selectors: List[ImportSelector])(implicit ctx: Context): Import = ???
@@ -175,23 +164,11 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def selectors(self: Import)(implicit ctx: Context): List[ImportSelector] = ???
   }
   implicit def given_IsInstanceOf_Statement(implicit v: Context): IsInstanceOf[Statement] = ???
-  object IsStatement {
-    @deprecated("Use _: Statement", "")
-    def unapply(x: Statement): Option[Statement] = ???
-  }
   implicit def given_IsInstanceOf_Definition(implicit v: Context): IsInstanceOf[Definition] = ???
-  object IsDefinition {
-    @deprecated("Use _: Definition", "")
-    def unapply(x: Definition): Option[Definition] = ???
-  }
   object DefinitionOps {
     def name(self: Definition)(implicit ctx: Context): String = ???
   }
   implicit def given_IsInstanceOf_ClassDef(implicit v: Context): IsInstanceOf[ClassDef] = ???
-  object IsClassDef {
-    @deprecated("Use _: ClassDef", "")
-    def unapply(x: ClassDef): Some[ClassDef] = ???
-  }
   object ClassDef {
     def copy(original: Tree)(name: String, constr: DefDef, parents: List[Tree ], derived: List[TypeTree], selfOpt: Option[ValDef], body: List[Statement])(implicit ctx: Context): ClassDef = ???
     def unapply(cdef: ClassDef)(implicit ctx: Context): Option[(String, DefDef, List[Tree ], List[TypeTree], Option[ValDef], List[Statement])] = ???
@@ -204,10 +181,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def body(self: ClassDef)(implicit ctx: Context): List[Statement] = ???
   }
   implicit def given_IsInstanceOf_DefDef(implicit v: Context): IsInstanceOf[DefDef] = ???
-  object IsDefDef {
-    @deprecated("Use _: DefDef", "")
-    def unapply(x: DefDef): Some[DefDef] = ???
-  }
   object DefDef {
     def apply(symbol: Symbol, rhsFn: List[Type] => List[List[Term]] => Option[Term])(implicit ctx: Context): DefDef = ???
     def copy(original: Tree)(name: String, typeParams: List[TypeDef], paramss: List[List[ValDef]], tpt: TypeTree, rhs: Option[Term])(implicit ctx: Context): DefDef = ???
@@ -220,10 +193,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def rhs(self: DefDef)(implicit ctx: Context): Option[Term] = ???
   }
   implicit def given_IsInstanceOf_ValDef(implicit v: Context): IsInstanceOf[ValDef] = ???
-  object IsValDef {
-    @deprecated("Use _: ValDef", "")
-    def unapply(x: ValDef): Some[ValDef] = ???
-  }
   object ValDef {
     def apply(symbol: Symbol, rhs: Option[Term])(implicit ctx: Context): ValDef = ???
     def copy(original: Tree)(name: String, tpt: TypeTree, rhs: Option[Term])(implicit ctx: Context): ValDef = ???
@@ -234,10 +203,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def rhs(self: ValDef)(implicit ctx: Context): Option[Term] = ???
   }
   implicit def given_IsInstanceOf_TypeDef(implicit v: Context): IsInstanceOf[TypeDef] = ???
-  object IsTypeDef {
-    @deprecated("Use _: TypeDef", "")
-    def unapply(x: TypeDef): Some[TypeDef] = ???
-  }
   object TypeDef {
     def apply(symbol: Symbol)(implicit ctx: Context): TypeDef = ???
     def copy(original: Tree)(name: String, rhs: Tree )(implicit ctx: Context): TypeDef = ???
@@ -250,10 +215,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   object PackageDefOps {
     def owner(self: PackageDef)(implicit ctx: Context): PackageDef = ???
     def members(self: PackageDef)(implicit ctx: Context): List[Statement] = ???
-  }
-  object IsPackageDef {
-    @deprecated("Use _: PackageDef", "")
-    def unapply(x: PackageDef): Some[PackageDef] = ???
   }
   object PackageDef {
     def unapply(tree: PackageDef)(implicit ctx: Context): Option[(String, PackageDef)] = ???
@@ -274,15 +235,7 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def select(self: Term)(sym: Symbol)(implicit ctx: Context): Select = ???
   }
   implicit def given_IsInstanceOf_Term(implicit v: Context): IsInstanceOf[Term] = ???
-  object IsTerm {
-    @deprecated("Use _: Term", "")
-    def unapply(x: Term): Some[Term] = ???
-  }
   implicit def given_IsInstanceOf_Ref(implicit v: Context): IsInstanceOf[Ref] = ???
-  object IsRef {
-    @deprecated("Use _: Ref", "")
-    def unapply(x: Ref): Some[Ref] = ???
-  }
   object Ref {
     def apply(sym: Symbol)(implicit ctx: Context): Ref = ???
   }
@@ -290,20 +243,12 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   object IdentOps {
     def name(self: Ident)(implicit ctx: Context): String = ???
   }
-  object IsIdent {
-    @deprecated("Use _: Ident", "")
-    def unapply(x: Ident): Some[Ident] = ???
-  }
   object Ident {
     def apply(tmref: TermRef)(implicit ctx: Context): Term = ???
     def copy(original: Tree)(name: String)(implicit ctx: Context): Ident = ???
     def unapply(tree: Ident)(implicit ctx: Context): Option[String] = ???
   }
   implicit def given_IsInstanceOf_Select(implicit v: Context): IsInstanceOf[Select] = ???
-  object IsSelect {
-    @deprecated("Use _: Select", "")
-    def unapply(x: Select): Some[Select] = ???
-  }
   object Select {
     def apply(qualifier: Term, symbol: Symbol)(implicit ctx: Context): Select = ???
     def unique(qualifier: Term, name: String)(implicit ctx: Context): Select = ???
@@ -317,10 +262,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def signature(self: Select)(implicit ctx: Context): Option[Signature] = ???
   }
   implicit def given_IsInstanceOf_Literal(implicit v: Context): IsInstanceOf[Literal] = ???
-  object IsLiteral {
-    @deprecated("Use _: Literal", "")
-    def unapply(x: Literal): Some[Literal] = ???
-  }
   object Literal {
     def apply(constant: Constant)(implicit ctx: Context): Literal = ???
     def copy(original: Tree)(constant: Constant)(implicit ctx: Context): Literal = ???
@@ -330,10 +271,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def constant(self: Literal)(implicit ctx: Context): Constant = ???
   }
   implicit def given_IsInstanceOf_This(implicit v: Context): IsInstanceOf[This] = ???
-  object IsThis {
-    @deprecated("Use _: This", "")
-    def unapply(x: This): Some[This] = ???
-  }
   object This {
     def apply(cls: Symbol)(implicit ctx: Context): This = ???
     def copy(original: Tree)(qual: Option[Id])(implicit ctx: Context): This = ???
@@ -343,10 +280,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def id(self: This)(implicit ctx: Context): Option[Id] = ???
   }
   implicit def given_IsInstanceOf_New(implicit v: Context): IsInstanceOf[New] = ???
-  object IsNew {
-    @deprecated("Use _: New", "")
-    def unapply(x: New): Some[New] = ???
-  }
   object New {
     def apply(tpt: TypeTree)(implicit ctx: Context): New = ???
     def copy(original: Tree)(tpt: TypeTree)(implicit ctx: Context): New = ???
@@ -356,10 +289,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def tpt(self: New)(implicit ctx: Context): TypeTree = ???
   }
   implicit def given_IsInstanceOf_NamedArg(implicit v: Context): IsInstanceOf[NamedArg] = ???
-  object IsNamedArg {
-    @deprecated("Use _: NamedArg", "")
-    def unapply(x: NamedArg): Some[NamedArg] = ???
-  }
   object NamedArg {
     def apply(name: String, arg: Term)(implicit ctx: Context): NamedArg = ???
     def copy(original: Tree)(name: String, arg: Term)(implicit ctx: Context): NamedArg = ???
@@ -370,10 +299,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def value(self: NamedArg)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_Apply(implicit v: Context): IsInstanceOf[Apply] = ???
-  object IsApply {
-    @deprecated("Use _: Apply", "")
-    def unapply(x: Apply): Some[Apply] = ???
-  }
   object Apply {
     def apply(fun: Term, args: List[Term])(implicit ctx: Context): Apply = ???
     def copy(original: Tree)(fun: Term, args: List[Term])(implicit ctx: Context): Apply = ???
@@ -384,10 +309,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def args(self: Apply)(implicit ctx: Context): List[Term] = ???
   }
   implicit def given_IsInstanceOf_TypeApply(implicit v: Context): IsInstanceOf[TypeApply] = ???
-  object IsTypeApply {
-    @deprecated("Use _: TypeApply", "")
-    def unapply(x: TypeApply): Some[TypeApply] = ???
-  }
   object TypeApply {
     def apply(fun: Term, args: List[TypeTree])(implicit ctx: Context): TypeApply = ???
     def copy(original: Tree)(fun: Term, args: List[TypeTree])(implicit ctx: Context): TypeApply = ???
@@ -398,10 +319,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def args(self: TypeApply)(implicit ctx: Context): List[TypeTree] = ???
   }
   implicit def given_IsInstanceOf_Super(implicit v: Context): IsInstanceOf[Super] = ???
-  object IsSuper {
-    @deprecated("Use _: Super", "")
-    def unapply(x: Super): Some[Super] = ???
-  }
   object Super {
     def apply(qual: Term, mix: Option[Id])(implicit ctx: Context): Super = ???
     def copy(original: Tree)(qual: Term, mix: Option[Id])(implicit ctx: Context): Super = ???
@@ -412,10 +329,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def id(self: Super)(implicit ctx: Context): Option[Id] = ???
   }
   implicit def given_IsInstanceOf_Typed(implicit v: Context): IsInstanceOf[Typed] = ???
-  object IsTyped {
-    @deprecated("Use _: Typed", "")
-    def unapply(x: Typed): Some[Typed] = ???
-  }
   object Typed {
     def apply(expr: Term, tpt: TypeTree)(implicit ctx: Context): Typed = ???
     def copy(original: Tree)(expr: Term, tpt: TypeTree)(implicit ctx: Context): Typed = ???
@@ -426,10 +339,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def tpt(self: Typed)(implicit ctx: Context): TypeTree = ???
   }
   implicit def given_IsInstanceOf_Assign(implicit v: Context): IsInstanceOf[Assign] = ???
-  object IsAssign {
-    @deprecated("Use _: Assign", "")
-    def unapply(x: Assign): Some[Assign] = ???
-  }
   object Assign {
     def apply(lhs: Term, rhs: Term)(implicit ctx: Context): Assign = ???
     def copy(original: Tree)(lhs: Term, rhs: Term)(implicit ctx: Context): Assign = ???
@@ -440,10 +349,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def rhs(self: Assign)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_Block(implicit v: Context): IsInstanceOf[Block] = ???
-  object IsBlock {
-    @deprecated("Use _: Block", "")
-    def unapply(x: Block): Some[Block] = ???
-  }
   object Block {
     def apply(stats: List[Statement], expr: Term)(implicit ctx: Context): Block = ???
     def copy(original: Tree)(stats: List[Statement], expr: Term)(implicit ctx: Context): Block = ???
@@ -454,10 +359,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def expr(self: Block)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_Closure(implicit v: Context): IsInstanceOf[Closure] = ???
-  object IsClosure {
-    @deprecated("Use _: Closure", "")
-    def unapply(x: Closure): Some[Closure] = ???
-  }
   object Closure {
     def apply(meth: Term, tpt: Option[Type])(implicit ctx: Context): Closure = ???
     def copy(original: Tree)(meth: Tree, tpt: Option[Type])(implicit ctx: Context): Closure = ???
@@ -472,10 +373,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def apply(tpe: MethodType, rhsFn: List[Tree] => Tree)(implicit ctx: Context): Block = ???
   }
   implicit def given_IsInstanceOf_If(implicit v: Context): IsInstanceOf[If] = ???
-  object IsIf {
-    @deprecated("Use _: If", "")
-    def unapply(x: If): Some[If] = ???
-  }
   object If {
     def apply(cond: Term, thenp: Term, elsep: Term)(implicit ctx: Context): If = ???
     def copy(original: Tree)(cond: Term, thenp: Term, elsep: Term)(implicit ctx: Context): If = ???
@@ -487,10 +384,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def elsep(self: If)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_Match(implicit v: Context): IsInstanceOf[Match] = ???
-  object IsMatch {
-    @deprecated("Use _: Match", "")
-    def unapply(x: Match): Some[Match] = ???
-  }
   object Match {
     def apply(selector: Term, cases: List[CaseDef])(implicit ctx: Context): Match = ???
     def copy(original: Tree)(selector: Term, cases: List[CaseDef])(implicit ctx: Context): Match = ???
@@ -501,10 +394,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def cases(self: Match)(implicit ctx: Context): List[CaseDef] = ???
   }
   implicit def given_IsInstanceOf_GivenMatch(implicit v: Context): IsInstanceOf[GivenMatch] = ???
-  object IsGivenMatch {
-    @deprecated("Use _: GivenMatch", "")
-    def unapply(x: GivenMatch): Some[GivenMatch] = ???
-  }
   object GivenMatch {
     def apply(cases: List[CaseDef])(implicit ctx: Context): GivenMatch = ???
     def copy(original: Tree)(cases: List[CaseDef])(implicit ctx: Context): GivenMatch = ???
@@ -514,10 +403,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def cases(self: GivenMatch)(implicit ctx: Context): List[CaseDef] = ???
   }
   implicit def given_IsInstanceOf_Try(implicit v: Context): IsInstanceOf[Try] = ???
-  object IsTry {
-    @deprecated("Use _: Try", "")
-    def unapply(x: Try): Some[Try] = ???
-  }
   object Try {
     def apply(expr: Term, cases: List[CaseDef], finalizer: Option[Term])(implicit ctx: Context): Try = ???
     def copy(original: Tree)(expr: Term, cases: List[CaseDef], finalizer: Option[Term])(implicit ctx: Context): Try = ???
@@ -529,10 +414,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def finalizer(self: Try)(implicit ctx: Context): Option[Term] = ???
   }
   implicit def given_IsInstanceOf_Return(implicit v: Context): IsInstanceOf[Return] = ???
-  object IsReturn {
-    @deprecated("Use _: Return", "")
-    def unapply(x: Return): Some[Return] = ???
-  }
   object Return {
     def apply(expr: Term)(implicit ctx: Context): Return = ???
     def copy(original: Tree)(expr: Term)(implicit ctx: Context): Return = ???
@@ -542,10 +423,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def expr(self: Return)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_Repeated(implicit v: Context): IsInstanceOf[Repeated] = ???
-  object IsRepeated {
-    @deprecated("Use _: Repeated", "")
-    def unapply(x: Repeated): Some[Repeated] = ???
-  }
   object Repeated {
     def apply(elems: List[Term], tpt: TypeTree)(implicit ctx: Context): Repeated = ???
     def copy(original: Tree)(elems: List[Term], tpt: TypeTree)(implicit ctx: Context): Repeated = ???
@@ -556,10 +433,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def elemtpt(self: Repeated)(implicit ctx: Context): TypeTree = ???
   }
   implicit def given_IsInstanceOf_Inlined(implicit v: Context): IsInstanceOf[Inlined] = ???
-  object IsInlined {
-    @deprecated("Use _: Inlined", "")
-    def unapply(x: Inlined): Some[Inlined] = ???
-  }
   object Inlined {
     def apply(call: Option[Tree ], bindings: List[Definition], expansion: Term)(implicit ctx: Context): Inlined = ???
     def copy(original: Tree)(call: Option[Tree ], bindings: List[Definition], expansion: Term)(implicit ctx: Context): Inlined = ???
@@ -571,10 +444,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def body(self: Inlined)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_SelectOuter(implicit v: Context): IsInstanceOf[SelectOuter] = ???
-  object IsSelectOuter {
-    @deprecated("Use _: SelectOuter", "")
-    def unapply(x: SelectOuter): Some[SelectOuter] = ???
-  }
   object SelectOuter {
     def apply(qualifier: Term, name: String, levels: Int)(implicit ctx: Context): SelectOuter = ???
     def copy(original: Tree)(qualifier: Term, name: String, levels: Int)(implicit ctx: Context): SelectOuter = ???
@@ -585,10 +454,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def level(self: SelectOuter)(implicit ctx: Context): Int = ???
   }
   implicit def given_IsInstanceOf_While(implicit v: Context): IsInstanceOf[While] = ???
-  object IsWhile {
-    @deprecated("Use _: While", "")
-    def unapply(x: While): Some[While] = ???
-  }
   object While {
     def apply(cond: Term, body: Term)(implicit ctx: Context): While = ???
     def copy(original: Tree)(cond: Term, body: Term)(implicit ctx: Context): While = ???
@@ -602,15 +467,7 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def tpe(self: TypeTree)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_TypeTree(implicit v: Context): IsInstanceOf[TypeTree] = ???
-  object IsTypeTree {
-    @deprecated("Use _: TypeTree", "")
-    def unapply(x: TypeTree): Option[TypeTree] = ???
-  }
   implicit def given_IsInstanceOf_Inferred(implicit v: Context): IsInstanceOf[Inferred] = ???
-  object IsInferred {
-    @deprecated("Use _: Inferred", "")
-    def unapply(x: Inferred): Some[Inferred] = ???
-  }
   object Inferred {
     def apply(tpe: Type)(implicit ctx: Context): Inferred = ???
     def unapply(x: Inferred)(implicit ctx: Context): Boolean = ???
@@ -619,20 +476,12 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   object TypeIdentOps {
     def name(self: TypeIdent)(implicit ctx: Context): String = ???
   }
-  object IsTypeIdent {
-    @deprecated("Use _: TypeIdent", "")
-    def unapply(x: TypeIdent): Some[TypeIdent] = ???
-  }
   object TypeIdent {
     def apply(sym: Symbol)(implicit ctx: Context): TypeTree = ???
     def copy(original: Tree)(name: String)(implicit ctx: Context): TypeIdent = ???
     def unapply(x: TypeIdent)(implicit ctx: Context): Option[String] = ???
   }
   implicit def given_IsInstanceOf_TypeSelect(implicit v: Context): IsInstanceOf[TypeSelect] = ???
-  object IsTypeSelect {
-    @deprecated("Use _: TypeSelect", "")
-    def unapply(x: TypeSelect): Some[TypeSelect] = ???
-  }
   object TypeSelect {
     def apply(qualifier: Term, name: String)(implicit ctx: Context): TypeSelect = ???
     def copy(original: Tree)(qualifier: Term, name: String)(implicit ctx: Context): TypeSelect = ???
@@ -643,10 +492,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def name(self: TypeSelect)(implicit ctx: Context): String = ???
   }
   implicit def given_IsInstanceOf_Projection(implicit v: Context): IsInstanceOf[Projection] = ???
-  object IsProjection {
-    @deprecated("Use _: Projection", "")
-    def unapply(x: Projection): Some[Projection] = ???
-  }
   object Projection {
     def copy(original: Tree)(qualifier: TypeTree, name: String)(implicit ctx: Context): Projection = ???
     def unapply(x: Projection)(implicit ctx: Context): Option[(TypeTree, String)] = ???
@@ -656,10 +501,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def name(self: Projection)(implicit ctx: Context): String = ???
   }
   implicit def given_IsInstanceOf_Singleton(implicit v: Context): IsInstanceOf[Singleton] = ???
-  object IsSingleton {
-    @deprecated("Use _: Singleton", "")
-    def unapply(x: Singleton): Some[Singleton] = ???
-  }
   object Singleton {
     def apply(ref: Term)(implicit ctx: Context): Singleton = ???
     def copy(original: Tree)(ref: Term)(implicit ctx: Context): Singleton = ???
@@ -669,10 +510,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def ref(self: Singleton)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_Refined(implicit v: Context): IsInstanceOf[Refined] = ???
-  object IsRefined {
-    @deprecated("Use _: Refined", "")
-    def unapply(x: Refined): Some[Refined] = ???
-  }
   object Refined {
     def copy(original: Tree)(tpt: TypeTree, refinements: List[Definition])(implicit ctx: Context): Refined = ???
     def unapply(x: Refined)(implicit ctx: Context): Option[(TypeTree, List[Definition])] = ???
@@ -682,10 +519,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def refinements(self: Refined)(implicit ctx: Context): List[Definition] = ???
   }
   implicit def given_IsInstanceOf_Applied(implicit v: Context): IsInstanceOf[Applied] = ???
-  object IsApplied {
-    @deprecated("Use _: Applied", "")
-    def unapply(x: Applied): Some[Applied] = ???
-  }
   object Applied {
     def apply(tpt: TypeTree, args: List[Tree ])(implicit ctx: Context): Applied = ???
     def copy(original: Tree)(tpt: TypeTree, args: List[Tree ])(implicit ctx: Context): Applied = ???
@@ -696,10 +529,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def args(self: Applied)(implicit ctx: Context): List[Tree ] = ???
   }
   implicit def given_IsInstanceOf_Annotated(implicit v: Context): IsInstanceOf[Annotated] = ???
-  object IsAnnotated {
-    @deprecated("Use _: Annotated", "")
-    def unapply(x: Annotated): Some[Annotated] = ???
-  }
   object Annotated {
     def apply(arg: TypeTree, annotation: Term)(implicit ctx: Context): Annotated = ???
     def copy(original: Tree)(arg: TypeTree, annotation: Term)(implicit ctx: Context): Annotated = ???
@@ -710,10 +539,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def annotation(self: Annotated)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_MatchTypeTree(implicit v: Context): IsInstanceOf[MatchTypeTree] = ???
-  object IsMatchTypeTree {
-    @deprecated("Use _: MatchTypeTree", "")
-    def unapply(x: MatchTypeTree): Some[MatchTypeTree] = ???
-  }
   object MatchTypeTree {
     def apply(bound: Option[TypeTree], selector: TypeTree, cases: List[TypeCaseDef])(implicit ctx: Context): MatchTypeTree = ???
     def copy(original: Tree)(bound: Option[TypeTree], selector: TypeTree, cases: List[TypeCaseDef])(implicit ctx: Context): MatchTypeTree = ???
@@ -725,10 +550,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def cases(self: MatchTypeTree)(implicit ctx: Context): List[TypeCaseDef] = ???
   }
   implicit def given_IsInstanceOf_ByName(implicit v: Context): IsInstanceOf[ByName] = ???
-  object IsByName {
-    @deprecated("Use _: ByName", "")
-    def unapply(x: ByName): Some[ByName] = ???
-  }
   object ByName {
     def apply(result: TypeTree)(implicit ctx: Context): ByName = ???
     def copy(original: Tree)(result: TypeTree)(implicit ctx: Context): ByName = ???
@@ -738,10 +559,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def result(self: ByName)(implicit ctx: Context): TypeTree = ???
   }
   implicit def given_IsInstanceOf_LambdaTypeTree(implicit v: Context): IsInstanceOf[LambdaTypeTree] = ???
-  object IsLambdaTypeTree {
-    @deprecated("Use _: LambdaTypeTree", "")
-    def unapply(x: LambdaTypeTree): Some[LambdaTypeTree] = ???
-  }
   object LambdaTypeTree {
     def apply(tparams: List[TypeDef], body: Tree )(implicit ctx: Context): LambdaTypeTree = ???
     def copy(original: Tree)(tparams: List[TypeDef], body: Tree )(implicit ctx: Context): LambdaTypeTree = ???
@@ -752,10 +569,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def body(self: LambdaTypeTree)(implicit ctx: Context): Tree  = ???
   }
   implicit def given_IsInstanceOf_TypeBind(implicit v: Context): IsInstanceOf[TypeBind] = ???
-  object IsTypeBind {
-    @deprecated("Use _: TypeBind", "")
-    def unapply(x: TypeBind): Some[TypeBind] = ???
-  }
   object TypeBind {
     def copy(original: Tree)(name: String, tpt: Tree )(implicit ctx: Context): TypeBind = ???
     def unapply(x: TypeBind)(implicit ctx: Context): Option[(String, Tree )] = ???
@@ -765,10 +578,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def body(self: TypeBind)(implicit ctx: Context): Tree  = ???
   }
   implicit def given_IsInstanceOf_TypeBlock(implicit v: Context): IsInstanceOf[TypeBlock] = ???
-  object IsTypeBlock {
-    @deprecated("Use _: TypeBlock", "")
-    def unapply(x: TypeBlock): Some[TypeBlock] = ???
-  }
   object TypeBlock {
     def apply(aliases: List[TypeDef], tpt: TypeTree)(implicit ctx: Context): TypeBlock = ???
     def copy(original: Tree)(aliases: List[TypeDef], tpt: TypeTree)(implicit ctx: Context): TypeBlock = ???
@@ -784,10 +593,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def hi(self: TypeBoundsTree)(implicit ctx: Context): TypeTree = ???
   }
   implicit def given_IsInstanceOf_TypeBoundsTree(implicit v: Context): IsInstanceOf[TypeBoundsTree] = ???
-  object IsTypeBoundsTree {
-    @deprecated("Use _: TypeBoundsTree", "")
-    def unapply(x: TypeBoundsTree): Some[TypeBoundsTree] = ???
-  }
   object TypeBoundsTree {
     def unapply(x: TypeBoundsTree)(implicit ctx: Context): Option[(TypeTree, TypeTree)] = ???
   }
@@ -795,10 +600,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def tpe(self: WildcardTypeTree)(implicit ctx: Context): TypeOrBounds = ???
   }
   implicit def given_IsInstanceOf_WildcardTypeTree(implicit v: Context): IsInstanceOf[WildcardTypeTree] = ???
-  object IsWildcardTypeTree {
-    @deprecated("Use _: WildcardTypeTree", "")
-    def unapply(x: WildcardTypeTree): Some[WildcardTypeTree] = ???
-  }
   object WildcardTypeTree {
     def unapply(x: WildcardTypeTree)(implicit ctx: Context): Boolean = ???
   }
@@ -808,10 +609,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def rhs(caseDef: CaseDef)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_CaseDef(implicit v: Context): IsInstanceOf[CaseDef] = ???
-  object IsCaseDef {
-    @deprecated("Use _: CaseDef", "")
-    def unapply(x: CaseDef): Some[CaseDef] = ???
-  }
   object CaseDef {
     def apply(pattern: Tree, guard: Option[Term], rhs: Term)(implicit ctx: Context): CaseDef = ???
     def copy(original: Tree)(pattern: Tree, guard: Option[Term], rhs: Term)(implicit ctx: Context): CaseDef = ???
@@ -822,20 +619,12 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def rhs(caseDef: TypeCaseDef)(implicit ctx: Context): TypeTree = ???
   }
   implicit def given_IsInstanceOf_TypeCaseDef(implicit v: Context): IsInstanceOf[TypeCaseDef] = ???
-  object IsTypeCaseDef {
-    @deprecated("Use _: TypeCaseDef", "")
-    def unapply(x: TypeCaseDef): Some[TypeCaseDef] = ???
-  }
   object TypeCaseDef {
     def apply(pattern: TypeTree, rhs: TypeTree)(implicit ctx: Context): TypeCaseDef = ???
     def copy(original: Tree)(pattern: TypeTree, rhs: TypeTree)(implicit ctx: Context): TypeCaseDef = ???
     def unapply(tree: TypeCaseDef)(implicit ctx: Context): Option[(TypeTree, TypeTree)] = ???
   }
   implicit def given_IsInstanceOf_Bind(implicit v: Context): IsInstanceOf[Bind] = ???
-  object IsBind {
-    @deprecated("Use _: Bind", "")
-    def unapply(x: Bind): Some[Bind] = ???
-  }
   object Bind {
     def copy(original: Tree)(name: String, pattern: Tree)(implicit ctx: Context): Bind = ???
     def unapply(pattern: Bind)(implicit ctx: Context): Option[(String, Tree)] = ???
@@ -845,10 +634,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def pattern(bind: Bind)(implicit ctx: Context): Tree = ???
   }
   implicit def given_IsInstanceOf_Unapply(implicit v: Context): IsInstanceOf[Unapply] = ???
-  object IsUnapply {
-    @deprecated("Use _: Unapply", "")
-    def unapply(x: Unapply): Some[Unapply] = ???
-  }
   object Unapply {
     def copy(original: Tree)(fun: Term, implicits: List[Term], patterns: List[Tree])(implicit ctx: Context): Unapply = ???
     def unapply(x: Unapply)(implicit ctx: Context): Option[(Term, List[Term], List[Tree])] = ???
@@ -859,10 +644,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def patterns(unapply: Unapply)(implicit ctx: Context): List[Tree] = ???
   }
   implicit def given_IsInstanceOf_Alternatives(implicit v: Context): IsInstanceOf[Alternatives] = ???
-  object IsAlternatives {
-    @deprecated("Use _: Alternatives", "")
-    def unapply(x: Alternatives): Some[Alternatives] = ???
-  }
   object Alternatives {
     def apply(patterns: List[Tree])(implicit ctx: Context): Alternatives = ???
     def copy(original: Tree)(patterns: List[Tree])(implicit ctx: Context): Alternatives = ???
@@ -901,11 +682,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
 
   def typeOf[T: scala.quoted.Type]: Type = ???
 
-  object TypeOrBoundsOps {
-    def showExtractors(tpe: TypeOrBounds)(implicit ctx: Context): String = ???
-    def show(tpe: TypeOrBounds)(implicit ctx: Context): String = ???
-    def showWith(tpe: TypeOrBounds, syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
-  }
   object TypeOps {
     def =:=(self: Type)(that: Type)(implicit ctx: Context): Boolean = ???
     def <:<(self: Type)(that: Type)(implicit ctx: Context): Boolean = ???
@@ -925,17 +701,11 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def isDependentFunctionType(self: Type)(implicit ctx: Context): Boolean = ???
   }
   implicit def given_IsInstanceOf_Type(implicit v: Context): IsInstanceOf[Type] = ???
-  object IsType
-  @deprecated("Use _: Type", "")
   def unapply(x: Type)(implicit ctx: Context): Option[Type] = ???
   object Type {
     def apply(clazz: Class[_])(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_ConstantType(implicit v: Context): IsInstanceOf[ConstantType] = ???
-  object IsConstantType {
-    @deprecated("Use _: ConstantType", "")
-    def unapply(x: ConstantType)(implicit ctx: Context): Option[ConstantType] = ???
-  }
   object ConstantType {
     def unapply(x: ConstantType)(implicit ctx: Context): Option[Constant] = ???
   }
@@ -943,10 +713,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def constant(self: ConstantType)(implicit ctx: Context): Constant = ???
   }
   implicit def given_IsInstanceOf_TermRef(implicit v: Context): IsInstanceOf[TermRef] = ???
-  object IsTermRef {
-    @deprecated("Use _: TermRef", "")
-    def unapply(x: TermRef)(implicit ctx: Context): Option[TermRef] = ???
-  }
   object TermRef {
     def apply(qual: TypeOrBounds, name: String)(implicit ctx: Context): TermRef = ???
     def unapply(x: TermRef)(implicit ctx: Context): Option[(TypeOrBounds , String)] = ???
@@ -956,10 +722,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def name(self: TermRef)(implicit ctx: Context): String = ???
   }
   implicit def given_IsInstanceOf_TypeRef(implicit v: Context): IsInstanceOf[TypeRef] = ???
-  object IsTypeRef {
-    @deprecated("Use _: TypeRef", "")
-    def unapply(x: TypeRef)(implicit ctx: Context): Option[TypeRef] = ???
-  }
   object TypeRef {
     def unapply(x: TypeRef)(implicit ctx: Context): Option[(TypeOrBounds , String)] = ???
   }
@@ -968,10 +730,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def name(self: TypeRef)(implicit ctx: Context): String = ???
   }
   implicit def given_IsInstanceOf_SuperType(implicit v: Context): IsInstanceOf[SuperType] = ???
-  object IsSuperType {
-    @deprecated("Use _: SuperType", "")
-    def unapply(x: SuperType)(implicit ctx: Context): Option[SuperType] = ???
-  }
   object SuperType {
     def unapply(x: SuperType)(implicit ctx: Context): Option[(Type, Type)] = ???
   }
@@ -980,10 +738,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def supertpe(self: SuperType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_Refinement(implicit v: Context): IsInstanceOf[Refinement] = ???
-  object IsRefinement {
-    @deprecated("Use _: Refinement", "")
-    def unapply(x: Refinement)(implicit ctx: Context): Option[Refinement] = ???
-  }
   object Refinement {
     def apply(parent: Type, name: String, info: TypeOrBounds )(implicit ctx: Context): Refinement = ???
     def unapply(x: Refinement)(implicit ctx: Context): Option[(Type, String, TypeOrBounds )] = ???
@@ -994,10 +748,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def info(self: Refinement)(implicit ctx: Context): TypeOrBounds = ???
   }
   implicit def given_IsInstanceOf_AppliedType(implicit v: Context): IsInstanceOf[AppliedType] = ???
-  object IsAppliedType {
-    @deprecated("Use _: AppliedType", "")
-    def unapply(x: AppliedType)(implicit ctx: Context): Option[AppliedType] = ???
-  }
   object AppliedType {
     def apply(tycon: Type, args: List[TypeOrBounds])(implicit ctx: Context): AppliedType = ???
     def unapply(x: AppliedType)(implicit ctx: Context): Option[(Type, List[TypeOrBounds ])] = ???
@@ -1007,10 +757,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def args(self: AppliedType)(implicit ctx: Context): List[TypeOrBounds ] = ???
   }
   implicit def given_IsInstanceOf_AnnotatedType(implicit v: Context): IsInstanceOf[AnnotatedType] = ???
-  object IsAnnotatedType {
-    @deprecated("Use _: AnnotatedType", "")
-    def unapply(x: AnnotatedType)(implicit ctx: Context): Option[AnnotatedType] = ???
-  }
   object AnnotatedType {
     def unapply(x: AnnotatedType)(implicit ctx: Context): Option[(Type, Term)] = ???
   }
@@ -1019,10 +765,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def annot(self: AnnotatedType)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_AndType(implicit v: Context): IsInstanceOf[AndType] = ???
-  object IsAndType {
-    @deprecated("Use _: AndType", "")
-    def unapply(x: AndType)(implicit ctx: Context): Option[AndType] = ???
-  }
   object AndType {
     def unapply(x: AndType)(implicit ctx: Context): Option[(Type, Type)] = ???
   }
@@ -1031,10 +773,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def right(self: AndType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_OrType(implicit v: Context): IsInstanceOf[OrType] = ???
-  object IsOrType {
-    @deprecated("Use _: OrType", "")
-    def unapply(x: OrType)(implicit ctx: Context): Option[OrType] = ???
-  }
   object OrType {
     def unapply(x: OrType)(implicit ctx: Context): Option[(Type, Type)] = ???
   }
@@ -1043,10 +781,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def right(self: OrType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_MatchType(implicit v: Context): IsInstanceOf[MatchType] = ???
-  object IsMatchType {
-    @deprecated("Use _: MatchType", "")
-    def unapply(x: MatchType)(implicit ctx: Context): Option[MatchType] = ???
-  }
   object MatchType {
     def unapply(x: MatchType)(implicit ctx: Context): Option[(Type, Type, List[Type])] = ???
   }
@@ -1056,10 +790,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def cases(self: MatchType)(implicit ctx: Context): List[Type] = ???
   }
   implicit def given_IsInstanceOf_ByNameType(implicit v: Context): IsInstanceOf[ByNameType] = ???
-  object IsByNameType {
-    @deprecated("Use _: ByNameType", "")
-    def unapply(x: ByNameType)(implicit ctx: Context): Option[ByNameType] = ???
-  }
   object ByNameType {
     def unapply(x: ByNameType)(implicit ctx: Context): Option[Type] = ???
   }
@@ -1067,10 +797,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def underlying(self: ByNameType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_ParamRef(implicit v: Context): IsInstanceOf[ParamRef] = ???
-  object IsParamRef {
-    @deprecated("Use _: ParamRef", "")
-    def unapply(x: ParamRef)(implicit ctx: Context): Option[ParamRef] = ???
-  }
   object ParamRef {
     def unapply(x: ParamRef)(implicit ctx: Context): Option[(LambdaType[TypeOrBounds], Int)] = ???
   }
@@ -1079,10 +805,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def paramNum(self: ParamRef)(implicit ctx: Context): Int = ???
   }
   implicit def given_IsInstanceOf_ThisType(implicit v: Context): IsInstanceOf[ThisType] = ???
-  object IsThisType {
-    @deprecated("Use _: ThisType", "")
-    def unapply(x: ThisType)(implicit ctx: Context): Option[ThisType] = ???
-  }
   object ThisType {
     def unapply(x: ThisType)(implicit ctx: Context): Option[Type] = ???
   }
@@ -1090,10 +812,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def tref(self: ThisType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_RecursiveThis(implicit v: Context): IsInstanceOf[RecursiveThis] = ???
-  object IsRecursiveThis {
-    @deprecated("Use _: RecursiveThis", "")
-    def unapply(x: RecursiveThis)(implicit ctx: Context): Option[RecursiveThis] = ???
-  }
   object RecursiveThis {
     def unapply(x: RecursiveThis)(implicit ctx: Context): Option[RecursiveType] = ???
   }
@@ -1101,10 +819,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def binder(self: RecursiveThis)(implicit ctx: Context): RecursiveType = ???
   }
   implicit def given_IsInstanceOf_RecursiveType(implicit v: Context): IsInstanceOf[RecursiveType] = ???
-  object IsRecursiveType {
-    @deprecated("Use _: RecursiveType", "")
-    def unapply(x: RecursiveType)(implicit ctx: Context): Option[RecursiveType] = ???
-  }
   object RecursiveType {
     def unapply(x: RecursiveType)(implicit ctx: Context): Option[Type] = ???
   }
@@ -1112,10 +826,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def underlying(self: RecursiveType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_MethodType(implicit v: Context): IsInstanceOf[MethodType] = ???
-  object IsMethodType {
-    @deprecated("Use _: MethodType", "")
-    def unapply(x: MethodType)(implicit ctx: Context): Option[MethodType] = ???
-  }
   object MethodType {
     def apply(paramNames: List[String])(paramInfosExp: MethodType => List[Type], resultTypeExp: MethodType => Type): MethodType = ???
     def unapply(x: MethodType)(implicit ctx: Context): Option[(List[String], List[Type], Type)] = ???
@@ -1128,10 +838,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def resType(self: MethodType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_PolyType(implicit v: Context): IsInstanceOf[PolyType] = ???
-  object IsPolyType {
-    @deprecated("Use _: PolyType", "")
-    def unapply(x: PolyType)(implicit ctx: Context): Option[PolyType] = ???
-  }
   object PolyType {
     def unapply(x: PolyType)(implicit ctx: Context): Option[(List[String], List[TypeBounds], Type)] = ???
   }
@@ -1141,10 +847,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def resType(self: PolyType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_TypeLambda(implicit v: Context): IsInstanceOf[TypeLambda] = ???
-  object IsTypeLambda {
-    @deprecated("Use _: TypeLambda", "")
-    def unapply(x: TypeLambda)(implicit ctx: Context): Option[TypeLambda] = ???
-  }
   object TypeLambda {
     def unapply(x: TypeLambda)(implicit ctx: Context): Option[(List[String], List[TypeBounds], Type)] = ???
   }
@@ -1154,10 +856,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def resType(self: TypeLambda)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_TypeBounds(implicit v: Context): IsInstanceOf[TypeBounds] = ???
-  object IsTypeBounds {
-    @deprecated("Use _: TypeBounds", "")
-    def unapply(x: TypeBounds)(implicit ctx: Context): Option[TypeBounds] = ???
-  }
   object TypeBounds {
     def unapply(x: TypeBounds)(implicit ctx: Context): Option[(Type, Type)] = ???
   }
@@ -1201,36 +899,16 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
 
   def searchImplicit(tpe: Type)(implicit ctx: Context): ImplicitSearchResult = ???
   implicit def given_IsInstanceOf_ImplicitSearchSuccess(implicit v: Context): IsInstanceOf[ImplicitSearchSuccess] = ???
-  object IsImplicitSearchSuccess {
-    @deprecated("Use _: ImplicitSearchSuccess", "")
-    def unapply(isr: ImplicitSearchSuccess)(implicit ctx: Context): Option[ImplicitSearchSuccess] = ???
-  }
   object successOps {
     def tree(self: ImplicitSearchSuccess)(implicit ctx: Context): Term = ???
   }
   implicit def given_IsInstanceOf_ImplicitSearchFailure(implicit v: Context): IsInstanceOf[ImplicitSearchFailure] = ???
-  object IsImplicitSearchFailure {
-    @deprecated("Use _: ImplicitSearchFailure", "")
-    def unapply(isr: ImplicitSearchFailure)(implicit ctx: Context): Option[ImplicitSearchFailure] = ???
-  }
   object failureOps {
     def explanation(self: ImplicitSearchFailure)(implicit ctx: Context): String = ???
   }
   implicit def given_IsInstanceOf_DivergingImplicit(implicit v: Context): IsInstanceOf[DivergingImplicit] = ???
-  object IsDivergingImplicit {
-    @deprecated("Use _: DivergingImplicit", "")
-    def unapply(isr: DivergingImplicit)(implicit ctx: Context): Option[DivergingImplicit] = ???
-  }
   implicit def given_IsInstanceOf_NoMatchingImplicits(implicit v: Context): IsInstanceOf[NoMatchingImplicits] = ???
-  object IsNoMatchingImplicits {
-    @deprecated("Use _: NoMatchingImplicits", "")
-    def unapply(isr: NoMatchingImplicits)(implicit ctx: Context): Option[NoMatchingImplicits] = ???
-  }
   implicit def given_IsInstanceOf_AmbiguousImplicits(implicit v: Context): IsInstanceOf[AmbiguousImplicits] = ???
-  object IsAmbiguousImplicits {
-    @deprecated("Use _: AmbiguousImplicits", "")
-    def unapply(isr: AmbiguousImplicits)(implicit ctx: Context): Option[AmbiguousImplicits] = ???
-  }
 
   // Symbol
 
@@ -1435,6 +1113,33 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   def error(msg: => String, source: SourceFile, start: Int, end: Int)(implicit ctx: Context): Unit = ???
   def warning(msg: => String, pos: Position)(implicit ctx: Context): Unit = ???
   def warning(msg: => String, source: SourceFile, start: Int, end: Int)(implicit ctx: Context): Unit = ???
+
+  // Printers
+   implicit class TreeShowDeco(tree: Tree) {
+    def showExtractors(implicit ctx: Context): String = ???
+    def show(implicit ctx: Context): String = ???
+    def show(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
+  }
+  implicit class TypeOrBoundsShowDeco(tpe: TypeOrBounds) {
+    def showExtractors(implicit ctx: Context): String = ???
+    def show(implicit ctx: Context): String = ???
+    def show(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
+  }
+  implicit class ConstantShowDeco(const: Constant) {
+    def showExtractors(implicit ctx: Context): String = ???
+    def show(implicit ctx: Context): String = show(SyntaxHighlight.plain)(ctx)
+    def show(syntaxHighlight: SyntaxHighlight)(implicit  ctx: Context): String = ???
+  }
+  implicit class SymbolShowDeco(symbol: Symbol) {
+    def showExtractors(implicit ctx: Context): String = ???
+    def show(implicit ctx: Context): String = show(SyntaxHighlight.plain)(ctx)
+    def show(syntaxHighlight: SyntaxHighlight)(implicit  ctx: Context): String = ???
+  }
+  implicit class FlagsShowDeco(flags: Flags) {
+    def showExtractors(implicit ctx: Context): String = ???
+    def show(implicit ctx: Context): String = show(SyntaxHighlight.plain)(ctx)
+    def show(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
+  }
 
   // Comments
 
