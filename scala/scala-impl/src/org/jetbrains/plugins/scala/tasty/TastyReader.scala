@@ -10,6 +10,9 @@ object TastyReader {
   // TODO Remove when the project use Scala 2.13
   import scala.language.reflectiveCalls
 
+  def readText(classpath: String, className: String): Option[String] =
+    read(classpath, className).map(_.text)
+
   def read(classpath: String, className: String): Option[TastyFile] =
     Option(reader.read(classpath, className))
 
