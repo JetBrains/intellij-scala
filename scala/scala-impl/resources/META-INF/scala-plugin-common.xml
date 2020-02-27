@@ -517,6 +517,7 @@
 
         <fileType name="TASTY" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
         <filetype.decompiler filetype="TASTY" implementationClass="org.jetbrains.plugins.scala.tasty.TastyDecompiler"/>
+        <syntaxHighlighter id="tasty.file" key="TASTY" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
 
         <registryKey key="scala.highlighting.compiler.errors.in.editor" defaultValue="false" restartRequired="false"
                      description="Show errors from scala compiler in the editor"/>
