@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.tasty
 import java.io.File
 import java.net.URLClassLoader
 
+import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 
@@ -16,29 +17,35 @@ object TastyReader {
   def read(classpath: String, className: String): Option[TastyFile] =
     Option(reader.read(classpath, className))
 
-  // TODO Async, Progress, GC
-  private val reader: TastyReader = {
-    object Resolver extends DependencyManagerBase {
-      override protected val artifactBlackList = Set.empty[String]
+  // TODO Async, Progress, GC, error handling
+  private lazy val reader: TastyReader = {
+    val jarFiles = {
+      val resolvedJars = {
+        val Resolver = new DependencyManagerBase {override protected val artifactBlackList = Set.empty[String] }
+        // TODO TASTy inspect: an ability to detect .tasty file version, https://github.com/lampepfl/dotty-feature-requests/issues/99
+        // TODO TASTy inspect: make dotty-compiler depend on tasty-inspector https://github.com/lampepfl/dotty-feature-requests/issues/100
+        val tastyInspectorDependency = DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.22", "0.22.0-RC1", isTransitive = true)
+        Resolver.resolve(tastyInspectorDependency).map(_.file)
+      }
+
+      val bundledJars = {
+        val tastyDirectory = new File(new File(PathUtil.getJarPathForClass(getClass)).getParentFile, "tasty")
+        assert(tastyDirectory.exists, tastyDirectory.toString)
+        Seq("tasty-compile.jar", "tasty-runtime.jar", "tasty-reader.jar").map(new File(tastyDirectory, _))
+      }
+
+      resolvedJars ++ bundledJars
     }
 
-    def jarFilesOfResolved(artifact: DependencyDescription): Seq[File] =
-      Resolver.resolve(artifact.copy(isTransitive = true)).map(_.file)
+    jarFiles.foreach(file => assert(file.exists(), file.toString))
 
-    val jars = jarFilesOfResolved(DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.22", "0.22.0-RC1"))
+    val tastyReaderImplClass = {
+      val urls = jarFiles.map(file => file.toURI.toURL).toArray
+      val loader = new URLClassLoader(urls, IsolatingClassLoader.scalaStdLibIsolatingLoader(getClass.getClassLoader))
+      loader.loadClass("org.jetbrains.plugins.scala.tasty.TastyReaderImpl")
+    }
 
-    val files = jars ++ Seq(
-      new File("target/plugin/Scala/lib/tasty/tasty-compile.jar"),
-      new File("target/plugin/Scala/lib/tasty/tasty-runtime.jar"),
-      new File("target/plugin/Scala/lib/tasty/tasty-reader.jar")
-    )
-
-    val urls = files.map(file => file.toURI.toURL)
-    urls.foreach(url => assert(new File(url.toURI).exists(), url.toString))
-    val loader = new URLClassLoader(urls.toArray, IsolatingClassLoader.scalaStdLibIsolatingLoader(getClass.getClassLoader))
-    val aClass = loader.loadClass("org.jetbrains.plugins.scala.tasty.TastyReaderImpl")
-
-    aClass.newInstance().asInstanceOf[TastyReader]
+    tastyReaderImplClass.newInstance().asInstanceOf[TastyReader]
   }
 
   // TODO Remove

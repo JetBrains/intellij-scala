@@ -34,7 +34,7 @@ lazy val scalaCommunity: sbt.Project =
       javaDecompilerIntegration)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
-      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, runtimeDependencies),
+      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, runtimeDependencies, tastyCompile, tastyRuntime, tastyReader),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
@@ -78,19 +78,19 @@ lazy val tastyProvided = newProject("tasty-provided", file("tasty/provided"))
 
 lazy val tastyCompile = newProject("tasty-compile", file("tasty/compile"))
   .dependsOn(tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-compile.jar", static = true))
+  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-compile.jar"))
 
 lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
   .dependsOn(tastyCompile % "compile-internal")
-  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar", static = true))
+  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
 
 lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
   .dependsOn(tastyCompile)
-  .settings(scalaVersion := "2.13.1", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.22" % "0.22.0-RC1"  % Runtime)
+  .settings(scalaVersion := "2.13.1", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.22" % "0.22.0-RC1" % Runtime)
 
 lazy val tastyReader = newProject("tasty-reader", file("tasty/reader"))
   .dependsOn(tastyCompile)
-  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-reader.jar", static = true))
+  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-reader.jar"))
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
