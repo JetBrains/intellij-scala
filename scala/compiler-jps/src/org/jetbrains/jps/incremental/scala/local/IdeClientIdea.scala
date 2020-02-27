@@ -52,6 +52,12 @@ class IdeClientIdea(compilerName: String,
     }
   }
 
+  override def worksheetOutput(text: String): Unit = ()
+
+  override def processingEnd(): Unit = ()
+
+  override def sourceStarted(source: String): Unit = ()
+
   private def handleCompilationResult(compilationResult: CompilationResult): Unit = {
     val CompilationResult(source, outputFile, name) = compilationResult
     val compiledClass = new LazyCompiledClass(outputFile, source, name)

@@ -53,13 +53,13 @@ class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaA
 
   override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): ScalaAnnotation =
     if (showCompilerErrors)
-      innerHolder.createAnnotation(HighlightSeverity.INFORMATION, range, "")
+      innerHolder.createAnnotation(HighlightSeverity.INFORMATION, range, convertMsg(message))
     else
       innerHolder.createAnnotation(severity, range, message)
 
   override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): ScalaAnnotation =
     if (showCompilerErrors)
-      innerHolder.createAnnotation(HighlightSeverity.INFORMATION, range, "", "")
+      innerHolder.createAnnotation(HighlightSeverity.INFORMATION, range, convertMsg(message), convertMsg(htmlTooltip))
     else
       innerHolder.createAnnotation(severity, range, message, htmlTooltip)
 
@@ -83,21 +83,24 @@ class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaA
   private def convert1(elt: PsiElement, message: String)
                       (f: (PsiElement, String) => Annotation): Annotation =
     if (showCompilerErrors)
-      innerHolder.createInfoAnnotation(elt, "")
+      innerHolder.createInfoAnnotation(elt, convertMsg(message))
     else
       f(elt, message)
 
   private def convert2(node: ASTNode, message: String)
                       (f: (ASTNode, String) => Annotation): Annotation =
     if (showCompilerErrors)
-      innerHolder.createInfoAnnotation(node, "")
+      innerHolder.createInfoAnnotation(node, convertMsg(message))
     else
       f(node, message)
 
   private def convert3(range: TextRange, message: String)
                       (f: (TextRange, String) => Annotation): Annotation =
     if (showCompilerErrors)
-      innerHolder.createInfoAnnotation(range, "")
+      innerHolder.createInfoAnnotation(range, convertMsg(message))
     else
       f(range, message)
+
+  private def convertMsg(message: String): String =
+    Option(message).map(_ => "").orNull
 }

@@ -26,22 +26,23 @@ class LocalServer extends Server {
               compilerData: CompilerData,
               compilationData: CompilationData,
               client: Client): ExitCode = {
+    val collectingSourcesClient = new DelegateClient(client) with CollectingSourcesClient
     val compiler = try lock.synchronized {
       val compilerFactory = compilerFactoryFrom(sbtData, compilerData)
 
-      client.progress("Instantiating compiler...")
-      compilerFactory.createCompiler(compilerData, client, LocalServer.createAnalysisStore)
+      collectingSourcesClient.progress("Instantiating compiler...")
+      compilerFactory.createCompiler(compilerData, collectingSourcesClient, LocalServer.createAnalysisStore)
     } catch {
       case e: Throwable =>
-        compilationData.sources.foreach(f => client.sourceStarted(f.toString))
+        compilationData.sources.foreach(f => collectingSourcesClient.sourceStarted(f.toString))
         throw e
     }
 
-    if (!client.isCanceled) {
-      compiler.compile(compilationData, client)
+    if (!collectingSourcesClient.isCanceled) {
+      compiler.compile(compilationData, collectingSourcesClient)
     }
 
-    client.compilationEnd(compilationData.sources.toSet)
+    client.compilationEnd(collectingSourcesClient.sources)
     ExitCode.OK
   }
 
@@ -62,5 +63,15 @@ object LocalServer {
   private def createAnalysisStore(cacheFile: File): AnalysisStore = {
     val store = FileAnalysisStore.binary(cacheFile)
     AnalysisStore.getThreadSafeStore(AnalysisStore.getCachedStore(store))
+  }
+
+  private trait CollectingSourcesClient extends Client {
+
+    var sources = Set.empty[File]
+
+    abstract override def generated(source: File, module: File, name: String): Unit = {
+      super.generated(source, module, name)
+      sources += source
+    }
   }
 }

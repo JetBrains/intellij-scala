@@ -53,14 +53,14 @@ trait Client {
 
   def isCanceled: Boolean
 
-  def worksheetOutput(text: String): Unit = {}
+  def worksheetOutput(text: String): Unit
 
-  def compilationEnd(sources: Set[File]): Unit = {}
+  def compilationEnd(sources: Set[File]): Unit
 
-  def processingEnd(): Unit = {}
+  def processingEnd(): Unit
 
   /** Used in sbt compile to invalidate every begined source - so after cancel there will be work to recomile */
-  def sourceStarted(source: String): Unit = {}
+  def sourceStarted(source: String): Unit
 }
 
 object Client {
@@ -70,5 +70,6 @@ object Client {
                              source: Option[File],
                              line: Option[Long],
                              column: Option[Long],
+
                             )
 }

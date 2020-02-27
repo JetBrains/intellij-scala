@@ -22,12 +22,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaPsiElement, override val settings: ScalaHintsSettings)
+private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaFile, override val settings: ScalaHintsSettings)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false)
     with ScalaTypeHintsPass with ScalaMethodChainInlayHintsPass {
 

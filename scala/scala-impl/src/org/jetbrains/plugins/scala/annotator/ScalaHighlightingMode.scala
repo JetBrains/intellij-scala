@@ -4,7 +4,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 
 import scala.concurrent.duration._
 
@@ -15,13 +16,13 @@ object ScalaHighlightingMode {
   def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean = {
     val isRegularScalaFile = Option(file.getVirtualFile)
       .exists(_.getExtension == ScalaFileType.INSTANCE.getDefaultExtension)
-    val enabled = isScala3File(file) && showDotcErrors || showScalacErrors
+    val enabled = file.isScala3File && showDotcErrors || showScalacErrors
 
     isRegularScalaFile && enabled
   }
 
   def showParserErrors(file: PsiFile): Boolean = {
-    val shouldSkip = isScala3File(file) && isShowErrorsFromCompilerEnabled(file)
+    val shouldSkip = file.isScala3File && isShowErrorsFromCompilerEnabled(file)
 
     !shouldSkip
   }
@@ -47,7 +48,4 @@ object ScalaHighlightingMode {
 
   private def hasDotty(project: Project) =
     project.modulesWithScala.exists(_.hasScala3)
-
-  private def isScala3File(file: PsiFile) =
-    file.getLanguage == Scala3Language.INSTANCE
 }

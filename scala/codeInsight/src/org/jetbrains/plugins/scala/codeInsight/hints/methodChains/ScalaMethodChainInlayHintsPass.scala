@@ -7,7 +7,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.util.Disposer
-import com.intellij.psi.{PsiElement, PsiPackage}
+import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.annotations.Expression
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -26,10 +28,15 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
   protected def settings: ScalaHintsSettings
 
-  def collectMethodChainHints(editor: Editor, root: PsiElement): Unit =
+  def collectMethodChainHints(editor: Editor, root: PsiFile): Unit =
     collectedHintTemplates =
-      if (editor.isOneLineMode || !settings.showMethodChainInlayHints) Seq.empty
-      else gatherMethodChainHints(editor, root)
+      if (editor.isOneLineMode ||
+        !settings.showMethodChainInlayHints ||
+        root.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(root)) {
+        Seq.empty
+      } else {
+        gatherMethodChainHints(editor, root)
+      }
 
   private def gatherMethodChainHints(editor: Editor, root: PsiElement): Seq[(Seq[AlignedHintTemplate], ScExpression)] = {
     val document = editor.getDocument
