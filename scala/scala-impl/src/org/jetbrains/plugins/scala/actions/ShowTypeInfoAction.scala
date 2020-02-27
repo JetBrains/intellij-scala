@@ -15,7 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.tasty._
 
 
 /**
@@ -77,6 +79,18 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
     } else {
       val offset = TargetElementUtil.adjustOffset(file, editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
+
+      if (file.isInScala3Module) {
+        for (Location(outputDirectory, className) <- compiledLocationOf(file);
+             tastyFile <- TastyReader.read(outputDirectory, className);
+             presentation <- typeAt(editor.getCaretModel.getLogicalPosition, tastyFile)) {
+
+          showTastyNotification("Type Info")
+          ScalaActionUtil.showHint(editor, presentation)
+          return
+        }
+      }
+
       ShowTypeInfoAction.getTypeInfoHint(editor, file, offset).foreach(ScalaActionUtil.showHint(editor, _))
     }
   }
