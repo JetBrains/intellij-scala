@@ -221,11 +221,12 @@ object ScalaExtractStringToBundleInspection {
       val key = convertStringToKey(keyParts.mkString("."))
       val text = {
         val text = textParts.mkString
-          .replace("}'", "}''")
-          .replace("'{", "''{")
           .replace("\\", "\\\\")
-        if (text.length > 100) text.replace("\n", "\\n\\\n")
-        else text.replace("\n", "\\n")
+        val text2 =
+          if (arguments.isEmpty) text
+          else text.replace("'", "''")
+        if (text2.length > 100) text2.replace("\n", "\\n\\\n")
+        else text2.replace("\n", "\\n")
       }
 
       (key, text, arguments.flatten)
