@@ -5,6 +5,7 @@ package gutter
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
@@ -19,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.tasty._
 
 import scala.annotation.tailrec
 
@@ -36,6 +39,20 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     val sourceElement = containingFile.findElementAt(offset)
     if (sourceElement == null) return null
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
+
+    if (element.isInScala3Module) {
+      for (Location(outputDirectory, className) <- compiledLocationOf(containingFile);
+           tastyFile <- TastyReader.read(outputDirectory, className);
+           (file, offset) <- referenceTargetAt(editor.getCaretModel.getLogicalPosition, tastyFile);
+           virtualFile <- Option(VfsUtil.findFileByIoFile(file, false));
+           psiFile <- Option(PsiManager.getInstance(element.getProject).findFile(virtualFile));
+           targetElement <- Option(psiFile.findElementAt(offset))) {
+
+        showTastyNotification("Navigation")
+
+        return Array(targetElement)
+      }
+    }
 
     val maybeParent = sourceElement.parent
     sourceElement.getNode.getElementType match {
