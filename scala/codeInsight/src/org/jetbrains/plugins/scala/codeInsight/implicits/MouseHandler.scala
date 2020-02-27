@@ -14,6 +14,7 @@ import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing.event.AncestorEvent
 import javax.swing.{JLabel, SwingUtilities}
 import org.jetbrains.plugins.scala.annotator.hints.Text
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -227,7 +228,7 @@ class MouseHandler extends ProjectManagerListener {
   private def showTooltip(editor: Editor, e: MouseEvent, text: String): LightweightHint = {
     val hint = {
       // TODO Why HTML is rewritten by com.intellij.ide.IdeTooltipManager.initPane(com.intellij.util.ui.Html, com.intellij.ui.HintHint, javax.swing.JLayeredPane) ?
-      val label = if (text.contains("Type mismatch.")) new JLabel(text) else HintUtil.createInformationLabel(text)
+      val label = if (text.contains(ScalaCodeInsightBundle.message("type.mismatch.dot"))) new JLabel(text) else HintUtil.createInformationLabel(text)
       label.setBorder(JBUI.Borders.empty(6, 6, 5, 6))
       new LightweightHint(label)
     }

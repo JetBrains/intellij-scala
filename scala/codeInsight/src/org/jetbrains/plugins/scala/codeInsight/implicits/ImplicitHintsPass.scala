@@ -277,12 +277,12 @@ private object ImplicitHintsPass {
 
       case DivergedImplicitResult =>
         namedBasicPresentation(argument)
-          .withErrorTooltipIfEmpty("Implicit is diverged")
+          .withErrorTooltipIfEmpty(ScalaCodeInsightBundle.message("implicit.is.diverged"))
           .withAttributes(errorAttributes)
 
       case CantInferTypeParameterResult =>
         namedBasicPresentation(argument)
-          .withErrorTooltipIfEmpty("Can't infer proper types for type parameters")
+          .withErrorTooltipIfEmpty(ScalaCodeInsightBundle.message("can.t.infer.proper.types.for.type.parameters"))
           .withAttributes(errorAttributes)
     }
   }
@@ -299,17 +299,17 @@ private object ImplicitHintsPass {
     StringUtil.escapeXmlEntities(parameter.name + typeSuffix(parameter))
 
   private def notFoundTooltip(parameter: ScalaResolveResult): String =
-    "No implicits found for parameter " + paramWithType(parameter)
+    ScalaCodeInsightBundle.message("no.implicits.found.for.parameter", paramWithType(parameter))
 
   private def notFoundTooltip(parameters: Seq[ScalaResolveResult]): Option[String] = {
     parameters match {
       case Seq()  => None
       case Seq(p) => Some(notFoundTooltip(p))
-      case ps     => Some("No implicits found for parameters " + ps.map(paramWithType).mkString(", "))
+      case ps     => Some(ScalaCodeInsightBundle.message("no.implicits.found.for.parameters", ps.map(paramWithType).mkString(", ")))
     }
   }
 
   private def ambiguousTooltip(parameter: ScalaResolveResult): String =
-    "Ambiguous implicits for parameter " + paramWithType(parameter)
+    ScalaCodeInsightBundle.message("ambiguous.implicits.for.parameter", paramWithType(parameter))
 }
 

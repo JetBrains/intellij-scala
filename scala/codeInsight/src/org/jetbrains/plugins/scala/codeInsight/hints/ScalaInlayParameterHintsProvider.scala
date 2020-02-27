@@ -41,24 +41,24 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
     }
   }
 
-  override final def getHintInfo(element: PsiElement): hints.HintInfo = element match {
+  override def getHintInfo(element: PsiElement): hints.HintInfo = element match {
     case ResolveMethodCall(methodInfo(info)) => info
     case ResolveConstructorCall(methodInfo(info)) => info
     case _ => null
   }
 
-  override final def getInlayPresentation(inlayText: String): String = inlayText
+  override def getInlayPresentation(inlayText: String): String = inlayText
 
-  override def getMainCheckboxText: String = "Show parameter hints"
+  override def getMainCheckboxText: String = ScalaCodeInsightBundle.message("show.parameter.hints")
 
-  override final def getSupportedOptions: ju.List[hints.Option] = ju.Arrays.asList(
+  override def getSupportedOptions: ju.List[hints.Option] = ju.Arrays.asList(
     applyUpdateParameterNames,
     referenceParameterNames
   )
 
-  override final def getDefaultBlackList: ju.Set[String] = ju.Collections.singleton("scala.*")
+  override def getDefaultBlackList: ju.Set[String] = ju.Collections.singleton("scala.*")
 
-  override final def getBlackListDependencyLanguage: JavaLanguage = JavaLanguage.INSTANCE
+  override def getBlackListDependencyLanguage: JavaLanguage = JavaLanguage.INSTANCE
 }
 
 object ScalaInlayParameterHintsProvider {

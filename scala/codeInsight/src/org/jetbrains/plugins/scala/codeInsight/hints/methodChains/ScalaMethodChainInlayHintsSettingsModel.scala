@@ -11,7 +11,7 @@ import javax.swing.JComponent
 import kotlin.Unit.{INSTANCE => kUnit}
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
-import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightSettings, hints}
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings, hints}
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 import scala.collection.JavaConverters._
@@ -45,7 +45,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
 
   override def getCases: util.List[ImmediateConfigurable.Case] = Seq(
     new ImmediateConfigurable.Case(
-      "In a separate column",
+      ScalaCodeInsightBundle.message("in.a.separate.column"),
       "Scala.ScalaMethodChainInlayHintsSettingsModel.alignMethodChainInlayHints",
       () => settings.alignMethodChainInlayHints,
       b => {
@@ -64,9 +64,9 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   )
   override def getComponent: JComponent = settingsPanel.getPanel
 
-  override def getMainCheckBoxLabel: String = "Show method chain hints"
+  override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("show.method.chain.hints")
 
-  override def getName: String = "Method chain hints"
+  override def getName: String = ScalaCodeInsightBundle.message("method.chain.hints")
 
   override def getPreviewText: String = {
     if (project.isDefault)

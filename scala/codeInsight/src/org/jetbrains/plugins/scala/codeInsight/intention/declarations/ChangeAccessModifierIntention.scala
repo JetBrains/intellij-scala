@@ -151,7 +151,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
       .createPopupChooserBuilder(possibleModifiers.asJava)
       .setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
       .setSelectedValue(possibleModifiers.head, true)
-      .setAccessibleName("Change Modifier")
+      .setAccessibleName(ScalaCodeInsightBundle.message("title.change.modifier"))
       .setMovable(false)
       .setResizable(false)
       .setRequestFocus(true)
