@@ -1,7 +1,5 @@
-package org.jetbrains.tasty.impl
-
-import scala.tasty.reflect._
 import scala.tasty.compat._
+import scala.tasty.reflect._
 
 // Copy of https://github.com/lampepfl/dotty/blob/master/library/src/scala/tasty/reflect/ExtractorsPrinter.scala with cosmetic Scala 2.x updates.
 class ExtractorsPrinter[R <: Reflection with Singleton](val tasty: R) extends Printer[R] {

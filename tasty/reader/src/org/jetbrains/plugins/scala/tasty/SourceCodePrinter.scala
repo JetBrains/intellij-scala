@@ -1,4 +1,4 @@
-package org.jetbrains.tasty.impl
+package org.jetbrains.plugins.scala.tasty
 
 import scala.annotation.switch
 import scala.quoted.show.SyntaxHighlight
@@ -9,6 +9,10 @@ import scala.tasty.compat._
 class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHighlight: SyntaxHighlight) extends Printer[R] {
   import syntaxHighlight._
   import tasty._
+
+  var references: Seq[ReferenceData] = Vector.empty
+
+  var types: Seq[TypeData] = Vector.empty
 
   def showTree(tree: Tree)(implicit ctx: Context): String =
     (new Buffer).printTree(tree).result()
@@ -324,6 +328,28 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         this += "_"
 
       case tree: Ident =>
+        // TODO Handle definitions
+        // Customization
+        val fromPos = tree.pos
+        val toPos = tree.symbol.pos
+        if (fromPos.exists) {
+          val from = Position(fromPos.sourceFile.jpath.toFile.getPath, fromPos.startLine, fromPos.endLine, fromPos.startColumn, fromPos.endColumn)
+          if (toPos.exists) {
+            val file = toPos.sourceFile.jpath.toFile
+            if (file.exists) { // TODO Scalac attempts to read the file to compute offsetToLine (we need to report the bug)
+              val to = Position(file.getPath, toPos.startLine, toPos.endLine, toPos.startColumn, toPos.endColumn)
+              references :+= ReferenceData(from, to)
+            } else {
+              println(toPos.sourceFile.jpath.toFile)
+            }
+          }
+          val previousLength = sb.length()
+          printType(tree.tpe.widen)
+          val presentation = sb.substring(previousLength, sb.length())
+          sb.delete(previousLength, sb.length())
+          types :+= TypeData(from, presentation)
+        }
+
         splicedName(tree.symbol) match {
           case Some(name) => this += name
           case _ => printType(tree.tpe)
@@ -750,7 +776,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
       this += argCons.name
       argCons.rhs match {
-        case rhs: TypeBoundsTree => printBoundsTree(rhs)
+        case rhs: TypeBoundsTree =>  this //printBoundsTree(rhs) TODO
         case rhs: WildcardTypeTree =>
           printTypeOrBound(rhs.tpe)
         case rhs @ LambdaTypeTree(tparams, body) =>
