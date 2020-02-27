@@ -7,7 +7,7 @@ import com.intellij.psi.impl.PsiTreeChangeEventImpl
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiComment, PsiElement, PsiTreeChangeEvent, TokenType}
+import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiTreeChangeEvent, TokenType}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
@@ -64,11 +64,12 @@ private object ScalaPsiEventFilter {
       element match {
         case leaf: LeafPsiElement =>
           leaf.getElementType match {
-            case ERROR_ELEMENT | BAD_CHARACTER | WHITE_SPACE => true
-            case scalaToken: ScalaTokenType                  => !significantTokens.contains(scalaToken)
-            case _                                           => false
+            case WHITE_SPACE | BAD_CHARACTER => true
+            case scalaToken: ScalaTokenType  => !significantTokens.contains(scalaToken)
+            case _                           => false
           }
-        case _ => false
+        case _: PsiErrorElement              => true
+        case _                               => false
       }
     }
   }
