@@ -43,6 +43,7 @@ package object tasty {
           // TODO Perform the check outside this method
           val tastyFile = new File(outputDirectory, relativeSourcePath.dropRight(6) + ".tasty")
           if (tastyFile.exists) {
+            // TODO Handle class <-> file naming conventions
             val className = relativeSourcePath.dropRight(6).replace('/', '.')
             Some(Location(outputDirectory, className))
           } else {
