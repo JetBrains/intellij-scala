@@ -83,21 +83,21 @@ class ScalaTestConfigurationProducer extends AbstractTestConfigurationProducer[S
       case _ => return nullResult
     }
 
-    val selection = ScalaTestAstTransformer.testSelection(location)
-    if (selection != null) {
-      testClassWithTestNameForSelection(clazz, selection)
-        .orElse(testClassWithTestNameForParent(location))
-        .getOrElse(nullResult)
-    } else {
-      val finder = new ScalaTestTestLocationFinder(element, clazz, templateBody)
-      finder.testClassWithTestName
+    ScalaTestAstTransformer.testSelection(location) match {
+      case Some(selection) =>
+        testClassWithTestNameForSelection(clazz, selection)
+          .orElse(testClassWithTestNameForParent(location))
+          .getOrElse(nullResult)
+      case None =>
+        val finder = new ScalaTestSingleTestLocationFinder(element, clazz, templateBody)
+        finder.testClassWithTestName
     }
   }
 
   private def testClassWithTestNameForSelection(
     clazz: ScTypeDefinition,
     selection: TestFindersSelection
-  ): Option[(ScTypeDefinition, String)] = {
+  ): Option[(ScTypeDefinition, String)] =
     if (selection.testNames.nonEmpty) {
       val testNames = selection.testNames.toSeq.map(_.trim)
       val testNamesConcat = testNames.mkString("\n")
@@ -105,7 +105,6 @@ class ScalaTestConfigurationProducer extends AbstractTestConfigurationProducer[S
     } else {
       None
     }
-  }
 
   private def testClassWithTestNameForParent(location: Location[_ <: PsiElement]): Option[(ScTypeDefinition, String)] =
     for {

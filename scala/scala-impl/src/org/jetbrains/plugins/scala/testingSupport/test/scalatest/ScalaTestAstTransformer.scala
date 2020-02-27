@@ -25,28 +25,29 @@ import org.scalatest.finders.{MethodInvocation => _, _}
 import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
+import scala.util.{Failure, Success, Try}
 
 object ScalaTestAstTransformer {
+
   private val LOG: Logger = Logger.getInstance(ScalaTestAstTransformer.getClass)
 
-  def testSelection(location: Location[_ <: PsiElement]): Selection = {
+  def testSelection(location: Location[_ <: PsiElement]): Option[Selection] = {
     val element = location.getPsiElement
     val clazz = PsiTreeUtil.getNonStrictParentOfType(element, classOf[ScClass], classOf[ScTrait])
 
-    if (clazz == null) return null
-
-    try {
-      val found = for {
-        finder <- getFinder(clazz, location.getModule)
-        selected <- getSelectedAstNode(clazz.qualifiedName, element)
-      } yield {
-        finder.find(selected)
-      }
-      found.orNull
-    } catch {
-      case e: Exception =>
+    if (clazz == null) return None
+    Try {
+      for {
+        finder    <- getFinder(clazz, location.getModule)
+        selected  <- getSelectedAstNode(clazz.qualifiedName, element)
+        selection <- Option(finder.find(selected))
+      } yield selection
+    } match {
+      case Failure(e)     =>
         LOG.debug(s"Failed to load scalatest-finders API class for test suite ${clazz.qualifiedName}", e)
-        null
+        None
+      case Success(value) =>
+        value
     }
   }
 

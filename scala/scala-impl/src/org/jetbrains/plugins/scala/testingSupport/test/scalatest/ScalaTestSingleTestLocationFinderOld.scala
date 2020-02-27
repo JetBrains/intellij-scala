@@ -11,8 +11,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
+import ScalaTestTestLocationsFinder.SuiteMethodNames
 
-class ScalaTestTestLocationFinder(
+/**
+ * TODO: now we have two different types set finders:
+ *  1. defined in this class
+ *  2. forked scala-test-finders (see most up-to-date forks: https://github.com/scalatest/scalatest-finders)
+ *  Despite this class has "Old" it's not quite clear which is older
+ *  because original scala-test-finders were abandoned in 2013 (!)
+ *  Currently both finders work in some cases and do not in others.
+ *  We should review all the finders, unify and leave some single finders.
+ *  Aslso consider unifying with [[ScalaTestTestLocationsFinder]]
+ */
+class ScalaTestSingleTestLocationFinderOld(
   element: PsiElement,
   clazz: ScTypeDefinition,
   templateBody: ScTemplateBody

@@ -20,7 +20,7 @@ trait FindersApiTest
     val location = createLocation(lineNumber, offset, fileName)
     var selection: Selection = null
     EdtTestUtil.runInEdtAndWait { () =>
-      selection = ScalaTestAstTransformer.testSelection(location)
+      selection = ScalaTestAstTransformer.testSelection(location).orNull
     }
     assertNotNull(s"selection is null for $fileName:$lineNumber:$offset", selection)
     assertEquals(testNames, selection.testNames().map(_.trim).toSet)
