@@ -32,6 +32,7 @@ lazy val scalaCommunity: sbt.Project =
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       javaDecompilerIntegration)
+    .aggregate(tastyProvided, tastyCompile, tastyRuntime, tastyReader)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
       packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, runtimeDependencies, tastyCompile, tastyRuntime, tastyReader),
@@ -81,15 +82,15 @@ lazy val tastyCompile = newProject("tasty-compile", file("tasty/compile"))
   .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-compile.jar"))
 
 lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
-  .dependsOn(tastyCompile % "compile-internal")
+  .dependsOn(tastyCompile % "compile-internal", tastyProvided % Provided)
   .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
 
 lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
-  .dependsOn(tastyCompile)
+  .dependsOn(tastyCompile, tastyProvided % Provided)
   .settings(scalaVersion := "2.13.1", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.22" % "0.22.0-RC1" % Runtime)
 
 lazy val tastyReader = newProject("tasty-reader", file("tasty/reader"))
-  .dependsOn(tastyCompile)
+  .dependsOn(tastyCompile, tastyProvided % Provided)
   .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-reader.jar"))
 
 lazy val scalaImpl: sbt.Project =
