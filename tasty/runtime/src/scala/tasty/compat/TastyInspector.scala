@@ -16,7 +16,7 @@ private trait TastyInspector extends scala.tasty.inspector.TastyInspector {
   protected def processCompilationUnit0(reflect: Reflection)(tree: reflect.Tree): Unit
 
   def inspect0(classpath: String, classes: List[String]): Unit = {
-    // See the comments in TastyInspector.inspect
+    // See the comments in scala.tasty.inspector.TastyInspector
     val thisInstance = this.asInstanceOf[ {def inspect(classpath: String, classes: List[String]): Unit}]
     thisInstance.inspect(classpath, classes)
   }

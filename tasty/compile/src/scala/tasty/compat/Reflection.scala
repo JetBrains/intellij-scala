@@ -16,9 +16,6 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
 
   implicit class ConstantOpsExt(self: Constant) {
     def value: Any = ConstantOps.value(self)
-    def showExtractors(implicit ctx: Context): String = ConstantOps.showExtractors(self)
-    def show(implicit ctx: Context): String = ConstantOps.show(self)
-    def showWith(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ConstantOps.showWith(self, syntaxHighlight)
   }
 
   implicit class ContextOpsExt(self: Context) {
@@ -34,9 +31,6 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
     def is(that: Flags): Boolean = FlagsOps.is(self)(that)
     def |(that: Flags): Flags = FlagsOps.|(self)(that)
     def &(that: Flags): Flags = FlagsOps.&(self)(that)
-    def showExtractors(implicit ctx: Context): String = FlagsOps.showExtractors(self)
-    def show(implicit ctx: Context): String = FlagsOps.show(self)
-    def showWith(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = FlagsOps.showWith(self, syntaxHighlight)
   }
 
   implicit class IdOpsExt(self: Id) {
@@ -140,17 +134,11 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
     def moduleClass(implicit ctx: Context): Symbol = symbolOps.moduleClass(self)
     def companionClass(implicit ctx: Context): Symbol = symbolOps.companionClass(self)
     def companionModule(implicit ctx: Context): Symbol = symbolOps.companionModule(self)
-    def showExtractors(implicit ctx: Context): String = symbolOps.showExtractors(self)
-    def show(implicit ctx: Context): String = symbolOps.show(self)
-    def showWith(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = symbolOps.showWith(self, syntaxHighlight)
   }
 
   implicit class TreeOpsExt(self: Tree) {
     def pos(implicit ctx: Context): Position = TreeOps.pos(self)
     def symbol(implicit ctx: Context): Symbol = TreeOps.symbol(self)
-    def showExtractors(implicit ctx: Context): String = TreeOps.showExtractors(self)
-    def show(implicit ctx: Context): String = TreeOps.show(self)
-    def showWith(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = TreeOps.showWith(self, syntaxHighlight)
   }
   implicit class PackageClauseOpsExt(self: PackageClause) {
     def pid(implicit ctx: Context): Ref = PackageClauseOps.pid(self)
@@ -367,11 +355,6 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
     def patterns(implicit ctx: Context): List[Tree] = AlternativesOps.patterns(self)
   }
 
-  implicit class TypeOrBoundsOpsExt(self: TypeOrBounds) {
-    def showExtractors(implicit ctx: Context): String = TypeOrBoundsOps.showExtractors(self)
-    def show(implicit ctx: Context): String = TypeOrBoundsOps.show(self)
-    def showWith(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = TypeOrBoundsOps.showWith(self, syntaxHighlight)
-  }
   implicit class TypeOpsExt(self: Type) {
     def =:=(that: Type)(implicit ctx: Context): Boolean = TypeOps.=:=(self)(that)
     def <:<(that: Type)(implicit ctx: Context): Boolean = TypeOps.<:<(self)(that)
