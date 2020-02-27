@@ -88,9 +88,9 @@ lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
   .dependsOn(tastyCompile)
   .settings(scalaVersion := "2.13.1", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.22" % "0.22.0-RC1"  % Runtime)
 
-lazy val tastyDecompiler = newProject("tasty-decompiler", file("tasty/decompiler"))
+lazy val tastyDecompiler = newProject("tasty-reader", file("tasty/reader"))
   .dependsOn(tastyCompile)
-  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-decompiler.jar", static = true))
+  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-reader.jar", static = true))
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
