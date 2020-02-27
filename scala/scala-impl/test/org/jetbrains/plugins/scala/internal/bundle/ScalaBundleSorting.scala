@@ -13,52 +13,55 @@ import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 import scala.io.Source
 
 object ScalaBundleSorting {
-  case class ModuleInfo(rootPath: String, bundlePath: String, searcher: Searcher = new Searcher)
+  case class ModuleInfo(rootPath: String, bundlePath: String, searcher: Searcher = new Searcher) {
+    def srcPath: String = rootPath + "src/"
+    def resourcesPath: String = rootPath + "resources/"
+  }
 
   val scalaModDir: String = TestUtils.findCommunityRoot() + "scala/"
 
   val bspModule: ModuleInfo = ModuleInfo(
-    rootPath = TestUtils.findCommunityRoot() + "bsp/src/",
+    rootPath = TestUtils.findCommunityRoot() + "bsp/",
     bundlePath = TestUtils.findCommunityRoot() + "bsp/resources/messages/BspBundle.properties",
   )
 
   val codeInsightModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "codeInsight/src/",
+    rootPath = scalaModDir + "codeInsight/",
     bundlePath = scalaModDir + "codeInsight/resources/messages/ScalaCodeInsightBundle.properties",
   )
 
   val conversionModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "conversion/src/",
+    rootPath = scalaModDir + "conversion/",
     bundlePath = scalaModDir + "conversion/resources/messages/ScalaConversionBundle.properties",
   )
 
   val scalaImplDir: String = scalaModDir + "scala-impl/"
   val scalaImplModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaImplDir + "src/",
+    rootPath = scalaImplDir,
     bundlePath = scalaImplDir + "resources/messages/ScalaBundle.properties",
   )
   val scalaImplModuleErrMsg: ModuleInfo = ModuleInfo(
-    rootPath = scalaImplDir + "src/",
+    rootPath = scalaImplDir,
     bundlePath = scalaImplDir + "resources/messages/ScalaEditorBundle.properties",
   )
 
   val scalaImplModuleCodeInspection: ModuleInfo = ModuleInfo(
-    rootPath = scalaImplDir + "src/",
+    rootPath = scalaImplDir,
     bundlePath = scalaImplDir + "resources/messages/ScalaInspectionBundle.properties",
   )
 
   val scalaImplModuleSbt: ModuleInfo = ModuleInfo(
-    rootPath = scalaImplDir + "src/",
+    rootPath = scalaImplDir,
     bundlePath = scalaImplDir + "resources/messages/SbtBundle.properties"
   )
 
   val uastModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "uast/src/",
+    rootPath = scalaModDir + "uast/",
     bundlePath = scalaModDir + "uast/resources/messages/ScalaUastBundle.properties",
   )
 
   val worksheetModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "worksheet/src/",
+    rootPath = scalaModDir + "worksheet/",
     bundlePath = scalaModDir + "worksheet/resources/messages/WorksheetBundle.properties",
   )
 
@@ -77,9 +80,9 @@ object ScalaBundleSorting {
   def main(args: Array[String]): Unit = sortAll(allModuleInfos)
 
   def sortAll(moduleInfos: Seq[ModuleInfo]): Unit = for (info <- moduleInfos) {
-    val ModuleInfo(rootPath, bundlePath, searcher) = info
-    println(s"Find keys in $rootPath")
-    val findings = findKeysInModule(rootPath, searcher)
+    val ModuleInfo(rootPath, bundlePath, _) = info
+    println(s"Find keys in ${rootPath}")
+    val findings = findKeysInModule(info)
     val keyToFinding = findings.groupBy(_.key)
 
     println(s"Read bundle $bundlePath")
@@ -132,7 +135,11 @@ object ScalaBundleSorting {
 
   case class Finding(relativeFilepath: String, key: String)(val absoluteFilepath: String)
 
-  def findKeysInModule(path: String, searcher: Searcher): List[Finding] =
+  def findKeysInModule(module: ModuleInfo): List[Finding] =
+    findKeysInDirectory(module.srcPath, module.searcher) ++
+      findKeysInDirectory(module.resourcesPath, module.searcher)
+
+  def findKeysInDirectory(path: String, searcher: Searcher): List[Finding] =
     for (file <- allFilesIn(path).toList.sorted; key <- searcher.search(file)) yield {
       val absoluteFilepath = file.toString.replace('\\', '/')
       val relativeFilepath = absoluteFilepath.substring(path.length)

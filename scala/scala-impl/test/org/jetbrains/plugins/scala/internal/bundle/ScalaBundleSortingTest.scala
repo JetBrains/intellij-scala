@@ -23,9 +23,8 @@ class ScalaBundleSortingTest extends ScalaBundleSortingTestBase {
 
 abstract class ScalaBundleSortingTestBase extends TestCase with AssertionMatchers {
   def testDirectory(info: ModuleInfo): Unit = {
-    val ModuleInfo(rootPath, bundlePath, searcher) = info
-    val findings = findKeysInModule(rootPath, searcher)
-    val I18nBundleContent(entries) = read(bundlePath)
+    val findings = findKeysInModule(info)
+    val I18nBundleContent(entries) = read(info.bundlePath)
 
     val keyToFinding = findings.groupBy(_.key)
 
