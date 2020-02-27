@@ -8,7 +8,14 @@ object Main {
   val tastyConsumer: TastyConsumer = new TastyConsumer {
     override def apply(reflect: Reflection)(tree: reflect.Tree): Unit = {
       val codePrinter = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain)
-      println(codePrinter.showTree(tree)(reflect.rootContext))
+      val customOutput = codePrinter.showTree(tree)(reflect.rootContext)
+      println(customOutput)
+
+      import reflect._
+      val originalOutput = tree.show(reflect.rootContext)
+      println(originalOutput)
+
+      assert(customOutput == originalOutput)
     }
   }
 
@@ -47,6 +54,5 @@ object Main {
 
     consumeTasty.apply(home + "/.ivy2/cache/ch.epfl.lamp/dotty-library_0.22/jars/dotty-library_0.22-0.22.0-RC1.jar",
       List("scala.tasty.reflect.SourceCodePrinter"), tastyConsumer)
-
   }
 }
