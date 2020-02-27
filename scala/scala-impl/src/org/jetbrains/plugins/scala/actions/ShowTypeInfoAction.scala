@@ -80,7 +80,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
       val offset = TargetElementUtil.adjustOffset(file, editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
 
-      if (file.isInScala3Module) {
+      if (isTastyEnabledFor(file)) {
         for (Location(outputDirectory, className) <- compiledLocationOf(file);
              tastyFile <- TastyReader.read(outputDirectory, className);
              presentation <- typeAt(editor.getCaretModel.getLogicalPosition, tastyFile)) {

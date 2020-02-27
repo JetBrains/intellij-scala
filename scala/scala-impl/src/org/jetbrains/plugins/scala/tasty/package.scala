@@ -10,7 +10,7 @@ import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.AlarmFactory
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project._
@@ -26,6 +26,9 @@ package object tasty {
   type Position = { def file: String; def startLine: Int; def endLine: Int; def startColumn: Int; def endColumn: Int }
   type ReferenceData = { def from: Position; def to: Position }
   type TypeData = { def from: Position; def presentation: String }
+
+  def isTastyEnabledFor(element: PsiElement): Boolean =
+    element.getContainingFile.getLanguage.is(Scala3Language.INSTANCE)
 
   case class Location(outputDirectory: String, className: String)
 

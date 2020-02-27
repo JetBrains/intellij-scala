@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.tasty._
 
 import scala.annotation.tailrec
@@ -40,7 +39,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (sourceElement == null) return null
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
-    if (element.isInScala3Module) {
+    if (isTastyEnabledFor(element)) {
       for (Location(outputDirectory, className) <- compiledLocationOf(containingFile);
            tastyFile <- TastyReader.read(outputDirectory, className);
            (file, offset) <- referenceTargetAt(editor.getCaretModel.getLogicalPosition, tastyFile);
