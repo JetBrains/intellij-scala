@@ -78,7 +78,7 @@ lazy val tastyProvided = newProject("tasty-provided", file("tasty/provided"))
 
 lazy val tastyCompile = newProject("tasty-compile", file("tasty/compile"))
   .dependsOn(tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.1")
+  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-compile.jar", static = true))
 
 lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
   .dependsOn(tastyCompile % "compile-internal")
