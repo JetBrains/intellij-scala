@@ -9,9 +9,11 @@ import com.intellij.codeInspection.{LocalInspectionEP, LocalInspectionTool}
 import com.intellij.ide.scratch.ScratchRootType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.EditorTestUtil
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, executeWriteActionCommand}
@@ -32,6 +34,11 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
 
   val START = EditorTestUtil.SELECTION_START_TAG
   val END = EditorTestUtil.SELECTION_END_TAG
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
+  }
 
   protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
@@ -18,6 +19,11 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
   private var filesCreated: Boolean = false
 
   protected def withHints = false
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false)
+  }
 
   def assertErrors(code: String, messages: Message*): Unit =
     assertEqualsFailable(messages.mkString("\n"), errorsFromScalaCode(code).mkString("\n"))

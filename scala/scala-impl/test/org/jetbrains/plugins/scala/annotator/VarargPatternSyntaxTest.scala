@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 
@@ -52,13 +51,7 @@ class VarargPatternSyntaxTest extends VarargPatternSyntaxTestBase {
 }
 
 // Scala3
-abstract class VarargPatternSyntaxScala3TestBase extends VarargPatternSyntaxTestBase {
-
-  override def setUp(): Unit = {
-    super.setUp()
-    Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
-  }
-}
+abstract class VarargPatternSyntaxScala3TestBase extends VarargPatternSyntaxTestBase
 
 class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
 
