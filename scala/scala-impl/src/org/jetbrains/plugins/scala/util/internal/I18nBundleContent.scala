@@ -163,4 +163,25 @@ object I18nBundleContent {
       path
     }
   }
+
+  private val nonWordSeq = raw"\W+".r
+  private val Trimmed = raw"\W*(.*?)\W*".r
+  def convertStringToKey(string: String): String = {
+    val maxKeyLength = 60
+    val Trimmed(fullKey) = nonWordSeq.replaceAllIn(string, ".").toLowerCase
+
+    lazy val lastDotIdx = fullKey.lastIndexOf(".", maxKeyLength - 3)
+    if (fullKey.length < maxKeyLength) fullKey
+    else if (lastDotIdx < maxKeyLength - 20) fullKey.substring(0, maxKeyLength - 3) + "..."
+    else fullKey.substring(0, lastDotIdx) + "..."
+  }
+
+  def escapeText(text: String, hasArgs: Boolean): String = {
+    val text1 = text.replace("\\", "\\\\")
+    val text2 =
+      if (!hasArgs) text1
+      else text1.replace("'", "''")
+    if (text2.length > 100) text2.replace("\n", "\\n\\\n")
+    else text2.replace("\n", "\\n")
+  }
 }

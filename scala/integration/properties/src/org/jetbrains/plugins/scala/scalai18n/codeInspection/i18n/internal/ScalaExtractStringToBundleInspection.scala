@@ -188,20 +188,6 @@ object ScalaExtractStringToBundleInspection {
       }
     }
 
-
-
-    private val nonWordSeq = raw"\W+".r
-    private val Trimmed = raw"\W*(.*?)\W*".r
-    private def convertStringToKey(string: String): String = {
-      val maxKeyLength = 60
-      val Trimmed(fullKey) = nonWordSeq.replaceAllIn(string, ".").toLowerCase
-
-      lazy val lastDotIdx = fullKey.lastIndexOf(".", maxKeyLength - 3)
-      if (fullKey.length < maxKeyLength) fullKey
-      else if (lastDotIdx < maxKeyLength - 20) fullKey.substring(0, maxKeyLength - 3) + "..."
-      else fullKey.substring(0, lastDotIdx) + "..."
-    }
-
     private val lastwordRegex = raw"\w+".r
     private def lastWord(string: String): Option[String] =
       lastwordRegex.findAllIn(string).toSeq.lastOption
@@ -218,7 +204,7 @@ object ScalaExtractStringToBundleInspection {
           (lastWord(value).getOrElse(keyAlternative), s"{$argNum}", Some(value))
       }
       val (keyParts, textParts, arguments) = bindings.unzip3
-      val key = convertStringToKey(keyParts.mkString("."))
+      val key = I18nBundleContent.convertStringToKey(keyParts.mkString("."))
       val text = {
         val text = textParts.mkString
           .replace("\\", "\\\\")
