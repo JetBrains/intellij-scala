@@ -311,7 +311,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
               }
             } else {
               //for completion only!
-              funCollectNamedCompletions(fun.paramClauses, assign, processor, subst, exprs, invocationCount)
+              funCollectNamedCompletions(fun.paramClauses, processor, subst, exprs, invocationCount)
             }
           case ScalaResolveResult(_: FakePsiMethod, _: ScSubstitutor) => //todo: ?
           case ScalaResolveResult(method: PsiMethod, subst) =>
@@ -422,7 +422,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                     }
                   } else {
                     //for completion only!
-                    funCollectNamedCompletions(fun.paramClauses, assign, baseProcessor, subst, args.exprs, args.invocationCount)
+                    funCollectNamedCompletions(fun.paramClauses, baseProcessor, subst, args.exprs, args.invocationCount)
                   }
                 case ScalaResolveResult(constructor: ScPrimaryConstructor, _) =>
                   if (!baseProcessor.isInstanceOf[CompletionProcessor])
@@ -433,7 +433,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                     }
                   else {
                     //for completion only!
-                    funCollectNamedCompletions(constructor.parameterList, assign, baseProcessor, subst, args.exprs, args.invocationCount)
+                    funCollectNamedCompletions(constructor.parameterList, baseProcessor, subst, args.exprs, args.invocationCount)
                   }
                 case _ =>
               }
@@ -469,33 +469,18 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
     }
 
-    def funCollectNamedCompletions(clauses: ScParameters, assign: PsiElement, processor: BaseProcessor,
-                                           subst: ScSubstitutor, exprs: Seq[ScExpression], invocationCount: Int): Unit = {
+    def funCollectNamedCompletions(clauses: ScParameters, processor: BaseProcessor,
+                                   subst: ScSubstitutor, exprs: Seq[ScExpression], invocationCount: Int): Unit = {
       if (clauses.clauses.length >= invocationCount) {
         val actualClause = clauses.clauses(invocationCount - 1)
-        val params = new ArrayBuffer[ScParameter] ++ actualClause.parameters
-        var i = 0
-
-        def tail(): Unit = {
-          if (params.nonEmpty) params.remove(0)
+        val params = actualClause.parameters
+        val usedArgNames = exprs.collect {
+          case ScAssignment(ref: ScReferenceExpression, _) => ref.refName
         }
+        val unusedParams = params.filterNot(p => usedArgNames.exists(equivalent(p.name, _)))
 
-        while (exprs(i) != assign) {
-          exprs(i) match {
-            case assignStmt: ScAssignment =>
-              assignStmt.leftExpression match {
-                case ref: ScReferenceExpression =>
-                  val ind = params.indexWhere(p => equivalent(p.name, ref.refName))
-                  if (ind != -1) params.remove(ind)
-                  else tail()
-                case _ => tail()
-              }
-            case _ => tail()
-          }
-          i = i + 1
-        }
         val state = ScalaResolveState.withSubstitutor(subst).withNamedParam
-        for (param <- params) {
+        for (param <- unusedParams) {
           processor.execute(param, state)
         }
       }
