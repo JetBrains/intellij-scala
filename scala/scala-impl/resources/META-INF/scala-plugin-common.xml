@@ -1462,7 +1462,7 @@
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterSelectedDocumentListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterPsiTreeChangeListener"/>
+                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterOnProjectOpenedListener"/>
     </projectListeners>
 
     <actions>

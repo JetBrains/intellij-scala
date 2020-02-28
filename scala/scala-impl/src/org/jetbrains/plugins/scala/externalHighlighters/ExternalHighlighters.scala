@@ -2,13 +2,17 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil}
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.PsiManager
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.externalHighlighters.HighlightingStateManager.HighlightingState
 import org.jetbrains.plugins.scala.editor.EditorExt
 import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.settings.ProblemSolverUtils
 
 import scala.collection.JavaConverters._
 
@@ -22,22 +26,34 @@ object ExternalHighlighters {
   def applyHighlighting(project: Project,
                         editor: Editor,
                         state: HighlightingState): Unit =
-    for (vFile <- editor.scalaFile)
-      invokeLater {
-        val highlightInfos = state.get(vFile)
-          .map(_.highlightings)
-          .getOrElse(Seq.empty)
-          .map(toHighlightInfo(_, editor))
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+      for (vFile <- editor.scalaFile)
+        invokeLater {
+          val highlightInfos = state.get(vFile)
+            .map(_.highlightings)
+            .getOrElse(Seq.empty)
+            .map(toHighlightInfo(_, editor))
 
-        val document = editor.getDocument
-        UpdateHighlightersUtil.setHighlightersToEditor(
-          project,
-          document, 0, document.getTextLength,
-          highlightInfos.toSeq.asJava,
-          editor.getColorsScheme,
-          Pass.EXTERNAL_TOOLS
-        )
+          val document = editor.getDocument
+          UpdateHighlightersUtil.setHighlightersToEditor(
+            project,
+            document, 0, document.getTextLength,
+            highlightInfos.toSeq.asJava,
+            editor.getColorsScheme,
+            Pass.EXTERNAL_TOOLS
+          )
+        }
+    }
+
+  def informWolf(project: Project, state: HighlightingState): Unit =
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+      ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
+      val wolf = WolfTheProblemSolver.getInstance(project)
+      val errorFiles = state.collect {
+        case (file, fileState) if fileState.highlightings.exists(_.severity == HighlightSeverity.ERROR) => file
       }
+      errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, this))
+    }
 
   private def toHighlightInfo(highlighting: ExternalHighlighting, editor: Editor): HighlightInfo = {
     val highlightRange =
