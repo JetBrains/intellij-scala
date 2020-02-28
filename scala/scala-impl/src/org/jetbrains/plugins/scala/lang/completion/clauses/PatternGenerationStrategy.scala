@@ -3,6 +3,7 @@ package lang
 package completion
 package clauses
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiElement, PsiEnumConstant}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
@@ -32,7 +33,7 @@ object PatternGenerationStrategy {
 
     def createClauses(prefix: Option[String] = None,
                       suffix: Option[String] = None)
-                     (implicit place: PsiElement): (Seq[PatternComponents], String) = {
+                     (implicit project: Project): (Seq[PatternComponents], String) = {
       val components = strategy.patterns
 
       val clausesText = components.map(_.canonicalClauseText)

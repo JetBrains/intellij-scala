@@ -58,7 +58,7 @@ object ScalaExhaustiveMatchPostfixTemplate {
   private def expandForStrategy(expression: ScExpression,
                                 strategy: PatternGenerationStrategy)
                                (implicit project: Project, editor: Editor): Unit = {
-    val (components, clausesText) = strategy.createClauses()(expression)
+    val (components, clausesText) = strategy.createClauses()
     val file = expression.getContainingFile
     val expressionText = expression.getText
 

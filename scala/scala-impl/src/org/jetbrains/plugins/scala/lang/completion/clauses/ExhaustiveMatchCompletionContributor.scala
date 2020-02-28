@@ -33,8 +33,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
         case _ => None
       }
 
-      override protected def createInsertHandler(strategy: PatternGenerationStrategy)
-                                                (implicit place: PsiElement) =
+      override protected def createInsertHandler(strategy: PatternGenerationStrategy) =
         new ExhaustiveClauseInsertHandler[ScMatch](strategy, None, None)
     }
   }
@@ -46,8 +45,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
                                        (implicit place: PsiElement): Option[ScType] =
         expectedMatchType(`match`)
 
-      override protected def createInsertHandler(strategy: PatternGenerationStrategy)
-                                                (implicit place: PsiElement) =
+      override protected def createInsertHandler(strategy: PatternGenerationStrategy) =
         new ExhaustiveClauseInsertHandler[ScMatch](strategy)
     }
   }
@@ -63,8 +61,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
                                        (implicit place: PsiElement): Option[ScType] =
         expectedFunctionalType(block)
 
-      override protected def createInsertHandler(strategy: PatternGenerationStrategy)
-                                                (implicit place: PsiElement) =
+      override protected def createInsertHandler(strategy: PatternGenerationStrategy) =
         new ExhaustiveClauseInsertHandler[ScBlockExpr](strategy)
     }
   }
@@ -91,7 +88,7 @@ object ExhaustiveMatchCompletionContributor {
 
       lookupElement = buildLookupElement(
         keywordLookupString,
-        createInsertHandler(strategy)(parameters.place)
+        createInsertHandler(strategy)
       ) {
         case (_, presentation: LookupElementPresentation) =>
           presentation.setItemText(keywordLookupString)
@@ -105,16 +102,14 @@ object ExhaustiveMatchCompletionContributor {
     protected def targetType(expression: E)
                             (implicit place: PsiElement): Option[ScType]
 
-    protected def createInsertHandler(strategy: PatternGenerationStrategy)
-                                     (implicit place: PsiElement): ExhaustiveClauseInsertHandler[_]
+    protected def createInsertHandler(strategy: PatternGenerationStrategy): ExhaustiveClauseInsertHandler[_]
   }
 
   private final class ExhaustiveClauseInsertHandler[
     E <: ScExpression : reflect.ClassTag
   ](strategy: PatternGenerationStrategy,
     prefix: Option[String] = Some(""),
-    suffix: Option[String] = Some(""))
-   (implicit place: PsiElement) extends ClauseInsertHandler[E] {
+    suffix: Option[String] = Some("")) extends ClauseInsertHandler[E] {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
       val (components, clausesText) = strategy.createClauses(prefix, suffix)
