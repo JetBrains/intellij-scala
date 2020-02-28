@@ -245,7 +245,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
   private def jvmTestEnvironmentBspRequest(targets: Seq[BuildTargetIdentifier])
                                           (implicit server: BspServer,
                                            capabilities: BuildServerCapabilities): CompletableFuture[Either[JvmTestEnvironmentNotSupported.type ,JvmTestEnvironmentResult]] =
-    if (Option(capabilities.getJvmTestEnvironmentProvider).forall(_.booleanValue())) {
+    if (Option(capabilities.getJvmTestEnvironmentProvider).exists(_.booleanValue())) {
       server.jvmTestEnvironment(new JvmTestEnvironmentParams(targets.asJava)).thenApply(Right(_))
     } else {
       CompletableFuture.completedFuture(Left(JvmTestEnvironmentNotSupported))
