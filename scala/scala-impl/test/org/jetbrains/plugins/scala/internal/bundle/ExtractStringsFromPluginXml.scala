@@ -23,8 +23,22 @@ object ExtractStringsFromPluginXml {
     bundleQualifiedPath = "messages.ScalaInspectionBundle",
   )
 
+  val sbtPluginXml: PluginXmlInfo = PluginXmlInfo(
+    resourcePath = scalaModDir + "scala-impl/resources/",
+    relativeXmlPath = "META-INF/SBT.xml",
+    bundleQualifiedPath = "messages.SbtBundle",
+  )
+
+  val worksheetPluginXml: PluginXmlInfo = PluginXmlInfo(
+    resourcePath = scalaModDir + "worksheet/resources/",
+    relativeXmlPath = "META-INF/worksheet.xml",
+    bundleQualifiedPath = "messages.WorksheetBundle",
+  )
+
   val allXmls = Seq(
     communityPluginXml,
+    sbtPluginXml,
+    worksheetPluginXml,
   )
 
   def main(args: Array[String]): Unit =

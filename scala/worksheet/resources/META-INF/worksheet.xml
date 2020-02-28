@@ -12,7 +12,8 @@
         <lang.substitutor language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.ScalaWorksheetLanguageSubstitutor"/>
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.inspections.WorksheetPackageDeclarationInspection"
-                         displayName="Worksheet package declaration"
+                         bundle="messages.WorksheetBundle"
+                         key="displayname.worksheet.package.declaration"
                          groupPath="Scala" groupName="Worksheet"
                          level="ERROR" enabledByDefault="true" language="Scala"/>
 

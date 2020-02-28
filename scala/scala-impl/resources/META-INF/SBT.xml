@@ -16,10 +16,10 @@
         <fileType name="sbtShell" language="sbtShell" extensions="sbts"
                   implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
                   fieldName="MODULE$"/>
-        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator" />
+        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="first"/>
-        <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition" />
+        <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
 
@@ -34,7 +34,7 @@
 
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
         <externalSystemViewContributor implementation="org.jetbrains.sbt.project.SbtViewContributor"/>
-        <externalIconProvider key="SBT" implementationClass="org.jetbrains.sbt.SbtIconProvider" />
+        <externalIconProvider key="SBT" implementationClass="org.jetbrains.sbt.SbtIconProvider"/>
 
         <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
@@ -58,7 +58,9 @@
         <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory" order="first"/>
 
         <!--suppress PluginXmlCapitalization -->
-        <projectConfigurable groupId="build.tools" displayName="sbt" instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable" />
+        <projectConfigurable groupId="build.tools" bundle="messages.SbtBundle"
+                             key="displayname.sbt"
+                             instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>
 
         <toolWindow id="sbt" anchor="right"
                     icon="/org/jetbrains/plugins/scala/images/sbt_toolwin.svg"
@@ -67,7 +69,7 @@
         <toolWindow id="sbt-shell-toolwindow" anchor="bottom" canCloseContents="false"
                     icon="/org/jetbrains/plugins/scala/images/sbt_shell_toolwin.svg"
                     factoryClass="org.jetbrains.sbt.shell.SbtShellToolWindowFactory"
-                    doNotActivateOnStart="true" />
+                    doNotActivateOnStart="true"/>
 
         <psi.referenceContributor implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
@@ -87,12 +89,14 @@
 
         <!--suppress PluginXmlCapitalization -->
         <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtReplaceProjectWithProjectInInspection"
-                        displayName="Replace Project() with project.in()" groupName="sbt"
-                        shortName="SbtReplaceProjectWithProjectIn"
-                        level="WARNING" enabledByDefault="true" language="Scala"/>
+                         bundle="messages.SbtBundle"
+                         key="displayname.replace.project.with.project.in"
+                         groupName="sbt"
+                         shortName="SbtReplaceProjectWithProjectIn"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
-        
+
         <programRunner implementation="org.jetbrains.sbt.runner.SbtProgramRunner" order="first"/>
         <programRunner implementation="org.jetbrains.sbt.runner.SbtDebugProgramRunner" order="first"/>
 
@@ -103,7 +107,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
-        <unresolvedReferenceFixProvider implementation="org.jetbrains.sbt.annotator.dependency.AddSbtDependencyFixProvider" />
+        <unresolvedReferenceFixProvider implementation="org.jetbrains.sbt.annotator.dependency.AddSbtDependencyFixProvider"/>
     </extensions>
 
     <actions>
