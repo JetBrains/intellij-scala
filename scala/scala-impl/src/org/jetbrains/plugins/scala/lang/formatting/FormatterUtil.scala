@@ -44,8 +44,9 @@ object FormatterUtil {
   }
 
   def getNormalIndentString(project: Project): String = {
-    String.format("%1$" +
-      ScalaCodeStyleSettings.getInstance(project).getContainer.getIndentSize(ScalaFileType.INSTANCE) + "s", " ")
+    val settings  = ScalaCodeStyleSettings.getInstance(project).getContainer
+    val indentSize = settings.getIndentSize(ScalaFileType.INSTANCE)
+    String.format("%1$" + indentSize + "s", " ")
   }
 
   def isCommentGrabbingPsi(element: PsiElement): Boolean = element match {

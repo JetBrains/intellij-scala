@@ -43,6 +43,9 @@ object TestConfigurationUtil {
     suiteClazz.fold(false)(ScalaPsiUtil.isInheritorDeep(clazz, _))
   }
 
+  def isInheritor(clazz: ScTemplateDefinition, fqn: String, otherFqns: String*): Boolean =
+    isInheritor(clazz, fqn) || otherFqns.exists(isInheritor(clazz, _))
+
   //noinspection TypeAnnotation
   private object StringMethodNames {
     val ToLowerCase = "toLowerCase"
