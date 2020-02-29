@@ -85,11 +85,11 @@ class ScalaTestConfigurationProducer extends AbstractTestConfigurationProducer[S
 
     ScalaTestAstTransformer.testSelection(location) match {
       case Some(selection) =>
-        testClassWithTestNameForSelection(clazz, selection)
-          .orElse(testClassWithTestNameForParent(location))
-          .getOrElse(nullResult)
+        val result1 = testClassWithTestNameForSelection(clazz, selection)
+        val result2 = result1.orElse(testClassWithTestNameForParent(location))
+        result2.getOrElse(nullResult)
       case None =>
-        val finder = new ScalaTestSingleTestLocationFinder(element, clazz, templateBody)
+        val finder = new ScalaTestSingleTestLocationFinderOld(element, clazz, templateBody)
         finder.testClassWithTestName
     }
   }

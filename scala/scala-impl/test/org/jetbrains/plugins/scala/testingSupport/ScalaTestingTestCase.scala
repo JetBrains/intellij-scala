@@ -27,11 +27,12 @@ import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.debugger._
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestAstTransformer, ScalaTestRunConfiguration}
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
@@ -111,14 +112,12 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
     val myManager = PsiManager.getInstance(project)
 
-    var psiElement: PsiElement = null
-
-    EdtTestUtil.runInEdtAndWait(() => {
+    val psiElement: PsiElement = EdtTestUtil.runInEdtAndGet { () =>
       val psiFile = myManager.findViewProvider(file).getPsi(ScalaLanguage.INSTANCE)
-      psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
-        getLineStartOffset(lineNumber) + offset)
-    })
-
+      val document = FileDocumentManager.getInstance().getDocument(file)
+      val lineStartOffset = document.getLineStartOffset(lineNumber)
+      psiFile.findElementAt(lineStartOffset + offset)
+    }
     new PsiLocation(project, myModule, psiElement)
   }
 
@@ -170,14 +169,13 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
     val testResultListener = new TestResultListener(runConfig.getName)
     var testTreeRoot: Option[AbstractTestProxy] = None
+
     EdtTestUtil.runInEdtAndWait(() => {
       if (needMake) {
         compiler.rebuild().assertNoProblems(allowWarnings = true)
         saveChecksums()
       }
-      val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
-        _.getClass == classOf[DefaultJavaProgramRunner]
-      }.get
+      val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find(_.getClass == classOf[DefaultJavaProgramRunner]).get
       val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], new ProcessAdapter {
         override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
           val text = event.getText

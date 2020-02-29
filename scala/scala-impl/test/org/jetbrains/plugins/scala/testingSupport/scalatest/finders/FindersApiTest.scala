@@ -1,30 +1,16 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.finders
 
-import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators._
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTransformer
-import org.junit.Assert.{assertEquals, assertNotNull}
-import org.scalatest.finders.Selection
 
-trait FindersApiTest
-  extends FeatureSpecGenerator
-    with FlatSpecGenerator
-    with FreeSpecGenerator
-    with FreeSpecPathGenerator
-    with FunSpecGenerator
-    with FunSuiteGenerator
-    with PropSpecGenerator
-    with WordSpecGenerator {
-
-  def checkSelection(lineNumber: Int, offset: Int, fileName: String, testNames: Set[String]): Unit = {
-    val location = createLocation(lineNumber, offset, fileName)
-    var selection: Selection = null
-    EdtTestUtil.runInEdtAndWait { () =>
-      selection = ScalaTestAstTransformer.testSelection(location).orNull
-    }
-    assertNotNull(s"selection is null for $fileName:$lineNumber:$offset", selection)
-    assertEquals(testNames, selection.testNames().map(_.trim).toSet)
-  }
+trait FindersApiTest extends FindersApiBaseTest
+  with FeatureSpecGenerator
+  with FlatSpecGenerator
+  with FreeSpecGenerator
+  with FreeSpecPathGenerator
+  with FunSpecGenerator
+  with FunSuiteGenerator
+  with PropSpecGenerator
+  with WordSpecGenerator {
 
   def testFeatureSpec(): Unit = {
     val scenarioA = "Feature: Feature 1 Scenario: Scenario A"
@@ -172,6 +158,8 @@ trait FindersApiTest
     checkSelection(10, 10, complexFreeSpecFileName, Set(testName2, testName3))
     //tagged test
     checkSelection(12, 10, freeSpecFileName, Set("A FreeSpecTest can be tagged"))
+    //not nested
+    checkSelection(33, 22, complexFreeSpecFileName, Set("Not nested scope"))
   }
 
   def testFunSpec(): Unit = {
@@ -223,14 +211,14 @@ trait FindersApiTest
     val testName1 = "WordSpecTest should Run single test"
     val testName2 = "WordSpecTest should ignore other tests"
 
-//    //outer scope
-//    checkSelection(3, 5, wordSpecFileName, Set(testName1, testName2))
-//    //'should' word
-//    checkSelection(3, 20, wordSpecFileName, Set(testName1, testName2))
-//    //inner scope
-//    checkSelection(4, 10, wordSpecFileName, Set(testName1))
-//    //'in' word
-//    checkSelection(8, 26, wordSpecFileName, Set(testName2))
+    //outer scope
+    checkSelection(3, 5, wordSpecFileName, Set(testName1, testName2))
+    //'should' word
+    checkSelection(3, 20, wordSpecFileName, Set(testName1, testName2))
+    //inner scope
+    checkSelection(4, 10, wordSpecFileName, Set(testName1))
+    //'in' word
+    checkSelection(8, 26, wordSpecFileName, Set(testName2))
     //tagged test
     checkSelection(20, 10, wordSpecFileName, Set("tagged should be tagged"))
   }

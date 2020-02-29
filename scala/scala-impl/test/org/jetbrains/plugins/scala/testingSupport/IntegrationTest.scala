@@ -102,7 +102,7 @@ trait IntegrationTest {
         val configTests = parseTestName(testData.testName)
         assertArrayEquals("test names should be the same as expected", testNames, configTests)
       case _: ClassTestData =>
-        assertTrue("test names should be empty", testNames.isEmpty)
+        assertTrue("test names should be empty for whole-class test run configuration", testNames.isEmpty)
     }
   }
 
@@ -278,11 +278,6 @@ trait IntegrationTest {
     TestRunnerUtil.unescapeTestName(str)
   }
 
-  def assertArrayEquals(message: String, expecteds: Seq[String], actuals: Seq[String]): Unit = {
-    Assert.assertArrayEquals(
-      message,
-      expecteds.toArray.asInstanceOf[Array[Object]],
-      actuals.toArray.asInstanceOf[Array[Object]]
-    )
-  }
+  def assertArrayEquals(message: String, expecteds: Seq[String], actuals: Seq[String]): Unit =
+    Assert.assertEquals(message, expecteds, actuals)
 }

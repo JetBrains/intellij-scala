@@ -33,23 +33,24 @@ object ScalaTestAstTransformer {
 
   def testSelection(location: Location[_ <: PsiElement]): Option[Selection] = {
     val element = location.getPsiElement
-    val clazz = PsiTreeUtil.getNonStrictParentOfType(element, classOf[ScClass], classOf[ScTrait])
+    val typeDef = PsiTreeUtil.getNonStrictParentOfType(element, classOf[ScClass], classOf[ScTrait])
 
-    if (clazz == null) return None
-    Try {
-      for {
-        finder    <- getFinder(clazz, location.getModule)
-        selected  <- getSelectedAstNode(clazz.qualifiedName, element)
-        selection <- Option(finder.find(selected))
-      } yield selection
-    } match {
+    if (typeDef == null) return None
+    Try(testSelection(element, typeDef, location.getModule)) match {
       case Failure(e)     =>
-        LOG.debug(s"Failed to load scalatest-finders API class for test suite ${clazz.qualifiedName}", e)
+        LOG.debug(s"Failed to load scalatest-finders API class for test suite ${typeDef.qualifiedName}", e)
         None
       case Success(value) =>
         value
     }
   }
+
+  private def testSelection(element: PsiElement, typeDef: ScTypeDefinition, module: Module): Option[Selection] =
+    for {
+      finder    <- getFinder(typeDef, module)
+      selected  <- getSelectedAstNode(typeDef.qualifiedName, element)
+      selection <- Option(finder.find(selected))
+    } yield selection
 
   def getFinder(clazz: ScTypeDefinition, module: Module): Option[Finder] = {
     val classes = MixinNodes.linearization(clazz).flatMap(_.extractClass.toSeq)
@@ -72,12 +73,16 @@ object ScalaTestAstTransformer {
     None
   }
 
-  @tailrec
   private def getSelectedAstNode(className: String, element: PsiElement): Option[AstNode] = {
-    transformNode(className, element) match {
-      case None => getSelectedAstNode(className, element.getParent)
-      case some => some
-    }
+    @tailrec
+    def inner(el: PsiElement): Option[AstNode] =
+      transformNode(className, el) match {
+        case None => inner(el.getParent)
+        case some => some
+      }
+
+    val astNode = inner(element)
+    astNode
   }
 
   private def getNameFromAnnotLiteral(expr: ScExpression): String = expr match {

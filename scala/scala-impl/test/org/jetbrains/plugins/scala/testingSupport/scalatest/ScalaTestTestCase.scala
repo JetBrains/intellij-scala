@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package testingSupport.scalatest
+package org.jetbrains.plugins.scala.testingSupport.scalatest
 
 import org.jetbrains.plugins.scala.lang.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase

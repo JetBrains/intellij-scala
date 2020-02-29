@@ -45,7 +45,6 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
    * for uTest  location hint format see
    * [[org.jetbrains.plugins.scala.testingSupport.uTest.UTestReporter]]
    */
-  @Measure
   override def getInfo(element: PsiElement): RunLineMarkerContributor.Info =
     element match {
       case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>
@@ -56,7 +55,6 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
 
   // REMINDER from codeInsight.daemon.LineMarkerInfo:
   // LineMarker is supposed to be registered for leaf elements only!
-  @Measure
   private def infoForLeafElement(leaf: LeafPsiElement): Option[RunLineMarkerContributor.Info] = {
     val parent = leaf.getParent
     parent match {
@@ -67,7 +65,6 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     }
   }
 
-  @Measure
   private def infoForClass(clazz: PsiClass): Option[RunLineMarkerContributor.Info] = {
     val framework = TestFrameworks.detectFramework(clazz)
     if (framework == null || !framework.isTestClass(clazz)) return None

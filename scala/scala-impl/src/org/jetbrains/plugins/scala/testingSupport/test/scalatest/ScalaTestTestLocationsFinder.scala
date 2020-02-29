@@ -8,6 +8,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.scalatest.finders._
 
+
+// TODO: do not show gutters on non-constants, e.g.:
+//  class WordSpecClassName extends WordSpec {
+//   "example" should {
+//     "constant" + System.currentTimeMillis() in {
+//     }
+//   }
+// }
 object ScalaTestTestLocationsFinder {
 
   type TestLocations = Seq[PsiElement]
@@ -98,7 +106,7 @@ object ScalaTestTestLocationsFinder {
     inner(constructorExpressions)
   }
 
-  private object SuiteMethodNames {
+  private[scalatest] object SuiteMethodNames {
 
     val EmptySet: Set[String] = Set()
 
@@ -115,7 +123,7 @@ object ScalaTestTestLocationsFinder {
     val FreeSpecNodes     = Set("-")
     val FreeSpecLeaves    = Set("in")
 
-    val FeatureSpecNodes  = Set("feature")
-    val FeatureSpecLeaves = Set("scenario")
+    val FeatureSpecNodes  = Set("feature", "Feature")
+    val FeatureSpecLeaves = Set("scenario", "Scenario")
   }
 }

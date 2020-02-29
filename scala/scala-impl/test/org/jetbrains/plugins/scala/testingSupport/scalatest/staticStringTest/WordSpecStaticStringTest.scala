@@ -8,32 +8,30 @@ trait WordSpecStaticStringTest extends ScalaTestTestCase {
   val wordSpecFileName = wordSpecClassName + ".scala"
 
   addSourceFile(wordSpecFileName,
-    s"""
-      |import org.scalatest._
-      |
-      |class $wordSpecClassName extends WordSpec {
-      |  val constName = "const"
-      |
-      |  constName should {
-      |    constName in {
-      |    }
-      |
-      |    constName + " sum" in {
-      |    }
-      |  }
-      |
-      |  "sum " + "name" should {
-      |    constName + constName in {
-      |    }
-      |
-      |    "test" in {}
-      |
-      |    const + System.currentTimeMillis() in {
-      |    }
-      |  }
-      |}
-      |
-    """.stripMargin.trim())
+    s"""import org.scalatest._
+       |
+       |class $wordSpecClassName extends WordSpec {
+       |  val constName = "const"
+       |
+       |  constName should {
+       |    constName in {
+       |    }
+       |
+       |    constName + " sum" in {
+       |    }
+       |  }
+       |
+       |  "sum " + "name" should {
+       |    constName + constName in {
+       |    }
+       |
+       |    "test" in {}
+       |
+       |    constName + System.currentTimeMillis() in {
+       |    }
+       |  }
+       |}
+       |""".stripMargin)
 
   def testWordSpecSum(): Unit = {
     assertConfigAndSettings(createTestFromLocation(17, 10, wordSpecFileName), wordSpecClassName, "sum name should test")
@@ -49,6 +47,6 @@ trait WordSpecStaticStringTest extends ScalaTestTestCase {
   }
 
   def testWordSpecNonConst(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(19, 10, wordSpecFileName), wordSpecClassName)
+    assertConfigAndSettings(createTestFromLocation(19, 10, wordSpecFileName), wordSpecClassName, "sum name should constconst", "sum name should test")
   }
 }

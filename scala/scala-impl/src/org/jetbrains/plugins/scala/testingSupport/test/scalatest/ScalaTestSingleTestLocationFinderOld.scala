@@ -293,14 +293,14 @@ class ScalaTestSingleTestLocationFinderOld(
     if (!isInheritor(clazz, fqn)) return None
     val result = checkCall(
       PsiTreeUtil.getParentOfType(element, classOf[MethodInvocation], false),
-      Map("scenario" -> fqn, "ignore" -> fqn)
+      (SuiteMethodNames.FeatureSpecLeaves.map(_ -> fqn) ++ Seq("ignore" -> fqn)).toMap
     )
     result match {
       case SuccessResult(call, _testName, _) =>
         val testName = "Scenario: " + _testName
         val innerResult = checkCall(
           PsiTreeUtil.getParentOfType(call, classOf[MethodInvocation], true),
-          Map("feature" -> fqn)
+          SuiteMethodNames.FeatureSpecNodes.map(_ -> fqn).toMap
         )
         innerResult match {
           case SuccessResult(_, featureName, _) =>
