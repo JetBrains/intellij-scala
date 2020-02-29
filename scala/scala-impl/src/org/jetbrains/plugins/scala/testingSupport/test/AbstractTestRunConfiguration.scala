@@ -81,7 +81,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   def currentConfiguration: AbstractTestRunConfiguration = AbstractTestRunConfiguration.this
 
-  def suitePaths: List[String]
+  def suitePaths: Seq[String]
 
   def runnerClassName: String
 

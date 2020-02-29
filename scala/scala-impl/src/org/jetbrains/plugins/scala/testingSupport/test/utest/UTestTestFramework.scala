@@ -11,15 +11,15 @@ class UTestTestFramework extends AbstractTestFramework {
 
   override def getName: String = "uTest"
 
-  override def getTestFileTemplateName = "uTest Object"
+  override def testFileTemplateName = "uTest Object"
 
   override def getMnemonic: Char = 'm'
 
-  override def getMarkerClassFQName: String = "utest.framework.TestSuite"
+  override def getMarkerClassFQName: String = "utest.TestSuite"
 
-  override def getDefaultSuperClass: String = "utest.framework.TestSuite" // TODO: base class has changed to utest.TestSuite
+  override def getDefaultSuperClass: String = "utest.TestSuite"
 
-  override def getSuitePaths: Seq[String] = UTestUtil.suitePaths
+  override def suitePaths: Seq[String] = UTestUtil.suitePaths
 
   override protected def getAdditionalBuildCommands(scalaVersion: Option[String]): Seq[String] = Seq()
 
@@ -36,7 +36,7 @@ class UTestTestFramework extends AbstractTestFramework {
     if (!definition.isInstanceOf[ScObject]) return false
 
     val elementScope = ElementScope(definition.getProject)
-    val cachedClass = getSuitePaths.iterator.flatMap(elementScope.getCachedClass).headOption
+    val cachedClass = suitePaths.iterator.flatMap(elementScope.getCachedClass).headOption
     cachedClass.exists(isInheritorDeep(definition, _))
   }
 }

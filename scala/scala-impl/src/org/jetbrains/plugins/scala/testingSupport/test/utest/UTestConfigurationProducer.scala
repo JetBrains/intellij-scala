@@ -26,7 +26,7 @@ class UTestConfigurationProducer extends AbstractTestConfigurationProducer[UTest
     configurationType.confFactory
   }
 
-  override def suitePaths: List[String] = UTestUtil.suitePaths
+  override def suitePaths: Seq[String] = UTestUtil.suitePaths
 
   override protected def configurationNameForPackage(packageName: String): String = ScalaBundle.message("test.in.scope.utest.presentable.text", packageName)
 

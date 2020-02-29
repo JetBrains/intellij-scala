@@ -7,7 +7,7 @@ class Specs2TestFramework extends AbstractTestFramework {
 
   override def getName: String = "Specs2"
 
-  override def getTestFileTemplateName = "Specs2 Class"
+  override def testFileTemplateName = "Specs2 Class"
 
   override def getMnemonic: Char = 'p'
 
@@ -15,7 +15,7 @@ class Specs2TestFramework extends AbstractTestFramework {
 
   override def getDefaultSuperClass: String = "org.specs2.mutable.Specification"
 
-  override def getSuitePaths: Seq[String] = Specs2Util.suitePaths
+  override def suitePaths: Seq[String] = Specs2Util.suitePaths
 
   override protected def getAdditionalBuildCommands(scalaVersion: Option[String]): Seq[String] = Seq("\"-Yrangepos\"")
 

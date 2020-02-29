@@ -21,7 +21,7 @@ class ScalaTestConfigurationProducer extends AbstractTestConfigurationProducer[S
     configurationType.confFactory
   }
 
-  override def suitePaths: List[String] = List("org.scalatest.Suite")
+  override def suitePaths: Seq[String] = List("org.scalatest.Suite")
 
   override protected def configurationNameForPackage(packageName: String): String =
     ScalaBundle.message("test.in.scope.scalatest.presentable.text", packageName)

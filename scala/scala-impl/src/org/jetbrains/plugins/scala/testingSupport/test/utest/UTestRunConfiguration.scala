@@ -5,7 +5,6 @@ import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiModifierList}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -42,7 +41,7 @@ class UTestRunConfiguration(project: Project,
 
   override def reporterClass: String = null
 
-  override def suitePaths = List("utest.framework.TestSuite", "utest.TestSuite")
+  override def suitePaths: Seq[String] = UTestUtil.suitePaths
 
   override def runnerClassName = "org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner"
 

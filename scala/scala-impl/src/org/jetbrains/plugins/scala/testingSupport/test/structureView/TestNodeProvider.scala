@@ -102,8 +102,7 @@ object TestNodeProvider {
     expr.getLastChild.getChildren.filter(_.isInstanceOf[ScInfixExpr]).map(_.asInstanceOf[ScInfixExpr])
   }
 
-  private def extractTestViewElementInfix(expr: ScInfixExpr, clazz: ScTypeDefinition, project: Project):
-  Option[Test] = {
+  private def extractTestViewElementInfix(expr: ScInfixExpr, clazz: ScTypeDefinition, project: Project): Option[Test] = {
     import ScalaTestUtil._
     import Specs2Util._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor

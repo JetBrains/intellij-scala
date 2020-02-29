@@ -35,7 +35,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 
   def configurationFactory: ConfigurationFactory
 
-  protected def suitePaths: List[String]
+  protected def suitePaths: Seq[String]
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean
 

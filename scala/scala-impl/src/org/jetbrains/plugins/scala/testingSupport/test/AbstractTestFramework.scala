@@ -17,6 +17,11 @@ import org.jetbrains.sbt.project.modifier.SimpleBuildFileModifier
 
 // TODO: rename to something with `Scala`
 abstract class AbstractTestFramework extends JavaTestFramework {
+
+  def testFileTemplateName: String
+
+  def suitePaths: Seq[String]
+
   override def isTestMethod(element: PsiElement): Boolean = false
 
   override def getTestMethodFileTemplateDescriptor: FileTemplateDescriptor = null
@@ -50,13 +55,11 @@ abstract class AbstractTestFramework extends JavaTestFramework {
   protected def isTestClass(definition: ScTemplateDefinition): Boolean = {
     val elementScope = ElementScope(definition.getProject)
     elementScope.getCachedClass(getMarkerClassFQName).isDefined &&
-      getSuitePaths.exists { path =>
+      suitePaths.exists { path =>
         val cachedClass = elementScope.getCachedClass(path)
         cachedClass.exists(isInheritorDeep(definition, _))
       }
   }
-
-  def getTestFileTemplateName: String
 
   protected def getLibraryDependencies(scalaVersion: Option[String]): Seq[String]
 
@@ -81,6 +84,4 @@ abstract class AbstractTestFramework extends JavaTestFramework {
     modifier.modify(module, needPreviewChanges = true)
     Promises.resolvedPromise()
   }
-
-  def getSuitePaths: Seq[String]
 }

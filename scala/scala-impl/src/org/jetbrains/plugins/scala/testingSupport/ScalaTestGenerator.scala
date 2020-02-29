@@ -56,7 +56,7 @@ class ScalaTestGenerator extends TestGenerator {
   private def createTestFileFromTemplate(dialog: CreateTestDialog, project: Project): PsiFile = {
     //copy-paste from JavaTestGenerator
     val templateName = dialog.getSelectedTestFrameworkDescriptor match {
-      case f: AbstractTestFramework => f.getTestFileTemplateName
+      case f: AbstractTestFramework => f.testFileTemplateName
       case _ => ScalaFileTemplateUtil.SCALA_CLASS
     }
     val fileTemplate = FileTemplateManager.getInstance(project).getCodeTemplate(templateName)

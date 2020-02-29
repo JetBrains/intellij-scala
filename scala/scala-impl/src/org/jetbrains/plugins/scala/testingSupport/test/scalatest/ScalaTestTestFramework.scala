@@ -10,7 +10,7 @@ class ScalaTestTestFramework extends AbstractTestFramework {
 
   override def getName: String = "ScalaTest"
 
-  override def getTestFileTemplateName = "ScalaTest Class"
+  override def testFileTemplateName = "ScalaTest Class"
 
   override def getMnemonic: Char = 'c'
 
@@ -22,7 +22,7 @@ class ScalaTestTestFramework extends AbstractTestFramework {
     scalaProjectSettings.getScalaTestDefaultSuperClass
   }
 
-  override def getSuitePaths: Seq[String] = ScalaTestUtil.suitePaths
+  override def suitePaths: Seq[String] = ScalaTestUtil.suitePaths
 
   override protected def getAdditionalBuildCommands(scalaVersion: Option[String]): Seq[String] = Seq()
 
