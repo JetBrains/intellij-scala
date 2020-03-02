@@ -1719,7 +1719,6 @@
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterSelectedDocumentListener"/>
     </projectListeners>
-
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewGroup1"/>
