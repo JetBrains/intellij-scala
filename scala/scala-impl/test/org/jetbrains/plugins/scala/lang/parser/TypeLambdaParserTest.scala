@@ -14,8 +14,7 @@ class TypeLambdaParserTest extends SimpleScala3ParserTestBase {
 
   def testIllegalVariance(): Unit = checkParseErrors(
     """
-      |type TL = [+X, -Y] =>> Map[Y, X]
-      |//[[Err('=>>' expected)]]
+      |type TL = [X, [[Err(Variance annotation is not allowed here)]]-Y] =>> Map[Y, X]
       |""".stripMargin
   )
 
@@ -27,7 +26,7 @@ class TypeLambdaParserTest extends SimpleScala3ParserTestBase {
   )
 
   def testAllTogether(): Unit = checkParseErrors(
-    "type TL = [-A, +F[A] >: Option[A] <: List[A]] =>> F[A] => A"
+    "type TL = [A, F[A] >: Option[A] <: List[A]] =>> F[A] => A"
   )
 }
 

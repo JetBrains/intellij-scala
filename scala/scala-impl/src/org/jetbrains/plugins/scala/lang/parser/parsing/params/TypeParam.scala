@@ -7,7 +7,7 @@ package params
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, Type}
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.Bounds
 
 /*
  * TypeParam ::= {Annotation} (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
@@ -22,23 +22,28 @@ object TypeParam {
   ): Boolean = {
     implicit val b: ScalaPsiBuilder = builder
 
-    val paramMarker = builder.mark
-    val annotationMarker = builder.mark
-    var exist = false
+    val paramMarker         = builder.mark
+    val annotationMarker    = builder.mark
+    val varianceMarker      = builder.mark()
+    val errorMessageBuilder = List.newBuilder[String]
+    var exist               = false
 
     while (Annotation.parse(builder)) {
       exist = true
     }
 
     if (exist) annotationMarker.done(ScalaElementType.ANNOTATIONS)
-    else annotationMarker.drop()
+    else       annotationMarker.drop()
 
-    if (mayHaveVariance) {
-      builder.getTokenText match {
-        case "+" | "-" => builder.advanceLexer()
-        case _         =>
-      }
+
+    builder.getTokenText match {
+      case "+" | "-" =>
+        builder.advanceLexer()
+        if (!mayHaveVariance)
+          varianceMarker.error(ScalaBundle.message("variance.annotation.not.allowed"))
+      case _ => varianceMarker.drop()
     }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
         builder.advanceLexer() //Ate identifier
@@ -55,10 +60,25 @@ object TypeParam {
     Bounds.parse(Bounds.LOWER)
     Bounds.parse(Bounds.UPPER)
 
-    if (mayHaveViewBounds)    while (Bounds.parse(Bounds.VIEW)) {}
-    if (mayHaveContextBounds) while (Bounds.parse(Bounds.CONTEXT)) {}
+    var parsedViewBounds    = false
+    var parsedContextBounds = false
 
-    paramMarker.done(ScalaElementType.TYPE_PARAM)
+    while (Bounds.parse(Bounds.VIEW)) {
+      if (!parsedViewBounds && !mayHaveViewBounds)
+        errorMessageBuilder += ScalaBundle.message("view.bounds.not.allowed")
+      parsedViewBounds = true
+    }
+
+    while (Bounds.parse(Bounds.CONTEXT)) {
+      if (!parsedContextBounds && !mayHaveContextBounds)
+        errorMessageBuilder += ScalaBundle.message("context.bounds.not.allowed")
+      parsedContextBounds = true
+    }
+
+    val errors = errorMessageBuilder.result()
+
+    if (true) paramMarker.done(ScalaElementType.TYPE_PARAM)
+    else                paramMarker.error(errors.mkString(";"))
     true
   }
 }
