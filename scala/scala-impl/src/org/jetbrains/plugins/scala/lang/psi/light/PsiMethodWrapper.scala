@@ -14,16 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
-/**
-  * @author Alefas
-  * @since 05.04.12
-  */
 abstract class PsiMethodWrapper[T <: ScalaPsiElement with PsiNamedElement with NavigatablePsiElement](
-                                                                                                       override val delegate: T,
-                                                                                                       methodName: String,
-                                                                                                       containingClass: PsiClass
+  override val delegate: T,
+  methodName: String,
+  containingClass: PsiClass
 ) extends LightMethodBuilder(delegate.getManager, containingClass.getLanguage, methodName)
-    with NavigablePsiElementWrapper[T] {
+  with NavigablePsiElementWrapper[T] {
 
   implicit def elementScope: ElementScope = ElementScope(containingClass)
 
@@ -151,8 +147,12 @@ object PsiMethodWrapper {
       }
     }
 
-    assert(result != null, "Member: " + delegate.getText + "\nhas null containing class. isStatic: " + isStatic +
-      "\nContaining file text: " + delegate.getContainingFile.getText)
+    assert(
+      result != null,
+      s"""Member: ${delegate.getText}
+         |has null containing class. isStatic: $isStatic
+         |Containing file text: ${delegate.getContainingFile.getText}""".stripMargin
+    )
 
     result
   }
