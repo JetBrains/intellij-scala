@@ -26,11 +26,6 @@ class SpliceAndQuoteParserTest  extends SimpleScala3ParserTestBase  {
     "test: $ident"
   )
 
-
-
-
-
-
   def test_quoteExpr(): Unit = checkParseErrors(
     "'{ expr }"
   )

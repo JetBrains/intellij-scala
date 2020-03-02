@@ -6,13 +6,12 @@ package types
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 
 /**
- * Type ::= [[FunLikeType]]
- *        | [[TypeParamClause]] '=>>' [[Type]]   (Scala 3+ only)
+ * Type ::= [[InfixTypePrefix]]
+ *        | [[PolyFunOrTypeLambda]] (Scala 3)
  *        | _ SubtypeBounds
  *        | ? SubtypeBounds (Scala 3)
  * SubtypeBounds : == [>: Type] [<: Type]
@@ -44,19 +43,11 @@ trait Type {
     implicit val b: ScalaPsiBuilder = builder
     val typeMarker = builder.mark
 
-    if (FunLikeType.parse(star, isPattern)) {
+    if (InfixTypePrefix.parse(star, isPattern)) {
       typeMarker.drop()
       true
-    } else if (builder.isScala3 && TypeParamClause.parse(builder, mayHaveContextBounds = false)) {
-      builder.getTokenType match {
-        case ScalaTokenType.TypeLambdaArrow =>
-          builder.advanceLexer()
-          if (!parse(builder, star = star, isPattern = isPattern)) {
-            builder.error(ScalaBundle.message("wrong.type"))
-          }
-          typeMarker.done(ScalaElementType.TYPE_LAMBDA)
-        case _ => builder.error(ScalaBundle.message("type.lambda.expected"))
-      }
+    } else if (PolyFunOrTypeLambda.parse(star, isPattern)) {
+      typeMarker.drop()
       true
     } else if (parseWildcardType(typeMarker, isPattern)) {
       true

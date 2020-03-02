@@ -12,8 +12,11 @@ class TypeLambdaParserTest extends SimpleScala3ParserTestBase {
     "type TL = [X] =>> [Y] =>> (X, Y)"
   )
 
-  def testVariance(): Unit = checkParseErrors(
-    "type TL = [+X, -Y] =>> Map[Y, X]"
+  def testIllegalVariance(): Unit = checkParseErrors(
+    """
+      |type TL = [+X, -Y] =>> Map[Y, X]
+      |//[[Err('=>>' expected)]]
+      |""".stripMargin
   )
 
   def testBounds(): Unit = checkParseErrors(

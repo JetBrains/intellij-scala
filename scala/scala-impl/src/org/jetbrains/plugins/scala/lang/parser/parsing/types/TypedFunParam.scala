@@ -15,15 +15,15 @@ object TypedFunParam extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer()
-
         if (builder.getTokenType != ScalaTokenTypes.tCOLON) {
-          builder.error(ScalaBundle.message("colon.expected"))
+          marker.rollbackTo()
+          false
         } else {
           builder.advanceLexer()
           if (!Type.parse(builder)) builder.error(ScalaBundle.message("wrong.type"))
           marker.done(ScalaElementType.PARAM)
+          true
         }
-        true
       case _ =>
         marker.drop()
         false
