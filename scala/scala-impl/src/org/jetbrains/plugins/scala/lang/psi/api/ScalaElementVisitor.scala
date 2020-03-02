@@ -178,6 +178,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitCompoundTypeElement(compound: ScCompoundTypeElement): Unit = {visitTypeElement(compound)}
   def visitAnnotTypeElement(annot: ScAnnotTypeElement): Unit = {visitTypeElement(annot)}
   def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = { visitTypeElement(tvar) }
+  def visitTypeLambdaTypeElement(lambda: ScTypeLambdaTypeElement): Unit = { visitTypeElement(lambda) }
 
   //scaladoc
   // TODO visitScalaElement

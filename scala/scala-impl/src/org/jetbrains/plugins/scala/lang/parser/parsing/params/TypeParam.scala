@@ -22,9 +22,8 @@ object TypeParam {
   ): Boolean = {
     implicit val b: ScalaPsiBuilder = builder
 
-    val paramMarker         = builder.mark
-    val annotationMarker    = builder.mark
-    val varianceMarker      = builder.mark()
+    val paramMarker         = builder.mark()
+    val annotationMarker    = builder.mark()
     val errorMessageBuilder = List.newBuilder[String]
     var exist               = false
 
@@ -38,10 +37,11 @@ object TypeParam {
 
     builder.getTokenText match {
       case "+" | "-" =>
+        val varianceMarker = builder.mark()
         builder.advanceLexer()
-        if (!mayHaveVariance)
-          varianceMarker.error(ScalaBundle.message("variance.annotation.not.allowed"))
-      case _ => varianceMarker.drop()
+        if (!mayHaveVariance) varianceMarker.error(ScalaBundle.message("variance.annotation.not.allowed"))
+        else                  varianceMarker.drop()
+      case _ =>
     }
 
     builder.getTokenType match {
@@ -77,8 +77,9 @@ object TypeParam {
 
     val errors = errorMessageBuilder.result()
 
-    if (true) paramMarker.done(ScalaElementType.TYPE_PARAM)
+    if (errors.isEmpty) paramMarker.done(ScalaElementType.TYPE_PARAM)
     else                paramMarker.error(errors.mkString(";"))
+
     true
   }
 }
