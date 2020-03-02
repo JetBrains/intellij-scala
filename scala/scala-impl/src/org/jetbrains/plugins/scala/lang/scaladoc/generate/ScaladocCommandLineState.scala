@@ -143,11 +143,15 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
   override def createJavaParameters(): JavaParameters = {
     val jp = new JavaParameters
+
     val jdk: Sdk = PathUtilEx.getAnyJdk(project)
     assert(jdk != null, "JDK IS NULL")
-    jp.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, jdk)
-    jp.setWorkingDirectory(project.baseDir.getPath)
 
+    // NOTE: do not accidentally add all-project classes scope (e.g. using JDK_AND_CLASSES):
+    // it adds jars from sbt-build module which contains scala library with version different from users scala version
+    // which can leads to runtime exceptions
+    jp.configureByProject(project, JavaParameters.JDK_ONLY, jdk)
+    jp.setWorkingDirectory(project.baseDir.getPath)
     val scalaModule = project.anyScalaModule.getOrElse {
       throw new ExecutionException("No modules with Scala SDK are configured")
     }
@@ -157,6 +161,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     val vmParamList = jp.getVMParametersList
     if (maxHeapSize.length > 0) {
+      vmParamList.add(s"-Xmx${maxHeapSize}m")
       vmParamList.add(s"-Xmx${maxHeapSize}m")
     }
 
@@ -205,8 +210,8 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
       } else {
         collectCPSources(OrderEnumerator.orderEntries(project), allEntries, allSourceEntries)
       }
-      allEntries.foreach(a => classpathWithFacet.append(a))
-      allSourceEntries.foreach(a => sourcepathWithFacet.append(a))
+      allEntries.foreach(classpathWithFacet.append(_))
+      allSourceEntries.foreach(sourcepathWithFacet.append(_))
     }
 
     var needFilter = false
