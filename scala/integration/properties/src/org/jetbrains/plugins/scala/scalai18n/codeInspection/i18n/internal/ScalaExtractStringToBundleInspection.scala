@@ -205,16 +205,7 @@ object ScalaExtractStringToBundleInspection {
       }
       val (keyParts, textParts, arguments) = bindings.unzip3
       val key = I18nBundleContent.convertStringToKey(keyParts.mkString("."))
-      val text = {
-        val text = textParts.mkString
-          .replace("\\", "\\\\")
-        val text2 =
-          if (arguments.isEmpty) text
-          else text.replace("'", "''")
-        if (text2.length > 100) text2.replace("\n", "\\n\\\n")
-        else text2.replace("\n", "\\n")
-      }
-
+      val text = I18nBundleContent.escapeText(textParts.mkString, arguments.nonEmpty)
       (key, text, arguments.flatten)
     }
 
