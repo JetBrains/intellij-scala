@@ -439,13 +439,14 @@ object ScExpression {
       @scala.annotation.tailrec
       def checkForSAM(tp: ScType): Option[ScType] =
         tp match {
-          case FunctionType(_, _) if expr.isSAMEnabled => SAMUtil.toSAMType(expected, expr)
-          case _: ScMethodType    if expr.isSAMEnabled => SAMUtil.toSAMType(expected, expr)
-          case ScTypePolymorphicType(tp, _)            => checkForSAM(tp)
-          case _                                       => None
+          case FunctionType(_, _)           => SAMUtil.toSAMType(expected, expr)
+          case _: ScMethodType              => SAMUtil.toSAMType(expected, expr)
+          case ScTypePolymorphicType(tp, _) => checkForSAM(tp)
+          case _                            => None
         }
 
-      expr match {
+      if (!expr.isSAMEnabled) None
+      else expr match {
         case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM(scType)
         case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM(scType)
         case MethodValue(_)                                              => checkForSAM(scType)

@@ -1119,19 +1119,24 @@ object ScalaPsiUtil {
           case _ => None
         }
 
-    private def cantBeEtaExpanded(m: ScFunctionDefinition): Boolean = {
+    private def cantBeEtaExpanded(m: PsiMethod): Boolean = {
       import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
-      val clauses         = m.paramClauses.clauses
       lazy val isScala211 = m.scalaLanguageLevelOrDefault == Scala_2_11
 
-      clauses.isEmpty ||
-        clauses.forall { clause =>
-          val isEmptyClause =
-            if (isScala211) false
-            else            clause.parameters.isEmpty
+      m match {
+        case f: ScFunctionDefinition =>
+          val clauses = f.paramClauses.clauses
 
-          clause.isImplicit || isEmptyClause
-        }
+          clauses.isEmpty ||
+            clauses.forall { clause =>
+              val isEmptyClause =
+                if (isScala211) false
+                else            clause.parameters.isEmpty
+
+              clause.isImplicit || isEmptyClause
+            }
+        case _ => isScala211 || m.hasParameters
+      }
     }
 
     @tailrec
@@ -1139,8 +1144,8 @@ object ScalaPsiUtil {
       expr:               ScExpression,
       canBeParameterless: Boolean
     ): Option[PsiMethod] = expr match {
-      case ResolvesTo(f: ScFunctionDefinition) if cantBeEtaExpanded(f) && !canBeParameterless => None
-      case ResolvesTo(m: PsiMethod)                                                           => Some(m)
+      case ResolvesTo(m: PsiMethod) if cantBeEtaExpanded(m) && !canBeParameterless => None
+      case ResolvesTo(m: PsiMethod)                                                => Some(m)
       case gc: ScGenericCall =>
         referencedMethod(gc.referencedExpr, canBeParameterless)
       case us: ScUnderscoreSection if us.bindingExpr.isDefined =>

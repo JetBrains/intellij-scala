@@ -128,7 +128,6 @@ object SAMUtil {
     case _             => true
   }
 
-
   implicit class PsiClassToSAMExt(private val cls: PsiClass) extends AnyVal {
     @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
     def isSAMable: Boolean =

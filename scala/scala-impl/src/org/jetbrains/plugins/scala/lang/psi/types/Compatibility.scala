@@ -502,14 +502,16 @@ object Compatibility {
       })
   }
 
-  def compatible(named: PsiNamedElement,
-                 substitutor: ScSubstitutor,
-                 argClauses: List[Seq[Expression]],
-                 checkWithImplicits: Boolean,
-                 scope: GlobalSearchScope,
-                 isShapesResolve: Boolean,
-                 ref: PsiElement = null)
-                (implicit project: ProjectContext): ConformanceExtResult = {
+  def compatible(
+    named:              PsiNamedElement,
+    substitutor:        ScSubstitutor,
+    argClauses:         List[Seq[Expression]],
+    checkWithImplicits: Boolean,
+    isShapesResolve:    Boolean,
+    ref:                PsiElement = null
+  )(implicit
+    project: ProjectContext
+  ): ConformanceExtResult = {
     def checkParameterListConformance(checkNames: Boolean, parameters: Seq[Parameter], arguments: Seq[Expression]) =
       checkConformanceExt(checkNames, parameters, arguments, checkWithImplicits, isShapesResolve)
 
