@@ -147,10 +147,17 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
     }
   }
 
-  override def hashCode(): Int = MurmurHash3.arrayHash(substitutions)
+  private def filterNotThisTypeSubstitution(substitutions: Array[Update]): Array[Update] =
+    substitutions.filterNot {
+      case _: ThisTypeSubstitution => true
+      case _                       => false
+    }
+
+  override def hashCode(): Int = MurmurHash3.arrayHash(filterNotThisTypeSubstitution(substitutions))
 
   override def equals(obj: Any): Boolean = obj match {
-    case other: ScSubstitutor => other.substitutions sameElements substitutions
+    case other: ScSubstitutor =>
+      filterNotThisTypeSubstitution(other.substitutions) sameElements filterNotThisTypeSubstitution(substitutions)
     case _ => false
   }
 
