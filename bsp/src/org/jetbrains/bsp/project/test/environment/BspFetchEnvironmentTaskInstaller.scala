@@ -1,10 +1,11 @@
 package org.jetbrains.bsp.project.test.environment
 
 import com.intellij.execution.{RunManagerEx, RunManagerListener, RunnerAndConfigurationSettings}
+import com.intellij.openapi.project.Project
 
-class BspFetchEnvironmentTaskInstaller extends RunManagerListener {
+class BspFetchEnvironmentTaskInstaller(project: Project) extends RunManagerListener {
   override def runConfigurationAdded(settings: RunnerAndConfigurationSettings): Unit = {
-    val runManager = RunManagerEx.getInstanceEx(settings.getConfiguration.getProject)
+    val runManager = RunManagerEx.getInstanceEx(project)
     val runConfiguration = settings.getConfiguration
     if (BspTesting.isBspRunnerSupportedConfiguration(runConfiguration)) {
       val beforeRunTasks = runManager.getBeforeRunTasks(runConfiguration)

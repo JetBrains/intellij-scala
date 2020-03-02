@@ -82,12 +82,12 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
         val module = config.getConfigurationModule.getModule
         val taskResult: Either[BspGetEnvironmentError, Unit] = for {
           potentialTargets <- getBspTargets(module)
-            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.find.potential.targets") ++ module.getName))
+            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.find.potential.targets",module.getName)))
           projectPath <- Option(ES.getExternalProjectPath(module))
-            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.extract.path") + module.getName))
+            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.extract.path", module.getName)))
           workspaceUri = Paths.get(projectPath).toUri
           testClasses <- getApplicableClasses(configuration)
-            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.detect.run.classes") + configuration.getName))
+            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.detect.run.classes", configuration.getName)))
           testSources = testClasses.flatMap(class2File(_, module.getProject))
           targetsMatchingSources <- fetchTargetIdsFromFiles(testSources, workspaceUri, module.getProject, potentialTargets)
             .map(Right(_))
@@ -107,7 +107,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
         } yield ()
         taskResult match {
           case Left(value) => {
-            logger.error(BspBundle.message("bsp.task.error"))
+            logger.error(BspBundle.message("bsp.task.error", value))
             false
           }
           case Right(_) => true
