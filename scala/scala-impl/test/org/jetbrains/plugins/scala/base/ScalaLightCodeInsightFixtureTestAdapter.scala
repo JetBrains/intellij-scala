@@ -129,9 +129,9 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     virtualFile
   )
 
-  protected def changePsiAt(offset: Int): Unit = invokeAndWait {
+  protected def changePsiAt(offset: Int, charToTypeAndRemove: Char = 'a'): Unit = invokeAndWait {
     getEditor.getCaretModel.moveToOffset(offset)
-    myFixture.`type`('a')
+    myFixture.`type`(charToTypeAndRemove)
     commitDocumentInEditor()
     myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
     commitDocumentInEditor()

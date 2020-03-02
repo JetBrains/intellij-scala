@@ -1,10 +1,16 @@
 package org.jetbrains.plugins.scala.caches
 
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement}
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
   //symbolic names are chosen to keep test data readable
@@ -16,11 +22,13 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override def loadScalaLibrary = false
 
-  protected def doTest(fileText: String): Unit = {
+  protected def doTest(fileText: String, charToTypeAndRemove: Char = 'a'): Unit = {
     val fileName = getTestName(true) + ".scala"
     myFixture.configureByText(fileName, fileText.withNormalizedSeparator.trim)
 
-    val caretOffsets = collectMarkerOffsets(|)
+    val document = myFixture.getDocument(getFile)
+
+    val caretOffsets = extractMarkerOffsets(document, |)
     val offsetsToChange = collectMarkerOffsets(^^)
     val offsetsToStay = collectMarkerOffsets(~~)
 
@@ -34,7 +42,7 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
       val (countsToChangeBefore, countsToStayBefore) =
         (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
 
-      changePsiAt(caretOffset)
+      changePsiAt(caretOffset, charToTypeAndRemove)
 
       val (countsToChangeAfter, countsToStayAfter) =
         (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
@@ -91,6 +99,24 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private def computeModCounts(offsets: Seq[Int]): Array[Long] = inReadAction {
     offsets.map(maxElementWithStartAt).map(modificationCount).toArray
+  }
+
+  private def extractMarkerOffsets(document: Document, marker: String): Seq[Int] = invokeAndWait {
+    implicit val project: Project = getProject
+    inWriteCommandAction {
+      val markerLength = marker.length
+      var text = document.getText
+      var nextOccurrence = text.indexOf(marker)
+      var result = List.empty[Int]
+      while (nextOccurrence >= 0) {
+        result = nextOccurrence :: result
+        text = text.substring(0, nextOccurrence) + text.substring(nextOccurrence + markerLength)
+        nextOccurrence = text.indexOf(marker)
+      }
+      document.replaceString(0, document.getTextLength, text)
+      commitDocumentInEditor()
+      result.reverse
+    }
   }
 
   //SCL-15795
@@ -219,5 +245,24 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |  def foo: ${^^}String = "${|}foo"
          |}
          |""".stripMargin)
+  }
+
+  def testImportExpr(): Unit = {
+    doTest(
+      s"""import aaa.bbb${|}
+         |
+         |class ${^^}A {
+         |  def foo(): String = ${^^}"foo"
+         |}""".stripMargin,
+      charToTypeAndRemove = '.'
+    )
+    doTest(
+      s"""import aaa.bbb.${|}
+         |
+         |class ${^^}A {
+         |  def foo(): String = ${^^}"foo"
+         |}""".stripMargin,
+      charToTypeAndRemove = '_'
+    )
   }
 }

@@ -36,7 +36,7 @@ object ScalaPsiChangeListener {
       val validElement = validElementFor(element)
 
       if (validElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
-        if (!filters.exists(_.shouldSkip(element))) {
+        if (!filters.exists(_.shouldSkip(element, validElement))) {
           onScalaPsiChange(validElement)
         }
       }

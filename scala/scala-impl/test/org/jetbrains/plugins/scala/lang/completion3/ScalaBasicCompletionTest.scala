@@ -9,7 +9,7 @@ import org.junit.Assert.{assertEquals, assertTrue}
 
 abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase {
 
-  override protected def changePsiAt(offset: Int): Unit = {
+  override protected def changePsiAt(offset: Int, charToTypeAndRemove: Char): Unit = {
     retypeLineAt(offset)
     super.changePsiAt(offset)
   }
