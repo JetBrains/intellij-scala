@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtR
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -270,6 +270,15 @@ object MethodResolveProcessor {
         }
       }
 
+      def methodTypeWithoutImplicits(tpe: ScType): ScType = tpe match {
+        case ScMethodType(inner, _, true) => inner
+        case t @ ScMethodType(inner, ps, false) =>
+          ScMethodType(methodTypeWithoutImplicits(inner), ps, isImplicit = false)(t.elementScope)
+        case ScTypePolymorphicType(internalType, tparams) =>
+          ScTypePolymorphicType(methodTypeWithoutImplicits(internalType), tparams)
+        case t => t
+      }
+
       def checkEtaExpandedReference(fun: PsiNamedElement, expectedType: ScType): ConformanceExtResult = {
         val maybeMethodType = fun match {
           case m: PsiMethod => m.methodTypeProvider(ref.elementScope).polymorphicType().toOption
@@ -278,7 +287,7 @@ object MethodResolveProcessor {
         }
 
         val typeAfterConversions =
-          maybeMethodType.flatMap { tpe =>
+          maybeMethodType.map(methodTypeWithoutImplicits).flatMap { tpe =>
             val withUndefParams = tpe match {
               case ptpe: ScTypePolymorphicType =>
                 val subst = ScSubstitutor.bind(ptpe.typeParameters)(UndefinedType(_))
@@ -286,7 +295,7 @@ object MethodResolveProcessor {
               case tpe => tpe
             }
 
-            val expr         = Expression(withUndefParams.inferValueType, ref)
+            val expr = Expression(withUndefParams.inferValueType, ref)
 
             expr.getTypeAfterImplicitConversion(
               checkImplicits = true,
@@ -345,8 +354,7 @@ object MethodResolveProcessor {
 
       if (typeArgElements.isEmpty || allTypeParametersDefined) {
         val result =
-          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
-            ref.resolveScope, isShapeResolve)
+          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, isShapeResolve)
         problems ++= result.problems
         result.copy(problems)
       } else {
@@ -402,7 +410,6 @@ object MethodResolveProcessor {
             substitutorWithExpected,
             args,
             checkWithImplicits,
-            ref.resolveScope,
             isShapeResolve,
             ref
           )
