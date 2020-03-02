@@ -121,7 +121,7 @@ private object AlignedInlayGroup {
       }
     }
 
-    override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
+    override def paint_Adapted(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
       if (cached.lineEndX != line.lineEndX(editor)) {
         val oldMargin = cached.margin
         recalculateGroupsOffsets(editor)
@@ -129,7 +129,7 @@ private object AlignedInlayGroup {
         r.width += cached.margin - oldMargin
       }
 
-      super.paint(editor, g, r, textAttributes)
+      super.paint_Adapted(editor, g, r, textAttributes)
     }
 
     override def getMargin(editor: Editor): Insets = new Insets(0, cached.margin, 0, 0)

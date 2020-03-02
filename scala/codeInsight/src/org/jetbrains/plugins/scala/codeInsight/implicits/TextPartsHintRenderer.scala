@@ -18,20 +18,20 @@ class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
 
   private val originalParts = parts
 
-  override def getContextMenuGroupId: String = menu.orNull
+  protected override def getContextMenuGroupId_Adapted(editor: Editor): String = menu.orNull
 
   protected def getMargin(editor: Editor): Insets = DefaultMargin
 
   protected def getPadding(editor: Editor): Insets = DefaultPadding
 
-  override protected def calcWidthInPixels(editor: Editor): Int = {
+  protected override def calcWidthInPixels_Adapted(editor: Editor): Int = {
     val m = getMargin(editor)
     val p = getPadding(editor)
     val metrics = getFontMetrics0(editor).getMetrics
     metrics.stringWidth(getText) + m.left + p.left + p.right + m.right
   }
 
-  override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
+  override def paint_Adapted(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
     if (!editor.isInstanceOf[EditorImpl]) return
     val editorImpl = editor.asInstanceOf[EditorImpl]
 
