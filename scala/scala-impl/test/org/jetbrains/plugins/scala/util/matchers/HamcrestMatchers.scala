@@ -6,13 +6,16 @@ import scala.math.Ordering.Implicits._
 
 trait HamcrestMatchers {
 
-  def emptyCollection[V <: Iterable[_]]: Matcher[V] = new ScalaBaseMatcher[V] {
-    override protected def valueMatches(actualValue: V): Boolean =
-      actualValue.isEmpty
+  def hasSize(size: Int): Matcher[Iterable[_]] = new ScalaBaseMatcher[Iterable[_]] {
+    override protected def valueMatches(actualValue: Iterable[_]): Boolean =
+      actualValue.size == size
 
     override protected def description: String =
-      "empty"
+      s"collection of size $size"
   }
+
+  def emptyCollection: Matcher[Iterable[_]] =
+    hasSize(0)
 
   /**
    * Checks if actual value is greater than specified
