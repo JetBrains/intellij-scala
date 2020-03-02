@@ -45,7 +45,7 @@ case class JvmTestEnvironment(
                              )
 
 case object JvmTestEnvironmentNotSupported extends Throwable {
-  val msg = "Build Server does not support 'buildTarget/jvmTestEnvironment' endpoint"
+  val msg = BspBundle.message("bsp.task.error.test.env.not.supported")
 }
 
 class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchTestEnvironmentTask] {
@@ -53,7 +53,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
 
   override def getId: Key[BspFetchTestEnvironmentTask] = BspFetchTestEnvironmentTask.runTaskKey
 
-  override def getName: String = "Use BSP environment"
+  override def getName: String = BspBundle.message("bsp.task.name")
 
   override def getIcon: Icon = Icons.BSP
 
@@ -82,32 +82,32 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
         val module = config.getConfigurationModule.getModule
         val taskResult: Either[BspGetEnvironmentError, Unit] = for {
           potentialTargets <- getBspTargets(module)
-            .toRight(BspGetEnvironmentError(s"Could not find potential targets for ${module.getName}"))
+            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.find.potential.targets") ++ module.getName))
           projectPath <- Option(ES.getExternalProjectPath(module))
-            .toRight(BspGetEnvironmentError(s"Could not extract project path from module ${module.getName}"))
+            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.extract.path") + module.getName))
           workspaceUri = Paths.get(projectPath).toUri
           testClasses <- getApplicableClasses(configuration)
-            .toRight(BspGetEnvironmentError(s"Could not detect run classes for configuration ${configuration.getName}"))
+            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.detect.run.classes") + configuration.getName))
           testSources = testClasses.flatMap(class2File(_, module.getProject))
           targetsMatchingSources <- fetchTargetIdsFromFiles(testSources, workspaceUri, module.getProject, potentialTargets)
             .map(Right(_))
-            .getOrElse(Left(BspGetEnvironmentError("Could not fetch sources lists from BSP server. 'buildTarget/sources' request failed")))
+            .getOrElse(Left(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.fetch.sources"))))
           chosenTargetId <- task.state
             .orElse(if (targetsMatchingSources.length == 1) targetsMatchingSources.headOption.map(_.getUri) else None)
             .orElse(askUserForTargetId(potentialTargets.map(_.getUri), task))
-            .toRight(BspGetEnvironmentError("Could not choose any target ID"))
+            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.choose.any.target.id")))
           testEnvironment <-
             fetchJvmTestEnvironment(new BuildTargetIdentifier(chosenTargetId), workspaceUri, module.getProject)
               .map(Right(_))
               .recover{
                 case err: JvmTestEnvironmentNotSupported.type => Left(BspGetEnvironmentError(err.msg))
               }
-              .getOrElse(Left(BspGetEnvironmentError("Failed to fetch test JVM environment")))
+              .getOrElse(Left(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.fetch.test.jvm.environment"))))
           _ = config.putUserData(BspFetchTestEnvironmentTask.jvmTestEnvironmentKey, testEnvironment)
         } yield ()
         taskResult match {
           case Left(value) => {
-            logger.error(s"Error while fetching test environment from BSP: ${value.msg}")
+            logger.error(BspBundle.message("bsp.task.error"))
             false
           }
           case Right(_) => true
@@ -122,8 +122,8 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     var chosenTarget: Option[String] = None
     ApplicationManager.getApplication.invokeAndWait { () => {
       chosenTarget = Option(Messages.showEditableChooseDialog(
-        "Could not infer BSP target, please choose one from the list",
-        "Choose pants target",
+        BspBundle.message("bsp.task.choose.target.message"),
+        BspBundle.message("bsp.task.choose.target.title"),
         Icons.BSP_TOOLWINDOW,
         targetIds.toArray,
         targetIds.headOption.getOrElse(""),
