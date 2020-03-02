@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.generate
 
-import javax.swing.Icon
 import com.intellij.analysis.AnalysisScope
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.{ModuleRunProfile, RunProfileState}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
 
-/**
- * User: Dmitry Naidanov
- * Date: 12.10.11
- */
 class ScaladocConfiguration(private val form: ScaladocConsoleRunConfigurationForm, private val project: Project,
                             private val scope: AnalysisScope) extends ModuleRunProfile {
-  override def getModules: Array[Module] = {
-    Module.EMPTY_ARRAY
-  }
+
+  override def getName: String = ScalaBundle.message("generate.scaladoc")
+
+  override def getIcon: Icon = null
+
+  override def getModules: Array[Module] = Module.EMPTY_ARRAY
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     val state: ScaladocCommandLineState = new ScaladocCommandLineState(env, project)
@@ -28,12 +27,6 @@ class ScaladocConfiguration(private val form: ScaladocConsoleRunConfigurationFor
     state.setMaxHeapSize(form.getMaxHeapSize)
     state.setShowInBrowser(form.isShowInBrowser)
     state.setOutputDir(form.getOutputDir)
-
     state
   }
-
-  override def getName: String = ScalaBundle.message("generate.scaladoc")
-
-  override def getIcon: Icon = null
-
 }
