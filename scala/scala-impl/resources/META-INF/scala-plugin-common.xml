@@ -52,7 +52,6 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-      <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchTestEnvironmentTaskProvider"/>
         <annotator language="JAVA"
                    implementationClass="org.jetbrains.plugins.scala.annotator.template.SealedJavaInheritance"/>
         <annotator language="Scala"
@@ -1677,7 +1676,7 @@
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
     </extensions>
 
-<applicationListeners>
+    <applicationListeners>
         <listener topic="com.intellij.ide.AppLifecycleListener"
                   class="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
