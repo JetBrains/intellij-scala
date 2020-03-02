@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.annotator.hints.Hint
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
-object Hint {
+object ImplicitHint {
   private val EmptyInsets = new Insets(0, 0, 0, 0)
 
   private val ElementKey: Key[PsiElement] = Key.create("SCALA_IMPLICIT_HINT_ELEMENT")

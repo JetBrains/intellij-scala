@@ -21,7 +21,7 @@ package object implicits {
         .filter(ScalaImplicitHintKey.isIn)
 
     def add(hint: Hint): Unit = {
-      Option(Hint.addTo(hint, model)).foreach(_.putUserData(ScalaImplicitHintKey, true))
+      Option(ImplicitHint.addTo(hint, model)).foreach(_.putUserData(ScalaImplicitHintKey, true))
     }
   }
 

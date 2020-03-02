@@ -4,7 +4,7 @@ import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Inlay
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.codeInsight.implicits.{Hint, MouseHandler}
+import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHint, MouseHandler}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit
 
 import scala.collection.JavaConverters._
@@ -19,7 +19,7 @@ class MakeConversionExplicit extends AnAction(
     val model = editor.getInlayModel
 
     val inlay = model.getElementAt(MouseHandler.mousePressLocation)
-    val element = Hint.elementOf(inlay)
+    val element = ImplicitHint.elementOf(inlay)
 
     new MakeImplicitConversionExplicit().invoke(e.getData(CommonDataKeys.PROJECT), editor, element)
 
