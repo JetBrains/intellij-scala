@@ -1714,7 +1714,6 @@
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterOnProjectOpenedListener"/>
     </projectListeners>
-
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction"
                 text="Scala Class" description="Create new Scala class">

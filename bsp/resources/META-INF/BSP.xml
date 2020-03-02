@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-    <projectListeners>
-        <listener class="org.jetbrains.bsp.project.test.environment.FetchEnvironmentTaskInstaller"
-                  topic="com.intellij.execution.RunManagerListener"/>
-    </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
         <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
@@ -45,6 +41,11 @@
         <java.programPatcher implementation="org.jetbrains.bsp.project.test.environment.BspJvmEnvironmentProgramPatcher"/>
         <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchTestEnvironmentTaskProvider"/>
     </extensions>
+
+    <projectListeners>
+        <listener class="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskInstaller"
+                  topic="com.intellij.execution.RunManagerListener"/>
+    </projectListeners>
 
     <actions>
     </actions>
