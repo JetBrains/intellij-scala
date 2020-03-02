@@ -12,7 +12,11 @@ import org.jetbrains.plugins.scala.actions.ScalaActionUtil.enableAndShowIfInScal
  * User: Dmitry.Naydanov
  * Date: 26.05.14.
  */
-final class CreateLightWorksheetAction extends AnAction {
+final class CreateLightWorksheetAction extends AnAction(
+  ScalaBundle.message("create.light.scala.worksheet.menu.action.text"),
+  ScalaBundle.message("create.light.scala.worksheet.menu.action.description"),
+  /*icon = */ null
+) {
 
   override def actionPerformed(event: AnActionEvent): Unit = {
     val project = event.getProject

@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createObjectWithContext}
@@ -15,7 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createN
   * Nikolay.Tropin
   * 8/17/13
   */
-final class ScalaGenerateCompanionObjectAction extends ScalaBaseGenerateAction(new ScalaGenerateCompanionObjectAction.Handler)
+final class ScalaGenerateCompanionObjectAction extends ScalaBaseGenerateAction(new ScalaGenerateCompanionObjectAction.Handler) {
+  locally {
+    val presentation = getTemplatePresentation
+    presentation.setText(ScalaCodeInsightBundle.message("generate.companion.object.action.text"))
+    presentation.setDescription(ScalaCodeInsightBundle.message("generate.companion.object.action.description"))
+  }
+}
 
 object ScalaGenerateCompanionObjectAction {
 

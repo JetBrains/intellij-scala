@@ -3,12 +3,17 @@ package org.jetbrains.plugins.scala.codeInsight.implicits.menu
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Inlay
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.implicits.{Hint, MouseHandler}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit
 
 import scala.collection.JavaConverters._
 
-class MakeConversionExplicit extends AnAction {
+class MakeConversionExplicit extends AnAction(
+  ScalaCodeInsightBundle.message("make.conversion.explicit.action.text"),
+  ScalaCodeInsightBundle.message("make.conversion.explicit.action.description"),
+  null
+) {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val editor = e.getData(CommonDataKeys.EDITOR)
     val model = editor.getInlayModel

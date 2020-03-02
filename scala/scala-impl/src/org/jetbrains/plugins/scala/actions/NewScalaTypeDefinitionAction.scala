@@ -30,8 +30,11 @@ import org.jetbrains.sbt.project.module.SbtModuleType
  */
 
 class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeDefinition](
-  ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS,
-  JavaModuleSourceRootTypes.SOURCES) with DumbAware {
+  ScalaBundle.message("newclass.menu.action.text"),
+  ScalaBundle.message("newclass.menu.action.description"),
+  Icons.CLASS,
+  JavaModuleSourceRootTypes.SOURCES
+) with DumbAware {
   override protected def buildDialog(project: Project, directory: PsiDirectory,
                                      builder: CreateFileFromTemplateDialog.Builder): Unit = {
     builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)

@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nls
   * Nikolay.Tropin
   * 27-Apr-17
   */
-abstract class LazyFileTemplateAction(@Nls templateName: String, val icon: Icon)
-  extends CreateFromTemplateActionBase(templateName, null, icon) with DumbAware {
+abstract class LazyFileTemplateAction(@Nls templateName: String, @Nls description: String, val icon: Icon)
+  extends CreateFromTemplateActionBase(templateName, description, icon) with DumbAware {
 
   private lazy val template = FileTemplateManager.getDefaultInstance.getInternalTemplate(templateName)
 

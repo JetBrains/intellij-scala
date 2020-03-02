@@ -35,7 +35,11 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
   * Date: 25.10.11
   */
 
-class ShowImplicitArgumentsAction extends AnAction(ScalaBundle.message("show.implicit.arguments.action")) {
+class ShowImplicitArgumentsAction extends AnAction(
+  ScalaBundle.message("show.implicit.arguments.action.text"),
+  ScalaBundle.message("show.implicit.arguments.action.description"),
+  /* icon = */ null
+) {
   import ShowImplicitArgumentsAction._
 
   override def update(e: AnActionEvent): Unit = ScalaActionUtil.enableAndShowIfInScalaFile(e)

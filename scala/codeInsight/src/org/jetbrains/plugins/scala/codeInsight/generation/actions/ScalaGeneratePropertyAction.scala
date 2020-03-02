@@ -6,6 +6,7 @@ package actions
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDefinitionWithContext, createNewLine}
@@ -15,7 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   * Nikolay.Tropin
   * 2014-09-18
   */
-final class ScalaGeneratePropertyAction extends ScalaBaseGenerateAction(new ScalaGeneratePropertyAction.Handler)
+final class ScalaGeneratePropertyAction extends ScalaBaseGenerateAction(new ScalaGeneratePropertyAction.Handler) {
+  locally {
+    val presentation = getTemplatePresentation
+    presentation.setText(ScalaCodeInsightBundle.message("generate.proprty.action.text"))
+    presentation.setDescription(ScalaCodeInsightBundle.message("generate.proprty.action.description"))
+  }
+}
 
 object ScalaGeneratePropertyAction {
 

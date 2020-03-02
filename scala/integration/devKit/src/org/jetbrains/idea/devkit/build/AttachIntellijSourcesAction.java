@@ -39,11 +39,6 @@ public class AttachIntellijSourcesAction extends AnAction {
         return true;
     }
 
-    @Override
-    public boolean startInTransaction() {
-        return false;
-    }
-
     private static final Logger LOG = Logger.getInstance(IntellijSourcesAttachListener.class);
 
     private static final Predicate<String> JAR_PATTERN = Pattern.compile("^sources\\.(zip|jar)$").asPredicate();
@@ -63,14 +58,14 @@ public class AttachIntellijSourcesAction extends AnAction {
         LOG.info("Found " + ijLibraries.size() + " IJ libraries without sources");
 
         Optional<VirtualFile> ideaInstallationFolder = application.runReadAction(getLibraryRoot(ijLibraries));
-        if (!ideaInstallationFolder.isPresent()) {
+        if (ideaInstallationFolder.isEmpty()) {
             LOG.info("Couldn't find IDEA installation folder");
             return;
         }
         LOG.info("Found IDEA installation folder at " + ideaInstallationFolder.get());
 
         Optional<VirtualFile> maybeSourcesZip = ideaInstallationFolder.flatMap(AttachIntellijSourcesAction::findSourcesZip);
-        if (!maybeSourcesZip.isPresent()) {
+        if (maybeSourcesZip.isEmpty()) {
             LOG.info("Couldn't find IDEA sources in installation folder: " + ideaInstallationFolder.get());
             return;
         }
@@ -82,7 +77,7 @@ public class AttachIntellijSourcesAction extends AnAction {
 
                 Collection<VirtualFile> roots = JavaVfsSourceRootDetectionUtil.suggestRoots(maybeSourcesZip.get(), indicator);
 
-                TransactionGuard.getInstance().submitTransactionLater(myProject, () -> {
+                ApplicationManager.getApplication().invokeLater(() -> {
                     ijLibraries.stream()
                             .map(LibraryOrderEntry::getLibrary)
                             .filter(LibraryEx.class::isInstance)

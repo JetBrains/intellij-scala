@@ -1718,32 +1718,26 @@
     </projectListeners>
 
     <actions>
-        <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction"
-                text="Scala Class" description="Create new Scala class">
+        <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewGroup1"/>
         </action>
-        <action id="Scala.NewPackageObject" class="org.jetbrains.plugins.scala.actions.NewPackageObjectAction"
-                text="Package Object" description="Create new Scala package object">
+        <action id="Scala.NewPackageObject" class="org.jetbrains.plugins.scala.actions.NewPackageObjectAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>
-        <action id="Scala.NewScalaWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction"
-                text="Scala Worksheet" description="Create new Scala worksheet">
+        <action id="Scala.NewScalaWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
-        <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.actions.RunConsoleAction"
-                text="Scala REPL..." description="Run Scala REPL">
+        <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.actions.RunConsoleAction">
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
         </action>
         <!--suppress PluginXmlCapitalization -->
-        <action id="Scala.CreateLightWorksheetAction" class="org.jetbrains.plugins.scala.worksheet.actions.CreateLightWorksheetAction"
-                description="Create Light Scala worksheet" text="Create Light Scala worksheet">
+        <action id="Scala.CreateLightWorksheetAction" class="org.jetbrains.plugins.scala.worksheet.actions.CreateLightWorksheetAction">
             <keyboard-shortcut first-keystroke="control alt shift X" keymap="$default"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift M"/>
         </action>
-        <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.actions.SendSelectionToConsoleAction"
-                text="Send Selection To Scala REPL" description="Send selection to Scala REPL">
+        <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.actions.SendSelectionToConsoleAction">
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift X" keymap="$default"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift X"/>
@@ -1754,7 +1748,7 @@
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
         </action>
-        <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction" text="Execute Scala REPL Statement">
+        <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction">
             <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ENTER"/>
             <keyboard-shortcut keymap="$default" first-keystroke="control ENTER"/>
@@ -1764,24 +1758,21 @@
             <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="shift ENTER"/>
         </action>
-        <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleCleanAction" text="Clean Scala REPL Content">
+        <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleCleanAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift L"/>
         </action>
-        <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.ShowImplicitConversionsAction"
-                text="&amp;Implicit Conversions" description="Show implicit conversions">
+        <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.ShowImplicitConversionsAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift Q" remove="true"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl Q"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift Q" remove="true"/>
         </action>
-        <action id="Scala.MakeExplicit" class="org.jetbrains.plugins.scala.actions.MakeExplicitAction"
-                text="&amp;Make Explicit" description="Make explicit">
+        <action id="Scala.MakeExplicit" class="org.jetbrains.plugins.scala.actions.MakeExplicitAction">
             <keyboard-shortcut keymap="$default" first-keystroke="alt ENTER"/>
         </action>
-        <action id="Scala.Desugar" class="org.jetbrains.plugins.scala.lang.transformation.DesugarCodeAction"
-                text="Desugar Scala Code..." description="Desugar Scala code (selection / whole file)">
+        <action id="Scala.Desugar" class="org.jetbrains.plugins.scala.lang.transformation.DesugarCodeAction">
             <add-to-group group-id="CodeMenu" anchor="last"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control alt D" keymap="$default"/>
@@ -1794,47 +1785,35 @@
             <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X 10.5+" remove="true"/>
             <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicits"/>
         </action>
-        <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
-                text="Generate Scaladoc" description="Generate scaladoc">
+        <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
         <action id="Scala.CreateScalaDocStub" class="org.jetbrains.plugins.scala.editor.documentationProvider.CreateScalaDocStubAction">
             <keyboard-shortcut first-keystroke="ctrl alt Q" keymap="$default"/>
             <keyboard-shortcut first-keystroke="ctrl alt L" keymap="Mac OS X"/>
         </action>
-        <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction"
-                text="Implicit &amp;Arguments" description="Show implicit arguments">
+        <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction">
             <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
         </action>
-        <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction"
-                text="Run Scala Worksheet" description="Run Scala worksheet">
+        <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction">
             <keyboard-shortcut first-keystroke="control alt W" keymap="$default"/>
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
         </action>
-        <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CleanWorksheetAction"
-                text="Clean Scala Worksheet" description="Clean Scala worksheet">
-        </action>
-        <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CopyWorksheetAction"
-                text="Copy Scala Worksheet" description="Copy Scala worksheet">
-        </action>
-        <action id="Scala.ExtractTrait"
-                class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction" text="_Trait..."
-                description="Extract trait from the selected class">
+        <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CleanWorksheetAction" />
+        <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CopyWorksheetAction" />
+        <action id="Scala.ExtractTrait" class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction">
             <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
         <action id="Scala.ShowDiscoveredTests"
-                class="org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsAction"
-                text="Show Affected Tests (Scala)">
+                class="org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsAction">
             <add-to-group group-id="RunMenu" anchor="before" relative-to-action="DebugMainMenu"/>
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </action>
         <action id="Scala.CollectShortTroubleshootingInfo"
                 internal="true"
-                description="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack"
                 class="org.jetbrains.plugins.scala.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
         </action>
     </actions>
-
 </idea-plugin>

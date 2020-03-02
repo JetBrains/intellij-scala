@@ -5,16 +5,18 @@ import java.io.{IOException, OutputStream}
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsole}
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-class SendSelectionToConsoleAction extends AnAction {
+class SendSelectionToConsoleAction extends AnAction(
+  ScalaBundle.message("send.selection.to.scala.repl.menu.action.text"),
+  ScalaBundle.message("send.selection.to.scala.repl.menu.action.description"),
+  Icons.SCALA_CONSOLE
+) {
 
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
-    presentation.setIcon(Icons.SCALA_CONSOLE)
-
     def enable(): Unit = {
       presentation.setEnabled(true)
       presentation.setVisible(true)

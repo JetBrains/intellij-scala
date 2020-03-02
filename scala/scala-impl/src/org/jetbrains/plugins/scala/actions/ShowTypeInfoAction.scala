@@ -23,7 +23,11 @@ import org.jetbrains.plugins.scala.tasty._
 /**
  * Pavel.Fatin, 16.04.2010
  */
-class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
+class ShowTypeInfoAction extends AnAction(
+  ScalaBundle.message("type.info.text"),
+  ScalaBundle.message("type.info.description"),
+  /* icon = */ null
+) {
 
   override def update(e: AnActionEvent): Unit = {
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
@@ -119,8 +123,6 @@ object ShowTypeInfoAction {
       case _ => typeTextOf(p, ScSubstitutor.empty)(p)
     }
   }
-
-  val NO_TYPE: String = "No type was inferred"
 
   private[this] def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
                               (implicit context: TypePresentationContext): Option[String] = {

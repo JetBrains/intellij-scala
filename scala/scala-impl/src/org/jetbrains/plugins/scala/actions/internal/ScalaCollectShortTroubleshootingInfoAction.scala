@@ -15,8 +15,11 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.text.DateFormatUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 
-class ScalaCollectShortTroubleshootingInfoAction
-  extends AnAction(ScalaBundle.message("action.scala.collect.troubleshooting.information.short")) {
+class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
+  ScalaBundle.message("scala.collect.troubleshooting.information.short.action.text"),
+  ScalaBundle.message("scala.collect.troubleshooting.information.short.action.description"),
+  /* icon = */ null
+) {
 
   private val Unknown = "unknown"
 

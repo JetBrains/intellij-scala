@@ -18,14 +18,16 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
-class RunConsoleAction extends AnAction with RunConsoleAction.RunActionBase[ScalaConsoleConfigurationType] {
+class RunConsoleAction extends AnAction(
+  ScalaBundle.message("scalarepl.menu.action.text"),
+  ScalaBundle.message("scalarepl.menu.action.description"),
+  Icons.SCALA_CONSOLE
+) with RunConsoleAction.RunActionBase[ScalaConsoleConfigurationType] {
 
   override protected def getNewSettingName: String = ScalaBundle.message("scala.console.actions.scala.repl")
 
   override def update(e: AnActionEvent): Unit = {
     if (e.getProject == null || e.getProject.isDisposed) return
-
-    e.getPresentation.setIcon(Icons.SCALA_CONSOLE)
 
     if(!e.getProject.hasScala) {
       ScalaActionUtil.disablePresentation(e)

@@ -14,7 +14,11 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
 /**
  * @author Alexander Podkhalyuzin
  */
-class RenameJavaToScalaAction extends AnAction {
+class RenameJavaToScalaAction extends AnAction(
+  ScalaConversionBundle.message("convert.java.to.scala.action.text"),
+  ScalaConversionBundle.message("convert.java.to.scala.action.description"),
+  /* icon = */ null
+) {
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
     def enable(): Unit = {

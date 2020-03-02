@@ -64,6 +64,7 @@ import com.intellij.util.ui.tree.TreeModelAdapter;
 import com.intellij.vcsUtil.VcsFileUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
@@ -81,6 +82,12 @@ import static org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffecte
 
 public class ScalaShowAffectedTestsAction extends AnAction {
   private static final String RUN_ALL_ACTION_TEXT = "Run All Affected Tests (Scala)";
+
+  public ScalaShowAffectedTestsAction() {
+    super(ScalaBundle.message("show.affected.tests.action.text"),
+          ScalaBundle.message("show.affected.tests.action.description"),
+          AllIcons.Actions.Execute);
+  }
 
   @Override
   public void update(@NotNull AnActionEvent e) {
@@ -132,7 +139,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
     ApplicationManager.getApplication().executeOnPooledThread(() -> {
       JBIterable<String> paths = JBIterable
         .from(files)
-        .flatMap(f -> VfsUtil.collectChildrenRecursively(f))
+        .flatMap(VfsUtil::collectChildrenRecursively)
         .map(f -> VcsFileUtil.getRelativeFilePath(f, projectBasePath))
         .filter(Objects::nonNull)
         .map(p -> "/" + p);
@@ -267,7 +274,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
     }
     return virtualFiles == null
            ? Collections.emptyList()
-           : Arrays.stream(virtualFiles).filter(v -> v.isInLocalFileSystem()).collect(Collectors.toList());
+           : Arrays.stream(virtualFiles).filter(VirtualFile::isInLocalFileSystem).collect(Collectors.toList());
   }
 
   @Nullable

@@ -23,7 +23,11 @@ import scala.collection.mutable
  * User: Dmitry Naydanov
  * Date: 11/14/12
  */
-class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scaladoc.stub.action") {
+class CreateScalaDocStubAction extends AnAction(
+  ScalaEditorBundle.message("create.scaladoc.stub.action.text"),
+  ScalaEditorBundle.message("create.scaladoc.stub.action.description"),
+  /* icon = */ null
+) {
   override def update(e: AnActionEvent): Unit = {
     ScalaActionUtil enableAndShowIfInScalaFile e
   }

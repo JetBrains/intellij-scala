@@ -16,7 +16,11 @@ import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
 
-class CopyWorksheetAction extends AnAction with TopComponentAction {
+class CopyWorksheetAction extends AnAction(
+  ScalaBundle.message("copy.scala.worksheet.action.text"),
+  ScalaBundle.message("copy.scala.worksheet.action.description"),
+  AllIcons.Actions.Copy
+) with TopComponentAction {
 
   override def genericText: String = ScalaBundle.message("worksheet.copy.button")
 

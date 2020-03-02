@@ -11,7 +11,11 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 /**
   * @author Pavel Fatin
   */
-class DesugarCodeAction extends AnAction {
+class DesugarCodeAction extends AnAction(
+  ScalaBundle.message("desugar.scala.code.action.text"),
+  ScalaBundle.message("desugar.scala.code.action.description"),
+  /* icon = */ null
+) {
   // TODO support read-only files (create duplicate scratch buffer)
   override def actionPerformed(event: AnActionEvent): Unit = {
     Stats.trigger(FeatureKey.desugarCode)

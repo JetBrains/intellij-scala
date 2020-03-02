@@ -13,7 +13,11 @@ import org.jetbrains.plugins.scala.project._
  * Pavel Fatin
  */
 
-class NewPackageObjectAction extends LazyFileTemplateAction(ScalaBundle.message("file.template.action.package.object"), Icons.PACKAGE_OBJECT) {
+class NewPackageObjectAction extends LazyFileTemplateAction(
+  ScalaBundle.message("new.packageobject.menu.action.text"),
+  ScalaBundle.message("new.packageobject.menu.action.description"),
+  Icons.PACKAGE_OBJECT
+) {
 
   override def update(e: AnActionEvent): Unit = {
     super.update(e)

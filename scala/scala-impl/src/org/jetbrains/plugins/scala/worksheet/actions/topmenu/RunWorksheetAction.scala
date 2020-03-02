@@ -28,7 +28,11 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.control.NonFatal
 
-class RunWorksheetAction extends AnAction with TopComponentAction {
+class RunWorksheetAction extends AnAction(
+  ScalaBundle.message("run.scala.worksheet.action.text"),
+  ScalaBundle.message("run.scala.worksheet.action.description"),
+  AllIcons.Actions.Execute
+) with TopComponentAction {
 
   override def genericText: String = ScalaBundle.message("worksheet.execute.button")
 

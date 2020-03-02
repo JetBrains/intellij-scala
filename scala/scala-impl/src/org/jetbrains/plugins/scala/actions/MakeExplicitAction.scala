@@ -25,7 +25,11 @@ import org.jetbrains.plugins.scala.util.JListCompatibility.GoToImplicitConversio
   * @author Ksenia.Sautina
   * @since 6/20/12
   */
-final class MakeExplicitAction extends AnAction(ScalaBundle.message("action.replace.implicit.conversion.action")) {
+final class MakeExplicitAction extends AnAction(
+  ScalaBundle.message("make.implicit.conversion.explicit.action.text"),
+  ScalaBundle.message("make.implicit.conversion.explicit.action.description"),
+  /* icon = */ null
+) {
 
   override def actionPerformed(event: AnActionEvent): Unit = {
     val context = event.getDataContext

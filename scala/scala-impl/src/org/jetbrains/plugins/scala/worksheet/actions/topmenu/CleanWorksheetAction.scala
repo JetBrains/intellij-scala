@@ -22,7 +22,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 
-class CleanWorksheetAction extends AnAction with TopComponentAction {
+class CleanWorksheetAction extends AnAction(
+  ScalaBundle.message("clean.scala.worksheet.action.text"),
+  ScalaBundle.message("clean.scala.worksheet.action.description"),
+  AllIcons.Actions.GC
+) with TopComponentAction {
 
   override def genericText: String = ScalaBundle.message("worksheet.clear.button")
 

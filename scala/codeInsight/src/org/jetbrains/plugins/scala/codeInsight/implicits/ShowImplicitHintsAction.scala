@@ -1,8 +1,13 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.openapi.actionSystem._
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 
-class ShowImplicitHintsAction extends ToggleAction {
+class ShowImplicitHintsAction extends ToggleAction(
+  ScalaCodeInsightBundle.message("show.implicit.hints.action.text"),
+  ScalaCodeInsightBundle.message("show.implicit.hints.action.description"),
+  /* icon = */ null
+) {
   setShortcuts(ShowImplicitHintsAction.Id, EnableShortcuts)
 
   override def isSelected(event: AnActionEvent): Boolean = ImplicitHints.enabled

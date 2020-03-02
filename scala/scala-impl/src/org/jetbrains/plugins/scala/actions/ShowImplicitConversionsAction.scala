@@ -33,7 +33,11 @@ import scala.collection.mutable
   * User: Alexander Podkhalyuzin
   * Date: 02.06.2010
   */
-final class ShowImplicitConversionsAction extends AnAction(ScalaBundle.message("action.show.implicit.conversions")) {
+final class ShowImplicitConversionsAction extends AnAction(
+  ScalaBundle.message("implicit.conversions.action.text"),
+  ScalaBundle.message("implicit.conversions.action.description"),
+  IconLoader.findIcon("/actions/intentionBulb.png"),
+) {
 
   import MakeExplicitAction._
 
@@ -198,7 +202,6 @@ final class ShowImplicitConversionsAction extends AnAction(ScalaBundle.message("
 
     setOpaque(false)
     setBorder(INACTIVE_BORDER)
-    setIcon(IconLoader.findIcon("/actions/intentionBulb.png"))
 
     private val toolTipText: String = KeymapUtil.getFirstKeyboardShortcutText(
       ActionManager.getInstance.getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS))

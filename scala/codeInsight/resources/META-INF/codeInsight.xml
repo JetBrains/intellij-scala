@@ -247,76 +247,46 @@
     </applicationListeners>
 
     <actions>
-
-        <action id="Scala.ShowImplicits"
-                class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
-                text="Show Implicit Hints"
-                description="Show implicit conversions / arguments as inlay hints in editor">
+        <action id="Scala.ShowImplicits" class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction">
             <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
         </action>
 
-        <action id="Scala.ExpandImplicits"
-                class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
-                text="Expand Implicit Hints"
-                description="Expand implicit conversions / arguments inlay hints in editor">
+        <action id="Scala.ExpandImplicits" class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction">
             <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
         </action>
 
         <group id="ScalaGenerateGroup">
             <separator/>
-            <action id="Scala.GenerateEquals"
-                    class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateEqualsAction"
-                    text="equals() and hashCode()" description="Generate equals() and hashCode() methods"/>
-            <action id="Scala.GenerateToString"
-                    class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateToStringAction"
-                    text="toString()" description="Generate toString() method"/>
-            <action id="Scala.GenerateCompanionObject"
-                    class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateCompanionObjectAction"
-                    text="Companion object" description="Generate companion object"/>
-            <action id="Scala.GenerateProperty"
-                    class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGeneratePropertyAction"
-                    text="Property (getter and setter)" description="Generate property"/>
+            <action id="Scala.GenerateEquals" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateEqualsAction" />
+            <action id="Scala.GenerateToString" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateToStringAction" />
+            <action id="Scala.GenerateCompanionObject" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateCompanionObjectAction"/>
+            <action id="Scala.GenerateProperty" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGeneratePropertyAction" />
             <add-to-group group-id="GenerateGroup"/>
         </group>
 
         <group id="TypeHintsMenu">
-            <action id="ToggleTypeHints"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleTypeHintsAction"
-                    text="Type hints"/>
-            <action id="ToggleTypeMismatchHints"
-                    class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"
-                    text="Type mismatch hints"/>
-            <action id="Scala.ToggleMethodChainInlayHints"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction"
-                    text="Method chain hints" />
+            <action id="ToggleTypeHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleTypeHintsAction"/>
+            <action id="ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"/>
+            <action id="Scala.ToggleMethodChainInlayHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction" />
             <separator />
-            <action id="Scala.ConfigureTypeHints"
-
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ConfigureTypeHintActions"
-                    text="Configure..." />
+            <action id="Scala.ConfigureTypeHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ConfigureTypeHintActions"/>
         </group>
         <group id="ImplicitConversionMenu">
-            <action id="MakeExplicit"
-                    class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"
-                    text="Make conversion explicit"/>
+            <action id="MakeExplicit" class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"/>
             <separator/>
             <reference ref="Scala.ShowImplicits" />
             <reference ref="Scala.ExpandImplicits" />
         </group>
 
         <group id="ImplicitArgumentsMenu">
-            <action id="ExplicitArgumentMenu.ShowImplicitArgumentsPopup"
-                    class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.ImplicitArgumentsPopup"
-                    text="Implicit Arguments Popup"/>
+            <action id="ExplicitArgumentMenu.ShowImplicitArgumentsPopup" class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.ImplicitArgumentsPopup"/>
             <separator/>
             <reference ref="Scala.ShowImplicits" />
             <reference ref="Scala.ExpandImplicits" />
         </group>
 
         <group id="ExplicitArgumentsMenu">
-            <action id="RemoveExplicitArguments"
-                    class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.RemoveExplicitArguments"
-                    text="Remove explicit arguments"/>
+            <action id="RemoveExplicitArguments" class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.RemoveExplicitArguments" />
             <separator/>
             <reference ref="Scala.ShowImplicits" />
             <reference ref="Scala.ExpandImplicits" />

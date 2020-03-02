@@ -13,6 +13,7 @@ import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.{PsiAnonymousClass, PsiFile}
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -29,7 +30,13 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * Nikolay.Tropin
   * 8/19/13
   */
-final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(new ScalaGenerateEqualsAction.Handler)
+final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(new ScalaGenerateEqualsAction.Handler) {
+  locally {
+    val presentation = getTemplatePresentation
+    presentation.setText(ScalaCodeInsightBundle.message("generate.equals.and.hashcode.methods.action.text"))
+    presentation.setDescription(ScalaCodeInsightBundle.message("generate.equals.and.hashcode.methods.action.description"))
+  }
+}
 
 object ScalaGenerateEqualsAction {
 

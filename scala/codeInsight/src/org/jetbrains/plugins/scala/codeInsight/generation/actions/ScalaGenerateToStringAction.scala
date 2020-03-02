@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
@@ -18,7 +19,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
   *
   * @author Rado Buransky (buransky.com)
   */
-final class ScalaGenerateToStringAction extends ScalaBaseGenerateAction(new ScalaGenerateToStringAction.Handler)
+final class ScalaGenerateToStringAction extends ScalaBaseGenerateAction(new ScalaGenerateToStringAction.Handler) {
+  locally {
+    val presentation = getTemplatePresentation
+    presentation.setText(ScalaCodeInsightBundle.message("generate.tostring.method.action.text"))
+    presentation.setDescription(ScalaCodeInsightBundle.message("generate.tostring.method.action.description"))
+  }
+}
 
 object ScalaGenerateToStringAction {
 

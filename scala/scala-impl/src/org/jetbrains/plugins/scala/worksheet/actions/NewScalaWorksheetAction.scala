@@ -15,7 +15,11 @@ import org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction._
  * @author Ksenia.Sautina
  * @since 10/30/12
  */
-final class NewScalaWorksheetAction extends LazyFileTemplateAction("Scala Worksheet", WorksheetFileType.getIcon) {
+final class NewScalaWorksheetAction extends LazyFileTemplateAction(
+  ScalaBundle.message("new.scalaworksheet.menu.action.text"),
+  ScalaBundle.message("new.scalaworksheet.menu.action.description"),
+  WorksheetFileType.getIcon
+) {
 
   override def getAttributesDefaults(dataContext: DataContext): AttributesDefaults = {
     val element = CommonDataKeys.PSI_ELEMENT.getData(dataContext)
