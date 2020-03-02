@@ -6,6 +6,7 @@ import java.awt.{Graphics, Insets, Rectangle}
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor._
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.{Disposer, Key}
 import org.jetbrains.plugins.scala.annotator.hints.Text
@@ -75,7 +76,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
     for (inlay <- inlays) {
       val renderer = inlay.getRenderer
       val endX = renderer.line.lineEndX(editor)
-      renderer.setMargin(endX, targetMaxX - endX, inlay)
+      renderer.setMargin(endX, targetMaxX - endX, inlay, !editor.asOptionOf[EditorEx].exists(_.isPurePaintingMode))
     }
   }
 
@@ -113,11 +114,13 @@ private object AlignedInlayGroup {
 
     private var cached: Cached = Cached(lineEndX = 0, margin = 0)
 
-    def setMargin(lineEndX: Int, margin: Int, inlay: Inlay[_]): Unit = {
+    def setMargin(lineEndX: Int, margin: Int, inlay: Inlay[_], repaint: Boolean): Unit = {
       if (cached.margin != margin) {
         cached = Cached(lineEndX, margin)
 
-        inlay.update()
+        if (repaint) {
+          inlay.update()
+        }
       }
     }
 
