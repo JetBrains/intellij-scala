@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-
+    <projectListeners>
+        <listener class="org.jetbrains.bsp.project.test.environment.FetchEnvironmentTaskInstaller"
+                  topic="com.intellij.execution.RunManagerListener"/>
+    </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
         <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
@@ -17,7 +20,6 @@
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspLocalSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.BspBuildLoopService"/>
-        <projectService serviceImplementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskInstaller"/>
 
         <applicationService serviceImplementation="org.jetbrains.bsp.protocol.BspCommunicationService"/>
 
