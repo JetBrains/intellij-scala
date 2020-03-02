@@ -11,7 +11,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.testFramework.{CompilerTester, EdtTestUtil, JavaModuleTestCase, PsiTestUtil, VfsTestUtil}
-import org.jetbrains.plugins.scala.base.{InjectableJdk, ScalaSdkOwner}
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
@@ -163,7 +163,7 @@ object ScalaCompilerTestBase {
       val problems = messages.asScala.filter { message =>
         categories.contains(message.getCategory)
       }
-      assertThat(problems, emptyCollection[Seq[_]])
+      assertThat(problems, emptyCollection)
     }
   }
 }
