@@ -35,7 +35,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.util.{Success, Try}
 
 class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
@@ -255,7 +254,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   override def generateDocumentationContentStub(contextComment: PsiComment): String = contextComment match {
     case scalaDocComment: ScDocComment =>
       ScalaDocumentationProvider.createScalaDocStub(scalaDocComment.getOwner)
-    case _ => ""
+    case _ =>
+      EmptyDoc
   }
 
   override def parseContext(startPoint: PsiElement): Pair[PsiElement, PsiComment] = {
@@ -268,6 +268,9 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 }
 
 object ScalaDocumentationProvider {
+
+  // TODO: review usages, maybe propper way will be to use null / None?
+  private val EmptyDoc = ""
 
   def getQuickNavigateInfo(element: PsiElement, substitutor: ScSubstitutor): String =
     ScalaDocumentationQuickInfoGenerator.getQuickNavigateInfo(element, substitutor)
@@ -339,9 +342,8 @@ object ScalaDocumentationProvider {
 
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.containingClass
-    if (clazz == null) return ""
-    "<a href=\"psi_element://" + escapeHtml(clazz.qualifiedName) + "\"><code>" +
-      escapeHtml(clazz.qualifiedName) + "</code></a>"
+    if (clazz == null) EmptyDoc
+    else s"""<a href="psi_element://${escapeHtml(clazz.qualifiedName)}"><code>${escapeHtml(clazz.qualifiedName)}</code></a>"""
   }
 
   // TODO Either use this method only in the DocumentationProvider, or place it somewhere else
@@ -364,7 +366,7 @@ object ScalaDocumentationProvider {
   def createScalaDocStub(commentOwner: PsiDocCommentOwner): String = {
     if (!commentOwner.getContainingFile.isInstanceOf[ScalaFile]) return ""
 
-    val buffer = new StringBuilder("")
+    val buffer = new StringBuilder
     val leadingAsterisks = "* "
 
     val inheritedParams = mutable.HashMap.apply[String, PsiDocTag]()
@@ -520,7 +522,7 @@ object ScalaDocumentationProvider {
       case c: ScClassParameter => c.isClassMember
       case _ => false
     }
-    val buffer: StringBuilder = new StringBuilder("")
+    val buffer: StringBuilder = new StringBuilder
     // When parameter is val, var, or case class val, annotations are related to member, not to parameter
     if (!member || memberModifiers) {
       buffer.append(parseAnnotations(param, ' ', escape))
@@ -548,7 +550,7 @@ object ScalaDocumentationProvider {
     // todo hyperlink identifiers in type bounds
     if (typeParameters.nonEmpty)
       escapeHtml(typeParameters.map(PresentationUtil.presentationString(_)).mkString("[", ", ", "]"))
-    else ""
+    else EmptyDoc
   }
 
   private def parseExtendsBlock(elem: ScExtendsBlock)
@@ -566,11 +568,12 @@ object ScalaDocumentationProvider {
         }
     }
 
-    if (buffer.isEmpty) "" else " extends " + buffer
+    if (buffer.isEmpty) EmptyDoc
+    else " extends " + buffer
   }
 
   private def parseModifiers(elem: ScModifierListOwner): String = {
-    val buffer: StringBuilder = new StringBuilder("")
+    val buffer: StringBuilder = new StringBuilder
 
     def accessQualifier(x: ScAccessModifier): String = x.getReference match {
       case null => ""
@@ -609,7 +612,7 @@ object ScalaDocumentationProvider {
   private def parseAnnotations(elem: ScAnnotationsHolder,
                                sep: Char = '\n', escape: Boolean = true)
                               (implicit typeToString: ScType => String): String = {
-    val buffer: StringBuilder = new StringBuilder("")
+    val buffer: StringBuilder = new StringBuilder
 
     def parseAnnotation(elem: ScAnnotation): String = {
       val res = new StringBuilder("@")
@@ -628,102 +631,132 @@ object ScalaDocumentationProvider {
     buffer.toString()
   }
 
-  @tailrec
-  private def parseDocComment(elem: PsiDocCommentOwner, withDescription: Boolean = false): String = {
+
+  // TODO: strange naming.. not "parse", it not only parses but also resolves base
+  private def parseDocComment(elem: PsiDocCommentOwner, isInherited: Boolean = false): String = {
+    val docHtml = Option(elem.getDocComment) match {
+      case Some(docComment) =>
+        val commentParsed = docComment match {
+          case scalaDoc: ScDocComment => parseScalaDocComment(elem, scalaDoc)
+          case _                      => generateJavadocContent(elem)
+        }
+        if (isInherited) {
+          wrapWithInheritedDescription(elem.containingClass)(commentParsed)
+        } else {
+          commentParsed
+        }
+      case None =>
+        elem match {
+          case method: PsiMethod =>
+            parseDocCommentForBaseMethod(method).getOrElse(EmptyDoc)
+          case _ =>
+            EmptyDoc
+        }
+    }
+    docHtml
+  }
+
+  // TODO: should we show inherited doc by default?
+  //  what about @inheritdoc scaladoc tag then?
+  private def parseDocCommentForBaseMethod(method: PsiMethod): Option[String] = {
+    def selectActualMethod(base: PsiMethod): PsiMethod =
+      base.getNavigationElement match {
+        case m: PsiMethod => m
+        case _            => base
+      }
+
+    val baseMethod = method match {
+      case scalaMethod: ScFunction => scalaMethod.superMethod
+      case javaMethod              => Option(SuperMethodsSearch.search(javaMethod, null, true, false).findFirst).map(_.getMethod)
+    }
+    baseMethod
+      .map(selectActualMethod)
+      .map(parseDocComment(_, isInherited = true))
+  }
+
+  private def parseScalaDocComment(
+    elem: PsiDocCommentOwner,
+    docComment: ScDocComment
+  ): String = {
+    // TODO: do we need to create a new tag inside replaceWikiWithTags just to .getText on it?
+    val withReplacedText = ScaladocWikiProcessor.replaceWikiWithTags(docComment)
+    val docTextNormalized =
+      if (withReplacedText == null) EmptyDoc // TODO: maybe shouldn't proceed if result is null
+      else withReplacedText.getText
+    val javaElement = createFakeJavaElement(elem, docTextNormalized)
+    generateJavadocContent(javaElement)
+  }
+
+  private def createFakeJavaElement(elem: PsiDocCommentOwner, docText: String) = {
     def getParams(fun: ScParameterOwner): String =
       fun.parameters.map(param => "int     " + escapeHtml(param.name)).mkString("(", ",\n", ")")
 
     def getTypeParams(tParams: Seq[ScTypeParam]): String =
-      if (tParams.nonEmpty)
-        tParams.map(param => escapeHtml(param.name)).mkString("<", " , ", ">")
-      else ""
+      if (tParams.isEmpty) ""
+      else tParams.map(param => escapeHtml(param.name)).mkString("<", " , ", ">")
 
-    def createDummyJavaFile(text: String): PsiJavaFile =
-      PsiFileFactory.getInstance(elem.getProject).createFileFromText("dummy", StdFileTypes.JAVA, text).asInstanceOf[PsiJavaFile]
-
-    elem.getDocComment match {
-      case scDocComment: ScDocComment =>
-        val replacedText = ScaladocWikiProcessor.replaceWikiWithTags(scDocComment)
-        val xText = if (replacedText == null) "" else replacedText.getText
-
-        val text = elem match {
-          case clazz: ScClass =>
-            s"""
-               |class A {
-               |$xText
-               |public ${getTypeParams(clazz.typeParameters)}void f${getParams(clazz)} {
-               |}
-               |}""".stripMargin
-          case typeAlias: ScTypeAlias =>
-            s"""$xText
-               | class A${getTypeParams(typeAlias.typeParameters)} {}""".stripMargin
-          case _: ScTypeDefinition =>
-            s"""$xText
-               |class A {
-               |}""".stripMargin
-          case f: ScFunction =>
-            s"""class A {
-               |$xText
-               |public ${getTypeParams(f.typeParameters)}int f${getParams(f)} {}
-               |}""".stripMargin
-          case m: PsiMethod =>
-            s"""class A {
-               |${m.getText}
-               |}""".stripMargin
-          case _ =>
-            s"""$xText
-               |class A""".stripMargin
-        }
-        val dummyFile = createDummyJavaFile(text)
-
-        val lightElement = elem match {
-          case _: ScFunction | _: ScClass | _: PsiMethod =>
-            dummyFile.getClasses.head.getAllMethods.head
-          case _ =>
-            dummyFile.getClasses.head
-        }
-
-        val javadoc: String = {
-          val builder = new java.lang.StringBuilder()
-          val generator = new JavaDocInfoGenerator(elem.getProject, lightElement)
-          generator.generateDocInfoCore(builder, false)
-          builder.toString
-        }
-        val javadocFixed = javadoc.substring(javadoc.indexOf("<div class='content'>"))
-
-        val (before, after) = elem.containingClass match {
-          case e: PsiClass if withDescription =>
-            val value = "" +
-              s"""<b>Description copied from class: </b>""" +
-              s"""<a href="psi_element://${escapeHtml(e.qualifiedName)}">""" +
-              s"""<code>${escapeHtml(e.name)}</code>""" +
-              s"""</a>""" +
-              s"""<p>"""
-            (value, "</p>")
-          case _ => ("", "")
-        }
-        before + javadocFixed + after
+    val javaText = elem match {
+      case clazz: ScClass =>
+        s"""
+           |class A {
+           |$docText
+           |public ${getTypeParams(clazz.typeParameters)}void f${getParams(clazz)}{
+           |}""".stripMargin
+      case typeAlias: ScTypeAlias =>
+        s"""$docText
+           | class A${getTypeParams(typeAlias.typeParameters)} {}""".stripMargin
+      case _: ScTypeDefinition =>
+        s"""$docText
+           |class A {
+           |}""".stripMargin
+      case f: ScFunction =>
+        s"""class A {
+           |$docText
+           |public ${getTypeParams(f.typeParameters)}int f${getParams(f)} {}
+           |}""".stripMargin
+      case m: PsiMethod =>
+        s"""class A {
+           |${m.getText}
+           |}""".stripMargin
       case _ =>
-        def selectActualMethod(base: PsiMethod): PsiMethod = base.getNavigationElement match {
-          case m: PsiMethod => m
-          case _ => base
-        }
-
-        val baseMethod = elem match {
-          case fun: ScFunction => fun.superMethod match {
-            case Some(sfun) => sfun
-            case _ => return ""
-          }
-          case method: PsiMethod =>
-            Try(SuperMethodsSearch.search(method, null, true, false).findFirst) match {
-              case Success(ss) => ss.getMethod
-              case _ => return ""
-            }
-          case _ => return ""
-        }
-
-        parseDocComment(selectActualMethod(baseMethod), withDescription = true)
+        s"""$docText
+           |class A""".stripMargin
     }
+
+    val javaDummyFile = createDummyJavaFile(javaText, elem.getProject)
+
+    val clazz = javaDummyFile.getClasses.head
+    elem match {
+      case _: ScFunction | _: ScClass | _: PsiMethod => clazz.getAllMethods.head
+      case _                                         => clazz
+    }
+  }
+
+  private def createDummyJavaFile(text: String, project: Project): PsiJavaFile =
+    PsiFileFactory.getInstance(project).createFileFromText("dummy", StdFileTypes.JAVA, text).asInstanceOf[PsiJavaFile]
+
+  private def generateJavadoc(element: PsiElement): String = {
+    val builder = new java.lang.StringBuilder()
+    val generator = new JavaDocInfoGenerator(element.getProject, element)
+    generator.generateDocInfoCore(builder, false)
+    builder.toString
+  }
+
+  private def generateJavadocContent(element: PsiElement): String = {
+    val javadoc = generateJavadoc(element)
+    val javadocFixed = javadoc.substring(javadoc.indexOf("<div class='content'>"))
+    javadocFixed
+  }
+
+  private def wrapWithInheritedDescription(clazz: PsiClass)(text: String): String = {
+    val prefix =
+      s"""<div class='content'>
+         |<b>Description copied from class: </b>
+         |<a href="psi_element://${escapeHtml(clazz.qualifiedName)}">
+         |<code>${escapeHtml(clazz.name)}</code>
+         |</a>
+         |</div>""".stripMargin
+    prefix + text
   }
 
   @tailrec

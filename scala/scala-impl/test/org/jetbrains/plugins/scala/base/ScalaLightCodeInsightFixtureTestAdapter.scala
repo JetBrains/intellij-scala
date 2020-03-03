@@ -27,7 +27,10 @@ import scala.collection.JavaConverters._
  * Date: 3/5/12
  */
 abstract class ScalaLightCodeInsightFixtureTestAdapter
-  extends LightJavaCodeInsightFixtureTestCase with ScalaSdkOwner with TestFixtureProvider with FailableTest {
+  extends LightJavaCodeInsightFixtureTestCase
+    with ScalaSdkOwner
+    with TestFixtureProvider
+    with FailableTest {
 
   import ScalaLightCodeInsightFixtureTestAdapter._
   import libraryLoaders._
