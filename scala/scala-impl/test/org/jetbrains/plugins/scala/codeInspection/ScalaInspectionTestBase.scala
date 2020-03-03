@@ -62,7 +62,7 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   private def highlightsDebugText(info: HighlightInfo, fileText: String): String = {
     val range = info.range
     val rangeText = fileText.substring(range.getStartOffset, range.getEndOffset)
-    s"$range[$rangeText]: ${info.getToolTip.replaceAll("\n", " ")}"
+    s"$range[$rangeText]: ${info.getDescription}"
   }
 
   protected def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit = {
@@ -144,7 +144,7 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
         .filter(it => descriptionMatches(it.getDescription))
         .filter(checkOffset(_, offset))
 
-    TestPrepareResult(fileText, expectedHighlights, actualHighlights)
+    TestPrepareResult(fixture.getFile.getText, expectedHighlights, actualHighlights)
   }
 
   private def createScratchFile(normalizedText: String) = {
