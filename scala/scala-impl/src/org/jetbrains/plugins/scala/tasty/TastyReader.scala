@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.tasty
 
 import java.io.File
 import java.net.URLClassLoader
+import java.nio.file.{Files, Paths}
 
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
+import scala.collection.JavaConverters._
 
 object TastyReader {
   // TODO Remove when the project use Scala 2.13
@@ -29,9 +31,8 @@ object TastyReader {
       }
 
       val bundledJars = {
-        val tastyDirectory = new File(new File(PathUtil.getJarPathForClass(getClass)).getParentFile, "tasty")
-        assert(tastyDirectory.exists, tastyDirectory.toString)
-        Seq("tasty-compile.jar", "tasty-runtime.jar", "tasty-reader.jar").map(new File(tastyDirectory, _))
+        val base = tastyDirectoryFor(getClass)
+        Seq("tasty-compile.jar", "tasty-runtime.jar", "tasty-reader.jar").map(new File(base, _))
       }
 
       resolvedJars ++ bundledJars
@@ -48,11 +49,35 @@ object TastyReader {
     tastyReaderImplClass.newInstance().asInstanceOf[TastyReader]
   }
 
-  // TODO Remove
+  private def tastyDirectoryFor(aClass: Class[_]): File = {
+    val libDirectory = {
+      val jarPath = PathUtil.getJarPathForClass(aClass)
+      if (jarPath.endsWith(".jar")) new File(jarPath).getParentFile
+      else new File("target/plugin/Scala/lib")
+    }
+    val directory = new File(libDirectory, "tasty")
+    assert(directory.exists, directory.toString)
+    directory
+  }
+
+  // TODO Remove (convenience for debugging purposes)
   def main(args: Array[String]): Unit = {
+    def textAt(position: Position): String = {
+      val line = Files.readAllLines(Paths.get(position.file)).asScala(position.startLine)
+      line.substring(position.startColumn, position.endColumn)
+    }
+
     val result = read("/home/pavel/IdeaProjects/dotty-example-project/target/scala-0.22/classes", "ContextQueries").get
     println(result.text)
-    println(result.references.foreach(println))
-    println(result.types.foreach(println))
+
+    (result.references ++ result.types).sortBy {
+      case it: ReferenceData => (it.from.startLine, it.from.startColumn)
+      case it: TypeData => (it.from.startLine, it.from.startColumn)
+    }.foreach {
+      case it: ReferenceData if it.getClass.getName.endsWith("ReferenceData") =>
+        println("REF: " + textAt(it.from) + ", " + it)
+      case it: TypeData =>
+        println("TPE: " + textAt(it.from) + ": " + it.presentation + ", " + it)
+    }
   }
 }
