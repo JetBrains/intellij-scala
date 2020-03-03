@@ -109,8 +109,9 @@ abstract class AbstractCompiler extends Compiler {
       }
 
       val pos = problem.position
-      val msg = s"${problem.message}\n${pos.lineContent}\n"
-      logInClient(msg, pos, kind)
+      val messageWithoutAnsiColorCodes = ansiColorCodePattern.replaceAllIn(problem.message(), "")
+      val resultMsg = s"${messageWithoutAnsiColorCodes}\n${pos.lineContent}\n"
+      logInClient(resultMsg, pos, kind)
     }
 
     private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {

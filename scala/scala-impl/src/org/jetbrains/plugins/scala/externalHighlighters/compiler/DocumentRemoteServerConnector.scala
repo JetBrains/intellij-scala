@@ -6,6 +6,7 @@ import com.intellij.openapi.module.Module
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.Commands
 import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.project.ModuleExt
 
 /**
  * @param module module that contains specified source file
@@ -17,7 +18,10 @@ private[compiler] class DocumentRemoteServerConnector(module: Module,
                                                       sourceFileCopy: File)
   extends RemoteServerConnectorBase(module, Seq(sourceFileCopy), new File("")) {
 
-  override protected def additionalScalaParameters: Seq[String] = Seq("-Ystop-after:patmat")
+  override protected def additionalScalaParameters: Seq[String] = {
+    val lastPhase = if (module.hasScala3) "reifyQuotes" else "patmat"
+    Seq(s"-Ystop-after:$lastPhase")
+  }
 
   import DocumentRemoteServerConnector.ReplacedSourcesClient
 
