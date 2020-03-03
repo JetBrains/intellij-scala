@@ -70,7 +70,7 @@ object AnnotatorUtils {
       case _ => false
     }
 
-    def hasUnresolvedReferences = e.elements.exists(_.asOptionOf[ScReference].exists(_.resolve() == null))
+    def hasUnresolvedReferences = e.elements.exists(_.asOptionOf[ScReference].exists(_.multiResolveScala(false).isEmpty))
 
     hasParserErrors ||
       hasUnresolvedReferences ||
