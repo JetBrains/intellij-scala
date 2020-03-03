@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.tasty
 
 import scala.annotation.switch
 import scala.quoted.show.SyntaxHighlight
-import scala.tasty.reflect._
 import scala.tasty.compat._
+import scala.tasty.reflect._
 
 // Copy of https://github.com/lampepfl/dotty/blob/master/library/src/scala/tasty/reflect/SourceCodePrinter.scala with cosmetic Scala 2.x updates.
 class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHighlight: SyntaxHighlight) extends Printer[R] {
@@ -67,6 +67,31 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
   private class Buffer(implicit ctx: Context) {
 
     private[this] val sb: StringBuilder = new StringBuilder
+
+    private def collectReference(from: Position, to: Position): Unit = {
+      if (from.exists && (from.startLine < from.endLine || from.startColumn < from.endColumn)) { // Skip references that are absent in original source file
+        val fromData = Position(from.sourceFile.jpath.toFile.getPath, from.startLine, from.endLine, from.startColumn, from.endColumn)
+        if (to.exists) {
+          val file = to.sourceFile.jpath.toFile
+          if (file.exists) { // TODO Scalac attempts to read the file to compute offsetToLine (we need to report the bug)
+            val toData = Position(file.getPath, to.startLine, to.endLine, to.startColumn, to.endColumn)
+            references :+= ReferenceData(fromData, toData)
+          }
+        }
+      }
+    }
+
+    // TODO Why do positions of val and def symbols have zero length?
+    private def collectType(position: Position, length: Int, doPrintType: => Unit): Unit = {
+      if (position.exists && (position.startLine < position.endLine || position.startColumn < position.endColumn)) { // Skip types that are absent in original source file
+        val from = Position(position.sourceFile.jpath.toFile.getPath, position.startLine, position.endLine, position.startColumn, position.endColumn + length)
+        val previousLength = sb.length()
+        doPrintType
+        val presentation = sb.substring(previousLength, sb.length())
+        sb.delete(previousLength, sb.length())
+        types :+= TypeData(from, presentation)
+      }
+    }
 
     private[this] var indent: Int = 0
     def indented(printIndented: => Unit): Unit = {
@@ -273,6 +298,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         val name1 = splicedName(vdef.symbol).getOrElse(name)
         this += highlightValDef(name1) += ": "
         printTypeTree(tpt)
+        collectType(vdef.symbol.pos, name1.length, printTypeTree(tpt))
         rhs match {
           case Some(tree) =>
             this += " = "
@@ -315,6 +341,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         if (!isConstructor) {
           this += ": "
           printTypeTree(tpt)
+          collectType(ddef.symbol.pos, name1.length, printTypeTree(tpt))
         }
         rhs match {
           case Some(tree) =>
@@ -328,27 +355,8 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         this += "_"
 
       case tree: Ident =>
-        // TODO Handle definitions
-        // Customization
-        val fromPos = tree.pos
-        val toPos = tree.symbol.pos
-        if (fromPos.exists) {
-          val from = Position(fromPos.sourceFile.jpath.toFile.getPath, fromPos.startLine, fromPos.endLine, fromPos.startColumn, fromPos.endColumn)
-          if (toPos.exists) {
-            val file = toPos.sourceFile.jpath.toFile
-            if (file.exists) { // TODO Scalac attempts to read the file to compute offsetToLine (we need to report the bug)
-              val to = Position(file.getPath, toPos.startLine, toPos.endLine, toPos.startColumn, toPos.endColumn)
-              references :+= ReferenceData(from, to)
-            } else {
-              println(toPos.sourceFile.jpath.toFile)
-            }
-          }
-          val previousLength = sb.length()
-          printType(tree.tpe.widen)
-          val presentation = sb.substring(previousLength, sb.length())
-          sb.delete(previousLength, sb.length())
-          types :+= TypeData(from, presentation)
-        }
+        collectReference(tree.pos, tree.symbol.pos)
+        collectType(tree.pos, 0, printType(tree.tpe.widen))
 
         splicedName(tree.symbol) match {
           case Some(name) => this += name
@@ -374,7 +382,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
       case tree: New =>
         this += "new "
-        printType(tree.tpe)
+        printType(tree.tpe) // TODO How to extract positions and references from types?
 
       case NamedArg(name, arg) =>
         this += name += " = "
