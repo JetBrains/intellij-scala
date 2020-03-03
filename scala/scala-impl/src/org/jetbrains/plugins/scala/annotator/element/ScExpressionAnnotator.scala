@@ -60,7 +60,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     // TODO rename (it's not about size, but about inner / outer expressions)
     def isTooBigToHighlight(expr: ScExpression): Boolean = expr match {
       case _: ScMatch                                => true
-      case bl: ScBlock if bl.lastStatement.isDefined => !fromFunctionLiteral
+      case bl: ScBlock if bl.resultExpression.isDefined => !fromFunctionLiteral
       case i: ScIf if i.elseExpression.isDefined     => true
       case _: ScFunctionExpr                         => !fromFunctionLiteral && (expr.getTextRange.getLength > 20 || expr.textContains('\n'))
       case _: ScTry                                  => true

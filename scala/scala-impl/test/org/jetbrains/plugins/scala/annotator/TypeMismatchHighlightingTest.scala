@@ -302,9 +302,9 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     Error("foo", "Cannot resolve symbol foo")) // TODO should be "Missing parameter type"
 
   def testTypeMismatchUnresolvedReferenceMultiple(): Unit = assertErrors(
-    "def f: Int = { import scala.math.abs }",
+    "val v: Int = { import scala.math.abs }",
     Hint("}", ": Unit"),
-    Error("}", "Type mismatch, found: Unit, required: Int"))
+    Error("}", "Expression of type Unit doesn't conform to expected type Int"))
 
   // Plain block expression
 
