@@ -2,7 +2,7 @@ package org.jetbrains.sbt.editor.documentationProvider
 
 trait SbtDocumentationProviderCommonTests extends SbtDocumentationProviderTestBase {
 
-  def testSbtDescriptionShouldBeWrappedInDefaultScaladocTemplate(): Unit = doFullTest(
+  def testSbtDescriptionShouldBeWrappedInDefaultScaladocTemplate(): Unit = doTest(
     s"""val ${CARET}someKey = SettingKey[Int]("some-key", "This is description for some-key")""",
     s"""<html><body>
        |<pre>Pattern: <b>someKey</b>: <a href="psi_element://sbt.SettingKey"><code>SettingKey</code></a>[Int]</pre>
@@ -67,7 +67,7 @@ trait SbtDocumentationProviderCommonTests extends SbtDocumentationProviderTestBa
     "some-key-label"
   )
 
-  def testDoNotDetectDocumentationForNonKeyApplyMethod(): Unit = doFullTest(
+  def testDoNotDetectDocumentationForNonKeyApplyMethod(): Unit = doTest(
     s"""val ${CARET}someKey = SomeUnknownClass[Int]("some-key", "$description")""",
     null
   )
