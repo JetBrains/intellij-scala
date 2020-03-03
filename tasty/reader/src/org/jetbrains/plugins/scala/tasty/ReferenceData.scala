@@ -1,3 +1,3 @@
 package org.jetbrains.plugins.scala.tasty
 
-case class ReferenceData(from: Position, to: Position)
+case class ReferenceData(position: Position, target: Position)
