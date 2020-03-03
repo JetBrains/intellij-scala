@@ -5,6 +5,7 @@ import com.intellij.codeInsight.javadoc.{JavaDocInfoGenerator, JavaDocUtil}
 import com.intellij.lang.documentation.CodeDocumentationProvider
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.StdFileTypes
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
 import com.intellij.psi._
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
@@ -100,7 +101,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       withTag("div", Seq(("class", "definition"))) {
         mainPart
       }
-    
+
     def appendMainSection(element: PsiElement, epilogue: => Unit = {}, needsTpe: Boolean = false): Unit = {
       pre {
         element match {
@@ -147,83 +148,96 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
     }
 
 
-    withHtmlMarkup {
-      e match {
-        case clazz: ScTypeDefinition =>
-          appendDef {
-            clazz.qualifiedName.lastIndexOf(".") match {
-              case -1 =>
-              case a =>
-                withTag("font", Seq(("size", "-1"))) {
-                  b {
-                    append(clazz.qualifiedName.substring(0, a))
-                  }
-                }
-            }
-
-            appendMainSection(clazz, {
-              appendNl()
-              append(parseExtendsBlock(clazz.extendsBlock))
-            })
-          }
-
-          append(parseDocComment(clazz))
-        case fun: ScFunction =>
-          appendDef {
-            append(parseClassUrl(fun))
-            appendMainSection(fun)
-          }
-          
-          append(parseDocComment(fun))
-        case decl: ScDeclaredElementsHolder if decl.isInstanceOf[ScValue] || decl.isInstanceOf[ScVariable] =>
-          appendDef {
-            decl match {
-              case decl: ScMember => append(parseClassUrl(decl))
-              case _ =>
-            }
-            appendMainSection(decl, needsTpe = true)
-          }
-
-          decl match {
-            case doc: ScDocCommentOwner => append(parseDocComment(doc))
-            case _ =>
-          }
-        case param: ScParameter =>
-          appendMainSection(param)
-        case tpe: ScTypeAlias =>
-          appendDef {
-            append(parseClassUrl(tpe))
-            appendMainSection(tpe, {
-              tpe match {
-                case definition: ScTypeAliasDefinition =>
-                  val tp = definition.aliasedTypeElement.flatMap {
-                    _.`type`().toOption
-                  }.getOrElse(Any)
-                  append(s" = ${urlText(tp)}")
-                case _ =>
+    def appendTypeDef(typedef: ScTypeDefinition): HtmlBuilderWrapper = {
+      appendDef {
+        typedef.qualifiedName.lastIndexOf(".") match {
+          case -1 =>
+          case a =>
+            withTag("font", Seq(("size", "-1"))) {
+              b {
+                append(typedef.qualifiedName.substring(0, a))
               }
-            })
-          }
-          
-          append(parseDocComment(tpe))
-        case pattern: ScBindingPattern =>
-          pre {
-            append("Pattern: ")
-            b {
-              append(escapeHtml(pattern.name))
             }
-            append(typeAnnotation(pattern))
-            if (pattern.getContext != null)
-              pattern.getContext.getContext match {
-                case co: PsiDocCommentOwner => append(parseDocComment(co))
-                case _ =>
-              }
-          }
+        }
+
+        appendMainSection(typedef, {
+          appendNl()
+          append(parseExtendsBlock(typedef.extendsBlock))
+        })
+      }
+
+      append(parseDocComment(typedef))
+    }
+
+    def appendFunction(fun: ScFunction): Unit = {
+      appendDef {
+        append(parseClassUrl(fun))
+        appendMainSection(fun)
+      }
+
+      append(parseDocComment(fun))
+    }
+
+    def appendValOrVar(decl: ScValueOrVariable): Unit = {
+      appendDef {
+        decl match {
+          case decl: ScMember => append(parseClassUrl(decl))
+          case _ =>
+        }
+        appendMainSection(decl, needsTpe = true)
+      }
+      decl match {
+        case doc: ScDocCommentOwner => append(parseDocComment(doc))
         case _ =>
       }
     }
 
-    builder.result()
+    def appendTypeAlias(tpe: ScTypeAlias): Unit ={
+      appendDef {
+        append(parseClassUrl(tpe))
+        appendMainSection(tpe, {
+          tpe match {
+            case definition: ScTypeAliasDefinition =>
+              val tp = definition.aliasedTypeElement.flatMap(_.`type`().toOption).getOrElse(Any)
+              append(s" = ${urlText(tp)}")
+            case _ =>
+          }
+        })
+      }
+
+      append(parseDocComment(tpe))
+    }
+
+    def appendBindingPattern(pattern: ScBindingPattern): Unit = {
+      pre {
+        append("Pattern: ")
+        b {
+          append(escapeHtml(pattern.name))
+        }
+        append(typeAnnotation(pattern))
+        if (pattern.getContext != null) {
+          pattern.getContext.getContext match {
+            case co: PsiDocCommentOwner => append(parseDocComment(co))
+            case _ =>
+          }
+        }
+      }
+    }
+
+    withHtmlMarkup {
+      e match {
+        case typeDef: ScTypeDefinition => appendTypeDef(typeDef)
+        case fun: ScFunction           => appendFunction(fun)
+        case decl: ScValueOrVariable   => appendValOrVar(decl)
+        case param: ScParameter        => appendMainSection(param)
+        case tpe: ScTypeAlias          => appendTypeAlias(tpe)
+        case pattern: ScBindingPattern => appendBindingPattern(pattern)
+        case _                         =>
+      }
+    }
+
+    val result = builder.result()
+    result
   }
 
 
