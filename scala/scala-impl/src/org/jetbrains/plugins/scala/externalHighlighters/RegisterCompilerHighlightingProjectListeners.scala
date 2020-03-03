@@ -13,11 +13,11 @@ import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.JpsCompilationUtil
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 
-class RegisterOnProjectOpenedListener
+class RegisterCompilerHighlightingProjectListeners
   extends ProjectManagerListener {
 
   override def projectOpened(project: Project): Unit = {
-    PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeListener(project))
+    PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeListener(project), project)
     EditorFactory.getInstance.addEditorFactoryListener(new EditorCreatedListener(project), project)
   }
 
