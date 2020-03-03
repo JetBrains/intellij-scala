@@ -14,13 +14,20 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 import org.jetbrains.plugins.scala.settings.annotations.Definition.{FunctionDefinition, ValueDefinition, VariableDefinition}
 import ScalaTypeHintsPass._
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 
 private[codeInsight] trait ScalaTypeHintsPass {
   protected implicit def settings: ScalaHintsSettings
 
   protected def collectTypeHints(editor: Editor, root: PsiElement): Seq[Hint] = {
-    if (editor.isOneLineMode || !(settings.showMethodResultType || settings.showMemberVariableType || settings.showLocalVariableType)) Seq.empty
-    else {
+    val compilerErrorsEnabled = Option(root.getContainingFile).exists { file =>
+      file.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
+    }
+    if (editor.isOneLineMode ||
+      !(settings.showMethodResultType || settings.showMemberVariableType || settings.showLocalVariableType) ||
+      compilerErrorsEnabled) {
+      Seq.empty
+    } else {
       for {
         element <- root.elements
         definition = Definition(element) // NB: "definition" might be in fact _any_ PsiElement (e.g. ScalaFile)
