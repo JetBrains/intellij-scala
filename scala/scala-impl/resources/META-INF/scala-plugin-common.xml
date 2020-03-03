@@ -1691,6 +1691,8 @@
                   class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterCompilerHighlightingProjectListeners"/>
         <!-- Formatter listeners-->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
@@ -1715,8 +1717,6 @@
                   class="org.jetbrains.plugins.scala.externalHighlighters.HighlightingUpdatingCompilerEventListener"/>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterSelectedDocumentListener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterOnProjectOpenedListener"/>
     </projectListeners>
 
     <actions>
