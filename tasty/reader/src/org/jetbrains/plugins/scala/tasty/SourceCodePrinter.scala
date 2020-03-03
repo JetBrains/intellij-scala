@@ -68,28 +68,35 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
     private[this] val sb: StringBuilder = new StringBuilder
 
-    private def collectReference(from: Position, to: Position): Unit = {
-      if (from.exists && (from.startLine < from.endLine || from.startColumn < from.endColumn)) { // Skip references that are absent in original source file
-        val fromData = Position(from.sourceFile.jpath.toFile.getPath, from.startLine, from.endLine, from.startColumn, from.endColumn)
-        if (to.exists) {
-          val file = to.sourceFile.jpath.toFile
-          if (file.exists) { // TODO Scalac attempts to read the file to compute offsetToLine (we need to report the bug)
-            val toData = Position(file.getPath, to.startLine, to.endLine, to.startColumn, to.endColumn)
-            references :+= ReferenceData(fromData, toData)
+    private def collectReference(position: Position, target: Position): Unit = {
+      // Skip references that are absent in original source file
+      if (position.exists && (position.startLine < position.endLine || position.startColumn < position.endColumn)) {
+        if (target.exists) {
+          val targetFile = target.sourceFile.jpath.toFile
+          if (targetFile.exists) { // TODO Scalac attempts to read the file to compute offsetToLine (we need to report the bug)
+            references :+= ReferenceData(
+              Position(position.sourceFile.jpath.toFile.getPath, position.startLine,
+                position.endLine, position.startColumn, position.endColumn),
+              Position(targetFile.getPath, target.startLine, target.endLine,
+                target.startColumn, target.endColumn))
           }
         }
       }
     }
 
-    // TODO Why do positions of val and def symbols have zero length?
     private def collectType(position: Position, length: Int, doPrintType: => Unit): Unit = {
-      if (position.exists && (position.startLine < position.endLine || position.startColumn < position.endColumn)) { // Skip types that are absent in original source file
-        val from = Position(position.sourceFile.jpath.toFile.getPath, position.startLine, position.endLine, position.startColumn, position.endColumn + length)
+      // TODO Why do positions of val and def symbols have zero length?
+      // Skip types that are absent in original source file
+      if (position.exists && (position.startLine < position.endLine || position.startColumn < position.endColumn + length)) {
         val previousLength = sb.length()
         doPrintType
         val presentation = sb.substring(previousLength, sb.length())
         sb.delete(previousLength, sb.length())
-        types :+= TypeData(from, presentation)
+        types :+= TypeData(
+          Position(position.sourceFile.jpath.toFile.getPath,
+            position.startLine, position.endLine,
+            position.startColumn, position.endColumn + length),
+          presentation)
       }
     }
 

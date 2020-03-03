@@ -24,8 +24,8 @@ package object tasty {
   private[tasty] type TastyReader = { def read(classpath: String, className: String): TastyFile }
   type TastyFile = { def text: String; def references: Array[ReferenceData]; def types: Array[TypeData] }
   type Position = { def file: String; def startLine: Int; def endLine: Int; def startColumn: Int; def endColumn: Int }
-  type ReferenceData = { def from: Position; def to: Position }
-  type TypeData = { def from: Position; def presentation: String }
+  type ReferenceData = { def position: Position; def target: Position }
+  type TypeData = { def position: Position; def presentation: String }
 
   def isTastyEnabledFor(element: PsiElement): Boolean =
     element.getContainingFile.getLanguage.is(Scala3Language.INSTANCE)
@@ -64,13 +64,13 @@ package object tasty {
   }
 
   def typeAt(position: LogicalPosition, tastyFile: TastyFile): Option[String] = {
-    tastyFile.types.find(it => it.from.startLine <= position.line && position.line <= it.from.endLine &&
-      it.from.startColumn <= position.column && position.column <= it.from.endColumn).map(_.presentation)
+    tastyFile.types.find(it => it.position.startLine <= position.line && position.line <= it.position.endLine &&
+      it.position.startColumn <= position.column && position.column <= it.position.endColumn).map(_.presentation)
   }
 
   def referenceTargetAt(position: LogicalPosition, tastyFile: TastyFile): Option[(File, Int)] = {
-    val reference = tastyFile.references.find(it => it.from.startLine <= position.line && position.line <= it.from.endLine &&
-      it.from.startColumn <= position.column && position.column <= it.from.endColumn).map(_.to)
+    val reference = tastyFile.references.find(it => it.position.startLine <= position.line && position.line <= it.position.endLine &&
+      it.position.startColumn <= position.column && position.column <= it.position.endColumn).map(_.target)
 
     reference.map(position => (new File(position.file), offsetOf(position)))
   }

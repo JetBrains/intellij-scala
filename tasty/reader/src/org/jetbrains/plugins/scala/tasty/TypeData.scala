@@ -1,3 +1,3 @@
 package org.jetbrains.plugins.scala.tasty
 
-case class TypeData(from: Position, presentation: String)
+case class TypeData(position: Position, presentation: String)

@@ -71,13 +71,13 @@ object TastyReader {
     println(result.text)
 
     (result.references ++ result.types).sortBy {
-      case it: ReferenceData => (it.from.startLine, it.from.startColumn)
-      case it: TypeData => (it.from.startLine, it.from.startColumn)
+      case it: ReferenceData => (it.position.startLine, it.position.startColumn)
+      case it: TypeData => (it.position.startLine, it.position.startColumn)
     }.foreach {
       case it: ReferenceData if it.getClass.getName.endsWith("ReferenceData") =>
-        println("REF: " + textAt(it.from) + ", " + it)
+        println("REF: " + textAt(it.position) + ", " + it)
       case it: TypeData =>
-        println("TPE: " + textAt(it.from) + ": " + it.presentation + ", " + it)
+        println("TPE: " + textAt(it.position) + ": " + it.presentation + ", " + it)
     }
   }
 }
