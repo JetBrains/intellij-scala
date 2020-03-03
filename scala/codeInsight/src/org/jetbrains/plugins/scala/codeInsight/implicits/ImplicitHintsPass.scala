@@ -12,7 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsPass}
@@ -63,9 +63,12 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
       val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
 
       //todo: cover ambiguous implicit case (right now it is not always correct)
-      def shouldShow(arguments: Seq[ScalaResolveResult]) =
-        ImplicitHints.enabled ||
+      def shouldShow(arguments: Seq[ScalaResolveResult]) = {
+        val compilerErrorsDisabled = !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
+        val basicCondition = ImplicitHints.enabled ||
           (showNotFoundArgs && arguments.exists(p => p.isImplicitParameterProblem && !isAmbiguous(p)))
+        compilerErrorsDisabled && basicCondition
+      }
 
       if (shouldSearch) {
         owner.findImplicitArguments.toSeq.flatMap {
