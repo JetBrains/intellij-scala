@@ -245,6 +245,8 @@ package object project {
 
     def hasScala: Boolean = modulesWithScala.nonEmpty
 
+    def hasDotty: Boolean = modulesWithScala.exists(_.hasScala3)
+
     @CachedInUserData(project, ProjectRootManager.getInstance(project))
     def modulesWithScala: Seq[Module] =
       modules.filter(_.hasScala)

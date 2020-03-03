@@ -24,7 +24,10 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
 
   override def suitableForFile(file: PsiFile): Boolean = {
     val hasScala = file.hasScalaPsi
-    val shouldInspect = HighlightingLevelManager.getInstance(project).shouldInspect(file)
+    val shouldInspect = if (file.isScala3File)
+      true
+    else
+      HighlightingLevelManager.getInstance(project).shouldInspect(file)
     hasScala && (shouldInspect || isUnitTestMode)
   }
 

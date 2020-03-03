@@ -58,6 +58,8 @@
                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator"/>
         <statusBarWidgetProvider implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetProvider"/>
 
+        <defaultHighlightingSettingProvider implementation="org.jetbrains.plugins.scala.annotator.ScalaDefaultHighlightingSettingProvider"/>
+
         <breadcrumbsInfoProvider
                 implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider"/>
         <breadcrumbsPresentationProvider

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 
@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 
 object ScalaHighlightingMode {
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
-    showDotcErrors && hasDotty(project) || showScalacErrors && project.hasScala
+    showDotcErrors && project.hasDotty || showScalacErrors && project.hasScala
 
   def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean = {
     val isRegularScalaFile = Option(file.getVirtualFile)
@@ -45,7 +45,4 @@ object ScalaHighlightingMode {
 
   private def showScalacErrors: Boolean =
     Registry.is(ShowScalacErrorsKey)
-
-  private def hasDotty(project: Project) =
-    project.modulesWithScala.exists(_.hasScala3)
 }
