@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.editor.documentationProvider
 
-trait SbtDocumentationProviderCommonTests extends SbtDocumentationProviderTestBase {
+trait SbtDocumentationProviderCommonTests {
+  self: SbtDocumentationProviderTestBase =>
 
   def testSbtDescriptionShouldBeWrappedInDefaultScaladocTemplate(): Unit = doTest(
     s"""val ${CARET}someKey = SettingKey[Int]("some-key", "This is description for some-key")""",

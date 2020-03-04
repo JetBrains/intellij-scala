@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package base
 
-import com.intellij.openapi.module.Module
 import junit.framework.{AssertionFailedError, Test, TestListener, TestResult}
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 
 import scala.collection.immutable.SortedSet
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
-trait ScalaSdkOwner extends Test with InjectableJdk  {
+trait ScalaSdkOwner extends Test
+  with InjectableJdk
+  with ScalaVersionProvider
+  with LibrariesOwner {
+
   import ScalaSdkOwner._
 
   implicit final def version: ScalaVersion = {
@@ -20,30 +20,12 @@ trait ScalaSdkOwner extends Test with InjectableJdk  {
 
   private var _injectedScalaVersion: Option[ScalaVersion] = None
   def injectedScalaVersion: Option[ScalaVersion] = _injectedScalaVersion
-  def injectedScalaVersion_=(version: ScalaVersion): Unit = _injectedScalaVersion = Some(version)
+  def injectedScalaVersion_=(version: ScalaVersion): Unit = _injectedScalaVersion = Option(version)
 
-  protected def localConfiguredScalaVersion: Option[ScalaVersion] = injectedScalaVersion
-
-  protected def configuredScalaVersion: Option[ScalaVersion] = localConfiguredScalaVersion.orElse(globalConfiguredScalaVersion)
+  private def configuredScalaVersion: Option[ScalaVersion] =
+    injectedScalaVersion.orElse(globalConfiguredScalaVersion)
 
   protected def supportedIn(version: ScalaVersion): Boolean = true
-
-  protected def librariesLoaders: Seq[LibraryLoader]
-
-  protected lazy val myLoaders: ListBuffer[LibraryLoader] = mutable.ListBuffer.empty[LibraryLoader]
-
-  protected def setUpLibraries(implicit module: Module): Unit = {
-
-    librariesLoaders.foreach { loader =>
-      myLoaders += loader
-      loader.init
-    }
-  }
-
-  protected def disposeLibraries(implicit module: Module): Unit = {
-    myLoaders.foreach(_.clean)
-    myLoaders.clear()
-  }
 
   def skip: Boolean = configuredScalaVersion.exists(!supportedIn(_))
 

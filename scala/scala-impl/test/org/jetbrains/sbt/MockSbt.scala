@@ -7,29 +7,28 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, IvyManag
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_12}
 
-/**
-  * @author Nikolay Obedin
-  * @since 7/27/15.
-  */
 trait MockSbtBase extends ScalaSdkOwner { this: Test =>
 
   implicit val sbtVersion: Version
 
-  override def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), IvyManagedLoader(
+  override def librariesLoaders: Seq[LibraryLoader] = Seq(
+    IvyManagedLoader(
+      scalaJars :+ ("org.scala-sbt" % "sbt" % sbtVersion.presentation transitive()): _*
+    )
+  )
+
+  protected def scalaJars: Seq[DependencyDescription] = Seq(
     scalaCompilerDescription,
     scalaLibraryDescription,
-    scalaReflectDescription,
-    "org.scala-sbt" % "sbt" % sbtVersion.presentation transitive()
-  ))
+    scalaReflectDescription
+  )
 }
 
 trait MockSbt_0_12 extends MockSbtBase { this: Test =>
-
-  override def librariesLoaders: Seq[LibraryLoader] =Seq(HeavyJDKLoader(), IvyManagedLoader(
+  override protected def scalaJars: Seq[DependencyDescription] = Seq(
     scalaCompilerDescription,
-    scalaLibraryDescription,
-    "org.scala-sbt" % "sbt" % sbtVersion.presentation transitive()
-  ))
+    scalaLibraryDescription
+  )
 }
 
 trait MockSbt_0_13 extends MockSbtBase { this: Test =>

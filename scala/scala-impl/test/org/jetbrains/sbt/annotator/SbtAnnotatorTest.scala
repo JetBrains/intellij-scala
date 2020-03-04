@@ -9,7 +9,7 @@ import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.annotator.{Error, _}
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -17,12 +17,6 @@ import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
-
-
-/**
-  * @author Nikolay Obedin
-  * @since 7/23/15.
-  */
 
 abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
 
@@ -32,6 +26,9 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     ModuleRootModificationUtil.setModuleSdk(module, getTestProjectJdk)
     module
   }
+
+  override def librariesLoaders: Seq[LibraryLoader] =
+    HeavyJDKLoader() +: super.librariesLoaders
 
   override protected def setUp(): Unit = {
     super.setUp()
