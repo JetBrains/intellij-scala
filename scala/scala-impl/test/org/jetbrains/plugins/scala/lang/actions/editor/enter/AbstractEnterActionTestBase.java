@@ -21,6 +21,7 @@ abstract public class AbstractEnterActionTestBase extends AbstractActionTestBase
     getCommonSettings(project).INDENT_CASE_FROM_SWITCH = true;
   }
 
+  @Override
   protected EditorActionHandler getMyHandler() {
     return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER);
   }

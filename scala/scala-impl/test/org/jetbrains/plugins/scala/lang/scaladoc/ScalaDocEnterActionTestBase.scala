@@ -1,42 +1,68 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import com.intellij.openapi.actionSystem.{DataContext, IdeActions}
+import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.editor.DocumentExt
+import com.intellij.openapi.editor.impl.DocumentImpl
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
+import org.jetbrains.plugins.scala.lang.actions.ActionTestBase.MyDataContext
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.junit.Assert
+import org.junit.Assert._
 
-/**
- * User: Dmitry Naydanov
- * Date: 2/6/12
- */
-abstract class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+
+// TODO: unify with org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase ?
+abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  protected def editor = getEditor
+  protected def file = getFile
+
+  protected val | = CARET
+  protected val || = s"/**$CARET"
+
   override protected def setUp(): Unit = {
     super.setUp()
-    getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALADOC2_FORMATTING = false
+    val scalaSettings = getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    scalaSettings.USE_SCALADOC2_FORMATTING = false // some tests have intentionally broken scaladoc formatting
   }
 
-  protected def checkGeneratedTextFromString(header: String,  footer: String,  assumedStub: String): Unit = {
-    checkGeneratedTextFromString(header, footer, assumedStub, a => a)
-  }
+  protected def doTest(before: String, expectedAfter: String, stripTrailingSpaces: Boolean = true): Unit = {
+    configureFromFileText(before.withNormalizedSeparator, ScalaFileType.INSTANCE)
 
-  protected def checkGeneratedTextFromString(header: String,  footer: String,  assumedStub: String,
-                                            transform: String => String): Unit = {
-    configureFromFileTextAdapter("dummy.scala", header + footer)
-    getEditorAdapter.getCaretModel.moveToOffset(header.length - 1)
-    val enterHandler = EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
-
-    enterHandler.execute(getEditorAdapter, getEditorAdapter.getCaretModel.getCurrentCaret, (dataId: String) => {
-      dataId match {
-        case "Language" | "language" => getFileAdapter.getLanguage
-        case "Project" | "project" => getFileAdapter.getProject
-        case _ => null
-      }
+    val handler = EditorActionManager.getInstance.getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
+    ActionTestBase.performAction(getProject, () => {
+      handler.execute(editor, editor.getCaretModel.getCurrentCaret, new MyDataContext(file))
     })
-    getEditorAdapter.getDocument.commit(getProjectAdapter)
 
-    Assert.assertEquals(transform(getFileAdapter.getText), assumedStub)
+
+    myFixture.checkResult(expectedAfter.withNormalizedSeparator, stripTrailingSpaces)
+    //checkResultWithCaret(expectedAfter.withNormalizedSeparator, myFixture, stripTrailingSpaces)
+  }
+
+  private def checkResultWithCaret(expected: String, fixture: CodeInsightTestFixture, stripTrailingSpaces: Boolean): Unit = {
+    val expectedFixed1 =
+      if (stripTrailingSpaces) doStripTrailingSpaces(expected)
+      else expected
+    val expectedCaretPosition = expectedFixed1.indexOf(CARET)
+    val expectedFixed2 = expectedCaretPosition match {
+      case -1 => expectedFixed1
+      case _  => expectedFixed1.replace(CARET, "")
+    }
+    fixture.checkResult(expectedFixed2, stripTrailingSpaces)
+    if (expectedCaretPosition != -1) {
+      assertEquals(
+        "caret position is wrong",
+        expectedCaretPosition, editor.getCaretModel.getOffset
+      )
+    }
+  }
+
+  private def doStripTrailingSpaces(actualText: String): String = {
+    val document = EditorFactory.getInstance.createDocument(actualText)
+    document.asInstanceOf[DocumentImpl].stripTrailingSpaces(getProject)
+    document.getText
   }
 }

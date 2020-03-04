@@ -93,8 +93,3 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
     WriteAction.run(() => allJdks.foreach(ProjectJdkTable.getInstance.removeJdk))
   } finally super.tearDown()
 }
-
-@deprecated
-object ScalaLightPlatformCodeInsightTestCaseAdapter {
-  private val EMPTY_LOADERS_ARRAY = new Array[ThirdPartyLibraryLoader](0)
-}

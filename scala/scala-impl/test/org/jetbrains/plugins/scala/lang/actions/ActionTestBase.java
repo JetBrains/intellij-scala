@@ -14,9 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 
-/**
- * @author Ilya.Sergey
- */
 public abstract class ActionTestBase extends ScalaFileSetTestCase {
 
   protected static final String CARET_MARKER = "<caret>";
@@ -26,9 +23,6 @@ public abstract class ActionTestBase extends ScalaFileSetTestCase {
     super(path);
   }
 
-  /**
-   * Runs editor action
-   */
   public static void runAsWriteAction(final Runnable runnable) {
     ApplicationManager.getApplication().runWriteAction(runnable);
   }
@@ -48,30 +42,23 @@ public abstract class ActionTestBase extends ScalaFileSetTestCase {
     return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
   }
 
-
-  /**
-   * Performs specified action
-   */
   public static void performAction(final Project project, final Runnable action) {
     runAsWriteAction(() -> CommandProcessor.getInstance().executeCommand(project, action, "Execution", null));
   }
 
-  /**
-   * Implements current DataContext logic
-   */
-  public class MyDataContext implements DataContext, DataProvider {
+  public static class MyDataContext implements DataContext, DataProvider {
 
     PsiFile myFile;
 
     public MyDataContext(PsiFile file) {
       myFile = file;
     }
+
     @Nullable
-    public Object getData(@NonNls String dataId) {
+    public Object getData(@NotNull @NonNls String dataId) {
       if (LangDataKeys.LANGUAGE.is(dataId)) return myFile.getLanguage();
       if (PlatformDataKeys.PROJECT.is(dataId)) return myFile.getProject();
       return null;
     }
   }
-
 }
