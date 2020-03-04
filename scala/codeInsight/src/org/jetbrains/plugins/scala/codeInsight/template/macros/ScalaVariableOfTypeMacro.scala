@@ -3,10 +3,10 @@ package codeInsight
 package template
 package macros
 
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.TextExpression
+import com.intellij.java.JavaBundle
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
@@ -90,12 +90,12 @@ object ScalaVariableOfTypeMacro {
     * This class provides macros for live templates. Return elements
     * of given class type (or class types).
     */
-  final class RegularVariable extends ScalaVariableOfTypeMacro(CodeInsightBundle.message("macro.variable.of.type")) {
+  final class RegularVariable extends ScalaVariableOfTypeMacro(JavaBundle.message("macro.variable.of.type")) {
 
     override def arrayIsValid(array: Array[_]): Boolean = array.nonEmpty
   }
 
-  final class ArrayVariable extends ScalaVariableOfTypeMacro(CodeInsightBundle.message("macro.array.variable")) {
+  final class ArrayVariable extends ScalaVariableOfTypeMacro(JavaBundle.message("macro.array.variable")) {
 
     private val expressions = Array("scala.Array")
 
@@ -107,7 +107,7 @@ object ScalaVariableOfTypeMacro {
       super.typeText(this.expressions.map(new TextExpression(_)), `type`)
   }
 
-  final class IterableVariable extends ScalaVariableOfTypeMacro(CodeInsightBundle.message("macro.iterable.variable")) {
+  final class IterableVariable extends ScalaVariableOfTypeMacro(JavaBundle.message("macro.iterable.variable")) {
 
     private val expressions = Array(IterableId)
 

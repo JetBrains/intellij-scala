@@ -111,7 +111,8 @@ lazy val scalaImpl: sbt.Project =
       libraryDependencies ++= DependencyGroups.scalaCommunity,
       addCompilerPlugin(Dependencies.macroParadise),
       intellijInternalPlugins := Seq(
-        "IntelliLang",
+        "platform-langInjection",
+        "platform-images",
         "java-i18n",
         "android",
         "stats-collector", // required for ml completion testing
@@ -283,7 +284,7 @@ lazy val intelliLangIntegration = newProject(
   scalaImpl % "test->test;compile->compile"
 ).settings(
   addCompilerPlugin(Dependencies.macroParadise),
-  intellijInternalPlugins ++= Seq("IntelliLang")
+  intellijInternalPlugins ++= Seq("platform-langInjection")
 )
 
 lazy val mavenIntegration =
