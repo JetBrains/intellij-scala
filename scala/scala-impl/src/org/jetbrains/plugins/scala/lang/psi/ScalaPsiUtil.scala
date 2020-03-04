@@ -47,6 +47,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -154,6 +155,27 @@ object ScalaPsiUtil {
   }
 
   def isInheritorDeep(clazz: PsiClass, base: PsiClass): Boolean = clazz.isInheritor(base, true)
+
+  /**
+   * Checks if thisClass subsumes base, i.e if base is thisClass or a super class of it (with self type)
+   */
+  def thisSubsumes(thisClass: PsiClass, base: PsiClass): Boolean = {
+    object TypeOfThis {
+      def unapply(td: ScTemplateDefinition): Option[ScType] =
+        td.selfType.map(_.glb(td.getTypeWithProjections().getOrAny))
+    }
+
+    def checkWithSelfType =
+      thisClass match {
+        case TypeOfThis(thisType) =>
+          thisType.conforms(ScalaType.designator(base))
+        case _ => false
+      }
+
+    thisClass == base ||
+      isInheritorDeep(thisClass, base) ||
+      checkWithSelfType
+  }
 
   @tailrec
   def fileContext(psi: PsiElement): PsiFile = {
