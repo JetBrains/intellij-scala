@@ -35,16 +35,14 @@ class SbtStructureDump {
 
   def cancel(): Unit = cancellationFlag.set(true)
 
-  def dumpFromShell(taskId: ExternalSystemTaskId,
-                    dir: File,
+  def dumpFromShell(project: Project,
                     structureFilePath: String,
                     options: Seq[String],
-                    notifications: ExternalSystemTaskNotificationListener,
+                    reporter: BuildReporter
                    ): Future[BuildMessages] = {
 
-    notifications.onStart(taskId, dir.getCanonicalPath)
+    reporter.start()
 
-    val project = taskId.findProject() // assume responsibility of caller not to call dumpFromShell with null project
     val shell = SbtShellCommunication.forProject(project)
 
     val optString = options.mkString(" ")
@@ -57,7 +55,6 @@ class SbtStructureDump {
       } else ""
 
     val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
-    val reporter = new ExternalSystemNotificationReporter(dir.getAbsolutePath, taskId, notifications)
     val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
 
     shell.command(cmd, BuildMessages.empty, aggregator, showShell = false)
@@ -71,8 +68,7 @@ class SbtStructureDump {
                       environment: Map[String, String],
                       sbtLauncher: File,
                       sbtStructureJar: File,
-                      taskId: ExternalSystemTaskId,
-                      notifications: ExternalSystemTaskNotificationListener
+                      reporter: BuildReporter
                      ): Try[BuildMessages] = {
 
     val optString = options.mkString(", ")
@@ -92,7 +88,6 @@ class SbtStructureDump {
       s"*/*:dumpStructure"
     ).mkString(";", ";", "")
 
-    val reporter = new ExternalSystemNotificationReporter(directory.getAbsolutePath, taskId, notifications)
 
     runSbt(
       directory, vmExecutable, vmOptions, environment,
