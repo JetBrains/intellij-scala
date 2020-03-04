@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
 import org.hamcrest.Matcher
+import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.HighlightInfoExt
@@ -14,9 +15,11 @@ import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.SoftAssert
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
 
+@Category(Array(classOf[HighlightingTests]))
 class ScalaCompilerHighlightingTest
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
