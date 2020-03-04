@@ -456,6 +456,7 @@ package object extensions {
       if (needBraces) s"{$nl$string$nl}" else string
     }
 
+    // TODO: rename to reflect that it's line separator
     def withNormalizedSeparator: String =
       StringUtil.convertLineSeparators(string)
 
