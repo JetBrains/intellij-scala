@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.util.RescheduledExecutor
 object JpsCompilationUtil {
 
   private val jpsCompiler: JpsCompiler = new JpsCompilerImpl
-  private val jpsCompilerExecutor = new RescheduledExecutor
+  private val jpsCompilerExecutor = new RescheduledExecutor("CompileJpsExecutor")
 
   def saveDocumentAndCompileProject(document: Option[Document],
                                     project: Project): Unit =
