@@ -244,6 +244,48 @@ class SuperTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
     )
   }
 
+  def testIgnoredIfInheritsIgnored(): Unit = checkTextHasNoErrors(
+    """
+      |object junit {
+      |  object framework {
+      |    trait TestCase
+      |  }
+      |}
+      |
+      |class Test extends junit.framework.TestCase {
+      |  val x = "test" + 3
+      |}
+      |""".stripMargin
+  )
+
+  def testIgnoredIfIsIgnored(): Unit = checkTextHasNoErrors(
+    """
+      |object junit {
+      |  object framework {
+      |    trait TestCase {
+      |      val x = "test" + 3
+      |    }
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+
+  // SCL-17115
+  def testIgnoredIfSelfTypeInheritsIgnored(): Unit = checkTextHasNoErrors(
+    """
+      |object junit {
+      |  object framework {
+      |    trait TestCase
+      |  }
+      |}
+      |
+      |class Test { this: junit.framework.TestCase =>
+      |  val x = "test" + 3
+      |}
+      |""".stripMargin
+  )
+
   override protected def createTestText(text: String): String = text
 }
 
