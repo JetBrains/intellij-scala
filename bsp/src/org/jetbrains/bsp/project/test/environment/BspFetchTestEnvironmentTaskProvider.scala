@@ -1,11 +1,11 @@
 package org.jetbrains.bsp.project.test.environment
 
+import java.lang
 import java.net.URI
 import java.nio.file.Paths
-import java.lang
 import java.util.concurrent.CompletableFuture
 
-import ch.epfl.scala.bsp4j.{BuildServerCapabilities, BuildTargetIdentifier, JvmTestEnvironmentParams, JvmTestEnvironmentResult, SourcesItem, SourcesParams, SourcesResult}
+import ch.epfl.scala.bsp4j._
 import com.intellij.execution.BeforeRunTaskProvider
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -16,25 +16,23 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiFile}
+import com.intellij.openapi.util.Key
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiFile}
 import javax.swing.Icon
-import org.jetbrains.bsp.{BspBundle, BspUtil, Icons}
+import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.BspMetadata
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
+import org.jetbrains.bsp.{BspBundle, BspUtil, Icons}
+import org.jetbrains.concurrency.{Promise, Promises}
+import org.jetbrains.plugins.scala.build.BuildMessages.EventId
+import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData}
 
 import scala.collection.JavaConverters._
-import org.jetbrains.bsp.BspUtil._
-import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, ProcessLogger}
-import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData}
-import com.intellij.openapi.util.Key
-import org.apache.commons.lang3.concurrent.Computable
-import org.jetbrains.concurrency.{Promise, Promises}
-import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
-
 import scala.util.{Failure, Success, Try}
 
 case class JvmTestEnvironment(
@@ -44,9 +42,8 @@ case class JvmTestEnvironment(
                                jvmOptions: Seq[String]
                              )
 
-case object JvmTestEnvironmentNotSupported extends Throwable {
-  val msg = BspBundle.message("bsp.task.error.test.env.not.supported")
-}
+case object JvmTestEnvironmentNotSupported
+  extends Throwable(BspBundle.message("bsp.task.error.test.env.not.supported"))
 
 class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchTestEnvironmentTask] {
   private val logger = Logger.getInstance(classOf[BspCommunication])
@@ -78,7 +75,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
                            task: BspFetchTestEnvironmentTask): Boolean = {
     configuration match {
       case config: ModuleBasedConfiguration[_, _]
-        if BspUtil.isBspModule(config.getConfigurationModule.getModule) && BspTesting.isBspRunnerSupportedConfiguration(config) => {
+        if BspUtil.isBspModule(config.getConfigurationModule.getModule) && BspTesting.isBspRunnerSupportedConfiguration(config) =>
         val module = config.getConfigurationModule.getModule
         val taskResult: Either[BspGetEnvironmentError, Unit] = for {
           potentialTargets <- getBspTargets(module)
@@ -100,19 +97,17 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
             fetchJvmTestEnvironment(new BuildTargetIdentifier(chosenTargetId), workspaceUri, module.getProject)
               .map(Right(_))
               .recover{
-                case err: JvmTestEnvironmentNotSupported.type => Left(BspGetEnvironmentError(err.msg))
+                case err: JvmTestEnvironmentNotSupported.type => Left(BspGetEnvironmentError(err.getMessage))
               }
               .getOrElse(Left(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.fetch.test.jvm.environment"))))
           _ = config.putUserData(BspFetchTestEnvironmentTask.jvmTestEnvironmentKey, testEnvironment)
         } yield ()
         taskResult match {
-          case Left(value) => {
+          case Left(value) =>
             logger.error(BspBundle.message("bsp.task.error", value))
             false
-          }
           case Right(_) => true
         }
-      }
       case _ => true
     }
 
@@ -147,10 +142,13 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     val cancelAction = new CancelBuildAction(cancelToken)
 
 
-    implicit val reporter = new BuildToolWindowReporter(project = project,
-      buildId = bspTaskId,
-      title = BspBundle.message("bsp.task.fetching.sources"),
-      cancelAction)
+    implicit val reporter: BuildToolWindowReporter =
+      new BuildToolWindowReporter(
+        project = project,
+        buildId = bspTaskId,
+        title = BspBundle.message("bsp.task.fetching.sources"),
+        cancelAction
+      )
     val job = communication.run(
       bspSessionTask = getFiles(potentialTargets)(_, _),
       notifications = _ => (),
@@ -174,7 +172,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
   }
 
   private def class2File(clazz: String, project: Project): Option[PsiFile] = {
-    val psiFacade = JavaPsiFacade.getInstance(project);
+    val psiFacade = JavaPsiFacade.getInstance(project)
     val scope = GlobalSearchScope.allScope(project)
     var matchedClasses: Array[PsiClass] = Array()
     ApplicationManager.getApplication.invokeAndWait{
@@ -191,7 +189,8 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
 
   private def getApplicableClasses(configuration: RunConfiguration) = {
     configuration match {
-      case scalaConfig: ModuleBasedConfiguration[_, _] if BspUtil.isBspModule(scalaConfig.getConfigurationModule.getModule) => {
+      case scalaConfig: ModuleBasedConfiguration[_, _]
+        if BspUtil.isBspModule(scalaConfig.getConfigurationModule.getModule) =>
         val classes = scalaConfig match {
           case p: ScalaTestRunConfiguration =>
             p.testConfigurationData match {
@@ -201,7 +200,6 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
             }
         }
         classes
-      }
     }
   }
 
@@ -214,7 +212,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     val bspTaskId: EventId = BuildMessages.randomEventId
     val cancelToken = scala.concurrent.Promise[Unit]()
     val cancelAction = new CancelBuildAction(cancelToken)
-    implicit val reporter = new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.fetchng.jvm.test.environment"), cancelAction)
+    implicit val reporter: BuildToolWindowReporter = new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.fetching.jvm.test.environment"), cancelAction)
     val job = communication.run(
       bspSessionTask = jvmTestEnvironmentBspRequest(List(target))(_, _),
       notifications = _ => (),
@@ -223,7 +221,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
 
     BspJob.waitForJob(job, retries = 10).flatMap {
           case Left(value) => Failure(value)
-          case Right(value) => {
+          case Right(value) =>
             val environment = value.getItems.asScala.head
             Success(JvmTestEnvironment(
               classpath = environment.getClasspath.asScala.map(x => new URI(x).getPath),
@@ -231,7 +229,6 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
               environmentVariables = environment.getEnvironmentVariables.asScala.toMap,
               jvmOptions = environment.getJvmOptions.asScala.toList
             ))
-          }
     }
   }
 
