@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 class BspJvmEnvironmentProgramPatcher extends JavaProgramPatcher {
   def patchJavaParameters(executor: Executor, configuration: RunProfile, javaParameters: JavaParameters): Unit = {
     configuration match {
-      case testConfig: ModuleBasedConfiguration[RunConfigurationModule, _] => {
+      case testConfig: ModuleBasedConfiguration[RunConfigurationModule, _] =>
         val env = testConfig.getUserData(BspFetchTestEnvironmentTask.jvmTestEnvironmentKey)
         if (env != null) {
           val oldEnvironmentVariables = javaParameters.getEnv.asScala.toMap
@@ -23,7 +23,6 @@ class BspJvmEnvironmentProgramPatcher extends JavaProgramPatcher {
           javaParameters.setWorkingDirectory(env.workdir)
           javaParameters.getVMParametersList.addAll(env.jvmOptions.asJava)
         }
-      }
     }
   }
 }

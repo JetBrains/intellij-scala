@@ -9,7 +9,9 @@ object BspFetchTestEnvironmentTask {
 
   val jvmTestEnvironmentKey: Key[JvmTestEnvironment] = Key.create("BSP.JvmTestEnvironment")
 }
-class BspFetchTestEnvironmentTask extends BeforeRunTask[BspFetchTestEnvironmentTask](BspFetchTestEnvironmentTask.runTaskKey) {
+class BspFetchTestEnvironmentTask
+  extends BeforeRunTask[BspFetchTestEnvironmentTask](BspFetchTestEnvironmentTask.runTaskKey) {
+
   var state: Option[String] = None
 
   val CHOSEN_TARGET = "CHOSEN_TARGET"

@@ -28,7 +28,7 @@ import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.structure.{BuildData, ConfigurationData, DependencyData, DirectoryData, JavaData, ProjectData}
-import org.jetbrains.sbt.{SbtBundle, structure => sbtStructure}
+import org.jetbrains.sbt.{structure => sbtStructure}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
