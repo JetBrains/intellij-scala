@@ -12,6 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
+/**
+ * @see [[com.intellij.codeInsight.editorActions.enter.EnterInBlockCommentHandler]]
+ *      [[com.intellij.codeInsight.editorActions.enter.EnterInLineCommentHandler]]
+ *      [[org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete]]
+ *      [[org.jetbrains.plugins.scala.highlighter.ScalaCommenter]]
+ */
 class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
 
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
