@@ -3,11 +3,14 @@ package org.jetbrains.plugins.scala.util
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ScheduledFuture, ScheduledThreadPoolExecutor}
 
+import com.intellij.util.concurrency.AppExecutorUtil
+
 import scala.concurrent.duration.FiniteDuration
 
-class RescheduledExecutor(mayInterruptIfRunning: Boolean = false) {
+class RescheduledExecutor(name: String,
+                          mayInterruptIfRunning: Boolean = false) {
 
-  private val scheduler = new ScheduledThreadPoolExecutor(1)
+  private val scheduler = AppExecutorUtil.createBoundedScheduledExecutorService(name, 1)
   private val lastScheduledTask = new AtomicReference[ScheduledFuture[_]]
 
   /**

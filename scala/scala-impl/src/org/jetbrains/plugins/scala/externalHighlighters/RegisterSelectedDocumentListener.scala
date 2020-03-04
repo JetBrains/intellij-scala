@@ -27,7 +27,7 @@ class RegisterSelectedDocumentListener(project: Project)
     extends DocumentListener {
 
     private var wasChanged = false
-    private val executor = new RescheduledExecutor
+    private val executor = new RescheduledExecutor("CompileDocumentExecutor")
 
     final override def documentChanged(event: DocumentEvent): Unit =
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
