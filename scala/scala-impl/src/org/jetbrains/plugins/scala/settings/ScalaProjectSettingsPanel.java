@@ -20,7 +20,6 @@ import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsUiTableModel;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
@@ -65,7 +64,7 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox treatDocCommentAsBlockComment;
     private JCheckBox myDisableLanguageInjection;
     private JCheckBox useScalaClassesPriorityCheckBox;
-    private JComboBox collectionHighlightingChooser;
+    private JComboBox<String> collectionHighlightingChooser;
     private JPanel injectionJPanel;
     private JSpinner outputSpinner;
     private JSpinner implicitParametersSearchDepthSpinner;
@@ -74,7 +73,7 @@ public class ScalaProjectSettingsPanel {
     private JTextArea myBasePackages;
     private JCheckBox showTypeInfoOnCheckBox;
     private JSpinner delaySpinner;
-    private JComboBox updateChannel;
+    private JComboBox<ScalaApplicationSettings.pluginBranch> updateChannel;
     private JCheckBox myAotCompletion;
     private JCheckBox useEclipseCompatibilityModeCheckBox;
     private JTextField scalaTestDefaultSuperClass;
@@ -85,15 +84,15 @@ public class ScalaProjectSettingsPanel {
     private JButton updateNowButton;
     private JCheckBox addOverrideToImplementCheckBox;
     private JCheckBox myProjectViewHighlighting;
-    private JComboBox scalaMetaMode;
+    private JComboBox<ScalaProjectSettings.ScalaMetaMode> scalaMetaMode;
     private JCheckBox metaTrimBodies;
-    private JComboBox scTypeSelectionCombobox;
-    private JComboBox trailingCommasComboBox;
+    private JComboBox<ScalaProjectSettings.ScFileMode> scTypeSelectionCombobox;
+    private JComboBox<ScalaProjectSettings.TrailingCommasMode> trailingCommasComboBox;
     private JCheckBox collapseWorksheetFoldByCheckBox;
     private JCheckBox showNotFoundImplicitArgumentsCheckBox;
     private JCheckBox myGroupPackageObjectWithPackage;
-    private JComboBox ivy2IndexingModeCBB;
-    private Project myProject;
+    private JComboBox<ScalaProjectSettings.Ivy2IndexingMode> ivy2IndexingModeCBB;
+    private final Project myProject;
 
     private JTabbedPane tabbedPane;
 
@@ -103,9 +102,9 @@ public class ScalaProjectSettingsPanel {
         myProject = project;
         $$$setupUI$$$();
         outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
-        updateChannel.setModel(new EnumComboBoxModel(ScalaApplicationSettings.pluginBranch.class));
-        scalaMetaMode.setModel(new EnumComboBoxModel(ScalaProjectSettings.ScalaMetaMode.class));
-        ivy2IndexingModeCBB.setModel(new EnumComboBoxModel(ScalaProjectSettings.Ivy2IndexingMode.class));
+        updateChannel.setModel(new EnumComboBoxModel<>(ScalaApplicationSettings.pluginBranch.class));
+        scalaMetaMode.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.ScalaMetaMode.class));
+        ivy2IndexingModeCBB.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.Ivy2IndexingMode.class));
         updateNowButton.addActionListener(e -> {
             try {
                 ScalaPluginUpdater.doUpdatePluginHosts((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
@@ -125,13 +124,12 @@ public class ScalaProjectSettingsPanel {
 
         trailingCommasComboBox.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.TrailingCommasMode.class));
 
-        scTypeSelectionCombobox.setModel(new EnumComboBoxModel(ScalaProjectSettings.ScFileMode.class));
-        scTypeSelectionCombobox.setRenderer(new SimpleListCellRenderer() {
+        scTypeSelectionCombobox.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.ScFileMode.class));
+        scTypeSelectionCombobox.setRenderer(new SimpleListCellRenderer<>() {
             @Override
-            public void customize(JList jList, Object o, int i, boolean b, boolean b1) {
-                if (!(o instanceof ScalaProjectSettings.ScFileMode)) return;
-
-                switch ((ScalaProjectSettings.ScFileMode) o) {
+            public void customize(@NotNull JList<? extends ScalaProjectSettings.ScFileMode> jList, ScalaProjectSettings.ScFileMode o, int i, boolean b, boolean b1) {
+                if (o == null) return;
+                switch (o) {
                     case Auto:
                         setText("Ammonite in test sources, otherwise Worksheet");
                         break;
@@ -223,8 +221,12 @@ public class ScalaProjectSettingsPanel {
 
         scalaProjectSettings.setIvy2IndexingMode((ScalaProjectSettings.Ivy2IndexingMode) ivy2IndexingModeCBB.getModel().getSelectedItem());
 
-        scalaProjectSettings.setScFileMode(ScalaProjectSettings.ScFileMode.valueOf(scTypeSelectionCombobox.getSelectedItem().toString()));
-        scalaProjectSettings.setTrailingCommasMode(ScalaProjectSettings.TrailingCommasMode.valueOf(trailingCommasComboBox.getSelectedItem().toString()));
+        Object type = scTypeSelectionCombobox.getSelectedItem();
+        if (type != null)
+            scalaProjectSettings.setScFileMode(ScalaProjectSettings.ScFileMode.valueOf(type.toString()));
+        Object trailingComa = trailingCommasComboBox.getSelectedItem();
+        if (trailingComa != null)
+            scalaProjectSettings.setTrailingCommasMode(ScalaProjectSettings.TrailingCommasMode.valueOf(trailingComa.toString()));
 
         scalaProjectSettings.setEnableLibraryExtensions(extensionsPanel.enabledCB().isSelected());
 
@@ -232,8 +234,8 @@ public class ScalaProjectSettingsPanel {
     }
 
     private List<String> getBasePackages() {
-        String[] parts = myBasePackages.getText().split("\\n|,|;");
-        List<String> result = new ArrayList<String>();
+        String[] parts = myBasePackages.getText().split("[\\n,;]");
+        List<String> result = new ArrayList<>();
         for (String part : parts) {
             String name = part.trim();
             if (!name.isEmpty()) result.add(name);
@@ -246,7 +248,7 @@ public class ScalaProjectSettingsPanel {
         myBasePackages.setText(s);
     }
 
-    @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
+    @SuppressWarnings({"RedundantIfStatement"})
     public boolean isModified() {
 
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
@@ -438,10 +440,6 @@ public class ScalaProjectSettingsPanel {
 
     private static void setValue(final JCheckBox box, final boolean value) {
         box.setSelected(value);
-    }
-
-    private static void setValue(final JComboBox box, final int value) {
-        box.setSelectedIndex(value);
     }
 
     private static void setValue(final JTextField field, final String value) {
