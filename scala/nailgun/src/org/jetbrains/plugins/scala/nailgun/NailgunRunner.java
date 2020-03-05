@@ -29,7 +29,7 @@ import static java.util.Arrays.asList;
 public class NailgunRunner {
   public static final String SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main";
 
-  private static final String[] COMMANDS = {"compile", "compile-jps"};
+  private static final String[] COMMANDS = {"compile", "compile-jps", "get-state"};
   private static final String SERVER_DESCRIPTION = "Scala compile server";
 
   private static final String STOP_ALIAS_START = "stop_";

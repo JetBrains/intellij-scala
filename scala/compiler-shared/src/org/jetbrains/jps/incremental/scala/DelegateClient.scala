@@ -39,4 +39,7 @@ class DelegateClient(client: Client)
 
   override def sourceStarted(source: String): Unit =
     client.sourceStarted(source)
+
+  override def compileServerState(state: Client.CompileServerState): Unit =
+    client.compileServerState(state)
 }

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import java.awt.Point
+import java.awt.{Color, Point}
 import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
 
 import com.intellij.icons.AllIcons
@@ -13,12 +13,13 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.IconLoader
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.ui.awt.RelativePoint
-import com.intellij.util.Consumer
+import com.intellij.util.{Consumer, IconUtil}
 import javax.swing.{Icon, Timer}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
@@ -30,6 +31,7 @@ import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 final class CompileServerManager(project: Project) extends Disposable {
 
   private val IconRunning = Icons.COMPILE_SERVER
+  private val IconCompiling = IconUtil.colorize(IconRunning, new Color(75, 139, 59))
   private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
   private val timer = new Timer(1000, TimerListener)
@@ -58,6 +60,11 @@ final class CompileServerManager(project: Project) extends Disposable {
 
   private def running: Boolean = launcher.running
 
+  private def serverCompilingNow: Boolean =
+    if (running)
+      new CompileServerClientImpl(project).getState(CompileServerCommand.GetState("")).compilingNow
+    else
+      false
 
   private def launcher = CompileServerLauncher
 
@@ -103,7 +110,13 @@ final class CompileServerManager(project: Project) extends Disposable {
     override def dispose(): Unit = {}
 
     object Presentation extends StatusBarWidget.IconPresentation {
-      override def getIcon: Icon = if(running) IconRunning else IconStopped
+      override def getIcon: Icon =
+        if (Registry.is("scala.show.compile.server.is.compiling.now") && serverCompilingNow)
+          IconCompiling
+        else if (running)
+          IconRunning
+        else
+          IconStopped
 
       override def getClickConsumer: Consumer[MouseEvent] = ClickConsumer
 

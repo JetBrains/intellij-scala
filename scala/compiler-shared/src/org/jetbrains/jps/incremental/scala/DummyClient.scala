@@ -17,4 +17,5 @@ class DummyClient extends Client {
   override def compilationEnd(sources: Set[File]): Unit = ()
   override def processingEnd(): Unit = ()
   override def sourceStarted(source: String): Unit = ()
+  override def compileServerState(state: Client.CompileServerState): Unit = ()
 }

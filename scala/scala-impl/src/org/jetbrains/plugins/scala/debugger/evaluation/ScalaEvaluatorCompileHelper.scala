@@ -11,7 +11,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.remote.Commands
+import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -123,7 +123,7 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
   def compile(): Either[Array[(File, String)], Seq[String]] = {
     val project = module.getProject
 
-    val compilationProcess = new RemoteServerRunner(project).buildProcess(Commands.Compile, argumentsRaw, client)
+    val compilationProcess = new RemoteServerRunner(project).buildProcess(CommandIds.Compile, argumentsRaw, client)
     var result: Either[Array[(File, String)], Seq[String]] = Right(Seq("Compilation failed"))
     compilationProcess.addTerminationCallback { exception => // TODO: do not ignore possible exception
       result = if (errors.nonEmpty) Right(errors) else Left(classfiles(outputDir))
