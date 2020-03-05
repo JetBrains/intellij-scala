@@ -56,6 +56,16 @@ class LibraryNode(override val data: LibraryData)
   override protected def key: Key[LibraryData] = ProjectKeys.LIBRARY
 }
 
+class ModuleSdkNode(override val data: ModuleSdkData)
+  extends Node[ModuleSdkData] {
+
+  override protected def key: Key[ModuleSdkData] = ModuleSdkData.KEY
+}
+
+object ModuleSdkNode {
+  def inheritFromProject: ModuleSdkNode = new ModuleSdkNode(new ModuleSdkData(null))
+}
+
 class ContentRootNode(override val data: ContentRootData)
   extends Node[ContentRootData] {
   def this(path: String) {
