@@ -6,7 +6,7 @@ import java.net.URI
 import ch.epfl.scala.bsp4j.{BspConnectionDetails, BuildClientCapabilities, InitializeBuildParams}
 import com.google.gson.{JsonArray, JsonObject}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
-import org.jetbrains.bsp.{BspError, BspErrorMessage}
+import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 
@@ -45,7 +45,7 @@ abstract class BspServerConnector() {
 
 class DummyConnector(rootUri: URI) extends BspServerConnector() {
   override def connect(reporter: BuildReporter): Left[BspErrorMessage, Nothing] =
-    Left(BspErrorMessage(s"No way found to connect to a BSP server for workspace $rootUri"))
+    Left(BspErrorMessage(BspBundle.message("bsp.protocol.no.way.to.connect.to.bsp.server", rootUri)))
 }
 
 

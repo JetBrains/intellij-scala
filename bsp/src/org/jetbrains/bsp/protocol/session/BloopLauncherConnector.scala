@@ -4,7 +4,7 @@ import java.io.File
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
-import org.jetbrains.bsp.BspError
+import org.jetbrains.bsp.{BspBundle, BspError}
 import org.jetbrains.bsp.protocol.session.BspServerConnector.BspCapabilities
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.plugins.scala.build.BuildReporter
@@ -41,7 +41,7 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
 
     val argv = cmdLine.getCommandLineList(null)
 
-    reporter.log("Starting Bloop ...")
+    reporter.log(BspBundle.message("bsp.protocol.starting.bloop"))
     reporter.log(cmdLine.getCommandLineString)
 
     val details = new BspConnectionDetails("Bloop", argv, bloopVersion, bspVersion, List("java","scala").asJava)

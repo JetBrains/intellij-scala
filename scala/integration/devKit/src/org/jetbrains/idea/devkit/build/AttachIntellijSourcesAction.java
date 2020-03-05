@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.TransactionGuard;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -70,7 +69,7 @@ public class AttachIntellijSourcesAction extends AnAction {
             return;
         }
 
-        new Task.Backgroundable(project, "Attaching Idea Sources", true) {
+        new Task.Backgroundable(project, DevkitBundle.message("attaching.idea.sources"), true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 LOG.info("Sources archive found: " + maybeSourcesZip.get().getCanonicalPath());

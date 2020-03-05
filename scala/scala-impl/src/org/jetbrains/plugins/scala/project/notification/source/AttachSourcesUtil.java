@@ -57,7 +57,7 @@ public class AttachSourcesUtil {
         }
 
         public ActionCallback perform(List<LibraryOrderEntry> orderEntriesContainingFile) {
-            final List<Library.ModifiableModel> modelsToCommit = new ArrayList<Library.ModifiableModel>();
+            final List<Library.ModifiableModel> modelsToCommit = new ArrayList<>();
             for (LibraryOrderEntry orderEntry : orderEntriesContainingFile) {
                 final Library library = orderEntry.getLibrary();
                 if (library == null) continue;
@@ -68,8 +68,8 @@ public class AttachSourcesUtil {
                 modelsToCommit.add(model);
             }
             if (modelsToCommit.isEmpty()) return new ActionCallback.Rejected();
-            new WriteAction() {
-                protected void run(@NotNull final Result result) {
+            new WriteAction<Void>() {
+                @Override protected void run(@NotNull final Result<Void> result) {
                     for (Library.ModifiableModel model : modelsToCommit) {
                         model.commit();
                     }
@@ -124,7 +124,7 @@ public class AttachSourcesUtil {
                 librariesToAppendSourcesTo.put(null, null);
 
                 LibraryOrderEntry[] orderEntries = librariesToAppendSourcesTo.values().toArray(new LibraryOrderEntry[0]);
-                BaseListPopupStep<LibraryOrderEntry> popupStep = new BaseListPopupStep<LibraryOrderEntry>("<html><body>Multiple libraries contain file.<br> Choose libraries to attach sources to</body></html>", orderEntries) {
+                BaseListPopupStep<LibraryOrderEntry> popupStep = new BaseListPopupStep<>("<html><body>" + ScalaBundle.message("multiple.libraries.contain.file") + "</body></html>", orderEntries) {
 
                     @Nullable
                     @Override
@@ -142,7 +142,7 @@ public class AttachSourcesUtil {
 
                     @Nullable
                     @Override
-                    public PopupStep onChosen(@Nullable LibraryOrderEntry entry, boolean finalChoice) {
+                    public PopupStep<?> onChosen(@Nullable LibraryOrderEntry entry, boolean finalChoice) {
                         if (entry != null) {
                             appendSources(entry.getLibrary(), files);
                         } else {
@@ -183,11 +183,8 @@ public class AttachSourcesUtil {
                     new OrderRootType[0]
             );
 
-            List<VirtualFile> result = orderRoots.stream()
-                    .map(OrderRoot::getFile)
-                    .collect(Collectors.toList());
-
-            return Collections.unmodifiableList(result);
+            return orderRoots.stream()
+                    .map(OrderRoot::getFile).collect(Collectors.toUnmodifiableList());
         }
 
         @Nullable
