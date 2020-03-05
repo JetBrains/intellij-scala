@@ -6,7 +6,7 @@ import java.util.Collections
 import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaModuleBuildTargetType}
 import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
-import org.jetbrains.jps.incremental.scala.{ChunkExclusionService, SettingsManager}
+import org.jetbrains.jps.incremental.scala.{ChunkExclusionService, JpsBundle, SettingsManager}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, ZincData}
 
@@ -94,8 +94,8 @@ object CompilationDataFactory
     val moduleNames = chunk.getTargets.asScala.filter(_.getOutputDir == null).map(_.getModule.getName)
     moduleNames.toSeq match {
       case Seq() => None
-      case Seq(name) => Some(s"Output directory not specified for module $name")
-      case names => Some(names.mkString(s"Output directory not specified for modules ", ", ", ""))
+      case Seq(name) => Some(JpsBundle.message("output.directory.not.specified.for.module.name", name))
+      case names => Some(names.mkString(JpsBundle.message("output.directory.not.specified.for.modules"), ", ", ""))
     }
   }
 
@@ -154,11 +154,11 @@ object CompilationDataFactory
     val errors = outputToTargetsMap.collect {
       case (output, targets) if output != null && targets.length > 1 =>
         val targetNames = targets.map(_.getPresentableName).mkString(", ")
-        "Output path %s is shared between: %s".format(output, targetNames)
+        JpsBundle.message("output.path.shared.between", output, targetNames)
     }
 
-    if (errors.isEmpty) None else Some(errors.mkString("\n") +
-      "\nPlease configure separate output paths to proceed with the compilation." +
-      "\nTIP: you can use Project Artifacts to combine compiled classes if needed.")
+    if (errors.isEmpty) None else Some(
+      errors.mkString("\n") +
+      JpsBundle.message("configure.separate.output.paths"))
   }
 }
