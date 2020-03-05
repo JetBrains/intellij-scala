@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.project.Version
 object Sbt {
   @NonNls val Name = "sbt"
 
+  @NonNls val Extension = ".sbt"
+
   @NonNls val BuildFile = "build.sbt"
 
   @NonNls val PropertiesFile = "build.properties"

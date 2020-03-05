@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
@@ -48,7 +49,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     myTestFixture = null
   }
 
-  override protected def getExternalSystemConfigFileName: String = "build.sbt"
+  override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val sbtSettings = SbtSettings.getInstance(myProject)

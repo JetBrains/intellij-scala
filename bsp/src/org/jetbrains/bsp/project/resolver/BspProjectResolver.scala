@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.{Sbt, SbtUtil}
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam, upgradedSbtVersion}
 import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectImportProvider}
@@ -212,12 +212,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val sbtLauncher = SbtUtil.getDefaultLauncher
 
     val injectedPlugins = s"""addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "${BuildInfo.bloopVersion}")"""
-    val pluginFile = FileUtil.createTempFile("idea",".sbt", true)
+    val pluginFile = FileUtil.createTempFile("idea",Sbt.Extension, true)
     val pluginFilePath = SbtUtil.normalizePath(pluginFile)
     FileUtil.writeToFile(pluginFile, injectedPlugins)
 
     val injectedSettings = """bloopExportJarClassifiers in Global := Some(Set("sources"))"""
-    val settingsFile = FileUtil.createTempFile(baseDir, "idea-bloop", ".sbt", true)
+    val settingsFile = FileUtil.createTempFile(baseDir, "idea-bloop", Sbt.Extension, true)
     FileUtil.writeToFile(settingsFile, injectedSettings)
 
     val sbtCommandArgs = List(

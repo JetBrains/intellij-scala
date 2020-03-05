@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.experimental.categories.Category
@@ -49,7 +50,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
-  override protected def getExternalSystemConfigFileName: String = "build.sbt"
+  override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
   override protected def getTestsTempDir: String = ""
 

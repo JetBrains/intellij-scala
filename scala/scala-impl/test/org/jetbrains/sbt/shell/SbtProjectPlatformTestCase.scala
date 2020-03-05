@@ -16,6 +16,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 
 import scala.concurrent.{Future, Promise}
@@ -46,7 +47,7 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
 
   def getPath: String
 
-  def getBuildFileName: String = "build.sbt"
+  def getBuildFileName: String = Sbt.BuildFile
 
   def getSbtRootFile: File = new File(getBasePath + "/" + getPath + "/" + getBuildFileName)
 
