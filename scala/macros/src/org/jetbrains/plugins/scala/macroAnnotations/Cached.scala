@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
+import org.jetbrains.annotations.Nls
+
 import scala.annotation.StaticAnnotation
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
@@ -30,7 +32,7 @@ object Cached {
     import c.universe._
     implicit val x: c.type = c
 
-    def abort(message: String) = c.abort(c.enclosingPosition, message)
+    def abort(@Nls message: String) = c.abort(c.enclosingPosition, message)
 
     def parameters: (Tree, Tree, Seq[Tree]) = {
       c.prefix.tree match {
@@ -38,7 +40,7 @@ object Cached {
           val Seq(depItem, psiElement, tracked @ _*) = params.map(_.asInstanceOf[c.universe.Tree])
           val modTracker = modCountParamToModTracker(c)(depItem, psiElement)
           (modTracker, psiElement, tracked)
-        case _ => abort("Wrong parameters")
+        case _ => abort(MacrosBundle.message("macros.cached.wrong.parameters"))
       }
     }
 
@@ -48,7 +50,7 @@ object Cached {
     annottees.toList match {
       case (dd@DefDef(mods, nameTerm, tpParams, paramss, retTp, rhs)) :: Nil =>
         if (retTp.isEmpty) {
-          abort("You must specify return type")
+          abort(MacrosBundle.message("macros.cached.specify.return.type"))
         }
         val name = c.freshName(nameTerm.toString)
         //generated names
@@ -226,7 +228,7 @@ object Cached {
           """
         CachedMacroUtil.debug(res)
         c.Expr(res)
-      case _ => abort("You can only annotate one function!")
+      case _ => abort(MacrosBundle.message("macros.cached.only.annotate.one.function"))
     }
   }
 }

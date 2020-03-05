@@ -44,7 +44,7 @@ object CachedWithoutModificationCount {
           val valueWrapper = valueWrapperParam(params.head)
           val cleanupScheduler = params(1)
           (valueWrapper, q"$cleanupScheduler.asInstanceOf[$cleanupSchedulerTypeFqn]", params.drop(2))
-        case _ => abort("Wrong parameters")
+        case _ => abort(MacrosBundle.message("macros.cached.wrong.parameters"))
       }
     }
 
@@ -55,7 +55,7 @@ object CachedWithoutModificationCount {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
         preventCacheModeParameter(c)(paramss)
         if (retTp.isEmpty) {
-          abort("You must specify return type")
+          abort(MacrosBundle.message("macros.cached.specify.return.type"))
         }
         //generated names
         val name = c.freshName(termName)
@@ -156,7 +156,7 @@ object CachedWithoutModificationCount {
           """
         debug(res)
         c.Expr(res)
-      case _ => abort("You can only annotate one function!")
+      case _ => abort(MacrosBundle.message("macros.cached.only.annotate.one.function"))
     }
   }
 }

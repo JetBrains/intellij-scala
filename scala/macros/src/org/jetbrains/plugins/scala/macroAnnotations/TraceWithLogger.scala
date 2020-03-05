@@ -46,7 +46,7 @@ object TraceWithLoggerMacro {
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedBody)
         c.Expr(updatedDef)
       case _                                                        =>
-        c.abort(c.enclosingPosition, "You can only annotate one function!")
+        c.abort(c.enclosingPosition, MacrosBundle.message("macros.cached.only.annotate.one.function"))
     }
   }
 }

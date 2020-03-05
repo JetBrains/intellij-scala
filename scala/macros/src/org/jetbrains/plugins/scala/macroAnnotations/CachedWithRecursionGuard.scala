@@ -29,7 +29,7 @@ object CachedWithRecursionGuard {
     def parameters: (Tree, Tree, Tree, Seq[Tree]) = c.prefix.tree match {
       case q"new CachedWithRecursionGuard(..$params)" if params.length >= 3 =>
         (params.head, params(1), modCountParamToModTracker(c)(params(2), params.head), params.drop(3))
-      case _ => abort("Wrong annotation parameters!")
+      case _ => abort(MacrosBundle.message("macros.cached.wrong.annotation.parameters"))
     }
 
     val (element, defaultValue, modTracker, trackedExprs) = parameters
@@ -38,7 +38,7 @@ object CachedWithRecursionGuard {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
         preventCacheModeParameter(c)(paramss)
         if (retTp.isEmpty) {
-          abort("You must specify return type")
+          abort(MacrosBundle.message("macros.cached.specify.return.type"))
         }
 
         //function parameters
@@ -126,7 +126,7 @@ object CachedWithRecursionGuard {
         debug(updatedDef)
 
         c.Expr(updatedDef)
-      case _ => abort("You can only annotate one function!")
+      case _ => abort(MacrosBundle.message("macros.cached.only.annotate.one.function"))
     }
   }
 }

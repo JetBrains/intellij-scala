@@ -27,7 +27,7 @@ object CachedInUserData {
       c.prefix.tree match {
         case q"new CachedInUserData(..$params)" if params.length >= 2 =>
           (params.head, modCountParamToModTracker(c)(params(1), params.head), params.drop(2))
-        case _ => abort("Wrong annotation parameters!")
+        case _ => abort(MacrosBundle.message("macros.cached.wrong.annotation.parameters"))
       }
     }
 
@@ -38,7 +38,7 @@ object CachedInUserData {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
         preventCacheModeParameter(c)(paramss)
         if (retTp.isEmpty) {
-          abort("You must specify return type")
+          abort(MacrosBundle.message("macros.cached.specify.return.type"))
         }
         //function parameters
         val flatParams = paramss.flatten
@@ -117,7 +117,7 @@ object CachedInUserData {
         debug(updatedDef)
 
         c.Expr(updatedDef)
-      case _ => abort("You can only annotate one function!")
+      case _ => abort(MacrosBundle.message("macros.cached.only.annotate.one.function"))
     }
   }
 }

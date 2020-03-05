@@ -39,7 +39,7 @@ object Measure {
         val updatedDef = DefDef(mods, termName, tpParams, paramss, retTp, updatedBody)
 
         c.Expr(updatedDef)
-      case _ => abort("You can only annotate one function!")
+      case _ => abort(MacrosBundle.message("macros.cached.only.annotate.one.function"))
     }
   }
 }
