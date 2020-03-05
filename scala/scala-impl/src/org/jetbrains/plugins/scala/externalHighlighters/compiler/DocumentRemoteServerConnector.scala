@@ -4,7 +4,7 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.remote.Commands
+import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.project.ModuleExt
 
@@ -35,7 +35,7 @@ private[compiler] class DocumentRemoteServerConnector(module: Module,
       override protected def originalSource: File = sourceFileOriginal
     }
     try {
-      new RemoteServerRunner(project).buildProcess(Commands.Compile, argumentsRaw, client).runSync()
+      new RemoteServerRunner(project).buildProcess(CommandIds.Compile, argumentsRaw, client).runSync()
     } finally {
       sourceFileCopy.delete()
     }

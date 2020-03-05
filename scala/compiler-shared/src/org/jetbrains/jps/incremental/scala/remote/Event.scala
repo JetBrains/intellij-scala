@@ -4,6 +4,7 @@ package remote
 import java.io._
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client.CompileServerState
 import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 /**
@@ -52,3 +53,5 @@ case class WorksheetOutputEvent(text: String) extends Event
 @SerialVersionUID(1L)
 case class CompilationStartedInSbt(path: String) extends Event
 
+@SerialVersionUID(-4038069514164180133L)
+case class CompileServerStateEvent(state: CompileServerState) extends Event

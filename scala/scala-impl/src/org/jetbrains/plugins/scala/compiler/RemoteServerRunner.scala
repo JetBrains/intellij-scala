@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths}
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.remote.{Commands, RemoteResourceOwner}
+import org.jetbrains.jps.incremental.scala.remote.{CommandIds, RemoteResourceOwner}
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 
 import scala.util.control.NonFatal

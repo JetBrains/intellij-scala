@@ -62,4 +62,7 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
 
   override def sourceStarted(source: String): Unit =
     publishEvent(CompilationStartedInSbt(source))
+
+  override def compileServerState(state: Client.CompileServerState): Unit =
+    publishEvent(CompileServerStateEvent(state))
 }

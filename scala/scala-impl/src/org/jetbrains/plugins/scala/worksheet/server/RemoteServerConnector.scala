@@ -15,7 +15,7 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.remote.Commands
+import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
 import org.jetbrains.plugins.scala.compiler.{NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
@@ -98,7 +98,7 @@ class RemoteServerConnector(
         case InProcessServer | OutOfProcessServer =>
           val runner = new RemoteServerRunner(project)
           val argumentsFinal = argumentsRaw
-          runner.buildProcess(Commands.Compile, argumentsFinal, client)
+          runner.buildProcess(CommandIds.Compile, argumentsFinal, client)
 
         case NonServer =>
           val argumentsFinal = NoToken +: argumentsRaw

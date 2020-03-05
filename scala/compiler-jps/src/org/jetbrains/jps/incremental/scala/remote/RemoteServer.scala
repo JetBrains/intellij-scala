@@ -24,7 +24,7 @@ class RemoteServer(override val address: InetAddress, override val port: Int)
     val arguments = Arguments(token, sbtData, compilerData, compilationData, None).asStrings
 
     try {
-      send(Commands.Compile, arguments, client)
+      send(CommandIds.Compile, arguments, client)
       // client.compilationEnd() is meant to be sent by remote server
       ExitCode.OK
     } catch {

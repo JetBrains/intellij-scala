@@ -63,6 +63,8 @@ abstract class IdeClient(compilerName: String,
     context.processMessage(new FileDeletedEvent(paths))
   }
 
+  override def compileServerState(state: Client.CompileServerState): Unit = ()
+
   override def isCanceled: Boolean = context.getCancelStatus.isCanceled
 
   def hasReportedErrors: Boolean = hasErrors

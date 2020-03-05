@@ -27,7 +27,7 @@ object SbtShellCompletionProvider extends CompletionProvider[CompletionParameter
 
   @NonNls private val settings = Seq("libraryDependencies", "baseDirectory", "sourceDirectory", "unmanagedBase", "target")
 
-  // TODO figure out how to use the parsers for InputKeys and Commands to supply their autocompletion to shell
+  // TODO figure out how to use the parsers for InputKeys and CommandIds to supply their autocompletion to shell
   @NonNls private val inputs = Seq("run", "runMain", "testOnly")
   @NonNls private val commands = Seq("help", "reload", "plugins", "settings", "project", "projects")
 
