@@ -20,7 +20,6 @@ import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, ScalaPluginJars}
@@ -83,16 +82,17 @@ object CompileServerLauncher {
 
   private def start(project: Project): Boolean = {
 
-    val result = compileServerJdk(project).map(start(project, _)) match {
-      case None                 => Left("JDK for compiler process not found")
-      case Some(Left(msg))      => Left(msg)
-      case Some(Right(process)) =>
-        invokeLater { CompileServerManager.configureWidget(project) }
-        Right(process)
-    }
+    val result = for {
+      jdk     <- compileServerJdk(project).left.map(m => s"JDK for compiler process not found: ${}")
+      process <- start(project, jdk)
+    } yield process
 
     result match {
-      case Right(_)     => true
+      case Right(_) =>
+        invokeLater {
+          CompileServerManager.configureWidget(project)
+        }
+        true
       case Left(error)  =>
         val title = ScalaBundle.message("cannot.start.scala.compile.server")
         Notifications.Bus.notify(new Notification("scala", title, error, NotificationType.ERROR))
@@ -202,19 +202,19 @@ object CompileServerLauncher {
 
   def port: Option[Int] = serverInstance.map(_.port)
 
-  private def compileServerSdk(project: Project): Option[Sdk] = {
+  private def compileServerSdk(project: Project): Either[String, Sdk] = {
     def defaultSdk = BuildManager.getBuildProcessRuntimeSdk(project).first
 
     val settings = ScalaCompileServerSettings.getInstance()
 
     val sdk =
-      if (settings.USE_DEFAULT_SDK) defaultSdk
-      else ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)
+      if (settings.USE_DEFAULT_SDK) Option(defaultSdk).toRight("can't find default jdk")
+      else Option(ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)).toRight(s"can't find jdk: ${settings.COMPILE_SERVER_SDK}")
 
-    Option(sdk)
+    sdk
   }
 
-  def compileServerJdk(project: Project): Option[JDK] = {
+  def compileServerJdk(project: Project): Either[String, JDK] = {
     val sdk = compileServerSdk(project)
     sdk.flatMap(toJdk)
   }
@@ -260,7 +260,7 @@ object CompileServerLauncher {
         val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
         val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
         val jdkChanged = compileServerJdk(project) match {
-          case Some(projectJdk) => projectJdk != instance.jdk
+          case Right(projectJdk) => projectJdk != instance.jdk
           case _ => false
         }
         workingDirChanged || jdkChanged

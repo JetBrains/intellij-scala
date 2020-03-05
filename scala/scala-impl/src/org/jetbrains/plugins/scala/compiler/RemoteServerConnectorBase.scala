@@ -91,7 +91,7 @@ abstract class RemoteServerConnectorBase(
   protected def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings
 
   private def findJdk = CompileServerLauncher.compileServerJdk(module.getProject)
-    .fold(throw new IllegalArgumentException("JDK for compiler process not found"))(_.executable)
+    .fold(m => throw new IllegalArgumentException(s"JDK for compiler process not found: $m"), _.executable)
 
   private def checkFilesToCompile(files: Seq[File]): Unit = {
     if (files.isEmpty)
