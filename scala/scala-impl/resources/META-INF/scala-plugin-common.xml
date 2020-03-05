@@ -462,7 +462,6 @@
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
@@ -1020,12 +1019,6 @@
                          key="internal.getText.equals.shouldBe.textMatches"
                          language="Scala" groupPath="Scala" groupName="Internal"
                          isInternal="true" level="WARNING" enabledByDefault="true"/>
-
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.bundled.BundledCompoundInspection"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.scala.bundled.inspections.runner"
-                         groupPath="Scala" groupName="General"
-                         shortName="ScalaBundledInsRunner" enabledByDefault="false" language="Scala"/>
 
         <!--Syntactic simplification inspections (including syntactic sugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection"
