@@ -20,6 +20,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.RawCommandLineEditor
 import org.jdom.Element
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder
 import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.{AmmNotFoundException, MyEditor}
@@ -164,7 +165,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
 }
 
 object AmmoniteRunConfiguration {
-  val AMMONITE_RUN_NAME = "Ammonite script"
+  val AMMONITE_RUN_NAME: String = "Ammonite Script"
 
   class AmmNotFoundException(message: String, commandLine: GeneralCommandLine, project: Project) extends ProcessNotCreatedException(message, commandLine) with HyperlinkListener {
     override def hyperlinkUpdate(e: HyperlinkEvent): Unit = {
@@ -206,9 +207,9 @@ object AmmoniteRunConfiguration {
       val panel = new JPanel()
       panel setLayout new BoxLayout(panel, BoxLayout.Y_AXIS)
 
-      val comp0 = createLabeledElement("Script:", createFileBrowser)
-      val comp1 = createLabeledElement("Amm executable:", createFileBrowser)
-      val comp2 = createLabeledElement("Script parameters:", new RawCommandLineEditor)
+      val comp0 = createLabeledElement(ScalaBundle.message("ammonite.script"), createFileBrowser)
+      val comp1 = createLabeledElement(ScalaBundle.message("ammonite.executable"), createFileBrowser)
+      val comp2 = createLabeledElement(ScalaBundle.message("ammonite.script.parameters"), new RawCommandLineEditor)
 
       panel.add(comp0, 0)
       panel.add(comp1, 1)
@@ -217,7 +218,7 @@ object AmmoniteRunConfiguration {
       (panel, comp0.getComponent, comp1.getComponent, comp2.getComponent)
     }
 
-    private def createLabeledElement[T <: JComponent](name: String, comp: T): LabeledComponent[T] = {
+    private def createLabeledElement[T <: JComponent](@Nls name: String, comp: T): LabeledComponent[T] = {
       val c = new LabeledComponent[T]
       c.setComponent(comp)
       c.setText(name)

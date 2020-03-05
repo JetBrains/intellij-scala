@@ -170,8 +170,8 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
 
 
     enum TestMode {
-        ALL_IN_PROJECT("All in project"),
-        CLASS("Scala class");
+        ALL_IN_PROJECT(BspBundle.message("bsp.test.all.in.project")),
+        CLASS(BspBundle.message("bsp.test.scala.class"));
 
         String displayText;
 

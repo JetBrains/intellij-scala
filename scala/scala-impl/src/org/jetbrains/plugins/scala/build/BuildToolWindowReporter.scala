@@ -33,7 +33,7 @@ class BuildToolWindowReporter(project: Project,
 
   override def start(): Unit = {
     val buildDescriptor = new DefaultBuildDescriptor(buildId, title, project.getBasePath, System.currentTimeMillis())
-    val startEvent = new StartBuildEventImpl(buildDescriptor, "running ...")
+    val startEvent = new StartBuildEventImpl(buildDescriptor, ScalaBundle.message("report.build.toolwindow.running"))
       .withContentDescriptorSupplier { () => // dummy runContentDescriptor to set autofocus of build toolwindow off
         val descriptor = new RunContentDescriptor(null, null, new JComponent {}, title)
         descriptor.setActivateToolWindowWhenAdded(false)
@@ -70,7 +70,7 @@ class BuildToolWindowReporter(project: Project,
   override def finishCanceled(): Unit = {
     val canceledResult = new SkippedResultImpl
     val finishEvent =
-      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), "canceled", canceledResult)
+      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), ScalaBundle.message("report.build.toolwindow.canceled"), canceledResult)
     viewManager.onEvent(buildId, finishEvent)
   }
 
@@ -80,7 +80,7 @@ class BuildToolWindowReporter(project: Project,
   }
 
   override def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
-    val unitOrDefault = if (unit == null) "items" else unit
+    val unitOrDefault = if (unit == null) ScalaBundle.message("report.build.toolwindow.items") else unit
     val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unitOrDefault)
     viewManager.onEvent(buildId, event)
   }
@@ -113,7 +113,7 @@ class BuildToolWindowReporter(project: Project,
 
 object BuildToolWindowReporter {
   class CancelBuildAction(cancelToken: Promise[_])
-    extends DumbAwareAction(ScalaBundle.message("cancel.build"), ScalaBundle.message("cancel.build"), AllIcons.Actions.Suspend) {
+    extends DumbAwareAction(ScalaBundle.message("report.build.toolwindow.cancel"), ScalaBundle.message("report.build.toolwindow.cancel"), AllIcons.Actions.Suspend) {
 
     override def actionPerformed(e: AnActionEvent): Unit = {
       cancelToken.failure(new ProcessCanceledException())

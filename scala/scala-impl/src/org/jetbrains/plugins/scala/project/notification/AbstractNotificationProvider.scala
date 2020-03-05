@@ -9,6 +9,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.sbt.Sbt
 
 /**
@@ -49,7 +50,7 @@ abstract class AbstractNotificationProvider(kitTitle: String,
   private def createPanel(action: Runnable) = {
     val panel = new EditorNotificationPanel()
       .text(panelText(kitTitle))
-    panel.createActionLabel("Setup " + kitTitle, action)
+    panel.createActionLabel(ScalaBundle.message("setup.kittitle", kitTitle), action)
     panel
   }
 }
