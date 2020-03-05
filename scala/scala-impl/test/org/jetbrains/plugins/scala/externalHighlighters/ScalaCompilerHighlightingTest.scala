@@ -28,7 +28,6 @@ class ScalaCompilerHighlightingTest
 
   override protected def setUp(): Unit = {
     super.setUp()
-    Registry.get(ScalaHighlightingMode.ShowScalacErrorsKey).setValue(true, getTestRootDisposable)
   }
 
   private val testsCases = Seq(
@@ -65,17 +64,19 @@ class ScalaCompilerHighlightingTest
     )
   )
 
-  def testRunTestCases(): Unit = new SoftAssert {
-    val virtualFileToExpectedResult = testsCases.map { case TestCase(fileName, content, expectedResult) =>
-      val virtualFile = addFileAndOpenInEditor(fileName, content)
-      virtualFile -> expectedResult
-    }
-    compiler.rebuild()
-    virtualFileToExpectedResult.map { case (virtualFile, expectedResult) =>
-      val actualResult = getActualResult(virtualFile)
-      assertThat(virtualFile.getName, actualResult, expectedResult)
-    }
-  }.assertAll()
+  def testRunTestCases(): Unit = withErrorsFromCompiler {
+    new SoftAssert {
+      val virtualFileToExpectedResult = testsCases.map { case TestCase(fileName, content, expectedResult) =>
+        val virtualFile = addFileAndOpenInEditor(fileName, content)
+        virtualFile -> expectedResult
+      }
+      compiler.rebuild()
+      virtualFileToExpectedResult.map { case (virtualFile, expectedResult) =>
+        val actualResult = getActualResult(virtualFile)
+        assertThat(virtualFile.getName, actualResult, expectedResult)
+      }
+    }.assertAll()
+  }
 
   private def addFileAndOpenInEditor(fileName: String, content: String): VirtualFile = {
     val virtualFile = addFileToProjectSources(fileName, content)
@@ -117,6 +118,18 @@ object ScalaCompilerHighlightingTest {
         s"$name=$value"
       }.mkString(",")
       s"HighlightInfo($values)"
+    }
+  }
+
+  private def withErrorsFromCompiler(body: => Unit): Unit = {
+    val registry = Registry.get(ScalaHighlightingMode.ShowScalacErrorsKey)
+    registry.setValue(true)
+
+    try {
+      body
+    }
+    finally {
+      registry.setValue(false)
     }
   }
 }
