@@ -12,8 +12,10 @@ import org.jetbrains.annotations.NonNls
   */
 object SbtOpts {
 
+  val SbtOptsFile: String = ".sbtopts"
+
   def loadFrom(directory: File): Seq[String] = {
-    val sbtOptsFile = directory / ".sbtopts"
+    val sbtOptsFile = directory / SbtOptsFile
     if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead)
       process(FileUtil.loadLines(sbtOptsFile).asScala.map(_.trim))
     else

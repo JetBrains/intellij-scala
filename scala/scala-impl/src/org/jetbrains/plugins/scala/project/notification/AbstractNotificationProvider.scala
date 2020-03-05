@@ -9,6 +9,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
+import org.jetbrains.sbt.Sbt
 
 /**
  * @author adkozlov
@@ -57,6 +58,6 @@ object AbstractNotificationProvider {
 
   private def isSourceCode(file: PsiFile): Boolean =
     file.getLanguage.isKindOf(ScalaLanguage.INSTANCE) &&
-      !file.getName.endsWith(".sbt") && // root sbt files belong to main (not *-build) modules
+      !file.getName.endsWith(Sbt.Extension) && // root sbt files belong to main (not *-build) modules
       file.isWritable
 }

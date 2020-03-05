@@ -164,7 +164,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       val globalSettingsFile = new File(globalPluginsDir, "idea.sbt")
 
       val settingsFile =
-        if (addPluginSupported) FileUtil.createTempFile("idea",".sbt", true)
+        if (addPluginSupported) FileUtil.createTempFile("idea", Sbt.Extension, true)
         else globalSettingsFile
 
       // caution! writes injected plugin settings to user's global sbt config if addPlugin command is not supported

@@ -18,7 +18,7 @@ abstract class AnnotatorTestBase extends PlatformTestCase {
   protected def testdataPath: String = s"$getTestDataPath/annotator/Sbt"
 
   def loadTestFile() = {
-    val filePath = s"$testdataPath/${getTestName(false)}.sbt"
+    val filePath = s"$testdataPath/${getTestName(false)}${Sbt.Extension}"
     val file = LocalFileSystem.getInstance
       .findFileByPath(filePath.replace(File.separatorChar, '/'))
     assertNotNull(filePath, file)

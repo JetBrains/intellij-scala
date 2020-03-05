@@ -8,6 +8,7 @@ import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
+import org.jetbrains.sbt.Sbt
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -37,6 +38,6 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndI
     }).assertTiming()
   }
 
-  override protected def getExternalSystemConfigFileName = "build.sbt"
+  override protected def getExternalSystemConfigFileName = Sbt.BuildFile
 }
 

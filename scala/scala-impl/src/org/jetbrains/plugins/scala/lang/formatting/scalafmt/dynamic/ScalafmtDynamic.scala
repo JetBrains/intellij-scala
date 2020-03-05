@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDyna
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{ReflectionException, ScalafmtConfigException, ScalafmtException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.{BuildInfo, ConsoleScalafmtReporter}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces.{Scalafmt, ScalafmtReporter}
+import org.jetbrains.sbt.Sbt
 
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
@@ -92,7 +93,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
       Try {
         val filename = file.toString
         val configWithDialect: ScalafmtDynamicConfig =
-          if (filename.endsWith(".sbt") || filename.endsWith(".sc")) {
+          if (filename.endsWith(Sbt.Extension) || filename.endsWith(".sc")) {
             config.withSbtDialect
           } else {
             config

@@ -65,7 +65,7 @@ object SbtUtil {
     if (path.isEmpty) None else Some(new File(path))
   }
   private def fileProperty(name: String): File = new File(System.getProperty(name))
-  private[sbt] def defaultGlobalBase = fileProperty("user.home") / ".sbt"
+  private[sbt] def defaultGlobalBase = fileProperty("user.home") / Sbt.Extension
   private def defaultVersionedGlobalBase(sbtVersion: Version): File = {
     defaultGlobalBase / binaryVersion(sbtVersion).presentation
   }

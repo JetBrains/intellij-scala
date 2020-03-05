@@ -26,7 +26,7 @@ trait AutoImportAwareness extends ExternalSystemAutoImportAware {
     val files =
       baseDir / Sbt.BuildFile +:
         projectDir / Sbt.PropertiesFile +:
-        projectDir.ls(name => name.endsWith(".sbt") || name.endsWith(".scala"))
+        projectDir.ls(name => name.endsWith(Sbt.Extension) || name.endsWith(".scala"))
 
     files.asJava
   }
@@ -41,7 +41,7 @@ private object AutoImportAwareness {
 
     fileName == Sbt.BuildFile && file.isIn(baseDir) ||
       fileName == Sbt.PropertiesFile && file.isIn(projectDir) ||
-      fileName.endsWith(".sbt") && file.isIn(projectDir) ||
+      fileName.endsWith(Sbt.Extension) && file.isIn(projectDir) ||
       fileName.endsWith(".scala") && file.isIn(projectDir)
   }
 }
