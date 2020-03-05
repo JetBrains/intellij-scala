@@ -15,25 +15,25 @@ trait Client {
   def message(msg: ClientMsg): Unit
 
   final def message(kind: Kind,
-                    text: String,
+                    @Nls text: String,
                     source: Option[File] = None,
                     line: Option[Long] = None,
                     column: Option[Long] = None): Unit =
     message(ClientMsg(kind, text, source, line, column))
 
-  final def error(text: String,
+  final def error(@Nls text: String,
                   source: Option[File] = None,
                   line: Option[Long] = None,
                   column: Option[Long] = None): Unit =
     message(Kind.ERROR, text, source, line, column)
 
-  final def warning(text: String,
+  final def warning(@Nls text: String,
                     source: Option[File] = None,
                     line: Option[Long] = None,
                     column: Option[Long] = None): Unit =
     message(Kind.WARNING, text, source, line, column)
 
-  final def info(text: String,
+  final def info(@Nls text: String,
                  source: Option[File] = None,
                  line: Option[Long] = None,
                  column: Option[Long] = None): Unit =
