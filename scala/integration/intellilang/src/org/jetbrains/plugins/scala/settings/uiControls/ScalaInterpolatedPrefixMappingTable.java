@@ -7,6 +7,7 @@ import com.intellij.util.ListWithSelection;
 import com.intellij.util.ui.table.ComboBoxTableCellEditor;
 import org.intellij.plugins.intelliLang.inject.InjectedLanguage;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.IntellilangBundle;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 import javax.swing.*;
@@ -75,7 +76,7 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Scal
     final JPanel editPanel = decorator.createPanel();
     final JPanel localPanel = new JPanel(new BorderLayout());
 
-    localPanel.setBorder(IdeBorderFactory.createTitledBorder("Language Injection settings for interpolated strings", false));
+    localPanel.setBorder(IdeBorderFactory.createTitledBorder(IntellilangBundle.message("scala.project.settings.form.language.injection.settings.for.interpolated.strings"), false));
     localPanel.add(editPanel, BorderLayout.CENTER);
 
     myMainPanel.add(localPanel);
@@ -97,11 +98,8 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Scal
   }
 
   private class PrefixLanguagePair implements Cloneable {
-    private static final String INTERPOLATED_PREFIX = "Interpolated String prefix";
-    private static final String LANGUAGE_ID = "Language ID";
-
     private String myPrefix;
-    private MyListWithSelection myLanguagesModel;
+    private final MyListWithSelection myLanguagesModel;
 
     private PrefixLanguagePair(String myPrefix, Integer myLanguageIndex) {
       this.myPrefix = myPrefix;
@@ -162,7 +160,7 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Scal
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-      if (!checkRanges(rowIndex, columnIndex)) return null;
+      if (checkRanges(rowIndex, columnIndex)) return null;
 
       PrefixLanguagePair pair = data.get(rowIndex);
       return columnIndex == 0 ? pair.getMyPrefix() : pair.myLanguagesModel;
@@ -170,7 +168,7 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Scal
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-      if (!checkRanges(rowIndex, columnIndex)) return;
+      if (checkRanges(rowIndex, columnIndex)) return;
       PrefixLanguagePair pair = data.get(rowIndex);
       if (columnIndex == 0) pair.setMyPrefix(aValue.toString());
       else pair.setMyLanguage(aValue.toString());
@@ -180,9 +178,9 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Scal
     public String getColumnName(int column) {
       switch (column) {
         case 0:
-          return PrefixLanguagePair.INTERPOLATED_PREFIX;
+          return IntellilangBundle.message("scala.project.settings.form.interpolated.string.prefix");
         case 1:
-          return PrefixLanguagePair.LANGUAGE_ID;
+          return IntellilangBundle.message("scala.project.settings.form.language.id");
         default:
           return null;
       }
@@ -194,7 +192,7 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Scal
     }
 
     private boolean checkRanges(int row, int column) {
-      return row >= 0 && column >= 0 && row < getRowCount() && column < getColumnCount();
+      return row < 0 || column < 0 || row >= getRowCount() || column >= getColumnCount();
     }
   }
 }

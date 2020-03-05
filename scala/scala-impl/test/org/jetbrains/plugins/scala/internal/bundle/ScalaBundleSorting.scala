@@ -65,13 +65,19 @@ object ScalaBundleSorting {
     bundlePath = scalaModDir + "worksheet/resources/messages/WorksheetBundle.properties",
   )
 
+  val intellilangModule: ModuleInfo = ModuleInfo(
+    rootPath = scalaModDir + "integration/intellilang/",
+    bundlePath = scalaModDir + "integration/intellilang/resources/messages/IntellilangBundle.properties",
+  )
+
   val allModuleInfos: Seq[ModuleInfo] = Seq(
     bspModule,
     codeInsightModule,
     conversionModule,
     scalaImplModule, scalaImplModuleErrMsg, scalaImplModuleCodeInspection, scalaImplModuleSbt,
     uastModule,
-    worksheetModule
+    worksheetModule,
+    intellilangModule
   )
 
 

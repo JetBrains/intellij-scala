@@ -41,6 +41,7 @@ trait Client {
 
   def trace(exception: Throwable): Unit
 
+  // TODO: extract to bundle carefully, DynamicBundle isn't available in JSP process
   def progress(text: String, done: Option[Float] = None): Unit
 
   def internalInfo(text: String): Unit

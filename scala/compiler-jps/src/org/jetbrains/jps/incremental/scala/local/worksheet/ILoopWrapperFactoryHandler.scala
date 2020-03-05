@@ -42,8 +42,6 @@ class ILoopWrapperFactoryHandler {
         cachedReplFactory = (loader, iLoopWrapper, scalaVersion)
     }
 
-    // TODO: extract to bundle carefully,
-    //  DynamicBundle isn't available in JSP process, we could pass ADT instead of strings
     client.progress("Running REPL...")
 
     val (classLoader, replFactory, _) = cachedReplFactory
