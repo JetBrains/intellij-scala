@@ -5,6 +5,7 @@ import java.awt.Color
 
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -36,7 +37,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
         else nonLiteralRangesIn(exp)
 
       ranges.foreach { r =>
-        val annotation = holder.createInfoAnnotation(r, "Passed as by-name parameter")
+        val annotation = holder.createInfoAnnotation(r, ScalaBundle.message("passed.as.by.name.parameter"))
         annotation.setEnforcedTextAttributes(attributes)
       }
     }
