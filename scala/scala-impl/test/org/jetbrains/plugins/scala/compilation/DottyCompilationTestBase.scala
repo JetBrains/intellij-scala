@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.{ScalaVersion, Scala_3_0, ScalacTests}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
@@ -41,10 +42,12 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
 
   private var compiler: CompilerTester = _
 
+  private var revertable: RevertableChange = _
+
   override def setUp(): Unit = {
     super.setUp()
 
-    CompilerTestUtil.enableCompileServer(useCompileServer)
+    revertable = CompilerTestUtil.withEnabledCompileServer(useCompileServer)
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
     compiler = new CompilerTester(module)
   }
@@ -58,6 +61,7 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
     }
   } finally {
     compiler = null
+    revertable.revert()
     super.tearDown()
   }
 

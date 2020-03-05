@@ -23,6 +23,8 @@ import java.util.{List => JList}
 
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
+import org.jetbrains.plugins.scala.macroAnnotations.MeasureToConsole
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.emptyCollection
 
 import scala.concurrent.duration
@@ -37,6 +39,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   private var compilerTester: CompilerTester = _
 
+  private var revertable: RevertableChange = _
+
   override protected def setUp(): Unit = {
     super.setUp()
 
@@ -50,9 +54,13 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
     addSrcRoot()
     compilerVmOptions.foreach(setCompilerVmOptions)
-    CompilerTestUtil.enableCompileServer(useCompileServer)
-    CompilerTestUtil.setCompileServerJdk(getTestProjectJdk)
-    CompilerTestUtil.forceLanguageLevelForBuildProcess(getTestProjectJdk)
+
+    revertable =
+      CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
+        CompilerTestUtil.withCompileServerJdk(getTestProjectJdk) |+|
+        CompilerTestUtil.withForcedLanguageLevelForBuildProcess(getTestProjectJdk)
+    revertable.apply()
+
     setUpLibraries(getModule)
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
     compilerTester = new CompilerTester(getModule)
@@ -69,6 +77,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     }
   } finally {
     compilerTester = null
+    revertable.revert()
     EdtTestUtil.runInEdtAndWait { () =>
       ScalaCompilerTestBase.super.tearDown()
     }
