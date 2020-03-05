@@ -76,7 +76,7 @@ final class ScalaInsertHandler extends InsertHandler[LookupElement] {
         } else if (item.isInInterpolatedString) {
           context.getFile.findElementAt(contextStartOffset).getParent match {
             case literal: ScInterpolated =>
-              ScalaBasicCompletionContributor.interpolatedStringBounds(literal, contextStartOffset) match {
+              ScalaBasicCompletionProvider.interpolatedStringBounds(literal, contextStartOffset) match {
                 case Some((offset, _)) =>
                   val tailOffset = context.getTailOffset
                   document.insertString(tailOffset, "}")
