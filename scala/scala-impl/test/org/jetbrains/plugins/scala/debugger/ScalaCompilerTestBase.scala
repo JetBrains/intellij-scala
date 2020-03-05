@@ -2,31 +2,31 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io.File
+import java.util.{List => JList}
 
-import com.intellij.compiler.server.BuildManager
 import com.intellij.compiler.CompilerConfiguration
+import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.compiler._
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
-import com.intellij.testFramework.{CompilerTester, EdtTestUtil, JavaModuleTestCase, PsiTestUtil, VfsTestUtil}
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.testFramework._
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, ProjectExt}
-import org.junit.Assert._
-import java.util.{List => JList}
-
-import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.emptyCollection
+import org.junit.Assert._
 
-import scala.concurrent.duration
 import scala.collection.JavaConverters._
+import scala.concurrent.duration
 import scala.language.implicitConversions
 
 /**
@@ -36,6 +36,8 @@ import scala.language.implicitConversions
 abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwner {
 
   private var compilerTester: CompilerTester = _
+
+  private var revertable: RevertableChange = _
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -50,9 +52,13 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
     addSrcRoot()
     compilerVmOptions.foreach(setCompilerVmOptions)
-    CompilerTestUtil.enableCompileServer(useCompileServer)
-    CompilerTestUtil.setCompileServerJdk(getTestProjectJdk)
-    CompilerTestUtil.forceLanguageLevelForBuildProcess(getTestProjectJdk)
+
+    revertable =
+      CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
+        CompilerTestUtil.withCompileServerJdk(getTestProjectJdk) |+|
+        CompilerTestUtil.withForcedLanguageLevelForBuildProcess(getTestProjectJdk)
+    revertable.apply()
+
     setUpLibraries(getModule)
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
     compilerTester = new CompilerTester(getModule)
@@ -69,6 +75,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     }
   } finally {
     compilerTester = null
+    revertable.revert()
     EdtTestUtil.runInEdtAndWait { () =>
       ScalaCompilerTestBase.super.tearDown()
     }

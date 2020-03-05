@@ -78,8 +78,9 @@ object CompileServerLauncher {
   }
 
   private def start(project: Project): Boolean = {
+
     val result = for {
-      jdk     <- compileServerJdk(project).left.map(m => s"JDK for compiler process not found: $m")
+      jdk     <- compileServerJdk(project).left.map(m => s"JDK for compiler process not found: ${}")
       process <- start(project, jdk)
     } yield process
 

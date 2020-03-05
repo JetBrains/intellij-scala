@@ -36,9 +36,9 @@ class NonServerRunner(project: Project) {
 
     val jdk = CompileServerLauncher.compileServerJdk(project)
     jdk match {
-      case None =>
+      case Left(error) => // TODO: propagate error
         null
-      case Some(jdk) =>
+      case Right(jdk) =>
         val commands: Seq[String] = {
           val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)
           val runnerClassPath = classPathArg(jdk.tools.toSeq :+ ScalaPluginJars.scalaNailgunRunnerJar)
