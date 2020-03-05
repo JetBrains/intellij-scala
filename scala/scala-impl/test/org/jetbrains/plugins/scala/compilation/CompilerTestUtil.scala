@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compilation
 
-import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.util.xmlb.XmlSerializerUtil
@@ -25,6 +25,11 @@ object CompilerTestUtil {
     }
   }
 
+  object NoOpRevertableChange extends RevertableChange {
+    override def apply(): Unit = ()
+    override def revert(): Unit = ()
+  }
+
   class CompositeRevertableChange(val changes: Seq[RevertableChange]) extends RevertableChange {
     override def apply(): Unit = changes.foreach(_.apply())
     override def revert(): Unit = changes.reverse.foreach(_.revert())
@@ -38,17 +43,15 @@ object CompilerTestUtil {
 
   def withModifiedCompileServerSettings(body: ScalaCompileServerSettings => Unit): RevertableChange = new RevertableChange {
     private var settingsBefore: ScalaCompileServerSettings = _
+    private lazy val settings: ScalaCompileServerSettings = compileServerSettings
 
     override def apply(): Unit = {
-      val settings = compileServerSettings
       settingsBefore = XmlSerializerUtil.createCopy(settings)
       body(settings)
     }
 
-    override def revert(): Unit = {
-      val settings = compileServerSettings
+    override def revert(): Unit =
       XmlSerializerUtil.copyBean(settingsBefore, settings)
-    }
   }
 
   def withEnabledCompileServer(enable: Boolean): RevertableChange = new CompositeRevertableChange(Seq(
@@ -59,16 +62,15 @@ object CompilerTestUtil {
     },
     new RevertableChange {
       private var saveAllowedBefore: Boolean = _
+      private lazy val application: ApplicationEx = ApplicationManagerEx.getApplicationEx
 
       override def apply(): Unit = {
-        val application = ApplicationManagerEx.getApplicationEx
         saveAllowedBefore = application.isSaveAllowed
         application.setSaveAllowed(true)
         application.saveSettings()
       }
 
       override def revert(): Unit = {
-        val application = ApplicationManagerEx.getApplicationEx
         application.setSaveAllowed(saveAllowedBefore)
         application.saveSettings()
       }
