@@ -137,29 +137,33 @@ object ScalaExtractStringToBundleInspection {
             return
           }
 
-        val bundle = I18nBundleContent.read(bundlePropertyPath)
-        val path = elementPath.substring(srcRoot.length)
-        val (keyProposal, text, arguments) = toKeyAndTextAndArgs(parts)
+      val fileUrl = VirtualFileManager.constructUrl(URLUtil.FILE_PROTOCOL, bundlePropertyPath)
+      val vfile = VirtualFileManager.getInstance().findFileByUrl(fileUrl)
 
-        val inputDialog = new InputDialog(project, "Key:", "Enter key for new bundle entry", null, keyProposal, new BundleNameInputValidator(bundle))
-        if (!inputDialog.showAndGet()) {
-          return
-        }
+      if (vfile == null) {
+        throw new Exception(s"Failed to open bundle file at $bundlePropertyPath")
+      }
 
-        val key = inputDialog.getInputString
-        assert(key != null)
-
-        val newEntry = Entry(key, text, path)
-
-        // mark bundle file for undo
-        val fileUrl = VirtualFileManager.constructUrl(URLUtil.FILE_PROTOCOL, bundlePropertyPath)
-        val vfile = VirtualFileManager.getInstance().findFileByUrl(fileUrl)
-
-        if (vfile == null) {
-          throw new Exception(s"Failed to open bundle file at $bundlePropertyPath")
-        }
+      // save file that may already been loaded
+      val fileDocumentManager = FileDocumentManager.getInstance()
+      fileDocumentManager
+        .getCachedDocument(vfile).nullSafe
+        .foreach(fileDocumentManager.saveDocument)
 
 
+      val bundle = I18nBundleContent.read(bundlePropertyPath)
+      val path = elementPath.substring(srcRoot.length)
+      val (keyProposal, text, arguments) = toKeyAndTextAndArgs(parts)
+
+      val inputDialog = new InputDialog(project, "Key:", "Enter key for new bundle entry", null, keyProposal, new BundleNameInputValidator(bundle))
+      if (!inputDialog.showAndGet()) {
+        return
+      }
+
+      val key = inputDialog.getInputString
+      assert(key != null)
+
+      val newEntry = Entry(key, text, path)
 
       inWriteAction {
         val outputStream = vfile.getOutputStream(this)
