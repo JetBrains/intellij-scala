@@ -35,6 +35,21 @@ object ScalaBundleSorting {
     bundlePath = scalaModDir + "conversion/resources/messages/ScalaConversionBundle.properties",
   )
 
+  val devkitModule: ModuleInfo = ModuleInfo(
+    rootPath = scalaModDir + "integration/devKit/",
+    bundlePath = scalaModDir + "integration/devKit/resources/messages/ScalaDevkitBundle.properties",
+  )
+
+  val jpsModule: ModuleInfo = ModuleInfo(
+    rootPath = scalaModDir + "compiler-jps/",
+    bundlePath = scalaModDir + "compiler-jps/resources/messages/JpsBundle.properties",
+  )
+
+  val macrosModule: ModuleInfo = ModuleInfo(
+    rootPath = scalaModDir + "macros/",
+    bundlePath = scalaModDir + "macros/resources/messages/MacrosBundle.properties",
+  )
+
   val scalaImplDir: String = scalaModDir + "scala-impl/"
   val scalaImplModule: ModuleInfo = ModuleInfo(
     rootPath = scalaImplDir,
@@ -87,7 +102,7 @@ object ScalaBundleSorting {
 
   def sortAll(moduleInfos: Seq[ModuleInfo]): Unit = for (info <- moduleInfos) {
     val ModuleInfo(rootPath, bundlePath, _) = info
-    println(s"Find keys in ${rootPath}")
+    println(s"Find keys in $rootPath")
     val findings = findKeysInModule(info)
     val keyToFinding = findings.groupBy(_.key)
 
