@@ -95,7 +95,7 @@ object Main {
         }
       }
 
-      handleArguments(command, client)
+      handleCommand(command, client)
     } catch {
       case e: Throwable =>
         client.trace(e)
@@ -106,7 +106,7 @@ object Main {
     }
   }
 
-  private def handleArguments(command: CompileServerCommand, client: EncodingEventGeneratingClient): Unit = {
+  private def handleCommand(command: CompileServerCommand, client: EncodingEventGeneratingClient): Unit = {
     def compilingNowCounterDecorated(action: => Unit): Unit =
       if (command.isCompilation) {
         compilingNowCounter.incrementAndGet()
@@ -145,8 +145,8 @@ object Main {
   }
 
   private def compileJpsLogic(args: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(_, projectPath, globalOptionsPath) = args
-    val dataStorageRoot = Utils.getDataStorageRoot(projectPath)
+    val CompileServerCommand.CompileJps(_, projectPath, globalOptionsPath, dataStorageRootPath) = args
+    val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
     var compiledFiles = Set.empty[File]

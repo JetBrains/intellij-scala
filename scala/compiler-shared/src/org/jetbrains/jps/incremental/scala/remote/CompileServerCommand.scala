@@ -32,14 +32,15 @@ object CompileServerCommand {
 
   case class CompileJps(token: String,
                         projectPath: String,
-                        globalOptionsPath: String)
+                        globalOptionsPath: String,
+                        dataStorageRootPath: String)
     extends CompileServerCommand {
 
     override def isCompilation: Boolean = true
 
     override def id: String = CommandIds.CompileJps
 
-    override def asArgs: Seq[String] = Seq(token, projectPath, globalOptionsPath)
+    override def asArgs: Seq[String] = Seq(token, projectPath, globalOptionsPath, dataStorageRootPath)
   }
 
   case class GetState(token: String)
