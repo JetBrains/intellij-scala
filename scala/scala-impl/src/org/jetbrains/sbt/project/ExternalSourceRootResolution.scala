@@ -6,7 +6,7 @@ import java.io.File
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
 import com.intellij.openapi.util.io.FileUtilRt
-import org.jetbrains.sbt.project.data.{ContentRootNode, LibraryNode, ModuleDependencyNode, ModuleNode}
+import org.jetbrains.sbt.project.data.{ContentRootNode, LibraryNode, ModuleDependencyNode, ModuleNode, ModuleSdkNode}
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.structure.ProjectData
 import org.jetbrains.sbt.{structure => sbtStructure}
@@ -37,6 +37,9 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
     val sourceModuleNode = {
       val moduleNode = createSourceModule(rootGroup, moduleFilesDirectory)
+
+      //todo: get jdk from a corresponding jvm module ?
+      moduleNode.add(ModuleSdkNode.inheritFromProject)
 
       // Select a single project and clone its module / project dependencies.
       // It seems that dependencies of any single project should be enough to highlight files in the shared source module.
