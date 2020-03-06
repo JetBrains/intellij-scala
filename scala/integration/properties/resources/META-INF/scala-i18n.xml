@@ -23,5 +23,10 @@
                          key="internal.expression.without.nls.passed.to.nls"
                          language="Scala" groupPath="Scala" groupName="Internal"
                          isInternal="true" level="WARNING" enabledByDefault="false" />
+
+        <intentionAction>
+            <category>Scala/Extract Java String to bundle in Intellj Scala Plugin</category>
+            <className>org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.JavaExtractStringToBundleInspection</className>
+        </intentionAction>
     </extensions>
 </idea-plugin>
