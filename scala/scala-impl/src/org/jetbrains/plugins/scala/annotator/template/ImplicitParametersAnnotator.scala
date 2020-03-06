@@ -33,8 +33,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
 
   private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: Seq[ScalaResolveResult])
                                (implicit holder: ScalaAnnotationHolder): Unit = {
-    //todo: cover ambiguous implicit case (right now it is not always correct)
-    parameters.filter(_.isNotFoundImplicitParameter) match {
+    parameters.filter(it => it.isNotFoundImplicitParameter || it.isAmbiguousImplicitParameter) match {
       case Seq() =>
       case params =>
         val presentableTypes = params

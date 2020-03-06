@@ -62,11 +62,10 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
       val showNotFoundArgs = showNotFoundImplicits(owner)
       val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
 
-      //todo: cover ambiguous implicit case (right now it is not always correct)
       def shouldShow(arguments: Seq[ScalaResolveResult]) = {
         val compilerErrorsDisabled = !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
         val basicCondition = ImplicitHints.enabled ||
-          (showNotFoundArgs && arguments.exists(p => p.isImplicitParameterProblem && !isAmbiguous(p)))
+          (showNotFoundArgs && arguments.exists(_.isImplicitParameterProblem))
         compilerErrorsDisabled && basicCondition
       }
 

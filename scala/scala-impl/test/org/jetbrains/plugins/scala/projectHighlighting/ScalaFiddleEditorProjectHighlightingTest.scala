@@ -20,5 +20,6 @@ class ScalaFiddleEditorProjectHighlightingTest extends GithubSbtAllProjectHighli
     "client/src/main/scala/scalafiddle/client/component/FiddleEditor.scala" -> Set((14771, 14778)),
     "server/src/main/scala/controllers/SocialAuthController.scala" -> Set(),
     "server/src/main/scala/controllers/Application.scala" -> Set(),
+    "server/src/test/scala/scalafiddle/server/LibrarianSpec.scala" -> Set((307, 346)),
   )
 }
