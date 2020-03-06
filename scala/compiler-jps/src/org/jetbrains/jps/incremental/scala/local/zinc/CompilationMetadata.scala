@@ -5,17 +5,16 @@ package zinc
 import java.io.{PrintWriter, StringWriter}
 import java.util.ServiceLoader
 
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc.Analysis
 import xsbti.compile.{AnalysisContents, AnalysisStore, CompileResult, MiniSetup}
-import Utils._
-import org.jetbrains.annotations.Nls
-import org.jetbrains.jps.incremental.scala.JpsBundle
-import org.jetbrains.plugins.scala.compiler.data.CompilationData
 
+import scala.collection.JavaConverters._
 import scala.util.Try
 import scala.util.control.NonFatal
-import scala.collection.JavaConverters._
 
 case class CompilationMetadata(previousAnalysis: Analysis,
                                previousSetup: Option[MiniSetup],
@@ -85,14 +84,13 @@ object CompilationMetadata {
         result match {
           case Some(content: AnalysisContents) =>
             CompilationMetadata(content.getAnalysis.asInstanceOf[Analysis], Some(content.getMiniSetup), cacheStats(description, isCached = true))(cacheProviders)
-          case Some(badFormat) =>
+          case Some(badFormat: AnyRef) =>
             val cacheResultClass = badFormat.getClass.getName
-            client.warning(JpsBundle.message("unrecognized.cache.format", badFormat, cacheResultClass))\
-            val noCacheMsg = JpsBundle.message("no.cache")
-            notUseCache(noCacheMsg + s" badFormat ($cacheResultClass): $description")
+            client.warning(JpsBundle.message("unrecognized.cache.format", badFormat, cacheResultClass))
+            notUseCache(JpsBundle.message("no.cache") + s" badFormat ($cacheResultClass): $description")
 
           case _ =>
-            notUseCache(noCacheMsg +s" $description")
+            notUseCache(JpsBundle.message("no.cache") +s" $description")
         }
       case _ =>
         notUseCache(JpsBundle.message("no.cache.found"))

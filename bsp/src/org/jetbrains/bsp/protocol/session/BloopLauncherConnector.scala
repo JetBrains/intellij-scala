@@ -18,7 +18,6 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
   val bloopVersion: String = BuildInfo.bloopVersion // TODO parameterize from build
   val bspVersion = "2.0.0"
 
-  //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
   override def connect(reporter: BuildReporter): Either[BspError, Builder] = {
 
     val launcher = new File(SbtUtil.getLauncherDir, "bloop-launcher.jar")

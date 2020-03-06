@@ -40,6 +40,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
+    //noinspection ScalaDeprecation
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
     val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
     else internalSdk
@@ -70,6 +71,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
     importProject()
 
     extensions.inWriteAction {
+      //noinspection ScalaDeprecation
       val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
       val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
       else internalSdk
