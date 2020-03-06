@@ -87,6 +87,7 @@ object ScaladocAction {
   // just stub entities, will never be invoked
   object ScaladocRunConfigurationFactory extends ConfigurationFactory(new ScalaConsoleConfigurationType) {
     override def createTemplateConfiguration(project: Project): RunConfiguration = new ScaladocRunConfiguration(project, null, null)
+    override def getId: String = "ScaladocRunConfigurationFactory"
   }
 
   class ScaladocRunConfiguration(project: Project,
