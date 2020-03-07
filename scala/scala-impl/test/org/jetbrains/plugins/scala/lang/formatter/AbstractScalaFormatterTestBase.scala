@@ -7,17 +7,18 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.impl.DocumentImpl
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.testFramework.LightIdeaTestCase
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase.{Action, Actions, loadFile}
+import org.jetbrains.plugins.scala.extensions.{CharSeqExt, IteratorExt, PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.{MarkersUtils, TestUtils}
 import org.junit.Assert._
 
 /**
@@ -28,7 +29,6 @@ import org.junit.Assert._
  */
 // NOTE: initially was almost duplicate from Java
 abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
-  var myTextRanges: Seq[TextRange] = Seq()
 
   protected def getCommonSettings = getSettings.getCommonSettings(ScalaLanguage.INSTANCE)
   protected def getScalaSettings = getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -40,41 +40,44 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   protected def indentOptions = getCommonSettings
   protected def settings = getCommonSettings
 
+  implicit protected def project: Project = getProject
+
+  private def codeStyleManager(implicit project: Project): CodeStyleManager =
+    CodeStyleManager.getInstance(project)
+
   override protected def setUp(): Unit = {
     super.setUp()
     TestUtils.disableTimerThread()
   }
 
+  import scala.collection.JavaConverters.seqAsJavaList
+
+  private val Actions: Map[Action, TestFormatAction] = Map(
+    Action.Reformat -> ((file, ranges) => {
+      codeStyleManager.reformatText(file, seqAsJavaList(ranges))
+    }),
+    Action.Indent -> ((file, ranges) => {
+      ranges match {
+        case head :: Nil => codeStyleManager.adjustLineIndent(file, head.getStartOffset)
+        case _           => throw new UnsupportedOperationException("Adjusting indents for a collection of ranges is not supported in tests.")
+      }
+    })
+  )
+
   def doTest(): Unit =
     doTest(getTestName(false) + ".scala", getTestName(false) + "_after.scala")
 
   def doTest(fileNameBefore: String, fileNameAfter: String): Unit =
-    doTextTest(
-      Action.Reformat,
-      loadFile(fileNameBefore),
-      loadFile(fileNameAfter)
-    )
+    doTextTest(Action.Reformat, loadFile(fileNameBefore), loadFile(fileNameAfter))
 
   def doTextTest(text: String, textAfter: String): Unit =
     doTextTest(text, textAfter, 1)
 
   def doTextTest(text: String, textAfter: String, repeats: Int): Unit =
-    doTextTest(
-      Action.Reformat,
-      text.withNormalizedSeparator,
-      textAfter.withNormalizedSeparator,
-      AbstractScalaFormatterTestBase.TempFileName,
-      repeats
-    )
+    doTextTest(TestData.reformat(text, textAfter, repeats))
 
   def doTextTest(text: String, textAfter: String, fileName: String): Unit =
-    doTextTest(
-      Action.Reformat,
-      text.withNormalizedSeparator,
-      textAfter.withNormalizedSeparator,
-      fileName,
-      actionRepeats = 1
-    )
+    doTextTest(TestData.reformat(text, textAfter, fileName))
 
   def doTextTest(value: String): Unit =
     doTextTest(value, value)
@@ -83,43 +86,91 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doTextTest(value, value, actionRepeats)
 
   private def doTextTest(action: Action, text: String, textAfter: String): Unit =
-    doTextTest(action, text, textAfter, AbstractScalaFormatterTestBase.TempFileName, 1)
+    doTextTest(TestData(text, textAfter, TempFileName, action, 1))
 
-  private def doTextTest(
-    action: Action,
-    text: String,
-    textAfter: String,
-    fileName: String,
-    actionRepeats: Int
-  ): Unit = {
-    assertTrue("action should be applied at least once", actionRepeats >= 1)
+  /**
+   * For a given selection create all possible selections text ranges with borders leaf elements ranges borders.
+   * For each selection runs a formatting test and ensures it doesn't break the code.
+   * USE WITH CAUTIONS: the amount of selections grows very fast depending on the amount of inner elements.
+   * NOTE: for now it only supports selection of a whole valid node
+   */
+  protected def doAllRangesTextTest(text: String): Unit = {
+    val (textClean, selections) = MarkersUtils.extractSequentialMarkers(text.withNormalizedSeparator)
+    val selection: TextRange = selections match {
+      case head :: Nil => head
+      case Nil         => TextRange.create(0, textClean.length)
+      case other       => fail(s"expecting single range for all ranges test, but got: $other").asInstanceOf[Nothing]
+    }
 
-    if (actionRepeats > 1 && myTextRanges.nonEmpty)
-      fail("for now an action can not be applied multiple times for selection")
+    val file = createFile(TempFileName, textClean)
+    val startElement = file.findElementAt(selection.getStartOffset)
+    //val endElement = file.findElementAt(selection.getEndOffset)
+    val element = // select non-leaf element
+      startElement.withParents.takeWhile(_.startOffset == startElement.startOffset).lastOption.get
 
-    val file = createFile(fileName, text)
+    val allRanges = allPossibleSubRanges(element)
+
+    println(s"allRanges.size: ${allRanges.size}")
+    if (allRanges.size > 1500)
+      fail(s"too many ranges: ${allRanges.size}")
+
     val manager  = PsiDocumentManager.getInstance(getProject)
-    val document = manager.getDocument(file)
-    if (document == null)
-      fail("Don't expect the document to be null")
-
-    runCommandInWriteAction(() => {
-      document.replaceString(0, document.getTextLength, text)
-      manager.commitDocument(document)
-      for (_ <- 0 until actionRepeats) {
-        try {
-          if (myTextRanges.size > 1) {
-            Actions(action).run(file, myTextRanges)
-          } else {
-            val rangeToUse = myTextRanges.headOption.getOrElse(file.getTextRange)
-            Actions(action).run(file, rangeToUse.getStartOffset, rangeToUse.getEndOffset)
-          }
+    val document = manager.getDocument(file).ensuring(_ != null, "Don't expect the document to be null")
+    for { range <- allRanges } {
+      try {
+        runCommandInWriteAction(() => try {
+          Actions(Action.Reformat).run(file, Seq(range))
         } catch {
           case e: IncorrectOperationException =>
             fail(e.getLocalizedMessage)
-        }
+        }, "", "")
+        val expected = prepareText(textClean)
+        assertEquals(expected, prepareText(document.getText))
+        manager.commitDocument(document)
+        assertEquals(expected, prepareText(file.getText))
+      } catch {
+        case t: Throwable =>
+          System.err.println(s"range: $range")
+          System.err.println(s"text: ${textClean.substring(range)}")
+          throw t
       }
+    }
+  }
+
+  private def allPossibleSubRanges(element: PsiElement): Seq[TextRange] = {
+    def collectRanges(el: PsiElement): Iterator[TextRange] =
+      Iterator(el.getTextRange) ++ el.children.flatMap(collectRanges)
+
+    val allChildRanges = collectRanges(element).toSeq
+    val allBorders = allChildRanges.flatMap(r => Seq(r.getStartOffset, r.getEndOffset)).sorted.distinct.toIndexedSeq
+    for {
+      from <- allBorders.indices.dropRight(1)
+      to   <- from + 1 until allBorders.size
+    } yield new TextRange(allBorders(from) ,allBorders(to))
+  }
+
+  private def doTextTest(testData: TestData): Unit = {
+    val TestData(textBefore, textAfter, fileName, action, selectedRanges, actionRepeats) = testData
+
+    assertTrue("action should be applied at least once", actionRepeats >= 1)
+    if (actionRepeats > 1 && selectedRanges.nonEmpty)
+      fail("for now an action can not be applied multiple times for selection")
+
+    val file = createFile(fileName, textBefore)
+    val manager  = PsiDocumentManager.getInstance(getProject)
+    val document = manager.getDocument(file)ensuring(_ != null, "Don't expect the document to be null")
+
+    runCommandInWriteAction(() => try {
+      for (_ <- 0 until actionRepeats) {
+        val ranges = if (selectedRanges.nonEmpty) selectedRanges else Seq(file.getTextRange)
+        Actions(action).run(file, ranges)
+      }
+    } catch {
+      case e: IncorrectOperationException =>
+        fail(e.getLocalizedMessage)
     }, "", "")
+
+
     assertEquals(prepareText(textAfter), prepareText(document.getText))
     manager.commitDocument(document)
     assertEquals(prepareText(textAfter), prepareText(file.getText))
@@ -142,40 +193,40 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     }, name, groupId)
 }
 
-object AbstractScalaFormatterTestBase {
-  private val TempFileName = "A.scala"
+private object AbstractScalaFormatterTestBase {
+  val TempFileName = "A.scala"
 
-  private sealed trait Action
-  private object Action {
+  sealed trait Action
+  object Action {
     case object Reformat extends Action
     case object Indent extends Action
   }
 
-  private trait TestFormatAction {
-    def run(psiFile: PsiFile, startOffset: Int, endOffset: Int): Unit
-    def run(psiFile: PsiFile, formatRanges: Seq[TextRange]): Unit
-  }
-
-  import scala.collection.JavaConverters.seqAsJavaList
-
-  private val Actions: Map[Action, TestFormatAction] = Map(
-    Action.Reformat -> new AbstractScalaFormatterTestBase.TestFormatAction() {
-      override def run(psiFile: PsiFile, startOffset: Int, endOffset: Int): Unit =
-        CodeStyleManager.getInstance(psiFile.getProject).reformatText(psiFile, startOffset, endOffset)
-
-      override def run(psiFile: PsiFile, formatRanges: Seq[TextRange]): Unit =
-        CodeStyleManager.getInstance(psiFile.getProject).reformatText(psiFile, seqAsJavaList(formatRanges))
-    },
-    Action.Indent -> new AbstractScalaFormatterTestBase.TestFormatAction() {
-      override def run(psiFile: PsiFile, startOffset: Int, endOffset: Int): Unit =
-        CodeStyleManager.getInstance(psiFile.getProject).adjustLineIndent(psiFile, startOffset)
-
-      override def run(psiFile: PsiFile, formatRanges: Seq[TextRange]): Unit =
-        throw new UnsupportedOperationException("Adjusting indents for a collection of ranges is not supported in tests.")
-    }
+  case class TestData(
+    textBefore: String,
+    textAfter: String,
+    fileName: String,
+    action: Action,
+    ranges: Seq[TextRange],
+    actionRepeats: Int
   )
 
-  private def loadFile(name: String) = {
+  object TestData {
+    def apply(before: String, after: String, fileName: String, action: Action, actionRepeats: Int): TestData = {
+      val (beforeWithoutMarkers, selectedTextRanges) = MarkersUtils.extractMarkers(before.withNormalizedSeparator)
+      val (afterWithoutMarkers, _) = MarkersUtils.extractMarkers(after.withNormalizedSeparator)
+      TestData(beforeWithoutMarkers, afterWithoutMarkers, fileName, action, selectedTextRanges, actionRepeats)
+    }
+    def reformat(before: String, after: String): TestData = TestData(before, after, TempFileName, Action.Reformat, 1)
+    def reformat(before: String, after: String, repeats: Int): TestData = TestData(before, after, TempFileName, Action.Reformat, repeats)
+    def reformat(before: String, after: String, fileName: String): TestData = TestData(before, after, fileName, Action.Reformat, 1)
+  }
+
+  private trait TestFormatAction {
+    def run(file: PsiFile, ranges: Seq[TextRange]): Unit
+  }
+
+  private def loadFile(name: String): String = {
     val fullName = (TestUtils.getTestDataPath + "/psi/formatter") + File.separatorChar + name
     val text = new String(FileUtil.loadFileText(new File(fullName)))
     text.withNormalizedSeparator

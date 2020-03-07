@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
 
-import org.jetbrains.plugins.scala.lang.formatter.tests.SelectionTest
+import org.jetbrains.plugins.scala.util.Markers
 
 //noinspection RedundantBlock
-class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
+class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
 
   def testExprSelection(): Unit = {
     val before =
@@ -974,8 +974,8 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
-  def testScConstructorPattern_SCL15406(): Unit = {
-    val before =
+  def testScConstructorPattern_SCL15406(): Unit =
+    doTextTest(
       s"""object Test {
          |  sealed trait SuperName
          |  case class Name(firstName: String, lastName: String) extends SuperName
@@ -988,8 +988,45 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
          |  }
          |}
       """.stripMargin
-    doTextTest(before)
-  }
+    )
+
+  def testScConstructorPattern_SCL15406_AllRanges(): Unit =
+    doAllRangesTextTest(
+      s"""object Test {
+         |  sealed trait SuperName
+         |  case class Name(firstName: String, lastName: String) extends SuperName
+         |
+         |  ${startMarker}def behavior(sn: SuperName): String = {
+         |    sn match {
+         |      case Name(firstName, lastName) =>
+         |        s"$$firstName$$lastName"
+         |    }
+         |  }${endMarker}
+         |}
+      """.stripMargin
+    )
+
+  def testScConstructorPattern_SCL15406_1(): Unit =
+    doTextTest(
+      s"""object Test extends App {
+         |  val some = Some(0)
+         |  some match {
+         |    case Some(test) => ${startMarker}test${endMarker} + 1
+         |  }
+         |}
+         |""".stripMargin
+    )
+
+  def testScConstructorPattern_SCL15406_1_AllRanges(): Unit =
+    doAllRangesTextTest(
+      s"""object Test extends App {
+         |  val some = Some(0)
+         |  some match {
+         |    case Some(test) => test + 1
+         |  }
+         |}
+         |""".stripMargin
+    )
 
   def testClassName_SCL15338(): Unit = {
     doTextTest(
