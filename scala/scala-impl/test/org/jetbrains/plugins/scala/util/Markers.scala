@@ -61,7 +61,7 @@ trait Markers {
   }
 
   def extractSequentialMarkers(inputText: String): (String, Seq[TextRange]) =
-    MarkersUtils.extractSequentialMarkers(inputText, startMarker, endMarker)
+    extractSequentialMarkers(inputText, startMarker, endMarker)
 
   private def sortMarkers(sorted: List[(String, Int)], offset: Int = 0): List[(String, Int)] = {
     sorted match {
@@ -69,10 +69,8 @@ trait Markers {
       case _ => sorted
     }
   }
-}
 
 
-object MarkersUtils {
 
   /**
    * Used to extract ranges that do not do not intersect
@@ -185,3 +183,5 @@ object MarkersUtils {
       case _ =>
     }
 }
+
+object MarkersUtils extends Markers

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.notification._
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
@@ -51,7 +52,6 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
 
   override def process(element: ASTNode, range: TextRange): TextRange = {
     val psiFile = Option(element.getPsi).flatMap(_.getContainingFile.toOption)
-
     val useScalaFmt = psiFile.exists(CodeStyle.getCustomSettings(_, classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER)
     if (!useScalaFmt) return range
 
@@ -107,16 +107,19 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def formatIfRequired(file: PsiFile, range: TextRange): Unit = {
-    val (cachedRange, cachedFileTimeStamp, cachedConfigTimestamp) = file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp, None))
+    val (cachedRange, cachedFileTimeStamp, cachedConfigTimestamp) =
+      file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp, None))
 
     val (config, configTimestamp) = ScalafmtDynamicConfigService.instanceIn(file).configForFileWithTimestamp(file) match {
       case Some(result) => result
-      case None => return
+      case None =>
+        return
     }
-    if (cachedFileTimeStamp == file.getModificationStamp &&
+    val nothingChanged = cachedFileTimeStamp == file.getModificationStamp &&
       cachedRange.contains(range) &&
       cachedConfigTimestamp == configTimestamp
-    ) return
+    if (nothingChanged && !ApplicationManager.getApplication.isUnitTestMode)
+      return
 
     val rangeUpdated = fixRangeStartingOnPsiElement(file, range)
 
@@ -170,8 +173,13 @@ object ScalaFmtPreFormatProcessor {
       }
 
     val scalaFmt: ScalafmtReflect = config.fmtReflect
-    scalaFmt.tryFormat(wrappedCode.text, config).toOption.map { formattedText =>
-      wrappedCode.withText(formattedText)
+    scalaFmt.tryFormat(wrappedCode.text, config) match {
+      case Left(value) =>
+        if (ApplicationManager.getApplication.isUnitTestMode)
+          throw value.cause
+        None
+      case Right(formattedText)             =>
+        Some(wrappedCode.withText(formattedText))
     }
   }
 

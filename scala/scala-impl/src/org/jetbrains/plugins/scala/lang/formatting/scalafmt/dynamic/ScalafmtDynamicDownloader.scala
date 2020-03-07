@@ -58,7 +58,7 @@ object ScalafmtDynamicDownloader {
   case class DownloadSuccess(override val version: String, jarUrls: Seq[URL]) extends DownloadResult
   case class DownloadFailure(override val version: String, cause: Throwable) extends DownloadResult
 
-  abstract class DownloadProgressListener {
+  trait DownloadProgressListener {
     def progressUpdate(message: String): Unit
     def doProgress(): Unit = ()
   }

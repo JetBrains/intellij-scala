@@ -32,7 +32,7 @@ object ScalaFmtTestBase {
     val downloadingMessage = s"Downloading default scalafmt version $DefaultVersion"
     log(s"[START] $downloadingMessage")
     val stringToUnit: DownloadProgressListener = progressMessage => {
-      log(progressMessage)
+      //log(progressMessage) // uncomment to test
     }
     ScalafmtDynamicService.instance.ensureVersionIsResolved(DefaultVersion, stringToUnit)
     log(s"[END] $downloadingMessage")
