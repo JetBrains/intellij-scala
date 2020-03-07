@@ -28,9 +28,10 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScConstructorPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -152,10 +153,10 @@ object ScalaFmtPreFormatProcessor {
 
     if (rangeStartsOnPsiElement) {
       val prev = PsiTreeUtil.prevLeaf(startElement, true)
-      if (prev == null || (prev.isInstanceOf[PsiWhiteSpace] && !prev.getText.contains("\n"))) {
-        range
-      } else {
+      if (prev != null && prev.isInstanceOf[PsiWhiteSpace]) {
         new TextRange(prev.getTextRange.getEndOffset - 1, range.getEndOffset)
+      } else {
+        range
       }
     } else {
       range
@@ -175,7 +176,7 @@ object ScalaFmtPreFormatProcessor {
     val scalaFmt: ScalafmtReflect = config.fmtReflect
     scalaFmt.tryFormat(wrappedCode.text, config) match {
       case Left(value) =>
-        if (ApplicationManager.getApplication.isUnitTestMode)
+        if (ApplicationManager.getApplication.isUnitTestMode || true)
           throw value.cause
         None
       case Right(formattedText)             =>
@@ -309,8 +310,8 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def attachFormattedCode(elements: Seq[PsiElement], config: ScalafmtDynamicConfig)(implicit project: Project): Seq[(PsiElement, WrappedCode)] = {
-    val elementsWithoutWs = elements.filterNot(_.isInstanceOf[PsiWhiteSpace])
-    val elementsFormatted = elementsWithoutWs.map(el => (el, formatInSingleFile(Seq(el), config, shouldWrap = true)))
+    val elementsNonBlank = elements.filterNot(el => el.isInstanceOf[PsiWhiteSpace] || el.getTextLength == 0)
+    val elementsFormatted = elementsNonBlank.map(el => (el, formatInSingleFile(Seq(el), config, shouldWrap = true)))
     elementsFormatted.collect { case (el, Some(code)) => (el, code) }
   }
 
@@ -462,11 +463,15 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def isProperUpperLevelPsi(element: PsiElement): Boolean = element match {
-    case block: ScBlockImpl => block.getFirstChild.getNode.getElementType == ScalaTokenTypes.tLBRACE &&
-      block.getLastChild.getNode.getElementType == ScalaTokenTypes.tRBRACE
-    case _: ScBlockStatement | _: ScMember | _: PsiWhiteSpace | _: PsiComment => true
-    case l: LeafPsiElement => l.getElementType == ScalaTokenTypes.tIDENTIFIER
-    case _ => false
+    case block: ScBlockImpl =>
+      block.getFirstChild.elementType == ScalaTokenTypes.tLBRACE &&
+        block.getLastChild.elementType == ScalaTokenTypes.tRBRACE
+    case _: ScBlockStatement | _: ScMember | _: PsiWhiteSpace | _: PsiComment =>
+      !element.getParent.isInstanceOf[ScInterpolatedStringLiteral]
+    case l: LeafPsiElement =>
+      l.getElementType == ScalaTokenTypes.tIDENTIFIER
+    case _ =>
+      false
   }
 
   private def elementsInRangeWrapped(file: PsiFile, range: TextRange, selectChildren: Boolean = true)
@@ -476,9 +481,8 @@ object ScalaFmtPreFormatProcessor {
     if (startElement == null || endElement == null)
       return Seq.empty
 
-    def findProperParent(parent: PsiElement): Seq[PsiElement] = {
+    def findProperParent(parent: PsiElement): Seq[PsiElement] =
       ScalaPsiUtil.getParentWithProperty(parent, strict = false, isProperUpperLevelPsi).toList
-    }
 
     val commonParent =
       if (startElement == endElement) Option(startElement.getParent)
@@ -542,6 +546,8 @@ object ScalaFmtPreFormatProcessor {
   private def maybeRewriteElements(element: PsiElement, range: TextRange, withRewrite: List[PsiElement] = List()): List[PsiElement] = {
     if (!range.intersects(element.getTextRange)) {
       withRewrite
+    } else if (element.isInstanceOf[ScInfixExpr]) { // just run the tests...
+      element :: withRewrite
     } else if (range.contains(element.getTextRange) && isProperUpperLevelPsi(element)) {
       element :: withRewrite
     } else {

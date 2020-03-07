@@ -561,19 +561,42 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
 
   def testScl14129_spacesAroundRewrite(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
-    val before =
-      s"""
-         |class C {
-         |  def foo = $startMarker   (    1      to      42   )   +     $endMarker  11
+    doTextTest(
+      s"""class C {
+         |  def foo =  $startMarker  (    1      to      42   )   +      $endMarker 11
          |}
-       """.stripMargin
-    val after =
-      s"""
-         |class C {
-         |  def foo =    1.to(42) + 11
+         |""".stripMargin,
+      s"""class C {
+         |  def foo =    (1 to 42) + 11
          |}
-       """.stripMargin
-    doTextTest(before, after)
+         |""".stripMargin
+    )
+  }
+
+
+  def testScl14129_spacesAroundRewrite_1(): Unit = {
+    setScalafmtConfig("avoidInfix.conf")
+    doTextTest(
+      s"""class C {
+         |  def foo = $startMarker   (    1      to      42   )   +       11 $endMarker
+         |}
+         |""".stripMargin,
+      s"""class C {
+         |  def foo = (1.to(42)) + 11
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testScl14129_spacesAroundRewrite_AllRangesNoExceptions(): Unit = {
+    setScalafmtConfig("avoidInfix.conf")
+    doAllRangesTextTest(
+      s"""class C {
+         |  def foo =    (    1      to      42   )   +       11
+         |}
+         |""".stripMargin,
+      checkResult = false
+    )
   }
 
   def testSCL14031(): Unit = {
