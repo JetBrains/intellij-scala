@@ -94,7 +94,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
    * USE WITH CAUTIONS: the amount of selections grows very fast depending on the amount of inner elements.
    * NOTE: for now it only supports selection of a whole valid node
    */
-  protected def doAllRangesTextTest(text: String): Unit = {
+  protected def doAllRangesTextTest(text: String, checkResult: Boolean = true): Unit = {
     val (textClean, selections) = MarkersUtils.extractSequentialMarkers(text.withNormalizedSeparator)
     val selection: TextRange = selections match {
       case head :: Nil => head
@@ -124,10 +124,12 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
           case e: IncorrectOperationException =>
             fail(e.getLocalizedMessage)
         }, "", "")
-        val expected = prepareText(textClean)
-        assertEquals(expected, prepareText(document.getText))
-        manager.commitDocument(document)
-        assertEquals(expected, prepareText(file.getText))
+        if (checkResult) {
+          val expected = prepareText(textClean)
+          assertEquals(expected, prepareText(document.getText))
+          manager.commitDocument(document)
+          assertEquals(expected, prepareText(file.getText))
+        }
       } catch {
         case t: Throwable =>
           System.err.println(s"range: $range")

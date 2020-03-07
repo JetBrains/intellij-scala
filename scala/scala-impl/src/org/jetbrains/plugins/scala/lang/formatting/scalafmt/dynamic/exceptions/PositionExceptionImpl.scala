@@ -7,7 +7,7 @@ case class PositionExceptionImpl(file: Option[Path],
                                  shortMessage: String,
                                  longMessage: String,
                                  pos: RangePosition,
-                                 cause: Throwable) extends RuntimeException {
+                                 cause: Throwable) extends RuntimeException(cause) {
   def start: Int = pos.start
   def end: Int = pos.end
   def startLine: Int = pos.startLine
