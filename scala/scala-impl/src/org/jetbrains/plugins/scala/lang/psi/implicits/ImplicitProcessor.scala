@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScAbstractType, Sc
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, ScalaResolveState, StdKinds}
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -128,9 +127,11 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
   }
 
   final def candidatesByType(expandedType: ScType): Set[ScalaResolveResult] = {
-    ImplicitProcessor.findImplicitObjects(expandedType.removeAliasDefinitions(), getPlace.resolveScope).foreach {
-      processType(_, getPlace, ScalaResolveState.empty)
-    }
+    ImplicitProcessor
+      .findImplicitObjects(expandedType.removeAliasDefinitions(), getPlace.resolveScope)
+      .foreach(objectTpe =>
+        processType(objectTpe, getPlace, ScalaResolveState.withImplicitScopeObject(objectTpe))
+      )
     candidatesS
   }
 }

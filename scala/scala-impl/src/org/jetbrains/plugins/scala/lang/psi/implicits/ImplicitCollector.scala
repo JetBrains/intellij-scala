@@ -322,7 +322,6 @@ class ImplicitCollector(place: PsiElement,
     hadDependents:     Boolean
   ): Option[ScalaResolveResult] = {
     val fun = c.element.asInstanceOf[ScFunction]
-    val subst = c.substitutor
 
     def wrongTypeParam(result: ImplicitResult): Some[ScalaResolveResult] = {
       Some(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = result))

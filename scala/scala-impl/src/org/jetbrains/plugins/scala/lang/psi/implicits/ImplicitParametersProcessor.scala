@@ -16,15 +16,18 @@ private[implicits] final class ImplicitParametersProcessor(override val getPlace
                                                            override protected val withoutPrecedence: Boolean)
   extends ImplicitProcessor(getPlace, withoutPrecedence) {
 
-  override protected def execute(namedElement: PsiNamedElement)
-                                (implicit state: ResolveState): Boolean = {
-
-    if (isImplicit(namedElement) && isAccessible(namedElement, getPlace)) {
+  override protected def execute(
+    namedElement: PsiNamedElement
+  )(implicit
+    state: ResolveState
+  ): Boolean = {
+    if (isImplicit(namedElement) && isAccessible(namedElement)) {
       addResult(
         new ScalaResolveResult(
           namedElement,
           state.substitutorWithThisType,
-          importsUsed = state.importsUsed
+          importsUsed         = state.importsUsed,
+          implicitScopeObject = state.implicitScopeObject
         )
       )
     }
@@ -35,9 +38,8 @@ private[implicits] final class ImplicitParametersProcessor(override val getPlace
   override def candidatesS: Set[ScalaResolveResult] =
     super.candidatesS.filterNot(c => lowerInFileWithoutType(c) || isContextAncestor(c))
 
-  private def isAccessible(namedElement: PsiNamedElement, place: PsiElement): Boolean = {
+  private def isAccessible(namedElement: PsiNamedElement): Boolean =
     isPredefPriority || ImplicitProcessor.isAccessible(namedElement, getPlace)
-  }
 
   private def lowerInFileWithoutType(c: ScalaResolveResult) = {
     def contextFile(e: PsiElement) = Option(PsiTreeUtil.getContextOfType(e, classOf[PsiFile]))
@@ -51,7 +53,9 @@ private[implicits] final class ImplicitParametersProcessor(override val getPlace
 
     c.getElement match {
       case fun: ScFunction if fun.returnTypeElement.isEmpty => lowerInFile(fun)
-      case pattern@ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) if pd.typeElement.isEmpty => lowerInFile(pattern)
+      case pattern @ ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)
+          if pd.typeElement.isEmpty =>
+        lowerInFile(pattern)
       case _ => false
     }
   }
