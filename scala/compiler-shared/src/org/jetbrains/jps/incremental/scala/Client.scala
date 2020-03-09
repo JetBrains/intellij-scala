@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 
 import java.io.File
 
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, CompileServerState}
 
