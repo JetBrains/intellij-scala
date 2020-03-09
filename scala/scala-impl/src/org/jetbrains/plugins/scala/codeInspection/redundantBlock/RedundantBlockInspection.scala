@@ -62,9 +62,10 @@ object RedundantBlockInspection {
     if (probablyRedundant) {
       val next: PsiElement = block.getNextSibling
       val parent = block.getParent
+      val hasWhitespacesInBlock = block.getChildren.exists(_.isInstanceOf[PsiWhiteSpace])
       parent match {
         case _: ScArgumentExprList => false
-        case _ if next == null => true
+        case _ if next == null && !hasWhitespacesInBlock => true
         case _: ScInterpolatedStringLiteral =>
           val text = child.getText
           val nextLetter = next.getText.headOption.getOrElse(' ')
