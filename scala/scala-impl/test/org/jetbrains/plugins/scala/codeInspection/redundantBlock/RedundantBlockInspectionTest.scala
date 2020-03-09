@@ -49,27 +49,27 @@ class RedundantBlockInspectionTest extends ScalaInspectionTestBase {
        |""".stripMargin
   )
 
-  def test_identifier_in_block_with_preceding_spaces(): Unit = checkTextHasError(
+  def test_identifier_in_block_with_preceding_spaces(): Unit = checkTextHasNoErrors(
     s"""
-       |$START{$END $START${END}x$START}$END
+       |{ x}
        |""".stripMargin
   )
 
-  def test_identifier_in_block_with_following_spaces(): Unit = checkTextHasError(
+  def test_identifier_in_block_with_following_spaces(): Unit = checkTextHasNoErrors(
     s"""
-       |$START{${END}x${START}${END} $START}$END
+       |{x }
        |""".stripMargin
   )
 
-  def test_identifier_in_block_surrounded_by_spaces(): Unit = checkTextHasError(
+  def test_identifier_in_block_surrounded_by_spaces(): Unit = checkTextHasNoErrors(
     s"""
-       |$START{${END} ${START}x$END $START}$END
+       |{ x }
        |""".stripMargin
   )
 
   def test_this(): Unit = checkTextHasError(
     s"""
-       |$START{${END} ${START}this$END $START}$END
+       |$START{${END}t${START}hi${END}s$START}$END
        |""".stripMargin
   )
 
