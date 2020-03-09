@@ -4,7 +4,7 @@ package codeInspection.redundantBlock
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.parentheses.registerRedundantParensProblem
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection.{InCaseClauseQuickFix, UnwrapExpressionQuickFix}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
@@ -24,7 +24,7 @@ class RedundantBlockInspection extends AbstractInspection {
       if block.hasRBrace && block.getFirstChild.textMatches("{") &&
         blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.isInstanceOf[ScCaseClauses]) =>
       holder.registerProblem(block, new TextRange(0, 1), ScalaInspectionBundle.message("redundant.braces.in.case.clause"), new InCaseClauseQuickFix(block))
-    case block: ScBlockExpr if block.exprs.length == 1 =>
+    case block: ScBlockExpr if block.statements.length == 1 =>
       if (RedundantBlockInspection.isRedundantBlock(block)) {
         registerRedundantParensProblem(ScalaInspectionBundle.message("the.enclosing.block.is.redundant"), block, new UnwrapExpressionQuickFix(block))
       }

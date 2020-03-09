@@ -97,6 +97,12 @@ class RedundantBlockInspectionTest extends ScalaInspectionTestBase {
     )
   }
 
+  def test_in_string_with_multi_statement(): Unit = checkTextHasNoErrors(
+    """
+      |s"before ${def x = 3; x} after"
+      |""".stripMargin
+  )
+
   def test_in_interpolated_string_with_following_identifier(): Unit = checkTextHasNoErrors(
     """
       |s"before ${x}after"
