@@ -22,8 +22,11 @@ final class ImplicitConversionProcessor(override val getPlace: PsiElement,
 
   private val functionType = getPlace.elementScope.function1Type(level = 0)
 
-  override protected def execute(namedElement: PsiNamedElement)
-                                (implicit state: ResolveState): Boolean = {
+  override protected def execute(
+    namedElement: PsiNamedElement
+  )(implicit
+    state: ResolveState
+  ): Boolean = {
 
     if (ImplicitConversionProcessor.applicable(namedElement, getPlace)) {
       namedElement match {
@@ -36,22 +39,39 @@ final class ImplicitConversionProcessor(override val getPlace: PsiElement,
     true
   }
 
-  private def addIfHasFunctionType(namedElement: PsiNamedElement with Typeable)
-                                  (implicit state: ResolveState): Unit = {
+  private def addIfHasFunctionType(
+    namedElement: PsiNamedElement with Typeable
+  )(implicit
+    state: ResolveState
+  ): Unit = {
     val subst: ScSubstitutor = state.substitutorWithThisType
-    val elemType = subst(namedElement.`type`().getOrAny)
+    val elemType             = subst(namedElement.`type`().getOrAny)
 
     if (functionType.exists(elemType.conforms(_))) {
-      addResult(new ScalaResolveResult(namedElement, subst, state.importsUsed, fromType = state.fromType))
+      addResult(
+        new ScalaResolveResult(
+          namedElement,
+          subst,
+          state.importsUsed,
+          fromType            = state.fromType,
+          implicitScopeObject = state.implicitScopeObject
+        )
+      )
     }
   }
 
-  private def addIfImplicitConversion(function: ScFunction)
-                                     (implicit state: ResolveState): Unit = {
+  private def addIfImplicitConversion(function: ScFunction)(implicit state: ResolveState): Unit =
     if (function.isImplicitConversion) {
-      addResult(new ScalaResolveResult(function, state.substitutorWithThisType, state.importsUsed, fromType = state.fromType))
+      addResult(
+        new ScalaResolveResult(
+          function,
+          state.substitutorWithThisType,
+          state.importsUsed,
+          fromType            = state.fromType,
+          implicitScopeObject = state.implicitScopeObject
+        )
+      )
     }
-  }
 }
 
 

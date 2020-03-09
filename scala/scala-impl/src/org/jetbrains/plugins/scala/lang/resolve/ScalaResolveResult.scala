@@ -51,7 +51,8 @@ class ScalaResolveResult(
   val implicitParameters:       Seq[ScalaResolveResult] = Seq.empty, // TODO Arguments and parameters should not be used inerchangeably
   val implicitReason:           ImplicitResult = NoResult,
   val implicitSearchState:      Option[ImplicitState] = None,
-  val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None
+  val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None,
+  val implicitScopeObject:      Option[ScType] = None
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -95,40 +96,78 @@ class ScalaResolveResult(
 
   def isImplicitParameterProblem: Boolean = isNotFoundImplicitParameter || isAmbiguousImplicitParameter
 
-  def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems,
-           defaultParameterUsed: Boolean = defaultParameterUsed,
-           innerResolveResult: Option[ScalaResolveResult] = innerResolveResult,
-           tuplingUsed: Boolean = tuplingUsed,
-           isAssignment: Boolean = isAssignment,
-           notCheckedResolveResult: Boolean = notCheckedResolveResult,
-           isAccessible: Boolean = isAccessible, resultUndef: Option[ConstraintSystem] = None,
-           nameArgForDynamic: Option[String] = nameArgForDynamic,
-           isForwardReference: Boolean = isForwardReference,
-           implicitParameterType: Option[ScType] = implicitParameterType,
-           importsUsed: Set[ImportUsed] = importsUsed,
-           implicitParameters: Seq[ScalaResolveResult] = implicitParameters,
-           implicitReason: ImplicitResult = implicitReason,
-           implicitSearchState: Option[ImplicitState] = implicitSearchState,
-           unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters): ScalaResolveResult =
-    new ScalaResolveResult(element, subst, importsUsed, renamed, problems,
-      implicitConversion, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
-      isNamedParameter, fromType, tuplingUsed, isAssignment, notCheckedResolveResult,
-      isAccessible, resultUndef, nameArgForDynamic = nameArgForDynamic, isForwardReference = isForwardReference,
-      implicitParameterType = implicitParameterType, implicitParameters = implicitParameters,
-      implicitReason = implicitReason, implicitSearchState = implicitSearchState, unresolvedTypeParameters = unresolvedTypeParameters)
+  def copy(
+    subst:                    ScSubstitutor              = substitutor,
+    problems:                 Seq[ApplicabilityProblem]  = problems,
+    defaultParameterUsed:     Boolean                    = defaultParameterUsed,
+    innerResolveResult:       Option[ScalaResolveResult] = innerResolveResult,
+    tuplingUsed:              Boolean                    = tuplingUsed,
+    isAssignment:             Boolean                    = isAssignment,
+    notCheckedResolveResult:  Boolean                    = notCheckedResolveResult,
+    isAccessible:             Boolean                    = isAccessible,
+    resultUndef:              Option[ConstraintSystem]   = None,
+    nameArgForDynamic:        Option[String]             = nameArgForDynamic,
+    isForwardReference:       Boolean                    = isForwardReference,
+    implicitParameterType:    Option[ScType]             = implicitParameterType,
+    importsUsed:              Set[ImportUsed]            = importsUsed,
+    implicitParameters:       Seq[ScalaResolveResult]    = implicitParameters,
+    implicitReason:           ImplicitResult             = implicitReason,
+    implicitSearchState:      Option[ImplicitState]      = implicitSearchState,
+    unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters,
+    implicitScopeObject:      Option[ScType]             = implicitScopeObject
+  ): ScalaResolveResult =
+    new ScalaResolveResult(
+      element,
+      subst,
+      importsUsed,
+      renamed,
+      problems,
+      implicitConversion,
+      implicitType,
+      defaultParameterUsed,
+      innerResolveResult,
+      parentElement,
+      isNamedParameter,
+      fromType,
+      tuplingUsed,
+      isAssignment,
+      notCheckedResolveResult,
+      isAccessible,
+      resultUndef,
+      nameArgForDynamic        = nameArgForDynamic,
+      isForwardReference       = isForwardReference,
+      implicitParameterType    = implicitParameterType,
+      implicitParameters       = implicitParameters,
+      implicitReason           = implicitReason,
+      implicitSearchState      = implicitSearchState,
+      unresolvedTypeParameters = unresolvedTypeParameters,
+      implicitScopeObject      = implicitScopeObject
+    )
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element
   override def equals(other: Any): Boolean = other match {
     case rr: ScalaResolveResult =>
-      if (element ne rr.element) return false
-      if (renamed != rr.renamed) return false
-      if (implicitFunction != rr.implicitFunction) return false
-      innerResolveResult == rr.innerResolveResult
+        lazy val implicitScopeObjectCorresponds = {
+          val bothEmpty = implicitScopeObject.isEmpty && rr.implicitScopeObject.isEmpty
+
+          bothEmpty ||
+            (for {
+              obj1 <- implicitScopeObject
+              obj2 <- rr.implicitScopeObject
+            } yield obj1.equiv(obj2)).getOrElse(bothEmpty)
+        }
+
+      (element eq rr.element) &&
+        renamed == rr.renamed &&
+        implicitFunction == rr.implicitFunction &&
+        innerResolveResult == rr.innerResolveResult &&
+        implicitScopeObjectCorresponds
     case _ => false
   }
 
-  override def hashCode: Int = element #+ innerResolveResult #+ renamed #+ implicitFunction
+  override def hashCode: Int =
+    element #+ innerResolveResult #+ renamed #+ implicitFunction #+ implicitScopeObject
 
   override def toString: String =  {
     val name = element match {

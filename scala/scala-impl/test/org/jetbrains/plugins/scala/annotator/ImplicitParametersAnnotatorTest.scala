@@ -277,6 +277,27 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example
 class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureTestAdapter {
+  def testSCL16246(): Unit = checkTextHasNoErrors(
+    """
+      |trait Info[A] {
+      |  val value = ???
+      |}
+      |
+      |trait BaseBarObj[A] {
+      |  implicit val info: Info[A] = ???
+      |}
+      |
+      |trait BaseBar
+      |object BaseBar extends BaseBarObj[BaseBar]
+      |
+      |trait Bar  extends BaseBar
+      |object Bar extends BaseBarObj[Bar]
+      |
+      |implicit def conv(a: Int)(implicit info: Info[Bar]): Info[Bar] = ???
+      |
+      |0.value
+      |""".stripMargin
+  )
 
   def testExpectedTypeFromDifferentClause(): Unit = checkTextHasNoErrors(
     """trait Test {
