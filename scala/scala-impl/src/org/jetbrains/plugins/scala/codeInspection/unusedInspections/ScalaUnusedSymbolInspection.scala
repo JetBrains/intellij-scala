@@ -52,10 +52,13 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
           funIsPublic && param.asOptionOf[ScClassParameter].exists(p => p.isClassMember && (!p.isPrivate))
         def overridingParam(param: ScParameter): Boolean =
           param.asOptionOf[ScClassParameter].exists(isOverridingParameter)
+        def caseClassParam(param: ScParameter): Boolean =
+          param.asOptionOf[ScClassParameter].exists(_.isCaseClassVal)
         isLocalOrPrivate(fun).option(fun) ++: (
           fun.parameters
             .filterNot(_.isWildcard)
             .filter(_.isPhysical)   // context bound are desugared into parameters, for example
+            .filterNot(caseClassParam)
             .filterNot(nonPrivateClassMemberParam)
             .filterNot(overridingParam)
         )

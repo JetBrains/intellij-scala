@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.unused
 
-import com.intellij.testFramework.EditorTestUtil
-
 class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
-
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   private val p = START + "p" + END
 
@@ -153,10 +149,10 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
 
   ///////// case class parameter /////////
-  def testUnusedPrivateCaseClass(): Unit = checkTextHasError(
+  def testUnusedPrivateCaseClass(): Unit = checkTextHasNoErrors(
     s"""
        |object Global {
-       |  private case class Test($p: Int)
+       |  private case class Test(a: Int)
        |}
        |""".stripMargin
   )
@@ -269,11 +265,11 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |""".stripMargin
   )
 
-  def testNoHighlightInnerPrivateCaseClassParam(): Unit = checkTextHasError(
+  def testNoHighlightInnerPrivateCaseClassParam(): Unit = checkTextHasNoErrors(
     s"""
       |object Test {
       |  private object Inner {
-      |    case class CC($p: Int)
+      |    case class CC(a: Int)
       |  }
       |
       |  Inner
@@ -284,7 +280,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   def testHighlightCaseClassParamInPrivateTopLevelObject(): Unit = checkTextHasNoErrors(
     s"""
        |private object Test {
-       |  case class CC($p: Int)
+       |  case class CC(a: Int)
        |}
        |""".stripMargin
   )
