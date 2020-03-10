@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
   * Date: 6/15/15
   */
 abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with MatcherAssertions {
-
-
-
   def testBasicGenerics(): Unit = {
     val code =
       """
@@ -765,6 +762,75 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
       """.stripMargin
     checkCodeHasNoErrors(code, None)
   }
+
+  def testSCL17054(): Unit = checkCodeHasNoErrors(
+    """
+      |class Action[T]
+      |trait Callable[T] {
+      |  def call(): T
+      |}
+      |
+      |def nonBlocking[T](task: Callable[T]): Action[T] =
+      |  new Action[T]
+      |
+      |val action = nonBlocking(() => 123) // should be Action[String]
+      |
+      |def foo[T](action: Action[T]) = ???
+      |
+      |foo[Int](action)
+      |""".stripMargin
+  )
+
+  def testSCL17170(): Unit = checkCodeHasNoErrors(
+    """
+      |sealed trait T
+      |object T {
+      |  case object A extends T
+      |  case object B extends T
+      |}
+      |trait Action {
+      |  def run(file: String, list: Seq[Int]): Unit
+      |}
+      |val x: Map[T, Action] = Map(
+      |  T.A -> ((_, _) => println(42)),
+      |  T.B -> ((_, _) => println(23))
+      |)
+      |class X
+      |val y: Map[X, Action] = Map(
+      |  new X -> ((_, _) => println(42)),
+      |  new X -> ((_, _) => println(23))
+      |)
+      |""".stripMargin
+  )
+
+  def testSCL16596(): Unit = checkCodeHasNoErrors(
+    """
+      |trait Callback {
+      |  def foo(): Unit
+      |}
+      |def method1(c: Callback): Unit = ()
+      |def method2(c: Option[Callback]): Unit = ()
+      |method1(() => ())
+      |method2(Some(() => ()))
+      |""".stripMargin
+  )
+
+  def testSCL11156(): Unit = checkCodeHasNoErrors(
+    """
+      |trait Parser[T] extends Function[String, Option[(T, String)]]
+      |
+      |object Parser {
+      |  val item: Parser[Char] = {
+      |    case "" => None
+      |    case v => Some((v.charAt(0), v.substring(1)))
+      |  }
+      |}
+      |
+      |object Test extends App {
+      |  println(Parser.item apply "abcdef")
+      |}
+      |""".stripMargin
+  )
 }
 
 class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {

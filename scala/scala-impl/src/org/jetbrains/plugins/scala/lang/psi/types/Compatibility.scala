@@ -8,9 +8,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -80,8 +78,7 @@ object Compatibility {
       case _               => None
     }
 
-    final case class OfType(tpe: ScType, place: Option[PsiElement])(implicit ctx: ProjectContext)
-        extends Expression {
+    final case class OfType(tpe: ScType, place: Option[PsiElement]) extends Expression {
       private def default: ExpressionTypeResult = ExpressionTypeResult(Right(tpe))
 
       override def getTypeAfterImplicitConversion(
@@ -131,24 +128,42 @@ object Compatibility {
       fromUnderscore: Boolean,
       checkResolve:   Boolean = true
     ): Option[ExpressionTypeResult] = {
-      def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
-        def expectedResult = Some(ExpressionTypeResult(Right(pt)))
+      def expectedResult(subst: ScSubstitutor): ScExpression.ExpressionTypeResult =
+        ExpressionTypeResult(Right(subst(pt)))
 
+      def conformanceSubst(tpe: ScType, methodType: ScType): Option[ScSubstitutor] = {
+        val withUndefParams = methodType.updateLeaves {
+          case abs: ScAbstractType => UndefinedType(abs.typeParameter)
+        }
+
+        val conformance = tpe.conforms(withUndefParams, ConstraintSystem.empty)
+
+        if (conformance.isLeft) None
+        else
+          conformance.constraints
+            .substitutionBounds(canThrowSCE = false)
+            .map(_.substitutor)
+      }
+
+      def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] =
         tp match {
           case FunctionType(_, params) if place.isSAMEnabled =>
             SAMUtil.toSAMType(pt, place) match {
-              case Some(methodType) if tp.conforms(methodType) => expectedResult
-              case Some(methodType @ FunctionType(retTp, _))
-                  if etaExpansionHappened && retTp.isUnit =>
-                val newTp = FunctionType(Unit, params)
+              case Some(methodType @ FunctionType(retTpe, _)) =>
+                val maybeSubst = conformanceSubst(tp, methodType)
 
-                if (newTp.conforms(methodType)) expectedResult
-                else None
+                maybeSubst match {
+                  case Some(subst) => Option(expectedResult(subst))
+                  case None if etaExpansionHappened && retTpe.isUnit =>
+                    val newTp    = FunctionType(Unit, params)
+                    val newSubst = conformanceSubst(newTp, methodType)
+                    newSubst.map(expectedResult)
+                  case _ => None
+                }
               case _ => None
             }
           case _ => None
         }
-      }
 
       place match {
         case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
@@ -204,15 +219,22 @@ object Compatibility {
       else throw new RuntimeException("Illegal state for seqClass variable")
     ).orElse(expr.elementScope.scalaSeqType)
 
-  def checkConformance(checkNames: Boolean,
-                       parameters: Seq[Parameter],
-                       exprs: Seq[Expression],
-                       checkWithImplicits: Boolean)
-                      (implicit project: ProjectContext): ConstraintsResult = {
-    val r = checkConformanceExt(checkNames, parameters, exprs, checkWithImplicits, isShapesResolve = false)
+  def checkConformance(
+    checkNames:         Boolean,
+    parameters:         Seq[Parameter],
+    exprs:              Seq[Expression],
+    checkWithImplicits: Boolean
+  ): ConstraintsResult = {
+    val r = checkConformanceExt(
+      checkNames,
+      parameters,
+      exprs,
+      checkWithImplicits,
+      isShapesResolve = false
+    )
 
     if (r.problems.nonEmpty) ConstraintsResult.Left
-    else r.constraints
+    else                     r.constraints
   }
 
   def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignment] = {
@@ -253,12 +275,13 @@ object Compatibility {
     problems
   }
 
-  def checkConformanceExt(checkNames: Boolean,
-                          parameters: Seq[Parameter],
-                          exprs: Seq[Expression],
-                          checkWithImplicits: Boolean,
-                          isShapesResolve: Boolean)
-                         (implicit project: ProjectContext): ConformanceExtResult = {
+  def checkConformanceExt(
+    checkNames:         Boolean,
+    parameters:         Seq[Parameter],
+    exprs:              Seq[Expression],
+    checkWithImplicits: Boolean,
+    isShapesResolve:    Boolean
+  ): ConformanceExtResult = {
     ProgressManager.checkCanceled()
     var constraintAccumulator = ConstraintSystem.empty
 

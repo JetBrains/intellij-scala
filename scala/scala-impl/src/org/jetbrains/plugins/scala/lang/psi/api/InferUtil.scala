@@ -456,22 +456,37 @@ object InferUtil {
       maybeType.map(substitutor)
     }
 
-  def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
-                         typeParams: Seq[TypeParameter],
-                         shouldUndefineParameters: Boolean = true,
-                         canThrowSCE: Boolean = false,
-                         filterTypeParams: Boolean = true): ScTypePolymorphicType = localTypeInferenceWithApplicabilityExt(
-    retType, params, exprs, typeParams, shouldUndefineParameters, canThrowSCE, filterTypeParams
-  )._1
+  def localTypeInference(
+    retType:                  ScType,
+    params:                   Seq[Parameter],
+    exprs:                    Seq[Expression],
+    typeParams:               Seq[TypeParameter],
+    shouldUndefineParameters: Boolean = true,
+    canThrowSCE:              Boolean = false,
+    filterTypeParams:         Boolean = true
+  ): ScTypePolymorphicType =
+    localTypeInferenceWithApplicabilityExt(
+      retType,
+      params,
+      exprs,
+      typeParams,
+      shouldUndefineParameters,
+      canThrowSCE,
+      filterTypeParams
+    )._1
 
   class SafeCheckException extends ControlThrowable
 
-  def localTypeInferenceWithApplicabilityExt(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
-                                             typeParams: Seq[TypeParameter],
-                                             shouldUndefineParameters: Boolean = true,
-                                             canThrowSCE: Boolean = false,
-                                             filterTypeParams: Boolean = true
-                                            ): (ScTypePolymorphicType, ConformanceExtResult) = {
+  def localTypeInferenceWithApplicabilityExt(
+    retType:                  ScType,
+    params:                   Seq[Parameter],
+    exprs:                    Seq[Expression],
+    typeParams:               Seq[TypeParameter],
+    shouldUndefineParameters: Boolean = true,
+    canThrowSCE:              Boolean = false,
+    filterTypeParams:         Boolean = true,
+    paramSubst:               Option[ScSubstitutor] = None
+  ): (ScTypePolymorphicType, ConformanceExtResult) = {
     implicit val projectContext: ProjectContext = retType.projectContext
 
     val typeParamIds = typeParams.map(_.typeParamId).toSet
@@ -479,13 +494,31 @@ object InferUtil {
 
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
-    val s: ScSubstitutor = if (shouldUndefineParameters) ScSubstitutor.bind(typeParams)(UndefinedType(_)) else ScSubstitutor.empty
-    val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
-    val paramsWithUndefTypes = params.map(p => p.copy(paramType = s(p.paramType),
-      expectedType = abstractSubst(p.paramType), defaultType = p.defaultType.map(s)))
-    val conformanceResult@ConformanceExtResult(problems, constraints, _, _) =
-      Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
-      isShapesResolve = false)
+    val undefSubst: ScSubstitutor =
+      if (shouldUndefineParameters) ScSubstitutor.bind(typeParams)(UndefinedType(_))
+      else                          ScSubstitutor.empty
+
+    val eTpeSubst = paramSubst.getOrElse(
+      ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
+    )
+
+    val paramsWithUndefTypes = params.map(
+      p =>
+        p.copy(
+          paramType    = undefSubst(p.paramType),
+          expectedType = eTpeSubst(p.paramType),
+          defaultType  = p.defaultType.map(undefSubst)
+        )
+    )
+
+    val conformanceResult @ ConformanceExtResult(problems, constraints, _, _) =
+      Compatibility.checkConformanceExt(
+        checkNames = true,
+        paramsWithUndefTypes,
+        exprs,
+        checkWithImplicits = true,
+        isShapesResolve    = false
+      )
 
     val tpe = if (problems.isEmpty) {
       constraints.substitutionBounds(canThrowSCE) match {

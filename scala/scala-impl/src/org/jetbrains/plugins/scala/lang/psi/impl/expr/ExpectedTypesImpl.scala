@@ -128,7 +128,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
   ): Option[ParameterType] = {
     import FunctionTypeMarker._
 
-    def equiv(ltpe: ScType, rtpe: ScType, falseUndef: Boolean = true): Boolean = {
+    def equiv(ltpe: ScType, rtpe: ScType): Boolean = {
       val comparingAbstractTypes = ltpe.is[ScAbstractType] && rtpe.is[ScAbstractType]
       ltpe.equiv(rtpe, ConstraintSystem.empty, falseUndef = !comparingAbstractTypes).isRight
     }
@@ -140,7 +140,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     lazy val functionLikeType  = FunctionLikeType(e)
 
     def paramTpesMatch(lhs: Seq[ScType], rhs: Seq[ScType]): Boolean =
-      lhs.isEmpty || lhs.corresponds(rhs)(equiv(_, _))
+      lhs.isEmpty || lhs.corresponds(rhs)(equiv)
 
     @tailrec
     def recur(
@@ -476,17 +476,24 @@ class ExpectedTypesImpl extends ExpectedTypes {
     def fromMethodTypeParams(params: Seq[Parameter], subst: ScSubstitutor = ScSubstitutor.empty): Option[ParameterType] = {
       val newParams =
         if (subst.isEmpty) params
-        else params.map(p => p.copy(paramType = subst(p.paramType)))
+        else
+          params.map(
+            p =>
+              p.copy(
+                paramType    = subst(p.paramType),
+                expectedType = subst(p.expectedType)
+              )
+          )
 
       val autoTupling = newParams.length == 1 && !newParams.head.isRepeated && argExprs.length > 1
 
       if (autoTupling) {
         newParams.head.paramType.removeAbstracts match {
-          case TupleType(args) => paramTypeFromExpr(expr, paramsFromTuple(args), idx, isDynamicNamed)
+          case TupleType(args) =>
+            paramTypeFromExpr(expr, paramsFromTuple(args), idx, isDynamicNamed)
           case _ => None
         }
-      }
-      else paramTypeFromExpr(expr, newParams, idx, isDynamicNamed)
+      } else paramTypeFromExpr(expr, newParams, idx, isDynamicNamed)
     }
 
     //returns properly substituted method type of `apply` method invocation and whether it's apply dynamic named
@@ -516,7 +523,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     invokedExprType match {
       case Right(ScMethodType(_, params, _)) =>
         fromMethodTypeParams(params)
-      case Right(t@ScTypePolymorphicType(ScMethodType(_, params, _), _)) =>
+      case Right(t @ ScTypePolymorphicType(ScMethodType(_, params, _), _)) =>
         val expectedType = call.flatMap(_.expectedType()).getOrElse(Any(expr))
         fromMethodTypeParams(params, t.argsProtoTypeSubst(expectedType))
       case Right(anotherType) if !forApply =>
@@ -542,7 +549,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
       if (idx >= params.length)
         if (params.nonEmpty && params.last.isRepeated) repeated
-        else (Nothing, None)
+        else                                           (Nothing, None)
       else simple
     }
 
@@ -699,10 +706,6 @@ private object ExpectedTypesImpl {
   }
 
   implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
-
-    import expr.projectContext
-    import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
-
     @CachedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], ModCount.getBlockModificationCount)
     def shapeResolveApplyMethod(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
       val applyProc =

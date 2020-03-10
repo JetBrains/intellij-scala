@@ -56,46 +56,57 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
   /**
     * See [[scala.tools.nsc.typechecker.Infer.Inferencer#protoTypeArgs]]
     */
-  def argsProtoTypeSubst(pt: ScType): ScSubstitutor = internalType match {
-    case ScMethodType(retTpe, params, _) =>
-      val subst             = ScSubstitutor.bind(typeParameters)(UndefinedType(_))
-      val retTpeConformance = subst(retTpe).isConservativelyCompatible(pt)
+  def argsProtoTypeSubst(pt: ScType): ScSubstitutor = {
+    val maybeTypeParts = internalType match {
+      case ScMethodType(retTpe, params, _) => Option((retTpe, params.map(_.paramType)))
+      case FunctionType(retTpe, params)    => Option((retTpe, params))
+      case _                               => None
+    }
 
-      if (retTpeConformance.isLeft) abstractTypeSubstitutor
-      else
-        retTpeConformance.constraints.substitutionBounds(canThrowSCE = false) match {
-          case Some(SubstitutionBounds(_, lowerMap, upperMap)) =>
-            ScSubstitutor.bind(typeParameters) { tp =>
-              val varianceInParams = params.map(_.paramType).foldLeft(Variance.Bivariant) {
-                case (acc, tpe) => acc & tp.varianceInType(tpe)
-              }
+    maybeTypeParts match {
+      case Some((retTpe, paramTypes)) =>
+        val subst             = undefinedSubstitutor
+        val retTpeConformance = subst(retTpe).isConservativelyCompatible(pt)
 
-              val bound = (lower: Boolean) => {
-                val combine: (ScType, ScType) => ScType = if (lower) _ lub _      else _ glb _
-                val map                                 = if (lower) lowerMap     else upperMap
-                val original                            = if (lower) tp.lowerType else tp.upperType
-
-                map.get(tp.typeParamId) match {
-                  case Some(b) => combine(b, original)
-                  case None    => original
+        if (retTpeConformance.isLeft) abstractTypeSubstitutor
+        else
+          retTpeConformance.constraints.substitutionBounds(canThrowSCE = false) match {
+            case Some(SubstitutionBounds(_, lowerMap, upperMap)) =>
+              ScSubstitutor.bind(typeParameters) { tp =>
+                val varianceInParams = paramTypes.foldLeft(Variance.Bivariant) {
+                  case (acc, tpe) => acc & tp.varianceInType(tpe)
                 }
+
+                val bound = (lower: Boolean) => {
+                  val combine: (ScType, ScType) => ScType = if (lower) _ lub _      else _ glb _
+                  val map                                 = if (lower) lowerMap     else upperMap
+                  val original                            = if (lower) tp.lowerType else tp.upperType
+
+                  map.get(tp.typeParamId) match {
+                    case Some(b) => combine(b, original)
+                    case None    => original
+                  }
+                }
+
+                val loBound      = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else bound(true)
+                val hiBound      = if (hasRecursiveTypeParameters(tp.upperType)) Any     else bound(false)
+                val emptyLoBound = loBound.equiv(Nothing)
+                val emptyHiBound = hiBound.equiv(Any)
+
+                if (!emptyLoBound && varianceInParams.isContravariant)
+                  loBound
+                else if (!emptyHiBound && (varianceInParams.isPositive || !emptyLoBound && hiBound.conforms(loBound)))
+                  hiBound
+                else ScAbstractType(tp, loBound, hiBound)
               }
-
-              val loBound      = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else bound(true)
-              val hiBound      = if (hasRecursiveTypeParameters(tp.upperType)) Any     else bound(false)
-              val emptyLoBound = loBound.equiv(Nothing)
-              val emptyHiBound = hiBound.equiv(Any)
-
-              if (!emptyLoBound && varianceInParams.isContravariant)
-                loBound
-              else if (!emptyHiBound && (varianceInParams.isPositive || !emptyLoBound && hiBound.conforms(loBound)))
-                hiBound
-              else ScAbstractType(tp, loBound, hiBound)
-            }
-          case None => abstractTypeSubstitutor
-        }
-    case _ => throw new IllegalArgumentException("argProtoTypeSubst call on non-poly-method type")
+            case None => abstractTypeSubstitutor
+          }
+      case _ => throw new IllegalArgumentException("argProtoTypeSubst call on non-poly-method type")
+    }
   }
+
+  def undefinedSubstitutor: ScSubstitutor =
+    ScSubstitutor.bind(typeParameters)(UndefinedType(_))
 
   def abstractOrLowerTypeSubstitutor: ScSubstitutor = {
     //approximation of logic from scala.tools.nsc.typechecker.Infer.Inferencer#exprTypeArgs#variance
