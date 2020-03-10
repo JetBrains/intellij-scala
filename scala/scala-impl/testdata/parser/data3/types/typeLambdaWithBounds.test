@@ -16,7 +16,8 @@ ScalaFile
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
-          PsiElement(identifier)('+')
+          PsiErrorElement:Variance annotation is not allowed here
+            PsiElement(identifier)('+')
           PsiElement(identifier)('X')
           PsiWhiteSpace(' ')
           PsiElement(>:)('>:')
@@ -33,7 +34,8 @@ ScalaFile
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         TypeParameter: Z
-          PsiElement(identifier)('-')
+          PsiErrorElement:Variance annotation is not allowed here
+            PsiElement(identifier)('-')
           PsiElement(identifier)('Z')
         PsiElement(])(']')
       PsiWhiteSpace(' ')
