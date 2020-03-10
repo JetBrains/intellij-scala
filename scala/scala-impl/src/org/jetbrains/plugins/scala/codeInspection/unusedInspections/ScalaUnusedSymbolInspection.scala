@@ -58,6 +58,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
           fun.parameters
             .filterNot(_.isWildcard)
             .filter(_.isPhysical)   // context bound are desugared into parameters, for example
+            .filterNot(_.isImplicitParameter)
             .filterNot(caseClassParam)
             .filterNot(nonPrivateClassMemberParam)
             .filterNot(overridingParam)
