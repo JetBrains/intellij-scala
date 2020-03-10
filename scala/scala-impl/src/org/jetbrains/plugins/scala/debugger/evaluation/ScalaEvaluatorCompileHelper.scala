@@ -105,7 +105,7 @@ object ScalaEvaluatorCompileHelper {
 
 
 private class ServerConnector(module: Module, filesToCompile: Seq[File], outputDir: File)
-  extends RemoteServerConnectorBase(module, filesToCompile, outputDir) {
+  extends RemoteServerConnectorBase(module, Some(filesToCompile), outputDir) {
 
   private val errors: ListBuffer[String] = ListBuffer[String]()
 
