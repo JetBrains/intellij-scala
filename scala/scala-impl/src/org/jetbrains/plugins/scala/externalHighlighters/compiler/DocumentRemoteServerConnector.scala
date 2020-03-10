@@ -23,10 +23,11 @@ private[compiler] class DocumentRemoteServerConnector(
   new File("")
 ) {
 
-  override protected def additionalScalaParameters: Seq[String] = {
-    val lastPhase = if (module.hasScala3) "reifyQuotes" else "patmat"
-    Seq(s"-Ystop-after:$lastPhase")
-  }
+  override protected def additionalScalaParameters: Seq[String] =
+    if (module.hasScala3)
+      Seq(s"-Ystop-before:genSJSIR")
+    else
+      Seq(s"-Ystop-after:patmat")
 
   import DocumentRemoteServerConnector.ReplacedSourcesClient
 
