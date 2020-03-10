@@ -146,21 +146,11 @@ class ScalaResolveResult(
 
   override def equals(other: Any): Boolean = other match {
     case rr: ScalaResolveResult =>
-        lazy val implicitScopeObjectCorresponds = {
-          val bothEmpty = implicitScopeObject.isEmpty && rr.implicitScopeObject.isEmpty
-
-          bothEmpty ||
-            (for {
-              obj1 <- implicitScopeObject
-              obj2 <- rr.implicitScopeObject
-            } yield obj1.equiv(obj2)).getOrElse(bothEmpty)
-        }
-
       (element eq rr.element) &&
         renamed == rr.renamed &&
         implicitFunction == rr.implicitFunction &&
         innerResolveResult == rr.innerResolveResult &&
-        implicitScopeObjectCorresponds
+        implicitScopeObject == rr.implicitScopeObject
     case _ => false
   }
 
