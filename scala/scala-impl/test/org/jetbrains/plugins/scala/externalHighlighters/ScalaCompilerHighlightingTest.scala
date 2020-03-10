@@ -5,20 +5,25 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.openapi.vfs.VirtualFile
 import org.hamcrest.Matcher
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.HighlightInfoExt
 import org.jetbrains.plugins.scala.project.VirtualFileExt
-import org.jetbrains.plugins.scala.util.SoftAssert
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
-import org.junit.Assert
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Assert.assertThat
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import scala.collection.JavaConverters._
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_0
+))
 @Category(Array(classOf[HighlightingTests]))
 class ScalaCompilerHighlightingTest
   extends ScalaCompilerTestBase
@@ -26,78 +31,57 @@ class ScalaCompilerHighlightingTest
 
   import ScalaCompilerHighlightingTest._
 
-  override protected def setUp(): Unit = {
-    super.setUp()
-  }
-
-  private val testsCases = Seq(
-    TestCase(
-      fileName = "ExhaustiveMatchWarning.scala",
-      content =
-        """
-          |class ExhaustiveMatchWarning {
-          |  val option: Option[Int] = Some(1)
-          |  option match {
-          |    case Some(_) =>
-          |  }
-          |}
-          |""".stripMargin,
-      expectedResult = expectedResult(
-        severity = HighlightSeverity.WARNING,
-        range = Some(new TextRange(70, 76)),
-        msgPrefix = "match may not be exhaustive"
-      )
-    ),
-    TestCase(
-      fileName = "AbstractMethodInClassError.scala",
-      content =
-        """
-          |class AbstractMethodInClassError {
-          |  def method: Int
-          |}
-          |""".stripMargin,
-      expectedResult = expectedResult(
-        severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(7, 33)),
-        msgPrefix = "class AbstractMethodInClassError needs to be abstract"
-      )
+  def testErrorHighlighting(): Unit = runTestCase(
+    fileName = "ExhaustiveMatchWarning.scala",
+    content =
+      """
+        |class ExhaustiveMatchWarning {
+        |  val option: Option[Int] = Some(1)
+        |  option match {
+        |    case Some(_) =>
+        |  }
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(
+      severity = HighlightSeverity.WARNING,
+      range = Some(new TextRange(70, 76)),
+      msgPrefix = "match may not be exhaustive"
     )
   )
 
-  def testRunTestCases(): Unit = withErrorsFromCompiler {
-    new SoftAssert {
-      val virtualFileToExpectedResult = testsCases.map { case TestCase(fileName, content, expectedResult) =>
-        val virtualFile = addFileAndOpenInEditor(fileName, content)
-        virtualFile -> expectedResult
-      }
-      compiler.rebuild()
-      virtualFileToExpectedResult.map { case (virtualFile, expectedResult) =>
-        val actualResult = getActualResult(virtualFile)
-        assertThat(virtualFile.getName, actualResult, expectedResult)
-      }
-    }.assertAll()
-  }
+  def testWarningHighlighting(): Unit = runTestCase(
+    fileName = "AbstractMethodInClassError.scala",
+    content =
+      """
+        |class AbstractMethodInClassError {
+        |  def method: Int
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(
+      severity = HighlightSeverity.ERROR,
+      range = Some(new TextRange(7, 33)),
+      msgPrefix = "class AbstractMethodInClassError needs to be abstract"
+    )
+  )
 
-  private def addFileAndOpenInEditor(fileName: String, content: String): VirtualFile = {
+  private def runTestCase(fileName: String,
+                          content: String,
+                          expectedResult: ExpectedResult): Unit = withErrorsFromCompiler {
     val virtualFile = addFileToProjectSources(fileName, content)
     FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
-    virtualFile
-  }
 
-  private def getActualResult(virtualFile: VirtualFile): HighlightInfo = {
+    compiler.rebuild()
+
     val document = virtualFile.toDocument.get
     val infos = DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala
-    val assertMsg = s"Test case supports only one highlighting (${virtualFile.getName})"
-    Assert.assertThat(assertMsg, infos, hasSize(1))
-    infos.head
+    assertThat("Test case supports only one highlighting", infos, hasSize(1))
+    val actualResult = infos.head
+
+    assertThat(actualResult, expectedResult)
   }
 }
 
 object ScalaCompilerHighlightingTest {
-
-  private case class TestCase(fileName: String,
-                              content: String,
-                              expectedResult: ExpectedResult)
 
   private type ExpectedResult = Matcher[HighlightInfo]
 
@@ -123,13 +107,10 @@ object ScalaCompilerHighlightingTest {
 
   private def withErrorsFromCompiler(body: => Unit): Unit = {
     val registry = Registry.get(ScalaHighlightingMode.ShowScalacErrorsKey)
+
     registry.setValue(true)
 
-    try {
-      body
-    }
-    finally {
-      registry.setValue(false)
-    }
+    try body
+    finally registry.setValue(false)
   }
 }
