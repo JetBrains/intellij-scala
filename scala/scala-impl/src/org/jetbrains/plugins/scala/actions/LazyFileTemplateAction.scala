@@ -7,12 +7,16 @@ import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiDirectory
 import org.jetbrains.annotations.Nls
 
-/**
-  * Nikolay.Tropin
-  * 27-Apr-17
-  */
-abstract class LazyFileTemplateAction(@Nls templateName: String, @Nls description: String, val icon: Icon)
-  extends CreateFromTemplateActionBase(templateName, description, icon) with DumbAware {
+abstract class LazyFileTemplateAction(
+  templateName: String, // defined in plugin xml file with <internalFileTemplate ... /> tag
+  @Nls title: String,
+  @Nls description: String,
+  val icon: Icon
+) extends CreateFromTemplateActionBase(
+  title,
+  description,
+  icon
+) with DumbAware {
 
   private lazy val template = FileTemplateManager.getDefaultInstance.getInternalTemplate(templateName)
 

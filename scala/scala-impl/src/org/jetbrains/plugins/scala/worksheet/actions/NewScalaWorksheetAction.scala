@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction._
  * @since 10/30/12
  */
 final class NewScalaWorksheetAction extends LazyFileTemplateAction(
+  "Scala Worksheet",
   ScalaBundle.message("new.scalaworksheet.menu.action.text"),
   ScalaBundle.message("new.scalaworksheet.menu.action.description"),
   WorksheetFileType.getIcon
