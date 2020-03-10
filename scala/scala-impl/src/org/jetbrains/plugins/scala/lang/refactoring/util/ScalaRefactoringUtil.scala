@@ -13,7 +13,7 @@ import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, EditorColorsScheme}
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, MarkupModel, RangeHighlighter, TextAttributes}
-import com.intellij.openapi.editor.{Editor, RangeMarker, SelectionModel, VisualPosition}
+import com.intellij.openapi.editor.{Document, Editor, RangeMarker, SelectionModel, VisualPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.openapi.util.TextRange
@@ -732,7 +732,9 @@ object ScalaRefactoringUtil {
       .filterBy[ScExpression]
 
   def isBlockLike(e: PsiElement): Boolean = e match {
-    case null | _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: PsiFile => true
+    case null => true
+    case (_: ScBlock) childOf (_: ScInterpolatedStringLiteral) => false
+    case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: PsiFile => true
     case _ => false
   }
 
@@ -930,7 +932,7 @@ object ScalaRefactoringUtil {
   private def replaceOccurrence(textRange: TextRange, newString: String, file: PsiFile): RangeMarker = {
     val documentManager = PsiDocumentManager.getInstance(file.getProject)
     val document = documentManager.getDocument(file)
-    var shift = 0
+    var startShift = 0
     val start = textRange.getStartOffset
     document.replaceString(start, textRange.getEndOffset, newString)
     val newRange = new TextRange(start, start + newString.length)
@@ -945,13 +947,13 @@ object ScalaRefactoringUtil {
           val prevElemType = file.findElementAt(textRange.getStartOffset - 1).getNode.getElementType
           ScalaTokenTypes.IDENTIFIER_TOKEN_SET.contains(prevElemType) || ScalaTokenTypes.KEYWORDS.contains(prevElemType)
         }
-        shift = pars.getTextRange.getStartOffset - inner.getTextRange.getStartOffset + (if (afterWord) 1 else 0)
+        startShift = pars.getTextRange.getStartOffset - inner.getTextRange.getStartOffset + (if (afterWord) 1 else 0)
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, (if (afterWord) " " else "") + newString)
       case ChildOf(ScPostfixExpr(_, `parent`)) =>
         //This case for block argument expression
         val textRange = parent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
-        shift = 1
+        startShift = 1
       case _: ScReferencePattern =>
         val textRange = parent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
@@ -963,10 +965,10 @@ object ScalaRefactoringUtil {
         val replaceAsInjection = Seq("s", "raw").contains(prefix)
 
         if (replaceAsInjection) {
-          val withNextChar = file.charSequence.substring(newRange.getStartOffset, newRange.getEndOffset + 1)
-          val needBraces = isIdentifier(withNextChar) && withNextChar.last != '$'
+          val nextChar = file.charSequence.charAt(newRange.getEndOffset)
+          val needBraces = needBracesForInjection(newString, nextChar)
           val text = if (needBraces) s"$${$newString}" else s"$$$newString"
-          shift += (if (needBraces) 2 else 1)
+          startShift = (if (needBraces) 2 else 1)
           document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)
         } else {
           val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
@@ -980,12 +982,19 @@ object ScalaRefactoringUtil {
           val startOffset = if (isStart) literalRange.getStartOffset else newRange.getStartOffset
           val endOffset = if (isEnd) literalRange.getEndOffset else newRange.getEndOffset
           document.replaceString(startOffset, endOffset, text)
-          shift = if (isStart) startOffset - newRange.getStartOffset else firstPart.length
+          startShift = if (isStart) startOffset - newRange.getStartOffset else firstPart.length
+        }
+      case (_: ScReferenceExpression) childOf ((block: ScBlock) childOf (_: ScInterpolatedStringLiteral)) =>
+        val nextChar = file.charSequence.charAt(block.endOffset)
+        val needBraces = needBracesForInjection(newString, nextChar)
+        if (!needBraces) {
+          document.replaceString(block.startOffset, block.endOffset, newString)
+          startShift = -1
         }
       case _ =>
     }
     documentManager.commitDocument(document)
-    val newStart = start + shift
+    val newStart = start + startShift
     val newEnd = newStart + newString.length
     val newExpr = findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
     val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
@@ -993,6 +1002,10 @@ object ScalaRefactoringUtil {
       .map(elem => document.createRangeMarker(elem.getTextRange))
       .getOrElse(throw new IntroduceException)
     rangeMarker
+  }
+
+  private def needBracesForInjection(refText: String, nextChar: Char): Boolean = {
+    nextChar != '$' && nextChar != '"' && isIdentifier(refText + nextChar)
   }
 
   def replaceOccurrences(occurrences: Seq[TextRange], newString: String, file: PsiFile): Seq[TextRange] = {
