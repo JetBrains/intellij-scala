@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.unused
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
 class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
-
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   def testPrivateField(): Unit = {
     val code =
