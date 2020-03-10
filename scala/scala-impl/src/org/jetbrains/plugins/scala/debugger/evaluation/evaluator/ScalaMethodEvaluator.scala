@@ -4,7 +4,7 @@ import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator}
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName}
 import com.intellij.debugger.impl.DebuggerUtilsEx
-import com.intellij.debugger.{DebuggerBundle, SourcePosition}
+import com.intellij.debugger.{JavaDebuggerBundle, SourcePosition}
 import com.sun.jdi._
 import com.sun.tools.jdi.{ConcreteMethodImpl, TypeComponentImpl}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
@@ -240,10 +240,10 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
         case rt: ReferenceType =>
           classWithMethod(rt)
         case _ =>
-          throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+          throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.evaluating.method", methodName))
       }
 
-      if (typeAndMethod.isEmpty) throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+      if (typeAndMethod.isEmpty) throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.evaluating.method", methodName))
 
       typeAndMethod match {
         case Some((tp, m)) if m.isConstructor =>
@@ -257,13 +257,13 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
             case objRef: ObjectReference =>
               invokeInstanceMethod(objRef, m)
             case _ =>
-              throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+              throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.evaluating.method", methodName))
           }
-        case _ => throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+        case _ => throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.evaluating.method", methodName))
       }
     }
     catch {
-      case e: Exception => throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName), e)
+      case e: Exception => throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.evaluating.method", methodName), e)
     }
   }
 

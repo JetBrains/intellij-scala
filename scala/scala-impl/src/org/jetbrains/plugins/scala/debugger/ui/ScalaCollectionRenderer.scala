@@ -9,7 +9,7 @@ import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, NodeManager, ValueDescriptor}
-import com.intellij.debugger.{DebuggerBundle, DebuggerContext}
+import com.intellij.debugger.{JavaDebuggerBundle, DebuggerContext}
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
@@ -211,7 +211,7 @@ object ScalaCollectionRenderer {
       catch {
         case e: EvaluateException =>
           val errorChildren: util.ArrayList[DebuggerTreeNode] = new util.ArrayList[DebuggerTreeNode]
-          errorChildren.add(nodeManager.createMessageNode(DebuggerBundle.message("error.unable.to.evaluate.expression") + " " + e.getMessage))
+          errorChildren.add(nodeManager.createMessageNode(JavaDebuggerBundle.message("error.unable.to.evaluate.expression") + " " + e.getMessage))
           builder.setChildren(errorChildren)
       }
     }

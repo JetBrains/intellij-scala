@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import java.util
 
-import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier, TypeEvaluator}
 import com.intellij.debugger.impl.DebuggerUtilsEx
@@ -22,7 +22,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeE
       return DebuggerUtilsEx.createValue(context.getDebugProcess.getVirtualMachineProxy, PsiType.BOOLEAN.getPresentableText(), false)
     }
     if (!value.isInstanceOf[ObjectReference]) {
-      throw EvaluationException(DebuggerBundle.message("evaluation.error.object.reference.expected"))
+      throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.object.reference.expected"))
     }
     try {
       val refType: ReferenceType = typeEvaluator.evaluate(context).asInstanceOf[ReferenceType]
