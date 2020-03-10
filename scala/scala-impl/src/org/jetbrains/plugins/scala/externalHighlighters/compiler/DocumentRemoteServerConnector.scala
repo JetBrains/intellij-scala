@@ -13,10 +13,15 @@ import org.jetbrains.plugins.scala.project.ModuleExt
  * @param sourceFileOriginal original source file.
  * @param sourceFileCopy source file copy. Note: This file will be compiled!
  */
-private[compiler] class DocumentRemoteServerConnector(module: Module,
-                                                      sourceFileOriginal: File,
-                                                      sourceFileCopy: File)
-  extends RemoteServerConnectorBase(module, Seq(sourceFileCopy), new File("")) {
+private[compiler] class DocumentRemoteServerConnector(
+  module: Module,
+  sourceFileOriginal: File,
+  sourceFileCopy: File
+) extends RemoteServerConnectorBase(
+  module,
+  Some(Seq(sourceFileCopy)),
+  new File("")
+) {
 
   override protected def additionalScalaParameters: Seq[String] = {
     val lastPhase = if (module.hasScala3) "reifyQuotes" else "patmat"

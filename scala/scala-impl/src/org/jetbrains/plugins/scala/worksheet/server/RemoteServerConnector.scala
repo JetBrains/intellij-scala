@@ -24,24 +24,30 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
+import RemoteServerConnector.Args
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.PlainModeArgs
 
 // TODO: split to REPL and PLAIN args, change serialization format
 private[worksheet]
 class RemoteServerConnector(
   module: Module,
   worksheetPsiFile: ScFile,
-  worksheet: File,
-  output: File,
-  worksheetClassName: String,
-  replArgs: Option[ReplModeArgs],
-  makeType: WorksheetMakeType,
-  needsCheck: Boolean
-) extends RemoteServerConnectorBase(module, Seq(worksheet), output, needsCheck) {
+  args: RemoteServerConnector.Args,
+  makeType: WorksheetMakeType
+) extends RemoteServerConnectorBase(
+  module,
+  args.asOptionOf[Args.PlainModeArgs].map(a => Seq(a.sourceFile)),
+  args match {
+    case PlainModeArgs(_, outputDir, _) => outputDir
+    case _: Args.ReplModeArgs           => new File("") // shouldn't be used in repl mode
+  },
+  args.isInstanceOf[Args.PlainModeArgs]
+) {
 
   override protected def compilerSettings: ScalaCompilerSettings =
     WorksheetFileSettings(worksheetPsiFile).getCompilerProfile.getSettings
@@ -50,23 +56,23 @@ class RemoteServerConnector(
     makeType match {
       case OutOfProcessServer => None
       case _ =>
-        val args = replArgs match {
-          case Some(ra) =>
+        val argsTransformed = args match {
+          case Args.PlainModeArgs(sourceFile, outputDir, className) =>
+            WorksheetArgsPlain(
+              className,
+              ScalaPluginJars.runnersJar,
+              sourceFile,
+              sourceFile.getName,
+              outputDir +: outputDirs,
+            )
+          case Args.ReplModeArgs(path, codeChunk)        =>
             WorksheetArgsRepl(
-              sessionId = ra.path,
-              ra.codeChunk,
+              sessionId = path,
+              codeChunk,
               outputDirs
             )
-          case None     =>
-            WorksheetArgsPlain(
-              worksheetClassName,
-              ScalaPluginJars.runnersJar,
-              worksheet,
-              worksheet.getName,
-              output +: outputDirs,
-            )
         }
-        Some(args)
+        Some(argsTransformed)
     }
 
   override val scalaParameters: Seq[String] = {
@@ -136,8 +142,11 @@ class RemoteServerConnector(
             RemoteServerConnectorResult.CompilationError
           case _ =>
             makeType match {
-              case OutOfProcessServer => RemoteServerConnectorResult.Compiled(worksheetClassName, output)
-              case _                  => RemoteServerConnectorResult.CompiledAndEvaluated
+              case OutOfProcessServer =>
+                val plainArgs = args.asInstanceOf[PlainModeArgs]
+                RemoteServerConnectorResult.Compiled(plainArgs.className, plainArgs.outputDir)
+              case _ =>
+                RemoteServerConnectorResult.CompiledAndEvaluated
             }
         }
 
@@ -160,6 +169,12 @@ class RemoteServerConnector(
 
 private[worksheet]
 object RemoteServerConnector {
+
+  sealed trait Args
+  object Args {
+    final case class PlainModeArgs(sourceFile: File, outputDir: File, className: String) extends Args
+    final case class ReplModeArgs(path: String, codeChunk: String) extends Args
+  }
 
   sealed trait RemoteServerConnectorResult
   object RemoteServerConnectorResult {

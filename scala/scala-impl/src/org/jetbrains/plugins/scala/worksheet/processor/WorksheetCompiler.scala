@@ -19,7 +19,8 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.EvaluationCallback
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{Precondition, PreconditionError}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.{RunCompile, RunRepl, WorksheetCompileRunRequest}
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.{PlainModeArgs, ReplModeArgs}
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{CompilerInterface, CompilerMessagesConsumer, RemoteServerConnectorResult}
 import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
@@ -52,14 +53,14 @@ class WorksheetCompiler(
   private def createWorksheetPrinter: WorksheetEditorPrinter =
     runType.createPrinter(editor, worksheetFile)
 
-  private def runPlainCompilerTask(className: String, code: String, tempFile: File, outputDir: File)
-                                  (task: CompilerTask,
-                                   afterCompileCallback: RemoteServerConnectorResult => Unit,
-                                   consumer: RemoteServerConnector.CompilerInterface): Unit = {
-    FileUtil.writeToFile(tempFile, code)
-
+  private def runCompilerTask(
+    args: RemoteServerConnector.Args,
+    task: CompilerTask,
+    afterCompileCallback: RemoteServerConnectorResult => Unit,
+    consumer: RemoteServerConnector.CompilerInterface
+  ): Unit = {
     val compileWork: Runnable = () => try {
-      val connector = new RemoteServerConnector(module, worksheetFile, tempFile, outputDir, className, None, makeType, true)
+      val connector = new RemoteServerConnector(module, worksheetFile, args, makeType)
       connector.compileAndRun(worksheetVirtual, consumer, afterCompileCallback)
     } catch {
       case NonFatal(ex) => afterCompileCallback(toError(ex))
@@ -70,19 +71,6 @@ class WorksheetCompiler(
   private def toError(ex: Throwable): RemoteServerConnectorResult.UnhandledError = ex match {
     case ex: ScalaSdkNotConfiguredException => RemoteServerConnectorResult.ExpectedError(ex)
     case ex                                 => RemoteServerConnectorResult.UnexpectedError(ex)
-  }
-
-  private def runReplCompilerTask(replModeArgs: ReplModeArgs)
-                                 (task: CompilerTask,
-                                  afterCompileCallback: RemoteServerConnectorResult => Unit,
-                                  consumer: RemoteServerConnector.CompilerInterface): Unit = {
-    val compileWork: Runnable = () => try {
-      val connector = new RemoteServerConnector(module, worksheetFile, new File(""), new File(""), "", Some(replModeArgs), makeType, false)
-      connector.compileAndRun(worksheetVirtual, consumer, afterCompileCallback)
-    } catch {
-      case NonFatal(ex) => afterCompileCallback(toError(ex))
-    }
-    task.start(compileWork, EmptyRunnable)
   }
 
   private def compileAndRunCode(request: WorksheetCompileRunRequest): Unit = {
@@ -138,11 +126,13 @@ class WorksheetCompiler(
     request match {
       case RunRepl(code) =>
         val args = ReplModeArgs(worksheetVirtual.getCanonicalPath, code)
-        runReplCompilerTask(args)(task, afterCompileCallback, consumer)
+        runCompilerTask(args, task, afterCompileCallback, consumer)
 
-      case RunCompile(code, name) =>
+      case RunCompile(code, className) =>
         val (_, tempFile, outputDir) = cache.updateOrCreateCompilationInfo(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
-        runPlainCompilerTask(name, code, tempFile, outputDir)(task, afterCompileCallback, consumer)
+        FileUtil.writeToFile(tempFile, code)
+        val args = PlainModeArgs(tempFile, outputDir, className)
+        runCompilerTask(args, task, afterCompileCallback, consumer)
     }
   }
 

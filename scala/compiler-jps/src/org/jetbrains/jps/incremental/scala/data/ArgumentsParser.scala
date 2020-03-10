@@ -85,7 +85,18 @@ object ArgumentsParser
 
       val zincData = ZincData(allSources, startDate.toLong, isCompile)
 
-      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups, zincData)
+      val compilationData = CompilationData(
+        sources,
+        classpath,
+        output,
+        scalaOptions,
+        javaOptions,
+        CompileOrder.valueOf(order),
+        cacheFile,
+        outputToCacheMap,
+        outputGroups,
+        zincData
+      )
 
       // this is actually not the best solution because we can't distinguish between empty sequence and absence of sequence,
       //  but will do for now, until we refactor communication protocol between client and server

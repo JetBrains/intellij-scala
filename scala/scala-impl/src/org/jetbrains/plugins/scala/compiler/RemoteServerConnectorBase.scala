@@ -7,6 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
 import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
@@ -14,17 +15,18 @@ import org.jetbrains.plugins.scala.util.ScalaPluginJars
 //noinspection SameParameterValue
 abstract class RemoteServerConnectorBase(
   protected val module: Module,
-  filesToCompile: Seq[File],
+  filesToCompile: Option[Seq[File]],
   outputDir: File,
   needCheck: Boolean = true
 ) {
 
   implicit def projectContext: ProjectContext = module.getProject
 
-  if (needCheck) checkFilesToCompile(filesToCompile)
+  if (needCheck)
+    filesToCompile.foreach(checkFilesToCompile)
 
   def this(module: Module, fileToCompile: File, outputDir: File) =
-    this(module, Seq(fileToCompile), outputDir)
+    this(module, Some(Seq(fileToCompile)), outputDir)
 
   private val sbtData = {
     val javaClassVersion = System.getProperty("java.class.version")
@@ -34,7 +36,10 @@ abstract class RemoteServerConnectorBase(
     }
   }
 
-  private val sourceRoot = filesToCompile.head.getAbsoluteFile.getParentFile
+  private val sourceRoot: Option[File] = {
+    val fileToCompile = filesToCompile.flatMap(_.headOption)
+    fileToCompile.flatMap(_.getAbsoluteFile.getParentFile.toOption)
+  }
 
   protected def scalaParameters: Seq[String] = compilerSettings.toOptions ++ additionalScalaParameters
 
@@ -66,7 +71,7 @@ abstract class RemoteServerConnectorBase(
       incrementalType = IncrementalityType.IDEA
     ),
     compilationData = CompilationData(
-      sources = filesToCompile,
+      sources = filesToCompile.toSeq.flatten,
       classpath = classpath,
       output = outputDir,
       scalaOptions = scalaParameters,
@@ -74,7 +79,7 @@ abstract class RemoteServerConnectorBase(
       order = CompileOrder.valueOf(compilerSettings.compileOrder.name),
       cacheFile = new File(""),
       outputToCacheMap = Map.empty,
-      outputGroups = Seq(sourceRoot -> outputDir),
+      outputGroups = sourceRoot.map(_ -> outputDir).toSeq,
       zincData = ZincData(
         allSources = Seq.empty,
         compilationStartDate = 0,
