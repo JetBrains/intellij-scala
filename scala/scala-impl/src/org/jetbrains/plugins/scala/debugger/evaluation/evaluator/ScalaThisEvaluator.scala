@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.DebuggerUtilsEx
@@ -69,7 +69,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
       }
     }
     if (objRef == null) {
-      throw EvaluationException(DebuggerBundle.message("evaluation.error.this.not.avalilable"))
+      throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.this.not.avalilable"))
     }
     objRef
   }

@@ -6,7 +6,7 @@ import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl}
 import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
 import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
-import com.intellij.debugger.{DebuggerBundle, DebuggerContext}
+import com.intellij.debugger.{JavaDebuggerBundle, DebuggerContext}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiExpression}
@@ -103,7 +103,7 @@ class RuntimeRefRenderer extends NodeRendererImpl {
 
       override def evaluationError(message: String): Unit = {
         val msg: String =
-          if (value != null) message + " " + DebuggerBundle.message("evaluation.error.cannot.evaluate.tostring", value.`type`.name)
+          if (value != null) message + " " + JavaDebuggerBundle.message("evaluation.error.cannot.evaluate.tostring", value.`type`.name)
           else message
         valueDescriptor.setValueLabelFailed(new EvaluateException(msg, null))
         labelListener.labelChanged()

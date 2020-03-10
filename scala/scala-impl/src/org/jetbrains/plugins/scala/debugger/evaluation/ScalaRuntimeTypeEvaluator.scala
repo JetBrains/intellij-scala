@@ -3,7 +3,7 @@ package debugger.evaluation
 
 import scala.collection.JavaConverters._
 
-import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
@@ -47,7 +47,7 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
         getCastableRuntimeType(project, value)(ElementScope(project, process.getSearchScope))
           .map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
       }
-    } else throw EvaluationException(DebuggerBundle.message("evaluation.error.surrounded.expression.null"))
+    } else throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.surrounded.expression.null"))
   }
 }
 
