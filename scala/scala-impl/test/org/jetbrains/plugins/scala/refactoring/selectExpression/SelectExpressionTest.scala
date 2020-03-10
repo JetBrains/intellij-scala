@@ -45,6 +45,14 @@ class SelectExpressionTest extends SimpleTestCase {
 
   def testInterpolatedStringInjection(): Unit = doTest(s"""s"foo$$${caret}bar"""", "bar", """s"foo$bar"""")
 
+  def testInterpolatedStringBlockInjection(): Unit = doTest(
+    s"""val x = s"str $${${caret}1 + 2}"""",
+    "1",
+    "1 + 2",
+    "{1 + 2}",
+    s"""s"str $${1 + 2}""""
+  )
+
   def testOneExpressionBlockWithoutBraces(): Unit = doTest(
     s"""1 match {
        |  case 1 => ${caret}"42"

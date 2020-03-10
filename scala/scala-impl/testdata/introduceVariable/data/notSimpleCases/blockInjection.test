@@ -1,0 +1,12 @@
+class A {
+  def foo(): Unit = {
+    val s = s"str ${<begin>1 + 2<end>}"
+  }
+}
+-------
+class A {
+  def foo(): Unit = {
+    val value: Int = 1 + 2
+    val s = s"str $value"
+  }
+}
