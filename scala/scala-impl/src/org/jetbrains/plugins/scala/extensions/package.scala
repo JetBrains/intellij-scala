@@ -150,6 +150,9 @@ package object extensions {
     def isScala3File: Boolean =
       file.getLanguage == Scala3Language.INSTANCE
 
+    def isScala2File: Boolean =
+      file.getLanguage == ScalaLanguage.INSTANCE
+
     private def viewProvider = file.getViewProvider
   }
 
