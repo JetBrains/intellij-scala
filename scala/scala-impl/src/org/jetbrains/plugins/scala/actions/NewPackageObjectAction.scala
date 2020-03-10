@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.project._
  */
 
 class NewPackageObjectAction extends LazyFileTemplateAction(
+  "Package Object",
   ScalaBundle.message("new.packageobject.menu.action.text"),
   ScalaBundle.message("new.packageobject.menu.action.description"),
   Icons.PACKAGE_OBJECT
