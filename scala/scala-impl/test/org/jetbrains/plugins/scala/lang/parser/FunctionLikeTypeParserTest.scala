@@ -24,4 +24,12 @@ class FunctionLikeTypeParserTest extends SimpleScala3ParserTestBase {
         |def foo(fn: (b: Bar) => b.TypeMember): Unit
         |""".stripMargin
     )
+
+  def testContextualFunctionExplicitModifier(): Unit =
+    checkParseErrors(
+      """
+        |type Executable[T] = (given ExecutionContext) => T
+        |def table(init: (given Table) => Unit) = ???
+        |""".stripMargin
+    )
 }
