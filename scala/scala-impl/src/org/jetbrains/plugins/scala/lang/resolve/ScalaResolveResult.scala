@@ -144,8 +144,6 @@ class ScalaResolveResult(
       implicitScopeObject      = implicitScopeObject
     )
 
-  //In valid program we should not have two resolve results with the same element but different substitutor,
-  // so factor by element
   override def equals(other: Any): Boolean = other match {
     case rr: ScalaResolveResult =>
         lazy val implicitScopeObjectCorresponds = {
