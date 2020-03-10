@@ -7,11 +7,11 @@ import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiElement, PsiFile, PsiManager, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.externalHighlighters.HighlightingStateManager.HighlightingState
 import org.jetbrains.plugins.scala.editor.EditorExt
-import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, invokeLater}
 import org.jetbrains.plugins.scala.settings.ProblemSolverUtils
 
 import scala.collection.JavaConverters._
@@ -77,11 +77,22 @@ object ExternalHighlighters {
   }
 
   private def findRangeToHighlight(editor: Editor, offset: Int): Option[TextRange] = {
-    editor.scalaFile
-      .flatMap { vFile =>
-        val psiFile = Option(PsiManager.getInstance(editor.getProject).findFile(vFile))
-        psiFile.map(_.findElementAt(offset).getTextRange)
+    for {
+      vFile   <- editor.scalaFile
+      psiFile <- Option(PsiManager.getInstance(editor.getProject).findFile(vFile))
+      element <- elementToHighlight(psiFile, offset)
+    } yield {
+      element.getTextRange
+    }
+  }
+
+  private def elementToHighlight(file: PsiFile, offset: Int): Option[PsiElement] = {
+    Option(file.findElementAt(offset))
+      .flatMap {
+        case ws: PsiWhiteSpace => ws.prevElementNotWhitespace
+        case other             => Some(other)
       }
+
   }
 
   private def highlightingRange(doc: Document, highlighting: ExternalHighlighting): Option[TextRange] = {
