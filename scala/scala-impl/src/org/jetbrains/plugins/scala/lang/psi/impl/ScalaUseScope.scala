@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiPackage, PsiReference}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -16,15 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 
 import scala.annotation.tailrec
 
-object ScalaUseScope {
+private object ScalaUseScope {
 
-  def intersect(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope = {
-    scopeOption.map(_.intersectWith(scope))
-      .getOrElse(scope)
-  }
-
-  def apply(element: ScalaPsiElement): Option[SearchScope] = {
-
+  def apply(baseUseScope: SearchScope, element: ScalaPsiElement): SearchScope = {
+    val useScope = element.containingScalaFile.fold(baseUseScope)(apply(baseUseScope, _))
     val narrowScope = element match {
       case cp: ScClassParameter => classParameterScope(cp)
       case p: ScParameter       => Option(parameterScope(p))
@@ -32,14 +27,26 @@ object ScalaUseScope {
       case m: ScMember          => memberScope(m)
       case _                    => None
     }
-
-    val scriptScope =
-      element.containingScalaFile
-        .filter(f => f.isWorksheetFile || f.isScriptFile)
-        .map(safeLocalScope(_))
-
-    intersectOptions(narrowScope, scriptScope)
+    intersect(useScope, narrowScope)
   }
+
+
+  def apply(baseUseScope: SearchScope, file: ScalaFile): SearchScope = {
+    if (file.isWorksheetFile || file.isScriptFile) {
+      // elements from worksheets (including scratch files) can only be used in that files
+      ScFile.VirtualFile.unapply(file) match {
+        case Some(virtualFile) => GlobalSearchScope.fileScope(file.getProject, virtualFile)
+        case None              => baseUseScope
+      }
+    } else {
+      baseUseScope
+    }
+  }
+
+  final case class WorksheetLocalSearchScope(file: ScalaFile) extends LocalSearchScope(file)
+
+  private def intersect(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope =
+    scopeOption.fold(scope)(_.intersectWith(scope))
 
   private def intersectOptions(scope1: Option[SearchScope], scope2: Option[SearchScope]): Option[SearchScope] =
     scope1.map(intersect(_, scope2)).orElse(scope2)
@@ -51,7 +58,7 @@ object ScalaUseScope {
     case d                    => d.getUseScope //named parameters
   }
 
-  def namedScope(named: ScNamedElement): Option[SearchScope] = named.nameContext match {
+  private def namedScope(named: ScNamedElement): Option[SearchScope] = named.nameContext match {
     case member: ScMember if member.isLocal      => localDefinitionScope(member)
     case member: ScMember if member != named     => Some(member.getUseScope)
     case member: ScMember                        => memberScope(member)
@@ -65,8 +72,10 @@ object ScalaUseScope {
       .map(safeLocalScope)
 
   private def safeLocalScope(elem: PsiElement): LocalSearchScope =
-    if (elem.isValid && elem.getContainingFile != null) new LocalSearchScope(elem)
-    else LocalSearchScope.EMPTY
+    if (elem.isValid && elem.getContainingFile != null)
+      new LocalSearchScope(elem)
+    else
+      LocalSearchScope.EMPTY
 
   private def classParameterScope(cp: ScClassParameter): Option[SearchScope] = {
     val asNamedArgument =
