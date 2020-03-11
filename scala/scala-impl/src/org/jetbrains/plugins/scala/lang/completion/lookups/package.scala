@@ -23,7 +23,7 @@ package object lookups {
     }
 
     def appendGrayedTailText(text: String): Unit =
-      if (text.nonEmpty) {
+      if (text != null && text.nonEmpty) {
         presentation.appendTailText(text, true)
       }
 
