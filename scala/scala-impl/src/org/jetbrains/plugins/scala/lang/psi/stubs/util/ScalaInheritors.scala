@@ -6,8 +6,8 @@ package util
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
+import com.intellij.psi.search.searches.{ClassInheritorsSearch, ReferencesSearch}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
@@ -19,18 +19,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, Measure, ModCount}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 24.10.2008
- */
-
 object ScalaInheritors {
+
+  def directInheritorCandidates(clazz: PsiClass, scope: SearchScope): Seq[ScTemplateDefinition] =
+    scope match {
+      case scope: GlobalSearchScope => directInheritorCandidates(clazz, scope)
+      case scope: LocalSearchScope  => directInheritorCandidates(clazz, scope)
+      case _                        => Seq()
+    }
+
+  @Measure
   def directInheritorCandidates(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.name
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
@@ -38,9 +43,31 @@ object ScalaInheritors {
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
 
     import ScalaIndexKeys._
-    val extendsBlocks = SUPER_CLASS_NAME_KEY.elements(name, scope, classOf[ScExtendsBlock])(clazz.getProject)
-      .iterator
+    val extendsBlockIterable = SUPER_CLASS_NAME_KEY.elements(name, scope, classOf[ScExtendsBlock])(clazz.getProject)
+    val extendsBlocks = extendsBlockIterable.iterator
 
+    while (extendsBlocks.hasNext) {
+      val extendsBlock = extendsBlocks.next
+      extendsBlock.getParent match {
+        case tp: ScTemplateDefinition => inheritors += tp
+        case _ =>
+      }
+    }
+    inheritors
+  }
+
+  @Measure
+  def directInheritorCandidates(clazz: PsiClass, localScope: LocalSearchScope): Seq[ScTemplateDefinition] = {
+    val name: String = clazz.name
+    if (name == null || clazz.isEffectivelyFinal) return Seq.empty
+
+    val inheritors = new ArrayBuffer[ScTemplateDefinition]
+
+    val references = ReferencesSearch.search(clazz, localScope).findAll().asScala
+    val extendsBlocksIterable = references.collect {
+      case Parent(Parent(Parent(Parent(extendsBlock: ScExtendsBlock)))) => extendsBlock
+    }
+    val extendsBlocks = extendsBlocksIterable.iterator
     while (extendsBlocks.hasNext) {
       val extendsBlock = extendsBlocks.next
       extendsBlock.getParent match {

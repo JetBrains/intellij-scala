@@ -19,7 +19,7 @@ import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, SourceFilterScope}
+import org.jetbrains.plugins.scala.finder.ResolveFilterScope
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
@@ -284,10 +284,16 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   override def packagingRanges: Seq[TextRange] =
     this.depthFirst().instancesOf[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
-  override def getFileResolveScope: GlobalSearchScope = getOriginalFile.getVirtualFile match {
-    case file if file != null && file.isValid => ResolveFilterScope(defaultFileResolveScope(file))(getProject)
-    case _ => GlobalSearchScope.allScope(getProject)
+  override def getFileResolveScope: GlobalSearchScope = {
+    val file = getOriginalFile.getVirtualFile
+    if (file != null && file.isValid)
+      ResolveFilterScope(defaultFileResolveScope(file))(getProject)
+    else
+      GlobalSearchScope.allScope(getProject)
   }
+
+  override final def getUseScope: SearchScope =
+    ScalaUseScope(super[PsiFileBase].getUseScope, this)
 
   protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope =
     ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(file)
@@ -334,8 +340,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
-
-  override final def getUseScope: SearchScope = super[PsiFileBase].getUseScope
 
   override val allowsForwardReferences: Boolean = false
 

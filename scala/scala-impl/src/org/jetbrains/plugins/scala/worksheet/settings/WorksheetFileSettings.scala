@@ -3,6 +3,7 @@ package worksheet
 package settings
 
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
+import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -124,10 +125,8 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
   def getRunType(file: PsiFile): WorksheetExternalRunType = new WorksheetFileSettings(file).getRunType
 
   def isScratchWorksheet(file: VirtualFile)
-                        (implicit project: Project): Boolean = {
-    WorksheetFileType.hasScratchRootType(file) &&
-      WorksheetFileType.treatScratchFileAsWorksheet
-  }
+                        (implicit project: Project): Boolean =
+    ScratchUtil.isScratch(file) && WorksheetFileType.treatScratchFileAsWorksheet
 
   private object SerializableWorksheetAttributes {
     trait SerializableInFileAttribute[T] {

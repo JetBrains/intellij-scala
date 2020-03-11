@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet
 
-import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
+import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType, ScratchUtil}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
@@ -23,7 +23,7 @@ object WorksheetFileType extends LanguageFileTypeBase(WorksheetLanguage.INSTANCE
                      (implicit project: Project): Boolean = {
     val isExplicitWorksheet = isMyFileExtension(file) && !isAmmoniteEnabled(file)
     isExplicitWorksheet ||
-      hasScratchRootType(file) && canBeTreatedAsWorksheet(file)
+      ScratchUtil.isScratch(file) && canBeTreatedAsWorksheet(file)
   }
 
   private def canBeTreatedAsWorksheet(vFile: VirtualFile)(implicit project: Project): Boolean = {

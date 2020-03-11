@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package finder
 
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
-import com.intellij.ide.scratch.ScratchFileService
+import com.intellij.ide.scratch.{ScratchFileService, ScratchUtil}
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -50,18 +50,20 @@ final case class ScalaFilterScope private(scope: GlobalSearchScope)
   extends FilterScope(scope) {
 
   override def contains(file: VirtualFile): Boolean =
-    super.contains(file) ||
-      Option(ScratchFileService.getInstance.getScratchesMapping.getMapping(file))
-        .exists(_.isKindOf(ScalaLanguage.INSTANCE))
+    super.contains(file)
 
   override protected def isValid(file: VirtualFile): Boolean =
     FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
       case _: JavaClassFileType | SigFileType =>
         isInLibraryClasses(file)
-      case fileType: LanguageFileType if isInSourceContent(file) =>
-        fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) ||
-          ScalaLanguageDerivative.existsFor(fileType)
-      case _ => false
+      case fileType: LanguageFileType =>
+        val hasScala = fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) || ScalaLanguageDerivative.existsFor(fileType)
+        if (hasScala)
+          isInSourceContent(file) || ScratchUtil.isScratch(file)
+        else
+          false
+      case _ =>
+        false
     }
 }
 
@@ -109,5 +111,5 @@ final case class ResolveFilterScope(scope: GlobalSearchScope)
                               (implicit project: Project) extends FilterScope(scope) {
 
   override protected def isValid(file: VirtualFile): Boolean =
-    isInLibraryClasses(file) || isInSourceContent(file)
+    isInLibraryClasses(file) || isInSourceContent(file) || ScratchUtil.isScratch(file)
 }

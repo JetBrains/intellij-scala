@@ -19,9 +19,10 @@ private[clauses] abstract class ClauseCompletionProvider[
     val place = positionFromParameters(parameters)
     getParentOfType(place, reflect.classTag.runtimeClass.asInstanceOf[Class[T]]) match {
       case null =>
-      case typeable => addCompletions(typeable, result) {
-        ClauseCompletionParameters(place, parameters.getOriginalFile.getResolveScope, parameters.getInvocationCount)
-      }
+      case typeable =>
+        val originalFile = parameters.getOriginalFile
+        val clauseParameters = ClauseCompletionParameters(place, originalFile.getResolveScope, parameters.getInvocationCount)
+        addCompletions(typeable, result)(clauseParameters)
     }
   }
 
