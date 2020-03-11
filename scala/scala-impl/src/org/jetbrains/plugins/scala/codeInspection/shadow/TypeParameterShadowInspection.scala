@@ -42,4 +42,4 @@ class TypeParameterShadowInspection extends AbstractInspection(ScalaInspectionBu
   }
 }
 
-class RenameTypeParameterFix(tp: ScTypeParam) extends RenameElementQuickfix(tp, ScalaInspectionBundle.message("Rename Variable Pattern"))
+class RenameTypeParameterFix(tp: ScTypeParam) extends RenameElementQuickfix(tp, ScalaInspectionBundle.message("rename.variable.pattern"))

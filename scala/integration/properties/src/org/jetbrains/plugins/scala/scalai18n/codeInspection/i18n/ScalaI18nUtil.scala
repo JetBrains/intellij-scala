@@ -37,15 +37,7 @@ import scala.collection.mutable
 object ScalaI18nUtil {
   def mustBePropertyKey(@NotNull literal: ScLiteral,
                         @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean = {
-    mayBePropertyKey(literal) && isPassedToAnnotated(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues)
-  }
-
-  private def mayBePropertyKey(literal: ScLiteral): Boolean = literal match {
-    case ScStringLiteral(string) => !string.exists {
-      case '=' | ':' => true
-      case character => Character.isWhitespace(character)
-    }
-    case _ => false
+    isPassedToAnnotated(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues)
   }
 
   @tailrec
@@ -252,7 +244,7 @@ object ScalaI18nUtil {
     val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
     annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
     if (mustBePropertyKey(expression, annotationAttributeValues)) {
-      annotationAttributeValues get AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER exists {
+      annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).exists {
         case bundleName: PsiElement =>
           val result = JavaPsiFacade.getInstance(bundleName.getProject).getConstantEvaluationHelper.computeConstantExpression(bundleName)
           if (result == null) false else {
