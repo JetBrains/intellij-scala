@@ -1,38 +1,40 @@
 package org.jetbrains.bsp.project.test.environment
 
 import com.intellij.execution.{RunManager, RunManagerEx, RunManagerListener, RunnerAndConfigurationSettings}
+import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.project.Project
 
-class BspFetchEnvironmentTaskInstaller extends RunManagerListener {
-  private var runManagerOpt: Option[RunManagerEx] = None
 
-  // temp solution to SCL-17155 to avoid cyclid dependencies
-  // some configurations are added during RunManager initialization
+class BspFetchEnvironmentTaskInstaller(project: Project) extends RunManagerListener {
   private var settingsToInit: List[RunnerAndConfigurationSettings] = Nil
 
   override def runConfigurationAdded(settings: RunnerAndConfigurationSettings): Unit = {
-    val runManager = runManagerOpt.getOrElse {
-      settingsToInit ::= settings
-      return
-    }
+    runManagerEx.foreach(installFetchEnvironmentTask(settings, _))
+  }
 
+  private def installFetchEnvironmentTask(settings: RunnerAndConfigurationSettings, runManager: RunManagerEx): Unit = {
     val runConfiguration = settings.getConfiguration
     if (BspTesting.isBspRunnerSupportedConfiguration(runConfiguration)) {
-      val beforeRunTasks = runManager.getBeforeRunTasks(runConfiguration)
-      val task = new BspFetchTestEnvironmentTask
-      task.setEnabled(true)
-      beforeRunTasks.add(task)
       val tasks = runManager.getBeforeRunTasks(BspFetchTestEnvironmentTask.runTaskKey)
       if (tasks.isEmpty) {
-        runManager.setBeforeRunTasks(runConfiguration, beforeRunTasks)
+        val beforeRunTasks = runManager.getBeforeRunTasks(runConfiguration)
+        val task = new BspFetchTestEnvironmentTask
+        task.setEnabled(true)
+        beforeRunTasks.add(task)
       }
     }
   }
 
   override def stateLoaded(runManager: RunManager, isFirstLoadState: Boolean): Unit = {
     if (isFirstLoadState) {
-      this.runManagerOpt = Some(runManager.asInstanceOf[RunManagerEx])
-      settingsToInit.foreach(runConfigurationAdded)
+      runManagerEx.foreach {
+        runManager => settingsToInit.foreach(installFetchEnvironmentTask(_, runManager))
+      }
       settingsToInit = Nil
     }
   }
+  
+  private def runManagerEx: Option[RunManagerEx] =
+    Option(ServiceManager.getServiceIfCreated(project, classOf[RunManager]))
+      .map(_.asInstanceOf[RunManagerEx])
 }
