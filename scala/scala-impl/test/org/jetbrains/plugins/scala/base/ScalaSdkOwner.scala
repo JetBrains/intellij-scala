@@ -12,7 +12,7 @@ trait ScalaSdkOwner extends Test
 
   import ScalaSdkOwner._
 
-  implicit final def version: ScalaVersion = {
+  override implicit final def version: ScalaVersion = {
     val supportedVersions = allTestVersions.filter(supportedIn)
     val configuredVersion = configuredScalaVersion.getOrElse(defaultSdkVersion)
     selectVersion(configuredVersion, supportedVersions)

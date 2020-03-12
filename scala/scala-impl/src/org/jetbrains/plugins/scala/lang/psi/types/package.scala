@@ -237,6 +237,11 @@ package object types {
         typeParamIds.contains(tpt.typeParamId)
       case _ => false
     }
+
+    def widenIfLiteral: ScType = scType match {
+      case litTy: ScLiteralType => litTy.wideType
+      case _ => scType
+    }
   }
 
   implicit class ScalaSeqExt(private val context: PsiElement) extends AnyVal {
