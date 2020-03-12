@@ -324,4 +324,9 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   // Don't show type mismatch when there's a parser error (inside the expression, or an adjacent one)
   def testTypeMismatchExpandedParserError(): Unit = assertErrors(
     "val v: String = 123`")
+
+  // Workaround for SCL-17168 (e.g. the parser error might be in the next element, so it's better to have a dedicated test for that)
+  def testTypeMismatchEmptyNew(): Unit = assertErrors(
+    "val v: String = new")
+
 }
