@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScExpressionAnnotator.checkExpressionType
 import org.jetbrains.plugins.scala.annotator.element.ScTypedExpressionAnnotator.mismatchRangesIn
@@ -66,8 +67,9 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
   private def tooManyParametersIn(literal: ScFunctionExpr, parameters: Seq[ScParameter], expectedTypes: Seq[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
     val tooMany = parameters.length > expectedTypes.length
     if (tooMany) {
+      val message = ScalaBundle.message("annotator.error.too.many.parameters")
       if (!literal.hasParentheses) {
-        holder.createErrorAnnotation(parameters.head, "Too many parameters")
+        holder.createErrorAnnotation(parameters.head, message)
       } else {
         val firstExcessiveParameter = parameters(expectedTypes.length)
 
@@ -75,7 +77,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
           firstExcessiveParameter.prevElementNotWhitespace.getOrElse(literal.params).getTextRange.getEndOffset - 1,
           firstExcessiveParameter.getTextOffset + 1)
 
-        holder.createErrorAnnotation(range, "Too many parameters")
+        holder.createErrorAnnotation(range, message)
       }
     }
     tooMany
@@ -98,7 +100,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     var missing = false
     parameters.iterator.takeWhile(_ => !missing).foreach { parameter =>
       if (parameter.typeElement.isEmpty && parameter.expectedParamType.isEmpty) {
-        holder.createErrorAnnotation(parameter, "Missing parameter type")
+        holder.createErrorAnnotation(parameter, ScalaBundle.message("annotator.error.missing.parameter.type"))
         missing = true
       }
     }

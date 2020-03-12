@@ -18,6 +18,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.Processor
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -135,7 +136,7 @@ class AmmoniteScriptWrappersHolder(project: Project) {
     
     NotificationUtil.showMessage (
       project = project,
-      title = "Ammonite imports found",
+      title = ScalaBundle.message("notification.title.ammonite.imports.found"),
       message =
         s"""
           |<html>

@@ -8,6 +8,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
@@ -86,15 +87,17 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case Seq() =>
                   case as =>
                     holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall),
-                      "Unspecified type parameters: " + as.mkString(", "))
+                      ScalaBundle.message("annotator.error.unspecified.type.parameters", as.mkString(", ")))
                 }
                 withoutNonHighlightables(r.problems, holder).foreach {
                   case MissedTypeParameter(_) =>
                   // handled in bulk above
                   case DoesNotTakeTypeParameters =>
-                    holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall), f.name + " does not take type parameters")
+                    holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall),
+                      ScalaBundle.message("annotator.error.does.not.take.type.parameters", f.name))
                   case ExcessTypeArgument(arg) =>
-                    holder.createErrorAnnotation(arg, "Too many type arguments for " + f.name)
+                    holder.createErrorAnnotation(arg,
+                      ScalaBundle.message("annotator.error.too.many.type.arguments", f.name))
                   case DefaultTypeParameterMismatch(expected, actual) => genCall.typeArgs match {
                     case Some(typeArgs) =>
                       val message: String = ScalaBundle.message("type.mismatch.default.args.expected.actual", expected, actual)
@@ -117,7 +120,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
                   registerCreateFromUsageFixesFor(reference,
                     holder.createErrorAnnotation(range,
-                      "Unspecified value parameters: " + missed.mkString(", ")))
+                      ScalaBundle.message("annotator.error.sunspecified.value.parameters", missed.mkString(", "))))
                 }
                 val (problems, fun) = call.applyOrUpdateElement match {
                   case Some(rr) =>
@@ -135,18 +138,21 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                     val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
                     val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
                     registerCreateFromUsageFixesFor(reference,
-                      holder.createErrorAnnotation(range, "Too many arguments for method " + nameOf(fun)))
+                      holder.createErrorAnnotation(range,
+                        ScalaBundle.message("annotator.error.too.many.arguments.method", nameOf(fun))))
                   }
                 }
 
                 withoutNonHighlightables(problems, holder).foreach {
                   case DoesNotTakeParameters() =>
                     registerCreateFromUsageFixesFor(reference,
-                      holder.createErrorAnnotation(call.argsElement, fun.name + " does not take parameters"))
+                      holder.createErrorAnnotation(call.argsElement,
+                        ScalaBundle.message("annotator.error.target.does.not.take.parameters", fun.name)))
                   case ExcessArgument(argument) =>
                     if (inDesugaring) {
                       registerCreateFromUsageFixesFor(reference,
-                        holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun)))
+                        holder.createErrorAnnotation(argument,
+                          ScalaBundle.message("annotator.error.too.many.arguments.method", nameOf(fun))))
                     }
                   case TypeMismatch(expression, expectedType) =>
                     if (countMatches && !typeMismatchShown) {
@@ -158,13 +164,17 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case MissedValueParameter(_) => // simultaneously handled above
                   case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                   case MalformedDefinition() =>
-                    holder.createErrorAnnotation(call.getInvokedExpr, f.name + " has malformed definition")
+                    holder.createErrorAnnotation(call.getInvokedExpr,
+                      ScalaBundle.message("annotator.error.name.has.malformed.definition", f.name))
                   case ExpansionForNonRepeatedParameter(expression) =>
-                    holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
+                    holder.createErrorAnnotation(expression,
+                      ScalaBundle.message("annotator.error.expansion.for.non.repeated.parameter"))
                   case PositionalAfterNamedArgument(argument) =>
-                    holder.createErrorAnnotation(argument, "Positional after named argument")
+                    holder.createErrorAnnotation(argument,
+                      ScalaBundle.message("annotator.error.positional.after.named.argument"))
                   case ParameterSpecifiedMultipleTimes(assignment) =>
-                    holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
+                    holder.createErrorAnnotation(assignment.leftExpression,
+                      ScalaBundle.message("annotator.error.parameter.specified.multiple.times"))
                   case WrongTypeParameterInferred => //todo: ?
                   case ExpectedTypeMismatch => //will be reported later
 
@@ -186,7 +196,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                 r.problems.foreach {
                   case MissedParametersClause(_) =>
                     registerCreateFromUsageFixesFor(reference,
-                      holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f)))
+                      holder.createErrorAnnotation(reference,
+                        ScalaBundle.message("annotator.error.missing.arguments.for.method", nameOf(f))))
                   case _ =>
                 }
               case _ =>
@@ -214,7 +225,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     val ref: Option[PsiElement] = refElementOpt.flatMap(_.resolve().toOption)
     val reassignment = ref.exists(ScalaPsiUtil.isReadonly)
     if (reassignment) {
-      val annotation = holder.createErrorAnnotation(reference, "Reassignment to val")
+      val annotation = holder.createErrorAnnotation(reference, ScalaBundle.message("annotator.error.reassignment.to.val"))
       ref.get match {
         case named: PsiNamedElement if ScalaPsiUtil.nameContext(named).isInstanceOf[ScValue] =>
           annotation.registerFix(new ValToVarQuickFix(ScalaPsiUtil.nameContext(named).asInstanceOf[ScValue]))

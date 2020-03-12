@@ -4,6 +4,7 @@ package element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
 import org.jetbrains.plugins.scala.extensions._
@@ -53,7 +54,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
         .getOrElse(call.argsElement.getTextRange)
 
-      holder.createErrorAnnotation(range, "Unspecified value parameters: " + missed.mkString(", "))
+      val message = ScalaBundle.message("annotator.error.unspecified.value.parameters.mkstring", missed.mkString(", "))
+      holder.createErrorAnnotation(range, message)
     }
 
     if (problems.isEmpty) {
@@ -61,7 +63,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     }
 
     if (isAmbiguousOverload(problems) || isAmbiguousOverload(call)) {
-      holder.createErrorAnnotation(call.getEffectiveInvokedExpr, s"Cannot resolve overloaded method")
+      val message = ScalaBundle.message("annotator.error.cannot.resolve.overloaded.method")
+      holder.createErrorAnnotation(call.getEffectiveInvokedExpr, message)
       return
     }
 
@@ -73,7 +76,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     firstExcessiveArgument.foreach { argument =>
       val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
       val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
-      holder.createErrorAnnotation(range, "Too many arguments")
+      holder.createErrorAnnotation(range, ScalaBundle.message("annotator.error.too.many.arguments"))
     }
 
     //todo: better error explanation?
@@ -83,7 +86,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         val targetName = call.getInvokedExpr.`type`().toOption
           .map("'" + _.presentableText + "'")
           .getOrElse("Application")
-        val annotation = holder.createErrorAnnotation(call.argsElement, s"$targetName does not take parameters")
+        val message = ScalaBundle.message("annotator.error.target.does.not.take.parameters", targetName)
+        val annotation = holder.createErrorAnnotation(call.argsElement, message)
         (call, call.getInvokedExpr) match {
           case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
             annotation.registerFix(new CreateApplyQuickFix(td, c))
@@ -100,13 +104,13 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
       case MalformedDefinition() =>
-        holder.createErrorAnnotation(call.getInvokedExpr, "Application has malformed definition")
+        holder.createErrorAnnotation(call.getInvokedExpr, ScalaBundle.message("annotator.error.method.has.malformed.definition"))
       case ExpansionForNonRepeatedParameter(expression) =>
-        holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
+        holder.createErrorAnnotation(expression, ScalaBundle.message("annotator.error.expansion.for.non.repeated.parameter"))
       case PositionalAfterNamedArgument(argument) =>
-        holder.createErrorAnnotation(argument, "Positional after named argument")
+        holder.createErrorAnnotation(argument, ScalaBundle.message("annotator.error.positional.after.named.argument"))
       case ParameterSpecifiedMultipleTimes(assignment) =>
-        holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
+        holder.createErrorAnnotation(assignment.leftExpression, ScalaBundle.message("annotator.error.parameter.specified.multiple.times"))
       case ExpectedTypeMismatch => // it will be reported later
       case DefaultTypeParameterMismatch(_, _) => //it will be reported later
 

@@ -3,6 +3,7 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -22,14 +23,15 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
 
 
     if (resolved.exists(isConstructorMalformed)) {
-      holder.createErrorAnnotation(element.thisElement, "Constructor has malformed definition")
+      holder.createErrorAnnotation(element.thisElement,
+        ScalaBundle.message("annotator.error.constructor.has.malformed.definition"))
     }
 
 
     resolved match {
       case Seq() =>
         val annotation = holder.createErrorAnnotation(element.thisElement,
-          "Cannot find constructor for this call")
+          ScalaBundle.message("annotator.error.cannot.find.constructor.for.this.call"))
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
 
       case Seq(r@ScConstructorResolveResult(constr)) if constr.effectiveParameterClauses.length > 1 && !isConstructorMalformed(r) =>

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
  * User: Dmitry.Naydanov
  * Date: 30.09.15.
  */
-class MultipleArgLists extends AbstractInspection("MultipleArgListsInAnnotation") {
+class MultipleArgLists extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case annotation: ScAnnotation if annotation.constructorInvocation.arguments.length > 1 =>
