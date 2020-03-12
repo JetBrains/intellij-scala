@@ -7,6 +7,7 @@ import java.awt.{Graphics, Insets, Rectangle}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.{Disposer, Key}
 import org.jetbrains.plugins.scala.annotator.hints.Text
@@ -97,10 +98,12 @@ private object AlignedInlayGroup {
 
     def hasHint: Boolean = maybeHint.isDefined
 
+    def lineNumber: Int = document.getLineNumber(marker.getEndOffset)
+
     def lineEndX(editor: Editor): Int = {
       val endOffset = marker.getEndOffset
       if (endOffset < 0 || endOffset >= document.getTextLength) 0
-      else editor.offsetToXY(document.getLineEndOffset(document.getLineNumber(marker.getEndOffset)), true, false).x
+      else editor.offsetToXY(document.getLineEndOffset(lineNumber), true, false).x
     }
 
     override def dispose(): Unit = marker.dispose()
@@ -132,7 +135,11 @@ private object AlignedInlayGroup {
         r.width += cached.margin - oldMargin
       }
 
-      super.paint_Adapted(editor, g, r, textAttributes)
+      var hasSomethingElseInLine = false
+      editor.asOptionOf[EditorImpl].foreach(_.processLineExtensions(line.lineNumber, _ => { hasSomethingElseInLine = true; false} ))
+      if (!hasSomethingElseInLine) {
+        super.paint_Adapted(editor, g, r, textAttributes)
+      }
     }
 
     override def getMargin(editor: Editor): Insets = new Insets(0, cached.margin, 0, 0)
