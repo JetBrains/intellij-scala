@@ -55,11 +55,14 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
       if (owner.hasModifierProperty("final") && !isInTrait) //final methods in traits may be overridden in java
         set.add("final")
 
-      owner.getModifierList.accessModifier match {
-        case Some(a) if a.isUnqualifiedPrivateOrThis =>
-          set.add("private")
-        case _ =>
-          set.add("public")
+      // don't add an access modifier if the element is a parameter
+      if (!owner.isInstanceOf[PsiParameter]) {
+        owner.getModifierList.accessModifier match {
+          case Some(a) if a.isUnqualifiedPrivateOrThis =>
+            set.add("private")
+          case _ =>
+            set.add("public")
+        }
       }
     }
     set
