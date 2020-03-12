@@ -5,11 +5,16 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 
 
-class BspFetchEnvironmentTaskInstaller(project: Project) extends RunManagerListener {
+class BspFetchTestEnvironmentTaskInstaller(project: Project) extends RunManagerListener {
   private var settingsToInit: List[RunnerAndConfigurationSettings] = Nil
 
   override def runConfigurationAdded(settings: RunnerAndConfigurationSettings): Unit = {
-    runManagerEx.foreach(installFetchEnvironmentTask(settings, _))
+    runManagerEx match {
+      case Some(runManager) =>
+        installFetchEnvironmentTask(settings, runManager)
+      case None =>
+        settingsToInit ::= settings
+    }
   }
 
   private def installFetchEnvironmentTask(settings: RunnerAndConfigurationSettings, runManager: RunManagerEx): Unit = {
@@ -25,14 +30,11 @@ class BspFetchEnvironmentTaskInstaller(project: Project) extends RunManagerListe
     }
   }
 
-  override def stateLoaded(runManager: RunManager, isFirstLoadState: Boolean): Unit = {
-    if (isFirstLoadState) {
-      runManagerEx.foreach {
-        runManager => settingsToInit.foreach(installFetchEnvironmentTask(_, runManager))
-      }
-      settingsToInit = Nil
+  override def stateLoaded(runManager: RunManager, isFirstLoadState: Boolean): Unit =
+    if (isFirstLoadState && runManager.isInstanceOf[RunManagerEx]) {
+        settingsToInit.foreach(installFetchEnvironmentTask(_, runManager.asInstanceOf[RunManagerEx]))
+        settingsToInit = Nil
     }
-  }
   
   private def runManagerEx: Option[RunManagerEx] =
     Option(ServiceManager.getServiceIfCreated(project, classOf[RunManager]))

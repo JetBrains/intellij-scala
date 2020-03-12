@@ -43,7 +43,7 @@
     </extensions>
 
     <projectListeners>
-        <listener class="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskInstaller"
+        <listener class="org.jetbrains.bsp.project.test.environment.BspFetchTestEnvironmentTaskInstaller"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
 
