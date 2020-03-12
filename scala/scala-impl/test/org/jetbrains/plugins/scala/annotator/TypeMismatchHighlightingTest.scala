@@ -255,6 +255,10 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchDot3(): Unit = assertErrors(
     "val v: String = Math\n  .")
 
+  // val v: Ordering[Int] = Ordering.by(_.) // Type mismatch, expected: NotInferredT => NotInferredT, actual: Int, SCL-17206
+  def testTypeMismatchDotIndentifierExpected(): Unit = assertErrors(
+    "def f[T](f: T => Unit) = (); val v: java.util.Comparator[Int] = f(_.)")
+
   // Don't show type mismatch on unapplied methods, SCL-16431
 
   def testTypeMismatchUnappliedMethod(): Unit = assertErrors(
