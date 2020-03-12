@@ -3,6 +3,7 @@ package annotator
 package element
 
 import com.intellij.psi.{PsiClass, PsiField, PsiMethod}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
@@ -63,24 +64,26 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
                       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                       case WrongTypeParameterInferred => //todo: ?
                       case ExpectedTypeMismatch => // will be reported later
-                      case _ => holder.createErrorAnnotation(element, "Wrong right assignment side")
+                      case _ => holder.createErrorAnnotation(element, ScalaBundle.message("annotator.error.wrong.right.assignment.side"))
                     }
-                  case _ => holder.createErrorAnnotation(element, "Reassignment to val")
+                  case _ => holder.createErrorAnnotation(element, reassignementToVal)
                 }
-              case _: ScFunction => holder.createErrorAnnotation(element, "Reassignment to val")
+              case _: ScFunction => holder.createErrorAnnotation(element, reassignementToVal)
               case method: PsiMethod if method.getParameterList.getParametersCount == 0 =>
                 method.containingClass match {
                   case c: PsiClass if c.isAnnotationType => //do nothing
-                  case _ => holder.createErrorAnnotation(element, "Reassignment to val")
+                  case _ => holder.createErrorAnnotation(element, reassignementToVal)
                 }
               case _: ScValue =>
-                val annotation = holder.createErrorAnnotation(element, "Reassignment to val")
+                val annotation = holder.createErrorAnnotation(element, reassignementToVal)
                 annotation.registerFix(new ValToVarQuickFix(ScalaPsiUtil.nameContext(r.element).asInstanceOf[ScValue]))
-              case _ => holder.createErrorAnnotation(element, "Reassignment to val")
+              case _ => holder.createErrorAnnotation(element, reassignementToVal)
             }
           case _ =>
         }
       case _ =>
     }
   }
+
+  private def reassignementToVal: String = ScalaBundle.message("annotator.error.reassignment.to.val")
 }

@@ -148,7 +148,7 @@ trait ScalaAnnotationHolder {
    * @param htmlTooltip the tooltip to show (usually the message, but escaped as HTML and surrounded by a { @code <html>} tag
    * @return the annotation (which can be modified to set additional annotation parameters)
    */
-  def createAnnotation(severity: HighlightSeverity, range: TextRange, @Nls message: String, @Nls htmlTooltip: String): ScalaAnnotation
+  def createAnnotation(severity: HighlightSeverity, range: TextRange, @Nls message: String, htmlTooltip: String): ScalaAnnotation
 
   def getCurrentAnnotationSession: AnnotationSession
   def isBatchMode: Boolean
