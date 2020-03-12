@@ -3,6 +3,7 @@ package annotator
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.template.kindOf
 import org.jetbrains.plugins.scala.extensions._
@@ -48,10 +49,11 @@ object AnnotatorUtils {
   }
 
   def shouldIgnoreTypeMismatchIn(e: PsiElement, fromFunctionLiteral: Boolean = false): Boolean = {
-    // Don't show type a mismatch error when there's a parser error, SCL-16899
+    // Don't show type a mismatch error when there's a parser error, SCL-16899, SCL-17206
     def hasParserErrors = e.elements.exists(_.isInstanceOf[PsiErrorElement]) ||
       e.getPrevSibling.isInstanceOf[PsiErrorElement] ||
       e.getNextSibling.isInstanceOf[PsiErrorElement] ||
+      e.getNextSibling.isInstanceOf[LeafPsiElement] && e.getNextSibling.textMatches(".") && e.getNextSibling.getNextSibling.isInstanceOf[PsiErrorElement] ||
       e.parent.exists { parent =>
         e == parent.getFirstChild && parent.getPrevSibling.isInstanceOf[PsiErrorElement] ||
           e == parent.getLastChild && parent.getNextSibling.isInstanceOf[PsiErrorElement]
