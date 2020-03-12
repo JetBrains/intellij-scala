@@ -195,12 +195,20 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 }
 
 private object ScalaMethodChainInlayHintsPass {
+  private object CallerAndCall {
+    def unapply(expr: ScExpression): Option[(ScExpression, MethodInvocation)] = expr match {
+      case Parent((ref: ScReferenceExpression) && Parent(mc: ScMethodCall)) => Some(ref -> mc)
+      case Parent(call@ScInfixExpr(`expr`, _, _)) =>  Some(expr -> call)
+      case _ => None
+    }
+  }
+
   private def isFollowedByLineEnd(elem: PsiElement, alsoAfterLambdaArg: Boolean): Boolean = {
     elem match {
       case elem if elem.followedByNewLine(ignoreComments = false) =>
         true
 
-      case Parent((ref: ScReferenceExpression) && Parent(mc: ScMethodCall)) =>
+      case CallerAndCall(ref, mc) =>
         /*
          * Check if we have a situation like
          *  something
@@ -208,6 +216,13 @@ private object ScalaMethodChainInlayHintsPass {
          *   }.func {            // <- add type here (return type of `something.func{...}`)
          *   }.func { x =>       // <- add type here iff alsoAfterLambdaArg
          *   }.func { case x =>  // <- add type here iff alsoAfterLambdaArg
+         *   }
+         *  or
+         *  something
+         *   func {             // <- don't add type here
+         *   } func {            // <- add type here (return type of `something.func{...}`)
+         *   } func { x =>       // <- add type here iff alsoAfterLambdaArg
+         *   } func { case x =>  // <- add type here iff alsoAfterLambdaArg
          *   }
          */
 
@@ -223,7 +238,7 @@ private object ScalaMethodChainInlayHintsPass {
 
         // check }.func( x => \n
         def checkLambdaInParen: Boolean =
-          mc.args.exprs.headOption.exists(checkLambdaStart)
+          mc.argumentExpressions.headOption.exists(checkLambdaStart)
 
         // check }.func { x => \n
         def checkLamdaInBlock(blk: ScBlockExpr): Boolean =
@@ -239,7 +254,13 @@ private object ScalaMethodChainInlayHintsPass {
               .exists(_.followedByNewLine(ignoreComments = false))
           )
 
-        def isArgumentBegin = mc.args.getFirstChild match {
+        def argBegin = mc.argsElement match {
+          case argList: ScArgumentExprList => argList.getFirstChild
+          case parenthesis: ScParenthesisedExpr => parenthesis.getFirstChild
+          case e => e
+        }
+
+        def isArgumentBegin = argBegin match {
           case blk: ScBlockExpr =>
             // check }.func {
             blk.getLBrace.exists(_.followedByNewLine(ignoreComments = false)) ||

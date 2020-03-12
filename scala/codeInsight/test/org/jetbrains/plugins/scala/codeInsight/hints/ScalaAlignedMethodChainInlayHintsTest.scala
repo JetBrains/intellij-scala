@@ -49,7 +49,39 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
        |  .toSet$S: Set[Int]$E
        |  .map(_.toString)$S: Set[String]$E
        |  .toSeq$S: Seq[String]$E
-       |  .toString + ""
+       |  .toString + ""$S: String$E
+     """.stripMargin
+  )
+
+
+  def testChainWithMultiInfixCall(): Unit = doTest(
+    s"""
+       |val x = List(1, 2, 3)$S: List[Int]$E
+       |  .toSet$S: Set[Int]$E map {
+       |     _.toString$empty
+       |   }$S: Set[String]$E map {
+       |     _.toInt$empty
+       |   }$S: Set[Int]$E map {
+       |     _.toShort$empty
+       |   }$S: Set[Short]$E exists {
+       |     _ == 3$empty
+       |   }$S: Boolean$E
+     """.stripMargin
+  )
+
+
+  def testChainWithMultiInfixCall_with_parenthesis(): Unit = doTest(
+    s"""
+       |val x = List(1, 2, 3)$S: List[Int]$E
+       |  .toSet$S: Set[Int]$E map (
+       |     _.toString$empty
+       |   )$S: Set[String]$E map {
+       |     _.toInt$empty
+       |   }$S: Set[Int]$E map {
+       |     _.toShort$empty
+       |   }$S: Set[Short]$E exists {
+       |     _ == 3$empty
+       |   }$S: Boolean$E
      """.stripMargin
   )
 
