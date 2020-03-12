@@ -304,7 +304,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         projectionTypeText(proj, needDotType)
       case p: ParameterizedType => parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
       case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
-      case UndefinedType(tpt, _) => "NotInfered" + tpt.name
+      case UndefinedType(tpt, _) => "NotInferred" + tpt.name
       case c: ScCompoundType if c != null =>
         compoundTypeText(c)
       case ex: ScExistentialType if ex != null =>
