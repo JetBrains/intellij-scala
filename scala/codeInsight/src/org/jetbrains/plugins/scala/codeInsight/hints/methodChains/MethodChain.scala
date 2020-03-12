@@ -18,7 +18,7 @@ private object MethodChain {
 
   private def isMostOuterExpression(expr: PsiElement): Boolean = {
     expr.getParent match {
-      case _: ScReferenceExpression | _: ScMethodCall | _: ScGenericCall | _: ScParenthesisedExpr => false
+      case _: ScReferenceExpression | _: MethodInvocation | _: ScGenericCall | _: ScParenthesisedExpr => false
       case _ => true
     }
   }
@@ -26,8 +26,9 @@ private object MethodChain {
   private def collectChain(expr: ScExpression): List[ScExpression] = {
     @tailrec
     def collectChainAcc(expr: ScExpression, acc: List[ScExpression]): List[ScExpression] = {
-      val newAcc = if (!expr.parent.exists(_.is[ScMethodCall])) expr :: acc else acc
+      val newAcc = expr.getParent.isInstanceOf[ScMethodCall].fold(acc, expr :: acc)
       expr match {
+        case ScInfixExpr(left, _, _) => collectChainAcc(left, newAcc)
         case ChainCall(inner) => collectChainAcc(inner, newAcc)
         case _ => newAcc
       }
