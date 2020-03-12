@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture
 import ch.epfl.scala.bsp4j._
 import com.intellij.execution.BeforeRunTaskProvider
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
+import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -83,8 +84,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
           projectPath <- Option(ES.getExternalProjectPath(module))
             .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.extract.path", module.getName)))
           workspaceUri = Paths.get(projectPath).toUri
-          testClasses <- getApplicableClasses(configuration)
-            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.detect.run.classes", configuration.getName)))
+          testClasses = getApplicableClasses(configuration)
           testSources = testClasses.flatMap(class2File(_, module.getProject))
           targetsMatchingSources <- fetchTargetIdsFromFiles(testSources, workspaceUri, module.getProject, potentialTargets)
             .map(Right(_))
@@ -187,17 +187,18 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     if (matchedClasses.length <= 1) matchedClasses.headOption.map(_.getContainingFile) else None
   }
 
-  private def getApplicableClasses(configuration: RunConfiguration) = {
+  private def getApplicableClasses(configuration: RunConfiguration): Seq[String] = {
     configuration match {
-      case scalaConfig: ModuleBasedConfiguration[_, _]
-        if BspUtil.isBspModule(scalaConfig.getConfigurationModule.getModule) =>
-        val classes = scalaConfig match {
+      case moduleBasedRunConfig: ModuleBasedConfiguration[_, _]
+        if BspUtil.isBspModule(moduleBasedRunConfig.getConfigurationModule.getModule) =>
+        val classes = moduleBasedRunConfig match {
           case p: ScalaTestRunConfiguration =>
             p.testConfigurationData match {
-              case data: AllInPackageTestData => Some(data.classBuf.asScala)
-              case data: ClassTestData => Some(List(data.testClassPath))
-              case _ => None
+              case data: AllInPackageTestData => data.classBuf.asScala
+              case data: ClassTestData => List(data.testClassPath)
+              case _ => List()
             }
+          case _ => List()
         }
         classes
     }
