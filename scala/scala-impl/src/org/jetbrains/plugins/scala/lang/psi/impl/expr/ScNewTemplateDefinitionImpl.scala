@@ -56,6 +56,11 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   }
 
   protected override def innerType: TypeResult = {
+    // Reliably prevent cases like SCL-17168
+    if (extendsBlock.getTextLength == 0) {
+      return Failure("Empty new expression")
+    }
+
     desugaredApply match {
       case Some(expr) =>
         return expr.getNonValueType()
