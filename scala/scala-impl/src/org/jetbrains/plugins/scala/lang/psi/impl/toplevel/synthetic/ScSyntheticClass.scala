@@ -220,10 +220,12 @@ class SyntheticClasses(project: Project) extends PsiElementFinder {
   def isClassesRegistered: Boolean = classesInitialized
 
   var stringPlusMethod: ScType => ScSyntheticFunction = _
-  var all: mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
-  var numeric: mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
-  var integer : mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
-  val syntheticObjects: mutable.Map[String, ScObject] = new mutable.HashMap[String, ScObject]
+
+  var all             : mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
+  var numeric         : mutable.Set[ScSyntheticClass]         = new mutable.HashSet[ScSyntheticClass]
+  var integer         : mutable.Set[ScSyntheticClass]         = new mutable.HashSet[ScSyntheticClass]
+  val syntheticObjects: mutable.Map[String, ScObject]         = new mutable.HashMap[String, ScObject]
+
   var file : PsiFile = _
 
   def registerClasses(): Unit = {
@@ -520,7 +522,7 @@ class SyntheticClassesListener extends ProjectManagerListener {
     }
   }
 
-  override def projectClosed(project: Project): Unit = {
+  override def projectClosing(project: Project): Unit = {
     SyntheticClasses.get(project).clear()
   }
 }
