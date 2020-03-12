@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTupleTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -36,11 +36,16 @@ object CreateFromUsageUtil {
     implicit val project: ProjectContext = arg.projectContext
 
     arg match {
+      case ScParenthesisedExpr(inner) =>
+        nameAndTypeForArg(inner)
+      case lit: ScLiteral =>
+        val tp = lit.`type`().getOrAny.widenIfLiteral
+        (nameByType(tp), tp)
       case ref: ScReferenceExpression =>
         (ref.refName, ref.`type`().getOrAny)
       case ScAssignment(ref: ScReferenceExpression, value) =>
         val name = ref.getText
-        val tp   = value.flatMap(_.`type`().toOption).asTypeResult.getOrAny
+        val tp   = value.map(nameAndTypeForArg).map(_._2).asTypeResult.getOrAny
         (name, tp)
       case expr: ScExpression =>
         val tp = expr.`type`().getOrAny

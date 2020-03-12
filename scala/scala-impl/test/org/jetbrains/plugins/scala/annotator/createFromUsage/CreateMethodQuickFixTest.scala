@@ -2,7 +2,11 @@ package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.runner.RunWith
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12, TestScalaVersion.Scala_2_13))
 class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
   protected val Start = EditorTestUtil.SELECTION_START_TAG
   protected val End   = EditorTestUtil.SELECTION_END_TAG
@@ -94,6 +98,12 @@ class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
   def testCreateMethod_WithNamedArguments_SomeInTheMiddle(): Unit = {
     val usage      = """foo(42, name2 = "text", Some(true))"""
     val definition = """def foo(i: Int, name2: String, someBoolean: Some[Boolean]) = ???"""
+    doCompoundTest(usage, definition)
+  }
+
+  def testCreateMethod_WithParenthesis(): Unit = {
+    val usage      = """foo((42))"""
+    val definition = """def foo(i: Int) = ???"""
     doCompoundTest(usage, definition)
   }
 
