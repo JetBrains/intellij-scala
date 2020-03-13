@@ -51,12 +51,12 @@ object Generators {
   def genSourceDirectoryUnder(root: Path): Gen[SourceDirectory] = for {
     path <- genPathBelow(root)
     generated <- arbitrary[Boolean]
-  } yield SourceDirectory(path.toFile, generated)
+  } yield SourceDirectory(path.toFile, generated, None)
 
   def genSourceDirectory: Gen[SourceDirectory] = for {
     path <- arbitrary[Path]
     generated <- arbitrary[Boolean]
-  } yield SourceDirectory(path.toFile, generated)
+  } yield SourceDirectory(path.toFile, generated, None)
 
   def genSourceDirs(root: Option[Path]): Gen[List[SourceDirectory]] = Gen.sized { size =>
     for {
