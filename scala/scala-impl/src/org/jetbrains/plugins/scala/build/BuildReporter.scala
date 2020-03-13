@@ -35,6 +35,7 @@ trait BuildReporter {
 
   /** Print message to log. */
   def log(@Nls message: String): Unit
+  def logStdErr(@Nls message: String): Unit = log(message)
 
   /** Start a subtask. */
   def startTask(eventId: EventId, parent: Option[EventId], @Nls message: String, time: Long = System.currentTimeMillis()): Unit

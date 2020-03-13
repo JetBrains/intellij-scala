@@ -176,7 +176,7 @@ class SbtStructureDump {
 
     var messages = BuildMessages.empty
 
-    def update(textRaw: String): Unit = {
+   def update(typ: OutputType, textRaw: String): Unit = {
       val text = textRaw.trim
 
       if (text.nonEmpty) {
@@ -187,16 +187,16 @@ class SbtStructureDump {
     }
 
     val processListener: (OutputType, String) => Unit = {
-      case (OutputType.StdOut, text) =>
+      case (typ@OutputType.StdOut, text) =>
         if (text.contains("(q)uit")) {
           val writer = new PrintWriter(process.getOutputStream)
           writer.println("q")
           writer.close()
         } else {
-          update(text)
+          update(typ, text)
         }
-      case (OutputType.StdErr, text) =>
-        update(text)
+      case (typ@OutputType.StdErr, text) =>
+        update(typ, text)
     }
 
     Try {

@@ -70,7 +70,13 @@ class ExternalSystemNotificationReporter(workingDir: String,
     viewManager.foreach(_.onEvent(taskId, event(message, Kind.INFO, position)))
 
   override def log(message: String): Unit =
-    notifications.onTaskOutput(taskId, message + "\n", true)
+    log(message, isStdOut = true)
+
+  override def logStdErr(message: String): Unit =
+    log(message, isStdOut = false)
+
+  private def log(message: String, isStdOut: Boolean): Unit =
+    notifications.onTaskOutput(taskId, message + "\n", isStdOut)
 
   override def startTask(eventId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
 
