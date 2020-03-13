@@ -1193,6 +1193,11 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "foo"
   )
 
+  def testClassParameter(): Unit = checkNoBasicCompletion(
+    fileText = s"class Foo(val Som$CARET)",
+    item = "Som"
+  )
+
   def testConstructorPatternValueName(): Unit = doCompletionTest(
     fileText =
       s"""Array.emptyObjectArray match {

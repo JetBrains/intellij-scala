@@ -4,12 +4,12 @@ package completion
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionProvider, CompletionResultSet, InsertionContext}
 import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtOffset, getContextOfType, isAncestor}
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtOffset, getContextOfType, isAncestor}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{adjustTypes, nameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
@@ -188,7 +188,8 @@ object ScalaBasicCompletionProvider {
                              isNamedParameter: Boolean): Option[Boolean] = element match {
       case clazz: PsiClass if isExcluded(clazz) => None
       case definition: ScTypeDefinition if filterDuplications(definition) => None
-      case _: ScClassParameter => Some(false)
+      case parameter: ScClassParameter =>
+        isValidLocalDefinition(parameter, isLocal = false)
       case parameter: ScParameter if !isNamedParameter =>
         isValidLocalDefinition(parameter)
       case pattern@(_: ScBindingPattern |
@@ -214,11 +215,12 @@ object ScalaBasicCompletionProvider {
           case _ => isInImport
         })
 
-    private def isValidLocalDefinition(element: PsiElement): Option[Boolean] =
+    private def isValidLocalDefinition(element: PsiElement,
+                                       isLocal: Boolean = true): Option[Boolean] =
       if (isAncestor(element, getPlace, true))
         None
       else
-        Some(true)
+        Some(isLocal)
 
     private def isAccessible(element: PsiNamedElement,
                              isNamedParameter: Boolean): Boolean =
