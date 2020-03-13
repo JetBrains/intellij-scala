@@ -60,12 +60,16 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
   override def isConfigurable: Boolean = true
 
   override def configureTask(context: DataContext, configuration: RunConfiguration, task: BspFetchTestEnvironmentTask): Promise[lang.Boolean] = {
-    val module = configuration.asInstanceOf[ScalaTestRunConfiguration].getModule
-    val res = for {
-      potentialTargets <- getBspTargets(module)
-      _ <- askUserForTargetId(potentialTargets.map(_.getUri), task)
-    } yield ()
-    Promises.resolvedPromise(res.isDefined)
+    configuration match {
+      case moduleBasedConfiguration: ModuleBasedConfiguration[_,_] =>
+        val modules = moduleBasedConfiguration.getModules
+        val res = for {
+          potentialTargets <- modules.flatMap(module => getBspTargets(module))
+          _ <- askUserForTargetId(potentialTargets.map(_.getUri), task)
+        } yield ()
+        Promises.resolvedPromise(res.length == 1)
+      case _ => Promises.resolvedPromise(false)
+    }
   }
 
   case class BspGetEnvironmentError(msg: String)
