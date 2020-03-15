@@ -8,7 +8,7 @@ import org.jetbrains.annotations.PropertyKey;
 
 public class IntellilangBundle extends DynamicBundle {
     @NonNls
-    private static final String BUNDLE = "messages.IntellilangBundle";
+    private static final String BUNDLE = "messages.ScalaIntellilangBundle";
 
     private static final IntellilangBundle INSTANCE = new IntellilangBundle();
 

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.PropertyKey;
 
 public class WorksheetBundle extends DynamicBundle {
     @NonNls
-    private static final String BUNDLE = "messages.WorksheetBundle";
+    private static final String BUNDLE = "messages.ScalaWorksheetBundle";
 
     private static final WorksheetBundle INSTANCE = new WorksheetBundle();
 

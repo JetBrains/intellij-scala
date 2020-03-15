@@ -22,7 +22,7 @@ object ScalaBundleSorting {
 
   val bspModule: ModuleInfo = ModuleInfo(
     rootPath = TestUtils.findCommunityRoot() + "bsp/",
-    bundlePath = TestUtils.findCommunityRoot() + "bsp/resources/messages/BspBundle.properties",
+    bundlePath = TestUtils.findCommunityRoot() + "bsp/resources/messages/ScalaBspBundle.properties",
   )
 
   val codeInsightModule: ModuleInfo = ModuleInfo(
@@ -42,12 +42,12 @@ object ScalaBundleSorting {
 
   val jpsModule: ModuleInfo = ModuleInfo(
     rootPath = scalaModDir + "compiler-jps/",
-    bundlePath = scalaModDir + "compiler-jps/resources/messages/JpsBundle.properties",
+    bundlePath = scalaModDir + "compiler-jps/resources/messages/ScalaJpsBundle.properties",
   )
 
   val macrosModule: ModuleInfo = ModuleInfo(
     rootPath = scalaModDir + "macros/",
-    bundlePath = scalaModDir + "macros/resources/messages/MacrosBundle.properties",
+    bundlePath = scalaModDir + "macros/resources/messages/ScalaMacrosBundle.properties",
   )
 
   val scalaImplDir: String = scalaModDir + "scala-impl/"
@@ -67,7 +67,7 @@ object ScalaBundleSorting {
 
   val scalaImplModuleSbt: ModuleInfo = ModuleInfo(
     rootPath = scalaImplDir,
-    bundlePath = scalaImplDir + "resources/messages/SbtBundle.properties"
+    bundlePath = scalaImplDir + "resources/messages/ScalaSbtBundle.properties"
   )
 
   val uastModule: ModuleInfo = ModuleInfo(
@@ -77,12 +77,12 @@ object ScalaBundleSorting {
 
   val worksheetModule: ModuleInfo = ModuleInfo(
     rootPath = scalaModDir + "worksheet/",
-    bundlePath = scalaModDir + "worksheet/resources/messages/WorksheetBundle.properties",
+    bundlePath = scalaModDir + "worksheet/resources/messages/ScalaWorksheetBundle.properties",
   )
 
   val intellilangModule: ModuleInfo = ModuleInfo(
     rootPath = scalaModDir + "integration/intellilang/",
-    bundlePath = scalaModDir + "integration/intellilang/resources/messages/IntellilangBundle.properties",
+    bundlePath = scalaModDir + "integration/intellilang/resources/messages/ScalaIntellilangBundle.properties",
   )
 
   val allModuleInfos: Seq[ModuleInfo] = Seq(

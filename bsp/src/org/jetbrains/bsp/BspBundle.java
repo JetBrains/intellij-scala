@@ -8,7 +8,7 @@ import org.jetbrains.annotations.PropertyKey;
 
 public class BspBundle extends DynamicBundle {
     @NonNls
-    private static final String BUNDLE = "messages.BspBundle";
+    private static final String BUNDLE = "messages.ScalaBspBundle";
 
     private static final BspBundle INSTANCE = new BspBundle();
 

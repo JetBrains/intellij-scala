@@ -59,7 +59,7 @@
         <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.DottyProjectTemplatesFactory" order="last"/>
 
         <!--suppress PluginXmlCapitalization -->
-        <projectConfigurable groupId="build.tools" bundle="messages.SbtBundle"
+        <projectConfigurable groupId="build.tools" bundle="messages.ScalaSbtBundle"
                              key="displayname.sbt"
                              instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>
 
@@ -90,7 +90,7 @@
 
         <!--suppress PluginXmlCapitalization -->
         <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtReplaceProjectWithProjectInInspection"
-                         bundle="messages.SbtBundle"
+                         bundle="messages.ScalaSbtBundle"
                          key="displayname.replace.project.with.project.in"
                          groupName="sbt"
                          shortName="SbtReplaceProjectWithProjectIn"

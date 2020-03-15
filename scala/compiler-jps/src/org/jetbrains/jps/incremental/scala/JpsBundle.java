@@ -14,7 +14,7 @@ import org.jetbrains.annotations.PropertyKey;
  */
 public class JpsBundle extends DynamicBundle {
     @NonNls
-    private static final String BUNDLE = "messages.JpsBundle";
+    private static final String BUNDLE = "messages.ScalaJpsBundle";
 
     private static final JpsBundle INSTANCE = new JpsBundle();
 

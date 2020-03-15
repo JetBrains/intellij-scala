@@ -13,7 +13,7 @@ import org.jetbrains.annotations.PropertyKey;
  */
 public class MacrosBundle extends DynamicBundle {
   @NonNls
-  private static final String BUNDLE = "messages.MacrosBundle";
+  private static final String BUNDLE = "messages.ScalaMacrosBundle";
 
   private static final MacrosBundle INSTANCE = new MacrosBundle();
 

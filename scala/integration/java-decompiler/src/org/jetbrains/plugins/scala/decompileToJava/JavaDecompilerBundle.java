@@ -8,7 +8,7 @@ import org.jetbrains.annotations.PropertyKey;
 
 public class JavaDecompilerBundle extends DynamicBundle {
     @NonNls
-    private static final String BUNDLE = "messages.JavaDecompilerBundle";
+    private static final String BUNDLE = "messages.ScalaJavaDecompilerBundle";
 
     private static final JavaDecompilerBundle INSTANCE = new JavaDecompilerBundle();
 
