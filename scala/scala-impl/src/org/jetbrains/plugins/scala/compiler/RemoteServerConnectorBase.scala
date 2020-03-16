@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.util.ScalaPluginJars
 abstract class RemoteServerConnectorBase(
   protected val module: Module,
   filesToCompile: Option[Seq[File]],
-  outputDir: File,
+  protected val outputDir: File,
   needCheck: Boolean = true
 ) {
 

@@ -5,6 +5,7 @@ import java.io.File
 import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
 import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.plugins.scala.tasty.model.TastyFile
 import org.jetbrains.plugins.scala.util.{CompilationId, ObjectSerialization}
 
 sealed trait CompilerEvent {
@@ -58,13 +59,25 @@ object CompilerEvent {
     val EventType = "compilation-finished"
   }
 
+  @SerialVersionUID(771514404488104468L)
+  case class CacheTastyFile(override val compilationId: CompilationId, source: File, tasty: TastyFile)
+    extends CompilerEvent {
+
+    override def eventType: String = CacheTastyFile.EventType
+  }
+
+  object CacheTastyFile {
+    val EventType = "cache-tasty-file"
+  }
+
   def fromCustomMessage(customMessage: CustomBuilderMessage): Option[CompilerEvent] = {
     val text = customMessage.getMessageText
     Option(customMessage)
       .filter(_.getBuilderId == BuilderId)
       .map(_.getMessageType)
       .collect {
-        case MessageEmitted.EventType | CompilationFinished.EventType | RangeMessageEmitted.EventType =>
+        case MessageEmitted.EventType | CompilationFinished.EventType | RangeMessageEmitted.EventType |
+             CacheTastyFile.EventType =>
           ObjectSerialization.fromBase64(text)
       }
   }

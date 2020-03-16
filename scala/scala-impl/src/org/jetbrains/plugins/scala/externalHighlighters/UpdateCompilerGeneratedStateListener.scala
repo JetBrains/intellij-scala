@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import java.io.File
-
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
-import org.jetbrains.plugins.scala.externalHighlighters.HighlightingStateManager.FileHighlightingState
+import CompilerGeneratedStateManager.FileCompilerGeneratedState
+import org.jetbrains.plugins.scala.project.template.FileExt
+import org.jetbrains.plugins.scala.tasty.TastyProvider
 
-private class HighlightingUpdatingCompilerEventListener(project: Project)
+private class UpdateCompilerGeneratedStateListener(project: Project)
   extends CompilerEventListener {
 
   override def eventReceived(event: CompilerEvent): Unit =
@@ -20,7 +20,7 @@ private class HighlightingUpdatingCompilerEventListener(project: Project)
           line <- msg.line
           column <- msg.column
           source <- msg.source
-          virtualFile <- findVirtualFile(source)
+          virtualFile <- source.toVirtualFile
           highlighting = ExternalHighlighting(
             severity = kindToSeverity(msg.kind),
             message = text,
@@ -29,18 +29,26 @@ private class HighlightingUpdatingCompilerEventListener(project: Project)
             toLine = None,
             toColumn = None
           )
-          fileState = FileHighlightingState(compilationId, Set(highlighting))
-        } yield virtualFile -> fileState
-
+        } yield virtualFile -> FileCompilerGeneratedState(compilationId, Set(highlighting), TastyProvider.Default)
       case CompilerEvent.RangeMessageEmitted(compilationId, msg) =>
-        val highlighting = ExternalHighlighting(msg.severity, msg.text, msg.fromLine, msg.fromColumn, msg.toLine, msg. toColumn)
-        val virtualFile = findVirtualFile(msg.source)
-        val fileState = FileHighlightingState(compilationId, Set(highlighting))
-        virtualFile.map (vfile => vfile -> fileState)
-
+        for {
+          virtualFile <- msg.source.toVirtualFile
+          highlighting = ExternalHighlighting(
+            severity = msg.severity,
+            message = msg.text,
+            fromLine = msg.fromLine,
+            fromColumn = msg.fromColumn,
+            toLine = msg.toLine,
+            toColumn = msg.toColumn
+          )
+        } yield virtualFile -> FileCompilerGeneratedState(compilationId, Set(highlighting), TastyProvider.Default)
       case CompilerEvent.CompilationFinished(compilationId, source) =>
-        findVirtualFile(source).map { virtualFile =>
-          virtualFile -> FileHighlightingState(compilationId, Set.empty)
+        source.toVirtualFile.map { virtualFile =>
+          virtualFile -> FileCompilerGeneratedState(compilationId, Set.empty, TastyProvider.Default)
+        }
+      case CompilerEvent.CacheTastyFile(compilationId, source, tasty) =>
+        source.toVirtualFile.map { virtualFile =>
+          virtualFile -> FileCompilerGeneratedState(compilationId, Set.empty, TastyProvider.Const(tasty))
         }
       case _ =>
         None
@@ -54,20 +62,20 @@ private class HighlightingUpdatingCompilerEventListener(project: Project)
     case _ => HighlightSeverity.INFORMATION
   }
 
-  private def findVirtualFile(file: File): Option[VirtualFile] =
-    Option(VirtualFileManager.getInstance.findFileByUrl(file.toPath.toUri.toString))
-
-  private def replaceOrAppend(file: VirtualFile, fileState: FileHighlightingState): Unit = {
-    val oldState = HighlightingStateManager.get(project)
+  private def replaceOrAppend(file: VirtualFile, fileState: FileCompilerGeneratedState): Unit = {
+    val oldState = CompilerGeneratedStateManager.get(project)
     val newFileState = oldState.get(file) match {
       case None =>
         fileState
       case Some(oldFileState) if oldFileState.compilationId != fileState.compilationId =>
         fileState
       case Some(oldFileState) =>
-        oldFileState.copy(highlightings = oldFileState.highlightings ++ fileState.highlightings)
+        oldFileState.copy(
+          highlightings = oldFileState.highlightings ++ fileState.highlightings,
+          tastyProvider = fileState.tastyProvider
+        )
     }
     val newState = oldState.updated(file, newFileState)
-    HighlightingStateManager.update(project, newState)
+    CompilerGeneratedStateManager.update(project, newState)
   }
 }

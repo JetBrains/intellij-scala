@@ -7,7 +7,7 @@ import java.util.stream
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.util.{Key, io}
-import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileManager}
 import com.intellij.util.{PathUtil, net}
 
 import scala.collection.JavaConverters
@@ -142,6 +142,9 @@ package object template {
     }
 
     def toLibraryRootURL: String = VfsUtil.getUrlForLibraryRoot(delegate)
+
+    def toVirtualFile: Option[VirtualFile] =
+      Option(VirtualFileManager.getInstance.findFileByUrl(delegate.toPath.toUri.toString))
   }
 
   private[this] def launcherOptions(path: String) =

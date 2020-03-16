@@ -4,20 +4,33 @@ import java.io.File
 import java.net.URLClassLoader
 import java.nio.file.{Files, Paths}
 
+import com.intellij.psi.PsiFile
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
+import org.jetbrains.plugins.scala.externalHighlighters.CompilerGeneratedStateManager
+import org.jetbrains.plugins.scala.tasty.model._
+
 import scala.collection.JavaConverters._
 
 object TastyReader {
   // TODO Remove when the project use Scala 2.13
   import scala.language.reflectiveCalls
 
-  def readText(classpath: String, className: String): Option[String] =
-    read(classpath, className).map(_.text)
-
   def read(classpath: String, className: String): Option[TastyFile] =
     Option(reader.read(classpath, className))
+
+  def read(containingFile: PsiFile): Option[TastyFile] = {
+    val provider = for {
+      virtualFile <- Option(containingFile.getVirtualFile)
+      state = CompilerGeneratedStateManager.get(containingFile.getProject)
+      fileState <- state.get(virtualFile)
+    } yield fileState.tastyProvider
+    provider.getOrElse(TastyProvider.Default).provide(containingFile)
+  }
+
+  def readText(classpath: String, className: String): Option[String] =
+    read(classpath, className).map(_.text)
 
   // TODO Async, Progress, GC, error handling
   private lazy val reader: TastyReader = {

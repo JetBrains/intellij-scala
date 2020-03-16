@@ -9,7 +9,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.externalHighlighters.HighlightingStateManager.HighlightingState
+import CompilerGeneratedStateManager.HighlightingState
 import org.jetbrains.plugins.scala.editor.EditorExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, invokeLater}
 import org.jetbrains.plugins.scala.settings.ProblemSolverUtils
@@ -29,9 +29,7 @@ object ExternalHighlighters {
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       for (vFile <- editor.scalaFile)
         invokeLater {
-          val highlightInfos = state.get(vFile)
-            .map(_.highlightings)
-            .getOrElse(Seq.empty)
+          val highlightInfos = state.getOrElse(vFile, Seq.empty)
             .map(toHighlightInfo(_, editor))
 
           val document = editor.getDocument
@@ -50,7 +48,7 @@ object ExternalHighlighters {
       ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
       val wolf = WolfTheProblemSolver.getInstance(project)
       val errorFiles = state.collect {
-        case (file, fileState) if fileState.highlightings.exists(_.severity == HighlightSeverity.ERROR) => file
+        case (file, fileState) if fileState.exists(_.severity == HighlightSeverity.ERROR) => file
       }
       errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, this))
     }
