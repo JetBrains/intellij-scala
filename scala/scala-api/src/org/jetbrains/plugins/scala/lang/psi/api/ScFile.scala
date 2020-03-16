@@ -23,13 +23,17 @@ object ScFile {
 
   object VirtualFile {
 
-    def unapply(file: ScFile): Option[VirtualFile] = file.getVirtualFile match {
-      case null =>
-        file.getViewProvider.getVirtualFile match {
-          case virtualFile: LightVirtualFile => Option(virtualFile.getOriginalFile)
-          case _ => None
-        }
-      case virtualFile => Some(virtualFile)
+    def unapply(file: ScFile): Option[VirtualFile] = {
+      val originalFile = file.getOriginalFile
+      originalFile.getVirtualFile match {
+        case null =>
+          file.getViewProvider.getVirtualFile match {
+            case vFile: LightVirtualFile => Option(vFile.getOriginalFile)
+            case _                       => None
+          }
+        case virtualFile =>
+          Some(virtualFile)
+      }
     }
   }
 

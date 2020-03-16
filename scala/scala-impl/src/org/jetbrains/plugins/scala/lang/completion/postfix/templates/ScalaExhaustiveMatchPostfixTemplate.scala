@@ -14,7 +14,12 @@ import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionPara
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-final class ScalaExhaustiveMatchPostfixTemplate(alias: String = ScalaExhaustiveMatchPostfixTemplate.alias) extends PostfixTemplate(
+/**
+ * @see [[ScalaMatchPostfixTemplate]]
+ */
+final class ScalaExhaustiveMatchPostfixTemplate(
+  alias: String = ScalaExhaustiveMatchPostfixTemplate.alias
+) extends PostfixTemplate(
   null,
   alias,
   s"${StringBasedPostfixTemplate.EXPR} ${ScalaExhaustiveMatchPostfixTemplate.alias} ${ScalaExhaustiveMatchPostfixTemplate.exhaustiveAlias}",
@@ -50,7 +55,11 @@ object ScalaExhaustiveMatchPostfixTemplate {
       case expression =>
         implicit val parameters: ClauseCompletionParameters = ClauseCompletionParameters(expression, expression.getContainingFile.getResolveScope)
         expression match {
-          case Typeable(PatternGenerationStrategy(strategy)) => Some(expression, strategy)
+          case Typeable(typable) =>
+            typable match {
+              case PatternGenerationStrategy(strategy) => Some(expression, strategy)
+              case _                                   => None
+            }
           case _ => None
         }
     }
