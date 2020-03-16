@@ -27,7 +27,11 @@ import org.jetbrains.sbt.{SbtUtil, shell}
 class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
   override def isApplicable(project: Project): Boolean =
-    SbtUtil.hasSbtModule(project)
+    SbtUtil.isSbtProject(project)
+
+  override def shouldBeAvailable(project: Project): Boolean =
+    SbtUtil.isSbtProject(project)
+
 
   // called once per project open
   @TraceWithLogger

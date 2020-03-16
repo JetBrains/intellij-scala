@@ -33,8 +33,13 @@ object SbtUtil {
   def isSbtModule(module: Module): Boolean =
     ExternalSystemApiUtil.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
 
-  def hasSbtModule(project: Project): Boolean =
-    ModuleManager.getInstance(project).getModules.exists(isSbtModule)
+  def isSbtProject(project: Project): Boolean = {
+    val settings = ExternalSystemApiUtil
+      .getSettings(project, SbtProjectSystem.Id)
+      .getLinkedProjectsSettings
+
+    ! settings.isEmpty
+  }
 
   /** Directory for global sbt plugins given sbt version */
   def globalPluginsDirectory(sbtVersion: Version): File =

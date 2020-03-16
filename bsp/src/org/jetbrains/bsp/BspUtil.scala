@@ -60,8 +60,13 @@ object BspUtil {
   def isBspModule(module: Module): Boolean =
     ExternalSystemApiUtil.isExternalSystemAwareModule(BSP.ProjectSystemId, module)
 
-  def hasBspModule(project: Project): Boolean =
-    ModuleManager.getInstance(project).getModules.exists(isBspModule)
+  def isBspProject(project: Project): Boolean = {
+    val settings = ExternalSystemApiUtil
+      .getSettings(project, BSP.ProjectSystemId)
+      .getLinkedProjectsSettings
+
+    ! settings.isEmpty
+  }
 
   implicit class ResponseErrorExceptionOps(err: ResponseErrorException) {
     def toBspError: BspError = {

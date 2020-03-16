@@ -5,5 +5,5 @@ import com.intellij.openapi.project.Project
 
 class BspToolWindowFactory extends AbstractExternalSystemToolWindowFactory(BSP.ProjectSystemId) {
   override def isApplicable(project: Project): Boolean =
-    BspUtil.hasBspModule(project)
+    BspUtil.isBspProject(project)
 }

@@ -7,7 +7,7 @@ class BspStartupActivity extends StartupActivity {
     @Override
     override def runActivity(project: Project): Unit = {
         // initialize build loop only for bsp projects
-        if (BspUtil.hasBspModule(project))
+        if (BspUtil.isBspProject(project))
           BspBuildLoopService.getInstance(project)
     }
 }
