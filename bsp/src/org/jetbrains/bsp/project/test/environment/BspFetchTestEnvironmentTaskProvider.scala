@@ -8,7 +8,6 @@ import java.util.concurrent.CompletableFuture
 import ch.epfl.scala.bsp4j._
 import com.intellij.execution.BeforeRunTaskProvider
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
-import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
