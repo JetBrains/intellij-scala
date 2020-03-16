@@ -12,6 +12,7 @@ import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearc
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -107,9 +108,28 @@ object SourceFilterScope {
     SourceFilterScope(scope, Seq(ScalaFileType.INSTANCE, JavaFileType.INSTANCE))
 }
 
-final case class ResolveFilterScope(scope: GlobalSearchScope)
-                              (implicit project: Project) extends FilterScope(scope) {
+abstract class ResolveFilterScopeBase(scope: GlobalSearchScope)
+                                     (implicit project: Project) extends FilterScope(scope) {
 
   override protected def isValid(file: VirtualFile): Boolean =
     isInLibraryClasses(file) || isInSourceContent(file) || ScratchUtil.isScratch(file)
+}
+
+final case class ResolveFilterScope(scope: GlobalSearchScope)
+                                   (implicit project: Project) extends ResolveFilterScopeBase(scope) {
+
+  override def contains(file: VirtualFile): Boolean =
+    super.contains(file) && file.getFileType != WorksheetFileType
+}
+
+final case class WorksheetResolveFilterScope(scope: GlobalSearchScope, worksheetFile: VirtualFile)
+                                            (implicit project: Project) extends ResolveFilterScopeBase(scope){
+
+  override def contains(file: VirtualFile): Boolean =
+    super.contains(file) && {
+      if (file.getFileType == WorksheetFileType)
+        file == worksheetFile // worksheet elements shouldn't be available outside the worksheet
+      else
+        true
+    }
 }
