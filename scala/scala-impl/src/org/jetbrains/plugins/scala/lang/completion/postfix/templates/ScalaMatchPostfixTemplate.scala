@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.Scal
 /**
   * @author Roman.Shein
   * @since 09.09.2015.
+  * @see [[ScalaExhaustiveMatchPostfixTemplate]]
   */
 final class ScalaMatchPostfixTemplate extends PostfixTemplateWithExpressionSelector(
   null,
