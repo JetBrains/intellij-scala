@@ -19,7 +19,7 @@ class ConsoleReporter(override val filesWithProblems: Map[String, Set[TextRange]
     report.append(formatMessage(fileName, range, message))
 
   override def updateHighlightingProgress(percent: Int): Unit = {
-    println(s"ExternalHighlighting -  $percent%")
+    println(s"Highlighting -  $percent%")
   }
 
   override def reportResults(): Unit = {
@@ -39,7 +39,7 @@ class ConsoleReporter(override val filesWithProblems: Map[String, Set[TextRange]
 
     val expected = expectedErrors.map((formatMessage _).tupled)
     if (expected.nonEmpty) {
-      println(expected.mkString("\nExternalHighlighting errors in problematic files: \n", "\n", ""))
+      println(expected.mkString("\nHighlighting errors in problematic files: \n", "\n", ""))
     }
   }
 
