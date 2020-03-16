@@ -9,6 +9,7 @@ import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -19,7 +20,7 @@ import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.finder.ResolveFilterScope
+import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, WorksheetResolveFilterScope}
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
@@ -285,11 +286,17 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     this.depthFirst().instancesOf[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
   override def getFileResolveScope: GlobalSearchScope = {
+    implicit val project: Project = getProject
     val file = getOriginalFile.getVirtualFile
-    if (file != null && file.isValid)
-      ResolveFilterScope(defaultFileResolveScope(file))(getProject)
+    if (file != null && file.isValid) {
+      val defaultResolveScope = defaultFileResolveScope(file)
+      if (isWorksheetFile)
+        WorksheetResolveFilterScope(defaultResolveScope, file)
+      else
+        ResolveFilterScope(defaultResolveScope)
+    }
     else
-      GlobalSearchScope.allScope(getProject)
+      GlobalSearchScope.allScope(project)
   }
 
   override final def getUseScope: SearchScope =
