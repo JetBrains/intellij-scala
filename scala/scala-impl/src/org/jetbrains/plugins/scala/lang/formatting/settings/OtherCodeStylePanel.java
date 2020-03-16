@@ -138,43 +138,43 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         contentPanel = new JPanel();
         contentPanel.setLayout(new GridLayoutManager(12, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(contentPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        contentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null));
+        contentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         enforceFunctionalSyntaxForCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(enforceFunctionalSyntaxForCheckBox, ResourceBundle.getBundle("messages/ScalaBundle").getString("other.panel.enforce.functional.syntax.for.methods.with.unit.return.type"));
+        this.$$$loadButtonText$$$(enforceFunctionalSyntaxForCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.enforce.functional.syntax.for.methods.with.unit.return.type"));
         contentPanel.add(enforceFunctionalSyntaxForCheckBox, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         contentPanel.add(spacer1, new GridConstraints(11, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         replaceWithUnicodeSymbolCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(replaceWithUnicodeSymbolCheckBox, ResourceBundle.getBundle("messages/ScalaBundle").getString("other.panel.replace.with.unicode.symbol"));
+        this.$$$loadButtonText$$$(replaceWithUnicodeSymbolCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.replace.with.unicode.symbol"));
         contentPanel.add(replaceWithUnicodeSymbolCheckBox, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         replaceWithUnicodeSymbolCheckBox1 = new JCheckBox();
-        this.$$$loadButtonText$$$(replaceWithUnicodeSymbolCheckBox1, ResourceBundle.getBundle("messages/ScalaBundle").getString("other.panel.replace.with.unicode.symbol1"));
+        this.$$$loadButtonText$$$(replaceWithUnicodeSymbolCheckBox1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.replace.with.unicode.symbol1"));
         contentPanel.add(replaceWithUnicodeSymbolCheckBox1, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         replaceInForGeneratorCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(replaceInForGeneratorCheckBox, ResourceBundle.getBundle("messages/ScalaBundle").getString("other.panel.replace.in.for.generator.with.unicode.symbol"));
+        this.$$$loadButtonText$$$(replaceInForGeneratorCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.replace.in.for.generator.with.unicode.symbol"));
         contentPanel.add(replaceInForGeneratorCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         replaceLambdaWithGreekLetter = new JCheckBox();
         replaceLambdaWithGreekLetter.setSelected(false);
-        this.$$$loadButtonText$$$(replaceLambdaWithGreekLetter, ResourceBundle.getBundle("messages/ScalaBundle").getString("other.panel.kind.projector.replace.lambda.with.unicode.symbol"));
+        this.$$$loadButtonText$$$(replaceLambdaWithGreekLetter, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.kind.projector.replace.lambda.with.unicode.symbol"));
         contentPanel.add(replaceLambdaWithGreekLetter, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         alternateParamIndentPanel = new JPanel();
         alternateParamIndentPanel.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
         contentPanel.add(alternateParamIndentPanel, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         alternateIndentationForParamsCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(alternateIndentationForParamsCheckBox, ResourceBundle.getBundle("messages/ScalaBundle").getString("other.panel.alternate.indentation.for.constructor.args.and.parameter.declarations"));
+        this.$$$loadButtonText$$$(alternateIndentationForParamsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.alternate.indentation.for.constructor.args.and.parameter.declarations"));
         alternateIndentationForParamsCheckBox.setVerticalAlignment(1);
         alternateParamIndentPanel.add(alternateIndentationForParamsCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         alternateIndentationForParamsSpinner = new JSpinner();
         alternateParamIndentPanel.add(alternateIndentationForParamsSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(1, -1), new Dimension(2, -1), null, 1, false));
         spacesLabel = new JLabel();
-        this.$$$loadLabelText$$$(spacesLabel, ResourceBundle.getBundle("messages/ScalaBundle").getString("other.panel.spaces"));
+        this.$$$loadLabelText$$$(spacesLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.spaces"));
         spacesLabel.setVerticalAlignment(1);
         alternateParamIndentPanel.add(spacesLabel, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         alternateParamIndentPanel.add(spacer2, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         contentPanel.add(myCommenterPanel, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         reformatOnCompileCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(reformatOnCompileCheckBox, ResourceBundle.getBundle("messages/ScalaBundle").getString("other.panel.reformat.on.compile"));
+        this.$$$loadButtonText$$$(reformatOnCompileCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.reformat.on.compile"));
         contentPanel.add(reformatOnCompileCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         contentPanel.add(trailingCommaInnerPanel, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
@@ -185,12 +185,29 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         implicitValueClassPrefix = new JTextField();
         panel2.add(implicitValueClassPrefix, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("messages/ScalaBundle").getString("other.panel.implicit.value.class.prefix.suffux"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.implicit.value.class.prefix.suffux"));
         label1.setToolTipText("");
         panel2.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         implicitValueClassSuffix = new JTextField();
         implicitValueClassSuffix.setText("Ops");
         panel2.add(implicitValueClassSuffix, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
     }
 
     /**
@@ -245,23 +262,6 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
             component.setMnemonic(mnemonic);
             component.setDisplayedMnemonicIndex(mnemonicIndex);
         }
-    }
-
-    private static Method $$$cachedGetBundleMethod$$$ = null;
-
-    private String $$$getMessageFromBundle$$$(String path, String key) {
-        ResourceBundle bundle;
-        try {
-            Class<?> thisClass = this.getClass();
-            if ($$$cachedGetBundleMethod$$$ == null) {
-                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
-                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
-            }
-            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
-        } catch (Exception e) {
-            bundle = ResourceBundle.getBundle(path);
-        }
-        return bundle.getString(key);
     }
 
 }
