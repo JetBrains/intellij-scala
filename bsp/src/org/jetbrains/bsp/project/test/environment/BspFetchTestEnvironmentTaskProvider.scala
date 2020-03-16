@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture
 import ch.epfl.scala.bsp4j._
 import com.intellij.execution.BeforeRunTaskProvider
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
+import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -203,12 +204,19 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
       case moduleBasedRunConfig: ModuleBasedConfiguration[_, _]
         if BspUtil.isBspModule(moduleBasedRunConfig.getConfigurationModule.getModule) =>
         val classes = moduleBasedRunConfig match {
-          case p: ScalaTestRunConfiguration =>
-            p.testConfigurationData match {
+          case scalaTestConfig: ScalaTestRunConfiguration =>
+            scalaTestConfig.testConfigurationData match {
               case data: AllInPackageTestData => data.classBuf.asScala
               case data: ClassTestData => List(data.testClassPath)
               case _ => List()
             }
+          case junitConfig: JUnitConfiguration => {
+            junitConfig.getTestType match {
+              case JUnitConfiguration.TEST_METHOD | JUnitConfiguration.TEST_CLASS =>
+                List(junitConfig.getPersistentData.getMainClassName)
+              case _ => List()
+            }
+          }
           case _ => List()
         }
         classes
