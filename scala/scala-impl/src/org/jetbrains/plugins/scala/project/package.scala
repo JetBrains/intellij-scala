@@ -292,6 +292,9 @@ package object project {
 
     def toDocument: Option[Document] =
       Option(FileDocumentManager.getInstance.getDocument(file))
+
+    def toFile: File =
+      new File(file.getCanonicalPath)
   }
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.util.CompilationId
 class CompilationClient(project: Project)
   extends DummyClient {
 
-  private val compilationId = CompilationId.generate()
+  final val compilationId = CompilationId.generate()
 
   override def message(msg: Client.ClientMsg): Unit =
     sendEvent(CompilerEvent.MessageEmitted(compilationId, msg))
@@ -20,7 +20,7 @@ class CompilationClient(project: Project)
       sendEvent(CompilerEvent.CompilationFinished(compilationId, source))
     }
 
-  private def sendEvent(event: CompilerEvent): Unit =
+  def sendEvent(event: CompilerEvent): Unit =
     project.getMessageBus
       .syncPublisher(CompilerEventListener.topic)
       .eventReceived(event)

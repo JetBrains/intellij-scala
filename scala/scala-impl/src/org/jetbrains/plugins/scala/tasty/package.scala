@@ -14,6 +14,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.AlarmFactory
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.tasty.model._
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
@@ -22,10 +23,6 @@ package object tasty {
   import scala.language.reflectiveCalls
 
   private[tasty] type TastyReader = { def read(classpath: String, className: String): TastyFile }
-  type TastyFile = { def text: String; def references: Array[ReferenceData]; def types: Array[TypeData] }
-  type Position = { def file: String; def startLine: Int; def endLine: Int; def startColumn: Int; def endColumn: Int }
-  type ReferenceData = { def position: Position; def target: Position }
-  type TypeData = { def position: Position; def presentation: String }
 
   def isTastyEnabledFor(element: PsiElement): Boolean =
     element.getContainingFile.getLanguage.is(Scala3Language.INSTANCE)
@@ -33,25 +30,17 @@ package object tasty {
   case class Location(outputDirectory: String, className: String)
 
   def compiledLocationOf(sourceFile: PsiFile): Option[Location] = {
+    val virtualFile = sourceFile.getVirtualFile
     val index = ProjectFileIndex.SERVICE.getInstance(sourceFile.getProject)
-    val inTest = index.isInTestSourceContent(sourceFile.getVirtualFile)
+    val inTest = index.isInTestSourceContent(virtualFile)
 
-    sourceFile.module.flatMap { module =>
-      Option(CompilerPaths.getModuleOutputPath(module, inTest)).flatMap { outputDirectory =>
-        Option(index.getSourceRootForFile(sourceFile.getVirtualFile)).flatMap { sourceRoot =>
-          val relativeSourcePath = sourceFile.getVirtualFile.getPath.substring(sourceRoot.getPath.length + 1)
-          // TODO Perform the check outside this method
-          val tastyFile = new File(outputDirectory, relativeSourcePath.dropRight(6) + ".tasty")
-          if (tastyFile.exists) {
-            // TODO Handle class <-> file naming conventions
-            val className = relativeSourcePath.dropRight(6).replace('/', '.')
-            Some(Location(outputDirectory, className))
-          } else {
-            None
-          }
-        }
-      }
-    }
+    for {
+      module <- sourceFile.module
+      outputDirectory <- Option(CompilerPaths.getModuleOutputPath(module, inTest))
+      sourceRoot <- Option(index.getSourceRootForFile(virtualFile))
+      relativeSourcePath = virtualFile.getPath.substring(sourceRoot.getPath.length + 1)
+      className = relativeSourcePath.dropRight(6).replace('/', '.') // TODO Handle class <-> file naming conventions
+    } yield Location(outputDirectory, className)
   }
 
   private val OutputPath = """(.+[\\\/](?:classes|(?:out[\\\/](?:production|test))))[\\\/](.+\.tasty)""".r

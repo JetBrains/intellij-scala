@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
-class RegisterSelectedDocumentListener(project: Project)
+private class RegisterSelectedDocumentListener(project: Project)
   extends FileEditorManagerListener {
 
   private val documentCompiler: DocumentCompiler = new DocumentCompilerImpl
@@ -43,7 +43,7 @@ class RegisterSelectedDocumentListener(project: Project)
     def deregister(): Unit = {
       selectedDocument.removeDocumentListener(this)
       if (wasChanged && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
-        JpsCompilationUtil.saveDocumentAndCompileProject(Some(selectedDocument), project)
+        JpsCompilationUtil.syncDocumentAndCompileProject(Some(selectedDocument), project)
     }
 
     def register(): Unit =

@@ -24,7 +24,7 @@ object RegisterApplicationListeners {
     override def editorCreated(event: EditorFactoryEvent): Unit = {
       val editor = event.getEditor
       Option(editor.getProject).foreach { project =>
-        val state = HighlightingStateManager.get(project)
+        val state = CompilerGeneratedStateManager.get(project).toHighlightingState
         ExternalHighlighters.applyHighlighting(project, editor, state)
       }
     }

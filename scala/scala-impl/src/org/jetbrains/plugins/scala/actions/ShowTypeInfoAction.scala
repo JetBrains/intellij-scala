@@ -85,8 +85,7 @@ class ShowTypeInfoAction extends AnAction(
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
 
       if (isTastyEnabledFor(file)) {
-        for (Location(outputDirectory, className) <- compiledLocationOf(file);
-             tastyFile <- TastyReader.read(outputDirectory, className);
+        for (tastyFile <- TastyReader.read(file);
              presentation <- typeAt(editor.getCaretModel.getLogicalPosition, tastyFile)) {
 
           showTastyNotification("Type Info")

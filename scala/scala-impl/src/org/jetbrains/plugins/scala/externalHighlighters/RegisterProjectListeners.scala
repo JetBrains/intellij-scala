@@ -9,9 +9,9 @@ import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.JpsCompilationUtil
 import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.editor.DocumentExt
 
 private class RegisterProjectListeners
   extends ProjectManagerListener {
@@ -52,8 +52,8 @@ private class RegisterProjectListeners
     private def handle(modifiedFile: VirtualFile): Unit =
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
         modifiedFile.toDocument.foreach { document =>
-          FileDocumentManager.getInstance.saveDocument(document)
-          JpsCompilationUtil.saveDocumentAndCompileProject(project.selectedDocument, project)
+          document.syncToDisk(project)
+          JpsCompilationUtil.syncDocumentAndCompileProject(project.selectedDocument, project)
         }
   }
 }

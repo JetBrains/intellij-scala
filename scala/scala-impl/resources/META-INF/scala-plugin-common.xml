@@ -487,7 +487,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.HighlightingStateManager$MutableState"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerGeneratedStateManager$MutableState"/>
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
@@ -1712,7 +1712,7 @@
                   class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>
 
         <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.HighlightingUpdatingCompilerEventListener"/>
+                  class="org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener"/>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterSelectedDocumentListener"/>
     </projectListeners>
