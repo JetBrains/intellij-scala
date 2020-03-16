@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package finder
 
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
-import com.intellij.ide.scratch.{ScratchFileService, ScratchUtil}
+import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -12,14 +12,15 @@ import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearc
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType
+import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.02.2010
  */
-sealed abstract class FilterScope protected(delegate: GlobalSearchScope)
-                                           (implicit project: Project)
+sealed abstract class FilterScope (val delegate: GlobalSearchScope)
+                                  (implicit project: Project)
   extends GlobalSearchScope(project) {
 
   private val fileIndex =
@@ -44,11 +45,14 @@ sealed abstract class FilterScope protected(delegate: GlobalSearchScope)
 
   override def isSearchInLibraries: Boolean =
     delegate == null || delegate.isSearchInLibraries
+
+  override def calcHashCode(): Int =
+    this.getClass.hashCode() #+ delegate.hashCode()
 }
 
-final case class ScalaFilterScope private(scope: GlobalSearchScope)
+final case class ScalaFilterScope private(override val delegate: GlobalSearchScope)
                                          (implicit project: Project)
-  extends FilterScope(scope) {
+  extends FilterScope(delegate) {
 
   override def contains(file: VirtualFile): Boolean =
     super.contains(file)
@@ -88,9 +92,9 @@ object ScalaFilterScope {
   }
 }
 
-final case class SourceFilterScope private(scope: GlobalSearchScope, fileTypes: Seq[FileType])
+final case class SourceFilterScope private(override val delegate: GlobalSearchScope, fileTypes: Seq[FileType])
                                           (implicit project: Project)
-  extends FilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(scope, fileTypes: _*)) {
+  extends FilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(delegate, fileTypes: _*)) {
 
   override protected def isValid(file: VirtualFile): Boolean = isInSourceContent(file)
 }
@@ -108,8 +112,8 @@ object SourceFilterScope {
     SourceFilterScope(scope, Seq(ScalaFileType.INSTANCE, JavaFileType.INSTANCE))
 }
 
-abstract class ResolveFilterScopeBase(scope: GlobalSearchScope)
-                                     (implicit project: Project) extends FilterScope(scope) {
+abstract class ResolveFilterScopeBase(override val delegate: GlobalSearchScope)
+                                   (implicit project: Project) extends FilterScope(delegate) {
 
   override protected def isValid(file: VirtualFile): Boolean =
     isInLibraryClasses(file) || isInSourceContent(file) || ScratchUtil.isScratch(file)
@@ -122,8 +126,12 @@ final case class ResolveFilterScope(scope: GlobalSearchScope)
     super.contains(file) && file.getFileType != WorksheetFileType
 }
 
-final case class WorksheetResolveFilterScope(scope: GlobalSearchScope, worksheetFile: VirtualFile)
-                                            (implicit project: Project) extends ResolveFilterScopeBase(scope){
+final case class WorksheetResolveFilterScope(override val delegate: GlobalSearchScope,
+                                             worksheetFile: VirtualFile)
+                                            (implicit project: Project) extends ResolveFilterScopeBase(delegate){
+  
+  override def calcHashCode(): Int =
+    super.calcHashCode() #+ worksheetFile.hashCode()
 
   override def contains(file: VirtualFile): Boolean =
     super.contains(file) && {
