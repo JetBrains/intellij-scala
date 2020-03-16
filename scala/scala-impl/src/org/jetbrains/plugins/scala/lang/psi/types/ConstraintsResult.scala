@@ -420,7 +420,11 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
     ConstraintSystem {
       for {
         left <- impls
-        right <- otherImpls
+        right <- otherImpls.headOption
+
+//        todo: cartesian product of all constraints may lead to exponential blow up and OutOfMemoryError
+//         is it even necessary?
+//        right <- otherImpls
       } yield left + right
     }
   }
