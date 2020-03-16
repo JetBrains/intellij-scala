@@ -180,7 +180,7 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   def testConstructorInvocationExcessiveArgument(): Unit = assertErrors(
     "class C(i: Int); new C(true, 1)",
-    Error(", 1", "Too many arguments for constructor(Int)")) // SCL-15783 // TODO constructor name, whitespace?
+    Error(", 1", "Too many arguments for constructor C(Int)")) // SCL-15783
 
   def testConstructorInvocationMultipleTypeMismatches(): Unit = assertErrors("" +
     "class C(i: Int, b: Boolean); new C(true, 1)",

@@ -102,7 +102,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     val element = r.element
     def argsElements = argsElementsTextRange(constrInvocation)
     // TODO decouple
-    def signature = ScReferenceAnnotator.signatureOf(element)
+    def nameWithSignature = ScReferenceAnnotator.nameWithSignature(element)
 
     // mark problematic clauses where parameters are missing
     val missedParams = problems.collect { case MissedValueParameter(p) => p}
@@ -150,7 +150,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     firstExcessiveArgument.foreach { argument =>
       val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
       val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
-      val message = ScalaBundle.message("annotator.error.too.many.arguments.for.constructor", signature)
+      val message = ScalaBundle.message("annotator.error.too.many.arguments.for.constructor", nameWithSignature)
       holder.createErrorAnnotation(range, message)
     }
 
@@ -169,7 +169,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
           .map(_.getTextRange.getEndOffset)
           .map(off => TextRange.create(off - 1, off))
           .getOrElse(constrInvocation.getTextRange)
-        val message = ScalaBundle.message("annotator.error.missing.argument.list.for.constructor", signature)
+        val message = ScalaBundle.message("annotator.error.missing.argument.list.for.constructor", nameWithSignature)
         holder.createErrorAnnotation(markRange, message)
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
@@ -192,7 +192,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
         case _ =>
       }
       case _ =>
-        val message = ScalaBundle.message("annotator.error.cannot.apply.constructor", signature)
+        val message = ScalaBundle.message("annotator.error.cannot.apply.constructor", nameWithSignature)
         holder.createErrorAnnotation(argsElements, message)
     }
   }

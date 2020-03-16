@@ -81,7 +81,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
 
   def testExcessArguments(): Unit = {
     assertMatches(messages("new A(0, 1)")) {
-      case Error(", 1", "Too many arguments for constructor(Int)") :: Nil =>
+      case Error(", 1", "Too many arguments for constructor A(Int)") :: Nil =>
     }
 
     assertMessagesSorted(messages("new D(0, 1)"))(
@@ -97,7 +97,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     )
 
     assertMessagesSorted(messages("new DDD(1)(2, 3)"))(
-      Error(", 3", "Too many arguments for constructor(Int)(Int)")
+      Error(", 3", "Too many arguments for constructor DDD(Int)(Int)")
     )
   }
 
@@ -155,11 +155,11 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
 
   def testMissingArgumentClause(): Unit = {
     assertMessagesSorted(messages("new DDD(3)"))(
-      Error(")", "Missing argument list for constructor(Int)(Int)")
+      Error(")", "Missing argument list for constructor DDD(Int)(Int)")
     )
 
     assertMessagesSorted(messages("new DDD2(true)"))(
-      Error(")", "Missing argument list for constructor(Boolean)(Boolean)")
+      Error(")", "Missing argument list for constructor DDD2(Boolean)(Boolean)")
     )
   }
 
@@ -339,7 +339,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
       """.stripMargin
 
     assertMessages(messages(code))(
-      Error("(2, 2)", "T is a trait and thus has no constructor")
+      Error("(2, 2)", "trait T is a trait; does not take constructor arguments")
     )
   }
 
@@ -350,7 +350,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
       """.stripMargin
 
     assertMessages(messages(code))(
-      Error(")", "Missing argument list for constructor(Int)(Int)")
+      Error(")", "Missing argument list for constructor DDD(Int)(Int)")
     )
   }
 
