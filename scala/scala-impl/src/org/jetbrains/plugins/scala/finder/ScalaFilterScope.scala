@@ -12,13 +12,14 @@ import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearc
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType
+import org.jetbrains.plugins.scala.util.HashBuilder._
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.02.2010
  */
-sealed abstract class FilterScope protected(delegate: GlobalSearchScope)
-                                           (implicit project: Project)
+sealed abstract class FilterScope (val delegate: GlobalSearchScope)
+                                  (implicit project: Project)
   extends GlobalSearchScope(project) {
 
   private val fileIndex =
@@ -43,11 +44,14 @@ sealed abstract class FilterScope protected(delegate: GlobalSearchScope)
 
   override def isSearchInLibraries: Boolean =
     delegate == null || delegate.isSearchInLibraries
+
+  override def calcHashCode(): Int =
+    this.getClass.hashCode() #+ delegate.hashCode()
 }
 
-final case class ScalaFilterScope private(scope: GlobalSearchScope)
+final case class ScalaFilterScope private(override val delegate: GlobalSearchScope)
                                          (implicit project: Project)
-  extends FilterScope(scope) {
+  extends FilterScope(delegate) {
 
   override def contains(file: VirtualFile): Boolean =
     super.contains(file) ||
@@ -85,9 +89,9 @@ object ScalaFilterScope {
   }
 }
 
-final case class SourceFilterScope private(scope: GlobalSearchScope, fileTypes: Seq[FileType])
+final case class SourceFilterScope private(override val delegate: GlobalSearchScope, fileTypes: Seq[FileType])
                                           (implicit project: Project)
-  extends FilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(scope, fileTypes: _*)) {
+  extends FilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(delegate, fileTypes: _*)) {
 
   override protected def isValid(file: VirtualFile): Boolean = isInSourceContent(file)
 }
@@ -106,7 +110,7 @@ object SourceFilterScope {
 }
 
 final case class ResolveFilterScope(scope: GlobalSearchScope)
-                              (implicit project: Project) extends FilterScope(scope) {
+                                   (implicit project: Project) extends FilterScope(scope) {
 
   override protected def isValid(file: VirtualFile): Boolean =
     isInLibraryClasses(file) || isInSourceContent(file)
