@@ -67,7 +67,7 @@ class ParametersAnnotatorTest extends ParametersAnnotatorTestBase {
 
   def testRepeatedWithDefault(): Unit = {
     assertMatches(messages("def f(i: Int, js: Int* = 1) {}")) {
-      case Error("(i: Int, js: Int* = 1)", "Parameter section with *-parameter cannot have default arguments") :: Nil =>
+      case Error("(i: Int, js: Int* = 1)", "Parameter section with *-parameter is not allowed to have default arguments") :: Nil =>
     }
   }
 

@@ -139,7 +139,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                     val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
                     registerCreateFromUsageFixesFor(reference,
                       holder.createErrorAnnotation(range,
-                        ScalaBundle.message("annotator.error.too.many.arguments.method", nameOf(fun))))
+                        ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(fun))))
                   }
                 }
 
@@ -152,7 +152,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                     if (inDesugaring) {
                       registerCreateFromUsageFixesFor(reference,
                         holder.createErrorAnnotation(argument,
-                          ScalaBundle.message("annotator.error.too.many.arguments.method", nameOf(fun))))
+                          ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(fun))))
                     }
                   case TypeMismatch(expression, expectedType) =>
                     if (countMatches && !typeMismatchShown) {
@@ -197,7 +197,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case MissedParametersClause(_) =>
                     registerCreateFromUsageFixesFor(reference,
                       holder.createErrorAnnotation(reference,
-                        ScalaBundle.message("annotator.error.missing.arguments.for.method", nameOf(f))))
+                        ScalaBundle.message("annotator.error.missing.arguments.for.method", nameWithSignature(f))))
                   case _ =>
                 }
               case _ =>
@@ -480,9 +480,14 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
   }
 
-  private def nameOf(f: PsiNamedElement) = f.name + signatureOf(f)
+  def nameWithSignature(f: PsiNamedElement) = nameOf(f) + signatureOf(f)
 
-  def signatureOf(f: PsiNamedElement): String = {
+  private def nameOf(f: PsiNamedElement) = f match {
+    case m: ScMethodLike if m.isConstructor => m.containingClass.name
+    case _                                  => f.name
+  }
+
+  private def signatureOf(f: PsiNamedElement): String = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(f)
     f match {
       case f: ScMethodLike =>

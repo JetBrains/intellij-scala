@@ -45,16 +45,16 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
   def testExcessArguments(): Unit = {
     assertMatches(messagesForNonGeneric("this(1, 2, 3)")) {
-      case Error(", 3", "Too many arguments for constructor(Int, Int)") :: Nil =>
+      case Error(", 3", "Too many arguments for constructor NonGenericTest(Int, Int)") :: Nil =>
     }
 
     assertMessagesSorted(messagesForNonGenericMulti("this(1, 2, false)"))(
-      Error(", f", "Too many arguments for constructor(Int, Int)(Int)"),
-      Error(", f", "Too many arguments for constructor(Boolean, Boolean)")
+      Error(", f", "Too many arguments for constructor NonGenericTest(Int, Int)(Int)"),
+      Error(", f", "Too many arguments for constructor NonGenericTest(Boolean, Boolean)")
     )
 
     assertMessagesSorted(messagesForNonGenericMulti("this(0, 1)(2, 3)"))(
-      Error(", 3", "Too many arguments for constructor(Int, Int)(Int)")
+      Error(", 3", "Too many arguments for constructor NonGenericTest(Int, Int)(Int)")
     )
   }
 
@@ -90,7 +90,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
   def testMissingArgumentClause(): Unit = {
     assertMessagesSorted(messagesForNonGenericMulti("this(1, 2)"))(
-      Error(")", "Missing argument list for constructor(Int, Int)(Int)")
+      Error(")", "Missing argument list for constructor NonGenericTest(Int, Int)(Int)")
     )
   }
 
