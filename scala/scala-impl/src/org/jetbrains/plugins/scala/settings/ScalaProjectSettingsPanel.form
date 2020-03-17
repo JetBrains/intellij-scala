@@ -196,13 +196,7 @@
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
-                    <properties>
-                      <model>
-                        <item value="None"/>
-                        <item value="Only non-qualified"/>
-                        <item value="All"/>
-                      </model>
-                    </properties>
+                    <properties/>
                   </component>
                 </children>
               </grid>
@@ -331,11 +325,6 @@
                   <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <model>
-                    <item value="Enabled"/>
-                    <item value="Disabled"/>
-                    <item value="Manual"/>
-                  </model>
                   <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.scala.meta.settings.modeOptions.tooltip"/>
                 </properties>
               </component>
@@ -353,11 +342,6 @@
                   <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <model>
-                    <item value="Disabled"/>
-                    <item value="Metadata"/>
-                    <item value="Classes"/>
-                  </model>
                   <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.sbt.index.ivy2.mode.hint"/>
                 </properties>
               </component>
@@ -598,11 +582,6 @@
                 </constraints>
                 <properties>
                   <editable value="false"/>
-                  <model>
-                    <item value="Release"/>
-                    <item value="EAP"/>
-                    <item value="Nightly"/>
-                  </model>
                 </properties>
               </component>
               <component id="ffb3d" class="javax.swing.JButton" binding="updateNowButton">
