@@ -108,7 +108,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
         taskResult match {
           case Left(value) =>
             logger.error(BspBundle.message("bsp.task.error", value))
-            false
+            true
           case Right(_) => true
         }
       case _ => true
