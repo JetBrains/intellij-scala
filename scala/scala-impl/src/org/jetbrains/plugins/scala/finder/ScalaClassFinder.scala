@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.finder
 
 import java.util
+import java.util.Collections
 
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
@@ -16,7 +17,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
   private def cacheManager: ScalaShortNamesCacheManager = ScalaShortNamesCacheManager.getInstance(project)
 
   override def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {
-    if (psiManager.isInJavaPsiFacade) {
+    if (psiManager == null || psiManager.isInJavaPsiFacade) {
       return Array.empty
     }
 
@@ -48,18 +49,20 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
   }
 
   override def findPackage(qName: String): PsiPackage = {
-    if (DumbService.isDumb(project)) {
+    if (psiManager == null || DumbService.isDumb(project)) {
       return null
     }
     psiManager.syntheticPackage(qName)
   }
 
   override def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): util.Set[String] = {
-    psiManager.getJavaPackageClassNames(psiPackage, scope).asJava
+    if (psiManager == null) Collections.emptySet()
+    else psiManager.getJavaPackageClassNames(psiPackage, scope).asJava
+
   }
 
   override def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
-    if (psiManager.isInJavaPsiFacade) {
+    if (psiManager == null || psiManager.isInJavaPsiFacade) {
       return Array.empty
     }
     psiManager.getJavaPackageClassNames(psiPackage, scope)
