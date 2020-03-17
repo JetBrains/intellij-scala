@@ -29,17 +29,19 @@ class RegisterSelectedDocumentListener(project: Project)
     private var wasChanged = false
     private val executor = new RescheduledExecutor("CompileDocumentExecutor")
 
-    final override def documentChanged(event: DocumentEvent): Unit =
-      if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-        wasChanged = true
-        executor.schedule(ScalaHighlightingMode.compilationDelay) {
+    final override def documentChanged(event: DocumentEvent): Unit = {
+      wasChanged = true
+      executor.schedule(ScalaHighlightingMode.compilationDelay) {
+
+        if (!project.isDisposed && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
           documentCompiler.compile(project, event.getDocument)
         }
       }
+    }
 
     def deregister(): Unit = {
       selectedDocument.removeDocumentListener(this)
-      if (wasChanged)
+      if (wasChanged && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
         JpsCompilationUtil.saveDocumentAndCompileProject(Some(selectedDocument), project)
     }
 
