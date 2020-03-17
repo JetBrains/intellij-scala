@@ -9,7 +9,6 @@ import com.intellij.build.events.MessageEvent
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
 import org.jetbrains.annotations.{Nls, NonNls}
@@ -182,7 +181,11 @@ class SbtStructureDump {
       if (text.nonEmpty) {
         messages = reportEvent(messages, reporter, text)
         reporter.progressTask(dumpTaskId, 1, -1, "", text)
-        reporter.log(text)
+        (typ, reporter) match {
+          case (OutputType.StdErr, reporter: ExternalSystemNotificationReporter) =>
+            reporter.logErr(text)
+          case _ => reporter.log(text)
+        }
       }
     }
 

@@ -72,11 +72,12 @@ class ExternalSystemNotificationReporter(workingDir: String,
   override def log(message: String): Unit =
     log(message, isStdOut = true)
 
-  override def logStdErr(message: String): Unit =
+  def logErr(message: String): Unit =
     log(message, isStdOut = false)
 
-  private def log(message: String, isStdOut: Boolean): Unit =
+  private def log(message: String, isStdOut: Boolean): Unit = synchronized {
     notifications.onTaskOutput(taskId, message + "\n", isStdOut)
+  }
 
   override def startTask(eventId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
 
