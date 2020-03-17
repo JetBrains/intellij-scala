@@ -28,6 +28,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
         missingParametersIn(literal, parameters, expectedTypes) ||
           tooManyParametersIn(literal, parameters, expectedTypes) ||
           parameterTypeMismatchIn(parameters, expectedTypes)
+      case _ => false
     } || missingParameterTypeIn(parameters)
 
     if (!problemWithParameters) {
