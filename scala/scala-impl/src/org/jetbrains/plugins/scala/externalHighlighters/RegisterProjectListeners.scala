@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import java.util.concurrent.ConcurrentHashMap
+
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.vfs.VirtualFile
@@ -14,8 +16,18 @@ import org.jetbrains.plugins.scala.project.VirtualFileExt
 private class RegisterProjectListeners
   extends ProjectManagerListener {
 
-  override def projectOpened(project: Project): Unit =
-    PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeListener(project))
+  private val listeners = new ConcurrentHashMap[Project, PsiTreeListener]()
+
+  override def projectOpened(project: Project): Unit = {
+    val listener = new PsiTreeListener(project)
+    listeners.put(project, listener)
+    PsiManager.getInstance(project).addPsiTreeChangeListener(listener)
+  }
+
+  override def projectClosing(project: Project): Unit = {
+    val listener = listeners.remove(project)
+    PsiManager.getInstance(project).removePsiTreeChangeListener(listener)
+  }
 
   private class PsiTreeListener(project: Project)
     extends PsiTreeChangeAdapter {
