@@ -10,15 +10,16 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.updateSettings.impl.UpdateChecker;
 import com.intellij.openapi.updateSettings.impl.UpdateSettings;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.EnumComboBoxModel;
-import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
@@ -34,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import static org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch;
+import static org.jetbrains.plugins.scala.settings.ScalaProjectSettings.*;
 import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency.ComponentWithSettings;
 import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency.EP_NAME;
 
@@ -64,7 +67,7 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox treatDocCommentAsBlockComment;
     private JCheckBox myDisableLanguageInjection;
     private JCheckBox useScalaClassesPriorityCheckBox;
-    private JComboBox<String> collectionHighlightingChooser;
+    private JComboBox<ScalaCollectionHighlightingLevel> collectionHighlightingChooser;
     private JPanel injectionJPanel;
     private JSpinner outputSpinner;
     private JSpinner implicitParametersSearchDepthSpinner;
@@ -73,7 +76,7 @@ public class ScalaProjectSettingsPanel {
     private JTextArea myBasePackages;
     private JCheckBox showTypeInfoOnCheckBox;
     private JSpinner delaySpinner;
-    private JComboBox<ScalaApplicationSettings.pluginBranch> updateChannel;
+    private JComboBox<pluginBranch> updateChannel;
     private JCheckBox myAotCompletion;
     private JCheckBox useEclipseCompatibilityModeCheckBox;
     private JTextField scalaTestDefaultSuperClass;
@@ -84,14 +87,14 @@ public class ScalaProjectSettingsPanel {
     private JButton updateNowButton;
     private JCheckBox addOverrideToImplementCheckBox;
     private JCheckBox myProjectViewHighlighting;
-    private JComboBox<ScalaProjectSettings.ScalaMetaMode> scalaMetaMode;
+    private JComboBox<ScalaMetaMode> scalaMetaMode;
     private JCheckBox metaTrimBodies;
-    private JComboBox<ScalaProjectSettings.ScFileMode> scTypeSelectionCombobox;
-    private JComboBox<ScalaProjectSettings.TrailingCommasMode> trailingCommasComboBox;
+    private JComboBox<ScFileMode> scTypeSelectionCombobox;
+    private JComboBox<TrailingCommasMode> trailingCommasComboBox;
     private JCheckBox collapseWorksheetFoldByCheckBox;
     private JCheckBox showNotFoundImplicitArgumentsCheckBox;
     private JCheckBox myGroupPackageObjectWithPackage;
-    private JComboBox<ScalaProjectSettings.Ivy2IndexingMode> ivy2IndexingModeCBB;
+    private JComboBox<Ivy2IndexingMode> ivy2IndexingModeCBB;
     private final Project myProject;
 
     private JTabbedPane tabbedPane;
@@ -100,20 +103,64 @@ public class ScalaProjectSettingsPanel {
 
     public ScalaProjectSettingsPanel(Project project) {
         myProject = project;
+
         $$$setupUI$$$();
+
+        collectionHighlightingChooser.setModel(new DefaultComboBoxModel<>(ScalaCollectionHighlightingLevel.values()));
+        collectionHighlightingChooser.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(ScalaCollectionHighlightingLevel.None, ScalaBundle.message("scala.collection.highlighting.type.none")),
+                Pair.create(ScalaCollectionHighlightingLevel.OnlyNonQualified, ScalaBundle.message("scala.collection.highlighting.type.only.non.qualified")),
+                Pair.create(ScalaCollectionHighlightingLevel.All, ScalaBundle.message("scala.collection.highlighting.type.all"))
+        ));
+
         outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
-        updateChannel.setModel(new EnumComboBoxModel<>(ScalaApplicationSettings.pluginBranch.class));
-        scalaMetaMode.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.ScalaMetaMode.class));
-        ivy2IndexingModeCBB.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.Ivy2IndexingMode.class));
+
+        updateChannel.setModel(new EnumComboBoxModel<>(pluginBranch.class));
+        updateChannel.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(pluginBranch.Nightly, ScalaBundle.message("scala.plugin.chanel.nightly")),
+                Pair.create(pluginBranch.EAP, ScalaBundle.message("scala.plugin.chanel.eap")),
+                Pair.create(pluginBranch.Release, ScalaBundle.message("scala.plugin.chanel.release"))
+        ));
+
+        scalaMetaMode.setModel(new EnumComboBoxModel<>(ScalaMetaMode.class));
+        scalaMetaMode.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(ScalaMetaMode.Enabled, ScalaBundle.message("scala.meta.mode.enabled")),
+                Pair.create(ScalaMetaMode.Disabled, ScalaBundle.message("scala.meta.mode.disabled")),
+                Pair.create(ScalaMetaMode.Manual, ScalaBundle.message("scala.meta.mode.manual"))
+        ));
+
+        ivy2IndexingModeCBB.setModel(new EnumComboBoxModel<>(Ivy2IndexingMode.class));
+        ivy2IndexingModeCBB.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(Ivy2IndexingMode.Disabled, ScalaBundle.message("ivy2.indexing.mode.disabled")),
+                Pair.create(Ivy2IndexingMode.Metadata, ScalaBundle.message("ivy2.indexing.mode.metadata")),
+                Pair.create(Ivy2IndexingMode.Classes, ScalaBundle.message("ivy2.indexing.mode.classes"))
+        ));
+
+        trailingCommasComboBox.setModel(new EnumComboBoxModel<>(TrailingCommasMode.class));
+        trailingCommasComboBox.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(TrailingCommasMode.Enabled, ScalaBundle.message("trailing.commas.mode.enabled")),
+                Pair.create(TrailingCommasMode.Disabled, ScalaBundle.message("trailing.commas.mode.disabled")),
+                Pair.create(TrailingCommasMode.Auto, ScalaBundle.message("trailing.commas.mode.auto"))
+        ));
+
+        scTypeSelectionCombobox.setModel(new EnumComboBoxModel<>(ScFileMode.class));
+        scTypeSelectionCombobox.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(ScFileMode.Worksheet, ScalaBundle.message("script.file.mode.always.worksheet")),
+                Pair.create(ScFileMode.Ammonite, ScalaBundle.message("script.file.mode.always.ammonite")),
+                Pair.create(ScFileMode.Auto, ScalaBundle.message("script.file.mode.ammonite.in.test.sources.otherwise.worksheet"))
+        ));
+
         updateNowButton.addActionListener(e -> {
             try {
-                ScalaPluginUpdater.doUpdatePluginHosts((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
+                ScalaPluginUpdater.doUpdatePluginHosts((pluginBranch) updateChannel.getModel().getSelectedItem());
                 UpdateChecker.updateAndShowResult(myProject, UpdateSettings.getInstance());
             } catch (InvalidRepoException ex) {
                 Messages.showErrorDialog(ex.getMessage(), "Invalid Update Channel");
             }
         });
 
+        autoRunDelaySlider.setMaximum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MAXIMUM());
+        autoRunDelaySlider.setMinimum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MINIMUM());
 
         extensionsPanel = new LibExtensionsSettingsPanelWrapper((JPanel) librariesPanel.getParent(), project);
         extensionsPanel.build();
@@ -121,29 +168,6 @@ public class ScalaProjectSettingsPanel {
         for (ScalaUiWithDependency uiWithDependency : EP_NAME.getExtensionList()) {
             extraSettings.add(uiWithDependency.createComponent(injectionJPanel));
         }
-
-        trailingCommasComboBox.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.TrailingCommasMode.class));
-
-        scTypeSelectionCombobox.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.ScFileMode.class));
-        scTypeSelectionCombobox.setRenderer(new SimpleListCellRenderer<>() {
-            @Override
-            public void customize(@NotNull JList<? extends ScalaProjectSettings.ScFileMode> jList, ScalaProjectSettings.ScFileMode o, int i, boolean b, boolean b1) {
-                if (o == null) return;
-                switch (o) {
-                    case Auto:
-                        setText("Ammonite in test sources, otherwise Worksheet");
-                        break;
-                    case Ammonite:
-                        setText("Always Ammonite");
-                        break;
-                    case Worksheet:
-                        setText("Always Worksheet");
-                }
-            }
-        });
-
-        autoRunDelaySlider.setMaximum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MAXIMUM());
-        autoRunDelaySlider.setMinimum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MINIMUM());
 
         setSettings();
 
@@ -158,14 +182,14 @@ public class ScalaProjectSettingsPanel {
     public void apply() throws ConfigurationException {
         if (!isModified()) return;
 
-        final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+        final ScalaProjectSettings scalaProjectSettings = getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
         compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
         compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
 
         try {
-            ScalaPluginUpdater.doUpdatePluginHostsAndCheck((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
+            ScalaPluginUpdater.doUpdatePluginHostsAndCheck((pluginBranch) updateChannel.getModel().getSelectedItem());
         } catch (InvalidRepoException e) {
             throw new ConfigurationException(e.getMessage());
         }
@@ -201,7 +225,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setDontCacheCompoundTypes(myDontCacheCompound.isSelected());
         scalaProjectSettings.setAotCOmpletion(myAotCompletion.isSelected());
         scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
-        scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
+        scalaProjectSettings.setCollectionTypeHighlightingLevel((ScalaCollectionHighlightingLevel) collectionHighlightingChooser.getSelectedItem());
         scalaProjectSettings.setAutoRunDelay(getWorksheetDelay());
 
         if (scalaProjectSettings.isProjectViewHighlighting() && !myProjectViewHighlighting.isSelected()) {
@@ -216,17 +240,17 @@ public class ScalaProjectSettingsPanel {
         }
         scalaProjectSettings.setGroupPackageObjectWithPackage(myGroupPackageObjectWithPackage.isSelected());
 
-        scalaProjectSettings.setScalaMetaMode((ScalaProjectSettings.ScalaMetaMode) scalaMetaMode.getModel().getSelectedItem());
+        scalaProjectSettings.setScalaMetaMode((ScalaMetaMode) scalaMetaMode.getModel().getSelectedItem());
         scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
 
-        scalaProjectSettings.setIvy2IndexingMode((ScalaProjectSettings.Ivy2IndexingMode) ivy2IndexingModeCBB.getModel().getSelectedItem());
+        scalaProjectSettings.setIvy2IndexingMode((Ivy2IndexingMode) ivy2IndexingModeCBB.getModel().getSelectedItem());
 
         Object type = scTypeSelectionCombobox.getSelectedItem();
         if (type != null)
-            scalaProjectSettings.setScFileMode(ScalaProjectSettings.ScFileMode.valueOf(type.toString()));
+            scalaProjectSettings.setScFileMode(ScFileMode.valueOf(type.toString()));
         Object trailingComa = trailingCommasComboBox.getSelectedItem();
         if (trailingComa != null)
-            scalaProjectSettings.setTrailingCommasMode(ScalaProjectSettings.TrailingCommasMode.valueOf(trailingComa.toString()));
+            scalaProjectSettings.setTrailingCommasMode(TrailingCommasMode.valueOf(trailingComa.toString()));
 
         scalaProjectSettings.setEnableLibraryExtensions(extensionsPanel.enabledCB().isSelected());
 
@@ -251,7 +275,7 @@ public class ScalaProjectSettingsPanel {
     @SuppressWarnings({"RedundantIfStatement"})
     public boolean isModified() {
 
-        final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+        final ScalaProjectSettings scalaProjectSettings = getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
         if (compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER != showTypeInfoOnCheckBox.isSelected()) return true;
@@ -322,7 +346,7 @@ public class ScalaProjectSettingsPanel {
             return true;
 
         if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
-                collectionHighlightingChooser.getSelectedIndex()) return true;
+                collectionHighlightingChooser.getSelectedItem()) return true;
 
         if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
 
@@ -369,7 +393,7 @@ public class ScalaProjectSettingsPanel {
     }
 
     private void setSettings() {
-        final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+        final ScalaProjectSettings scalaProjectSettings = getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
         setValue(showTypeInfoOnCheckBox, compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER);
@@ -405,7 +429,7 @@ public class ScalaProjectSettingsPanel {
         setValue(myDontCacheCompound, scalaProjectSettings.isDontCacheCompoundTypes());
         setValue(myAotCompletion, scalaProjectSettings.isAotCompletion());
         setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
-        collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel());
+        collectionHighlightingChooser.setSelectedItem(scalaProjectSettings.getCollectionTypeHighlightingLevel());
         setWorksheetDelay(scalaProjectSettings.getAutoRunDelay());
 
         setValue(myProjectViewHighlighting, scalaProjectSettings.isProjectViewHighlighting());
@@ -537,11 +561,6 @@ public class ScalaProjectSettingsPanel {
         this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.collection.type.highlighting.option"));
         panel3.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         collectionHighlightingChooser = new JComboBox();
-        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
-        defaultComboBoxModel1.addElement("None");
-        defaultComboBoxModel1.addElement("Only non-qualified");
-        defaultComboBoxModel1.addElement("All");
-        collectionHighlightingChooser.setModel(defaultComboBoxModel1);
         panel3.add(collectionHighlightingChooser, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new GridLayoutManager(3, 1, new Insets(9, 9, 0, 0), -1, -1));
@@ -584,11 +603,6 @@ public class ScalaProjectSettingsPanel {
         label3.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scala.meta.settings.annot212.tooltip"));
         panel5.add(label3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         scalaMetaMode = new JComboBox();
-        final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
-        defaultComboBoxModel2.addElement("Enabled");
-        defaultComboBoxModel2.addElement("Disabled");
-        defaultComboBoxModel2.addElement("Manual");
-        scalaMetaMode.setModel(defaultComboBoxModel2);
         scalaMetaMode.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scala.meta.settings.modeOptions.tooltip"));
         panel5.add(scalaMetaMode, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         metaTrimBodies = new JCheckBox();
@@ -596,11 +610,6 @@ public class ScalaProjectSettingsPanel {
         metaTrimBodies.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scala.meta.settings.trimBodies.tooltip"));
         panel5.add(metaTrimBodies, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ivy2IndexingModeCBB = new JComboBox();
-        final DefaultComboBoxModel defaultComboBoxModel3 = new DefaultComboBoxModel();
-        defaultComboBoxModel3.addElement("Disabled");
-        defaultComboBoxModel3.addElement("Metadata");
-        defaultComboBoxModel3.addElement("Classes");
-        ivy2IndexingModeCBB.setModel(defaultComboBoxModel3);
         ivy2IndexingModeCBB.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.sbt.index.ivy2.mode.hint"));
         panel5.add(ivy2IndexingModeCBB, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label4 = new JLabel();
@@ -688,11 +697,6 @@ public class ScalaProjectSettingsPanel {
         panel9.add(label10, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         updateChannel = new JComboBox();
         updateChannel.setEditable(false);
-        final DefaultComboBoxModel defaultComboBoxModel4 = new DefaultComboBoxModel();
-        defaultComboBoxModel4.addElement("Release");
-        defaultComboBoxModel4.addElement("EAP");
-        defaultComboBoxModel4.addElement("Nightly");
-        updateChannel.setModel(defaultComboBoxModel4);
         panel9.add(updateChannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         updateNowButton = new JButton();
         this.$$$loadButtonText$$$(updateNowButton, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.check.for.updates"));

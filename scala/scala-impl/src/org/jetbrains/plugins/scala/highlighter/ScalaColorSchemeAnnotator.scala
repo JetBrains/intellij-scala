@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType,
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollectionHighlightingLevel
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
@@ -65,13 +66,13 @@ object ScalaColorSchemeAnnotator {
       val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
 
       scalaProjectSettings.getCollectionTypeHighlightingLevel match {
-        case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_NONE => return
-        case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_NOT_QUALIFIED =>
+        case ScalaCollectionHighlightingLevel.None                           => return
+        case ScalaCollectionHighlightingLevel.OnlyNonQualified =>
           refElement.qualifier match {
             case None =>
             case _ => return
           }
-        case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_ALL =>
+        case ScalaCollectionHighlightingLevel.All =>
       }
 
       Stats.trigger(FeatureKey.collectionPackHighlighting)

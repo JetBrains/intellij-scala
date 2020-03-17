@@ -1,10 +1,16 @@
 package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.OptionTag;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
@@ -95,12 +101,32 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
   }
 
-  //colection type highlighting settings
-  private int COLLECTION_TYPE_HIGHLIGHTING_LEVEL = 0;
+  public enum ScalaCollectionHighlightingLevel {None, OnlyNonQualified, All}
 
-  public static final int COLLECTION_TYPE_HIGHLIGHTING_ALL = 2;
-  public static final int COLLECTION_TYPE_HIGHLIGHTING_NOT_QUALIFIED = 1;
-  public static final int COLLECTION_TYPE_HIGHLIGHTING_NONE = 0;
+  //collection type highlighting settings
+  private ScalaCollectionHighlightingLevel COLLECTION_TYPE_HIGHLIGHTING_LEVEL = ScalaCollectionHighlightingLevel.None;
+
+  // This is only needed cause previously collection type setting was integer value
+  // now it is a enum, but we want to migrate old integers to enums
+  // TODO: remove somewhere in 2020.2/3 when most of the users will install new idea (and migrate the settings)
+  public static class ScalaCollectionHighlightingLevelConverter extends Converter<ScalaCollectionHighlightingLevel> {
+    @Nullable
+    @Override
+    public ScalaCollectionHighlightingLevel fromString(@NotNull String value) {
+      try {
+        int index = Integer.parseInt(value);
+        return ScalaCollectionHighlightingLevel.values()[index];
+      } catch (NumberFormatException ex) {
+        return ScalaCollectionHighlightingLevel.valueOf(value);
+      }
+    }
+
+    @Nullable
+    @Override
+    public String toString(@NotNull ScalaCollectionHighlightingLevel value) {
+      return value.toString();
+    }
+  }
 
   private boolean TYPE_MISMATCH_HINTS = true;
 
@@ -114,10 +140,12 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     return project.getService(ScalaProjectSettings.class);
   }
 
+  @Override
   public ScalaProjectSettings getState() {
     return this;
   }
 
+  @Override
   public void loadState(@NotNull ScalaProjectSettings scalaProjectSettings) {
     XmlSerializerUtil.copyBean(scalaProjectSettings, this);
   }
@@ -308,12 +336,12 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     TYPE_AWARE_HIGHLIGHTING_ENABLED = !TYPE_AWARE_HIGHLIGHTING_ENABLED;
   }
 
-
-  public int getCollectionTypeHighlightingLevel() {
+  @OptionTag(converter = ScalaCollectionHighlightingLevelConverter.class)
+  public ScalaCollectionHighlightingLevel getCollectionTypeHighlightingLevel() {
     return COLLECTION_TYPE_HIGHLIGHTING_LEVEL;
   }
 
-  public void setCollectionTypeHighlightingLevel(int level) {
+  public void setCollectionTypeHighlightingLevel(ScalaCollectionHighlightingLevel level) {
     this.COLLECTION_TYPE_HIGHLIGHTING_LEVEL = level;
   }
 
