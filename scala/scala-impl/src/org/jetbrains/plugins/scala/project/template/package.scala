@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package project
 
 import java.io._
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.stream
 
@@ -143,8 +145,10 @@ package object template {
 
     def toLibraryRootURL: String = VfsUtil.getUrlForLibraryRoot(delegate)
 
-    def toVirtualFile: Option[VirtualFile] =
-      Option(VirtualFileManager.getInstance.findFileByUrl(delegate.toPath.toUri.toString))
+    def toVirtualFile: Option[VirtualFile] = {
+      val url = URLDecoder.decode(delegate.toPath.toUri.toString, StandardCharsets.UTF_8)
+      Option(VirtualFileManager.getInstance.findFileByUrl(url))
+    }
   }
 
   private[this] def launcherOptions(path: String) =
