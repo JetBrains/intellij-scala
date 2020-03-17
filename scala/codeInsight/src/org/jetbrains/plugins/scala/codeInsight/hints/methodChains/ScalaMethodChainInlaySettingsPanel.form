@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="7c629"/>
-          <text value="Only when there are at least"/>
+          <text resource-bundle="messages/ScalaCodeInsightBundle" key="inlay.hints.only.when.there.are.at.least"/>
         </properties>
       </component>
       <component id="7c629" class="javax.swing.JSpinner" binding="typeCountSpinner" custom-create="true">
@@ -39,7 +39,7 @@
         </constraints>
         <properties>
           <labelFor value="7c629"/>
-          <text value="unique types"/>
+          <text resource-bundle="messages/ScalaCodeInsightBundle" key="inlay.hints.unique.types"/>
         </properties>
       </component>
     </children>
