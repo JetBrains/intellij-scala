@@ -712,9 +712,14 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         context.setHighlightedParameter(el)
 
         if (!equivalent(context.getObjectsToView, elementsForParameterInfo(args))) {
+          //e.g. it may happen on moving caret to a different argument clause of the same call
+          //let's try to show more specific hint for it
+
           context.removeHint()
 
-          ShowParameterInfoHandler.invoke(project, context.getEditor, context.getFile, context.getOffset, null, false)
+          invokeLater {
+            ShowParameterInfoHandler.invoke(project, context.getEditor, context.getFile, context.getOffset, null, false)
+          }
         }
       case _ =>
     }
