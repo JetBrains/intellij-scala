@@ -7,7 +7,7 @@ object Versions {
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.4.0-RC1-74-e0147604"
+  val bloopVersion = "1.4.0-RC1-94-a2be783d"
   val zincVersion = "1.1.1"
   val intellijVersion = "201.6251.22"
   val bspVersion = "2.0.0-M7"
