@@ -62,11 +62,15 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     configuration match {
       case moduleBasedConfiguration: ModuleBasedConfiguration[_,_] =>
         val modules = moduleBasedConfiguration.getModules
-        val res = for {
-          potentialTargets <- modules.flatMap(module => getBspTargets(module))
-          _ <- askUserForTargetId(potentialTargets.map(_.getUri), task)
-        } yield ()
-        Promises.resolvedPromise(res.length == 1)
+        val potentialTargets = modules.map(getBspTargets).flatMap {
+          case Right(value) =>
+            value.toList
+          case Left(value) =>
+            logger.error(BspBundle.message("bsp.task.could.not.get.potential.targets", value.msg))
+            List()
+        }
+        askUserForTargetId(potentialTargets.map(_.getUri), task)
+        Promises.resolvedPromise(potentialTargets.length == 1)
       case _ => Promises.resolvedPromise(false)
     }
   }
@@ -83,7 +87,6 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
         val module = config.getConfigurationModule.getModule
         val taskResult: Either[BspGetEnvironmentError, Unit] = for {
           potentialTargets <- getBspTargets(module)
-            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.find.potential.targets",module.getName)))
           projectPath <- Option(ES.getExternalProjectPath(module))
             .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.extract.path", module.getName)))
           workspaceUri = Paths.get(projectPath).toUri
@@ -239,7 +242,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
   private def getBspTargets(module: Module): Either[BspGetEnvironmentError, Seq[BuildTargetIdentifier]] =
     for {
       data <- BspMetadata.get(module.getProject, module).swap.map(err => BspGetEnvironmentError(err.msg)).swap
-      res = data.targetIds.asScala.map(id => new BuildTargetIdentifier(id.toString)).filterNot(_.getUri == moduleId)
+      res = data.targetIds.asScala.map(id => new BuildTargetIdentifier(id.toString))
     } yield res
 
   private def jvmTestEnvironmentBspRequest(targets: Seq[BuildTargetIdentifier])
