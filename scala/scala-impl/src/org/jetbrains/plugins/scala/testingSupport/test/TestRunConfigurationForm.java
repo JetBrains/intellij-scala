@@ -14,21 +14,28 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.AnActionButtonRunnable;
+import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.xmlb.Converter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
+import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.RegexpTestData;
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.SingleTestData;
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData;
@@ -113,11 +120,11 @@ public class TestRunConfigurationForm {
         IN_SINGLE_MODULE("In single module"),
         ACCROSS_MODULE_DEPENDENCIES("Across module dependencies");
 
-        // TODO: proper i18, currently this value is used for both UI-displaying and for persisting
+        //NOTE: this value is only used to persist the enum, do not change it or migrate old settings very carefully
         private final String value;
 
-        SearchForTest(@NonNls String representation) {
-            this.value = representation;
+        SearchForTest(@NonNls String value) {
+            this.value = value;
         }
 
         @Override
@@ -138,7 +145,7 @@ public class TestRunConfigurationForm {
         TEST_NAME("Test name"),
         REGEXP("Regular expression");
 
-        // TODO: same as for SearchForTest
+        // NOTE: this value is only used to persist the enum, do not change it or migrate old settings very carefully
         private final String value;
 
         TestKind(@NonNls String value) {
@@ -161,6 +168,7 @@ public class TestRunConfigurationForm {
 
     public TestRunConfigurationForm(final Project project, final AbstractTestRunConfiguration configuration) {
         $$$setupUI$$$();
+
         jreSelector.setDefaultJreSelector(DefaultJreSelector.fromModuleDependencies(moduleComboBox, false));
         myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
         myModuleSelector.reset(configuration);
@@ -172,20 +180,41 @@ public class TestRunConfigurationForm {
 
         addPackageChooser(testPackageTextField, project);
 
-        for (SearchForTest searchForTest : SearchForTest.values()) {
-            searchForTestsComboBox.addItem(searchForTest);
-        }
-
+        searchForTestsComboBox.setModel(new EnumComboBoxModel<>(SearchForTest.class));
+        searchForTestsComboBox.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(SearchForTest.IN_WHOLE_PROJECT, ScalaBundle.message("test.run.config.search.scope.in.whole.project")),
+                Pair.create(SearchForTest.IN_SINGLE_MODULE, ScalaBundle.message("test.run.config.search.scope.in.single.module")),
+                Pair.create(SearchForTest.ACCROSS_MODULE_DEPENDENCIES, ScalaBundle.message("test.run.config.search.scope.across.module.dependencies"))
+        ));
         searchForTestsComboBox.setSelectedItem(testConfigurationData.getSearchTest());
-
         searchForTestsComboBox.addItemListener(e -> setupModuleComboBox());
 
         myShowProgressMessagesCheckBox.setSelected(testConfigurationData.getShowProgressMessages());
 
-        for (TestKind testKind : TestKind.values()) {
-            kindComboBox.addItem(testKind);
-        }
-
+        kindComboBox.setModel(new EnumComboBoxModel<>(TestKind.class));
+        kindComboBox.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(TestKind.ALL_IN_PACKAGE, ScalaBundle.message("test.run.config.test.kind.all.in.package")),
+                Pair.create(TestKind.CLAZZ, ScalaBundle.message("test.run.config.test.kind.class")),
+                Pair.create(TestKind.TEST_NAME, ScalaBundle.message("test.run.config.test.kind.test.name")),
+                Pair.create(TestKind.REGEXP, ScalaBundle.message("test.run.config.test.kind.regular.expression"))
+        ));
+        kindComboBox.addItemListener(e -> {
+            moduleComboBox.setEnabled(true);
+            switch ((TestKind) e.getItem()) {
+                case ALL_IN_PACKAGE:
+                    setPackageEnabled();
+                    setupModuleComboBox();
+                    break;
+                case CLAZZ:
+                    setClassEnabled();
+                    break;
+                case TEST_NAME:
+                    setTestNameEnabled();
+                    break;
+                case REGEXP:
+                    setRegexpEnabled();
+            }
+        });
         switch (testConfigurationData.getKind()) {
             case ALL_IN_PACKAGE:
                 setPackageEnabled();
@@ -207,24 +236,6 @@ public class TestRunConfigurationForm {
         setSbtVisible(hasSbt);
         setSbtUiVisible(hasSbt && configuration.allowsSbtUiRun());
         useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
-
-        kindComboBox.addItemListener(e -> {
-            moduleComboBox.setEnabled(true);
-            switch ((TestKind) e.getItem()) {
-                case ALL_IN_PACKAGE:
-                    setPackageEnabled();
-                    setupModuleComboBox();
-                    break;
-                case CLAZZ:
-                    setClassEnabled();
-                    break;
-                case TEST_NAME:
-                    setTestNameEnabled();
-                    break;
-                case REGEXP:
-                    setRegexpEnabled();
-            }
-        });
 
         suitePaths = configuration.javaSuitePaths();
         environmentVariables.setEnvs(testConfigurationData.envs());
@@ -590,8 +601,6 @@ public class TestRunConfigurationForm {
         final Spacer spacer2 = new Spacer();
         panel2.add(spacer2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         kindComboBox = new JComboBox();
-        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
-        kindComboBox.setModel(defaultComboBoxModel1);
         panel2.add(kindComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         searchForTestsPanel = new JPanel();
         searchForTestsPanel.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
