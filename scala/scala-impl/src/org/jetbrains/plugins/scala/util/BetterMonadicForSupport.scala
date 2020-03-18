@@ -35,11 +35,7 @@ object BetterMonadicForSupport {
 
   object Implicit0Pattern {
     private[this] def resolvesToImplicit0Unapply(ref: ScStableCodeReference): Boolean =
-      (for {
-        r    <- ref.bind()
-        extr <- r.element.asOptionOf[ScFunction]
-        if extr.isUnapplyMethod
-      } yield extr.containingClass.name == "implicit0").getOrElse(false)
+      ref.refName == "implicit0"
 
     def unapply(pat: ScConstructorPattern): Option[ScPattern] =
       if (pat.betterMonadicForEnabled) {
