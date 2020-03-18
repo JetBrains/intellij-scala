@@ -539,7 +539,10 @@ object DebuggerUtil {
     val transformed = if (endsWithPackageSuffix) withDots + packageSuffix else withDots
 
     val isScalaObject = originalQName.endsWith("$")
-    val predicate: PsiClass => Boolean = c => isScalaObject && c.isInstanceOf[ScObject]
+    val predicate: PsiClass => Boolean = {
+      case _: ScObject => isScalaObject
+      case _           => !isScalaObject
+    }
 
     val classes = findClassesByQName(transformed, elementScope, fallbackToProjectScope = true)
 

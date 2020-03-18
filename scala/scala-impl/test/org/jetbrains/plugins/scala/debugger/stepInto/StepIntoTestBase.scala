@@ -494,4 +494,26 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
       }
     }
   }
+
+  addFileWithBreakpoints("TraitObjectSameName.scala",
+    s"""object TraitObjectSameName {
+       |  def main(args: Array[String]): Unit = {
+       |    val t: T = T
+       |    val builder = new StringBuilder
+       |    t.parse(builder) $bp
+       |  }
+       |}
+       |object T extends T
+       |trait T {
+       |  def parse(b: StringBuilder): Boolean = {
+       |    b.toString()
+       |    println(42)
+       |    true
+       |  }
+       |}""".stripMargin)
+  def testTraitObjectSameName(): Unit = {
+    runDebugger() {
+      waitBreakpointAndStepInto("TraitObjectSameName.scala", "parse", 11)
+    }
+  }
 }
