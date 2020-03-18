@@ -72,73 +72,62 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
     def content: String = sourceFileOps.content(self)
   }
 
-  implicit class QuotedExprAPIExt[T](self: scala.quoted.Expr[T]) {
-    def unseal(implicit ctx: Context): Term = QuotedExprAPI.unseal(self)
-    def cast[U: scala.quoted.Type](implicit ctx: Context): scala.quoted.Expr[U] = QuotedExprAPI.cast(self)
-  }
-  implicit class QuotedTypeAPIExt[T](self: scala.quoted.Type[T]) {
-    def unseal(implicit ctx: Context): TypeTree = QuotedTypeAPI.unseal(self)
-  }
-  implicit class TermToQuotedOpsExt(self: Term) {
-    def seal(implicit ctx: Context): scala.quoted.Expr[Any] = TermToQuotedOps.seal(self)
-  }
-  implicit class TypeToQuotedOpsExt(self: Type) {
-    def seal(implicit ctx: Context): scala.quoted.Type[_] = TypeToQuotedOps.seal(self)
-  }
-
   implicit class signatureOpsExt(self: Signature) {
     def paramSigs: List[Any] = signatureOps.paramSigs(self)
     def resultSig: String = signatureOps.resultSig(self)
   }
 
-  implicit class symbolOpsExt(self: Symbol) {
-    def owner(implicit ctx: Context): Symbol = symbolOps.owner(self)
-    def maybeOwner(implicit ctx: Context): Symbol = symbolOps.maybeOwner(self)
-    def flags(implicit ctx: Context): Flags = symbolOps.flags(self)
-    def privateWithin(implicit ctx: Context): Option[Type] = symbolOps.privateWithin(self)
-    def protectedWithin(implicit ctx: Context): Option[Type] = symbolOps.protectedWithin(self)
-    def name(implicit ctx: Context): String = symbolOps.name(self)
-    def fullName(implicit ctx: Context): String = symbolOps.fullName(self)
-    def pos(implicit ctx: Context): Position = symbolOps.pos(self)
-    def localContext(implicit ctx: Context): Context = symbolOps.localContext(self)
-    def comment(implicit ctx: Context): Option[Comment] = symbolOps.comment(self)
-    def tree(implicit ctx: Context): Tree = symbolOps.tree(self)
-    def annots(implicit ctx: Context): List[Term] = symbolOps.annots(self)
-    def isDefinedInCurrentRun(implicit ctx: Context): Boolean = symbolOps.isDefinedInCurrentRun(self)
-    def isLocalDummy(implicit ctx: Context): Boolean = symbolOps.isLocalDummy(self)
-    def isRefinementClass(implicit ctx: Context): Boolean = symbolOps.isRefinementClass(self)
-    def isAliasType(implicit ctx: Context): Boolean = symbolOps.isAbstractType(self)
-    def isAnonymousClass(implicit ctx: Context): Boolean = symbolOps.isAnonymousClass(self)
-    def isAnonymousFunction(implicit ctx: Context): Boolean = symbolOps.isAnonymousFunction(self)
-    def isAbstractType(implicit ctx: Context): Boolean = symbolOps.isAbstractType(self)
-    def isClassConstructor(implicit ctx: Context): Boolean = symbolOps.isClassConstructor(self)
-    def isType(implicit ctx: Context): Boolean = symbolOps.isType(self)
-    def isTerm(implicit ctx: Context): Boolean = symbolOps.isTerm(self)
-    def isPackageDef(implicit ctx: Context): Boolean = symbolOps.isPackageDef(self)
-    def isClassDef(implicit ctx: Context): Boolean = symbolOps.isClassDef(self)
-    def isTypeDef(implicit ctx: Context): Boolean = symbolOps.isTypeDef(self)
-    def isValDef(implicit ctx: Context): Boolean = symbolOps.isValDef(self)
-    def isDefDef(implicit ctx: Context): Boolean = symbolOps.isDefDef(self)
-    def isBind(implicit ctx: Context): Boolean = symbolOps.isBind(self)
-    def isNoSymbol(implicit ctx: Context): Boolean = symbolOps.isNoSymbol(self)
-    def exists(implicit ctx: Context): Boolean = symbolOps.exists(self)
-    def fields(implicit ctx: Context): List[Symbol] = symbolOps.fields(self)
-    def field(name: String)(implicit ctx: Context): Symbol = symbolOps.field(self)(name)
-    def classMethod(name: String)(implicit ctx: Context): List[Symbol] = symbolOps.classMethod(self)(name)
-    def classMethods(implicit ctx: Context): List[Symbol] = symbolOps.classMethods(self)
-    def method(name: String)(implicit ctx: Context): List[Symbol] = symbolOps.method(self)(name)
-    def methods(implicit ctx: Context): List[Symbol] = symbolOps.methods(self)
-    def caseFields(implicit ctx: Context): List[Symbol] = symbolOps.caseFields(self)
-    def isTypeParam(implicit ctx: Context): Boolean = symbolOps.isTypeParam(self)
-    def signature(implicit ctx: Context): Signature = symbolOps.signature(self)
-    def moduleClass(implicit ctx: Context): Symbol = symbolOps.moduleClass(self)
-    def companionClass(implicit ctx: Context): Symbol = symbolOps.companionClass(self)
-    def companionModule(implicit ctx: Context): Symbol = symbolOps.companionModule(self)
+  implicit class SymbolOpsExt(self: Symbol) {
+    def owner(implicit ctx: Context): Symbol = SymbolOps.owner(self)
+    def maybeOwner(implicit ctx: Context): Symbol = SymbolOps.maybeOwner(self)
+    def flags(implicit ctx: Context): Flags = SymbolOps.flags(self)
+    def privateWithin(implicit ctx: Context): Option[Type] = SymbolOps.privateWithin(self)
+    def protectedWithin(implicit ctx: Context): Option[Type] = SymbolOps.protectedWithin(self)
+    def name(implicit ctx: Context): String = SymbolOps.name(self)
+    def fullName(implicit ctx: Context): String = SymbolOps.fullName(self)
+    def pos(implicit ctx: Context): Position = SymbolOps.pos(self)
+    def localContext(implicit ctx: Context): Context = SymbolOps.localContext(self)
+    def comment(implicit ctx: Context): Option[Comment] = SymbolOps.comment(self)
+    def tree(implicit ctx: Context): Tree = SymbolOps.tree(self)
+    def annots(implicit ctx: Context): List[Term] = SymbolOps.annots(self)
+    def isDefinedInCurrentRun(implicit ctx: Context): Boolean = SymbolOps.isDefinedInCurrentRun(self)
+    def isLocalDummy(implicit ctx: Context): Boolean = SymbolOps.isLocalDummy(self)
+    def isRefinementClass(implicit ctx: Context): Boolean = SymbolOps.isRefinementClass(self)
+    def isAliasType(implicit ctx: Context): Boolean = SymbolOps.isAbstractType(self)
+    def isAnonymousClass(implicit ctx: Context): Boolean = SymbolOps.isAnonymousClass(self)
+    def isAnonymousFunction(implicit ctx: Context): Boolean = SymbolOps.isAnonymousFunction(self)
+    def isAbstractType(implicit ctx: Context): Boolean = SymbolOps.isAbstractType(self)
+    def isClassConstructor(implicit ctx: Context): Boolean = SymbolOps.isClassConstructor(self)
+    def isType(implicit ctx: Context): Boolean = SymbolOps.isType(self)
+    def isTerm(implicit ctx: Context): Boolean = SymbolOps.isTerm(self)
+    def isPackageDef(implicit ctx: Context): Boolean = SymbolOps.isPackageDef(self)
+    def isClassDef(implicit ctx: Context): Boolean = SymbolOps.isClassDef(self)
+    def isTypeDef(implicit ctx: Context): Boolean = SymbolOps.isTypeDef(self)
+    def isValDef(implicit ctx: Context): Boolean = SymbolOps.isValDef(self)
+    def isDefDef(implicit ctx: Context): Boolean = SymbolOps.isDefDef(self)
+    def isBind(implicit ctx: Context): Boolean = SymbolOps.isBind(self)
+    def isNoSymbol(implicit ctx: Context): Boolean = SymbolOps.isNoSymbol(self)
+    def exists(implicit ctx: Context): Boolean = SymbolOps.exists(self)
+    def fields(implicit ctx: Context): List[Symbol] = SymbolOps.fields(self)
+    def field(name: String)(implicit ctx: Context): Symbol = SymbolOps.field(self)(name)
+    def classMethod(name: String)(implicit ctx: Context): List[Symbol] = SymbolOps.classMethod(self)(name)
+    def classMethods(implicit ctx: Context): List[Symbol] = SymbolOps.classMethods(self)
+    def method(name: String)(implicit ctx: Context): List[Symbol] = SymbolOps.method(self)(name)
+    def methods(implicit ctx: Context): List[Symbol] = SymbolOps.methods(self)
+    def caseFields(implicit ctx: Context): List[Symbol] = SymbolOps.caseFields(self)
+    def isTypeParam(implicit ctx: Context): Boolean = SymbolOps.isTypeParam(self)
+    def signature(implicit ctx: Context): Signature = SymbolOps.signature(self)
+    def moduleClass(implicit ctx: Context): Symbol = SymbolOps.moduleClass(self)
+    def companionClass(implicit ctx: Context): Symbol = SymbolOps.companionClass(self)
+    def companionModule(implicit ctx: Context): Symbol = SymbolOps.companionModule(self)
   }
 
   implicit class TreeOpsExt(self: Tree) {
     def pos(implicit ctx: Context): Position = TreeOps.pos(self)
     def symbol(implicit ctx: Context): Symbol = TreeOps.symbol(self)
+    def showExtractors(implicit ctx: Context): String = TreeOps.showExtractors(self)
+    def show(implicit ctx: Context): String = TreeOps.show(self)
+    def showWith(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = TreeOps.showWith(self, syntaxHighlight)
   }
   implicit class PackageClauseOpsExt(self: PackageClause) {
     def pid(implicit ctx: Context): Ref = PackageClauseOps.pid(self)
@@ -176,6 +165,7 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
     def members(implicit ctx: Context): List[Statement] = PackageDefOps.members(self)
   }
   implicit class TermOpsExt(self: Term) {
+    def seal(implicit ctx: Context): scala.quoted.Expr[Any] = TermOps.seal(self)
     def tpe(implicit ctx: Context): Type = TermOps.tpe(self)
     def underlyingArgument(implicit ctx: Context): Term = TermOps.underlyingArgument(self)
     def underlying(implicit ctx: Context): Term = TermOps.underlying(self)
@@ -356,6 +346,7 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
   }
 
   implicit class TypeOpsExt(self: Type) {
+    def seal(implicit ctx: Context): scala.quoted.Type[_] = TypeOps.seal(self)
     def =:=(that: Type)(implicit ctx: Context): Boolean = TypeOps.=:=(self)(that)
     def <:<(that: Type)(implicit ctx: Context): Boolean = TypeOps.<:<(self)(that)
     def widen(implicit ctx: Context): Type = TypeOps.widen(self)
@@ -369,7 +360,7 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
     def memberType(member: Symbol)(implicit ctx: Context): Type = TypeOps.memberType(self)(member)
     def derivesFrom(cls: Symbol)(implicit ctx: Context): Boolean = TypeOps.derivesFrom(self)(cls)
     def isFunctionType(implicit ctx: Context): Boolean = TypeOps.isFunctionType(self)
-    def isImplicitFunctionType(implicit ctx: Context): Boolean = TypeOps.isImplicitFunctionType(self)
+    def isContextFunctionType(implicit ctx: Context): Boolean = TypeOps.isContextFunctionType(self)
     def isErasedFunctionType(implicit ctx: Context): Boolean = TypeOps.isErasedFunctionType(self)
     def isDependentFunctionType(implicit ctx: Context): Boolean = TypeOps.isDependentFunctionType(self)
   }
@@ -383,6 +374,8 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
   implicit class TypeRefOpsExt(self: TypeRef) {
     def qualifier(implicit ctx: Context): TypeOrBounds  = TypeRefOps.qualifier(self)
     def name(implicit ctx: Context): String = TypeRefOps.name(self)
+    def isOpaqueAlias(implicit  ctx: Context): Boolean = TypeRefOps.isOpaqueAlias(self)
+    def translucentSuperType(implicit ctx: Context): Type = TypeRefOps.translucentSuperType(self)
   }
   implicit class SuperTypeOpsExt(self: SuperType) {
     def thistpe(implicit ctx: Context): Type = SuperTypeOps.thistpe(self)
@@ -429,15 +422,18 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
   }
   implicit class RecursiveTypeOpsExt(self: RecursiveType) {
     def underlying(implicit ctx: Context): Type = RecursiveTypeOps.underlying(self)
+    def recThis(implicit ctx: Context): RecursiveThis = RecursiveTypeOps.recThis(self)
   }
   implicit class MethodTypeOpsExt(self: MethodType) {
     def isImplicit: Boolean = MethodTypeOps.isImplicit(self)
     def isErased: Boolean = MethodTypeOps.isErased(self)
+    def param(idx: Int)(implicit ctx: Context): Type = MethodTypeOps.param(self)(idx)
     def paramNames(implicit ctx: Context): List[String] = MethodTypeOps.paramNames(self)
     def paramTypes(implicit ctx: Context): List[Type] = MethodTypeOps.paramTypes(self)
     def resType(implicit ctx: Context): Type = MethodTypeOps.resType(self)
   }
   implicit class PolyTypeOpsExt(self: PolyType) {
+    def param(self: PolyType)(idx: Int)(implicit ctx: Context): Type = PolyTypeOps.param(self)(idx)
     def paramNames(implicit ctx: Context): List[String] = PolyTypeOps.paramNames(self)
     def paramBounds(implicit ctx: Context): List[TypeBounds] = PolyTypeOps.paramBounds(self)
     def resType(implicit ctx: Context): Type = PolyTypeOps.resType(self)
@@ -445,6 +441,7 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
   implicit class TypeLambdaOpsExt(self: TypeLambda) {
     def paramNames(implicit ctx: Context): List[String] = TypeLambdaOps.paramNames(self)
     def paramBounds(implicit ctx: Context): List[TypeBounds] = TypeLambdaOps.paramBounds(self)
+    def param(idx: Int)(implicit ctx: Context) : Type = TypeLambdaOps.param(self)(idx)
     def resType(implicit ctx: Context): Type = TypeLambdaOps.resType(self)
   }
   implicit class TypeBoundsOpsExt(self: TypeBounds) {

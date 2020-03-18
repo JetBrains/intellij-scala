@@ -5,8 +5,8 @@ import scala.tasty.compat._
 
 // Copy of https://github.com/lampepfl/dotty/blob/master/library/src/scala/tasty/reflect/SourceCodePrinter.scala with cosmetic Scala 2.x updates.
 class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHighlight: SyntaxHighlight) extends Printer[R] {
-  import syntaxHighlight._
   import tasty._
+  import syntaxHighlight._
 
   def showTree(tree: Tree)(implicit ctx: Context): String =
     (new Buffer).printTree(tree).result()
@@ -197,15 +197,15 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
           def isUndecompilableCaseClassMethod: Boolean = {
             // Currently the compiler does not allow overriding some of the methods generated for case classes
             d.symbol.flags.is(Flags.Synthetic) &&
-              (d match {
-                case DefDef("apply" | "unapply" | "writeReplace", _, _, _, _) if d.symbol.owner.flags.is(Flags.Object) => true
-                case DefDef(n, _, _, _, _) if d.symbol.owner.flags.is(Flags.Case) =>
-                  n == "copy" ||
-                    n.matches("copy\\$default\\$[1-9][0-9]*") || // default parameters for the copy method
-                    n.matches("_[1-9][0-9]*") || // Getters from Product
-                    n == "productElementName"
-                case _ => false
-              })
+            (d match {
+              case DefDef("apply" | "unapply" | "writeReplace", _, _, _, _) if d.symbol.owner.flags.is(Flags.Object) => true
+              case DefDef(n, _, _, _, _) if d.symbol.owner.flags.is(Flags.Case) =>
+                n == "copy" ||
+                n.matches("copy\\$default\\$[1-9][0-9]*") || // default parameters for the copy method
+                n.matches("_[1-9][0-9]*") || // Getters from Product
+                n == "productElementName"
+              case _ => false
+            })
           }
           def isInnerModuleObject = d.symbol.flags.is(Flags.Lazy) && d.symbol.flags.is(Flags.Object)
           !flags.is(Flags.Param) && !flags.is(Flags.ParamAccessor) && !flags.is(Flags.FieldAccessor) && !isUndecompilableCaseClassMethod && !isInnerModuleObject
@@ -382,10 +382,15 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         this += "}"
 
       case Apply(fn, args) =>
+        var argsPrefix = ""
         fn match {
           case Select(This(_), "<init>") => this += "this" // call to constructor inside a constructor
-          case Select(qual, "apply") if qual.tpe.isImplicitFunctionType =>
-            printTree(qual) += " given "
+          case Select(qual, "apply") =>
+            if (qual.tpe.isContextFunctionType)
+              argsPrefix += "using "
+            if (qual.tpe.isErasedFunctionType)
+              argsPrefix += "erased "
+            printQualTree(fn)
           case _ => printQualTree(fn)
         }
         val args1 = args match {
@@ -393,7 +398,10 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
           case _ => args
         }
 
-        inParens(printTrees(args1, ", "))
+        inParens {
+          this += argsPrefix
+          printTrees(args1, ", ")
+        }
 
       case TypeApply(fn, args) =>
         printQualTree(fn)
@@ -446,10 +454,10 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         this += " = "
         printTree(rhs)
 
-      case Lambda(params, body) =>  // must come before `Block`
+      case tree @ Lambda(params, body) =>  // must come before `Block`
         inParens {
           printArgsDefs(params)
-          this += " => "
+          this += (if (tree.tpe.isContextFunctionType) " ?=> " else  " => ")
           printTree(body)
         }
 
@@ -748,7 +756,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
       this += argCons.name
       argCons.rhs match {
-        case rhs: TypeBoundsTree => printBoundsTree(rhs)
+        case rhs: TypeBoundsTree =>  this //printBoundsTree(rhs) TODO
         case rhs: WildcardTypeTree =>
           printTypeOrBound(rhs.tpe)
         case rhs @ LambdaTypeTree(tparams, body) =>
@@ -956,13 +964,13 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
     }
 
     /** Print type tree
-     *
-     *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
-     *                   None means no eliding.
-     *
-     *   Self type annotation and types in parent list should elide current class
-     *   prefix `C.this` to avoid type checking errors.
-     */
+      *
+      *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
+      *                   None means no eliding.
+      *
+      *   Self type annotation and types in parent list should elide current class
+      *   prefix `C.this` to avoid type checking errors.
+      */
     def printTypeTree(tree: TypeTree)(implicit elideThis: Option[Symbol] = None): Buffer = tree match {
       case Inferred() =>
         // TODO try to move this logic into `printType`
@@ -1059,13 +1067,13 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
     }
 
     /** Print type
-     *
-     *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
-     *                   None means no eliding.
-     *
-     *   Self type annotation and types in parent list should elide current class
-     *   prefix `C.this` to avoid type checking errors.
-     */
+      *
+      *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
+      *                   None means no eliding.
+      *
+      *   Self type annotation and types in parent list should elide current class
+      *   prefix `C.this` to avoid type checking errors.
+      */
     def printType(tpe: Type)(implicit elideThis: Option[Symbol] = None): Buffer = tpe match {
       case ConstantType(const) =>
         printConstant(const)
@@ -1098,9 +1106,9 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
       case TermRef(prefix, name) =>
         prefix match {
           case NoPrefix() =>
-            this += highlightTypeDef(name)
+              this += highlightTypeDef(name)
           case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass =>
-            this += highlightTypeDef(name)
+              this += highlightTypeDef(name)
           case _ =>
             printTypeOrBound(prefix)
             if (name != "package")
@@ -1244,7 +1252,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         case Annotation(annot, _) =>
           val sym = annot.tpe.typeSymbol
           sym != ctx.requiredClass("scala.forceInline") &&
-            sym.maybeOwner != ctx.requiredPackage("scala.annotation.internal")
+          sym.maybeOwner != ctx.requiredPackage("scala.annotation.internal")
         case x => throw new MatchError(x.showExtractors)
       }
       printAnnotations(annots)
@@ -1434,7 +1442,9 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
     object Sequence {
       def unapply(tpe: Type)(implicit ctx: Context): Option[Type] = tpe match {
-        case AppliedType(seq, (tp: Type) :: Nil) if seq.typeSymbol == ctx.requiredClass("scala.collection.Seq") => Some(tp)
+        case AppliedType(seq, (tp: Type) :: Nil)
+            if seq.typeSymbol == ctx.requiredClass("scala.collection.Seq") || seq.typeSymbol == ctx.requiredClass("scala.collection.immutable.Seq") =>
+          Some(tp)
         case _ => None
       }
     }

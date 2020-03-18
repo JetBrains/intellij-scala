@@ -26,7 +26,8 @@ object TastyReader {
         val Resolver = new DependencyManagerBase {override protected val artifactBlackList = Set.empty[String] }
         // TODO TASTy inspect: an ability to detect .tasty file version, https://github.com/lampepfl/dotty-feature-requests/issues/99
         // TODO TASTy inspect: make dotty-compiler depend on tasty-inspector https://github.com/lampepfl/dotty-feature-requests/issues/100
-        val tastyInspectorDependency = DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.22", "0.22.0-RC1", isTransitive = true)
+        // TODO Introduce the version variable
+        val tastyInspectorDependency = DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.23", "0.23.0-RC1", isTransitive = true)
         Resolver.resolve(tastyInspectorDependency).map(_.file)
       }
 
@@ -61,13 +62,15 @@ object TastyReader {
   }
 
   // TODO Remove (convenience for debugging purposes)
+  // NB: The plugin artifact must be build before running.
   def main(args: Array[String]): Unit = {
     def textAt(position: Position): String = {
       val line = Files.readAllLines(Paths.get(position.file)).asScala(position.startLine)
       line.substring(position.startColumn, position.endColumn)
     }
 
-    val result = read("/home/pavel/IdeaProjects/dotty-example-project/target/scala-0.22/classes", "ContextQueries").get
+    val home = System.getProperty("user.home")
+    val result = read(home + "/IdeaProjects/dotty-example-project/target/scala-0.23/classes", "ContextQueries").get
     println(result.text)
 
     (result.references ++ result.types).sortBy {

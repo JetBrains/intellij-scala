@@ -85,7 +85,7 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   type ThisType = internal.ThisType
   type RecursiveThis = internal.RecursiveThis
   type RecursiveType = internal.RecursiveType
-  type LambdaType[ParamInfo ] = internal.LambdaType[ParamInfo]
+  type LambdaType[ParamInfo] = internal.LambdaType[ParamInfo]
   type MethodType = internal.MethodType
   type PolyType = internal.PolyType
   type TypeLambda = internal.TypeLambda
@@ -108,22 +108,6 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   type NoMatchingImplicits = internal.NoMatchingImplicits
   type AmbiguousImplicits = internal.AmbiguousImplicits
 
-  // Quotes
-
-  object QuotedExprAPI {
-    def unseal[T](expr: scala.quoted.Expr[T])(implicit ctx: Context): Term = ???
-    def cast[T, U: scala.quoted.Type](expr: scala.quoted.Expr[T])(implicit ctx: Context): scala.quoted.Expr[U] = ???
-  }
-  object QuotedTypeAPI {
-    def unseal[T](tpe: scala.quoted.Type[T])(implicit ctx: Context): TypeTree = ???
-  }
-  object TermToQuotedOps {
-    def seal(term: Term)(implicit ctx: Context): scala.quoted.Expr[Any] = ???
-  }
-  object TypeToQuotedOps {
-    def seal(tpe: Type)(implicit ctx: Context): scala.quoted.Type[_] = ???
-  }
-
   // Contexts
 
   def rootContext: Context = ???
@@ -142,6 +126,9 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   object TreeOps {
     def pos(self: Tree)(implicit ctx: Context): Position = ???
     def symbol(self: Tree)(implicit ctx: Context): Symbol = ???
+    def showExtractors(self: Tree)(implicit ctx: Context): String = ???
+    def show(self: Tree)(implicit ctx: Context): String = ???
+    def showWith(self: Tree, syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
   }
   implicit def given_IsInstanceOf_PackageClause(implicit v: Context): IsInstanceOf[PackageClause] = ???
   object PackageClause {
@@ -220,6 +207,7 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def unapply(tree: PackageDef)(implicit ctx: Context): Option[(String, PackageDef)] = ???
   }
   object TermOps {
+    def seal(self: Term)(implicit ctx: Context): scala.quoted.Expr[Any] = ???
     def tpe(self: Term)(implicit ctx: Context): Type = ???
     def underlyingArgument(self: Term)(implicit ctx: Context): Term = ???
     def underlying(self: Term)(implicit ctx: Context): Term = ???
@@ -369,7 +357,7 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def tpeOpt(self: Closure)(implicit ctx: Context): Option[Type] = ???
   }
   object Lambda {
-    def unapply(tree: Tree)(implicit ctx: Context): Option[(List[ValDef], Term)] = ???
+    def unapply(tree: Block)(implicit ctx: Context): Option[(List[ValDef], Term)] = ???
     def apply(tpe: MethodType, rhsFn: List[Tree] => Tree)(implicit ctx: Context): Block = ???
   }
   implicit def given_IsInstanceOf_If(implicit v: Context): IsInstanceOf[If] = ???
@@ -680,9 +668,8 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
 
   // Types
 
-  def typeOf[T: scala.quoted.Type]: Type = ???
-
   object TypeOps {
+    def seal(self: Type)(implicit ctx: Context): scala.quoted.Type[_] = ???
     def =:=(self: Type)(that: Type)(implicit ctx: Context): Boolean = ???
     def <:<(self: Type)(that: Type)(implicit ctx: Context): Boolean = ???
     def widen(self: Type)(implicit ctx: Context): Type = ???
@@ -696,17 +683,17 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def memberType(self: Type)(member: Symbol)(implicit ctx: Context): Type = ???
     def derivesFrom(self: Type)(cls: Symbol)(implicit ctx: Context): Boolean = ???
     def isFunctionType(self: Type)(implicit ctx: Context): Boolean = ???
-    def isImplicitFunctionType(self: Type)(implicit ctx: Context): Boolean = ???
+    def isContextFunctionType(self: Type)(implicit ctx: Context): Boolean = ???
     def isErasedFunctionType(self: Type)(implicit ctx: Context): Boolean = ???
     def isDependentFunctionType(self: Type)(implicit ctx: Context): Boolean = ???
   }
   implicit def given_IsInstanceOf_Type(implicit v: Context): IsInstanceOf[Type] = ???
-  def unapply(x: Type)(implicit ctx: Context): Option[Type] = ???
   object Type {
     def apply(clazz: Class[_])(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_ConstantType(implicit v: Context): IsInstanceOf[ConstantType] = ???
   object ConstantType {
+    def apply(x : Constant)(implicit ctx: Context): ConstantType = ???
     def unapply(x: ConstantType)(implicit ctx: Context): Option[Constant] = ???
   }
   object ConstantTypeOps {
@@ -728,9 +715,12 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   object TypeRefOps {
     def qualifier(self: TypeRef)(implicit ctx: Context): TypeOrBounds  = ???
     def name(self: TypeRef)(implicit ctx: Context): String = ???
+    def isOpaqueAlias(self: TypeRef)(implicit  ctx: Context): Boolean = ???
+    def translucentSuperType(self: TypeRef)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_SuperType(implicit v: Context): IsInstanceOf[SuperType] = ???
   object SuperType {
+    def apply(thistpe: Type, supertpe: Type)(implicit ctx: Context): SuperType = ???
     def unapply(x: SuperType)(implicit ctx: Context): Option[(Type, Type)] = ???
   }
   object SuperTypeOps {
@@ -758,14 +748,17 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   }
   implicit def given_IsInstanceOf_AnnotatedType(implicit v: Context): IsInstanceOf[AnnotatedType] = ???
   object AnnotatedType {
+    def apply(underlying: Type, annot: Term)(implicit ctx: Context): AnnotatedType = ???
     def unapply(x: AnnotatedType)(implicit ctx: Context): Option[(Type, Term)] = ???
   }
   object AnnotatedTypeOps {
     def underlying(self: AnnotatedType)(implicit ctx: Context): Type = ???
     def annot(self: AnnotatedType)(implicit ctx: Context): Term = ???
+    def unapply(x: AnnotatedType)(implicit ctx: Context): Option[(Type, Term)] = ???
   }
   implicit def given_IsInstanceOf_AndType(implicit v: Context): IsInstanceOf[AndType] = ???
   object AndType {
+    def apply(lhs: Type, rhs: Type)(implicit ctx: Context): AndType = ???
     def unapply(x: AndType)(implicit ctx: Context): Option[(Type, Type)] = ???
   }
   object AndTypeOps {
@@ -774,6 +767,7 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   }
   implicit def given_IsInstanceOf_OrType(implicit v: Context): IsInstanceOf[OrType] = ???
   object OrType {
+    def apply(lhs: Type, rhs: Type)(implicit ctx: Context): OrType = ???
     def unapply(x: OrType)(implicit ctx: Context): Option[(Type, Type)] = ???
   }
   object OrTypeOps {
@@ -782,6 +776,7 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   }
   implicit def given_IsInstanceOf_MatchType(implicit v: Context): IsInstanceOf[MatchType] = ???
   object MatchType {
+    def apply(bound: Type, scrutinee: Type, cases: List[Type])(implicit ctx: Context): MatchType = ???
     def unapply(x: MatchType)(implicit ctx: Context): Option[(Type, Type, List[Type])] = ???
   }
   object MatchTypeOps {
@@ -789,8 +784,10 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def scrutinee(self: MatchType)(implicit ctx: Context): Type = ???
     def cases(self: MatchType)(implicit ctx: Context): List[Type] = ???
   }
+  def MatchCaseType(implicit ctx: Context): Type = ???
   implicit def given_IsInstanceOf_ByNameType(implicit v: Context): IsInstanceOf[ByNameType] = ???
   object ByNameType {
+    def apply(underlying: Type)(implicit ctx: Context): Type = ???
     def unapply(x: ByNameType)(implicit ctx: Context): Option[Type] = ???
   }
   object ByNameTypeOps {
@@ -820,10 +817,12 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   }
   implicit def given_IsInstanceOf_RecursiveType(implicit v: Context): IsInstanceOf[RecursiveType] = ???
   object RecursiveType {
+    def apply(parentExp: RecursiveType => Type)(implicit ctx: Context): RecursiveType = ???
     def unapply(x: RecursiveType)(implicit ctx: Context): Option[Type] = ???
   }
   object RecursiveTypeOps {
     def underlying(self: RecursiveType)(implicit ctx: Context): Type = ???
+    def recThis(self: RecursiveType)(implicit ctx: Context): RecursiveThis = ???
   }
   implicit def given_IsInstanceOf_MethodType(implicit v: Context): IsInstanceOf[MethodType] = ???
   object MethodType {
@@ -833,30 +832,36 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
   object MethodTypeOps {
     def isImplicit(self: MethodType): Boolean = ???
     def isErased(self: MethodType): Boolean = ???
+    def param(self: MethodType)(idx: Int)(implicit ctx: Context): Type = ???
     def paramNames(self: MethodType)(implicit ctx: Context): List[String] = ???
     def paramTypes(self: MethodType)(implicit ctx: Context): List[Type] = ???
     def resType(self: MethodType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_PolyType(implicit v: Context): IsInstanceOf[PolyType] = ???
   object PolyType {
+    def apply(paramNames: List[String])(paramBoundsExp: PolyType => List[TypeBounds], resultTypeExp: PolyType => Type)(implicit ctx: Context): PolyType = ???
     def unapply(x: PolyType)(implicit ctx: Context): Option[(List[String], List[TypeBounds], Type)] = ???
   }
   object PolyTypeOps {
+    def param(self: PolyType)(idx: Int)(implicit ctx: Context): Type = ???
     def paramNames(self: PolyType)(implicit ctx: Context): List[String] = ???
     def paramBounds(self: PolyType)(implicit ctx: Context): List[TypeBounds] = ???
     def resType(self: PolyType)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_TypeLambda(implicit v: Context): IsInstanceOf[TypeLambda] = ???
   object TypeLambda {
+    def apply(paramNames: List[String], boundsFn: TypeLambda => List[TypeBounds], bodyFn: TypeLambda => Type): TypeLambda = ???
     def unapply(x: TypeLambda)(implicit ctx: Context): Option[(List[String], List[TypeBounds], Type)] = ???
   }
   object TypeLambdaOps {
     def paramNames(self: TypeLambda)(implicit ctx: Context): List[String] = ???
     def paramBounds(self: TypeLambda)(implicit ctx: Context): List[TypeBounds] = ???
+    def param(self: TypeLambda)(idx: Int)(implicit ctx: Context) : Type = ???
     def resType(self: TypeLambda)(implicit ctx: Context): Type = ???
   }
   implicit def given_IsInstanceOf_TypeBounds(implicit v: Context): IsInstanceOf[TypeBounds] = ???
   object TypeBounds {
+    def apply(low: Type, hi: Type)(implicit ctx: Context): TypeBounds = ???
     def unapply(x: TypeBounds)(implicit ctx: Context): Option[(Type, Type)] = ???
   }
   object TypeBoundsOps {
@@ -914,9 +919,12 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
 
   object Symbol {
     def classSymbol(fullName: String)(implicit ctx: Context): Symbol = ???
+    def newMethod(parent: Symbol, name: String, tpe: Type)(implicit ctx: Context): Symbol = ???
+    def newMethod(parent: Symbol, name: String, tpe: Type, flags: Flags, privateWithin: Symbol)(implicit ctx: Context): Symbol = ???
+    def newVal(parent: Symbol, name: String, tpe: Type, flags: Flags, privateWithin: Symbol)(implicit ctx: Context): Symbol = ???
     def noSymbol(implicit ctx: Context): Symbol = ???
   }
-  object symbolOps {
+  object SymbolOps {
     def owner(self: Symbol)(implicit ctx: Context): Symbol = ???
     def maybeOwner(self: Symbol)(implicit ctx: Context): Symbol = ???
     def flags(self: Symbol)(implicit ctx: Context): Flags = ???
@@ -962,6 +970,7 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def showExtractors(symbol: Symbol)(implicit ctx: Context): String = ???
     def show(symbol: Symbol)(implicit ctx: Context): String = ???
     def showWith(symbol: Symbol, syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
+    def children(implicit ctx: Context): List[Symbol] = ???
   }
 
   // Signature
@@ -1151,30 +1160,14 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
 
   // Utils
 
-  abstract class TreeAccumulator[X] {
-    def foldTree(x: X, tree: Tree)(implicit ctx: Context): X
-    def foldTrees(x: X, trees: Iterable[Tree])(implicit ctx: Context): X = ???
-    def foldOverTree(x: X, tree: Tree)(implicit ctx: Context): X = ???
+  trait TreeAccumulator[X] extends reflect.TreeAccumulator[X] {
+    val reflect: self.type = self
   }
-  abstract class TreeTraverser extends TreeAccumulator[Unit] {
-    def traverseTree(tree: Tree)(implicit ctx: Context): Unit = ???
-    def foldTree(x: Unit, tree: Tree)(implicit ctx: Context): Unit = ???
-    protected def traverseTreeChildren(tree: Tree)(implicit ctx: Context): Unit = ???
+  trait TreeTraverser extends reflect.TreeTraverser {
+    val reflect: self.type = self
   }
-  abstract class TreeMap { self =>
-    def transformTree(tree: Tree)(implicit ctx: Context): Tree = ???
-    def transformStatement(tree: Statement)(implicit ctx: Context): Statement = ???
-    def transformTerm(tree: Term)(implicit ctx: Context): Term = ???
-    def transformTypeTree(tree: TypeTree)(implicit ctx: Context): TypeTree = ???
-    def transformCaseDef(tree: CaseDef)(implicit ctx: Context): CaseDef = ???
-    def transformTypeCaseDef(tree: TypeCaseDef)(implicit ctx: Context): TypeCaseDef = ???
-    def transformStats(trees: List[Statement])(implicit ctx: Context): List[Statement] = ???
-    def transformTrees(trees: List[Tree])(implicit ctx: Context): List[Tree] = ???
-    def transformTerms(trees: List[Term])(implicit ctx: Context): List[Term] = ???
-    def transformTypeTrees(trees: List[TypeTree])(implicit ctx: Context): List[TypeTree] = ???
-    def transformCaseDefs(trees: List[CaseDef])(implicit ctx: Context): List[CaseDef] = ???
-    def transformTypeCaseDefs(trees: List[TypeCaseDef])(implicit ctx: Context): List[TypeCaseDef] = ???
-    def transformSubTrees[Tr <: Tree](trees: List[Tr])(implicit ctx: Context): List[Tr] = ???
+  trait TreeMap extends reflect.TreeMap {
+    val reflect: self.type = self
   }
   def let(rhs: Term)(body: Ident => Term): Term = ???
   def lets(terms: List[Term])(body: List[Term] => Term): Term = ???
