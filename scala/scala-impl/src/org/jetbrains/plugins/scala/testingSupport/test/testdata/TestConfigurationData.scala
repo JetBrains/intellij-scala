@@ -154,5 +154,6 @@ object TestConfigurationData {
     case TestKind.CLAZZ          => new ClassTestData(configuration)
     case TestKind.TEST_NAME      => new SingleTestData(configuration)
     case TestKind.REGEXP         => new RegexpTestData(configuration)
+     case null                    => new ClassTestData(configuration)
   }
 }
