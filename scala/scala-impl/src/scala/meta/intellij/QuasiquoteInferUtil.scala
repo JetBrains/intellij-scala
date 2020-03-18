@@ -132,7 +132,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
       case "importer"   => p.parse[m.Importer]
       case "importee"   => p.parse[m.Importee]
       case "enumerator" => p.parse[m.Enumerator]
-      case _ => Parsed.Error(null, s"Unknown Quasiquote kind - $prefix", null)
+      case _ => Parsed.Error(null, s"Unknown Quasiquote kind - $prefix", new MatchError(prefix))
     }
   }
 
