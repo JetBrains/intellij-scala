@@ -7,7 +7,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
@@ -33,11 +32,8 @@ private class RegisterCompilationListener
 
 object RegisterCompilationListener {
 
-  private val jpsCompiler: JpsCompiler = new JpsCompilerImpl
-  private val jpsCompilerExecutor = new RescheduledExecutor("CompileJpsExecutor")
-
-  private def schedule(action: => Unit): Unit =
-    jpsCompilerExecutor.schedule(ScalaHighlightingMode.compilationDelay)(action)
+  private val compiler: JpsCompiler = new JpsCompilerImpl
+  private val executor = new RescheduledExecutor("CompileJpsExecutor")
 
   private class PsiTreeListener(project: Project)
     extends PsiTreeChangeAdapter {
@@ -59,19 +55,8 @@ object RegisterCompilationListener {
     private def handle(modifiedFile: VirtualFile): Unit =
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
         modifiedFile.toDocument.foreach { modifiedDocument =>
-          val selectedDocument = project.selectedDocument
-          val selectedFile = selectedDocument.flatMap(_.virtualFile)
-          if (selectedFile contains modifiedFile) {
-            schedule {
-              modifiedDocument.syncToDisk(project)
-              jpsCompiler.compile(project)
-            }
-          } else {
-            modifiedDocument.syncToDisk(project)
-            schedule {
-              jpsCompiler.compile(project)
-            }
-          }
+          modifiedDocument.syncToDisk(project)
+          executor.schedule(ScalaHighlightingMode.compilationDelay)(compiler.compile(project))
         }
       }
   }
