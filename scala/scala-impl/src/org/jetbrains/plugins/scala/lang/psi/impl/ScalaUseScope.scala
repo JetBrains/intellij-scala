@@ -34,16 +34,14 @@ private object ScalaUseScope {
   def apply(baseUseScope: SearchScope, file: ScalaFile): SearchScope = {
     if (file.isWorksheetFile || file.isScriptFile) {
       // elements from worksheets (including scratch files) can only be used in that files
-      ScFile.VirtualFile.unapply(file) match {
-        case Some(virtualFile) => GlobalSearchScope.fileScope(file.getProject, virtualFile)
-        case None              => baseUseScope
+      file match {
+        case ScFile.VirtualFile(virtualFile) => GlobalSearchScope.fileScope(file.getProject, virtualFile)
+        case _                               => baseUseScope
       }
     } else {
       baseUseScope
     }
   }
-
-  final case class WorksheetLocalSearchScope(file: ScalaFile) extends LocalSearchScope(file)
 
   private def intersect(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope =
     scopeOption.fold(scope)(_.intersectWith(scope))

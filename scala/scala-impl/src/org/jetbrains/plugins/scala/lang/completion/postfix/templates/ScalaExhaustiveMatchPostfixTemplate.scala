@@ -55,11 +55,7 @@ object ScalaExhaustiveMatchPostfixTemplate {
       case expression =>
         implicit val parameters: ClauseCompletionParameters = ClauseCompletionParameters(expression, expression.getContainingFile.getResolveScope)
         expression match {
-          case Typeable(typable) =>
-            typable match {
-              case PatternGenerationStrategy(strategy) => Some(expression, strategy)
-              case _                                   => None
-            }
+          case Typeable(PatternGenerationStrategy(strategy)) => Some(expression, strategy)
           case _ => None
         }
     }

@@ -32,10 +32,10 @@ sealed abstract class FilterScope (val delegate: GlobalSearchScope)
   protected final def isInLibraryClasses(file: VirtualFile): Boolean =
     fileIndex.isInLibraryClasses(file)
 
-  protected def isValid(file: VirtualFile): Boolean
+  override final def contains(file: VirtualFile): Boolean =
+    (delegate == null || delegate.contains(file)) && mayContain(file)
 
-  override def contains(file: VirtualFile): Boolean =
-    (delegate == null || delegate.contains(file)) && isValid(file)
+  protected def mayContain(file: VirtualFile): Boolean
 
   override def compare(file1: VirtualFile, file2: VirtualFile): Int =
     if (delegate != null) delegate.compare(file1, file2) else 0
@@ -54,10 +54,7 @@ final case class ScalaFilterScope private(override val delegate: GlobalSearchSco
                                          (implicit project: Project)
   extends FilterScope(delegate) {
 
-  override def contains(file: VirtualFile): Boolean =
-    super.contains(file)
-
-  override protected def isValid(file: VirtualFile): Boolean =
+  override protected def mayContain(file: VirtualFile): Boolean =
     FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
       case _: JavaClassFileType | SigFileType =>
         isInLibraryClasses(file)
@@ -96,7 +93,7 @@ final case class SourceFilterScope private(override val delegate: GlobalSearchSc
                                           (implicit project: Project)
   extends FilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(delegate, fileTypes: _*)) {
 
-  override protected def isValid(file: VirtualFile): Boolean = isInSourceContent(file)
+  override protected def mayContain(file: VirtualFile): Boolean = isInSourceContent(file)
 }
 
 object SourceFilterScope {
@@ -115,22 +112,22 @@ object SourceFilterScope {
 abstract class ResolveFilterScopeBase(scope: GlobalSearchScope)
                                      (implicit project: Project) extends FilterScope(scope) {
 
-  override protected def isValid(file: VirtualFile): Boolean =
+  override protected def mayContain(file: VirtualFile): Boolean =
     isInLibraryClasses(file) || isInSourceContent(file) || ScratchUtil.isScratch(file)
 }
 
 final case class ResolveFilterScope(scope: GlobalSearchScope)
                                    (implicit project: Project) extends ResolveFilterScopeBase(scope) {
 
-  override def contains(file: VirtualFile): Boolean =
-    super.contains(file) && file.getFileType != WorksheetFileType
+  override def mayContain(file: VirtualFile): Boolean =
+    super.mayContain(file) && file.getFileType != WorksheetFileType
 }
 
 final case class WorksheetResolveFilterScope(scope: GlobalSearchScope, worksheetFile: VirtualFile)
                                             (implicit project: Project) extends ResolveFilterScopeBase(scope){
 
-  override def contains(file: VirtualFile): Boolean =
-    super.contains(file) && {
+  override def mayContain(file: VirtualFile): Boolean =
+    super.mayContain(file) && {
       if (file.getFileType == WorksheetFileType)
         file == worksheetFile // worksheet elements shouldn't be available outside the worksheet
       else
