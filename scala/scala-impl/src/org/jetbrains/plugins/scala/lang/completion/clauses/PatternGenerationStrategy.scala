@@ -82,7 +82,8 @@ object PatternGenerationStrategy {
           if ScDesignatorType(inheritor).conforms(valueType)
         } yield inheritor
 
-        new DirectInheritorsGenerationStrategy(
+        if (appropriateNamedInheritors.isEmpty) null
+        else new DirectInheritorsGenerationStrategy(
           Inheritors(appropriateNamedInheritors, isSealed, isExhaustive)
         )
       case ExtractClass(DirectInheritors(inheritors)) =>
