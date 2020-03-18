@@ -110,29 +110,39 @@ object I18nBundleContent {
   case class BundleInfo(bundleFilePath: String, bundleClassPath: String, bundleClassName: String, bundleQualifiedClassName: String)
   case class BundleUsageInfo(originalPath: String, moduleSrcRoot: String, moduleResourceRoot: String, bundleInfo: Option[BundleInfo])
 
-  def findBundlePathFor(path: String): Option[BundleUsageInfo] = for {
-    moduleRoot <- {
-        assert(new File(path).isFile, s"Expected file: $path")
-        val idx = path.indexOf("/src/")
-        if (idx < 0) None
-        else Some(path.substring(0, idx + 1 /* include the '/' */))
-      }
-    srcRoot = moduleRoot + "src/"
-  } yield {
-    def withoutExtension(path: String): String = path.substring(0, path.lastIndexOf('.'))
-    val resourceRoot = moduleRoot + "resources/"
-    val bundlePath = for {
-      bundleClassPath <- findBundleClass(path)
-      relPath = bundleClassPath.toString.substring(srcRoot.length)
-      className = withoutExtension(bundleClassPath.getFileName.toString)
-      relPathWithoutExtension = withoutExtension(relPath)
-      qualifiedClassName = relPathWithoutExtension.replaceAll(raw"[/\\]", ".")
-      withPropertyEnding = relPathWithoutExtension + ".properties"
-      expectedBundlePath = resourceRoot + withPropertyEnding
-      bundlePath = findBundleFileForClass(resourceRoot, expectedBundlePath, className)
-    } yield BundleInfo(bundlePath, bundleClassPath.toString, className, qualifiedClassName)
-    BundleUsageInfo(path, srcRoot, resourceRoot, bundlePath)
+  /**
+   * @param filePath path to the file from which "extract to bundle" action is performed
+   */
+  private def findBundlePathFor(filePath: String): Option[BundleUsageInfo] =
+    for {
+      moduleRoot <- moduleRootForFile(filePath)
+    } yield {
+      val srcRoot      = moduleRoot + "src/"
+      val resourceRoot = moduleRoot + "resources/"
+      val bundleClassPath = findBundleClass(filePath)
+      val bundlePath = bundleClassPath.map(bundleInfo(srcRoot, resourceRoot, _))
+      BundleUsageInfo(filePath, srcRoot, resourceRoot, bundlePath)
+    }
+
+  private def bundleInfo(srcRoot: String, resourceRoot: String, bundleClassPath: Path) = {
+    val className               = withoutExtension(bundleClassPath.getFileName.toString)
+    val relPathWithoutExtension = withoutExtension(bundleClassPath.toString.substring(srcRoot.length))
+    val qualifiedClassName      = relPathWithoutExtension.replaceAll(raw"[/\\]", ".")
+    val withPropertyEnding      = relPathWithoutExtension + ".properties"
+    val expectedBundlePath      = resourceRoot + withPropertyEnding
+    val bundlePath              = findBundleFileForClass(resourceRoot, expectedBundlePath, className)
+    BundleInfo(bundlePath, bundleClassPath.toString, className, qualifiedClassName)
   }
+
+  private def moduleRootForFile(path: String) = {
+    assert(new File(path).isFile, s"Expected file: $path")
+    val idx = path.indexOf("/src/")
+    if (idx < 0) None
+    else Some(path.substring(0, idx + 1 /* include the '/' */))
+  }
+
+  private def withoutExtension(path: String): String =
+    path.substring(0, path.lastIndexOf('.'))
 
   def findBundlePathFor(element: PsiElement): Option[BundleUsageInfo] =
     element.containingVirtualFile.map(_.getPath).flatMap(findBundlePathFor)
@@ -154,13 +164,21 @@ object I18nBundleContent {
       .headOption
   }
 
-  def findBundleFileForClass(resourcePath: String, expectedPath: String, bundleName: String): String = {
+  private def findBundleFileForClass(resourcePath: String, expectedPath: String, bundleName: String): String = {
     if (new File(expectedPath).isFile) expectedPath
     else {
-      // look for resource/messages/<bundleName>.properties
-      val path = resourcePath + "messages/" + bundleName + ".properties"
-      assert(new File(path).isFile, s"Expected Bundle file $expectedPath or $path")
-      path
+      // look for
+      // resource/messages/<bundleName>.properties OR
+      // resource/messages/Scala<bundleName>.properties
+      // (at some point in time Scala prefix was added to all bundles)
+      val path1 = resourcePath + "messages/" + bundleName + ".properties"
+      val path2 = resourcePath + "messages/" + "Scala" + bundleName + ".properties"
+      if (new File(path1).isFile)
+        path1
+      else if (new File(path2).isFile)
+        path2
+      else
+        throw new AssertionError(s"Expected Bundle file $expectedPath or $path1")
     }
   }
 
