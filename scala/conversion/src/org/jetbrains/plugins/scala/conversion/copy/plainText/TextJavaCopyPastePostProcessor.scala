@@ -13,6 +13,7 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.conversion.copy.ScalaPasteFromJavaDialog.CopyFrom
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -59,7 +60,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
     // TODO: Collect available imports in current scope. Use them while converting
     computejavaContext(text).foreach { javaCodeWithContext =>
 
-      if (ScalaPasteFromJavaDialog.showAndGet(ScalaConversionBundle.message("scala.copy.from.text"), project)) {
+      if (ScalaPasteFromJavaDialog.showAndGet(CopyFrom.Text, project)) {
         Stats.trigger(FeatureKey.convertFromJavaText)
 
         extensions.inWriteAction {

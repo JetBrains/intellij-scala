@@ -12,6 +12,7 @@ import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.conversion.ast.{LiteralExpression, MainConstruction, TypedElement}
+import org.jetbrains.plugins.scala.conversion.copy.ScalaPasteFromJavaDialog.CopyFrom
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring._
@@ -111,7 +112,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
     if (text == "") return
     //copy as usually
 
-    if (!showDialog || ScalaPasteFromJavaDialog.showAndGet(ScalaConversionBundle.message("scala.copy.from.java"), project)) {
+    if (!showDialog || ScalaPasteFromJavaDialog.showAndGet(CopyFrom.JavaFile, project)) {
       val shiftedAssociations = inWriteAction {
         performePaste(editor, bounds, text, project)
 
