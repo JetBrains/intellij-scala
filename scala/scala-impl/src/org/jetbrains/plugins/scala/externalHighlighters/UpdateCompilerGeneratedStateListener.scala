@@ -7,7 +7,6 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import CompilerGeneratedStateManager.FileCompilerGeneratedState
 import org.jetbrains.plugins.scala.project.template.FileExt
-import org.jetbrains.plugins.scala.tasty.TastyProvider
 
 private class UpdateCompilerGeneratedStateListener(project: Project)
   extends CompilerEventListener {

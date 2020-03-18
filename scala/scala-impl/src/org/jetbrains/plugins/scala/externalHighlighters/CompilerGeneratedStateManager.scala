@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.externalHighlighters
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.tasty.TastyProvider
 import org.jetbrains.plugins.scala.util.CompilationId
 
 /**
