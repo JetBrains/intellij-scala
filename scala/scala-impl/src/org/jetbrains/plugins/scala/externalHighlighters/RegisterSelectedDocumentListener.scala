@@ -5,7 +5,6 @@ import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileEditor.{FileEditorManagerEvent, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.{DocumentCompiler, DocumentCompilerImpl, JpsCompilationUtil}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -31,7 +30,6 @@ private class RegisterSelectedDocumentListener(project: Project)
     private val executor = new RescheduledExecutor("CompileDocumentExecutor")
 
     final override def documentChanged(event: DocumentEvent): Unit = {
-      CompileServerLauncher.ensureServerRunning(project)
       wasChanged = true
       executor.schedule(ScalaHighlightingMode.compilationDelay) {
         if (!project.isDisposed && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
