@@ -20,14 +20,11 @@ object TastyReader {
   def read(classpath: String, className: String): Option[TastyFile] =
     Option(reader.read(classpath, className))
 
-  def read(containingFile: PsiFile): Option[TastyFile] = {
-    val provider = for {
-      virtualFile <- Option(containingFile.getVirtualFile)
-      state = CompilerGeneratedStateManager.get(containingFile.getProject)
-      fileState <- state.get(virtualFile)
-    } yield fileState.tastyProvider
-    provider.getOrElse(TastyProvider.Default).provide(containingFile)
-  }
+  def read(containingFile: PsiFile): Option[TastyFile] =
+    for {
+      Location(outputDirectory, className) <- compiledLocationOf(containingFile)
+      result <- TastyReader.read(outputDirectory, className)
+    } yield result
 
   def readText(classpath: String, className: String): Option[String] =
     read(classpath, className).map(_.text)

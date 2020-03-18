@@ -29,7 +29,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
             toLine = None,
             toColumn = None
           )
-        } yield virtualFile -> FileCompilerGeneratedState(compilationId, Set(highlighting), TastyProvider.Default)
+        } yield virtualFile -> FileCompilerGeneratedState(compilationId, Set(highlighting))
       case CompilerEvent.RangeMessageEmitted(compilationId, msg) =>
         for {
           virtualFile <- msg.source.toVirtualFile
@@ -41,14 +41,10 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
             toLine = msg.toLine,
             toColumn = msg.toColumn
           )
-        } yield virtualFile -> FileCompilerGeneratedState(compilationId, Set(highlighting), TastyProvider.Default)
+        } yield virtualFile -> FileCompilerGeneratedState(compilationId, Set(highlighting))
       case CompilerEvent.CompilationFinished(compilationId, source) =>
         source.toVirtualFile.map { virtualFile =>
-          virtualFile -> FileCompilerGeneratedState(compilationId, Set.empty, TastyProvider.Default)
-        }
-      case CompilerEvent.CacheTastyFile(compilationId, source, tasty) =>
-        source.toVirtualFile.map { virtualFile =>
-          virtualFile -> FileCompilerGeneratedState(compilationId, Set.empty, TastyProvider.Const(tasty))
+          virtualFile -> FileCompilerGeneratedState(compilationId, Set.empty)
         }
       case _ =>
         None
@@ -71,8 +67,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
         fileState
       case Some(oldFileState) =>
         oldFileState.copy(
-          highlightings = oldFileState.highlightings ++ fileState.highlightings,
-          tastyProvider = fileState.tastyProvider
+          highlightings = oldFileState.highlightings ++ fileState.highlightings
         )
     }
     val newState = oldState.updated(file, newFileState)

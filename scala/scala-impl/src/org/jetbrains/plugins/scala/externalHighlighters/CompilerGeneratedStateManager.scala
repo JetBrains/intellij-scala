@@ -13,8 +13,7 @@ import org.jetbrains.plugins.scala.util.CompilationId
 object CompilerGeneratedStateManager {
 
   case class FileCompilerGeneratedState(compilationId: CompilationId,
-                                        highlightings: Set[ExternalHighlighting],
-                                        tastyProvider: TastyProvider)
+                                        highlightings: Set[ExternalHighlighting])
 
   type CompilerGeneratedState = Map[VirtualFile, FileCompilerGeneratedState]
   type HighlightingState = Map[VirtualFile, Set[ExternalHighlighting]]
