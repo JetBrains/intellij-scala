@@ -8,8 +8,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
-import org.jetbrains.plugins.scala.externalHighlighters.CompilerGeneratedStateManager
-import org.jetbrains.plugins.scala.tasty.model._
 
 import scala.collection.JavaConverters._
 
