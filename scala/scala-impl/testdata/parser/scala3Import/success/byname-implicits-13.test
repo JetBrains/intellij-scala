@@ -8,7 +8,7 @@ case class IDAABBS(i: Int, daabb: DAABB, s: String)
 case class Dog(age: Long)
 case class Cat(name: String, friend: Either[Cat, Dog])
 
-// Definitions from Shapeless //////////////////////////////////////////
+// Definitions from Shapeless ---------------------------------------------------------------------
 
 sealed trait HList extends Product with Serializable
 final case class ::[+H, +T <: HList](head: H, tail: T) extends HList
@@ -27,7 +27,7 @@ trait Generic[T] {
   def from(r: Repr): T
 }
 
-// Manual Generic macro expansions //////////////////////////////////////////
+// Manual Generic macro expansions ----------------------------------------------------------------
 
 object GenericInstances {
   implicit val genAABB: Generic[AABB] { type Repr = AA :+: BB :+: CNil } =

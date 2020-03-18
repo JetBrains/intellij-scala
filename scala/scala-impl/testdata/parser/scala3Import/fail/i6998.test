@@ -1,6 +1,6 @@
 import scala.quoted._
 
-def foo(given QuoteContext) : Unit = {
-  val '{ $f : (Int => Double) } = ???
+def foo(using QuoteContext) : Unit = {
+  val '{ $f : (Int => Double) } = ??? : Expr[Any]
 }
 -----

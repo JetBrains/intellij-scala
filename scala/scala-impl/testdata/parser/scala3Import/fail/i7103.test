@@ -1,4 +1,4 @@
 class X
 object X extends X
-given `as` : X = X
+given `as` as X = X
 -----

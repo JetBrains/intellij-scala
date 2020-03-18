@@ -1,6 +1,6 @@
 object Test {
 
-/* //////////////////////////////////////////
+/* --------------------------------------------------------------------------
 
   Extension Methods & Simple Interfaces
 
@@ -16,7 +16,7 @@ object Test {
   extension for Circle : HasArea
     def area = radius * 2 * math.Pi
 
-* ////////////////////////////////////////// */
+* ------------------------------------------------------------------------ */
 
   case class Rectangle(width: Double, height: Double)
   case class Circle(radius: Double)
@@ -29,7 +29,7 @@ object Test {
     def area = `this`.radius * 2 * math.Pi
   }
 
-/* //////////////////////////////////////////
+/* --------------------------------------------------------------------------
 
   Monomorphic:
 
@@ -57,7 +57,7 @@ object Test {
   def sum[T: Monoid](xs: List[T]): T =
     xs.foldLeft(Monoid.by[T].unit)(_ `combine` _)
 
-* ////////////////////////////////////////// */
+* ---------------------------------------------------------------------------- */
 
   trait SemiGroup {
     val common: SemiGroup.Common
@@ -120,7 +120,7 @@ object Test {
 
   sum(List("A", "B", "C"))
 
-/* //////////////////////////////////////////
+/* --------------------------------------------------------------------------
 
   Generic:
 
@@ -152,7 +152,7 @@ object Test {
 
   def max[T: Ord](xs: List[T]): T = (Ord.by[T].minimum /: xs)(max(_, _))
 
-* ////////////////////////////////////////// */
+* ---------------------------------------------------------------------------- */
 
   trait Ord {
     val common: Ord.Common
@@ -212,7 +212,7 @@ object Test {
   val x3 = max(List(1, 2, 3))
   val x4 = max(List(List(1, 2), List(3, 3), Nil))
 
-/* //////////////////////////////////////////
+/* --------------------------------------------------------------------------
 
   Higher-kinded:
 
@@ -237,7 +237,7 @@ object Test {
   def h[F: Monad, A, B](x: A): (A => Monad.by[F].This[B]) => Monad.by[F].This[B]) =
     f => Monad.by[F].pure(x).flatMap(f)
 
-* ////////////////////////////////////////// */
+* ---------------------------------------------------------------------------- */
 
   trait Functor[A] {
     val common: Functor.Common
@@ -289,7 +289,7 @@ object Test {
 
   val r = g[F = List](1, _.toString)
 
-/* //////////////////////////////////////////
+/* --------------------------------------------------------------------------
 
   Generic and Higher-kinded:
 
@@ -299,7 +299,7 @@ object Test {
   common
     def pure[A](x: A) = ctx => x
 
-* ////////////////////////////////////////// */
+* ---------------------------------------------------------------------------- */
 
   class $eq$gt_Monad[Ctx] extends Monad.Common { self =>
     type This[A] = Ctx => A
@@ -318,7 +318,7 @@ object Test {
   g[F = [X] =>> Int => X]((ctx: Int) => 1, x => (ctx: Int) => x.toString)
 
 
-/* //////////////////////////////////////////
+/* ---------------------------------------------------------------------------------
 
   case class Reactangle(width: Double, height: Double)
   case class Circle(radius: Double)
@@ -332,7 +332,7 @@ object Test {
   implicit object CircleHasArea extends HasArea[Circle]
     def (x: Circle).area = x.radius * 2 * math.Pi
 
- //////////////////////////////////////////
+ ---------------------------------------------------------------------------------
 
   trait SemiGroup[T]
     def (x: T).combine(y: T): T
@@ -378,7 +378,7 @@ object Test {
 
   def max[T: Ord](xs: List[T]): T = implicitly[Ord[T]].minimum /: xs)(max(_, _))
 
- //////////////////////////////////////////
+ ---------------------------------------------------------------------------------
 
   trait Functor[F[_]]
     def (x: F[A]).map[A, B](f: A => B): F[B]

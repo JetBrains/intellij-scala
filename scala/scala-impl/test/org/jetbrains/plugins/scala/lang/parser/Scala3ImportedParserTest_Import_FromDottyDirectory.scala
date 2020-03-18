@@ -24,7 +24,7 @@ object Scala3ImportedParserTest_Import_FromDottyDirectory {
     println("srcdir =  " + srcDir)
     println("faildir = " + failDir)
 
-    for (file <- allFilesIn(srcDir)) {
+    for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala")) {
       val target = failDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
       val content = {
         val src = Source.fromFile(file)
@@ -52,17 +52,12 @@ object Scala3ImportedParserTest_Import_FromDottyDirectory {
     }
   }
 
-  object ScalaFileFilter extends FilenameFilter {
-    override def accept(dir: File, name: String): Boolean =
-      dir.isDirectory || name.toLowerCase.endsWith(".scala")
-  }
-
   def allFilesIn(path: String): Iterator[File] =
     allFilesIn(new File(path))
 
   def allFilesIn(path: File): Iterator[File] = {
     if (!path.exists) Iterator()
     else if (!path.isDirectory) Iterator(path)
-    else path.listFiles(ScalaFileFilter).iterator.flatMap(allFilesIn)
+    else path.listFiles.iterator.flatMap(allFilesIn)
   }
 }
