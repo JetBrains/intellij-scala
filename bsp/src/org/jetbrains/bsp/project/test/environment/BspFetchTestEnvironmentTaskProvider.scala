@@ -236,15 +236,15 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     }
   }
 
-  private def getBspTargets(module: Module): Option[Seq[BuildTargetIdentifier]] =
+  private def getBspTargets(module: Module): Either[BspGetEnvironmentError, Seq[BuildTargetIdentifier]] =
     for {
-      data <- BspMetadata.get(module.getProject, module)
-      res = data.targetIds.asScala.map(id => new BuildTargetIdentifier(id.toString))
+      data <- BspMetadata.get(module.getProject, module).swap.map(err => BspGetEnvironmentError(err.msg)).swap
+      res = data.targetIds.asScala.map(id => new BuildTargetIdentifier(id.toString)).filterNot(_.getUri == moduleId)
     } yield res
 
   private def jvmTestEnvironmentBspRequest(targets: Seq[BuildTargetIdentifier])
                                           (implicit server: BspServer,
-                                           capabilities: BuildServerCapabilities): CompletableFuture[Either[JvmTestEnvironmentNotSupported.type ,JvmTestEnvironmentResult]] =
+                                           capabilities: BuildServerCapabilities): CompletableFuture[Either[JvmTestEnvironmentNotSupported.type, JvmTestEnvironmentResult]] =
     if (Option(capabilities.getJvmTestEnvironmentProvider).exists(_.booleanValue())) {
       server.jvmTestEnvironment(new JvmTestEnvironmentParams(targets.asJava)).thenApply(Right(_))
     } else {

@@ -11,7 +11,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.bsp.BSP
+import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.bsp.data.BspEntityData._
 
 abstract class BspEntityData extends AbstractExternalEntityData(BSP.ProjectSystemId) with Product {
@@ -49,6 +49,7 @@ object ScalaSdkData {
   val LibraryName: String = "scala-sdk"
 }
 
+case class BspMetadataError(msg: String)
 
 /**
   * Metadata to about bsp targets that have been mapped to IntelliJ modules.
@@ -60,23 +61,25 @@ object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])
   import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 
-  def get(project: Project, module: Module): Option[BspMetadata] = {
+  def get(project: Project, module: Module): Either[BspMetadataError, BspMetadata] = {
     val dataManager = ProjectDataManager.getInstance()
 
     val moduleId = ES.getExternalProjectId(module)
 
     def predicate(node: DataNode[ModuleData]) = node.getData.getId == moduleId
 
-    // TODO all these options fail silently. collect errors and report something
     val metadata = for {
       projectInfo <- Option(dataManager.getExternalProjectData(project, BSP.ProjectSystemId, project.getBasePath))
+        .toRight(BspMetadataError(BspBundle.message("bsp.metadata.error.project.info", project.getName)))
       projectStructure <- Option(projectInfo.getExternalProjectStructure)
+        .toRight(BspMetadataError(BspBundle.message("bsp.metadata.error.project.structure", projectInfo.getExternalProjectPath)))
       moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
+        .toRight(BspMetadataError(BspBundle.message("bsp.metadata.error.data.node", project.getName)))
       metadata <- Option(ES.find(moduleDataNode, BspMetadata.Key))
+        .toRight(BspMetadataError(BspBundle.message("bsp.metadata.error.module.metadata", module.getName)))
     } yield {
       metadata.getData
     }
     metadata
   }
-
 }
