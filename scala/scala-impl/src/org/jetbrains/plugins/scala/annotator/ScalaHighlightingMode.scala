@@ -28,13 +28,7 @@ object ScalaHighlightingMode {
   }
 
   def compilationDelay: FiniteDuration =
-    nonNegativeDuration("scala.highlighting.compiler.selected.delay.millis")
-
-  def compilationJpsDelay: FiniteDuration =
-    nonNegativeDuration("scala.highlighting.compiler.jps.delay.millis")
-
-  private def nonNegativeDuration(key: String): FiniteDuration =
-    Seq(Registry.get(key).asInteger, 0).max.millis
+    Seq(Registry.get("scala.highlighting.compilation.delay.millis").asInteger, 0).max.millis
 
   final val ShowDotcErrorsKey = "dotty.highlighting.compiler.errors.in.editor"
 

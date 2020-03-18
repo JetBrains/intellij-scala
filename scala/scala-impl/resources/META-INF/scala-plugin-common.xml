@@ -532,10 +532,8 @@
                      description="Show errors from scala compiler in the editor"/>
         <registryKey key="dotty.highlighting.compiler.errors.in.editor" defaultValue="true" restartRequired="false"
                      description="Show errors from dotty compiler in the editor"/>
-        <registryKey key="scala.highlighting.compiler.selected.delay.millis" defaultValue="400" restartRequired="false"
-                     description="Delay between runs of the selected file compiler for highlighting, millis"/>
-        <registryKey key="scala.highlighting.compiler.jps.delay.millis" defaultValue="800" restartRequired="false"
-                     description="Delay between runs of the jps compilation for highlighting, millis"/>
+        <registryKey key="scala.highlighting.compilation.delay.millis" defaultValue="500" restartRequired="false"
+                     description="Delay between runs of the compilation for highlighting, millis"/>
         <registryKey key="scala.show.compile.server.is.compiling.now" defaultValue="false" restartRequired="false"
                      description="Show the fact that compile server is compiling now"/>
 
@@ -1690,7 +1688,7 @@
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterProjectListeners"/>
+                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterCompilationListener"/>
         <!-- Formatter listeners-->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
@@ -1713,8 +1711,6 @@
 
         <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener"/>
-        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterSelectedDocumentListener"/>
     </projectListeners>
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction">

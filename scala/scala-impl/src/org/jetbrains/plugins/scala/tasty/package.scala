@@ -14,7 +14,6 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.AlarmFactory
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.tasty.model._
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
@@ -22,7 +21,29 @@ package object tasty {
   // TODO Remove the structural types when the project use Scala 2.13
   import scala.language.reflectiveCalls
 
-  private[tasty] type TastyReader = { def read(classpath: String, className: String): TastyFile }
+  type TastyFile = {
+    def text: String
+    def references: Array[ReferenceData]
+    def types: Array[TypeData]
+  }
+  type Position = {
+    def file: String
+    def startLine: Int
+    def endLine: Int
+    def startColumn: Int
+    def endColumn: Int
+  }
+  type ReferenceData = {
+    def position: Position
+    def target: Position
+  }
+  type TypeData = {
+    def position: Position
+    def presentation: String
+  }
+  private[tasty] type TastyReader = {
+    def read(classpath: String, className: String): TastyFile
+  }
 
   def isTastyEnabledFor(element: PsiElement): Boolean =
     element.getContainingFile.getLanguage.is(Scala3Language.INSTANCE)
