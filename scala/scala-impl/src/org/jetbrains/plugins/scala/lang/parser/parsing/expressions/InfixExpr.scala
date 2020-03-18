@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.TypeArgs
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
 
 
 /**
@@ -19,18 +20,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.TypeArgs
  * InfixExpr ::= PrefixExpr
  *             | InfixExpr id [TypeArgs] [nl] InfixExpr
  */
-object InfixExpr {
-
-  import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
-
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object InfixExpr extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
 
     var markerStack = List.empty[PsiBuilder.Marker]
     var opStack = List.empty[String]
     val infixMarker = builder.mark
     var backupMarker = builder.mark
     var count = 0
-    if (!PrefixExpr.parse(builder)) {
+    if (!PrefixExpr()) {
       backupMarker.drop()
       infixMarker.drop()
       return false
@@ -75,7 +73,7 @@ object InfixExpr {
       } else {
         backupMarker.drop()
         backupMarker = builder.mark
-        if (!PrefixExpr.parse(builder)) {
+        if (!PrefixExpr()) {
           setMarker.rollbackTo()
           count = 0
           exitOf = false
