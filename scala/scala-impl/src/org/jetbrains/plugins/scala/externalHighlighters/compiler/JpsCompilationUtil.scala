@@ -14,7 +14,6 @@ object JpsCompilationUtil {
 
   def syncDocumentAndCompileProject(document: Option[Document],
                                     project: Project): Unit = {
-    CompileServerLauncher.ensureServerRunning(project)
     jpsCompilerExecutor.schedule(ScalaHighlightingMode.compilationJpsDelay) {
       document.foreach(_.syncToDisk(project))
       jpsCompiler.compile(project)
