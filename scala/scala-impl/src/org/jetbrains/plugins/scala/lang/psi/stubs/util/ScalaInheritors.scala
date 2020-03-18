@@ -35,7 +35,6 @@ object ScalaInheritors {
       case _                        => Seq()
     }
 
-  @Measure
   def directInheritorCandidates(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.name
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
@@ -56,7 +55,6 @@ object ScalaInheritors {
     inheritors
   }
 
-  @Measure
   def directInheritorCandidates(clazz: PsiClass, localScope: LocalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.name
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
