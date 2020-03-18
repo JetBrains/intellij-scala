@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
-package parser.parsing
+package parser
+package parsing
 package builder
 
 import com.intellij.lang.PsiBuilder
@@ -118,4 +119,14 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
   override def error(messageText: String): Unit =
     if (!ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(getProject))
       super.error(messageText)
+
+  // override
+  var currentIndentionWidth: IndentionWidth = IndentionWidth.initial
+
+  override def withIndentionWidth[R](width: IndentionWidth)(body: => R): R = {
+    val save = currentIndentionWidth
+    currentIndentionWidth = width
+    try body
+    finally currentIndentionWidth = save
+  }
 }

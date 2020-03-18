@@ -6,7 +6,7 @@ package statements
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Ascription, Expr}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Ascription, ExprInIndentionRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 
 /*
@@ -48,7 +48,7 @@ object PatDef {
       if (builder.getTokenType == ScalaTokenTypes.tASSIGN) {
         builder.checkedAdvanceLexer()
 
-        if (!Expr.parse(builder)) {
+        if (!ExprInIndentionRegion.parse(builder)) {
           builder.error(ErrMsg("expression.expected"))
         }
 

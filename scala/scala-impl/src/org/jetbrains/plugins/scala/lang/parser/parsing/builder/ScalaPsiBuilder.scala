@@ -31,4 +31,8 @@ trait ScalaPsiBuilder extends PsiBuilder {
   def isScala3: Boolean
 
   def isStrictMode: Boolean
+
+  def currentIndentionWidth: IndentionWidth
+
+  def withIndentionWidth[R](width: IndentionWidth)(body: => R): R
 }

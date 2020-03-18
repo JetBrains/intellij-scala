@@ -101,5 +101,14 @@ package object parser {
       if (originalSubText.contains('\n')) Some(originalSubText)
       else None
     }
+
+    def findPreviousIndent: Option[IndentionWidth] = {
+      findPreviousNewLine.flatMap {
+        ws =>
+          val lastNewLine = ws.lastIndexOf('\n')
+          if (lastNewLine < 0) None
+          else IndentionWidth(ws.substring(lastNewLine + 1))
+      }
+    }
   }
 }

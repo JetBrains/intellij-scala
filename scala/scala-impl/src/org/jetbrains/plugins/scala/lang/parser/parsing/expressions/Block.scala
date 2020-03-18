@@ -64,13 +64,11 @@ object Block {
         continue = false
         i = i + 1
         tts ::= builder.getTokenType
+      } else if (BlockStat.parse(builder)) {
+        i = i + 1
+        tts ::= builder.getTokenType
       } else {
-        if (BlockStat.parse(builder)) {
-          i = i + 1
-          tts ::= builder.getTokenType
-        } else {
-          continue = false
-        }
+        continue = false
       }
     }
     if (tts.drop(1).headOption.contains(ScalaTokenTypes.tSEMICOLON)) i -= 1  // See unit_to_unit.test

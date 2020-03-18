@@ -6,7 +6,7 @@ package patterns
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.PostfixExpr
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{PostfixExpr, PostfixExprInIndentionRegion}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -26,7 +26,8 @@ object Guard {
           return false
         }
     }
-    if (!PostfixExpr.parse(builder)) {
+    // todo: handle indention
+    if (!PostfixExprInIndentionRegion.parse(builder)) {
       if (noIf) {
         guardMarker.drop()
         return false
