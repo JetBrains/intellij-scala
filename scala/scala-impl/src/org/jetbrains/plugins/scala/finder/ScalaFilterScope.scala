@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package finder
 
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
-import com.intellij.ide.scratch.{ScratchFileService, ScratchUtil}
+import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -12,15 +12,11 @@ import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearc
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType
-import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 import org.jetbrains.plugins.scala.util.HashBuilder._
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 17.02.2010
- */
-sealed abstract class FilterScope (val delegate: GlobalSearchScope)
-                                  (implicit project: Project)
+sealed abstract class FilterScope(val delegate: GlobalSearchScope)
+                                 (implicit project: Project)
   extends GlobalSearchScope(project) {
 
   private val fileIndex =
@@ -48,10 +44,16 @@ sealed abstract class FilterScope (val delegate: GlobalSearchScope)
 
   override def calcHashCode(): Int =
     this.getClass.hashCode() #+ delegate.hashCode()
+
+  override def equals(other: Any): Boolean = other match {
+    case that: FilterScope if this.getClass == that.getClass =>
+      delegate == that.delegate
+    case _ => false
+  }
 }
 
-final case class ScalaFilterScope private(override val delegate: GlobalSearchScope)
-                                         (implicit project: Project)
+final class ScalaFilterScope private(delegate: GlobalSearchScope)
+                                    (implicit project: Project)
   extends FilterScope(delegate) {
 
   override protected def mayContain(file: VirtualFile): Boolean =
@@ -77,6 +79,9 @@ object ScalaFilterScope {
   def apply(parameters: MethodReferencesSearch.SearchParameters): SearchScope =
     apply(parameters.getEffectiveSearchScope)(parameters.getProject)
 
+  def apply(delegate: GlobalSearchScope)
+           (implicit project: Project): ScalaFilterScope = new ScalaFilterScope(delegate)(project)
+
   def apply(scope: SearchScope)
            (implicit project: Project): SearchScope = scope match {
     case global: GlobalSearchScope => apply(global)
@@ -89,8 +94,8 @@ object ScalaFilterScope {
   }
 }
 
-final case class SourceFilterScope private(override val delegate: GlobalSearchScope, fileTypes: Seq[FileType])
-                                          (implicit project: Project)
+final class SourceFilterScope private(delegate: GlobalSearchScope, fileTypes: Seq[FileType])
+                                     (implicit project: Project)
   extends FilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(delegate, fileTypes: _*)) {
 
   override protected def mayContain(file: VirtualFile): Boolean = isInSourceContent(file)
@@ -100,31 +105,55 @@ object SourceFilterScope {
 
   import GlobalSearchScope.projectScope
 
+  def apply(delegate: GlobalSearchScope, fileTypes: Seq[FileType])
+           (implicit project: Project): SourceFilterScope =
+    new SourceFilterScope(delegate, fileTypes)
+
   def apply(fileTypes: Seq[FileType])
            (implicit project: Project): SourceFilterScope =
-    SourceFilterScope(projectScope(project), fileTypes)
+    new SourceFilterScope(projectScope(project), fileTypes)
 
   def apply(scope: GlobalSearchScope)
            (implicit project: Project): SourceFilterScope =
-    SourceFilterScope(scope, Seq(ScalaFileType.INSTANCE, JavaFileType.INSTANCE))
+    new SourceFilterScope(scope, Seq(ScalaFileType.INSTANCE, JavaFileType.INSTANCE))
 }
 
-abstract class ResolveFilterScopeBase(scope: GlobalSearchScope)
-                                     (implicit project: Project) extends FilterScope(scope) {
+abstract class ResolveFilterScopeBase(delegate: GlobalSearchScope)
+                                     (implicit project: Project)
+  extends FilterScope(delegate) {
 
   override protected def mayContain(file: VirtualFile): Boolean =
     isInLibraryClasses(file) || isInSourceContent(file) || ScratchUtil.isScratch(file)
 }
 
-final case class ResolveFilterScope(scope: GlobalSearchScope)
-                                   (implicit project: Project) extends ResolveFilterScopeBase(scope) {
+final class ResolveFilterScope(delegate: GlobalSearchScope)
+                              (implicit project: Project)
+  extends ResolveFilterScopeBase(delegate) {
 
   override def mayContain(file: VirtualFile): Boolean =
     super.mayContain(file) && file.getFileType != WorksheetFileType
 }
 
-final case class WorksheetResolveFilterScope(scope: GlobalSearchScope, worksheetFile: VirtualFile)
-                                            (implicit project: Project) extends ResolveFilterScopeBase(scope){
+object ResolveFilterScope {
+  def apply(delegate: GlobalSearchScope)
+           (implicit project: Project): ResolveFilterScope =
+    new ResolveFilterScope(delegate)
+}
+
+final class WorksheetResolveFilterScope(delegate: GlobalSearchScope,
+                                        val worksheetFile: VirtualFile)
+                                       (implicit project: Project)
+  extends ResolveFilterScopeBase(delegate){
+
+
+  override def equals(other: Any): Boolean =
+    super.equals(other) && (other match {
+      case wsScope: WorksheetResolveFilterScope => this.worksheetFile == wsScope.worksheetFile
+      case _                                    => false
+    })
+
+  override def calcHashCode(): Int =
+    super.calcHashCode() #+ worksheetFile.hashCode()
 
   override def mayContain(file: VirtualFile): Boolean =
     super.mayContain(file) && {
@@ -133,4 +162,10 @@ final case class WorksheetResolveFilterScope(scope: GlobalSearchScope, worksheet
       else
         true
     }
+}
+
+object WorksheetResolveFilterScope {
+  def apply(delegate: GlobalSearchScope, worksheetFile: VirtualFile)
+           (implicit project: Project): WorksheetResolveFilterScope =
+    new WorksheetResolveFilterScope(delegate, worksheetFile)(project)
 }
