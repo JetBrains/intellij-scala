@@ -29,13 +29,7 @@ trait SimpleScala3ParserTestBase extends SimpleTestCase {
   }
 
   def checkParseErrors(text: String): ScalaFile = {
-    val (code, expectedErrors) = extractExpectedErrors(
-      s"""
-         |object O {
-         |  $text
-         |}
-         |""".stripMargin
-    )
+    val (code, expectedErrors) = extractExpectedErrors(text)
 
     val file = parseText(code, lang = Scala3Language.INSTANCE)
     val errors = file.depthFirst().toSeq.filterBy[PsiErrorElement]

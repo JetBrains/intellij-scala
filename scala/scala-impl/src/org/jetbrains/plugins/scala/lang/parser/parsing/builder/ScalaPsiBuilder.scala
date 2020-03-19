@@ -34,5 +34,7 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def currentIndentionWidth: IndentionWidth
 
-  def withIndentionWidth[R](width: IndentionWidth)(body: => R): R
+  def pushIndentionWidth(width: IndentionWidth): Unit
+
+  def popIndentionWidth(): IndentionWidth
 }

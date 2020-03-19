@@ -5,6 +5,7 @@ package parsing
 package top
 package template
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 
@@ -22,15 +23,38 @@ sealed abstract class Body extends ParsingRule {
     val marker = builder.mark()
     builder.enableNewlines()
 
-    builder.getTokenType match {
+    val indentation = builder.getTokenType match {
       case `tLBRACE` =>
         builder.advanceLexer() // Ate {
+        None
+      case _ if builder.isScala3 =>
+        val hadColon = builder.getTokenType == ScalaTokenTypes.tCOLON
+        if (hadColon) {
+          builder.advanceLexer() // Ate :
+        }
+
+        builder.findPreviousIndent match {
+          case indentO@Some(indent) if indent > builder.currentIndentionWidth =>
+            indentO
+          case indentO =>
+            if (hadColon && indentO.isEmpty) {
+              builder error ScalaBundle.message("expected.indented.template.body")
+            }
+            marker.drop()
+            builder.restoreNewlinesState()
+            return true
+        }
       case _ =>
-        builder.error(ScalaBundle.message("lbrace.expected"))
+        marker.drop()
+        builder.restoreNewlinesState()
+        return true
     }
 
-    SelfType.parse(builder)
-    parseStatements()
+    def nowrap(body: => Unit): Unit = body
+    indentation.fold(nowrap _)(builder.withIndentionWidth) {
+      SelfType.parse(builder)
+      parseStatements(indentation)
+    }
 
     builder.restoreNewlinesState()
     marker.done(ScalaElementType.TEMPLATE_BODY)
@@ -43,32 +67,46 @@ sealed abstract class Body extends ParsingRule {
    * [[Stat]] { semi [[Stat]] }
    */
   @annotation.tailrec
-  private def parseStatements()(implicit builder: ScalaPsiBuilder): Unit = builder.getTokenType match {
-    case null =>
-      builder.error(ScalaBundle.message("rbrace.expected"))
-    case `tRBRACE` =>
-      builder.advanceLexer() // Ate }
-    case _ if statementRule() =>
-      builder.getTokenType match {
-        case `tRBRACE` =>
+  private def parseStatements(baseIndention: Option[IndentionWidth])(implicit builder: ScalaPsiBuilder): Unit = {
+    skipSemicolon()
+    builder.getTokenType match {
+      case null =>
+        builder.error(ScalaBundle.message("rbrace.expected"))
+        return
+      case `tRBRACE` =>
+        if (baseIndention.isEmpty)
           builder.advanceLexer() // Ate }
-        case `tSEMICOLON` =>
-          while (builder.getTokenType == tSEMICOLON) {
-            builder.advanceLexer()
-          }
-          parseStatements()
-        case _ if builder.newlineBeforeCurrentToken =>
-          parseStatements()
-        case _ =>
-          builder.error(ScalaBundle.message("semi.expected"))
-          builder.advanceLexer() // Ate something
-          parseStatements()
-      }
-    case _ =>
-      builder.error(ScalaBundle.message("def.dcl.expected"))
-      builder.advanceLexer() // Ate something
-      parseStatements()
+        return
+      case _ if isOutdent(baseIndention) =>
+        return
+      case _ if statementRule() =>
+        builder.getTokenType match {
+          case `tRBRACE` =>
+            if (baseIndention.isEmpty)
+              builder.advanceLexer() // Ate }
+            return
+          case _ if isOutdent(baseIndention) =>
+            return
+          case `tSEMICOLON` =>
+          case _ if builder.newlineBeforeCurrentToken =>
+          case _ =>
+            builder.error(ScalaBundle.message("semi.expected"))
+            builder.advanceLexer() // Ate something
+        }
+      case _ =>
+        builder.error(ScalaBundle.message("def.dcl.expected"))
+        builder.advanceLexer() // Ate something
+    }
+    parseStatements(baseIndention)
   }
+
+  private def isOutdent(baseIndention: Option[IndentionWidth])(implicit builder: ScalaPsiBuilder): Boolean =
+    baseIndention.exists(cur => builder.findPreviousIndent.exists(_ < cur) || builder.eof())
+
+  private def skipSemicolon()(implicit builder: ScalaPsiBuilder): Unit =
+    while (builder.getTokenType == tSEMICOLON) {
+      builder.advanceLexer()
+    }
 }
 
 /**

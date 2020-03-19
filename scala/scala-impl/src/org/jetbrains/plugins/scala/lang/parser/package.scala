@@ -110,5 +110,11 @@ package object parser {
           else IndentionWidth(ws.substring(lastNewLine + 1))
       }
     }
+
+    def withIndentionWidth[R](width: IndentionWidth)(body: => R): R = {
+      repr.pushIndentionWidth(width)
+      try body
+      finally repr.popIndentionWidth()
+    }
   }
 }

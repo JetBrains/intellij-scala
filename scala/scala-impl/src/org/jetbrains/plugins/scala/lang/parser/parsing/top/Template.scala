@@ -24,22 +24,27 @@ sealed abstract class Template extends ParsingRule {
   override final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
-    builder.getTokenType match {
-      case `kEXTENDS` | `tUPPER_BOUND` =>
-        builder.advanceLexer() // Ate extends
+    val skipBody =
+      builder.getTokenType match {
+        case `kEXTENDS` | `tUPPER_BOUND` =>
+          builder.advanceLexer() // Ate extends
 
-        builder.getTokenType match {
-          case `tLBRACE` if !EarlyDef.parse(builder) => bodyRule()
-          case _ =>
-            parentsRule()
+          builder.getTokenType match {
+            case `tLBRACE` if !EarlyDef.parse(builder) => false
+            case _ =>
+              parentsRule()
 
-            builder.getTokenType match {
-              case `tLBRACE` if !builder.twoNewlinesBeforeCurrentToken => bodyRule()
-              case _ =>
-            }
-        }
-      case `tLBRACE` if check => bodyRule()
-      case _ =>
+              builder.getTokenType match {
+                case `tLBRACE` if !check => true
+                case _ => false
+              }
+          }
+        case `tLBRACE` if !check => true
+        case _ => false
+      }
+
+    if (!skipBody) {
+      bodyRule()
     }
 
     marker.done(ScalaElementType.EXTENDS_BLOCK)
