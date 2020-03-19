@@ -1027,11 +1027,6 @@ package object extensions {
       else Some(result)
     }
 
-    def findBy[T: ClassTag]: Option[T] = {
-      val clazz = implicitly[ClassTag[T]].runtimeClass
-      delegate.find(clazz.isInstance).asInstanceOf[Option[T]]
-    }
-
     // https://github.com/scala/collection-strawman/issues/208
     def intersperse[B >: A](sep: B): Iterator[B] = new Iterator[B] {
       private var intersperseNext = false

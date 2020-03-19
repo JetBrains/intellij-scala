@@ -10,9 +10,10 @@ import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.PsiElement
 import com.intellij.util.AlarmFactory
-import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
@@ -50,18 +51,18 @@ package object tasty {
 
   case class Location(outputDirectory: String, className: String)
 
-  def compiledLocationOf(sourceFile: PsiFile): Option[Location] = {
-    val virtualFile = sourceFile.getVirtualFile
-    val index = ProjectFileIndex.SERVICE.getInstance(sourceFile.getProject)
-    val inTest = index.isInTestSourceContent(virtualFile)
-
-    for {
-      module <- sourceFile.module
-      outputDirectory <- Option(CompilerPaths.getModuleOutputPath(module, inTest))
-      sourceRoot <- Option(index.getSourceRootForFile(virtualFile))
-      relativeSourcePath = virtualFile.getPath.substring(sourceRoot.getPath.length + 1)
-      className = relativeSourcePath.dropRight(6).replace('/', '.') // TODO Handle class <-> file naming conventions
-    } yield Location(outputDirectory, className)
+  def compiledLocationOf(element: PsiElement): Option[Location] = {
+    element.containingFile.flatMap { psiFile =>
+      element.module.flatMap { module =>
+        val index = ProjectFileIndex.SERVICE.getInstance(element.getProject)
+        val inTest = index.isInTestSourceContent(psiFile.getVirtualFile)
+        Option(CompilerPaths.getModuleOutputPath(module, inTest)).flatMap { outputDirectory =>
+          element.parentsInFile.instancesOf[ScTypeDefinition].lastOption.map { topLevelTypeDefinition =>
+            Location(outputDirectory, topLevelTypeDefinition.qualifiedName)
+          }
+        }
+      }
+    }
   }
 
   private val OutputPath = """(.+[\\\/](?:classes|(?:out[\\\/](?:production|test))))[\\\/](.+\.tasty)""".r

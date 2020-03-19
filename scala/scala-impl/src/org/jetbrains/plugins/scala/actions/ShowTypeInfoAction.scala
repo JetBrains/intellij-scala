@@ -9,7 +9,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -85,7 +87,9 @@ class ShowTypeInfoAction extends AnAction(
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
 
       if (isTastyEnabledFor(file)) {
-        for (tastyFile <- TastyReader.read(file);
+        for (element <- Option(file.findElementAt(offset));
+             Location(outputDirectory, className) <- compiledLocationOf(element);
+             tastyFile <- TastyReader.read(outputDirectory, className);
              presentation <- typeAt(editor.getCaretModel.getLogicalPosition, tastyFile)) {
 
           showTastyNotification("Type Info")
