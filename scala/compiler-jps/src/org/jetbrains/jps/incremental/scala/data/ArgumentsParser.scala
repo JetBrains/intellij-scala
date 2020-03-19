@@ -27,7 +27,7 @@ object ArgumentsParser
       PathToFile(scalaBridgeSourceJar_2_10),
       PathToFile(scalaBridgeSourceJar_2_11),
       PathToFile(scalaBridgeSourceJar_2_13),
-      PathToFile(dottyBridgeJar_0_22),
+      PathToFile(dottyBridgeJar),
       PathToFile(interfacesHome),
       javaClassVersion,
       StringToOption(compilerJarPaths),
@@ -58,7 +58,7 @@ object ArgumentsParser
         _2_13 = scalaBridgeSourceJar_2_13
       )
       val dottyBridges = SbtData.DottyJars(
-        _0_22 = dottyBridgeJar_0_22
+        bridge = dottyBridgeJar
       )
       val compilerBridges = SbtData.CompilerBridges(scalaBridgeSources, dottyBridges)
       val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)

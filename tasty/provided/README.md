@@ -1,6 +1,6 @@
 # TASTy Reflect & Inspect APIs for Scala 2.x
 
-Reproduces the ABI of [scala.tasty.Reflection.scala](https://github.com/lampepfl/dotty/blob/0.22.0-RC1/library/src/scala/tasty/Reflection.scala) (and several related Scala classes).
+Reproduces the ABI of [scala.tasty.Reflection.scala](https://github.com/lampepfl/dotty/blob/0.23.0-RC1/library/src/scala/tasty/Reflection.scala) (and several related Scala classes).
 
 See:
 * https://dotty.epfl.ch/docs/reference/metaprogramming/tasty-reflect.html

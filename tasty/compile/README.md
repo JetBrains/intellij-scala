@@ -1,6 +1,6 @@
 # TASTy Reflect & Inspect compatibility for the Scala 2.x TASTy APIs
 
-Scala 3-like syntax on top of the ABI of [scala.tasty.Reflection.scala](https://github.com/lampepfl/dotty/blob/0.22.0-RC1/library/src/scala/tasty/Reflection.scala)
+Scala 3-like syntax on top of the ABI of [scala.tasty.Reflection.scala](https://github.com/lampepfl/dotty/blob/0.23.0-RC1/library/src/scala/tasty/Reflection.scala)
 
 Required because Scala 2.x doesn't support extension methods (and implicit AnyVal classes in a class):
 https://dotty.epfl.ch/docs/reference/contextual/relationship-implicits.html
