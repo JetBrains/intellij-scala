@@ -104,7 +104,7 @@ object CompilerFactoryImpl {
                                        client: Option[Client],
                                        isDotty: Boolean): File =
     if (isDotty) {
-      compilerBridges.dotty._0_22
+      compilerBridges.dotty.bridge
     } else {
       val scalaVersion = scalaInstance.actualVersion
 
