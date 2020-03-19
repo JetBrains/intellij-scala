@@ -28,8 +28,8 @@ package object tasty {
   type ReferenceData = { def position: Position; def target: Position }
   type TypeData = { def position: Position; def presentation: String }
 
-  def isTastyEnabledFor(element: PsiElement): Boolean =
-    element.getContainingFile.getLanguage.is(Scala3Language.INSTANCE)
+  def isTastyEnabledFor(element: PsiElement): Boolean = element.isInScala3Module
+//    element.getLanguage.is(Scala3Language.INSTANCE) // TODO SCL-17237
 
   case class Location(outputDirectory: String, className: String)
 
