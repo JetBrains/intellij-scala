@@ -45,7 +45,7 @@ case class ScalaSdkData @PropertyMapping(Array("scalaOrganization", "scalaVersio
 ) extends BspEntityData
 
 object ScalaSdkData {
-  val Key: Key[ScalaSdkData] = datakey(classOf[ScalaSdkData])
+  val Key: Key[ScalaSdkData] = datakey(classOf[ScalaSdkData], weight = ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 10)
   val LibraryName: String = "scala-sdk"
 }
 
