@@ -32,11 +32,12 @@ private class RegisterCompilationListener
 
 object RegisterCompilationListener {
 
-  private val compiler: JpsCompiler = new JpsCompilerImpl
   private val executor = new RescheduledExecutor("CompileJpsExecutor")
 
   private class PsiTreeListener(project: Project)
     extends PsiTreeChangeAdapter {
+
+    private val compiler: JpsCompiler = JpsCompiler.get(project)
 
     override def childrenChanged(event: PsiTreeChangeEvent): Unit =
       for {
@@ -56,7 +57,7 @@ object RegisterCompilationListener {
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
         modifiedFile.toDocument.foreach { modifiedDocument =>
           modifiedDocument.syncToDisk(project)
-          executor.schedule(ScalaHighlightingMode.compilationDelay)(compiler.compile(project))
+          executor.schedule(ScalaHighlightingMode.compilationDelay)(compiler.compile())
         }
       }
   }

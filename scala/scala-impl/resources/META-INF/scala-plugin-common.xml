@@ -491,6 +491,8 @@
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
+        <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.JpsCompiler"
+                        serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.JpsCompilerImpl"/>
 
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
@@ -1670,6 +1672,7 @@
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.externalHighlighters.RegisterApplicationListeners"/>
+        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.externalHighlighters.OverrideBuildActions"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
     </extensions>
@@ -1689,8 +1692,6 @@
                   class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterCompilationListener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.OverridePlatformServices"/>
         <!-- Formatter listeners-->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
