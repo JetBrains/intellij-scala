@@ -45,8 +45,8 @@ package object tasty {
     def read(classpath: String, className: String): TastyFile
   }
 
-  def isTastyEnabledFor(element: PsiElement): Boolean =
-    element.getContainingFile.getLanguage.is(Scala3Language.INSTANCE)
+  def isTastyEnabledFor(element: PsiElement): Boolean = element.isInScala3Module
+//    element.getLanguage.is(Scala3Language.INSTANCE) // TODO SCL-17237
 
   case class Location(outputDirectory: String, className: String)
 
