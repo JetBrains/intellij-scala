@@ -478,7 +478,7 @@ private[resolver] object BspResolverLogic {
       (TEST_RESOURCE, dir)
     }
 
-    val allSourceRoots = (sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots)
+    val allSourceRoots = sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots
 
     val moduleName = moduleDescriptionData.name
     val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
