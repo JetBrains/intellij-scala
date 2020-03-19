@@ -970,7 +970,7 @@ class Reflection(private[scala] val internal: CompilerInterface) { self =>
     def showExtractors(symbol: Symbol)(implicit ctx: Context): String = ???
     def show(symbol: Symbol)(implicit ctx: Context): String = ???
     def showWith(symbol: Symbol, syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
-    def children(implicit ctx: Context): List[Symbol] = ???
+    def children(symbol: Symbol)(implicit ctx: Context): List[Symbol] = ???
   }
 
   // Signature
