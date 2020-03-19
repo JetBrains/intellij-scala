@@ -120,6 +120,10 @@ class Reflection(v: CompilerInterface) extends scala.tasty.Reflection(v) {
     def moduleClass(implicit ctx: Context): Symbol = SymbolOps.moduleClass(self)
     def companionClass(implicit ctx: Context): Symbol = SymbolOps.companionClass(self)
     def companionModule(implicit ctx: Context): Symbol = SymbolOps.companionModule(self)
+    def showExtractors(implicit ctx: Context): String = SymbolOps.showExtractors(self)
+    def show(implicit ctx: Context): String = SymbolOps.show(self)
+    def showWith(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = SymbolOps.showWith(self, syntaxHighlight)
+    def children(implicit ctx: Context): List[Symbol] = SymbolOps.children(self)
   }
 
   implicit class TreeOpsExt(self: Tree) {
