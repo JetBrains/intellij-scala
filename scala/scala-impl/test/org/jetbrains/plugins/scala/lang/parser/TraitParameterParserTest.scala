@@ -24,4 +24,16 @@ class TraitParameterParserTest extends SimpleScala3ParserTestBase {
   def test_with_extends(): Unit = checkParseErrors(
     "trait Test(arg: Int) extends Base"
   )
+
+  def test(): Unit = checkParseErrors(
+    """
+      |object testindent
+      |
+      |  class A
+      |
+      |  /* foo */ class B
+      |
+      |  class C
+      |""".stripMargin
+  )
 }

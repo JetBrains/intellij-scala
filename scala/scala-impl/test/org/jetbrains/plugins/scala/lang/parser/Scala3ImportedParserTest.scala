@@ -32,10 +32,11 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
     val (errors, lightFile) = findErrorElements(fileText, project)
     val hasErrorElements = errors.nonEmpty
 
+    lazy val expected = psiToString(lightFile, false).replace(": " + lightFile.name, "")
     if (hasErrorElements != shouldHaveErrorElements) {
       println(fileText)
       println("-------")
-      println(psiToString(lightFile, false).replace(": " + lightFile.name, ""))
+      println(expected)
     }
 
     val msg = s"Found following errors: " + errors.mkString(", ")
@@ -47,8 +48,12 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
     }
 
     // TODO: return real psi tree instead of empty one and add reference tree to testfiles
-    ""
+    if (testsWithPsiResult.contains(testName))
+      expected
+    else ""
   }
+
+  protected def testsWithPsiResult: Set[String] = Set.empty
 
   protected def shouldHaveErrorElements: Boolean
 
@@ -58,6 +63,11 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
 
 class Scala3ImportedParserTest extends Scala3ImportedParserTestBase(Scala3ImportedParserTest.directory) {
   override protected def shouldHaveErrorElements: Boolean = false
+
+  override val testsWithPsiResult = Set(
+    "i7217", "i7648", "i7428", "i7757", "i4561",
+    "reference_auto-param-tupling"
+  )
 }
 
 object Scala3ImportedParserTest {
