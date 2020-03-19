@@ -13,7 +13,7 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspUtil._
-import org.jetbrains.bsp.data.{BspMetadata, SbtBuildModuleDataBsp, ScalaSdkData}
+import org.jetbrains.bsp.data.{BspMetadata, BspProjectData, SbtBuildModuleDataBsp, ScalaSdkData}
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle, BspErrorMessage}
@@ -402,6 +402,10 @@ private[resolver] object BspResolverLogic {
     val projectRoot = new File(projectRootPath)
     val projectData = new ProjectData(BSP.ProjectSystemId, projectRoot.getName, projectRootPath, projectRootPath)
     val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
+
+    // TODO have a way to set project jdk before/during import
+    val bspProjectData = new DataNode[BspProjectData](BspProjectData.Key, BspProjectData(None), projectNode)
+    projectNode.addChild(bspProjectData)
 
     // synthetic root module when no natural module is at root
     val rootModule =

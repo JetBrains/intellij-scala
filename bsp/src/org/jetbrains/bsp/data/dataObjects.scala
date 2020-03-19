@@ -12,7 +12,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.bsp.BSP
-import org.jetbrains.bsp.data.BspEntityData._
+import org.jetbrains.plugins.scala.project.external.SdkReference
+import org.jetbrains.sbt.project.data.SbtEntityData.datakey
 
 abstract class BspEntityData extends AbstractExternalEntityData(BSP.ProjectSystemId) with Product {
 
@@ -33,6 +34,14 @@ object BspEntityData {
   def datakey[T](clazz: Class[T],
                  weight: Int = ProjectKeys.MODULE.getProcessingWeight + 1
                 ): Key[T] = new Key(clazz.getName, weight)
+}
+
+@SerialVersionUID(1)
+case class BspProjectData @PropertyMapping(Array("jdk")) private (@Nullable jdk: SdkReference) extends BspEntityData
+
+object BspProjectData {
+  val Key: Key[BspProjectData] = datakey(classOf[BspProjectData], weight = ProjectKeys.PROJECT.getProcessingWeight +  1)
+  def apply(sdk: Option[SdkReference]): BspProjectData = BspProjectData(sdk.orNull)
 }
 
 
