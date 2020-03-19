@@ -10,9 +10,10 @@ import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.PsiElement
 import com.intellij.util.AlarmFactory
-import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
@@ -32,22 +33,14 @@ package object tasty {
 
   case class Location(outputDirectory: String, className: String)
 
-  def compiledLocationOf(sourceFile: PsiFile): Option[Location] = {
-    val index = ProjectFileIndex.SERVICE.getInstance(sourceFile.getProject)
-    val inTest = index.isInTestSourceContent(sourceFile.getVirtualFile)
-
-    sourceFile.module.flatMap { module =>
-      Option(CompilerPaths.getModuleOutputPath(module, inTest)).flatMap { outputDirectory =>
-        Option(index.getSourceRootForFile(sourceFile.getVirtualFile)).flatMap { sourceRoot =>
-          val relativeSourcePath = sourceFile.getVirtualFile.getPath.substring(sourceRoot.getPath.length + 1)
-          // TODO Perform the check outside this method
-          val tastyFile = new File(outputDirectory, relativeSourcePath.dropRight(6) + ".tasty")
-          if (tastyFile.exists) {
-            // TODO Handle class <-> file naming conventions
-            val className = relativeSourcePath.dropRight(6).replace('/', '.')
-            Some(Location(outputDirectory, className))
-          } else {
-            None
+  def compiledLocationOf(element: PsiElement): Option[Location] = {
+    element.containingFile.flatMap { psiFile =>
+      element.module.flatMap { module =>
+        val index = ProjectFileIndex.SERVICE.getInstance(element.getProject)
+        val inTest = index.isInTestSourceContent(psiFile.getVirtualFile)
+        Option(CompilerPaths.getModuleOutputPath(module, inTest)).flatMap { outputDirectory =>
+          element.parentsInFile.instancesOf[ScTypeDefinition].lastOption.map { topLevelTypeDefinition =>
+            Location(outputDirectory, topLevelTypeDefinition.qualifiedName)
           }
         }
       }

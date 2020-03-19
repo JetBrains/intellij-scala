@@ -234,7 +234,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val isParamToDepMethod = this.expectedTypeEx().collect {
       case (_, Some(te)) =>
         (for {
-          param     <- te.contexts.take(2).findBy[ScParameter] //parameter is first context for stub elements and second context for ast
+          param     <- te.contexts.take(2).instanceOf[ScParameter] //parameter is first context for stub elements and second context for ast
           if !param.getDefaultExpression.contains(this)
           method     <- param.owner.asOptionOf[ScFunction]
         } yield isReferencedInReturnType(method, param)).getOrElse(false)
