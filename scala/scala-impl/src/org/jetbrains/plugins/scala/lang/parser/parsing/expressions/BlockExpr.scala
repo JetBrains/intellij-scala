@@ -17,12 +17,12 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * BlockExpr ::= '{' CaseClauses '}'
  *             | '{' Block '}'
  */
-object BlockExpr {
+object BlockExpr extends ParsingRule {
 
   import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes._
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.skipExternalToken()) return true
 
     val blockExprMarker = builder.mark
@@ -34,6 +34,7 @@ object BlockExpr {
         blockExprMarker.drop()
         return false
     }
+    val blockIndentation = BlockIndentation.create
     def loopFunction(): Unit = {
       builder.getTokenType match {
         case `kCASE` =>
@@ -48,10 +49,12 @@ object BlockExpr {
               CaseClauses parse builder
           }
         case _ =>
+          blockIndentation.fromHere()
           Block.parse(builder)
       }
     }
     ParserUtils.parseLoopUntilRBrace(builder, loopFunction _)
+    blockIndentation.drop()
     builder.restoreNewlinesState()
     blockExprMarker.done(ScCodeBlockElementType.BlockExpression)
     true
