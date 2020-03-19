@@ -134,7 +134,7 @@ class MouseHandler extends ProjectManagerListener {
     def checkSettings = {
       val settings = ScalaProjectSettings.getInstance(project)
       ImplicitHints.enabled ||
-        (settings.isTypeAwareHighlightingEnabled && settings.isShowNotFoundImplicitArguments)
+        (settings.isTypeAwareHighlightingEnabled && (settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments))
     }
     isFromValidProject && checkSettings
   }

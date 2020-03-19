@@ -37,6 +37,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean DONT_SHOW_CONVERSION_DIALOG = false;
   private boolean SHOW_IMPLICIT_CONVERSIONS = false;
   private boolean SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = true;
+  private boolean SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS = true;
 
   private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
   private boolean INCLUDE_BLOCK_EXPRESSIONS = false;
@@ -184,12 +185,22 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     return SHOW_IMPLICIT_CONVERSIONS;
   }
 
+  // TODO Refresh editors
   public void setShowNotFoundImplicitArguments(boolean value) {
     SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = value;
   }
 
   public boolean isShowNotFoundImplicitArguments() {
     return SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS;
+  }
+
+  // TODO Refresh editors
+  public void setShowAmbiguousImplicitArguments(boolean value) {
+    SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS = value;
+  }
+
+  public boolean isShowAmbiguousImplicitArguments() {
+    return SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS;
   }
 
   public void setShowImplisitConversions(boolean value) {

@@ -50,22 +50,26 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
 
   private def collectConversionsAndArguments(): Unit = {
     val settings = ScalaProjectSettings.getInstance(rootElement.getProject)
-    val showNotFoundImplicitForFile = ScalaAnnotator.isAdvancedHighlightingEnabled(rootElement) && settings.isShowNotFoundImplicitArguments
+    val showImplicitErrorsForFile = ScalaAnnotator.isAdvancedHighlightingEnabled(rootElement) &&
+      (settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments)
 
-    def showNotFoundImplicits(element: PsiElement) =
-      settings.isShowNotFoundImplicitArguments && ScalaAnnotator.isAdvancedHighlightingEnabled(element)
+    def showImplicitErrors(element: PsiElement) =
+      (settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments) &&
+        ScalaAnnotator.isAdvancedHighlightingEnabled(element)
 
-    if (!ImplicitHints.enabled && !showNotFoundImplicitForFile)
+    if (!ImplicitHints.enabled && !showImplicitErrorsForFile)
       return
 
     def implicitArgumentsOrErrorHints(owner: ImplicitArgumentsOwner): Seq[Hint] = {
-      val showNotFoundArgs = showNotFoundImplicits(owner)
-      val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
+      val showShowImplicitErrors = showImplicitErrors(owner)
+      val shouldSearch = ImplicitHints.enabled || showShowImplicitErrors
 
       def shouldShow(arguments: Seq[ScalaResolveResult]) = {
         val compilerErrorsDisabled = !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
-        val basicCondition = ImplicitHints.enabled ||
-          (showNotFoundArgs && arguments.exists(_.isImplicitParameterProblem))
+        val basicCondition = ImplicitHints.enabled || (showShowImplicitErrors && arguments.exists(it =>
+          it.isImplicitParameterProblem &&
+            (if (probableArgumentsFor(it).size > 1) settings.isShowAmbiguousImplicitArguments
+            else settings.isShowNotFoundImplicitArguments)))
         compilerErrorsDisabled && basicCondition
       }
 
@@ -288,9 +292,6 @@ private object ImplicitHintsPass {
           .withAttributes(errorAttributes)
     }
   }
-
-  private def isAmbiguous(parameter: ScalaResolveResult): Boolean =
-    parameter.isImplicitParameterProblem && probableArgumentsFor(parameter).size > 1
 
   private def typeSuffix(parameter: ScalaResolveResult): String = {
     val paramType = parameter.implicitSearchState.map(_.presentableTypeText).getOrElse("NotInferred")

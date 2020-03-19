@@ -90,6 +90,7 @@ public class ScalaProjectSettingsPanel {
     private JComboBox<ScalaProjectSettings.TrailingCommasMode> trailingCommasComboBox;
     private JCheckBox collapseWorksheetFoldByCheckBox;
     private JCheckBox showNotFoundImplicitArgumentsCheckBox;
+    private JCheckBox showAmbiguousImplicitArgumentsCheckBox;
     private JCheckBox myGroupPackageObjectWithPackage;
     private JComboBox<ScalaProjectSettings.Ivy2IndexingMode> ivy2IndexingModeCBB;
     private final Project myProject;
@@ -187,6 +188,7 @@ public class ScalaProjectSettingsPanel {
 
         scalaProjectSettings.setShowImplisitConversions(showImplicitConversionsInCheckBox.isSelected());
         scalaProjectSettings.setShowNotFoundImplicitArguments(showNotFoundImplicitArgumentsCheckBox.isSelected());
+        scalaProjectSettings.setShowAmbiguousImplicitArguments(showAmbiguousImplicitArgumentsCheckBox.isSelected());
         scalaProjectSettings.setShowArgumentsToByNameParams(showArgumentsToByNameParametersCheckBox.isSelected());
         if (scalaProjectSettings.isCustomScalatestSyntaxHighlighting() != customScalatestSyntaxHighlightingCheckbox.isSelected()) {
             //settings have changed. but actual highlighting will only change on next pass of highlighting visitors
@@ -267,6 +269,8 @@ public class ScalaProjectSettingsPanel {
                 showImplicitConversionsInCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isShowNotFoundImplicitArguments() !=
                 showNotFoundImplicitArgumentsCheckBox.isSelected()) return true;
+        if (scalaProjectSettings.isShowAmbiguousImplicitArguments() !=
+                showAmbiguousImplicitArgumentsCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
                 showArgumentsToByNameParametersCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isCustomScalatestSyntaxHighlighting() !=
@@ -394,6 +398,7 @@ public class ScalaProjectSettingsPanel {
 
         setValue(showImplicitConversionsInCheckBox, scalaProjectSettings.isShowImplisitConversions());
         setValue(showNotFoundImplicitArgumentsCheckBox, scalaProjectSettings.isShowNotFoundImplicitArguments());
+        setValue(showAmbiguousImplicitArgumentsCheckBox, scalaProjectSettings.isShowAmbiguousImplicitArguments());
         setValue(showArgumentsToByNameParametersCheckBox, scalaProjectSettings.isShowArgumentsToByNameParams());
         setValue(customScalatestSyntaxHighlightingCheckbox, scalaProjectSettings.isCustomScalatestSyntaxHighlighting());
         setValue(includeBlockExpressionsExpressionsCheckBox, scalaProjectSettings.isIncludeBlockExpressions());

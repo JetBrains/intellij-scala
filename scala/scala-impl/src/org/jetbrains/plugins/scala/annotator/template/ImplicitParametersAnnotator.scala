@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.probableArgumentsFor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -23,17 +24,25 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     element.findImplicitArguments.foreach { params =>
       UsageTracker.registerUsedElementsAndImports(element, params, checkWrite = false)
 
-      val notFoundArgHighlightingEnabled =
-        ScalaProjectSettings.getInstance(element.getProject).isShowNotFoundImplicitArguments
+      val showImplictErrors = {
+        val settings = ScalaProjectSettings.getInstance(element.getProject)
+        settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments
+      }
 
-      if (typeAware && notFoundArgHighlightingEnabled)
+      if (typeAware && showImplictErrors)
         highlightNotFound(element, params)
     }
   }
 
   private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: Seq[ScalaResolveResult])
                                (implicit holder: ScalaAnnotationHolder): Unit = {
-    parameters.filter(it => it.isNotFoundImplicitParameter || it.isAmbiguousImplicitParameter) match {
+    val settings = ScalaProjectSettings.getInstance(element.getProject)
+
+    parameters.filter(it =>
+      it.isImplicitParameterProblem &&
+        (if (probableArgumentsFor(it).size > 1) settings.isShowAmbiguousImplicitArguments
+        else settings.isShowNotFoundImplicitArguments)) match {
+
       case Seq() =>
       case params =>
         val presentableTypes = params
