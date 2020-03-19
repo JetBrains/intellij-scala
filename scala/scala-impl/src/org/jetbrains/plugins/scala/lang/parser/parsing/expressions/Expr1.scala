@@ -61,7 +61,7 @@ object Expr1 extends ParsingRule {
 
         builder.skipExternalToken()
 
-        if (!ExprInIndentionRegion()) {
+        if (!ExprInIndentationRegion()) {
           builder error ErrMsg("wrong.expression")
         }
         val rollbackMarker = builder.mark
@@ -73,7 +73,7 @@ object Expr1 extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.kELSE =>
             builder.advanceLexer()
-            if (!ExprInIndentionRegion()) builder error ErrMsg("wrong.expression")
+            if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
             rollbackMarker.drop()
           case _ =>
             rollbackMarker.rollbackTo()
@@ -106,7 +106,7 @@ object Expr1 extends ParsingRule {
       //---------------------try statement------------------------//
       case ScalaTokenTypes.kTRY =>
         builder.advanceLexer() //Ate try
-        if (!ExprInIndentionRegion()) {
+        if (!ExprInIndentationRegion()) {
           builder error ErrMsg("wrong.expression")
         }
         val catchMarker = builder.mark
@@ -125,7 +125,7 @@ object Expr1 extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.kFINALLY =>
             builder.advanceLexer() //Ate finally
-            if (!ExprInIndentionRegion()) {
+            if (!ExprInIndentationRegion()) {
               builder error ErrMsg("wrong.expression")
             }
             finallyMarker.done(ScalaElementType.FINALLY_BLOCK)
@@ -202,7 +202,7 @@ object Expr1 extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.kYIELD =>
             builder.advanceLexer() //Ate yield
-            if (!ExprInIndentionRegion.parse(builder)) builder error ErrMsg("wrong.expression")
+            if (!ExprInIndentationRegion.parse(builder)) builder error ErrMsg("wrong.expression")
           case _ =>
             if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
         }
@@ -246,7 +246,7 @@ object Expr1 extends ParsingRule {
       case ScalaTokenTypes.kRETURN =>
         builder.advanceLexer() //Ate return
         if (!builder.newlineBeforeCurrentToken)
-        ExprInIndentionRegion()
+        ExprInIndentationRegion()
         exprMarker.done(ScalaElementType.RETURN_STMT)
         return true
 
@@ -259,7 +259,7 @@ object Expr1 extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
-            if (!ExprInIndentionRegion()) {
+            if (!ExprInIndentationRegion()) {
               builder error ErrMsg("wrong.expression")
             }
             exprMarker.done(ScalaElementType.ASSIGN_STMT)

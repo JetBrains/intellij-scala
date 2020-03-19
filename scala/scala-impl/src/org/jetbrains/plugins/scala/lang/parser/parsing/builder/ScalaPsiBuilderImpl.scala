@@ -120,17 +120,17 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
     if (!ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(getProject))
       super.error(messageText)
 
-  private var indentionStack = List(IndentionWidth.initial)
+  private var indentationStack = List(IndentationWidth.initial)
 
-  override def currentIndentionWidth: IndentionWidth =
-    indentionStack.head
+  override def currentIndentationWidth: IndentationWidth =
+    indentationStack.head
 
-  override def pushIndentionWidth(width: IndentionWidth): Unit =
-    indentionStack ::= width
+  override def pushIndentationWidth(width: IndentationWidth): Unit =
+    indentationStack ::= width
 
-  override def popIndentionWidth(): IndentionWidth = {
-    val top :: rest = indentionStack
-    indentionStack = rest
+  override def popIndentationWidth(): IndentationWidth = {
+    val top :: rest = indentationStack
+    indentationStack = rest
     top
   }
 }

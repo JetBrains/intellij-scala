@@ -102,19 +102,19 @@ package object parser {
       else None
     }
 
-    def findPreviousIndent: Option[IndentionWidth] = {
+    def findPreviousIndent: Option[IndentationWidth] = {
       findPreviousNewLine.flatMap {
         ws =>
           val lastNewLine = ws.lastIndexOf('\n')
           if (lastNewLine < 0) None
-          else IndentionWidth(ws.substring(lastNewLine + 1))
+          else IndentationWidth(ws.substring(lastNewLine + 1))
       }
     }
 
-    def withIndentionWidth[R](width: IndentionWidth)(body: => R): R = {
-      repr.pushIndentionWidth(width)
+    def withIndentationWidth[R](width: IndentationWidth)(body: => R): R = {
+      repr.pushIndentationWidth(width)
       try body
-      finally repr.popIndentionWidth()
+      finally repr.popIndentationWidth()
     }
   }
 }

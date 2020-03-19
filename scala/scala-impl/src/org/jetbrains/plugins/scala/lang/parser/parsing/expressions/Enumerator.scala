@@ -22,7 +22,7 @@ object Enumerator {
       builder.getTokenType match {
         case ScalaTokenTypes.tASSIGN =>
           builder.advanceLexer() //Ate =
-          if (!ExprInIndentionRegion.parse(builder)) {
+          if (!ExprInIndentationRegion.parse(builder)) {
             builder.error(ErrMsg("wrong.expression"))
           }
           enumeratorMarker.done(ScalaElementType.FOR_BINDING)

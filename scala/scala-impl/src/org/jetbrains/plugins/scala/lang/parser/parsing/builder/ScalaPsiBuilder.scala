@@ -32,9 +32,9 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def isStrictMode: Boolean
 
-  def currentIndentionWidth: IndentionWidth
+  def currentIndentationWidth: IndentationWidth
 
-  def pushIndentionWidth(width: IndentionWidth): Unit
+  def pushIndentationWidth(width: IndentationWidth): Unit
 
-  def popIndentionWidth(): IndentionWidth
+  def popIndentationWidth(): IndentationWidth
 }

@@ -34,7 +34,7 @@ sealed abstract class Body extends ParsingRule {
         }
 
         builder.findPreviousIndent match {
-          case indentO@Some(indent) if indent > builder.currentIndentionWidth =>
+          case indentO@Some(indent) if indent > builder.currentIndentationWidth =>
             indentO
           case indentO =>
             if (hadColon && indentO.isEmpty) {
@@ -51,7 +51,7 @@ sealed abstract class Body extends ParsingRule {
     }
 
     def nowrap(body: => Unit): Unit = body
-    indentation.fold(nowrap _)(builder.withIndentionWidth) {
+    indentation.fold(nowrap _)(builder.withIndentationWidth) {
       SelfType.parse(builder)
       parseStatements(indentation)
     }
@@ -67,25 +67,25 @@ sealed abstract class Body extends ParsingRule {
    * [[Stat]] { semi [[Stat]] }
    */
   @annotation.tailrec
-  private def parseStatements(baseIndention: Option[IndentionWidth])(implicit builder: ScalaPsiBuilder): Unit = {
+  private def parseStatements(baseIndentation: Option[IndentationWidth])(implicit builder: ScalaPsiBuilder): Unit = {
     skipSemicolon()
     builder.getTokenType match {
       case null =>
         builder.error(ScalaBundle.message("rbrace.expected"))
         return
       case `tRBRACE` =>
-        if (baseIndention.isEmpty)
+        if (baseIndentation.isEmpty)
           builder.advanceLexer() // Ate }
         return
-      case _ if isOutdent(baseIndention) =>
+      case _ if isOutdent(baseIndentation) =>
         return
       case _ if statementRule() =>
         builder.getTokenType match {
           case `tRBRACE` =>
-            if (baseIndention.isEmpty)
+            if (baseIndentation.isEmpty)
               builder.advanceLexer() // Ate }
             return
-          case _ if isOutdent(baseIndention) =>
+          case _ if isOutdent(baseIndentation) =>
             return
           case `tSEMICOLON` =>
           case _ if builder.newlineBeforeCurrentToken =>
@@ -97,11 +97,11 @@ sealed abstract class Body extends ParsingRule {
         builder.error(ScalaBundle.message("def.dcl.expected"))
         builder.advanceLexer() // Ate something
     }
-    parseStatements(baseIndention)
+    parseStatements(baseIndentation)
   }
 
-  private def isOutdent(baseIndention: Option[IndentionWidth])(implicit builder: ScalaPsiBuilder): Boolean =
-    baseIndention.exists(cur => builder.findPreviousIndent.exists(_ < cur) || builder.eof())
+  private def isOutdent(baseIndentation: Option[IndentationWidth])(implicit builder: ScalaPsiBuilder): Boolean =
+    baseIndentation.exists(cur => builder.findPreviousIndent.exists(_ < cur) || builder.eof())
 
   private def skipSemicolon()(implicit builder: ScalaPsiBuilder): Unit =
     while (builder.getTokenType == tSEMICOLON) {

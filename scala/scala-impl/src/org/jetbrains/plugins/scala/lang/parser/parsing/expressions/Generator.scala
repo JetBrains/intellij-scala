@@ -30,7 +30,7 @@ object Generator {
       case _ =>
         builder error ErrMsg("choose.expected")
     }
-    if (!ExprInIndentionRegion.parse(builder)) {
+    if (!ExprInIndentationRegion.parse(builder)) {
       builder error ErrMsg("wrong.expression")
     }
     genMarker.done(ScalaElementType.GENERATOR)

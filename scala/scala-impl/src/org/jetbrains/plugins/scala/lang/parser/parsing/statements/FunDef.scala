@@ -6,7 +6,7 @@ package statements
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, ExprInIndentionRegion}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, ExprInIndentationRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
@@ -41,7 +41,7 @@ object FunDef {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =
-                  if (ExprInIndentionRegion.parse(builder)) {
+                  if (ExprInIndentationRegion.parse(builder)) {
                     faultMarker.drop()
                     true
                   }
@@ -63,7 +63,7 @@ object FunDef {
             builder.advanceLexer() //Ate =
             builder.skipExternalToken()
 
-            if (ExprInIndentionRegion.parse(builder)) {
+            if (ExprInIndentationRegion.parse(builder)) {
               faultMarker.drop()
               true
             }

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec
 
-trait ExprInIndentionRegion extends ParsingRule {
+trait ExprInIndentationRegion extends ParsingRule {
   protected def exprKind: ParsingRule
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -17,12 +17,12 @@ trait ExprInIndentionRegion extends ParsingRule {
       return exprKind()
     }
 
-    val indentionForExprBlock = builder.findPreviousIndent match {
+    val indentationForExprBlock = builder.findPreviousIndent match {
       case Some(indent) => indent
       case None => return exprKind()
     }
 
-    builder.withIndentionWidth(indentionForExprBlock) {
+    builder.withIndentationWidth(indentationForExprBlock) {
 
       val blockMarker = builder.mark()
       if (!exprKind()) {
@@ -31,7 +31,7 @@ trait ExprInIndentionRegion extends ParsingRule {
 
       @tailrec
       def parseRest(isBlock: Boolean): Boolean = {
-        val isInside = builder.findPreviousIndent.exists(_ >= indentionForExprBlock)
+        val isInside = builder.findPreviousIndent.exists(_ >= indentationForExprBlock)
         if (isInside) {
           val tt = builder.getTokenType
           if (tt == ScalaTokenTypes.tSEMICOLON) {
@@ -58,10 +58,10 @@ trait ExprInIndentionRegion extends ParsingRule {
   }
 }
 
-object ExprInIndentionRegion extends ExprInIndentionRegion {
+object ExprInIndentationRegion extends ExprInIndentationRegion {
   override protected def exprKind: ParsingRule = Expr
 }
 
-object PostfixExprInIndentionRegion extends ExprInIndentionRegion {
+object PostfixExprInIndentationRegion extends ExprInIndentationRegion {
   override protected def exprKind: ParsingRule = PostfixExpr
 }
