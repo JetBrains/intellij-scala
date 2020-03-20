@@ -37,6 +37,7 @@ final class CompileServerManager(project: Project) extends Disposable {
   private val timer = new Timer(1000, TimerListener)
   private var installed = false
 
+  private val compileServerClient = new CompileServerClientImpl(project)
 
   { // init
     if (! ApplicationManager.getApplication.isUnitTestMode) {
@@ -61,10 +62,7 @@ final class CompileServerManager(project: Project) extends Disposable {
   private def running: Boolean = launcher.running
 
   private def serverCompilingNow: Boolean =
-    if (running)
-      new CompileServerClientImpl(project).getState(CompileServerCommand.GetState("")).compilingNow
-    else
-      false
+    running && compileServerClient.getState(CompileServerCommand.GetState("")).compilingNow
 
   private def launcher = CompileServerLauncher
 
