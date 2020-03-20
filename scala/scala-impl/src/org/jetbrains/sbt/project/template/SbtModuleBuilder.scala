@@ -24,7 +24,7 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
  * User: Dmitry Naydanov, Pavel Fatin
  * Date: 11/23/13
  */
-final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings](
+class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings](
   SbtProjectSystem.Id,
   new SbtProjectSettings
 ) {
@@ -209,6 +209,12 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
     getExternalProjectSettings
   )
 
+  // TODO customize the path in UI when IDEA-122951 will be implemented
+  protected def updateModuleFilePath(pathname: String): String = {
+    val file = new File(pathname)
+    file.getParent + "/" + Sbt.ModulesDirectory + "/" + file.getName.toLowerCase
+  }
+
 }
 
 object SbtModuleBuilder {
@@ -283,11 +289,5 @@ object SbtModuleBuilder {
         )
       }
     }
-  }
-
-  // TODO customize the path in UI when IDEA-122951 will be implemented
-  private def updateModuleFilePath(pathname: String) = {
-    val file = new File(pathname)
-    file.getParent + "/" + ModulesDirectory + "/" + file.getName.toLowerCase
   }
 }

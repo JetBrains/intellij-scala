@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package project.template
 
 import com.intellij.ide.util.projectWizard.WizardContext
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.platform.{ProjectTemplate, ProjectTemplatesFactory}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
@@ -21,9 +22,16 @@ class SbtProjectTemplateFactory extends ProjectTemplatesFactory {
     if (context.isCreatingNewProject) {
       Array(
         new SbtProjectTemplate(),
+        dottyTemplate,
         new TechHubProjectTemplate)
     } else {
       Array.empty
     }
+  }
+
+  //todo: try to download latest version of https://github.com/lampepfl/dotty.g8
+  private def dottyTemplate: ProjectTemplate = {
+    val url = getClass.getClassLoader.getResource("projectTemplates/dottyTemplate.zip")
+    ArchivedSbtProjectTemplate("Dotty", "Minimal Dotty project", url)
   }
 }
