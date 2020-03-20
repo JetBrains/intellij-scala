@@ -56,7 +56,7 @@ class BspTestRunner(
 
   private def targets(): List[URI] = {
     ModuleManager.getInstance(project).getModules.toList
-      .flatMap(BspMetadata.get(project, _))
+      .flatMap(BspMetadata.get(project, _).toOption)
       .flatMap(x => x.targetIds.asScala.toList)
   }
 
