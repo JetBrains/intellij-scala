@@ -117,17 +117,18 @@ object CompilationDataFactory
     }
   }
 
-  private def createOutputGroups(chunk: ModuleChunk): Seq[(File, File)] = {
+  private def createOutputGroups(chunk: ModuleChunk): Seq[(File, File)] =
     for {
       target <- chunk.getTargets.asScala.toSeq
-      if target.getOutputDir != null
+      outputDir <- Option(target.getOutputDir).toSeq
       module = target.getModule
-      output = target.getOutputDir.getCanonicalFile
-      sourceRoot <- module.getSourceRoots.asScala.map(_.getFile.getCanonicalFile)
-      if sourceRoot.exists
-    } yield (sourceRoot, output)
-  }
-
+      output = outputDir.getCanonicalFile
+      sourceRoot <- module.getSourceRoots.asScala
+      if sourceRoot.getRootType.isForTests == target.isTests
+      sourceRootFile = sourceRoot.getFile.getCanonicalFile
+      if sourceRootFile.exists
+    } yield (sourceRootFile, output)
+  
   private def targetsIn(context: CompileContext): Seq[ModuleBuildTarget] = {
     def isExcluded(target: ModuleBuildTarget): Boolean =
       ChunkExclusionService.isExcluded(chunk(target))
