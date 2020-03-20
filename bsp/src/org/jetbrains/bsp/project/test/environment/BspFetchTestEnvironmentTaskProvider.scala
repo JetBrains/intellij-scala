@@ -78,6 +78,10 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
 
   case class BspGetEnvironmentError(msg: String)
 
+  def toOptionIfSingle[A](sequence: Seq[A]): Option[A] = {
+    if (sequence.length == 1) sequence.headOption else None
+  }
+
   override def executeTask(context: DataContext,
                            configuration: RunConfiguration,
                            env: ExecutionEnvironment,
@@ -97,7 +101,8 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
             .map(Right(_))
             .getOrElse(Left(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.fetch.sources"))))
           chosenTargetId <- task.state
-            .orElse(if (targetsMatchingSources.length == 1) targetsMatchingSources.headOption.map(_.getUri) else None)
+            .orElse(toOptionIfSingle(targetsMatchingSources).map(_.getUri))
+            .orElse(toOptionIfSingle(potentialTargets).map(_.getUri))
             .orElse(askUserForTargetId(potentialTargets.map(_.getUri), task))
             .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.choose.any.target.id")))
           testEnvironment <-
