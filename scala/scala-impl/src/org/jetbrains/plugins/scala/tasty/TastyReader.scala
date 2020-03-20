@@ -78,17 +78,37 @@ object TastyReader {
     }
 
     val home = System.getProperty("user.home")
-    val result = read(home + "/IdeaProjects/dotty-example-project/target/scala-0.23/classes", "ContextQueries").get
-    println(result.text)
 
-    (result.references ++ result.types).sortBy {
-      case it: ReferenceData => (it.position.startLine, it.position.startColumn)
-      case it: TypeData => (it.position.startLine, it.position.startColumn)
-    }.foreach {
-      case it: ReferenceData if it.getClass.getName.endsWith("ReferenceData") =>
-        println("REF: " + textAt(it.position) + ", " + it)
-      case it: TypeData =>
-        println("TPE: " + textAt(it.position) + ": " + it.presentation + ", " + it)
+    val exampleClasses = Seq(
+      "AutoParamTupling",
+      "ContextQueries",
+      "Conversion",
+      "Conversion",
+      "ImpliedInstances",
+      "IntersectionTypes",
+      "MultiversalEquality",
+      "NamedTypeArguments",
+      "PatternMatching",
+      "StructuralTypes",
+      "TraitParams",
+      "TypeLambdas",
+      "UnionTypes",
+    )
+
+    exampleClasses.foreach { fqn =>
+      println(fqn)
+      val file = read(home + "/IdeaProjects/dotty-example-project/target/scala-0.23/classes", fqn).get
+      println(file.text)
+
+      (file.references ++ file.types).sortBy {
+        case it: ReferenceData => (it.position.startLine, it.position.startColumn)
+        case it: TypeData => (it.position.startLine, it.position.startColumn)
+      }.foreach {
+        case it: ReferenceData if it.getClass.getName.endsWith("ReferenceData") =>
+          println("REF: " + textAt(it.position) + ", " + it)
+        case it: TypeData =>
+          println("TPE: " + textAt(it.position) + ": " + it.presentation + ", " + it)
+      }
     }
   }
 }
