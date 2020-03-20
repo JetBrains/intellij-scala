@@ -210,6 +210,8 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
             if (!args.isEmpty || needEmptyParens)
               inParens(printTrees(args, ", ")(Some(cdef.symbol)))
           case Select(newTree: New, _) =>
+            val tpt = newTree.tpt
+            collectReference(tpt.pos, tpt.symbol.pos) // TODO Handle more complex cases
             printType(newTree.tpe)(Some(cdef.symbol))
           case parent: Term =>
             throw new MatchError(parent.showExtractors)
@@ -389,7 +391,9 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
       case tree: New =>
         this += "new "
-        printType(tree.tpe) // TODO How to extract positions and references from types?
+        val tpt = tree.tpt
+        collectReference(tpt.pos, tpt.symbol.pos)  // TODO Handle more complex cases
+        printType(tree.tpe)
 
       case NamedArg(name, arg) =>
         this += name += " = "
