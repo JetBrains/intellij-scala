@@ -4,11 +4,9 @@ package template
 package macros
 
 import com.intellij.codeInsight.template._
-import com.intellij.psi.PsiClass
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -22,20 +20,11 @@ sealed abstract class ScalaPrimaryConstructorMacro(override final val getPresent
       .orNull
   }
 
-  protected def findParameters(context: ExpressionContext): Option[ScParameters] = {
-    val classElement: Option[ScClass] = context
-      .getPsiElementAtStartOffset
-      .parentOfType(classOf[PsiClass])
-      .map {
-        case scalaObject: ScObject => scalaObject.fakeCompanionClassOrCompanionClass
-        case other => other
-      }
-      .filterByType[ScClass]
-
-    classElement
-      .flatMap(_.constructor)
-      .map(_.parameterList)
-  }
+  protected def findParameters(context: ExpressionContext): Option[ScParameters] =
+    for {
+      clazz       <- ScalaCompanionClassMacro.companionClass(context.getPsiElementAtStartOffset)
+      constructor <- clazz.constructor
+    } yield constructor.parameterList
 }
 
 
