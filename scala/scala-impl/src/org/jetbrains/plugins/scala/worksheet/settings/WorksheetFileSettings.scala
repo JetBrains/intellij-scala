@@ -128,40 +128,6 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
                         (implicit project: Project): Boolean =
     ScratchUtil.isScratch(file) && WorksheetFileType.treatScratchFileAsWorksheet
 
-  private object SerializableWorksheetAttributes {
-    trait SerializableInFileAttribute[T] {
-      def readAttribute(attr: FileAttribute, file: VirtualFile): Option[T] =
-        FileAttributeUtilCache.readAttribute(attr, file).map(convertTo)
-
-      def writeAttribute(attr: FileAttribute, file: VirtualFile, t: T): Unit =
-        FileAttributeUtilCache.writeAttribute(attr, file, convertFrom(t))
-
-      def convertFrom(t: T): String
-      def convertTo(s: String): T
-    }
-
-    implicit val StringFileAttribute: SerializableInFileAttribute[String] = new SerializableInFileAttribute[String] {
-      override def convertFrom(t: String): String = t
-      override def convertTo(s: String): String = s
-    }
-
-    implicit val BooleanFileAttribute: SerializableInFileAttribute[Boolean] with WorksheetPerFileConfig = new SerializableInFileAttribute[Boolean] with WorksheetPerFileConfig {
-      override def convertFrom(t: Boolean): String = getStringRepresent(t)
-      override def convertTo(s: String): Boolean = s match {
-        case `enabled` => true
-        case _ => false
-      }
-    }
-
-    implicit val ExternalRunTypeAttribute: SerializableInFileAttribute[WorksheetExternalRunType] = new SerializableInFileAttribute[WorksheetExternalRunType] {
-      override def convertFrom(t: WorksheetExternalRunType): String = t.getName
-
-      override def convertTo(s: String): WorksheetExternalRunType = WorksheetExternalRunType.findRunTypeByName(s).getOrElse(WorksheetExternalRunType.getDefaultRunType)
-    }
-  }
-
-  import SerializableWorksheetAttributes.SerializableInFileAttribute
-
   private def getSetting[T](vFile: VirtualFile, attr: FileAttribute, orDefault: => T)
                            (implicit ev: SerializableInFileAttribute[T]): T =
     ev.readAttribute(attr, vFile).getOrElse(orDefault)
