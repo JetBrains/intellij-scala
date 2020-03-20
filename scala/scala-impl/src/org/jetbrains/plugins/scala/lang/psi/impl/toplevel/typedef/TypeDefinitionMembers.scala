@@ -5,6 +5,8 @@ package impl
 package toplevel
 package typedef
 
+import java.{util => ju}
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
@@ -50,14 +52,14 @@ object TypeDefinitionMembers {
   //we need to have separate map for stable elements to avoid recursion processing declarations from imports
   object StableNodes extends MixinNodes[TermSignature](StableTermsCollector)
 
-  def getSignatures(clazz: PsiClass): TermNodes.Map =
-    ifValid(clazz)(_.TermNodesCache.cachedMap(clazz))
+  def getSignatures(clazz: PsiClass, withSupers: Boolean = true): TermNodes.Map =
+    ifValid(clazz)(_.TermNodesCache.cachedMap(clazz, withSupers))
 
-  def getStableSignatures(clazz: PsiClass): StableNodes.Map =
-    ifValid(clazz)(_.StableNodesCache.cachedMap(clazz))
+  def getStableSignatures(clazz: PsiClass, withSupers: Boolean = true): StableNodes.Map =
+    ifValid(clazz)(_.StableNodesCache.cachedMap(clazz, withSupers))
 
-  def getTypes(clazz: PsiClass): TypeNodes.Map =
-    ifValid(clazz)(_.TypeNodesCache.cachedMap(clazz))
+  def getTypes(clazz: PsiClass, withSupers: Boolean = true): TypeNodes.Map =
+    ifValid(clazz)(_.TypeNodesCache.cachedMap(clazz, withSupers))
 
   private def ifValid[T <: Signature](clazz: PsiClass)
                                      (cache: ScalaPsiManager => MixinNodes[T]#Map): MixinNodes[T]#Map = {
@@ -122,15 +124,51 @@ object TypeDefinitionMembers {
     }
   }
 
-  //todo: this method requires refactoring
-  def processClassDeclarations(clazz: PsiClass,
-                               processor: PsiScopeProcessor,
-                               state: ResolveState,
-                               lastParent: PsiElement,
-                               place: PsiElement): Boolean = {
+  /** Take extra care to avoid reentrancy issues when processing package objects */
+  private[this] val processing = new ThreadLocal[ju.Map[String, java.lang.Long]] {
+    override def initialValue(): ju.Map[String, java.lang.Long] =
+      new ju.HashMap[String, java.lang.Long]()
+  }
+
+  private[this] def checkPackageObjectReentrancy(fqn: String): Boolean =
+    processing.get().getOrDefault(fqn, 0L) != 0L
+
+  private[this] def withReentrancyGuard(fqn: String)(action: => Boolean): Boolean =
+    try {
+      processing.get.merge(fqn, 1L, (old, _) => old + 1)
+      action
+    } finally {
+      processing.get.merge(fqn, 0L, (old, _) => if (old == 1L) null else old - 1)
+    }
+
+  def processClassDeclarations(
+    clazz:      PsiClass,
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = {
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place, AllSignatures(clazz)))
+    val pkgObjectFqn = clazz match {
+      case obj: ScObject if obj.isPackageObject => Option(obj.qualifiedName)
+      case _                                    => None
+    }
+
+    val isPackageObject          = pkgObjectFqn.isDefined
+    val isReentrantPackageObject = pkgObjectFqn.exists(checkPackageObjectReentrancy)
+
+    val signatures =
+      if (isReentrantPackageObject) AllSignatures.NonInherited(clazz)
+      else                          AllSignatures(clazz)
+
+    def processDeclarationsInner(): Boolean = privateProcessDeclarations(processor, state, place, signatures)
+
+    val processDeclsResult =
+      if (isPackageObject) withReentrancyGuard(pkgObjectFqn.get)(processDeclarationsInner())
+      else                 processDeclarationsInner()
+
+    if (!processDeclsResult)
       return false
 
     if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
@@ -148,7 +186,7 @@ object TypeDefinitionMembers {
                                lastParent: PsiElement,
                                place: PsiElement): Boolean = {
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place, AllSignatures(td), isSupers = true))
+    if (!privateProcessDeclarations(processor, state, place, AllSignatures(td), isSupers = true))
       return false
 
     if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
@@ -163,7 +201,7 @@ object TypeDefinitionMembers {
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place, AllSignatures(comp, state.compoundOrThisType)))
+    if (!privateProcessDeclarations(processor, state, place, AllSignatures(comp, state.compoundOrThisType)))
       return false
 
     if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
@@ -180,21 +218,25 @@ object TypeDefinitionMembers {
   }
 
   private object AllSignatures {
+    object NonInherited {
+      def apply(c: PsiClass): SignatureMapsProvider =
+        new ClassSignatures(c, withSupers = false)
+    }
 
     def apply(c: PsiClass): SignatureMapsProvider =
-      new ClassSignatures(c)
+      new ClassSignatures(c, withSupers = true)
 
     def apply(comp: ScCompoundType, compoundTypeThisType: Option[ScType]): SignatureMapsProvider =
       new CompoundTypeSignatures(comp, compoundTypeThisType)
 
-    private class ClassSignatures(c: PsiClass) extends SignatureMapsProvider {
-      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(c)
+    private class ClassSignatures(c: PsiClass, withSupers: Boolean) extends SignatureMapsProvider {
+      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(c, withSupers)
 
-      override def stable: MixinNodes.Map[TermSignature] = getStableSignatures(c)
+      override def stable: MixinNodes.Map[TermSignature] = getStableSignatures(c, withSupers)
 
-      override def types: MixinNodes.Map[TypeSignature] = getTypes(c)
+      override def types: MixinNodes.Map[TypeSignature] = getTypes(c, withSupers)
 
-      override def fromCompanion: MixinNodes.Map[TermSignature] = signaturesFromCompanion(c)
+      override def fromCompanion: MixinNodes.Map[TermSignature] = signaturesFromCompanion(c, withSupers)
     }
 
 
@@ -209,23 +251,21 @@ object TypeDefinitionMembers {
     }
   }
 
-  private def privateProcessDeclarations(processor: PsiScopeProcessor,
-                                         state: ResolveState,
-                                         lastParent: PsiElement,
-                                         place: PsiElement,
-                                         provider: SignatureMapsProvider,
-                                         isSupers: Boolean = false
-                                        ): Boolean = {
+  private def privateProcessDeclarations(
+    processor: PsiScopeProcessor,
+    state:     ResolveState,
+    place:     PsiElement,
+    provider:  SignatureMapsProvider,
+    isSupers:  Boolean = false
+  ): Boolean = {
 
-    val subst = state.substitutor
-    val nameHint = getNameHint(processor, state)
-
-    val isScalaProcessor = processor.isInstanceOf[BaseProcessor]
-
-    val processMethods = shouldProcessMethods(processor)
-    val processMethodRefs = shouldProcessMethodRefs(processor)
+    val subst               = state.substitutor
+    val nameHint            = getNameHint(processor, state)
+    val isScalaProcessor    = processor.isInstanceOf[BaseProcessor]
+    val processMethods      = shouldProcessMethods(processor)
+    val processMethodRefs   = shouldProcessMethodRefs(processor)
     val processValsForScala = isScalaProcessor && shouldProcessVals(processor)
-    val processOnlyStable = shouldProcessOnlyStable(processor)
+    val processOnlyStable   = shouldProcessOnlyStable(processor)
     val isImplicitProcessor = BaseProcessor.isImplicitProcessor(processor)
 
     def process(signature: Signature): Boolean = {
@@ -240,7 +280,7 @@ object TypeDefinitionMembers {
       val named = node.info.namedElement
 
       named match {
-        case m: PsiMethod if processMethods || processMethodRefs =>
+        case _: PsiMethod if processMethods || processMethodRefs =>
           if (!process(node.info))
             return false
 
@@ -252,7 +292,7 @@ object TypeDefinitionMembers {
               return false
           }
 
-        case t: ScTypedDefinition if processValsForScala =>
+        case _: ScTypedDefinition if processValsForScala =>
 
           if (!process(node.info))
             return false
@@ -264,7 +304,7 @@ object TypeDefinitionMembers {
                 return false
             }
           }
-        case e =>
+        case _ =>
           if (!process(node.info))
             return false
       }
@@ -274,7 +314,8 @@ object TypeDefinitionMembers {
     def processTypeNode(node: MixinNodes.Node[TypeSignature]): Boolean = process(node.info)
 
     val signatures =
-      if (processOnlyStable) provider.stable else provider.allSignatures
+      if (processOnlyStable) provider.stable
+      else                   provider.allSignatures
 
     if (processMethods || processMethodRefs || processValsForScala) {
       val nodesIterator = signatures.nodesIterator(nameHint, isSupers, onlyImplicit = isImplicitProcessor)
@@ -375,12 +416,12 @@ object TypeDefinitionMembers {
     true
   }
 
-  private def signaturesFromCompanion(clazz: PsiClass): TermNodes.Map = {
+  private def signaturesFromCompanion(clazz: PsiClass, withSupers: Boolean): TermNodes.Map = {
     clazz match {
       case td: ScTypeDefinition =>
         getCompanionModule(td) match {
-          case Some(obj: ScObject) => getSignatures(obj)
-          case _ => MixinNodes.emptyMap
+          case Some(obj: ScObject) => getSignatures(obj, withSupers)
+          case _                   => MixinNodes.emptyMap
         }
       case _ => MixinNodes.emptyMap
     }

@@ -317,7 +317,7 @@ class ScalaPsiManager(implicit val project: Project) {
     clearCacheOnRootsChange.fireCleanup()
   }
 
-  private val psiChangeListener = ScalaPsiChangeListener(clearOnScalaElementChange, clearOnNonScalaChange)
+  private val psiChangeListener = ScalaPsiChangeListener(clearOnScalaElementChange, () => clearOnNonScalaChange())
 
   private[impl] def projectOpened(): Unit = {
     project.subscribeToModuleRootChanged() { _ =>
@@ -390,24 +390,26 @@ class ScalaPsiManager(implicit val project: Project) {
 
   sealed abstract class SignatureCaches[T <: Signature](val nodes: MixinNodes[T]) {
 
-    private val forLibraryMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
-    private val forTopLevelMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
+    private val forLibraryMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map]  = ContainerUtil.createConcurrentWeakMap()
+    private val forTopLevelMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map] = ContainerUtil.createConcurrentWeakMap()
 
     clearCacheOnRootsChange.subscribe(() => forLibraryMap.clear())
     clearCacheOnTopLevelChange.subscribe(() => forTopLevelMap.clear())
 
-    private def forLibraryClasses(clazz: PsiClass): nodes.Map = forLibraryMap.computeIfAbsent(clazz, nodes.build)
+    private def forLibraryClasses(clazz: PsiClass, withSupers: Boolean): nodes.Map =
+      forLibraryMap.computeIfAbsent((clazz, withSupers), { case (cls, supers) => nodes.build(cls, supers) })
 
-    private def forTopLevelClasses(clazz: PsiClass): nodes.Map = forTopLevelMap.computeIfAbsent(clazz, nodes.build)
+    private def forTopLevelClasses(clazz: PsiClass, withSupers: Boolean): nodes.Map =
+      forTopLevelMap.computeIfAbsent((clazz, withSupers), { case (cls, supers) => nodes.build(cls, supers) })
 
-    def cachedMap(clazz: PsiClass): nodes.Map = {
+    def cachedMap(clazz: PsiClass, withSupers: Boolean): nodes.Map = {
       CachesUtil.libraryAwareModTracker(clazz) match {
-        case `rootManager`               => forLibraryClasses(clazz)
-        case TopLevelModificationTracker => forTopLevelClasses(clazz)
+        case `rootManager`               => forLibraryClasses(clazz, withSupers)
+        case TopLevelModificationTracker => forTopLevelClasses(clazz, withSupers)
         case tracker =>
 
           @CachedInUserData(clazz, tracker)
-          def cachedInUserData(clazz: PsiClass, n: MixinNodes[T]): nodes.Map = nodes.build(clazz)
+          def cachedInUserData(clazz: PsiClass, n: MixinNodes[T]): nodes.Map = nodes.build(clazz, withSupers)
 
           //@CachedInUserData creates a single map for all 3 cases, so we need to pass `nodes` as a parameter to have different keys
           cachedInUserData(clazz, nodes)

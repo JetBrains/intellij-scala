@@ -40,7 +40,7 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor[T]) {
   type Map = MixinNodes.Map[T]
 
-  def build(clazz: PsiClass): Map = {
+  def build(clazz: PsiClass, withSupers: Boolean): Map = {
     if (!clazz.isValid) MixinNodes.emptyMap[T]
     else {
       AstLoadingFilter.disallowTreeLoading { () =>
@@ -50,7 +50,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
         signatureCollector.processAll(clazz, ScSubstitutor.empty, map)
         map.thisFinished()
 
-        addSuperSignatures(SuperTypesData(clazz), map)
+        if (withSupers) addSuperSignatures(SuperTypesData(clazz), map)
         map
       }
     }
@@ -402,7 +402,8 @@ object MixinNodes {
 
     }
 
-    inner()
+    val res = inner()
+    res
   }
 
 
@@ -454,12 +455,12 @@ object MixinNodes {
         tp match {
           case AliasType(_, _, Right(upper)) =>
             if (tp != upper && depth < 100) updateTp(upper, depth + 1)
-            else tp
+            else                            tp
           case _ =>
             tp match {
-              case ex: ScExistentialType => ex.quantified
+              case ex: ScExistentialType  => ex.quantified
               case tpt: TypeParameterType => tpt.upperType
-              case _ => tp
+              case _                      => tp
             }
         }
       }

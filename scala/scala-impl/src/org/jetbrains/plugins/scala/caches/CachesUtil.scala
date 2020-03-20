@@ -131,8 +131,6 @@ object CachesUtil {
                                         data: Data,
                                         key: Key[_],
                                         defaultValue: => Result): Result = {
-    ScObjectImpl.checkPackageObject()
-
     val function = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
     if (function == null || function.isProbablyRecursive) {
       defaultValue

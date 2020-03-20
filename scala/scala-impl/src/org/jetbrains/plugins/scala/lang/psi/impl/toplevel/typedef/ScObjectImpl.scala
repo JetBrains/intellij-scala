@@ -27,17 +27,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard, ModCount}
 
-import scala.util.control.ControlThrowable
-
 /**
  * @author Alexander Podkhalyuzin
  * Date: 20.02.2008
  */
-class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
-                   nodeType: ScTemplateDefinitionElementType[ScObject],
-                   node: ASTNode,
-                   debugName: String)
-  extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
+class ScObjectImpl(
+  stub:      ScTemplateDefinitionStub[ScObject],
+  nodeType:  ScTemplateDefinitionElementType[ScObject],
+  node:      ASTNode,
+  debugName: String
+) extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScObject {
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ObjectKeyword
@@ -79,7 +78,6 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     findChildByType(ScalaTokenTypes.kPACKAGE) != null || name == "`package`"
   }
 
-
   override def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
 
   override def isCase: Boolean = hasModifierProperty("case")
@@ -104,16 +102,12 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
       }
     } else true
 
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                   state: ResolveState,
-                                   lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
-    def processDeclarations() = processDeclarationsImpl(processor, state, lastParent, place)
-
-    if (isPackageObject) ScObjectImpl.withFlag {
-      processDeclarations()
-    } else processDeclarations()
-  }
+  override def processDeclarations(
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = processDeclarationsImpl(processor, state, lastParent, place)
 
   @Cached(ModCount.getBlockModificationCount, this)
   override def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
@@ -200,27 +194,5 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
 }
 
 object ScObjectImpl {
-
   private val moduleFieldName: String = "MODULE$"
-
-  private[this] val processing = new ThreadLocal[Long] {
-    override def initialValue(): Long = 0
-  }
-
-  private class DoNotProcessPackageObjectException extends ControlThrowable
-
-  def checkPackageObject(): Unit = processing.get match {
-    case 0 =>
-    case _ => throw new DoNotProcessPackageObjectException
-  }
-
-  private def withFlag(action: => Boolean) =
-    try {
-      processing.set(processing.get + 1)
-      action
-    } catch {
-      case _: DoNotProcessPackageObjectException => true // do nothing, just let's move on
-    } finally {
-      processing.set(processing.get - 1)
-    }
 }
