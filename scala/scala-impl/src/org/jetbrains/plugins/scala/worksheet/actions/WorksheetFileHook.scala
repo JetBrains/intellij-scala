@@ -94,7 +94,7 @@ object WorksheetFileHook {
       document.foreach(WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
     }
 
-    private def ensureWorksheetModuleIsSet(file: ScalaFile): Unit =
+    private def ensureWorksheetModuleAttachedToPsiFile(file: ScalaFile): Unit =
       for {
         module <- Option(WorksheetFileSettings(file).getModuleFor)
       } file.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
@@ -112,7 +112,7 @@ object WorksheetFileHook {
         .collect { case e: EditorEx => e }
 
     private def loadEvaluationResult(scalaFile: ScalaFile, vFile: VirtualFile, editor: EditorEx): Unit = {
-      ensureWorksheetModuleIsSet(scalaFile)
+      ensureWorksheetModuleAttachedToPsiFile(scalaFile)
 
       val evaluationResultOpt = WorksheetEditorPrinterFactory.loadWorksheetEvaluation(scalaFile)
       evaluationResultOpt.foreach {

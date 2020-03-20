@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala
-package worksheet
-package settings
+package org.jetbrains.plugins.scala.worksheet.settings
 
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
 import com.intellij.ide.scratch.ScratchUtil
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.newvfs.FileAttribute
@@ -14,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScFile,
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
 
 import scala.ref.WeakReference
@@ -24,8 +23,6 @@ import scala.ref.WeakReference
   */
 class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 
-  import WorksheetFileSettings.SerializableWorksheetAttributes._
-  import WorksheetFileSettings.SerializableWorksheetAttributes.SerializableInFileAttribute
   import WorksheetFileSettings._
 
   override def project: Project = file.getProject
@@ -34,7 +31,7 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 
   private def getSetting[T](attr: FileAttribute, orDefault: => T)
                            (implicit ev: SerializableInFileAttribute[T]): T =
-    WorksheetFileSettings.getSetting(file.getVirtualFile, attr, orDefault)
+    WorksheetFileSettings.getSetting(file.getVirtualFile, attr).getOrElse(orDefault)
 
   private def setSetting[T](attr: FileAttribute, value: T)
                            (implicit ev: SerializableInFileAttribute[T]): Unit =
@@ -50,8 +47,6 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
   override def isInteractive: Boolean = getSetting(IS_AUTORUN, getDefaultSettings.isInteractive)
 
   override def isMakeBeforeRun: Boolean = getSetting(IS_MAKE_BEFORE_RUN, getDefaultSettings.isMakeBeforeRun)
-
-  override def getModuleName: String = getSetting(CP_MODULE_NAME, getDefaultSettings.getModuleName)
 
   override def getCompilerProfileName: String = getSetting(COMPILER_PROFILE, getDefaultSettings.getCompilerProfileName)
 
@@ -79,6 +74,10 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
     maybeCustomProfile.getOrElse(configuration.defaultProfile)
   }
 
+  override def getModuleName: String =
+    WorksheetFileSettings.getModuleName(file.getVirtualFile)
+      .getOrElse(WorksheetProjectSettings(project).getModuleName)
+
   override def setModuleName(value: String): Unit = {
     setSetting(CP_MODULE_NAME, value)
     for {
@@ -87,18 +86,13 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
     DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
   }
 
-  override def getModuleFor: Module = super.getModuleFor match {
-    case null =>
-      val module = file.getVirtualFile match {
-        case virtualFile: VirtualFileWithId =>
-          val fileIndex = ProjectFileIndex.SERVICE.getInstance(project)
-          Option(fileIndex.getModuleForFile(virtualFile))
-        case _ =>
-          None
-      }
-      module.orElse(project.anyScalaModule).orNull
-    case module => module
-  }
+  override def getModuleFor: Module =
+    super.getModuleFor match {
+      case null =>
+        val fromIndex = moduleFromIndex(file.getVirtualFile, project)
+        fromIndex.orElse(project.anyScalaModule).orNull
+      case module => module
+    }
 }
 
 object WorksheetFileSettings extends WorksheetPerFileConfig {
@@ -128,16 +122,30 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
                         (implicit project: Project): Boolean =
     ScratchUtil.isScratch(file) && WorksheetFileType.treatScratchFileAsWorksheet
 
-  private def getSetting[T](vFile: VirtualFile, attr: FileAttribute, orDefault: => T)
-                           (implicit ev: SerializableInFileAttribute[T]): T =
-    ev.readAttribute(attr, vFile).getOrElse(orDefault)
+  private def getSetting[T](vFile: VirtualFile, attr: FileAttribute)
+                           (implicit ev: SerializableInFileAttribute[T]): Option[T] =
+    ev.readAttribute(attr, vFile)
 
   private def setSetting[T](vFile: VirtualFile, attr: FileAttribute, value: T)
                            (implicit ev: SerializableInFileAttribute[T]): Unit =
     ev.writeAttribute(attr, vFile, value)
 
-  import SerializableWorksheetAttributes.StringFileAttribute
-
   def getModuleName(file: VirtualFile): Option[String] =
-    Option(getSetting[String](file, CP_MODULE_NAME, null))
+    getSetting[String](file, CP_MODULE_NAME)
+
+  def getModuleForScratchFile(file: VirtualFile, project: Project): Option[Module] = {
+    val moduleName = getModuleName(file)
+    val module1 = moduleName.map(ModuleManager.getInstance(project).findModuleByName)
+    val module2 = module1.orElse(Option(WorksheetProjectSettings(project).getModuleFor))
+    module2
+  }
+
+  private def moduleFromIndex(virtualFile: VirtualFile, project: Project): Option[Module] =
+    virtualFile match {
+      case virtualFile: VirtualFileWithId =>
+        val fileIndex = ProjectFileIndex.SERVICE.getInstance(project)
+        Option(fileIndex.getModuleForFile(virtualFile))
+      case _ =>
+        None
+    }
 }

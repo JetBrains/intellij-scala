@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet
 
-import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType, ScratchUtil}
+import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
@@ -48,9 +48,6 @@ object WorksheetFileType extends LanguageFileTypeBase(WorksheetLanguage.INSTANCE
         )
     }
   }
-
-  def hasScratchRootType(file: VirtualFile): Boolean =
-    ScratchFileService.getInstance().getRootType(file).isInstanceOf[ScratchRootType]
 
   def treatScratchFileAsWorksheet(implicit project: Project): Boolean =
     projectSettings.isTreatScratchFilesAsWorksheet
