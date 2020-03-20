@@ -58,18 +58,13 @@ object CompilerEvent {
     val EventType = "compilation-finished"
   }
 
-  object CacheTastyFile {
-    val EventType = "cache-tasty-file"
-  }
-
   def fromCustomMessage(customMessage: CustomBuilderMessage): Option[CompilerEvent] = {
     val text = customMessage.getMessageText
     Option(customMessage)
       .filter(_.getBuilderId == BuilderId)
       .map(_.getMessageType)
       .collect {
-        case MessageEmitted.EventType | CompilationFinished.EventType | RangeMessageEmitted.EventType |
-             CacheTastyFile.EventType =>
+        case MessageEmitted.EventType | CompilationFinished.EventType | RangeMessageEmitted.EventType =>
           ObjectSerialization.fromBase64(text)
       }
   }

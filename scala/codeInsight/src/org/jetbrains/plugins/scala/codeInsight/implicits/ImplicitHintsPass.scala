@@ -65,12 +65,12 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
       val shouldSearch = ImplicitHints.enabled || showShowImplicitErrors
 
       def shouldShow(arguments: Seq[ScalaResolveResult]) = {
-        val compilerErrorsDisabled = !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
+        val compilerErrorsEnabled = ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
         val basicCondition = ImplicitHints.enabled || (showShowImplicitErrors && arguments.exists(it =>
           it.isImplicitParameterProblem &&
             (if (probableArgumentsFor(it).size > 1) settings.isShowAmbiguousImplicitArguments
             else settings.isShowNotFoundImplicitArguments)))
-        compilerErrorsDisabled && basicCondition
+        !compilerErrorsEnabled && basicCondition
       }
 
       if (shouldSearch) {

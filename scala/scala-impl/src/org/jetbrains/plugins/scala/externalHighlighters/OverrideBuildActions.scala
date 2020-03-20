@@ -5,11 +5,17 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, IdeActions}
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
-import org.jetbrains.plugins.scala.externalHighlighters.OverrideBuildActions.Decorated
 
+/**
+ * We use compilation to highlight the code ([[org.jetbrains.plugins.scala.externalHighlighters]]).
+ * We don't need disable build menu actions when only "background compilation for highlighting" is running
+ * ([[org.jetbrains.plugins.scala.externalHighlighters.JpsCompiler]]). So we must to override build menu actions.
+ */
 class OverrideBuildActions
   extends ApplicationInitializedListener {
 
+  import OverrideBuildActions.Decorated
+  
   override def componentsInitialized(): Unit =
     Seq(
       IdeActions.ACTION_COMPILE,
@@ -24,7 +30,7 @@ class OverrideBuildActions
 
 object OverrideBuildActions {
 
-  class Decorated(delegate: AnAction)
+  private class Decorated(delegate: AnAction)
     extends AnAction {
 
     copyFrom(delegate)
