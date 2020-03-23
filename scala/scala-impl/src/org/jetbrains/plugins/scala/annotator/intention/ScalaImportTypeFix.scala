@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -66,6 +67,9 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
   }
 
   override def showHint(editor: Editor): Boolean = {
+    val compilerErrorsEnabled = Option(ref.getContainingFile)
+      .exists(ScalaHighlightingMode.isShowErrorsFromCompilerEnabled)
+    if (compilerErrorsEnabled) return false
     if (!ref.isValid) return false
     if (ref.qualifier.isDefined) return false
     ref.getContext match {
