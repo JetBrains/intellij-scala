@@ -15,7 +15,6 @@ import com.intellij.util.AlarmFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.tasty.model._
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 

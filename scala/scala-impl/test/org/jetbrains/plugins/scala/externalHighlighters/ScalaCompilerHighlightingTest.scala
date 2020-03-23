@@ -28,7 +28,7 @@ import scala.collection.JavaConverters._
 class ScalaCompilerHighlightingTest
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
-
+  
   import ScalaCompilerHighlightingTest._
 
   def testErrorHighlighting(): Unit = runTestCase(

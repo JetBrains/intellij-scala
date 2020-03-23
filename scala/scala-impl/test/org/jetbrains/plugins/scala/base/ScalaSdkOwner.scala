@@ -12,7 +12,7 @@ import scala.collection.mutable.ListBuffer
 trait ScalaSdkOwner extends Test with InjectableJdk  {
   import ScalaSdkOwner._
 
-  override implicit final def version: ScalaVersion = {
+  implicit final def version: ScalaVersion = {
     val supportedVersions = allTestVersions.filter(supportedIn)
     val configuredVersion = configuredScalaVersion.getOrElse(defaultSdkVersion)
     selectVersion(configuredVersion, supportedVersions)

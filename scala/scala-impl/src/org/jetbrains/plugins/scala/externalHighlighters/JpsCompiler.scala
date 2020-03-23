@@ -65,7 +65,7 @@ private class JpsCompilerImpl(project: Project)
     }
     val restartWork: Runnable = () => ()
     val task = new CompilerTask(project, ScalaBundle.message("highlighting.compilation"),
-      false, false, true, true)
+      true, false, true, true)
     task.start(compileWork, restartWork)
     Await.result(promise.future, Duration.Inf)
   }
