@@ -12,6 +12,7 @@ import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 /**
  * Base class to store import-provided reference elements
@@ -34,7 +35,8 @@ abstract sealed class ImportUsed(e: PsiElement) {
 
   def isAlwaysUsed: Boolean = {
     val settings = ScalaCodeStyleSettings.getInstance(pointer.getProject)
-    qualName.exists(settings.isAlwaysUsedImport) || isLanguageFeatureImport
+    val isScala3 = Option(element).exists(_.isInScala3Module)
+    qualName.exists(settings.isAlwaysUsedImport) || isLanguageFeatureImport || isScala3
   }
 
   private def isLanguageFeatureImport: Boolean = {
