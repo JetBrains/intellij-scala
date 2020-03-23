@@ -3,14 +3,13 @@ package org.jetbrains.plugins.scala.project.external
 import java.io.File
 
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
-import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
-import scala.language.implicitConversions
 import scala.collection.JavaConverters._
+import scala.language.implicitConversions
 
 
 /**
