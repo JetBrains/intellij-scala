@@ -54,7 +54,7 @@ object RegisterCompilationListener {
         } handle(removedFile)
 
     private def handle(modifiedFile: VirtualFile): Unit =
-      if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+      if (modifiedFile.isInLocalFileSystem && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
         modifiedFile.toDocument.foreach { modifiedDocument =>
           modifiedDocument.syncToDisk(project)
           executor.schedule(ScalaHighlightingMode.compilationDelay)(compiler.compile())
