@@ -56,6 +56,7 @@
         <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.sources.SharedSourcesModuleEditorProvider"/>
 
         <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory" order="first"/>
+        <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.DottyProjectTemplatesFactory" order="last"/>
 
         <!--suppress PluginXmlCapitalization -->
         <projectConfigurable groupId="build.tools" bundle="messages.ScalaSbtBundle"
