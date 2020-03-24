@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
+import java.nio.file.Files
 import java.util.UUID
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
@@ -22,9 +23,11 @@ import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.server.CompileServerToken
 import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, ScalaPluginJars}
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 import scala.util.control.Exception._
 
 /**
@@ -70,6 +73,8 @@ object CompileServerLauncher {
     if (running) true else {
       val started = start(project)
       if (started) {
+        // TODO: implement proper wait for server initialization, addDisconnectListener command doesn't even exist
+        //  Nailgun server sends error for it via stderr which we ignore by passing null client
         try {
           val runner = new RemoteServerRunner(project)
           runner.send("addDisconnectListener", Seq.empty, null)
@@ -83,7 +88,7 @@ object CompileServerLauncher {
   private def start(project: Project): Boolean = {
 
     val result = for {
-      jdk     <- compileServerJdk(project).left.map(m => s"JDK for compiler process not found: ${}")
+      jdk     <- compileServerJdk(project).left.map(m => s"JDK for compiler process not found: $m")
       process <- start(project, jdk)
     } yield process
 
@@ -132,7 +137,7 @@ object CompileServerLauncher {
           settings.COMPILE_SERVER_PORT = freePort
           saveSettings()
         }
-
+        deleteOldTokenFile(freePort)
         val id = settings.COMPILE_SERVER_ID
 
         val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY
@@ -167,6 +172,7 @@ object CompileServerLauncher {
             val watcher = new ProcessWatcher(process, "scalaCompileServer")
             serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), jdk))
             watcher.startNotify()
+            LOG.info(s"compile server process starter with port: $freePort, jdk: ${jdk.name}")
             process
           }
       case (_, absentFiles) =>
@@ -174,6 +180,12 @@ object CompileServerLauncher {
         Left("Required file(s) not found: " + paths)
     }
   }
+
+  // ensure that old tokens from old sessions do not exist on file system to avoid race conditions (see ticket from the commit)
+  // it should be deleted in org.jetbrains.plugins.scala.nailgun.NailgunRunner.ShutdownHook.run
+  // but in case of some server crashes it can remain on the file system
+  private def deleteOldTokenFile(freePort: Int): Unit =
+    Try(Files.delete(CompileServerToken.tokenPathForPort(freePort)))
 
   // TODO stop server more gracefully
   def stop(): Unit = {
@@ -251,7 +263,7 @@ object CompileServerLauncher {
     running || tryToStart(project)
   }
 
-  def needRestart(project: Project): Boolean = {
+  private def needRestart(project: Project): Boolean = {
     val currentInstance = serverInstance
     val settings = ScalaCompileServerSettings.getInstance()
     currentInstance match {
@@ -271,14 +283,18 @@ object CompileServerLauncher {
     if (running) stop(project)
   }
 
-  def findFreePort: Int = {
+  private def findFreePort: Int = {
     val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
-    if (NetUtils.canConnectToSocket("localhost", port))
+    if (!isUsed(port)) port else {
+      LOG.info(s"compile server port is already used ($port), searching for available port")
       NetUtils.findAvailableSocketPort()
-    else port
+    }
   }
 
-  def saveSettings(): Unit = invokeAndWait {
+  private def isUsed(portFromSettings: Int): Boolean =
+    NetUtils.canConnectToSocket("localhost", portFromSettings)
+
+  private def saveSettings(): Unit = invokeAndWait {
     ApplicationManager.getApplication.saveSettings()
   }
 

@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, RemoteResourceOwner}
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
+import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import scala.util.control.NonFatal
 
@@ -68,15 +69,8 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
 }
 
 private object RemoteServerRunner {
-  private class CantFindSecureTokenException extends Exception 
-  
-  private def readToken(port: Int): String = {
-    val path = tokenPathFor(port)
-    if (!path.toFile.exists()) throw new CantFindSecureTokenException
+  private class CantFindSecureTokenException extends Exception
 
-    new String(Files.readAllBytes(path))
-  }
-
-  private def tokenPathFor(port: Int) =
-    Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", port.toString)
+  private def readToken(port: Int): String =
+    CompileServerToken.tokenForPort(port).getOrElse(throw new CantFindSecureTokenException)
 }
