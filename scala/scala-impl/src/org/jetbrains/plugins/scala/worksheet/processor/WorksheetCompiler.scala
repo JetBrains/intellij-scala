@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
-import java.io.File
-
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
@@ -17,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ScalaSdkNotConfiguredException
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.EvaluationCallback
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{Precondition, PreconditionError}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{CompileServerIsNotRunningError, Precondition, PreconditionError}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.{RunCompile, RunRepl, WorksheetCompileRunRequest}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.{PlainModeArgs, ReplModeArgs}
@@ -47,8 +45,16 @@ class WorksheetCompiler(
   private val makeType = WorksheetCompiler.getMakeType(project, runType)
   private val worksheetVirtual = worksheetFile.getVirtualFile
 
-  private def createCompilerTask: CompilerTask =
-    new CompilerTask(project, ScalaBundle.message("worksheet.compilation", worksheetFile.getName), false, false, false, false)
+  private def createCompilerTask: CompilerTask = {
+    val waitForPreviousSession = true
+    new CompilerTask(
+      project, ScalaBundle.message("worksheet.compilation", worksheetFile.getName),
+      false,
+      false,
+      waitForPreviousSession,
+      false
+    )
+  }
 
   private def createWorksheetPrinter: WorksheetEditorPrinter =
     runType.createPrinter(editor, worksheetFile)
@@ -78,7 +84,9 @@ class WorksheetCompiler(
 
     makeType match {
       case InProcessServer | OutOfProcessServer =>
-        CompileServerLauncher.ensureServerRunning(project)
+        if (!CompileServerLauncher.ensureServerRunning(project)) {
+          originalCallback(CompileServerIsNotRunningError)
+        }
       case NonServer =>
     }
 
@@ -123,17 +131,15 @@ class WorksheetCompiler(
       cache.addCompilerMessagesCollector(editor, consumer)
     }
 
-    request match {
+    val args = request match {
       case RunRepl(code) =>
-        val args = ReplModeArgs(worksheetVirtual.getCanonicalPath, code)
-        runCompilerTask(args, task, afterCompileCallback, consumer)
-
+        ReplModeArgs(worksheetVirtual.getCanonicalPath, code)
       case RunCompile(code, className) =>
         val (_, tempFile, outputDir) = cache.updateOrCreateCompilationInfo(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
         FileUtil.writeToFile(tempFile, code)
-        val args = PlainModeArgs(tempFile, outputDir, className)
-        runCompilerTask(args, task, afterCompileCallback, consumer)
+        PlainModeArgs(tempFile, outputDir, className)
     }
+    runCompilerTask(args, task, afterCompileCallback, consumer)
   }
 
   def compileAndRunFile(): Unit = try {
@@ -172,6 +178,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
     final case class PreconditionError(message: Precondition) extends WorksheetCompilerError
     final case object CompilationError extends WorksheetCompilerError
     final case class ProcessTerminatedError(returnCode: Int, message: String) extends WorksheetCompilerError
+    final object CompileServerIsNotRunningError extends WorksheetCompilerError
     final case class RemoteServerConnectorError(error: RemoteServerConnectorResult.UnhandledError) extends WorksheetCompilerError
     final case class UnknownError(cause: Throwable) extends WorksheetCompilerError
 

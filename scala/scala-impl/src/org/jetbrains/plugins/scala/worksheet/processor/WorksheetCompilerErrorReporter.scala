@@ -29,6 +29,7 @@ class WorksheetCompilerErrorReporter(
     case WorksheetCompilerResult.UnknownError(exception)           => reportUnexpectedError(exception)
     case WorksheetCompilerResult.CompilationError                  => // assuming that compilation errors are already reported by CompilerTask in WorksheetCompiler
     case WorksheetCompilerResult.ProcessTerminatedError(_, _)      => // not handled, used to cancel evaluation
+    case WorksheetCompilerResult.CompileServerIsNotRunningError    => configErrorNotification("Compile server is not running") // TODO: i18
     case WorksheetCompilerResult.RemoteServerConnectorError(error) =>
       error match {
         case RemoteServerConnectorResult.ExpectedError(exception)   => showConfigErrorNotification(exception.getMessage)

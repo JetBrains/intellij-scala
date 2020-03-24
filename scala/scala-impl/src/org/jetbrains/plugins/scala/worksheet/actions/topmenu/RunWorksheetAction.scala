@@ -93,6 +93,7 @@ object RunWorksheetAction {
   }
 
   def runCompiler(project: Project, editor: Editor, auto: Boolean): Future[RunWorksheetActionResult] = {
+    val start = System.currentTimeMillis()
     Log.debugSafe(s"worksheet evaluation started")
     val promise = Promise[RunWorksheetActionResult]()
     try {
@@ -106,7 +107,10 @@ object RunWorksheetAction {
       override def reportFailure(cause: Throwable): Unit = Log.error(cause)
     }
     val future = promise.future
-    future.onComplete(s => Log.debugSafe("worksheet evaluation result: " + s.toString))(runImmediatelyExecutionContext)
+    future.onComplete(s => {
+      val end = System.currentTimeMillis()
+      Log.debugSafe(s"worksheet evaluation result (took ${end - start}ms): " + s.toString)
+    })(runImmediatelyExecutionContext)
     future
   }
 
