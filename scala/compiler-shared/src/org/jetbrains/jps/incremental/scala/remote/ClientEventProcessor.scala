@@ -41,9 +41,6 @@ class ClientEventProcessor(client: Client) {
 
       case CompilationStartedInSbt(file) =>
         client.sourceStarted(file)
-
-      case CompileServerStateEvent(state) =>
-        client.compileServerState(state)
     }
   }
 }

@@ -4,7 +4,7 @@ import java.io.File
 
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, CompileServerState}
+import org.jetbrains.jps.incremental.scala.Client.ClientMsg
 
 /**
  * TODO: add documentation with method contracts, currently there are too many methods with vague meaning
@@ -63,8 +63,6 @@ trait Client {
 
   /** Used in sbt compile to invalidate every begined source - so after cancel there will be work to recomile */
   def sourceStarted(source: String): Unit
-
-  def compileServerState(state: CompileServerState): Unit
 }
 
 object Client {
@@ -74,6 +72,4 @@ object Client {
                              source: Option[File],
                              line: Option[Long],
                              column: Option[Long])
-
-  final case class CompileServerState(compilingNow: Boolean)
 }

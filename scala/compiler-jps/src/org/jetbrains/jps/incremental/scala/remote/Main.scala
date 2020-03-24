@@ -6,15 +6,13 @@ import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.{Base64, Timer, TimerTask}
 
-import com.intellij.openapi.application.PathManager
 import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.api.{BuildType, CanceledStatus, CmdlineProtoUtil}
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
-import org.jetbrains.jps.incremental.{MessageHandler, Utils}
+import org.jetbrains.jps.incremental.MessageHandler
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage}
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.Client.CompileServerState
 import org.jetbrains.jps.incremental.scala.data.CompileServerCommandParser
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
@@ -127,8 +125,6 @@ object Main {
           compileLogic(arguments, client)
         case compileJpsArgs: CompileServerCommand.CompileJps =>
           compileJpsLogic(compileJpsArgs, client)
-        case getStateArgs: CompileServerCommand.GetState =>
-          getStateLogic(getStateArgs, client)
       }
     }
   }
@@ -181,9 +177,6 @@ object Main {
       descriptor.release()
     }
   }
-
-  private def getStateLogic(args: CompileServerCommand.GetState, client: Client): Unit =
-    client.compileServerState(CompileServerState(compilingNow = compilingNowCounter.get > 0))
 
   private def parseArgs(command: String, argsEncoded: Seq[String]): Try[CompileServerCommand] = {
     val args = argsEncoded.map(decodeArgument)
