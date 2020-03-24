@@ -74,6 +74,7 @@ public class NailgunRunner {
     return new URLClassLoader(urls, NailgunRunner.class.getClassLoader());
   }
 
+  /** duplicated in {@link org.jetbrains.plugins.scala.server.CompileServerToken} */
   private static Path tokenPathFor(int port) {
     return Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", Integer.toString(port));
   }
