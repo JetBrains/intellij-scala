@@ -5,41 +5,36 @@ import java.io.File
 import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
 import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.plugins.scala.compiler.CompilerEventType.CompilerEventType
 import org.jetbrains.plugins.scala.util.{CompilationId, ObjectSerialization}
+
+import scala.util.Try
 
 sealed trait CompilerEvent {
 
-  def eventType: String
+  def eventType: CompilerEventType
 
   def compilationId: CompilationId
 
   def toCustomMessage: CustomBuilderMessage = new CustomBuilderMessage(
     CompilerEvent.BuilderId,
-    eventType,
+    eventType.toString,
     ObjectSerialization.toBase64(this)
   )
 }
 
 object CompilerEvent {
 
-  @SerialVersionUID(-1920831455397960151L)
   case class MessageEmitted(override val compilationId: CompilationId, msg: Client.ClientMsg)
     extends CompilerEvent {
 
-    override def eventType: String = MessageEmitted.EventType
+    override def eventType: CompilerEventType = CompilerEventType.MessageEmitted
   }
-
-  object MessageEmitted {
-    val EventType = "message-emitted"
-  }
-
 
   final case class RangeMessageEmitted(override val compilationId: CompilationId, msg: RangeMessage)
     extends CompilerEvent {
-    override def eventType: String = RangeMessageEmitted.EventType
-  }
-  object RangeMessageEmitted {
-    val EventType = "range-message-emitted"
+
+    override def eventType: CompilerEventType = CompilerEventType.RangeMessageEmitted
   }
 
   final case class RangeMessage(
@@ -47,26 +42,18 @@ object CompilerEvent {
     fromLine: Int, fromColumn: Int,
     toLine: Option[Int], toColumn: Option[Int])
 
-  @SerialVersionUID(2805617802395239646L)
   case class CompilationFinished(override val compilationId: CompilationId, source: File)
     extends CompilerEvent {
 
-    override def eventType: String = CompilationFinished.EventType
-  }
-
-  object CompilationFinished {
-    val EventType = "compilation-finished"
+    override def eventType: CompilerEventType = CompilerEventType.CompilationFinished
   }
 
   def fromCustomMessage(customMessage: CustomBuilderMessage): Option[CompilerEvent] = {
     val text = customMessage.getMessageText
     Option(customMessage)
       .filter(_.getBuilderId == BuilderId)
-      .map(_.getMessageType)
-      .collect {
-        case MessageEmitted.EventType | CompilationFinished.EventType | RangeMessageEmitted.EventType =>
-          ObjectSerialization.fromBase64(text)
-      }
+      .flatMap { msg => Try(CompilerEventType.withName(msg.getMessageType)).toOption }
+      .map { _ => ObjectSerialization.fromBase64[CompilerEvent](text) }
   }
 
   val BuilderId = "compiler-event"
