@@ -247,8 +247,12 @@ package object project {
 
     def hasDotty: Boolean = modulesWithScala.exists(_.hasScala3)
 
-    @CachedInUserData(project, ProjectRootManager.getInstance(project))
     def modulesWithScala: Seq[Module] =
+      if (project.isDisposed) Seq.empty
+      else modulesWithScalaCached
+
+    @CachedInUserData(project, ProjectRootManager.getInstance(project))
+    private def modulesWithScalaCached: Seq[Module] =
       modules.filter(_.hasScala)
 
     def anyScalaModule: Option[Module] =
