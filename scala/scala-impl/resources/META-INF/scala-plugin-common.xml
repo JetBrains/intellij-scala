@@ -535,8 +535,6 @@
                      description="Show errors from dotty compiler in the editor"/>
         <registryKey key="scala.highlighting.compilation.delay.millis" defaultValue="500" restartRequired="false"
                      description="Delay between runs of the compilation for highlighting, millis"/>
-        <registryKey key="scala.show.compile.server.is.compiling.now" defaultValue="false" restartRequired="false"
-                     description="Show the fact that compile server is compiling now"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>

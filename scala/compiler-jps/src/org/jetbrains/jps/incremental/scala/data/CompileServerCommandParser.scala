@@ -31,13 +31,6 @@ object CompileServerCommandParser
           case _ =>
             throwIllegalArgs(commandId, args)
         }
-      case CommandIds.GetState =>
-        args match {
-          case Seq(token) =>
-            CompileServerCommand.GetState(token)
-          case _ =>
-            throwIllegalArgs(commandId, args)
-        }
       case unknownCommand =>
         throw new IllegalArgumentException(s"Unknown commandId: $unknownCommand")
     }

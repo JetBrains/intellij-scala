@@ -4,7 +4,7 @@ import java.io.File
 
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.PathKt
@@ -64,8 +64,9 @@ private class JpsCompilerImpl(project: Project)
       setBuildActionAllowed(false)
     }
     val restartWork: Runnable = () => ()
+    val headlessMode = !ApplicationManager.getApplication.isInternal
     val task = new CompilerTask(project, ScalaBundle.message("highlighting.compilation"),
-      true, false, true, true)
+      headlessMode, false, true, true)
     task.start(compileWork, restartWork)
     Await.result(promise.future, Duration.Inf)
   }

@@ -4,5 +4,4 @@ object CommandIds {
 
   final val Compile = "compile"
   final val CompileJps = "compile-jps"
-  final val GetState = "get-state"
 }

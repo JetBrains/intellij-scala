@@ -42,15 +42,5 @@ object CompileServerCommand {
 
     override def asArgs: Seq[String] = Seq(token, projectPath, globalOptionsPath, dataStorageRootPath)
   }
-
-  case class GetState(token: String)
-    extends CompileServerCommand {
-
-    override def isCompilation: Boolean = false
-
-    override def id: String = CommandIds.GetState
-
-    override def asArgs: Seq[String] = Seq(token)
-  }
 }
 
