@@ -7,7 +7,7 @@ import dotty.tools.dotc.tastyreflect.TastyTreeExpr
 import dotty.tools.dotc.core.Contexts.{Context => InternalContext}
 import dotty.tools.dotc.ast.{Trees => InternalTrees}
 
-object MacroPrinter3_22 {
+object MacroPrinter3_23 {
 
   inline def showType[T](inline expr: => T): String = ${ showTypeImpl('expr) }
   inline def showMethodDefinition[T](inline expr: T): String = ${ showMethodDefinitionImpl('expr) }
