@@ -18,6 +18,7 @@ trait CompilationProcess {
       case None => result.success(())
     }
     run()
+    // TODO: we should avoid potential infinite blocking, and handle "long-waiting" case appropriately
     Await.result(result.future, Duration.Inf)
   }
 

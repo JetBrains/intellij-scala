@@ -102,9 +102,10 @@ object ScalaBuilder {
 
   private def getServer(implicit context: CompileContext): Server = {
     if (isCompileServerEnabled) {
-      Log.info("using remote server")
       cleanLocalServerCache()
-      new remote.RemoteServer(InetAddress.getByName(null), globalSettings.getCompileServerPort)
+      val port = globalSettings.getCompileServerPort
+      Log.info(s"using remote server with port: $port")
+      new remote.RemoteServer(InetAddress.getByName(null), port)
     } else {
       Log.info("using local server")
       localServer

@@ -111,6 +111,7 @@ public class NailgunRunner {
       server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, serverClass));
     }
 
+    // TODO: token should be checked
     Class<?> stopClass = classLoader.loadClass(STOP_CLASS_NAME);
     String stopAlias = STOP_ALIAS_START + id;
     server.getAliasManager().addAlias(new Alias(stopAlias, "", stopClass));
