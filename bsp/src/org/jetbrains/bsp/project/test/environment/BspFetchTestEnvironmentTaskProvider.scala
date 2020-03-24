@@ -16,7 +16,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
+
 import com.intellij.openapi.util.Key
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiFile}
@@ -70,7 +70,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
             logger.error(BspBundle.message("bsp.task.could.not.get.potential.targets", value.msg))
             List()
         }
-        askUserForTargetId(potentialTargets.map(_.getUri), task)
+        askUserForTargetId(configuration.getProject, potentialTargets.map(_.getUri), task)
         Promises.resolvedPromise(potentialTargets.length == 1)
       case _ => Promises.resolvedPromise(false)
     }
@@ -103,7 +103,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
           chosenTargetId <- task.state
             .orElse(toOptionIfSingle(targetsMatchingSources).map(_.getUri))
             .orElse(toOptionIfSingle(potentialTargets).map(_.getUri))
-            .orElse(askUserForTargetId(potentialTargets.map(_.getUri), task))
+            .orElse(askUserForTargetId(config.getProject, potentialTargets.map(_.getUri), task))
             .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.choose.any.target.id")))
           testEnvironment <-
             fetchJvmTestEnvironment(new BuildTargetIdentifier(chosenTargetId), workspaceUri, module.getProject)
@@ -125,23 +125,14 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
 
   }
 
-  private def askUserForTargetId(targetIds: Seq[String], task: BspFetchTestEnvironmentTask): Option[String] = {
-    var chosenTarget: Option[String] = None
+  private def askUserForTargetId(project: Project, targetIds: Seq[String], task: BspFetchTestEnvironmentTask): Option[String] = {
+    var chosenTarget: Option[URI] = None
     ApplicationManager.getApplication.invokeAndWait { () => {
-      chosenTarget = Option(Messages.showEditableChooseDialog(
-        BspBundle.message("bsp.task.choose.target.message"),
-        BspBundle.message("bsp.task.choose.target.title"),
-        Icons.BSP_TOOLWINDOW,
-        targetIds.toArray,
-        targetIds.headOption.getOrElse(""),
-        null
-      ))
-    }
-    }
-    if (chosenTarget.isDefined) {
-      task.state = chosenTarget
-    }
-    chosenTarget
+      chosenTarget = BspSelectTargetDialog.promptForBspTarget(project, targetIds.map(new URI(_)), task.state.map(new URI(_)))
+    }}
+    val result = chosenTarget.map(_.toString)
+    task.state = result
+    result
   }
 
   private def fetchTargetIdsFromFiles(files: Seq[PsiFile],

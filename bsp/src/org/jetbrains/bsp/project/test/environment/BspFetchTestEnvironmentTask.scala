@@ -1,5 +1,7 @@
 package org.jetbrains.bsp.project.test.environment
 
+import java.net.URI
+
 import com.intellij.execution.BeforeRunTask
 import org.jdom.Element
 import com.intellij.openapi.util.Key
