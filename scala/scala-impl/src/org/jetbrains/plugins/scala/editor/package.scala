@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 
+import scala.util.Try
+
 /**
   * Nikolay.Tropin
   * 27-Oct-17
@@ -35,7 +37,7 @@ package object editor {
     def syncToDisk(project: Project): Unit =
       virtualFile.filter(_.isValid).foreach { file =>
         val requestor = FileDocumentManager.getInstance
-        val separator = FileDocumentManagerImpl.getLineSeparator(document, file)
+        val separator = Try(FileDocumentManagerImpl.getLineSeparator(document, file)).getOrElse("\n")
         val documentText = document.getText
         val text = if (separator != "\n")
           StringUtil.convertLineSeparators(documentText, separator)
