@@ -38,7 +38,7 @@ class FetchScalaTestClassesTask(project: Project,
 
     val targetsByWorkspace = ModuleManager.getInstance(project).getModules.toList
       .flatMap { module =>
-        val targets = BspMetadata.get(project, module).toList.flatMap(_.targetIds.asScala)
+        val targets = BspMetadata.get(project, module).toOption.toList.flatMap(_.targetIds.asScala)
         val modulePath = ExternalSystemApiUtil.getExternalProjectPath(module)
         val workspacePath = Paths.get(modulePath)
         targets.map(t => (workspacePath, new BuildTargetIdentifier(t.toString)))
