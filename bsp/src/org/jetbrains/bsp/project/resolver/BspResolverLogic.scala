@@ -2,7 +2,7 @@ package org.jetbrains.bsp.project.resolver
 
 import java.io.File
 import java.net.URI
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 import java.util.Collections
 
 import ch.epfl.scala.bsp4j._
@@ -162,22 +162,35 @@ private[resolver] object BspResolverLogic {
 
     sourceItems
       .map { item =>
+        val packagePrefix = findPackagePrefix(sourcesItem, item.getUri)
         val file = item.getUri.toURI.toFile
         // bsp spec used to depend on uri ending in `/` to determine directory, use both kind and uri string to determine directory
         if (item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/"))
-          SourceDirectory(file, item.getGenerated)
+          SourceDirectory(file, item.getGenerated, packagePrefix)
         else
         // use the file's immediate parent as best guess of source dir
         // IntelliJ project model doesn't have a concept of individual source files
-          SourceDirectory(file.getParentFile, item.getGenerated)
+          SourceDirectory(file.getParentFile, item.getGenerated, packagePrefix)
       }
       .distinct
   }
 
+  private def findPackagePrefix(sourcesItem: SourcesItem, sourceUri: String): Option[String] = {
+    val roots = Option(sourcesItem.getRoots).map(_.asScala).getOrElse(Nil)
+    val matchedRoot = roots.find(root => sourceUri.startsWith(root))
+    matchedRoot.map { root =>
+      val rootPath = Paths.get(new URI(root))
+      val filePath = Paths.get(new URI(sourceUri))
+      val dirPath = if (sourceUri.endsWith("/")) filePath else filePath.getParent
+      val relativePath = rootPath.relativize(dirPath)
+      relativePath.toString.replace(File.separatorChar, '.')
+    }.filter(_.nonEmpty)
+  }
+
   private def sourceDirectory(uri: String, generated: Boolean = false) = {
     val file = uri.toURI.toFile
-    if (uri.endsWith("/")) SourceDirectory(file, generated)
-    else SourceDirectory(file.getParentFile, generated)
+    if (uri.endsWith("/")) SourceDirectory(file, generated, None)
+    else SourceDirectory(file.getParentFile, generated, None)
   }
 
   private def filterRoots(dirs: Seq[SourceDirectory]) = dirs.filter { dir =>
@@ -432,13 +445,6 @@ private[resolver] object BspResolverLogic {
     projectNode
   }
 
-  private def idToModule(modules: Seq[(scala.Seq[BuildTarget], DataNode[ModuleData])]) = for {
-    (targets,module) <- modules
-    target <- targets
-  } yield {
-    (TargetId(target.getId.getUri), module)
-  }
-
   private[resolver] def moduleFilesDirectory(workspace: File) = new File(workspace, ".idea/modules")
 
   private[resolver] def createModuleNode(projectRootPath: String,
@@ -517,7 +523,7 @@ private[resolver] object BspResolverLogic {
 
     val contentRootData = allSourceRoots.map { case (sourceType, root) =>
       val data = getContentRoot(root.directory, moduleBase)
-      data.storePath(sourceType, root.directory.getCanonicalPath)
+      data.storePath(sourceType, root.directory.getCanonicalPath, root.packagePrefix.orNull)
       data.getRootPath -> data
     }.toMap.values // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
 

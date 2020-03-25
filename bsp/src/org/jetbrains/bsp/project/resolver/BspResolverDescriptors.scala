@@ -49,6 +49,6 @@ private[resolver] object BspResolverDescriptors {
                                           scalacOptions: Try[ScalacOptionsResult] // TODO should be optional
                                          )
 
-  private[resolver] case class SourceDirectory(directory: File, generated: Boolean)
+  private[resolver] case class SourceDirectory(directory: File, generated: Boolean, packagePrefix: Option[String])
 
 }
