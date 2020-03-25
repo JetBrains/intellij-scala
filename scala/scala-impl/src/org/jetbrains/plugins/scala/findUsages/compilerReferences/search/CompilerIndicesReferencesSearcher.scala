@@ -6,10 +6,9 @@ import java.util.concurrent.locks.ReentrantLock
 
 import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
-import com.intellij.openapi.application.TransactionGuard
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi._
@@ -187,7 +186,7 @@ object CompilerIndicesReferencesSearcher {
               )
 
             pendingConnection.disconnect()
-            TransactionGuard.getInstance().submitTransactionAndWait(runnable)
+            DumbService.getInstance(project).runWhenSmart(runnable)
           }
         } else {
           lock.locked(indexingFinishedCondition.signal())
