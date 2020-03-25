@@ -49,24 +49,25 @@ private class JpsCompilerImpl(project: Project)
       new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory)),
       projectPath
     ).getCanonicalPath
-    val args = CompileServerCommand.CompileJps(
+    val commad = CompileServerCommand.CompileJps(
       token = "",
       projectPath = projectPath,
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath
-    ).asArgsWithoutToken
+    )
     val promise = Promise[Unit]
 
     val taskMsg = ScalaBundle.message("highlighting.compilation")
     val task: Task = new Task.Backgroundable(project, taskMsg, false) {
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         val client = new CompilationClient(project, indicator)
-        val result = Try(new RemoteServerRunner(project).buildProcess(CommandIds.CompileJps, args, client).runSync())
+        val result = Try(new RemoteServerRunner(project).buildProcess(commad, client).runSync())
         promise.complete(result)
       }
       override val isHeadless: Boolean = !ApplicationManager.getApplication.isInternal
     }
     ProgressManager.getInstance.run(task)
+
     Await.result(promise.future, Duration.Inf)
   }
 }

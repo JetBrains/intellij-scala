@@ -296,7 +296,7 @@ package object project {
         project
       ) != ScalaLanguage.INSTANCE
 
-    def toDocument: Option[Document] =
+    def findDocument: Option[Document] =
       Option(FileDocumentManager.getInstance.getDocument(file))
 
     def toFile: File =
