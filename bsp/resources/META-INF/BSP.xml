@@ -17,6 +17,7 @@
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspLocalSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.BspBuildLoopService"/>
+        <projectService serviceImplementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskInstaller"/>
 
         <applicationService serviceImplementation="org.jetbrains.bsp.protocol.BspCommunicationService"/>
 
@@ -39,6 +40,7 @@
 
         <statusBarWidgetProvider implementation="org.jetbrains.bsp.BspServerWidgetProvider"/>
 
+        <postStartupActivity implementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskInstaller$Startup"/>
     </extensions>
 
     <actions>
