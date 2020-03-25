@@ -12,7 +12,7 @@ import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand}
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerEvent, CompilerEventListener, RemoteServerRunner}
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import scala.concurrent.duration.Duration
@@ -41,6 +41,7 @@ private class JpsCompilerImpl(project: Project)
   import JpsCompilerImpl.CompilationClient
 
   override def compile(): Unit = {
+    CompileServerLauncher.ensureServerRunning(project)
     val command = CommandIds.CompileJps
     val projectPath = project.getBasePath
     val globalOptionsPath = PathManager.getOptionsPath
