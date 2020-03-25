@@ -13,7 +13,7 @@ import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.external.SdkReference
-import org.jetbrains.sbt.project.data.SbtEntityData.datakey
+import org.jetbrains.bsp.data.BspEntityData._
 
 abstract class BspEntityData extends AbstractExternalEntityData(BSP.ProjectSystemId) with Product {
 
