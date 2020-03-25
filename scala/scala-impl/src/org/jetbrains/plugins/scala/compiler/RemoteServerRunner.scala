@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths}
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.remote.{CommandIds, RemoteResourceOwner}
+import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, RemoteResourceOwner}
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
@@ -20,6 +20,12 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
 
   override protected val port: Int = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
 
+  def buildProcess(command: CompileServerCommand, client: Client): CompilationProcess =
+    buildProcess(command.id, command.asArgsWithoutToken, client)
+
+  // TODO: make it cancelable, if request is hanging we cant cancel it now.
+  //  E.g. when the server is down and we retry to connect to it.
+  // TODO: naming is a bit scaring, it suggests that it returns some new OS Process which connects to the server
   def buildProcess(command: String,
                    arguments: Seq[String],
                    client: Client): CompilationProcess = new CompilationProcess {
@@ -63,6 +69,7 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
     }
 
     override def stop(): Unit = {
+      // TODO: SCL-17265 do not stop the whole server! INvestigate whether we can cancel
       CompileServerLauncher.ensureNotRunning(project)
     }
   }

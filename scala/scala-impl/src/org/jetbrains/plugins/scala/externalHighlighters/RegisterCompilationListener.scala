@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.externalHighlighters
 import java.util.concurrent.ConcurrentHashMap
 
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
+import com.intellij.psi.{PsiFile, PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.editor.DocumentExt
+import org.jetbrains.plugins.scala.extensions.ToNullSafe
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
 private class RegisterCompilationListener
@@ -41,24 +41,33 @@ object RegisterCompilationListener {
 
     override def childrenChanged(event: PsiTreeChangeEvent): Unit =
       for {
-        psiFile <- event.getFile.toOption
-        changedFile <- psiFile.getVirtualFile.toOption
-      } handle(changedFile)
+        file <- event.getFile.nullSafe
+      } handleFileModification(file)
 
     override def childRemoved(event: PsiTreeChangeEvent): Unit =
       if (event.getFile eq null)
         for {
-          child <- event.getChild.toOption
-          containingFile <- child.getContainingFile.toOption
-          removedFile <- containingFile.getVirtualFile.toOption
-        } handle(removedFile)
+          child <- event.getChild.nullSafe
+          file <- child.getContainingFile.nullSafe
+        } handleFileModification(file)
 
-    private def handle(modifiedFile: VirtualFile): Unit =
-      if (modifiedFile.isInLocalFileSystem && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-        modifiedFile.toDocument.foreach { modifiedDocument =>
+    private def handleFileModification(file: PsiFile): Unit =
+      file match {
+        case scalaFile: ScalaFile => handleFileModification(scalaFile)
+        case _ =>
+      }
+
+    private def handleFileModification(file: ScalaFile): Unit = {
+      val virtualFile = file.getVirtualFile match {
+        case null => return
+        case file => file
+      }
+      if (virtualFile.isInLocalFileSystem && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+        virtualFile.findDocument.foreach { modifiedDocument =>
           modifiedDocument.syncToDisk(project)
           executor.schedule(ScalaHighlightingMode.compilationDelay)(compiler.compile())
         }
       }
+    }
   }
 }

@@ -72,7 +72,7 @@ class ScalaCompilerHighlightingTest
 
     compiler.rebuild()
 
-    val document = virtualFile.toDocument.get
+    val document = virtualFile.findDocument.get
     val infos = DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala
     assertThat("Test case supports only one highlighting", infos, hasSize(1))
     val actualResult = infos.head
