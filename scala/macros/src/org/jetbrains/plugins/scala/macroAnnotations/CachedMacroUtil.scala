@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
+import org.jetbrains.annotations.Nls
+
 import scala.annotation.tailrec
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
@@ -95,8 +97,7 @@ object CachedMacroUtil {
 
       if (!expressionTracersEnabled(c)) {
         val message =
-          """Expression tracers are enabled only for debug and tests purposes.
-            |Please remove additional expressions from macro annotations:""".stripMargin
+          MacrosBundle.message("macros.cached.expression.tracers.are.enabled.only.for.debug.and.tests").stripMargin
         abort(message)
       }
 
@@ -189,7 +190,7 @@ object CachedMacroUtil {
     q"${enclosingName + "." + name.toString}"
   }
 
-  def abort(s: String)(implicit c: whitebox.Context): Nothing = c.abort(c.enclosingPosition, s)
+  def abort(@Nls s: String)(implicit c: whitebox.Context): Nothing = c.abort(c.enclosingPosition, s)
 
   def extractCacheModeParameter(c: whitebox.Context)(paramClauses: List[List[c.universe.ValDef]]): (List[c.universe.ValDef], Boolean) = {
     val params = paramClauses.flatten
@@ -202,7 +203,7 @@ object CachedMacroUtil {
     val params = paramClauses.flatten
     val hasCacheMode = params.exists(_.name.toString == "cacheMode")
     if (hasCacheMode) {
-      abort("This macro does not support a cacheMode parameter")(c)
+      abort(MacrosBundle.message("macros.cached.macro.does.not.support.cachemode.parameter"))(c)
     }
   }
 
