@@ -1,0 +1,6 @@
+
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <runConfigurationClassExtractor implementation="org.jetbrains.bsp.project.test.environment.JUnitClassExtractor"/>
+    </extensions>
+</idea-plugin>

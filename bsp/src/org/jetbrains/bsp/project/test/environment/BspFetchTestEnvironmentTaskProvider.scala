@@ -203,23 +203,12 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     configuration match {
       case moduleBasedRunConfig: ModuleBasedConfiguration[_, _]
         if BspUtil.isBspModule(moduleBasedRunConfig.getConfigurationModule.getModule) =>
-        val classes = moduleBasedRunConfig match {
-          case scalaTestConfig: ScalaTestRunConfiguration =>
-            scalaTestConfig.testConfigurationData match {
-              case data: AllInPackageTestData => data.classBuf.asScala
-              case data: ClassTestData => List(data.testClassPath)
-              case _ => List()
-            }
-          case junitConfig: JUnitConfiguration => {
-            junitConfig.getTestType match {
-              case JUnitConfiguration.TEST_METHOD | JUnitConfiguration.TEST_CLASS =>
-                List(junitConfig.getPersistentData.getMainClassName)
-              case _ => List()
-            }
-          }
-          case _ => List()
-        }
-        classes
+
+        val cl = RunConfigurationClassExtractor.EP_NAME.getExtensionList().asScala
+          .find(_.runConfigurationSupported(moduleBasedRunConfig))
+          .flatMap(_.classes(moduleBasedRunConfig))
+
+        cl.getOrElse(List())
     }
   }
 
