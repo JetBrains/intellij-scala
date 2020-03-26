@@ -537,7 +537,7 @@ private[resolver] object BspResolverLogic {
     }
 
     val targetIds = moduleDescriptionData.targets.map(_.getId.getUri.toURI)
-    val metadata = BspMetadata(targetIds.asJava)
+    val metadata = BspMetadata(targetIds.asJava, null, null)
 
     val metadataNode = new DataNode[BspMetadata](BspMetadata.Key, metadata, moduleNode)
     moduleNode.addChild(metadataNode)

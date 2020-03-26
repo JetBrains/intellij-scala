@@ -65,7 +65,9 @@ case class BspMetadataError(msg: String)
   * @param targetIds target ids mapped to module
   */
 @SerialVersionUID(4)
-case class BspMetadata @PropertyMapping(Array("targetIds")) (@NotNull targetIds: util.List[URI])
+case class BspMetadata @PropertyMapping(Array("targetIds", "javaHome", "javaVersion"))
+(@NotNull targetIds: util.List[URI], @Nullable javaHome: URI, @Nullable javaVersion: String)
+
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])
   import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
