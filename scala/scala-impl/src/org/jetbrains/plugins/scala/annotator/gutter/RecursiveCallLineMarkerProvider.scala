@@ -37,9 +37,6 @@ final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
         else null
       case _ => null
     }
-
-  override def collectSlowLineMarkers(list: ju.List[PsiElement],
-                                      collection: ju.Collection[LineMarkerInfo[_ <: PsiElement]]): Unit = {}
 }
 
 object RecursiveCallLineMarkerProvider {

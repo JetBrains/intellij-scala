@@ -17,12 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor,
                                       file: PsiFile, keyword: PsiElement)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
-  override def computeUsages(targets: util.List[PsiElement]): Unit = {
+  override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = {
     val usages = fun.returnUsages ++ Set(keyword)
     usages.map(_.getTextRange).foreach(myReadUsages.add)
   }
 
-  override def selectTargets(targets: util.List[PsiElement], selectionConsumer: Consumer[util.List[PsiElement]]): Unit = {
+  override def selectTargets(targets: util.List[_ <: PsiElement],
+                             selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }
 

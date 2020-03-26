@@ -36,12 +36,12 @@ object ScalaMarkerType {
     case _                         => None
   }
 
-  private[this] def navigateToSuperMember(
+  private[this] def navigateToSuperMember[T <: NavigatablePsiElement](
     event:           MouseEvent,
-    members:         Array[NavigatablePsiElement],
+    members:         Array[T],
     title:           String,
     findUsagesTitle: String,
-    renderer:        ListCellRenderer[_] = newCellRenderer.asInstanceOf[ListCellRenderer[_]]
+    renderer:        ListCellRenderer[T] = newCellRenderer.asInstanceOf[ListCellRenderer[T]]
   ): Unit = PsiElementListNavigator.openTargets(event, members, title, findUsagesTitle, renderer)
 
   private[this] def navigateToSuperMethod(
@@ -169,7 +169,7 @@ object ScalaMarkerType {
               overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray,
               title,
               findUsagesTitle,
-              renderer.asInstanceOf[ListCellRenderer[_]]
+              renderer.asInstanceOf[ListCellRenderer[NavigatablePsiElement]]
             )
           }
     }
@@ -202,10 +202,10 @@ object ScalaMarkerType {
             util.Arrays.sort(inheritors, renderer.getComparator)
             PsiElementListNavigator.openTargets(
               event,
-              inheritors.map(_.asInstanceOf[NavigatablePsiElement]),
+              inheritors,
               title,
               findUsagesTitle,
-              renderer.asInstanceOf[ListCellRenderer[_]]
+              renderer.asInstanceOf[ListCellRenderer[PsiClass]]
             )
           }
     }

@@ -161,8 +161,9 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
     } else None
   }
 
-  override def collectSlowLineMarkers(elements: ju.List[PsiElement],
-                                      result: ju.Collection[LineMarkerInfo[_ <: PsiElement]]): Unit = {
+
+  override def collectSlowLineMarkers(elements: ju.List[_ <: PsiElement],
+                                      result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit = {
     import scala.collection.JavaConverters._
 
     ApplicationManager.getApplication.assertReadAccessAllowed()
@@ -209,9 +210,10 @@ private object GutterUtil {
       case _                                 => false
     }
 
-    override def getCommonIcon(list: ju.List[MergeableLineMarkerInfo[_ <: PsiElement]]): Icon = icon
+    override def getCommonIcon(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): Icon = icon
 
-    override def getCommonTooltip(infos: ju.List[MergeableLineMarkerInfo[_ <: PsiElement]]): IJFunction[_ >: PsiElement, String] =
+
+    override def getCommonTooltip(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): IJFunction[_ >: PsiElement, String] =
       _ =>
         markerType match {
           case ScalaMarkerType.overriddenMember => ScalaBundle.message("multiple.overriden.tooltip")
