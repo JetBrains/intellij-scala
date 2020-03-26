@@ -10,12 +10,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
-import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand}
-import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
+import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerEvent, CompilerEventListener, CompilerLock, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
-import org.jetbrains.plugins.scala.util.CompilationId
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}
@@ -33,8 +31,6 @@ object JpsCompiler {
 
 private class JpsCompilerImpl(project: Project)
   extends JpsCompiler {
-
-  import JpsCompilerImpl.CompilationClient
 
   // SCL-17295
   @Cached(ProjectRootManager.getInstance(project), null)
@@ -60,7 +56,7 @@ private class JpsCompilerImpl(project: Project)
     val taskMsg = ScalaBundle.message("highlighting.compilation")
     val task: Task = new Task.Backgroundable(project, taskMsg, false) {
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
-        val client = new CompilationClient(project, indicator)
+        val client = new CompilerEventGeneratingClient(project, indicator)
         val result = Try(new RemoteServerRunner(project).buildProcess(commad, client).runSync())
         promise.complete(result)
       }
@@ -69,37 +65,5 @@ private class JpsCompilerImpl(project: Project)
     ProgressManager.getInstance.run(task)
 
     Await.result(promise.future, Duration.Inf)
-  }
-}
-
-private object JpsCompilerImpl {
-
-  private class CompilationClient(project: Project, indicator: ProgressIndicator)
-    extends DummyClient {
-
-    final val compilationId = CompilationId.generate()
-
-    indicator.setIndeterminate(false)
-
-    override def progress(text: String, done: Option[Float]): Unit = {
-      indicator.setText(ScalaBundle.message("highlighting.compilation.progress", text))
-      indicator.setFraction(done.getOrElse(-1.0F).toDouble)
-      done.foreach { doneVal =>
-        sendEvent(CompilerEvent.ProgressEmitted(compilationId, doneVal))
-      }
-    }
-
-    override def message(msg: Client.ClientMsg): Unit =
-      sendEvent(CompilerEvent.MessageEmitted(compilationId, msg))
-
-    override def compilationEnd(sources: Set[File]): Unit =
-      sources.foreach { source =>
-        sendEvent(CompilerEvent.CompilationFinished(compilationId, source))
-      }
-
-    private def sendEvent(event: CompilerEvent): Unit =
-      project.getMessageBus
-        .syncPublisher(CompilerEventListener.topic)
-        .eventReceived(event)
   }
 }
