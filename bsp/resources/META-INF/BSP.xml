@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
+    <depends optional="true" config-file="BSP-JUnit.xml">JUnit</depends>
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.intellij.runConfigurationClassExtractor"
+                        interface="org.jetbrains.bsp.project.test.environment.RunConfigurationClassExtractor"/>
+    </extensionPoints>
+
     <extensions defaultExtensionNs="com.intellij">
+        <runConfigurationClassExtractor implementation="org.jetbrains.bsp.project.test.environment.ScalaTestClassExtractor"/>
         <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
 

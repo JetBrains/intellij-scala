@@ -4,11 +4,10 @@ import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.junit.JUnitConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 
+import scala.collection.JavaConverters._
+
 object BspTesting {
   def isBspRunnerSupportedConfiguration(config: RunConfiguration): Boolean =
-    config match {
-      case _: ScalaTestRunConfiguration => true
-      case _: JUnitConfiguration => true
-      case _ => false
-    }
+    RunConfigurationClassExtractor.EP_NAME.getExtensionList().asScala
+      .exists(_.runConfigurationSupported(config))
 }
