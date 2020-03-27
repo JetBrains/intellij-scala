@@ -164,7 +164,8 @@ object RunWorksheetAction {
     }
 
     def runnable(): Unit = {
-      val callback: WorksheetCompilerResult => Unit = result => {
+      val compiler = new WorksheetCompiler(module, file)
+      compiler.compileAndRun(auto, editor) { result =>
         val resultTransformed = result match {
           case WorksheetCompilerResult.CompiledAndEvaluated =>
             RunWorksheetActionResult.Done
@@ -180,8 +181,6 @@ object RunWorksheetAction {
           WorksheetFileHook.enableRun(vFile, hasErrors)
         }
       }
-      val compiler = new WorksheetCompiler(module, editor, file, callback, auto)
-      compiler.compileAndRunFile()
     }
 
     if (makeBeforeRun) {

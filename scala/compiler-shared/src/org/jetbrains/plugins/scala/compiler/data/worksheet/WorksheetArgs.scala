@@ -7,6 +7,7 @@ sealed trait WorksheetArgs {
   def isRepl: Boolean = this.isInstanceOf[WorksheetArgsRepl]
 }
 
+// TODO: move to object
 final case class WorksheetArgsPlain(
   worksheetClassName: String, // Compiled class name to execute
   pathToRunnersJar: File, // Path to runners.jar (needed to load MacroPrinter for types)
@@ -19,4 +20,10 @@ final case class WorksheetArgsRepl(
   sessionId: String,
   codeChunk: String,
   outputDirs: Seq[File]
+) extends WorksheetArgs
+
+final case class WorksheetArgsCompileOnly(
+  worksheetTempFile: File,
+  originalFileName: String,
+  outputDirs: Seq[File],
 ) extends WorksheetArgs

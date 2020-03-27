@@ -4,12 +4,15 @@ import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil}
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.editor.EditorExt
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, invokeLater}
 import org.jetbrains.plugins.scala.settings.ProblemSolverUtils
 
@@ -26,7 +29,7 @@ object ExternalHighlighters {
                         editor: Editor,
                         state: HighlightingState): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-      for (vFile <- editor.scalaFile)
+      for (vFile <- findScalaFile(editor))
         invokeLater {
           val highlightInfos = state.getOrElse(vFile, Seq.empty)
             .map(toHighlightInfo(_, editor))
@@ -40,6 +43,16 @@ object ExternalHighlighters {
             Pass.EXTERNAL_TOOLS
           )
         }
+    }
+
+  private def findScalaFile(editor: Editor): Option[VirtualFile] =
+    editor.getDocument.virtualFile.filter(isScalaFile)
+
+  private def isScalaFile(file: VirtualFile): Boolean =
+    file.getFileType match {
+      case langFileType: LanguageFileType =>
+        langFileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
+      case _ => false
     }
 
   def informWolf(project: Project, state: HighlightingState): Unit =
@@ -63,6 +76,7 @@ object ExternalHighlighters {
     val highlightInfoType = HighlightInfo.convertSeverity(highlighting.severity)
 
     val message = highlighting.message
+    // TODO: new lines are not handled, everything is displayed in a single, concatenated line
     val description: String = message.trim.stripSuffix(lineText(message))
 
     HighlightInfo
@@ -75,7 +89,7 @@ object ExternalHighlighters {
 
   private def findRangeToHighlight(editor: Editor, offset: Int): Option[TextRange] = {
     for {
-      vFile   <- editor.scalaFile
+      vFile   <- findScalaFile(editor)
       psiFile <- Option(PsiManager.getInstance(editor.getProject).findFile(vFile))
       element <- elementToHighlight(psiFile, offset)
     } yield {
@@ -83,14 +97,12 @@ object ExternalHighlighters {
     }
   }
 
-  private def elementToHighlight(file: PsiFile, offset: Int): Option[PsiElement] = {
+  private def elementToHighlight(file: PsiFile, offset: Int): Option[PsiElement] =
     Option(file.findElementAt(offset))
       .flatMap {
         case ws: PsiWhiteSpace => ws.prevElementNotWhitespace
         case other             => Some(other)
       }
-
-  }
 
   private def highlightingRange(doc: Document, highlighting: ExternalHighlighting): Option[TextRange] = {
     for {

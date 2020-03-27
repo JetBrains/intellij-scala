@@ -8,17 +8,16 @@ import com.intellij.ui.content.{ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.extensions._
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 29.05.18.
-  */
+
+private[worksheet]
 object WorksheetCompilerUtil {
   private val ERROR_CONTENT_NAME = "Worksheet errors" // TODO: is it effectively used?
 
   sealed trait WorksheetCompileRunRequest
-
-  case class RunRepl(code: String) extends WorksheetCompileRunRequest
-  case class RunCompile(code: String, className: String) extends WorksheetCompileRunRequest
+  object WorksheetCompileRunRequest {
+    final case class RunRepl(code: String) extends WorksheetCompileRunRequest
+    final case class RunCompile(code: String, className: String) extends WorksheetCompileRunRequest
+  }
   
   sealed trait CompilationMessageSeverity {
     def toType: Int

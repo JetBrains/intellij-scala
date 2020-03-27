@@ -2,25 +2,28 @@ package org.jetbrains.plugins.scala.compiler.data.serialization
 
 import org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer._
 import org.jetbrains.plugins.scala.compiler.data.serialization.extensions._
-import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
+import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsCompileOnly, WorksheetArgsPlain, WorksheetArgsRepl}
 
 /** TODO: cover with property-based tests */
 object WorksheetArgsSerializer extends ArgListSerializer[WorksheetArgs] {
 
   private val ReplMode  = "repl"
   private val PlainMode = "plain"
+  private val CompileMode = "compile"
 
   override def serialize(value: WorksheetArgs): ArgList = value match {
-    case plain: WorksheetArgsPlain => PlainMode +: WorksheetArgsPlainSerializer.serialize(plain)
-    case repl: WorksheetArgsRepl   => ReplMode +: WorksheetArgsReplSerializer.serialize(repl)
+    case plain: WorksheetArgsPlain             => PlainMode +: WorksheetArgsPlainSerializer.serialize(plain)
+    case repl: WorksheetArgsRepl               => ReplMode +: WorksheetArgsReplSerializer.serialize(repl)
+    case compileOnly: WorksheetArgsCompileOnly => CompileMode +: WorksheetArgsCompileOnlySerializer.serialize(compileOnly)
   }
 
   override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs] =
     args match {
-      case Seq()                    => error("Args are empty")
-      case Seq(PlainMode, other@_*) => WorksheetArgsPlainSerializer.deserialize(other)
-      case Seq(ReplMode, other@_*)  => WorksheetArgsReplSerializer.deserialize(other)
-      case Seq(unknown, _*)         => error(s"Unknown worksheet run mode: $unknown")
+      case Seq()                      => error("Args are empty")
+      case Seq(PlainMode, other@_*)   => WorksheetArgsPlainSerializer.deserialize(other)
+      case Seq(ReplMode, other@_*)    => WorksheetArgsReplSerializer.deserialize(other)
+      case Seq(CompileMode, other@_*) => WorksheetArgsCompileOnlySerializer.deserialize(other)
+      case Seq(unknown, _*)           => error(s"Unknown worksheet run mode: $unknown")
     }
 }
 
@@ -70,6 +73,28 @@ object WorksheetArgsReplSerializer extends ArgListSerializer[WorksheetArgsRepl] 
     } yield WorksheetArgsRepl(
       sessionId,
       codeChunk,
+      outputDirs
+    )
+}
+
+object WorksheetArgsCompileOnlySerializer extends ArgListSerializer[WorksheetArgsCompileOnly] {
+
+  import SerializationUtils._
+
+  override def serialize(value: WorksheetArgsCompileOnly): ArgList = Seq(
+    fileToPath(value.worksheetTempFile),
+    value.originalFileName,
+    SerializationUtils.filesToPaths(value.outputDirs)
+  )
+
+  override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgsCompileOnly] =
+    for {
+      worksheetTempFile  <- pathToFileValidated(args(0), "worksheetTempFile").lift
+      originalFileName   <- notNull(args(1), "originalFileName").lift
+      outputDirs         = args.drop(2).flatMap(pathToFile(_, "outputDirs"))
+    } yield WorksheetArgsCompileOnly(
+      worksheetTempFile,
+      originalFileName,
       outputDirs
     )
 }

@@ -35,6 +35,7 @@ class WorksheetCompilerErrorReporter(
         case RemoteServerConnectorResult.ExpectedError(exception)   => showConfigErrorNotification(exception.getMessage)
         case RemoteServerConnectorResult.UnexpectedError(exception) => reportUnexpectedError(exception)
         case RemoteServerConnectorResult.ProcessTerminatedError(_)  => // not handled, used to cancel evaluation
+        case RemoteServerConnectorResult.CantInitializeProcessError => // todo
       }
   }
 
