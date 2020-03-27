@@ -9,9 +9,8 @@ import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import com.intellij.ui.LightweightHint
-import com.intellij.util.ui.{StartupUiUtil, UIUtil}
+import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.externalHighlighters.OverrideBuildActions.Decorated
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 object ScalaActionUtil {
@@ -60,13 +59,5 @@ object ScalaActionUtil {
 
     hintManager.showEditorHint(hint, editor, p,
       HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING, 0, false)
-  }
-
-  def decorateAction(actionId: String, decorator: AnAction => AnAction): Unit = {
-    val actionManager = ActionManager.getInstance
-    val oldAction = Option(actionManager.getAction(actionId))
-      .getOrElse(throw new IllegalArgumentException(s"No such action: $actionId"))
-    val newAction = decorator(oldAction)
-    actionManager.replaceAction(actionId, newAction)
   }
 }

@@ -456,6 +456,8 @@
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.ServerMediatorTask"/>
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.LockCompileTask"/>
+        <compiler.task execute="AFTER" implementation="org.jetbrains.plugins.scala.compiler.UnlockCompilerTask"/>
 
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
@@ -1670,7 +1672,6 @@
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.externalHighlighters.RegisterApplicationListeners"/>
-        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.externalHighlighters.OverrideBuildActions"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
     </extensions>

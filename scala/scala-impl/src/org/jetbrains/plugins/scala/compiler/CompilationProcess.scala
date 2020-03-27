@@ -14,11 +14,10 @@ trait CompilationProcess {
   final def runSync(): Unit = {
     val result = Promise[Unit]
     addTerminationCallback {
-      case Some(error) => throw error
+      case Some(error) => result.failure(error)
       case None => result.success(())
     }
     run()
-    // TODO: we should avoid potential infinite blocking, and handle "long-waiting" case appropriately
     Await.result(result.future, Duration.Inf)
   }
 
