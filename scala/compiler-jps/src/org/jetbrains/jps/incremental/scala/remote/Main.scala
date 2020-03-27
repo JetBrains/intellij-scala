@@ -11,7 +11,7 @@ import org.jetbrains.jps.api.{BuildType, CanceledStatus, CmdlineProtoUtil}
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
 import org.jetbrains.jps.incremental.MessageHandler
 import org.jetbrains.jps.incremental.fs.BuildFSState
-import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage}
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.CompileServerCommandParser
 import org.jetbrains.jps.incremental.scala.local.LocalServer
@@ -147,15 +147,20 @@ object Main {
     val buildRunner = new BuildRunner(loader)
     var compiledFiles = Set.empty[File]
     val messageHandler = new MessageHandler {
-      override def processMessage(msg: BuildMessage): Unit =
-        Option(msg)
-          .collect { case customMessage: CustomBuilderMessage => customMessage }
-          .flatMap(CompilerEvent.fromCustomMessage)
-          .foreach {
+      override def processMessage(msg: BuildMessage): Unit = msg match {
+        case customMessage: CustomBuilderMessage =>
+          CompilerEvent.fromCustomMessage(customMessage).foreach {
             case CompilerEvent.MessageEmitted(_, msg) => client.message(msg)
             case CompilerEvent.CompilationFinished(_, source) => compiledFiles += source
             case _ => ()
           }
+        case progressMessage: ProgressMessage =>
+          val text = Option(progressMessage.getMessageText).getOrElse("")
+          val done = Option(progressMessage.getDone).filter(_ >= 0.0)
+          client.progress(text, done)
+        case _ =>
+          ()
+      }
     }
     val descriptor = buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
     val scopes = CmdlineProtoUtil.createAllModulesScopes(false)

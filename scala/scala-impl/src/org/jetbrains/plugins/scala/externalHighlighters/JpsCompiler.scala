@@ -6,13 +6,14 @@ import com.intellij.compiler.progress.CompilerTask
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand}
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerEvent, CompilerEventListener, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerEvent, CompilerEventListener, CompilerLock, RemoteServerRunner}
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import scala.concurrent.duration.Duration
@@ -21,10 +22,6 @@ import scala.util.Try
 
 trait JpsCompiler {
   def compile(): Unit
-
-  def buildActionAllowed: Boolean
-
-  def setBuildActionAllowed(value: Boolean): Unit
 }
 
 object JpsCompiler {
@@ -36,13 +33,10 @@ object JpsCompiler {
 private class JpsCompilerImpl(project: Project)
   extends JpsCompiler {
 
-  @volatile private var allowBuildAction: Boolean = false
-
   import JpsCompilerImpl.CompilationClient
 
   override def compile(): Unit = {
     CompileServerLauncher.ensureServerRunning(project)
-    val command = CommandIds.CompileJps
     val projectPath = project.getBasePath
     val globalOptionsPath = PathManager.getOptionsPath
     val dataStorageRootPath = Utils.getDataStorageRoot(
@@ -55,36 +49,34 @@ private class JpsCompilerImpl(project: Project)
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath
     ).asArgsWithoutToken
-    val client = new CompilationClient(project)
     val promise = Promise[Unit]
-
-    val compileWork: Runnable = { () =>
-      setBuildActionAllowed(true)
-      val result = Try(new RemoteServerRunner(project).buildProcess(command, args, client).runSync())
-      promise.complete(result)
-      setBuildActionAllowed(false)
+    val taskMsg = ScalaBundle.message("highlighting.compilation")
+    val task: Task = new Task.Backgroundable(project, taskMsg, false) {
+      override def run(indicator: ProgressIndicator): Unit = CompilerLock.withLock(project) {
+        val client = new CompilationClient(project, indicator)
+        val result = Try(new RemoteServerRunner(project).buildProcess(CommandIds.CompileJps, args, client).runSync())
+        promise.complete(result)
+      }
+      override val isHeadless: Boolean = !ApplicationManager.getApplication.isInternal
     }
-    val restartWork: Runnable = () => ()
-    val headlessMode = !ApplicationManager.getApplication.isInternal
-    val task = new CompilerTask(project, ScalaBundle.message("highlighting.compilation"),
-      headlessMode, false, true, true)
-    task.start(compileWork, restartWork)
+    ProgressManager.getInstance.run(task)
     Await.result(promise.future, Duration.Inf)
   }
-
-  override def buildActionAllowed: Boolean =
-    allowBuildAction
-
-  override def setBuildActionAllowed(value: Boolean): Unit =
-    allowBuildAction = value
 }
 
 private object JpsCompilerImpl {
 
-  private class CompilationClient(project: Project)
+  private class CompilationClient(project: Project, indicator: ProgressIndicator)
     extends DummyClient {
 
     final val compilationId = CompilationId.generate()
+
+    indicator.setIndeterminate(false)
+
+    override def progress(text: String, done: Option[Float]): Unit = {
+      indicator.setText(text)
+      indicator.setFraction(done.getOrElse(-1.0F).toDouble)
+    }
 
     override def message(msg: Client.ClientMsg): Unit =
       sendEvent(CompilerEvent.MessageEmitted(compilationId, msg))
@@ -94,7 +86,7 @@ private object JpsCompilerImpl {
         sendEvent(CompilerEvent.CompilationFinished(compilationId, source))
       }
 
-    def sendEvent(event: CompilerEvent): Unit =
+    private def sendEvent(event: CompilerEvent): Unit =
       project.getMessageBus
         .syncPublisher(CompilerEventListener.topic)
         .eventReceived(event)
