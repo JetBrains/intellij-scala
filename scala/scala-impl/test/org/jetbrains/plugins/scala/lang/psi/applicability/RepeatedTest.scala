@@ -10,25 +10,25 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 class RepeatedTest extends ApplicabilityTestBase {
   def testMalformedDefinition(): Unit = {
     assertProblems("(a: A*, b: B)", "(A, B)") {
-      case MalformedDefinition() :: Nil =>
+      case MalformedDefinition(_) :: Nil =>
     }
     assertProblems("(a: A*, b: B)", "(A)") {
-      case MalformedDefinition() :: Nil =>
+      case MalformedDefinition(_) :: Nil =>
     }
     assertProblems("(a: A*, b: B*)", "(A, B)") {
-      case MalformedDefinition() :: Nil =>
+      case MalformedDefinition(_) :: Nil =>
     }
     assertProblems("(a: A, b: B*, c: C)", "(A, B, C)") {
-      case MalformedDefinition() :: Nil =>
+      case MalformedDefinition(_) :: Nil =>
     }
     assertProblems("(a: A, b: B*, c: C*)", "(A, B, C)") {
-      case MalformedDefinition() :: Nil =>
+      case MalformedDefinition(_) :: Nil =>
     }
   }
 
   def testMalformedDefinitionClauses(): Unit = {
     assertProblems("(a: A)(b: B*, c: C)", "(A)(B, C)") {
-      case MalformedDefinition() :: Nil =>
+      case MalformedDefinition(_) :: Nil =>
     }
   }
 

@@ -103,8 +103,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         }
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
-      case MalformedDefinition() =>
-        holder.createErrorAnnotation(call.getInvokedExpr, ScalaBundle.message("annotator.error.method.has.malformed.definition"))
+      case MalformedDefinition(name) =>
+        holder.createErrorAnnotation(call.getInvokedExpr, ScalaBundle.message("annotator.error.name.has.malformed.definition", name))
       case ExpansionForNonRepeatedParameter(expression) =>
         holder.createErrorAnnotation(expression, ScalaBundle.message("annotator.error.expansion.for.non.repeated.parameter"))
       case PositionalAfterNamedArgument(argument) =>
