@@ -25,6 +25,7 @@ sealed trait CompilerEvent {
 
 object CompilerEvent {
 
+  // TODO merge MessageEmitted and RangeMessageEmitted into one class
   case class MessageEmitted(override val compilationId: CompilationId, msg: Client.ClientMsg)
     extends CompilerEvent {
 
@@ -46,6 +47,12 @@ object CompilerEvent {
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.CompilationFinished
+  }
+
+  case class ProgressEmitted(override val compilationId: CompilationId, progress: Double)
+    extends CompilerEvent {
+
+    override def eventType: CompilerEventType = CompilerEventType.ProgressEmitted
   }
 
   def fromCustomMessage(customMessage: CustomBuilderMessage): Option[CompilerEvent] = {

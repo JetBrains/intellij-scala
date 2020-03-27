@@ -50,6 +50,9 @@ abstract class IdeClient(compilerName: String,
       lastProgressMessage = "%s: %s [%s]".format(compilerName, decapitalizedText, modules.mkString(", "))
     }
     context.processMessage(new ProgressMessage(lastProgressMessage, done.getOrElse(-1.0F)))
+    done.foreach { doneVal =>
+      context.processMessage(CompilerEvent.ProgressEmitted(compilationId, doneVal).toCustomMessage)
+    }
   }
 
   override def internalInfo(text: String): Unit =

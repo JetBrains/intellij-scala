@@ -11,12 +11,6 @@ import org.jetbrains.plugins.scala.util.CompilationId
  */
 object CompilerGeneratedStateManager {
 
-  case class FileCompilerGeneratedState(compilationId: CompilationId,
-                                        highlightings: Set[ExternalHighlighting])
-
-  type CompilerGeneratedState = Map[VirtualFile, FileCompilerGeneratedState]
-  type HighlightingState = Map[VirtualFile, Set[ExternalHighlighting]]
-
   def get(project: Project): CompilerGeneratedState =
     mutableState(project).state
 
@@ -32,13 +26,6 @@ object CompilerGeneratedStateManager {
     ServiceManager.getService(project, classOf[MutableState])
 
   private class MutableState {
-    var state: CompilerGeneratedState = Map.empty
-  }
-
-  implicit class CompilerGeneratedStateExt(val state: CompilerGeneratedState)
-    extends AnyVal {
-
-    def toHighlightingState: HighlightingState =
-      state.mapValues(_.highlightings)
+    var state: CompilerGeneratedState = CompilerGeneratedState(Map.empty, 1.0)
   }
 }

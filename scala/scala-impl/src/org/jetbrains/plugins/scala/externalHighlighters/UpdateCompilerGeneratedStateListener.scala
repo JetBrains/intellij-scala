@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
-import CompilerGeneratedStateManager.FileCompilerGeneratedState
 import org.jetbrains.plugins.scala.project.template.FileExt
 
 private class UpdateCompilerGeneratedStateListener(project: Project)
@@ -28,7 +27,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
             toLine = None,
             toColumn = None
           )
-        } yield virtualFile -> FileCompilerGeneratedState(compilationId, Set(highlighting))
+          fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
+        } yield replaceOrAppendFileState(virtualFile, fileState)
       case CompilerEvent.RangeMessageEmitted(compilationId, msg) =>
         for {
           virtualFile <- msg.source.toVirtualFile
@@ -40,15 +40,19 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
             toLine = msg.toLine,
             toColumn = msg.toColumn
           )
-        } yield virtualFile -> FileCompilerGeneratedState(compilationId, Set(highlighting))
+          fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
+        } yield replaceOrAppendFileState(virtualFile, fileState)
       case CompilerEvent.CompilationFinished(compilationId, source) =>
-        source.toVirtualFile.map { virtualFile =>
-          virtualFile -> FileCompilerGeneratedState(compilationId, Set.empty)
-        }
+        for {
+          virtualFile <- source.toVirtualFile
+          fileState = FileCompilerGeneratedState(compilationId, Set.empty)
+        } yield replaceOrAppendFileState(virtualFile, fileState)
+      case CompilerEvent.ProgressEmitted(_, progress) =>
+        Some(updateProgress(progress))
       case _ =>
         None
-    }.foreach { case (virtualFile, fileState) =>
-      replaceOrAppend(virtualFile, fileState)
+    }.foreach { newState =>
+      CompilerGeneratedStateManager.update(project, newState)
     }
 
   private def kindToSeverity(kind: Kind): HighlightSeverity = kind match {
@@ -57,9 +61,10 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     case _ => HighlightSeverity.INFORMATION
   }
 
-  private def replaceOrAppend(file: VirtualFile, fileState: FileCompilerGeneratedState): Unit = {
+  private def replaceOrAppendFileState(file: VirtualFile, fileState: FileCompilerGeneratedState): CompilerGeneratedState = {
     val oldState = CompilerGeneratedStateManager.get(project)
-    val newFileState = oldState.get(file) match {
+    val oldFileStates = oldState.files
+    val newFileState = oldFileStates.get(file) match {
       case None =>
         fileState
       case Some(oldFileState) if oldFileState.compilationId != fileState.compilationId =>
@@ -69,7 +74,10 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           highlightings = oldFileState.highlightings ++ fileState.highlightings
         )
     }
-    val newState = oldState.updated(file, newFileState)
-    CompilerGeneratedStateManager.update(project, newState)
+    val newFileStates = oldFileStates.updated(file, newFileState)
+    oldState.copy(files = newFileStates)
   }
+
+  private def updateProgress(progress: Double): CompilerGeneratedState =
+    CompilerGeneratedStateManager.get(project).copy(progress = progress)
 }

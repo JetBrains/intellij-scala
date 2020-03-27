@@ -58,6 +58,8 @@
                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator"/>
         <statusBarWidgetProvider implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetProvider"/>
 
+        <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.externalHighlighters.CustomTrafficLightRendererContributor"/>
+
         <defaultHighlightingSettingProvider implementation="org.jetbrains.plugins.scala.annotator.ScalaDefaultHighlightingSettingProvider"/>
 
         <breadcrumbsInfoProvider
