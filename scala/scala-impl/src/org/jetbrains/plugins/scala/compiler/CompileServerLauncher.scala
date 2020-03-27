@@ -6,7 +6,7 @@ import java.nio.file.Files
 import java.util.UUID
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
-import com.intellij.compiler.server.{BuildManager, BuildManagerListener}
+import com.intellij.compiler.server.{BuildManager, BuildManagerListener, BuildProcessParametersProvider}
 import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManagerCore}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
@@ -146,7 +146,10 @@ object CompileServerLauncher {
         } else Nil
         val isScalaCompileServer = "-Dij.scala.compile.server=true"
 
-        val extraJvmParameters = CompileServerVmOptionsProvider.implementations.flatMap(_.vmOptionsFor(project))
+        val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensionList(project).asScala
+          .flatMap(_.getVMArguments.asScala)
+        val extraJvmParameters = CompileServerVmOptionsProvider.implementations
+          .flatMap(_.vmOptionsFor(project))
 
         val commands =
           jdk.executable.canonicalPath +:
@@ -154,6 +157,7 @@ object CompileServerLauncher {
             jvmParameters ++:
             shutdownDelayArg ++:
             isScalaCompileServer +:
+            buildProcessParameters ++:
             extraJvmParameters ++:
             NailgunRunnerFQN +:
             freePort.toString +:
