@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 
 object ScalaHighlightingMode {
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
-    showDotcErrors && project.hasDotty || showScalacErrors && project.hasScala
+    showDotcErrors && project.hasScala3 || showScalacErrors && project.hasScala
 
   def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean = {
     val isRegularScalaFile = Option(file.getVirtualFile)

@@ -89,6 +89,8 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   // LIBRARY EXTENSIONS
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
 
+  private boolean SCALA_3_DISCLAIMER_SHOWN = false;
+
   //INDEXING
   public enum Ivy2IndexingMode {Disabled, Metadata, Classes}
   private Ivy2IndexingMode IVY2_INDEXING_MODE = Ivy2IndexingMode.Metadata;
@@ -489,6 +491,14 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   public void setEnableLibraryExtensions(boolean ENABLE_LIBRARY_EXTENSIONS) {
     this.ENABLE_LIBRARY_EXTENSIONS = ENABLE_LIBRARY_EXTENSIONS;
+  }
+
+  public boolean isScala3DisclaimerShown() {
+    return SCALA_3_DISCLAIMER_SHOWN;
+  }
+
+  public void setScala3DisclaimerShown(boolean b) {
+    SCALA_3_DISCLAIMER_SHOWN = b;
   }
 
   public ScalaMetaMode getScalaMetaMode() {
