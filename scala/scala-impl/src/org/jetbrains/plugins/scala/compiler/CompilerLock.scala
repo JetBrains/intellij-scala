@@ -15,6 +15,9 @@ object CompilerLock {
   def unlock(project: Project): Unit =
     getLock(project).release()
 
+  def isLocked(project: Project): Boolean =
+    getLock(project).availablePermits == 0
+
   def withLock[A](project: Project)
                  (action: => A): A = {
     lock(project)

@@ -76,6 +76,9 @@ private object JpsCompilerImpl {
     override def progress(text: String, done: Option[Float]): Unit = {
       indicator.setText(text)
       indicator.setFraction(done.getOrElse(-1.0F).toDouble)
+      done.foreach { doneVal =>
+        sendEvent(CompilerEvent.ProgressEmitted(compilationId, doneVal))
+      }
     }
 
     override def message(msg: Client.ClientMsg): Unit =

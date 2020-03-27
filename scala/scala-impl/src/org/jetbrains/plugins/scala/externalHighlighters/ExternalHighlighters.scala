@@ -9,7 +9,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
-import CompilerGeneratedStateManager.HighlightingState
 import org.jetbrains.plugins.scala.editor.EditorExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, invokeLater}
 import org.jetbrains.plugins.scala.settings.ProblemSolverUtils

@@ -8,4 +8,5 @@ object CompilerEventType
   final val MessageEmitted = Value("message-emitted")
   final val RangeMessageEmitted = Value("range-message-emitted")
   final val CompilationFinished = Value("compilation-finished")
+  final val ProgressEmitted = Value("progress-emitted")
 }
