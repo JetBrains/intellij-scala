@@ -4,7 +4,6 @@ package element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.extensions._
@@ -173,7 +172,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
         holder.createErrorAnnotation(markRange, message)
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
-      case MalformedDefinition() => // handled before to avoid duplications
+      case MalformedDefinition(_) => // handled before to avoid duplications
       case ExpansionForNonRepeatedParameter(expression) =>
         val message = ScalaBundle.message("annotator.error.expansion.for.non.repeated.parameter")
         holder.createErrorAnnotation(expression, message)
@@ -208,7 +207,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
   }
 
   def isConstructorMalformed(r: ScalaResolveResult): Boolean =
-    r.problems.exists { case MalformedDefinition() => true; case _ => false }
+    r.problems.exists { case MalformedDefinition(_) => true; case _ => false }
 
   def argsElementsTextRange(constrInvocation: ConstructorInvocationLike): TextRange = constrInvocation.arguments match {
     case head +: tail => tail.foldLeft(head.getTextRange)(_ union _.getTextRange)

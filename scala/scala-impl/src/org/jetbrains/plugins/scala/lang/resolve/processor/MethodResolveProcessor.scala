@@ -442,7 +442,7 @@ object MethodResolveProcessor {
         ConformanceExtResult(problems)
       //Implicit Application
       case f: ScMethodLike if hasMalformedSignature(f) =>
-        problems += new MalformedDefinition
+        problems += MalformedDefinition(f.name)
         ConformanceExtResult(problems)
       case ScalaConstructor(constructor) => scalaConstructorCompatibility(constructor)
       case JavaConstructor(constructor) => javaConstructorCompatibility(constructor)

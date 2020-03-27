@@ -163,9 +163,9 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                     }
                   case MissedValueParameter(_) => // simultaneously handled above
                   case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
-                  case MalformedDefinition() =>
+                  case MalformedDefinition(name) =>
                     holder.createErrorAnnotation(call.getInvokedExpr,
-                      ScalaBundle.message("annotator.error.name.has.malformed.definition", f.name))
+                      ScalaBundle.message("annotator.error.name.has.malformed.definition", name))
                   case ExpansionForNonRepeatedParameter(expression) =>
                     holder.createErrorAnnotation(expression,
                       ScalaBundle.message("annotator.error.expansion.for.non.repeated.parameter"))
@@ -538,7 +538,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     case MissedParametersClause(clause) => inSameFile(clause, holder)
     case TypeMismatch(expression, _) => inSameFile(expression, holder)
     case ExcessTypeArgument(argument) => inSameFile(argument, holder)
-    case MalformedDefinition() => true
+    case MalformedDefinition(_) => true
     case DoesNotTakeParameters() => true
     case MissedValueParameter(_) => true
     case DefaultTypeParameterMismatch(_, _) => true
