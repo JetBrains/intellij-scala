@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.compiler
 import java.util
 
 import com.intellij.compiler.server.BuildProcessParametersProvider
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 
 import scala.collection.JavaConverters._
@@ -10,7 +12,8 @@ import scala.collection.JavaConverters._
 /**
   * @author Nikolay.Tropin
   */
-class ScalaBuildProcessParametersProvider extends BuildProcessParametersProvider {
+class ScalaBuildProcessParametersProvider(project: Project)
+  extends BuildProcessParametersProvider {
   override def getVMArguments: util.List[String] = customScalaCompilerInterfaceDir().toSeq.asJava
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
@@ -18,4 +21,7 @@ class ScalaBuildProcessParametersProvider extends BuildProcessParametersProvider
     val custom = Option(System.getProperty(key))
     custom.map(path => s"-D$key=$path")
   }
+
+  override def isProcessPreloadingEnabled: Boolean =
+    !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
 }
