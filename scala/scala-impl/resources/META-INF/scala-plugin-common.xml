@@ -1669,6 +1669,7 @@
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ImplicitHintsAdviser"/>
+        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.Scala3Disclaimer"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.externalHighlighters.RegisterApplicationListeners"/>

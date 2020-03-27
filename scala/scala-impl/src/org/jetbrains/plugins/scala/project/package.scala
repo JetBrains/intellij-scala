@@ -103,6 +103,7 @@ package object project {
     def hasScala: Boolean =
       scalaModuleSettings.isDefined
 
+    // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
     def hasScala3: Boolean =
       scalaModuleSettings.exists(_.hasScala3)
 
@@ -245,7 +246,8 @@ package object project {
 
     def hasScala: Boolean = modulesWithScala.nonEmpty
 
-    def hasDotty: Boolean = modulesWithScala.exists(_.hasScala3)
+    // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
+    def hasScala3: Boolean = modulesWithScala.exists(_.hasScala3)
 
     def modulesWithScala: Seq[Module] =
       if (project.isDisposed) Seq.empty
