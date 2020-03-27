@@ -72,11 +72,6 @@ package object editor {
 
     def inDocComment(offset: Int): Boolean = isTokenType(offset - 1, _.isInstanceOf[ScalaDocElementType])
 
-    def scalaFile: Option[VirtualFile] =
-      Option(editor.getDocument)
-        .flatMap(_.virtualFile)
-        .filter(vFile => vFile.getExtension == ScalaFileType.INSTANCE.getDefaultExtension)
-
     private def isTokenType(offset: Int, predicate: IElementType => Boolean): Boolean = {
       if (0 <= offset && offset < editor.getDocument.getTextLength) {
         val highlighter = editor.asInstanceOf[EditorEx].getHighlighter

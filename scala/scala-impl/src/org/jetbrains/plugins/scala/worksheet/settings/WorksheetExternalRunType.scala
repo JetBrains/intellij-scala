@@ -5,6 +5,7 @@ import com.intellij.psi.PsiErrorElement
 import org.jetbrains.annotations.{NonNls, NotNull}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetDefaultSourcePreprocessor, WorksheetIncrementalSourcePreprocessor}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterFactory}
@@ -56,7 +57,7 @@ object WorksheetExternalRunType {
       import WorksheetDefaultSourcePreprocessor.PreprocessResult
       val result = WorksheetDefaultSourcePreprocessor.preprocess(srcFile, editor.getDocument)
       result
-        .map { case PreprocessResult(code, className) => RunCompile(code, className) }
+        .map { case PreprocessResult(code, className) => WorksheetCompileRunRequest.RunCompile(code, className) }
         .left.map(WorksheetPreprocessError(_, Some(editor)))
     }
   }
@@ -73,7 +74,7 @@ object WorksheetExternalRunType {
       val result = WorksheetIncrementalSourcePreprocessor.preprocess(srcFile, editor)
       result
         .map(_.commandsEncoded)
-        .map(RunRepl)
+        .map(WorksheetCompileRunRequest.RunRepl)
         .left.map(WorksheetPreprocessError(_, Some(editor)))
     }
   }

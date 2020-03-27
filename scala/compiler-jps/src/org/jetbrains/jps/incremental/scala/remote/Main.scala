@@ -18,6 +18,8 @@ import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgsCompileOnly
+import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import scala.util.{Failure, Success, Try}
 
@@ -84,7 +86,8 @@ object Main {
       // Don't check token in non-server mode
       if (port != -1) {
         try {
-          compareTokenWith(tokenPathFor(port), command.token)
+          val tokenPath = CompileServerToken.tokenPathForPort(port)
+          validateToken(tokenPath, command.token)
         } catch {
           // We must abort the process on _any_ error
           case e: Throwable =>
@@ -134,6 +137,7 @@ object Main {
     }
 
     worksheetArgs match {
+      case Some(_: WorksheetArgsCompileOnly) =>
       case Some(wa) if !client.hasErrors =>
         worksheetServer.loadAndRun(wa, args, client)
       case _ =>
@@ -192,11 +196,8 @@ object Main {
     if (str == "#STUB#") "" else str
   }
 
-  private def tokenPathFor(port: Int): Path =
-    Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", port.toString)
-
   @throws(classOf[TokenVerificationException])
-  private def compareTokenWith(path: Path, actualToken: String): Unit = {
+  private def validateToken(path: Path, actualToken: String): Unit = {
     if (!path.toFile.exists) {
       throw new TokenVerificationException("Token not found: " + path)
     }
@@ -209,7 +210,7 @@ object Main {
     }
 
     if (!expectedToken.equals(actualToken)) {
-      throw new TokenVerificationException("Token is incorrect:  " + actualToken)
+      throw new TokenVerificationException("Token is incorrect: " + actualToken)
     }
   }
 

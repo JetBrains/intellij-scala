@@ -26,18 +26,25 @@ final class WorksheetCache extends Disposable {
 
   @TestOnly
   private val allCompilerMessagesCollectors = ContainerUtil.createWeakMap[Editor, CompilerMessagesCollector]()
-  
+
+  // TODO: cleanup created files on application/project exit, do not pollute file system!
   private val compilationInfo = mutable.HashMap.empty[String, (Int, File, File)]
 
   def updateOrCreateCompilationInfo(filePath: String, fileName: String): (Int, File, File) =
+    updateOrCreateCompilationInfo(filePath, fileName, None)
+
+  def updateOrCreateCompilationInfo(filePath: String, fileName: String, tempDirName: Option[String]): (Int, File, File) =
     compilationInfo.get(filePath) match {
-      case Some(result@(it, src, out)) =>
+      case Some(result@(it, src, out)) if src.exists() && out.exists() =>
         compilationInfo.put(filePath, (it + 1, src, out))
         result
       case _ =>
-        val src = FileUtil.createTempFile(fileName, null, true)
-        val out = FileUtil.createTempDirectory(fileName, null, true)
-
+        val tempDirAbsolute = tempDirName match {
+          case Some(tempDir) => new File(FileUtil.getTempDirectory, tempDir)
+          case _             => new File(FileUtil.getTempDirectory)
+        }
+        val src = FileUtil.createTempFile(tempDirAbsolute, fileName, null, true)
+        val out = FileUtil.createTempDirectory(tempDirAbsolute, fileName, null, true)
         compilationInfo.put(filePath, (1, src, out))
         (0, src, out)
     }
@@ -49,16 +56,16 @@ final class WorksheetCache extends Disposable {
   @TestOnly
   def addCompilerMessagesCollector(inputEditor: Editor, collector: CompilerMessagesCollector): Unit =
     allCompilerMessagesCollectors.put(inputEditor, collector)
-  
+
   def peakCompilationIteration(filePath: String): Int =
     compilationInfo.get(filePath).map(_._1).getOrElse(-1)
-  
+
   def getPrinter(inputEditor: Editor): Option[WorksheetEditorPrinter] =
     Option(allReplPrinters.get(inputEditor))
-  
+
   def addPrinter(inputEditor: Editor, printer: WorksheetEditorPrinter): Unit =
     allReplPrinters.put(inputEditor, printer)
-  
+
   def removePrinter(inputEditor: Editor): Unit = {
     val removed = allReplPrinters.remove(inputEditor)
     if (removed != null) {
@@ -71,32 +78,32 @@ final class WorksheetCache extends Disposable {
       case in: WorksheetEditorPrinterRepl => in.getLastProcessedLine
       case _                              => None
     }
-  
+
   def setLastProcessedIncremental(inputEditor: Editor, line: Option[Int]): Unit =
     allReplPrinters.get(inputEditor) match {
       case inc: WorksheetEditorPrinterRepl => inc.setLastProcessedLine(line)
       case _                               =>
     }
-  
+
   def getPatchedFlag(editor: Editor): String = Option(patchedEditors.get(editor)).orNull
-  
+
   def setPatchedFlag(editor: Editor, flag: String): Unit =
     patchedEditors.put(editor, flag)
-  
+
   def removePatchedFlag(editor: Editor): Unit =
     patchedEditors.remove(editor)
-  
+
   def getViewer(editor: Editor): Editor = {
     val viewer = get(editor)
-    
+
     if (viewer != null && viewer.isDisposed || editor.isDisposed) {
       synchronized {
         allViewers.remove(editor)
       }
-      
+
       return null
     }
-    
+
     viewer
   }
 

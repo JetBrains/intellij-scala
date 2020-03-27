@@ -12,27 +12,25 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
-import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
-import org.jetbrains.plugins.scala.compiler.{NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsCompileOnly, WorksheetArgsPlain, WorksheetArgsRepl}
+import org.jetbrains.plugins.scala.compiler.{CompilationProcess, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.PlainModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
-import RemoteServerConnector.Args
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.PlainModeArgs
 
 // TODO: split to REPL and PLAIN args, change serialization format
+// TODO: clean up this shit with arguments, half in constructor, half in method call
 private[worksheet]
 class RemoteServerConnector(
   module: Module,
@@ -41,12 +39,9 @@ class RemoteServerConnector(
   makeType: WorksheetMakeType
 ) extends RemoteServerConnectorBase(
   module,
-  args.asOptionOf[Args.PlainModeArgs].map(a => Seq(a.sourceFile)),
-  args match {
-    case PlainModeArgs(_, outputDir, _) => outputDir
-    case _: Args.ReplModeArgs           => new File("") // shouldn't be used in repl mode
-  },
-  args.isInstanceOf[Args.PlainModeArgs]
+  filesToCompile = args.compiledFile.map(Seq(_)),
+  outputDir = args.compilationOutputDir.getOrElse(new File("")),
+  needCheck = args.compiledFile.nonEmpty
 ) {
 
   override protected def compilerSettings: ScalaCompilerSettings =
@@ -71,6 +66,12 @@ class RemoteServerConnector(
               codeChunk,
               outputDirs
             )
+          case Args.CompileOnly(sourceFile, outputDir) =>
+            WorksheetArgsCompileOnly(
+              sourceFile,
+              sourceFile.getName,
+              outputDir +: outputDirs,
+            )
         }
         Some(argsTransformed)
     }
@@ -88,19 +89,25 @@ class RemoteServerConnector(
     }
   }
 
+  private def project = module.getProject
+
+  def compileAndRun(
+    originalFile: VirtualFile,
+    consumer: RemoteServerConnector.CompilerInterface
+  )(callback: RemoteServerConnectorResult => Unit): Unit = {
+    val client = new MyTranslatingClient(project, originalFile, consumer)
+    compileAndRun(originalFile, client)(callback)
+  }
+
   // TODO: make something more advanced than just `callback: Runnable`: error reporting, Future, Task, etc...
   // TODO: add logging across all these callbacks in RunWorksheetAction, WorksheetCompiler, RemoteServerConnector...
   // NOTE: for now this method is non-blocking for runType == NonServer and blocking for other run types
-  def compileAndRun(originalFile: VirtualFile,
-                    consumer: RemoteServerConnector.CompilerInterface,
-                    callback: RemoteServerConnectorResult => Unit): Unit = {
-
-    val project = module.getProject
-
-    val client = new MyTranslatingClient(project, originalFile, consumer)
-
+  def compileAndRun(
+    originalFile: VirtualFile, // TODO: looks like no need in this parameter
+    client: Client
+  )(callback: RemoteServerConnectorResult => Unit): Unit = {
     val process = {
-      val worksheetProcess = makeType match {
+      val worksheetProcess: CompilationProcess = makeType match {
         case InProcessServer | OutOfProcessServer =>
           val runner = new RemoteServerRunner(project)
           val argumentsFinal = argumentsRaw
@@ -117,10 +124,11 @@ class RemoteServerConnector(
       }
 
       if (worksheetProcess == null) {
-        callback(RemoteServerConnectorResult.ProcessTerminatedError(ExitCode.ABORT))
+        callback(RemoteServerConnectorResult.CantInitializeProcessError)
         return
       }
 
+      //TODO: we already have this information, no need in extra work
       val psiFile = inReadAction {
         PsiManager.getInstance(project).findFile(originalFile)
       }
@@ -136,20 +144,9 @@ class RemoteServerConnector(
         fileToReHighlight.foreach(WorksheetEditorPrinterRepl.rehighlight)
 
         val result = exception match {
-          case Some(_) =>
-            RemoteServerConnectorResult.ProcessTerminatedError(ExitCode.ABORT)
-          case _ if consumer.isCompiledWithErrors =>
-            RemoteServerConnectorResult.CompilationError
-          case _ =>
-            makeType match {
-              case OutOfProcessServer =>
-                val plainArgs = args.asInstanceOf[PlainModeArgs]
-                RemoteServerConnectorResult.Compiled(plainArgs.className, plainArgs.outputDir)
-              case _ =>
-                RemoteServerConnectorResult.CompiledAndEvaluated
-            }
+          case Some(ex) => RemoteServerConnectorResult.ProcessTerminatedError(ex)
+          case _        => RemoteServerConnectorResult.Done
         }
-
         callback.apply(result)
       }
 
@@ -167,24 +164,34 @@ class RemoteServerConnector(
   }
 }
 
-private[worksheet]
+//private[worksheet]
 object RemoteServerConnector {
 
-  sealed trait Args
+  sealed trait Args {
+    final def compiledFile: Option[File] = this match {
+      case PlainModeArgs(sourceFile, _, _) => Some(sourceFile)
+      case Args.CompileOnly(sourceFile, _) => Some(sourceFile)
+      case Args.ReplModeArgs(_, _)         => None
+    }
+    final def compilationOutputDir: Option[File] = this match {
+      case PlainModeArgs(_, outputDir, _) => Some(outputDir)
+      case _                              => None
+    }
+  }
   object Args {
     final case class PlainModeArgs(sourceFile: File, outputDir: File, className: String) extends Args
     final case class ReplModeArgs(path: String, codeChunk: String) extends Args
+    final case class CompileOnly(sourceFile: File, outputDir: File) extends Args
   }
 
   sealed trait RemoteServerConnectorResult
   object RemoteServerConnectorResult {
-    case class Compiled(worksheetClassName: String, outputDir: File) extends RemoteServerConnectorResult
-    case object CompiledAndEvaluated extends RemoteServerConnectorResult
+    case object Done extends RemoteServerConnectorResult
 
     sealed trait Error extends RemoteServerConnectorResult
-    object CompilationError extends Error // assuming that errors are collected by CompilerInterface
     sealed trait UnhandledError extends Error
-    final case class ProcessTerminatedError(rc: ExitCode) extends UnhandledError
+    final case class ProcessTerminatedError(cause: Throwable) extends UnhandledError
+    final case object CantInitializeProcessError extends UnhandledError
     final case class ExpectedError(cause: Throwable) extends UnhandledError
     final case class UnexpectedError(cause: Throwable) extends UnhandledError
   }
