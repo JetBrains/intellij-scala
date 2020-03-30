@@ -54,7 +54,7 @@ object Scala3Disclaimer {
 
   private def showDisclaimerIn(project: Project): Unit = {
     val notification =
-      new NotificationGroup(ScalaBundle.message("scala.3.disclaimer"), NotificationDisplayType.STICKY_BALLOON, /* isLogByDefault = */ false)
+      new NotificationGroup(ScalaBundle.message("scala.3.disclaimer"), NotificationDisplayType.STICKY_BALLOON, /* isLogByDefault = */ true)
         .createNotification(
           ScalaBundle.message("scala.3.support.is.experimental", "https://blog.jetbrains.com/scala/2020/03/17/scala-3-support-in-intellij-scala-plugin/"),
           NotificationType.INFORMATION)
