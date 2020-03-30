@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
+import java.nio.file.Files
 import java.util.UUID
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
@@ -20,12 +21,13 @@ import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.server.CompileServerToken
 import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, ScalaPluginJars}
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 import scala.util.control.Exception._
 
 /**
@@ -71,6 +73,8 @@ object CompileServerLauncher {
     if (running) true else {
       val started = start(project)
       if (started) {
+        // TODO: implement proper wait for server initialization, addDisconnectListener command doesn't even exist
+        //  Nailgun server sends error for it via stderr which we ignore by passing null client
         try {
           val runner = new RemoteServerRunner(project)
           runner.send("addDisconnectListener", Seq.empty, null)
@@ -82,17 +86,17 @@ object CompileServerLauncher {
     }
 
   private def start(project: Project): Boolean = {
-
-    val result = compileServerJdk(project).map(start(project, _)) match {
-      case None                 => Left("JDK for compiler process not found")
-      case Some(Left(msg))      => Left(msg)
-      case Some(Right(process)) =>
-        invokeLater { CompileServerManager.configureWidget(project) }
-        Right(process)
-    }
+    val result = for {
+      jdk     <- compileServerJdk(project).left.map(m => s"JDK for compiler process not found: $m")
+      process <- start(project, jdk)
+    } yield process
 
     result match {
-      case Right(_)     => true
+      case Right(_) =>
+        invokeLater {
+          CompileServerManager.configureWidget(project)
+        }
+        true
       case Left(error)  =>
         val title = ScalaBundle.message("cannot.start.scala.compile.server")
         Notifications.Bus.notify(new Notification("scala", title, error, NotificationType.ERROR))
@@ -110,6 +114,8 @@ object CompileServerLauncher {
   } yield new File(pluginsLibs, filesPath)
 
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
+    LOG.traceSafe(s"starting server with jdk: $jdk")
+
     val settings = ScalaCompileServerSettings.getInstance
 
     settings.COMPILE_SERVER_SDK = jdk.name
@@ -132,7 +138,7 @@ object CompileServerLauncher {
           settings.COMPILE_SERVER_PORT = freePort
           saveSettings()
         }
-
+        deleteOldTokenFile(freePort)
         val id = settings.COMPILE_SERVER_ID
 
         val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY
@@ -171,6 +177,7 @@ object CompileServerLauncher {
             val watcher = new ProcessWatcher(process, "scalaCompileServer")
             serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), jdk))
             watcher.startNotify()
+            LOG.info(s"compile server process starter with port: $freePort, jdk: ${jdk.name}")
             process
           }
       case (_, absentFiles) =>
@@ -178,6 +185,12 @@ object CompileServerLauncher {
         Left("Required file(s) not found: " + paths)
     }
   }
+
+  // ensure that old tokens from old sessions do not exist on file system to avoid race conditions (see ticket from the commit)
+  // it should be deleted in org.jetbrains.plugins.scala.nailgun.NailgunRunner.ShutdownHook.run
+  // but in case of some server crashes it can remain on the file system
+  private def deleteOldTokenFile(freePort: Int): Unit =
+    Try(Files.delete(CompileServerToken.tokenPathForPort(freePort)))
 
   // TODO stop server more gracefully
   def stop(): Unit = {
@@ -206,19 +219,19 @@ object CompileServerLauncher {
 
   def port: Option[Int] = serverInstance.map(_.port)
 
-  private def compileServerSdk(project: Project): Option[Sdk] = {
+  private def compileServerSdk(project: Project): Either[String, Sdk] = {
     def defaultSdk = BuildManager.getBuildProcessRuntimeSdk(project).first
 
     val settings = ScalaCompileServerSettings.getInstance()
 
     val sdk =
-      if (settings.USE_DEFAULT_SDK) defaultSdk
-      else ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)
+      if (settings.USE_DEFAULT_SDK) Option(defaultSdk).toRight("can't find default jdk")
+      else Option(ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)).toRight(s"can't find jdk: ${settings.COMPILE_SERVER_SDK}")
 
-    Option(sdk)
+    sdk
   }
 
-  def compileServerJdk(project: Project): Option[JDK] = {
+  def compileServerJdk(project: Project): Either[String, JDK] = {
     val sdk = compileServerSdk(project)
     sdk.flatMap(toJdk)
   }
@@ -250,12 +263,16 @@ object CompileServerLauncher {
   }
 
   def ensureServerRunning(project: Project): Boolean = {
-    if (needRestart(project)) stop()
+    LOG.traceSafe("ensureServerRunning")
+    if (needRestart(project)) {
+      LOG.traceSafe("ensureServerRunning: need to restart, stopping")
+      stop()
+    }
 
     running || tryToStart(project)
   }
 
-  def needRestart(project: Project): Boolean = {
+  private def needRestart(project: Project): Boolean = {
     val currentInstance = serverInstance
     val settings = ScalaCompileServerSettings.getInstance()
     currentInstance match {
@@ -264,7 +281,7 @@ object CompileServerLauncher {
         val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
         val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
         val jdkChanged = compileServerJdk(project) match {
-          case Some(projectJdk) => projectJdk != instance.jdk
+          case Right(projectJdk) => projectJdk != instance.jdk
           case _ => false
         }
         workingDirChanged || jdkChanged
@@ -275,14 +292,18 @@ object CompileServerLauncher {
     if (running) stop(project)
   }
 
-  def findFreePort: Int = {
+  private def findFreePort: Int = {
     val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
-    if (NetUtils.canConnectToSocket("localhost", port))
+    if (!isUsed(port)) port else {
+      LOG.info(s"compile server port is already used ($port), searching for available port")
       NetUtils.findAvailableSocketPort()
-    else port
+    }
   }
 
-  def saveSettings(): Unit = invokeAndWait {
+  private def isUsed(portFromSettings: Int): Boolean =
+    NetUtils.canConnectToSocket("localhost", portFromSettings)
+
+  private def saveSettings(): Unit = invokeAndWait {
     ApplicationManager.getApplication.saveSettings()
   }
 
