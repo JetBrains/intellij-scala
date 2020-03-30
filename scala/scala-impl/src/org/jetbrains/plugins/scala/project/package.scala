@@ -309,7 +309,9 @@ package object project {
 
     @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
     private def projectModule: Option[Module] =
-      Option(ModuleUtilCore.findModuleForPsiElement(file))
+      inReadAction { // assuming that most of the time it will be read from cache
+        Option(ModuleUtilCore.findModuleForPsiElement(file))
+      }
 
     def scratchFileModule: Option[Module] =
       Option(file.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE)).flatMap(_.get)
