@@ -2,38 +2,29 @@ package org.jetbrains.plugins.scala.components
 
 import java.util
 
-import com.intellij.ide.ApplicationInitializedListener
 import com.intellij.notification._
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil.HyperlinkListener
-import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtTopic}
+import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener}
 
-class Scala3Disclaimer extends ApplicationInitializedListener {
-  override def componentsInitialized(): Unit = {
-    val applicationBusConnection = ApplicationManager.getApplication.getMessageBus.connect()
-    applicationBusConnection.subscribe(ProjectManager.TOPIC, projectListener)
-  }
-
-  private def projectListener = new ProjectManagerListener {
+object Scala3Disclaimer {
+  class ProjectListener extends ProjectManagerListener {
     override def projectOpened(project: Project): Unit = {
       onProjectLoaded(project) // for IDEA-based projects
-
-      val projectBusConnection = project.getMessageBus.connect()
-
-      projectBusConnection.subscribe(SbtTopic, new SbtProjectSettingsListener {
-        override def onProjectsLoaded(settings: util.Collection[SbtProjectSettings]): Unit = {
-          onProjectLoaded(project) // for non-IDEA-based projects (it's Ok to call the method more than once)
-        }
-        override def onProjectRenamed(oldName: String, newName: String): Unit = {}
-        override def onProjectsLinked(settings: util.Collection[SbtProjectSettings]): Unit = {}
-        override def onProjectsUnlinked(linkedProjectPaths: util.Set[String]): Unit = {}
-        override def onBulkChangeStart(): Unit = {}
-        override def onBulkChangeEnd(): Unit = {}
-      })
     }
+  }
+
+  class SbtProjectListener(project: Project) extends SbtProjectSettingsListener{
+    override def onProjectsLoaded(settings: util.Collection[SbtProjectSettings]): Unit = {
+      onProjectLoaded(project) // for non-IDEA-based projects (it's Ok to call the method more than once)
+    }
+    override def onProjectRenamed(oldName: String, newName: String): Unit = {}
+    override def onProjectsLinked(settings: util.Collection[SbtProjectSettings]): Unit = {}
+    override def onProjectsUnlinked(linkedProjectPaths: util.Set[String]): Unit = {}
+    override def onBulkChangeStart(): Unit = {}
+    override def onBulkChangeEnd(): Unit = {}
   }
 
   private def onProjectLoaded(project: Project): Unit = {
