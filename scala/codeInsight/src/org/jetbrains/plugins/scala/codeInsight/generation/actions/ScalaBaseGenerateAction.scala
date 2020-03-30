@@ -7,6 +7,7 @@ import com.intellij.codeInsight.generation.actions.BaseGenerateAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
@@ -14,7 +15,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
   * Nikolay.Tropin
   * 8/17/13
   */
-abstract class ScalaBaseGenerateAction(handler: ScalaCodeInsightActionHandler) extends BaseGenerateAction(handler) {
+abstract class ScalaBaseGenerateAction(handler: ScalaCodeInsightActionHandler,
+                                       @Nls actionText: String,
+                                       @Nls actionDescription: String) extends BaseGenerateAction(handler) {
+  locally {
+    val presentation = getTemplatePresentation
+    presentation.setText(actionText)
+    presentation.setDescription(actionDescription)
+  }
 
   override protected def isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean =
     file match {

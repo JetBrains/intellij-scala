@@ -16,13 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createN
   * Nikolay.Tropin
   * 8/17/13
   */
-final class ScalaGenerateCompanionObjectAction extends ScalaBaseGenerateAction(new ScalaGenerateCompanionObjectAction.Handler) {
-  locally {
-    val presentation = getTemplatePresentation
-    presentation.setText(ScalaCodeInsightBundle.message("generate.companion.object.action.text"))
-    presentation.setDescription(ScalaCodeInsightBundle.message("generate.companion.object.action.description"))
-  }
-}
+final class ScalaGenerateCompanionObjectAction extends ScalaBaseGenerateAction(
+  new ScalaGenerateCompanionObjectAction.Handler,
+  ScalaCodeInsightBundle.message("generate.companion.object.action.text"),
+  ScalaCodeInsightBundle.message("generate.companion.object.action.description")
+)
 
 object ScalaGenerateCompanionObjectAction {
 

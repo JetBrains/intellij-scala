@@ -16,13 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   * Nikolay.Tropin
   * 2014-09-18
   */
-final class ScalaGeneratePropertyAction extends ScalaBaseGenerateAction(new ScalaGeneratePropertyAction.Handler) {
-  locally {
-    val presentation = getTemplatePresentation
-    presentation.setText(ScalaCodeInsightBundle.message("generate.proprty.action.text"))
-    presentation.setDescription(ScalaCodeInsightBundle.message("generate.proprty.action.description"))
-  }
-}
+final class ScalaGeneratePropertyAction extends ScalaBaseGenerateAction(
+  new ScalaGeneratePropertyAction.Handler,
+  ScalaCodeInsightBundle.message("generate.proprty.action.text"),
+  ScalaCodeInsightBundle.message("generate.proprty.action.description")
+)
 
 object ScalaGeneratePropertyAction {
 

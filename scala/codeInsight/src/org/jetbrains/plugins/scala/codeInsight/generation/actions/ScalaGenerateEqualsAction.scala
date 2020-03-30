@@ -30,13 +30,11 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * Nikolay.Tropin
   * 8/19/13
   */
-final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(new ScalaGenerateEqualsAction.Handler) {
-  locally {
-    val presentation = getTemplatePresentation
-    presentation.setText(ScalaCodeInsightBundle.message("generate.equals.and.hashcode.methods.action.text"))
-    presentation.setDescription(ScalaCodeInsightBundle.message("generate.equals.and.hashcode.methods.action.description"))
-  }
-}
+final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(
+  new ScalaGenerateEqualsAction.Handler,
+  ScalaCodeInsightBundle.message("generate.equals.and.hashcode.methods.action.text"),
+  ScalaCodeInsightBundle.message("generate.equals.and.hashcode.methods.action.description")
+)
 
 object ScalaGenerateEqualsAction {
 

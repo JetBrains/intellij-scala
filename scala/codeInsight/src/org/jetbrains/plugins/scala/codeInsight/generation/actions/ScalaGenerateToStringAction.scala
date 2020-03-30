@@ -19,13 +19,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
   *
   * @author Rado Buransky (buransky.com)
   */
-final class ScalaGenerateToStringAction extends ScalaBaseGenerateAction(new ScalaGenerateToStringAction.Handler) {
-  locally {
-    val presentation = getTemplatePresentation
-    presentation.setText(ScalaCodeInsightBundle.message("generate.tostring.method.action.text"))
-    presentation.setDescription(ScalaCodeInsightBundle.message("generate.tostring.method.action.description"))
-  }
-}
+final class ScalaGenerateToStringAction extends ScalaBaseGenerateAction(
+  new ScalaGenerateToStringAction.Handler,
+  ScalaCodeInsightBundle.message("generate.tostring.method.action.text"),
+  ScalaCodeInsightBundle.message("generate.tostring.method.action.description")
+)
 
 object ScalaGenerateToStringAction {
 
