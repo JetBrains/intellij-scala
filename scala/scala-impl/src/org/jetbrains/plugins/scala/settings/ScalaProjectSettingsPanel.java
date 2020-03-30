@@ -181,6 +181,10 @@ public class ScalaProjectSettingsPanel {
         return ScalaFileType.INSTANCE;
     }
 
+    public void selectUpdatesTab() {
+        tabbedPane.setSelectedIndex(6);
+    }
+
     public void apply() throws ConfigurationException {
         if (!isModified()) return;
 
@@ -796,7 +800,6 @@ public class ScalaProjectSettingsPanel {
     public JComponent $$$getRootComponent$$$() {
         return myPanel;
     }
-
 
     private class ScalaTestHighlightingDialog extends DialogWrapper {
 
