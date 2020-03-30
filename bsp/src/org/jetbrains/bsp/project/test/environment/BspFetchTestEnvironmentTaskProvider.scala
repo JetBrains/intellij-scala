@@ -2,7 +2,7 @@ package org.jetbrains.bsp.project.test.environment
 
 import java.lang
 import java.net.URI
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j._
@@ -159,15 +159,21 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     }
   }
 
+  private def sourceItemContainsAnyOfFiles(sourceItem: SourceItem, files: Seq[Path]): Boolean = {
+    val sourcePath = Paths.get(new URI(sourceItem.getUri).getPath)
+    files.exists(_.startsWith(sourcePath))
+  }
   /**
    * @param files       List of sources you are looking for
-   * @param sourceLists List of targets with their sources, that will be searched
+   * @param sourceItems List of targets with their sources, that will be searched
    * @return All targets from `sourceLists` that contain any of the sources from `sources`
    */
-  private def filterTargetsContainingSources(sourceLists: Seq[SourcesItem],
+  private def filterTargetsContainingSources(sourceItems: Seq[SourcesItem],
                                              files: Seq[PsiFile]): Seq[BuildTargetIdentifier] = {
-    val fileUris = files.map(_.getVirtualFile.getPath).map(path => Paths.get(path).toUri.toString)
-    sourceLists.filter(_.getSources.asScala.map(_.getUri).exists(fileUris.contains(_))).map(_.getTarget)
+    val filePaths = files.map(_.getVirtualFile.getPath).map(path => Paths.get(path))
+    sourceItems
+      .filter(_.getSources.asScala.exists(sourceItemContainsAnyOfFiles(_, filePaths)))
+      .map(_.getTarget)
   }
 
   private def class2File(clazz: String, project: Project): Option[PsiFile] = {
