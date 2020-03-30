@@ -33,6 +33,10 @@ public class ScalaProjectSettingsConfigurable implements Configurable {
     return myComponent;
   }
 
+  public void selectUpdatesTab() {
+    myPanel.selectUpdatesTab();
+  }
+
   public boolean isModified() {
     return myPanel.isModified();
   }
