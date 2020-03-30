@@ -127,7 +127,7 @@ private object AlignedInlayGroup {
       }
     }
 
-    override def paint_Adapted(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
+    override def paint0(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
       if (cached.lineEndX != line.lineEndX(editor)) {
         val oldMargin = cached.margin
         recalculateGroupsOffsets(editor)
@@ -138,7 +138,7 @@ private object AlignedInlayGroup {
       var hasSomethingElseInLine = false
       editor.asOptionOf[EditorImpl].foreach(_.processLineExtensions(line.lineNumber, _ => { hasSomethingElseInLine = true; false} ))
       if (!hasSomethingElseInLine) {
-        super.paint_Adapted(editor, g, r, textAttributes)
+        super.paint0(editor, g, r, textAttributes)
       }
     }
 

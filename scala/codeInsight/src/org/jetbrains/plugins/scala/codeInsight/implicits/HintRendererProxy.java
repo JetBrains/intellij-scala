@@ -19,25 +19,25 @@ abstract class HintRendererProxy extends HintRenderer {
         super(text);
     }
 
-    protected abstract int calcWidthInPixels_Adapted(@NotNull Editor editor);
+    protected abstract int calcWidthInPixels0(@NotNull Editor editor);
 
     @Override
-    public int calcWidthInPixels(@NotNull Inlay inlay) {
-        return calcWidthInPixels_Adapted(inlay.getEditor());
+    final public int calcWidthInPixels(@NotNull Inlay inlay) {
+        return calcWidthInPixels0(inlay.getEditor());
     }
 
-    protected abstract void paint_Adapted(@NotNull Editor editor, @NotNull Graphics g, @NotNull Rectangle r, @NotNull TextAttributes textAttributes);
+    protected abstract void paint0(@NotNull Editor editor, @NotNull Graphics g, @NotNull Rectangle r, @NotNull TextAttributes textAttributes);
 
     @Override
-    public void paint(@NotNull Inlay inlay, @NotNull Graphics g, @NotNull Rectangle r, @NotNull TextAttributes textAttributes) {
-        paint_Adapted(inlay.getEditor(), g, r, textAttributes);
+    final public void paint(@NotNull Inlay inlay, @NotNull Graphics g, @NotNull Rectangle r, @NotNull TextAttributes textAttributes) {
+        paint0(inlay.getEditor(), g, r, textAttributes);
     }
 
-    protected abstract String getContextMenuGroupId_Adapted(@NotNull Editor editor);
+    protected abstract String getContextMenuGroupId0(@NotNull Editor editor);
 
     @Nullable
     @Override
-    public String getContextMenuGroupId(@NotNull Inlay inlay) {
-        return getContextMenuGroupId_Adapted(inlay.getEditor());
+    final public String getContextMenuGroupId(@NotNull Inlay inlay) {
+        return getContextMenuGroupId0(inlay.getEditor());
     }
 }
