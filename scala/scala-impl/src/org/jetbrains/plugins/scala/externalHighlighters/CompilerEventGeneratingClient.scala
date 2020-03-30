@@ -27,9 +27,7 @@ private class CompilerEventGeneratingClient(project: Project, indicator: Progres
     sendEvent(CompilerEvent.MessageEmitted(compilationId, msg))
 
   override def compilationEnd(sources: Set[File]): Unit =
-    sources.foreach { source =>
-      sendEvent(CompilerEvent.CompilationFinished(compilationId, source))
-    }
+    sendEvent(CompilerEvent.CompilationFinished(compilationId, sources))
 
   private def sendEvent(event: CompilerEvent): Unit =
     project.getMessageBus

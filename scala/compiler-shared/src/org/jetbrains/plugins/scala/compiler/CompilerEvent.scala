@@ -43,7 +43,8 @@ object CompilerEvent {
     fromLine: Int, fromColumn: Int,
     toLine: Option[Int], toColumn: Option[Int])
 
-  case class CompilationFinished(override val compilationId: CompilationId, source: File)
+  // can be sent multiple times for different modules by jps compiler
+  case class CompilationFinished(override val compilationId: CompilationId, sources: Set[File])
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.CompilationFinished
