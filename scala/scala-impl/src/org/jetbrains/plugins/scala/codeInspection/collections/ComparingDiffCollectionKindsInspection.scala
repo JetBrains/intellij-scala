@@ -19,9 +19,6 @@ object ComparingDiffCollectionKinds extends SimplificationType {
     }
   }
   object Side {
-    def isLeft(isLeft: Boolean): Side =
-      if (isLeft) Left else Right
-
     case object Right extends Side
     case object Left extends Side
   }
