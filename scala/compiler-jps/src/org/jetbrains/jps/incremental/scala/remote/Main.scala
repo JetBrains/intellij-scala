@@ -155,7 +155,7 @@ object Main {
         case customMessage: CustomBuilderMessage =>
           CompilerEvent.fromCustomMessage(customMessage).foreach {
             case CompilerEvent.MessageEmitted(_, msg) => client.message(msg)
-            case CompilerEvent.CompilationFinished(_, source) => compiledFiles += source
+            case CompilerEvent.CompilationFinished(_, sources) => compiledFiles ++= sources
             case _ => ()
           }
         case progressMessage: ProgressMessage =>

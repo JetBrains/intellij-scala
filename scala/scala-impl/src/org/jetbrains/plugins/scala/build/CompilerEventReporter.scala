@@ -35,15 +35,15 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
     }
   }
 
-  private def finishFiles(): Unit = files.foreach { file =>
-    val event = CompilerEvent.CompilationFinished(compilationId, file)
+  private def finishFiles(): Unit = {
+    val event = CompilerEvent.CompilationFinished(compilationId, files.toSet)
     publisher.eventReceived(event)
   }
 
   /** Clear any messages associated with file. */
   override def clear(file: File): Unit = {
     files.add(file)
-    val event = CompilerEvent.CompilationFinished(compilationId, file)
+    val event = CompilerEvent.CompilationFinished(compilationId, Set(file))
     publisher.eventReceived(event)
   }
 

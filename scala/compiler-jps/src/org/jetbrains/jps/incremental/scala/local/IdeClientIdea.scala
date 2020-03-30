@@ -47,9 +47,7 @@ class IdeClientIdea(compilerName: String,
   override def compilationEnd(sources: Predef.Set[File]): Unit = {
     compilationResults.foreach(handleCompilationResult)
     persistPackageObjectData()
-    sources.foreach { source =>
-      context.processMessage(CompilerEvent.CompilationFinished(compilationId, source).toCustomMessage)
-    }
+    context.processMessage(CompilerEvent.CompilationFinished(compilationId, sources).toCustomMessage)
   }
 
   override def worksheetOutput(text: String): Unit = ()

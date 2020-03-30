@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.project.template.FileExt
 private class UpdateCompilerGeneratedStateListener(project: Project)
   extends CompilerEventListener {
 
-  override def eventReceived(event: CompilerEvent): Unit =
-    Option(event).flatMap {
+  override def eventReceived(event: CompilerEvent): Unit = {
+    val newState = Option(event).flatMap {
       case CompilerEvent.MessageEmitted(compilationId, msg) =>
         for {
           text <- Option(msg.text)
@@ -42,18 +42,23 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           )
           fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
         } yield replaceOrAppendFileState(virtualFile, fileState)
-      case CompilerEvent.CompilationFinished(compilationId, source) =>
-        for {
+      case CompilerEvent.CompilationFinished(compilationId, sources) =>
+        val vFiles = for {
+          source <- sources
           virtualFile <- source.toVirtualFile
-          fileState = FileCompilerGeneratedState(compilationId, Set.empty)
-        } yield replaceOrAppendFileState(virtualFile, fileState)
+        } yield virtualFile
+        val emptyState = FileCompilerGeneratedState(compilationId, Set.empty)
+        Some(replaceOrAppendFileState(vFiles, emptyState))
       case CompilerEvent.ProgressEmitted(_, progress) =>
         Some(updateProgress(progress))
       case _ =>
         None
-    }.foreach { newState =>
-      CompilerGeneratedStateManager.update(project, newState)
     }
+
+    newState.foreach { state =>
+      CompilerGeneratedStateManager.update(project, state)
+    }
+  }
 
   private def kindToSeverity(kind: Kind): HighlightSeverity = kind match {
     case Kind.ERROR => HighlightSeverity.ERROR
@@ -61,22 +66,23 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     case _ => HighlightSeverity.INFORMATION
   }
 
-  private def replaceOrAppendFileState(file: VirtualFile, fileState: FileCompilerGeneratedState): CompilerGeneratedState = {
+  private def replaceOrAppendFileState(files: Traversable[VirtualFile], fileState: FileCompilerGeneratedState): CompilerGeneratedState = {
     val oldState = CompilerGeneratedStateManager.get(project)
     val oldFileStates = oldState.files
-    val newFileState = oldFileStates.get(file) match {
-      case None =>
-        fileState
-      case Some(oldFileState) if oldFileState.compilationId != fileState.compilationId =>
-        fileState
-      case Some(oldFileState) =>
-        oldFileState.copy(
-          highlightings = oldFileState.highlightings ++ fileState.highlightings
-        )
+    val newFileStates = files.foldLeft(oldFileStates) { case (acc, file) =>
+      val newFileState = acc.get(file) match {
+        case Some(oldFileState) if oldFileState.compilationId == fileState.compilationId =>
+          oldFileState.withExtraHighlightings(fileState.highlightings)
+        case _ =>
+          fileState
+      }
+      acc.updated(file, newFileState)
     }
-    val newFileStates = oldFileStates.updated(file, newFileState)
     oldState.copy(files = newFileStates)
   }
+
+  private def replaceOrAppendFileState(file: VirtualFile, fileState: FileCompilerGeneratedState): CompilerGeneratedState =
+    replaceOrAppendFileState(Some(file), fileState)
 
   private def updateProgress(progress: Double): CompilerGeneratedState =
     CompilerGeneratedStateManager.get(project).copy(progress = progress)
