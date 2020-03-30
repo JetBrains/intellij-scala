@@ -1,33 +1,41 @@
 package org.jetbrains.plugins.scala.compiler
 
-import java.util.concurrent.{ConcurrentHashMap, Semaphore}
+import java.util.concurrent.Semaphore
 
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
+
+trait CompilerLock {
+  def lock(): Unit
+
+  def unlock(): Unit
+
+  def isLocked: Boolean
+
+  final def withLock[A](action: => A): A = {
+    lock()
+    try action
+    finally unlock()
+  }
+}
 
 object CompilerLock {
 
-  private val locks = new ConcurrentHashMap[Project, Semaphore]
+  def get(project: Project): CompilerLock =
+    ServiceManager.getService(project, classOf[CompilerLock])
+}
 
-  def lock(project: Project): Unit =
-    getLock(project).acquire()
+private class CompilerLockImpl
+  extends CompilerLock {
 
-  def unlock(project: Project): Unit =
-    getLock(project).release()
+  private val semaphore = new Semaphore(1)
 
-  def isLocked(project: Project): Boolean =
-    getLock(project).availablePermits == 0
+  override def lock(): Unit =
+    semaphore.acquire()
 
-  def withLock[A](project: Project)
-                 (action: => A): A = {
-    lock(project)
-    try action
-    finally unlock(project)
-  }
+  override def unlock(): Unit =
+    semaphore.release()
 
-  private def getLock(project: Project): Semaphore =
-    locks.computeIfAbsent(project, { _ =>
-      Disposer.register(project, () => locks.remove(project))
-      new Semaphore(1, true)
-    })
+  override def isLocked: Boolean =
+    semaphore.availablePermits() == 0
 }

@@ -52,7 +52,7 @@ private class JpsCompilerImpl(project: Project)
     val promise = Promise[Unit]
     val taskMsg = ScalaBundle.message("highlighting.compilation")
     val task: Task = new Task.Backgroundable(project, taskMsg, false) {
-      override def run(indicator: ProgressIndicator): Unit = CompilerLock.withLock(project) {
+      override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         val client = new CompilationClient(project, indicator)
         val result = Try(new RemoteServerRunner(project).buildProcess(CommandIds.CompileJps, args, client).runSync())
         promise.complete(result)
@@ -74,7 +74,7 @@ private object JpsCompilerImpl {
     indicator.setIndeterminate(false)
 
     override def progress(text: String, done: Option[Float]): Unit = {
-      indicator.setText(text)
+      indicator.setText(ScalaBundle.message("highlighting.compilation.progress", text))
       indicator.setFraction(done.getOrElse(-1.0F).toDouble)
       done.foreach { doneVal =>
         sendEvent(CompilerEvent.ProgressEmitted(compilationId, doneVal))
