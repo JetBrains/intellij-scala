@@ -16,11 +16,16 @@ object Scala3Disclaimer {
     }
   }
 
+  // TODO Re-imports are not detected.
   class SbtProjectListener(project: Project) extends SbtProjectSettingsListener{
+    // TODO Is invoked after project opening, not after actual import.
     override def onProjectsLoaded(settings: util.Collection[SbtProjectSettings]): Unit = {
-      onProjectLoaded(project) // for non-IDEA-based projects (it's Ok to call the method more than once)
+      onProjectLoaded(project) // for non-IDEA-based projects
     }
-    override def onProjectRenamed(oldName: String, newName: String): Unit = {}
+    // TODO onProjectsLoaded is not invoked after an actual import, so we use onProjectRenamed to detect first import.
+    override def onProjectRenamed(oldName: String, newName: String): Unit = {
+      onProjectLoaded(project)
+    }
     override def onProjectsLinked(settings: util.Collection[SbtProjectSettings]): Unit = {}
     override def onProjectsUnlinked(linkedProjectPaths: util.Set[String]): Unit = {}
     override def onBulkChangeStart(): Unit = {}
