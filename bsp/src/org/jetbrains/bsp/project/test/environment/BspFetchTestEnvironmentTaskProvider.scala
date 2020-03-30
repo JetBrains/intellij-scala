@@ -8,7 +8,6 @@ import java.util.concurrent.CompletableFuture
 import ch.epfl.scala.bsp4j._
 import com.intellij.execution.BeforeRunTaskProvider
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
-import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -16,7 +15,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-
 import com.intellij.openapi.util.Key
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiFile}
@@ -30,8 +28,6 @@ import org.jetbrains.concurrency.{Promise, Promises}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData}
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
