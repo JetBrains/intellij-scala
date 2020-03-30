@@ -276,32 +276,38 @@ class BspSession private(bspIn: InputStream,
   private class BspSessionClient extends BspClient {
     // task notifications
     override def onBuildShowMessage(params: bsp4j.ShowMessageParams): Unit = {
+      updateLastActivity()
       val event = ShowMessage(params)
       currentJob.notification(event)
       notifications(event)
     }
     override def onBuildLogMessage(params: bsp4j.LogMessageParams): Unit = {
+      updateLastActivity()
       val event = LogMessage(params)
       currentJob.notification(event)
       notifications(event)
     }
     override def onBuildPublishDiagnostics(params: bsp4j.PublishDiagnosticsParams): Unit = {
+      updateLastActivity()
       val event = PublishDiagnostics(params)
       currentJob.notification(event)
       notifications(event)
     }
 
     override def onBuildTaskStart(params: bsp4j.TaskStartParams): Unit = {
+      updateLastActivity()
       val event = TaskStart(params)
       currentJob.notification(event)
     }
 
     override def onBuildTaskProgress(params: bsp4j.TaskProgressParams): Unit = {
+      updateLastActivity()
       val event = TaskProgress(params)
       currentJob.notification(event)
     }
 
     override def onBuildTaskFinish(params: bsp4j.TaskFinishParams): Unit = {
+      updateLastActivity()
       val event = TaskFinish(params)
       currentJob.notification(event)
     }
@@ -310,8 +316,13 @@ class BspSession private(bspIn: InputStream,
     override def onConnectWithServer(server: bsp4j.BuildServer): Unit = super.onConnectWithServer(server)
 
     override def onBuildTargetDidChange(didChange: bsp4j.DidChangeBuildTarget): Unit = {
+      updateLastActivity()
       val event = DidChangeBuildTarget(didChange)
       notifications(event)
+    }
+
+    private def updateLastActivity(): Unit = {
+      lastActivity = System.currentTimeMillis()
     }
 
   }
