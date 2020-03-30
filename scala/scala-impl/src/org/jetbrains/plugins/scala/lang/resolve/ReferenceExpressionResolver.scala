@@ -109,7 +109,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     val name = context match {
       case ScPrefixExpr(`reference`, _) => s"unary_$refName"
-      case _ if reference.getUserData(ScForImpl.desugaredWithFilterKey) == ScForImpl.DesugaredWithFilterUserData =>
+      case _ if ScForImpl.desugaredWithFilterKey.isIn(reference) =>
         // This is a call to withFilter in a desugared for comprehension
         // in scala version 2.11 and below withFilter will be rewritten into filter
         // we try first to resolve withFilter and if we do not get any results we try filter

@@ -329,6 +329,19 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
 
+  def testSCL17260(): Unit = assertNothing(errorsFromScalaCode(
+    """
+      |class CustomCollection[T] {
+      |    def map[R](f: T => R): CustomCollection[R] = ???
+      |    def flatMap[R](f: T => CustomCollection[R]): CustomCollection[R] = ???
+      |    def filter(f: T => Boolean): CustomCollection[T] = ???
+      |  }
+      |  for {
+      |    (k, v) <- new CustomCollection[(Int, Int)]
+      |  } yield (k, v)
+      |""".stripMargin
+  ))
+
   def test_filterOnly(): Unit = {
     val code =
       """
