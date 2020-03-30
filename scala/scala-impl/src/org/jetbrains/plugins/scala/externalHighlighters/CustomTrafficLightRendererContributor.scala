@@ -25,7 +25,7 @@ class CustomTrafficLightRendererContributor
     new TrafficLightRenderer(project, editor.getDocument) {
       override def getDaemonCodeAnalyzerStatus(severityRegistrar: SeverityRegistrar): DaemonCodeAnalyzerStatus = {
         val compilerHighlightingInProgress =
-          CompilerLock.isLocked(project) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
+          CompilerLock.get(project).isLocked && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
         val status = super.getDaemonCodeAnalyzerStatus(severityRegistrar)
         status.errorAnalyzingFinished = status.errorAnalyzingFinished && !compilerHighlightingInProgress
         if (compilerHighlightingInProgress) {

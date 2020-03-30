@@ -6,7 +6,7 @@ class UnlockCompilerTask
   extends CompileTask {
 
   override def execute(context: CompileContext): Boolean = {
-    CompilerLock.unlock(context.getProject)
+    CompilerLock.get(context.getProject).unlock()
     true
   }
 }

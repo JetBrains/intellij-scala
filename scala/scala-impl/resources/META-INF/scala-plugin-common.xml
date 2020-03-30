@@ -491,6 +491,8 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
+        <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompilerLock"
+                        serviceImplementation="org.jetbrains.plugins.scala.compiler.CompilerLockImpl"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerGeneratedStateManager$MutableState"/>
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
