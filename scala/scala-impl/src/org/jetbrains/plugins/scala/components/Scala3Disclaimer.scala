@@ -4,6 +4,7 @@ import java.util
 
 import com.intellij.notification._
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil.HyperlinkListener
@@ -49,14 +50,11 @@ object Scala3Disclaimer {
   }
 
   private def showDisclaimer(): Unit = {
-    val message =
-      "Scala 3 support is work in progress.<br>" +
-        "Consider using nightly builds. <a href='https://blog.jetbrains.com/scala/2020/03/17/scala-3-support-in-intellij-scala-plugin/'>Learn more</a>"
-
-    val notification = {
-      val group = new NotificationGroup("Scala 3 disclaimer", NotificationDisplayType.STICKY_BALLOON, false)
-      group.createNotification(message, NotificationType.INFORMATION)
-    }
+    val notification =
+      new NotificationGroup(ScalaBundle.message("scala.3.disclaimer"), NotificationDisplayType.STICKY_BALLOON, /* isLogByDefault = */ false)
+        .createNotification(
+          ScalaBundle.message("scala.3.support.is.experimental", "https://blog.jetbrains.com/scala/2020/03/17/scala-3-support-in-intellij-scala-plugin/"),
+          NotificationType.INFORMATION)
 
     notification.setListener(new HyperlinkListener())
 
