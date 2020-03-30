@@ -1395,8 +1395,10 @@ package object extensions {
       }
 
     def traceSafe(@NonNls message: => String): Unit =
-      if (logger.isTraceEnabled || logger.isDebugEnabled && ApplicationManager.getApplication.isUnitTestMode) {
+      if (logger.isTraceEnabled) {
         logger.trace(message)
+      } else if (ApplicationManager.getApplication.isUnitTestMode) {
+        logger.debugSafe(message)
       }
   }
 

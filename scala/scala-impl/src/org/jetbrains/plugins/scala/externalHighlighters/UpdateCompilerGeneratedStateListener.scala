@@ -1,10 +1,17 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import java.io.File
+import java.util.EventListener
+
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.messages.Topic
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
+import org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener.CompilerGeneratedStateTopic
 import org.jetbrains.plugins.scala.project.template.FileExt
 
 private class UpdateCompilerGeneratedStateListener(project: Project)
@@ -58,6 +65,13 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     newState.foreach { state =>
       CompilerGeneratedStateManager.update(project, state)
     }
+
+    event match {
+      case CompilerEvent.CompilationFinished(_, sources) if ApplicationManager.getApplication.isUnitTestMode =>
+        val publisher = project.getMessageBus.syncPublisher(CompilerGeneratedStateTopic)
+        publisher.stateUpdated(sources)
+      case _                                                                                                 =>
+    }
   }
 
   private def kindToSeverity(kind: Kind): HighlightSeverity = kind match {
@@ -86,4 +100,16 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
 
   private def updateProgress(progress: Double): CompilerGeneratedState =
     CompilerGeneratedStateManager.get(project).copy(progress = progress)
+}
+
+object UpdateCompilerGeneratedStateListener {
+
+  @TestOnly
+  trait CompilerGeneratedStateTopicListener extends EventListener {
+    def stateUpdated(sources: Set[File]): Unit
+  }
+  val CompilerGeneratedStateTopic: Topic[CompilerGeneratedStateTopicListener] = Topic.create(
+    "compiler-generated-state-update",
+    classOf[CompilerGeneratedStateTopicListener]
+  )
 }

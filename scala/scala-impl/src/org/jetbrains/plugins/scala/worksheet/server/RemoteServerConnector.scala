@@ -7,6 +7,7 @@ import java.util.Base64
 
 import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory, CompilerPaths}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
@@ -18,6 +19,7 @@ import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsCompileOnly, WorksheetArgsPlain, WorksheetArgsRepl}
 import org.jetbrains.plugins.scala.compiler.{CompilationProcess, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
@@ -106,6 +108,7 @@ class RemoteServerConnector(
     originalFile: VirtualFile, // TODO: looks like no need in this parameter
     client: Client
   )(callback: RemoteServerConnectorResult => Unit): Unit = {
+    Log.debugSafe(s"compileAndRun: originalFile = $originalFile")
     val process = {
       val worksheetProcess: CompilationProcess = makeType match {
         case InProcessServer | OutOfProcessServer =>
@@ -166,6 +169,8 @@ class RemoteServerConnector(
 
 //private[worksheet]
 object RemoteServerConnector {
+
+  private val Log = Logger.getInstance(this.getClass)
 
   sealed trait Args {
     final def compiledFile: Option[File] = this match {

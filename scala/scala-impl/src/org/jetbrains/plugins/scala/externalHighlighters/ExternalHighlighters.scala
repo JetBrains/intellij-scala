@@ -20,29 +20,33 @@ import scala.collection.JavaConverters._
 
 object ExternalHighlighters {
 
-  def updateOpenEditors(project: Project, state: HighlightingState): Unit =
-    EditorFactory.getInstance().getAllEditors
-      .filter(_.getProject == project)
-      .foreach(applyHighlighting(project, _, state))
+  // it would be cool to distinguish between worksheet and ordinary source files, do not update in one bulk
+  def updateOpenEditors(project: Project, state: HighlightingState): Unit = {
+    val editors = EditorFactory.getInstance.getAllEditors.filter(_.getProject == project)
+    editors.foreach(applyHighlighting(project, _, state))
+  }
 
   def applyHighlighting(project: Project,
                         editor: Editor,
                         state: HighlightingState): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-      for (vFile <- findScalaFile(editor))
-        invokeLater {
-          val highlightInfos = state.getOrElse(vFile, Seq.empty)
-            .map(toHighlightInfo(_, editor))
-
-          val document = editor.getDocument
-          UpdateHighlightersUtil.setHighlightersToEditor(
-            project,
-            document, 0, document.getTextLength,
-            highlightInfos.toSeq.asJava,
-            editor.getColorsScheme,
-            Pass.EXTERNAL_TOOLS
-          )
+      for (vFile <- findScalaFile(editor)) {
+        state.get(vFile) match {
+          case Some(externalHighlights) =>
+            invokeLater {
+              val highlightInfos = externalHighlights.map(toHighlightInfo(_, editor))
+              val document = editor.getDocument
+              UpdateHighlightersUtil.setHighlightersToEditor(
+                project,
+                document, 0, document.getTextLength,
+                highlightInfos.toSeq.asJava,
+                editor.getColorsScheme,
+                Pass.EXTERNAL_TOOLS
+              )
+            }
+          case _ =>
         }
+      }
     }
 
   private def findScalaFile(editor: Editor): Option[VirtualFile] =

@@ -121,7 +121,7 @@ object RegisterCompilationListener {
       compiler.compileOnlySync(
         document,
         client = new CompilerEventGeneratingClient(project, indicator),
-        waitAtMost = 30.seconds
+        waitAtMost = 60.seconds
       )
     }
   }

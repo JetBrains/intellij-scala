@@ -86,7 +86,6 @@ object CompileServerLauncher {
     }
 
   private def start(project: Project): Boolean = {
-
     val result = for {
       jdk     <- compileServerJdk(project).left.map(m => s"JDK for compiler process not found: $m")
       process <- start(project, jdk)
@@ -115,6 +114,8 @@ object CompileServerLauncher {
   } yield new File(pluginsLibs, filesPath)
 
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
+    LOG.traceSafe(s"starting server with jdk: $jdk")
+
     val settings = ScalaCompileServerSettings.getInstance
 
     settings.COMPILE_SERVER_SDK = jdk.name
@@ -262,7 +263,11 @@ object CompileServerLauncher {
   }
 
   def ensureServerRunning(project: Project): Boolean = {
-    if (needRestart(project)) stop()
+    LOG.traceSafe("ensureServerRunning")
+    if (needRestart(project)) {
+      LOG.traceSafe("ensureServerRunning: need to restart, stopping")
+      stop()
+    }
 
     running || tryToStart(project)
   }
