@@ -8,6 +8,7 @@ import ch.epfl.scala.bsp.testkit.gen.UtilGenerators.{genFileUriString, genPath}
 import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary._
 import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetIdentifier}
 import com.google.gson.{Gson, GsonBuilder}
+import org.jetbrains.bsp.data.JdkData
 import org.jetbrains.bsp.data.ScalaSdkData
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ModuleDescription, SourceDirectory, _}
 import org.scalacheck.Arbitrary.arbitrary
@@ -89,9 +90,15 @@ object Generators {
     scalacOptions <- arbitrary[String].list
   } yield ScalaSdkData(scalaOrganization, scalaVersion.orNull, scalacClasspath, scalacOptions)
 
+  def genJdkData: Gen[JdkData] = for {
+    javaHome <- genFileUri
+    javaVersion <- arbitrary[String]
+  } yield JdkData(javaHome, javaVersion)
+
   def genModuleKind: Gen[ModuleKind] = for {
+    jdkData <- genJdkData
     scalaSdkData <- genScalaSdkData
-  } yield ScalaModule(scalaSdkData)
+  } yield ScalaModule(jdkData, scalaSdkData)
 
   def genModuleDescription: Gen[ModuleDescription] = for {
     id <- arbitrary[String]
