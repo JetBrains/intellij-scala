@@ -11,7 +11,7 @@ import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner, ScalaCompileServerSettings}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}
@@ -31,7 +31,11 @@ private class JpsCompilerImpl(project: Project)
   extends JpsCompiler {
 
   override def compile(): Unit = {
-    CompileServerLauncher.ensureServerRunning(project)
+    if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED)
+      return
+    else
+      CompileServerLauncher.ensureServerRunning(project)
+
     val projectPath = project.getBasePath
     val globalOptionsPath = PathManager.getOptionsPath
     val dataStorageRootPath = Utils.getDataStorageRoot(
