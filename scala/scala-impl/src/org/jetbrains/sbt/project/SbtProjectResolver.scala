@@ -182,11 +182,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       activeProcessDumper = None
 
       messageResult.flatMap { messages =>
-        if (messages.status != BuildMessages.OK || !structureFile.isFile || structureFile.length < 0)
-          Failure(new Exception("extracting structure failed"))
-        else Try {
+        val tried = if (messages.status != BuildMessages.OK || !structureFile.isFile || structureFile.length <= 0) {
+          val message = SbtBundle.message("sbt.import.extracting.structure.failed")
+          Failure(new Exception(message))
+        } else Try {
           val elem = XML.load(structureFile.toURI.toURL)
           (elem, messages)
+        }
+
+        tried.recoverWith { case error =>
+          val exceptions = messages.exceptions.map(_.getLocalizedMessage).mkString("\n")
+          val errorMsgs = messages.errors.map(_.getMessage).mkString("\n")
+          val message = error.getMessage + "\n" +
+            exceptions + (if (exceptions.nonEmpty) "\n" else "") +
+            errorMsgs
+          Failure(new Exception(message, error.getCause))
         }
       }
     }

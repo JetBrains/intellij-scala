@@ -271,12 +271,21 @@ object SbtStructureDump {
     case (messages, Output(raw)) =>
       val text = raw.trim
 
+      val newMessages =
+        if (text startsWith ERROR_PREFIX) {
+          messages.addError(text.stripPrefix(ERROR_PREFIX))
+        } else if (text startsWith WARN_PREFIX) {
+          messages.addWarning(text.stripPrefix(WARN_PREFIX))
+        } else messages
+
       reporter.progressTask(dumpTaskId, 1, -1, SbtBundle.message("sbt.events"), text)
       reporter.log(text)
 
-      messages
+      newMessages
   }
 
+  private val WARN_PREFIX = "[warn]"
+  private val ERROR_PREFIX = "[error]"
 
   sealed trait ImportType
   case object ShellImport extends ImportType

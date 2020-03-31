@@ -287,7 +287,6 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
 object CommandTask {
 
-  // some code duplication here with SbtStructureDump
   private val WARN_PREFIX = "[warn]"
   private val ERROR_PREFIX = "[error]"
 
