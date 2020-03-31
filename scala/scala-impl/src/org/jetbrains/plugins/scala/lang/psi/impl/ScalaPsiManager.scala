@@ -357,14 +357,9 @@ class ScalaPsiManager(implicit val project: Project) {
     STABLE_ALIAS_NAME_KEY.allKeys
   }
 
-  private val NonScalaModificationTracker = new SimpleModificationTracker
-
   val TopLevelModificationTracker: SimpleModificationTracker = new SimpleModificationTracker {
     private val psiModTracker =
       PsiManager.getInstance(project).getModificationTracker.asInstanceOf[PsiModificationTrackerImpl]
-
-    override def getModificationCount: Long =
-      super.getModificationCount + NonScalaModificationTracker.getModificationCount
 
     override def incModificationCount(): Unit = {
       psiModTracker.incCounter() //update javaStructureModCount on top-level scala change
@@ -380,7 +375,7 @@ class ScalaPsiManager(implicit val project: Project) {
 
   private def clearOnNonScalaChange(): Unit = {
     clearOnChange()
-    NonScalaModificationTracker.incModificationCount()
+    TopLevelModificationTracker.incModificationCount()
   }
 
   @tailrec
