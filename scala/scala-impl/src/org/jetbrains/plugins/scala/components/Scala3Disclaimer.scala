@@ -6,17 +6,24 @@ import java.util
 import java.util.function.Consumer
 
 import com.intellij.notification._
-import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable}
 import org.jetbrains.plugins.scala.util.NotificationUtil.HyperlinkListener
+import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener}
 
 object Scala3Disclaimer {
   private val DottyVersion = "scalaVersion\\s*:=\\s*\"(0\\.\\S+)\"".r
+  // TODO Create a constant (for project template, compiler, etc.)
+  private val SupportedDottyVersion = "0.23.0-RC1"
+
+  private var versionInfoShown = false
 
   class ProjectListener extends ProjectManagerListener {
     override def projectOpened(project: Project): Unit = {
@@ -41,22 +48,26 @@ object Scala3Disclaimer {
   }
 
   private def onProjectLoaded(project: Project): Unit = {
+    val dottyVersion = dottyVersionIn(project)
+
     if (!isShownIn(project)) {
-      if (project.hasScala3 || dottyVersionIn(project).isDefined) {
-        showDisclaimerIn(project)
+      if (project.hasScala3 || dottyVersion.isDefined) {
+        showDisclaimerIn(project,
+          ScalaBundle.message("scala.3.support.is.experimental", "https://blog.jetbrains.com/scala/2020/03/17/scala-3-support-in-intellij-scala-plugin/"),
+          configureUpdatesActionIn(project))
         setShownIn(project)
       }
     }
-  }
 
-  // TODO A workaround for the TODOs above (parsing build.sbt directly is not reliable, but is better than nothing).
-  private def dottyVersionIn(project: Project): Option[String] =
-    Option(project.getBasePath)
-      .map(new File(_, "build.sbt"))
-      .filter(_.exists())
-      .map(file => new String(Files.readAllBytes(file.toPath)))
-      .flatMap(DottyVersion.findFirstMatchIn)
-      .map(_.group(0))
+    if (!versionInfoShown) {
+      dottyVersion.filter(_ != SupportedDottyVersion).foreach { unsupportedVersion =>
+        showDisclaimerIn(project,
+          ScalaBundle.message("scala.3.support.is.incompatible", unsupportedVersion, SupportedDottyVersion),
+          useDottyVersionActionIn(project, SupportedDottyVersion), configureUpdatesActionIn(project))
+      }
+      versionInfoShown = true
+    }
+  }
 
   private def isShownIn(project: Project): Boolean =
     ScalaProjectSettings.getInstance(project).isScala3DisclaimerShown
@@ -65,21 +76,42 @@ object Scala3Disclaimer {
     ScalaProjectSettings.getInstance(project).setScala3DisclaimerShown(true)
   }
 
-  private def showDisclaimerIn(project: Project): Unit = {
+  private def showDisclaimerIn(project: Project, message: String, actions: AnAction*): Unit = {
     val notification =
       new NotificationGroup(ScalaBundle.message("scala.3.disclaimer"), NotificationDisplayType.STICKY_BALLOON, /* isLogByDefault = */ true)
-        .createNotification(
-          ScalaBundle.message("scala.3.support.is.experimental", "https://blog.jetbrains.com/scala/2020/03/17/scala-3-support-in-intellij-scala-plugin/"),
-          NotificationType.INFORMATION)
-        .addAction(new NotificationAction(ScalaBundle.message("configure.updates")) {
-          override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-            ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[ScalaProjectSettingsConfigurable],
-              (_.selectUpdatesTab()): Consumer[ScalaProjectSettingsConfigurable])
-          }
-        })
+        .createNotification(message, NotificationType.INFORMATION)
+
+    actions.foreach(notification.addAction)
 
     notification.setListener(new HyperlinkListener())
 
     Notifications.Bus.notify(notification)
+  }
+
+  private def configureUpdatesActionIn(project: Project) = new NotificationAction(ScalaBundle.message("configure.updates")) {
+    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+      ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[ScalaProjectSettingsConfigurable],
+        (_.selectUpdatesTab()): Consumer[ScalaProjectSettingsConfigurable])
+    }
+  }
+
+  // TODO A workaround for the TODOs above (parsing build.sbt directly is not reliable, but is better than nothing).
+  private def dottyVersionIn(project: Project): Option[String] = buildSbtIn(project).map(read).flatMap(dottyVersionIn)
+
+  private def buildSbtIn(project: Project): Option[File] = Option(project.getBasePath).map(new File(_, "build.sbt")).filter(_.exists())
+
+  private def dottyVersionIn(contents: String): Option[String] = DottyVersion.findFirstMatchIn(contents).map(_.group(1))
+
+  private def read(file: File): String = new String(Files.readAllBytes(file.toPath))
+
+  private def write(file: File, contents: String): Unit = Files.writeString(file.toPath, contents)
+
+  private def useDottyVersionActionIn(project: Project, version: String): NotificationAction = new NotificationAction(ScalaBundle.message("adjust.dotty.version", version)) {
+    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+      buildSbtIn(project).foreach { file =>
+        write(file, DottyVersion.replaceFirstIn(read(file), "scalaVersion := \"" + SupportedDottyVersion + "\""))
+        ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
+      }
+    }
   }
 }
