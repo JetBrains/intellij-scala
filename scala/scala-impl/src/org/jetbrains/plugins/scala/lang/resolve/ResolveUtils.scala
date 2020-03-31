@@ -85,6 +85,10 @@ object ResolveUtils {
 
 
   def isAccessibleWithNewModifiers(memb: PsiMember, _place: PsiElement, modifierList: PsiModifierList, forCompletion: Boolean = false): Boolean = {
+    if (!memb.isValid || !_place.isValid) {
+      return false
+    }
+
     var place = _place
     memb match {
       case b: ScBindingPattern =>
