@@ -6,7 +6,7 @@ import java.io.{File, FileWriter}
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
- import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
@@ -368,7 +368,10 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
         text = msg.text.replace(s"class ${WorksheetWrapper.className}", originalFile.getName).trim
       )
 
-    override def compilationEnd(sources: Set[File]): Unit =
-      super.compilationEnd(sources) // FIXME (minor): it is now empty for worksheets
+    override def compilationEnd(sources: Set[File]): Unit = {
+      Log.assertTrue(sources.size <= 1, "expecting at most 1 source file during worksheet compilation")
+      val sourcesFixed = sources.map(_ => originalFile)
+      super.compilationEnd(sourcesFixed)
+    }
   }
 }
