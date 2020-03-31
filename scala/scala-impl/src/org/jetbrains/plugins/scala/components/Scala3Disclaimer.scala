@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.components
 
+import java.io.File
+import java.nio.file.Files
 import java.util
 import java.util.function.Consumer
 
@@ -14,13 +16,15 @@ import org.jetbrains.plugins.scala.util.NotificationUtil.HyperlinkListener
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener}
 
 object Scala3Disclaimer {
+  private val DottyVersion = "scalaVersion\\s*:=\\s*\"(0\\.\\S+)\"".r
+
   class ProjectListener extends ProjectManagerListener {
     override def projectOpened(project: Project): Unit = {
       onProjectLoaded(project) // for IDEA-based projects
     }
   }
 
-  // TODO Re-imports are not detected.
+  // TODO Re-imports are not detected (https://jetbrains.slack.com/archives/CRB2LP50C/p1585571104004100).
   class SbtProjectListener(project: Project) extends SbtProjectSettingsListener{
     // TODO Is invoked after project opening, not after actual import.
     override def onProjectsLoaded(settings: util.Collection[SbtProjectSettings]): Unit = {
@@ -38,12 +42,21 @@ object Scala3Disclaimer {
 
   private def onProjectLoaded(project: Project): Unit = {
     if (!isShownIn(project)) {
-      if (project.hasScala3) {
+      if (project.hasScala3 || dottyVersionIn(project).isDefined) {
         showDisclaimerIn(project)
         setShownIn(project)
       }
     }
   }
+
+  // TODO A workaround for the TODOs above (parsing build.sbt directly is not reliable, but is better than nothing).
+  private def dottyVersionIn(project: Project): Option[String] =
+    Option(project.getBasePath)
+      .map(new File(_, "build.sbt"))
+      .filter(_.exists())
+      .map(file => new String(Files.readAllBytes(file.toPath)))
+      .flatMap(DottyVersion.findFirstMatchIn)
+      .map(_.group(0))
 
   private def isShownIn(project: Project): Boolean =
     ScalaProjectSettings.getInstance(project).isScala3DisclaimerShown
