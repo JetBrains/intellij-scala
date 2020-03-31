@@ -227,7 +227,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   }
 
   private def psiTypeOf(typeParameter: PsiTypeParameter): PsiType =
-    EmptySubstitutor.getInstance().substitute(typeParameter)
+    PsiSubstitutor.EMPTY.substitute(typeParameter)
 
 
   private class RawTypeParamToExistentialMapBuilder(rawClassResult: ClassResolveResult, paramTopLevel: Boolean) {
