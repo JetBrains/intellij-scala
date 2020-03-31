@@ -12,7 +12,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
@@ -20,7 +19,7 @@ import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
 import org.jetbrains.plugins.scala.compiler.{CompilationProcess, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
@@ -29,7 +28,6 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePre
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.PlainModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 
 // TODO: split to REPL and PLAIN args, change serialization format
 // TODO: clean up this shit with arguments, half in constructor, half in method call
@@ -127,20 +125,9 @@ final class RemoteServerConnector(
         return
       }
 
-      //TODO: we already have this information, no need in extra work
-      val psiFile = inReadAction {
-        PsiManager.getInstance(project).findFile(originalFile)
-      }
-      val fileToReHighlight = psiFile match {
-        case scalaFile: ScalaFile if WorksheetFileSettings.isRepl(scalaFile) => Some(scalaFile)
-        case _ => None
-      }
-
       WorksheetFileHook.updateStoppableProcess(originalFile, Some(() => worksheetProcess.stop()))
       worksheetProcess.addTerminationCallback { exception =>
         WorksheetFileHook.updateStoppableProcess(originalFile, None)
-
-        fileToReHighlight.foreach(WorksheetEditorPrinterRepl.rehighlight)
 
         val result = exception match {
           case Some(ex) => RemoteServerConnectorResult.ProcessTerminatedError(ex)

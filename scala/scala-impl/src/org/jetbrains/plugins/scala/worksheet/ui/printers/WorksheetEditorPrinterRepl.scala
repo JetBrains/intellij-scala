@@ -113,7 +113,7 @@ final class WorksheetEditorPrinterRepl private[printers](
         false
       case ReplLastChunkProcessed =>
         flushBuffer()
-        refreshLastMarker()
+        updateLastLineMarker()
         true
 
       case ReplChunkStart =>
@@ -301,8 +301,9 @@ final class WorksheetEditorPrinterRepl private[printers](
         ReplMessageInfo(message, lineContent, (line - 1).max(0), (column - 1).max(0), messageCategory)
     }
 
-  private def refreshLastMarker(): Unit =
-    rehighlight(getScalaFile)
+  private def updateLastLineMarker(): Unit = inReadAction {
+    DaemonCodeAnalyzer.getInstance(project).restart(getScalaFile)
+  }
 }
 
 object WorksheetEditorPrinterRepl {
@@ -341,10 +342,6 @@ object WorksheetEditorPrinterRepl {
   }
 
   def countNewLines(str: String): Int = StringUtil.countNewLines(str)
-
-  def rehighlight(file: PsiFile): Unit = inReadAction {
-    DaemonCodeAnalyzer.getInstance(file.getProject).restart(file)
-  }
 
   private case class ReplMessageInfo(text: String,
                                      lineContent: String,
