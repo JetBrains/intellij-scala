@@ -262,6 +262,8 @@ object CompileServerLauncher {
     xmx ++ otherParams
   }
 
+
+  // TODO: make it thread safe, call from a single thread OR use some locking mechanism
   def ensureServerRunning(project: Project): Boolean = {
     LOG.traceSafe("ensureServerRunning")
     if (needRestart(project)) {

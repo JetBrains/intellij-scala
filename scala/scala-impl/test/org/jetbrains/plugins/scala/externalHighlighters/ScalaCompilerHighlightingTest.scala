@@ -30,7 +30,9 @@ import scala.util.{Failure, Success}
 class ScalaCompilerHighlightingTest
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
-  
+
+  override def useCompileServer: Boolean = true
+
   import ScalaCompilerHighlightingTest._
 
   @RunWithScalaVersions(Array(
