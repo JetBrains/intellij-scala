@@ -45,6 +45,11 @@ object BspProjectData {
 }
 
 
+case class JdkData @PropertyMapping(Array("javaHome", "javaVersion"))(
+  @Nullable javaHome: URI,
+  @Nullable javaVersion: String
+) extends BspEntityData
+
 @SerialVersionUID(3)
 case class ScalaSdkData @PropertyMapping(Array("scalaOrganization", "scalaVersion", "scalacClasspath", "scalacOptions"))(
   @NotNull scalaOrganization: String,

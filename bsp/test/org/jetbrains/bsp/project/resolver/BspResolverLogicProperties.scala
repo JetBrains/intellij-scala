@@ -44,7 +44,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
   def testGetScalaSdkData(): Unit = check(
     forAll { (scalaBuildTarget: ScalaBuildTarget, scalacOptionsItem: ScalacOptionsItem) =>
 
-      val data = getScalaSdkData(scalaBuildTarget, Some(scalacOptionsItem))
+      val (_, data) = getScalaSdkData(scalaBuildTarget, Some(scalacOptionsItem))
       val jarsToClasspath = ! scalaBuildTarget.getJars.isEmpty ==> ! data.scalacClasspath.isEmpty
 
       jarsToClasspath && data.scalaVersion != null
