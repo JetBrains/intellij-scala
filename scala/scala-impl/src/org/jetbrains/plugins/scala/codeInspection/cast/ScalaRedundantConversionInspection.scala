@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
-package codeInspection.cast
+package codeInspection
+package cast
 
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -34,12 +34,12 @@ class ScalaRedundantConversionInspection extends AbstractInspection(ScalaInspect
           leftType <- left.`type`().toOption
           conversionType = f.retType if leftType.equiv(conversionType)
         } registerProblem(element, left, conversionType.presentableText, offset, holder)
-      case f: PsiMethod if f.getName == "toString" &&
+      case f: PsiMethod if f.name == "toString" &&
               f.getParameterList.getParametersCount == 0 &&
               (f.getTypeParameterList == null || f.getTypeParameterList.getTypeParameters.isEmpty) =>
         for {
           leftType <- left.`type`().toOption
-          if leftType.canonicalText == "_root_.java.lang.String"
+          if conformsToTypeFromClass(leftType, "java.lang.String")(element)
         } registerProblem(element, left, "java.lang.String", offset, holder)
       case _ =>
     }
