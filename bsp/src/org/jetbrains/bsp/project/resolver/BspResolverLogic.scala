@@ -9,20 +9,28 @@ import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonElement}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspUtil._
+import org.jetbrains.bsp.data.JdkData
 import org.jetbrains.bsp.data.{BspMetadata, BspProjectData, SbtBuildModuleDataBsp, ScalaSdkData}
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.project.external.JdkByHome
+import org.jetbrains.plugins.scala.project.external.JdkByVersion
+import org.jetbrains.plugins.scala.project.external.SdkReference
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 private[resolver] object BspResolverLogic {
+
+  private def extractJdkData(data: JsonElement)(implicit gson: Gson): Option[JvmBuildTarget] =
+    Option(gson.fromJson[JvmBuildTarget](data, classOf[JvmBuildTarget]))
 
   private def extractScalaSdkData(data: JsonElement)(implicit gson: Gson): Option[ScalaBuildTarget] =
     Option(gson.fromJson[ScalaBuildTarget](data, classOf[ScalaBuildTarget]))
@@ -46,27 +54,33 @@ private[resolver] object BspResolverLogic {
     }
   }
 
+  private[resolver] def getJdkData(target: JvmBuildTarget): JdkData = {
+    JdkData(new URI(target.getJavaHome), target.getJavaVersion)
+  }
 
-  private[resolver] def getScalaSdkData(target: ScalaBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): ScalaSdkData = {
+  private[resolver] def getScalaSdkData(target: ScalaBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): (JdkData, ScalaSdkData) = {
+    val jdk = getJdkData(target.getJvmBuildTarget)
+
     val scalaOptionsStrings = scalacOptionsItem.map(item => item.getOptions).getOrElse(Collections.emptyList())
-    ScalaSdkData(
+    val scala = ScalaSdkData(
       scalaOrganization = target.getScalaOrganization,
       scalaVersion = target.getScalaVersion,
       scalacClasspath = target.getJars.asScala.map(_.toURI.toFile).asJava,
       scalacOptions = scalaOptionsStrings
     )
+    (jdk, scala)
   }
 
-  private[resolver] def getSbtData(target: SbtBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): (SbtBuildModuleDataBsp, ScalaSdkData) = {
+  private[resolver] def getSbtData(target: SbtBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): (JdkData, ScalaSdkData, SbtBuildModuleDataBsp) = {
     val buildFor = target.getChildren.asScala.map { target => new URI(target.getUri) }
 
     val sbtBuildModuleData = SbtBuildModuleDataBsp(
       target.getAutoImports,
       buildFor.asJava
     )
-    val scalaSdkData = getScalaSdkData(target.getScalaBuildTarget, scalacOptionsItem)
+    val (jdkData, scalaSdkData) = getScalaSdkData(target.getScalaBuildTarget, scalacOptionsItem)
 
-    (sbtBuildModuleData, scalaSdkData)
+    (jdkData, scalaSdkData, sbtBuildModuleData)
   }
 
   private[resolver] def calculateModuleDescriptions(buildTargets: Seq[BuildTarget],
@@ -224,19 +238,21 @@ private[resolver] object BspResolverLogic {
     val targetData = Option(target.getData).map(_.asInstanceOf[JsonElement])
     val moduleKind = targetData.flatMap { data =>
       target.getDataKind match {
+        case BuildTargetDataKind.JVM =>
+          targetData.flatMap(extractJdkData)
+            .map(target => getJdkData(target))
+            .map(JvmModule.apply)
         case BuildTargetDataKind.SCALA =>
           targetData.flatMap(extractScalaSdkData)
             .map(target => getScalaSdkData(target, scalacOptions))
-            .map(ScalaModule)
+            .map((ScalaModule.apply _).tupled)
         case BuildTargetDataKind.SBT =>
           // TODO there's some disagreement on responsibility of handling sbt build data.
           //  specifically with bloop, the main workspace is not sbt-aware, and IntelliJ would need to start separate bloop
           //  servers for the build modules.
           targetData.flatMap(extractSbtData)
-            .map { data =>
-              val (sbtModuleData, scalaSdkData) = getSbtData(data, scalacOptions)
-              SbtModule(scalaSdkData, sbtModuleData)
-            }
+            .map(target => getSbtData(target, scalacOptions))
+            .map((SbtModule.apply _).tupled)
         case _ =>
           Some(UnspecifiedModule())
       }
@@ -386,11 +402,11 @@ private[resolver] object BspResolverLogic {
     (a,b) match {
       case (UnspecifiedModule(), other) => other
       case (other, UnspecifiedModule()) => other
-      case (ScalaModule(data1), ScalaModule(data2)) =>
+      case (module1@ScalaModule(_, data1), module2@ScalaModule(_, data2)) =>
         if (Version(data1.scalaVersion) >= Version(data2.scalaVersion))
-          ScalaModule(data1)
+          module1
         else
-          ScalaModule(data2)
+          module2
       case (first, _) => first
     }
 
@@ -402,10 +418,6 @@ private[resolver] object BspResolverLogic {
     val projectRoot = new File(projectRootPath)
     val projectData = new ProjectData(BSP.ProjectSystemId, projectRoot.getName, projectRootPath, projectRootPath)
     val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
-
-    // TODO have a way to set project jdk before/during import
-    val bspProjectData = new DataNode[BspProjectData](BspProjectData.Key, BspProjectData(None), projectNode)
-    projectNode.addChild(bspProjectData)
 
     // synthetic root module when no natural module is at root
     val rootModule =
@@ -442,11 +454,33 @@ private[resolver] object BspResolverLogic {
     val synthDeps = calculateSyntheticDependencies(moduleDeps, projectModules)
     val modules = idToModuleMap.values.toSet
 
+    val bspProjectData = {
+      val jdkReference = inferProjectJdk(modules)
+      new DataNode[BspProjectData](BspProjectData.Key, BspProjectData(jdkReference), projectNode)
+    }
+
     // effects
     addModuleDependencies(moduleDeps ++ synthDeps, idToModuleMap)
     modules.foreach(projectNode.addChild)
+    projectNode.addChild(bspProjectData)
 
     projectNode
+  }
+
+  private def inferProjectJdk(modules: Set[DataNode[ModuleData]]) = {
+    val groupedJdks = modules
+      .flatMap(m => Option(ExternalSystemApiUtil.find(m, BspMetadata.Key)))
+      .map(m => (m.getData.javaHome, m.getData.javaVersion))
+      .filter { case (home, version) => home != null || version != null }
+      .groupBy(identity).mapValues(_.size)
+
+    val jdkReference = if (groupedJdks.isEmpty) {
+      None
+    } else {
+      val (home, version) = groupedJdks.maxBy { case (_, count) => count }._1
+      Option(home).map(_.toFile).map(JdkByHome).orElse(Option(version).map(JdkByVersion))
+    }
+    jdkReference
   }
 
   private[resolver] def moduleFilesDirectory(workspace: File) = new File(workspace, ".idea/modules")
@@ -536,15 +570,26 @@ private[resolver] object BspResolverLogic {
       moduleNode.addChild(contentRootDataNode)
     }
 
-    val targetIds = moduleDescriptionData.targets.map(_.getId.getUri.toURI)
-    val metadata = BspMetadata(targetIds.asJava, null, null)
-
+    val metadata = createBspMetadata(moduleDescription)
     val metadataNode = new DataNode[BspMetadata](BspMetadata.Key, metadata, moduleNode)
     moduleNode.addChild(metadataNode)
 
     addNodeKindData(moduleNode, moduleDescription.moduleKindData)
 
     moduleNode
+  }
+
+  private def createBspMetadata(moduleDescription: ModuleDescription): BspMetadata = {
+    val targetIds = moduleDescription.data.targets.map(_.getId.getUri.toURI)
+    val jdkData = moduleDescription.moduleKindData match {
+      case module: JvmModule => Some(module.jdkData)
+      case module: ScalaModule => Some(module.jdkData)
+      case module: SbtModule => Some(module.jdkData)
+      case _ => None
+    }
+    jdkData.fold(BspMetadata(targetIds.asJava, null, null)) { data =>
+      BspMetadata(targetIds.asJava, data.javaHome, data.javaVersion)
+    }
   }
 
   /** Use moduleBase content root when possible, or create a new content root if dir is not within moduleBase. */
@@ -625,7 +670,7 @@ private[resolver] object BspResolverLogic {
 
   private[resolver] def addNodeKindData(moduleNode: DataNode[ModuleData], moduleKind: ModuleKind): Unit = {
     moduleKind match {
-      case ScalaModule(scalaSdkData) =>
+      case ScalaModule(_, scalaSdkData) =>
 
         val moduleData = moduleNode.getData
 
@@ -643,7 +688,7 @@ private[resolver] object BspResolverLogic {
         moduleNode.addChild(scalaSdkNode)
 
 
-      case SbtModule(scalaSdkData, sbtData) =>
+      case SbtModule(_, scalaSdkData, sbtData) =>
         val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, moduleNode)
         val sbtNode = new DataNode[SbtBuildModuleDataBsp](SbtBuildModuleDataBsp.Key, sbtData, moduleNode)
         moduleNode.addChild(scalaSdkNode)
