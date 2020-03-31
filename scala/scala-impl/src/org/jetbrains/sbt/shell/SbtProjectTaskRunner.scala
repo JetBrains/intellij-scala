@@ -220,7 +220,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
-    val commandFuture = shell.command(command, BuildMessages.empty, resultAggregator, showShell = true)
+    val commandFuture = shell.command(command, BuildMessages.empty, resultAggregator)
 
     // block thread to make indicator available :(
     val buildMessages = Await.ready(commandFuture, Duration.Inf).value.get

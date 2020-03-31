@@ -56,7 +56,7 @@ class SbtStructureDump {
     val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
     val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
 
-    shell.command(cmd, BuildMessages.empty, aggregator, showShell = false)
+    shell.command(cmd, BuildMessages.empty, aggregator)
   }
 
   def dumpFromProcess(directory: File,

@@ -71,7 +71,7 @@ class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
   override def execute(dataContext: DataContext, value: SbtRunItem): Unit = {
     val project = fetchProject(dataContext)
     val com = SbtShellCommunication.forProject(project)
-    com.command(value.command, showShell = true)
+    com.command(value.command)
   }
 
   override def getCommand(value: SbtRunItem): String = {

@@ -27,14 +27,11 @@ final class SbtShellCommunication(project: Project) {
   private val commands = new LinkedBlockingQueue[(String, CommandListener[_])]()
 
   /** Queue an sbt command for execution in the sbt shell, returning a Future[String] containing the entire shell output. */
-  def command(cmd: String, showShell: Boolean = true): Future[String] =
-    command(cmd, StringBuilder.newBuilder, messageAggregator, showShell).map(_.toString())
+  def command(cmd: String): Future[String] =
+    command(cmd, StringBuilder.newBuilder, messageAggregator).map(_.toString())
 
   /** Queue an sbt command for execution in the sbt shell. */
-  def command[A](@NonNls cmd: String,
-                 default: A,
-                 eventHandler: EventAggregator[A],
-                 showShell: Boolean): Future[A] = {
+  def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
     val listener = new CommandListener(default, eventHandler)
     process.acquireShellRunner()
     commands.put((cmd, listener))

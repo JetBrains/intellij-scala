@@ -182,7 +182,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
     Future(Map.empty)
 
   protected def initialize(comm: SbtShellCommunication): Future[String] =
-    comm.command("initialize", showShell = false)
+    comm.command("initialize")
 
   protected def modifySetting(settings: SettingMap,
                               setting: String,
@@ -503,7 +503,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
             else Future.successful(SettingMap())
 
             lazy val cmdF = commands.map(
-              comm.command(_, {}, SbtShellCommunication.listenerAggregator(handler), showShell = false)
+              (cmd: String) => comm.command(cmd, {}, SbtShellCommunication.listenerAggregator(handler))
             )
             for {
               old <- oldSettings
