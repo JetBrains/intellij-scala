@@ -63,7 +63,7 @@ class WorksheetCompiler(
       .get
   }
 
-  def compileOnly(document: Document, client: Client)(originalCallback: EvaluationCallback): Unit = {
+  def compileOnly(document: Document, client: Client)(originalCallback: EvaluationCallback): Unit = try {
     Log.traceSafe(s"compileOnly: $document")
     val headlessMode = {
       val application = ApplicationManager.getApplication
@@ -78,9 +78,12 @@ class WorksheetCompiler(
       /*compilationStartedAutomatically=*/ true
     )
 
-    CompileServerLauncher.ensureServerRunning(project)
-    compilerTask.startWork {
+    if (!CompileServerLauncher.ensureServerRunning(project)) {
+      originalCallback(WorksheetCompilerResult.CompileServerIsNotRunningError)
+      return
+    }
 
+    compilerTask.startWork {
       val callback: RemoteServerConnectorResult => Unit = result => {
         Log.traceSafe(s"compileOnly result: $result")
         originalCallback(WorksheetCompilerResult.Compiled)
@@ -101,6 +104,9 @@ class WorksheetCompiler(
           callback(toError(ex))
       }
     }
+  } catch {
+    case NonFatal(ex) =>
+      originalCallback(WorksheetCompilerResult.UnknownError(ex))
   }
 
   private def createCompilerTask: CompilerTask = {
