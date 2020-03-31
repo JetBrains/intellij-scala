@@ -4,6 +4,7 @@ import java.util.concurrent.Semaphore
 
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 
 trait CompilerLock {
   def lock(): Unit
@@ -25,16 +26,18 @@ object CompilerLock {
     ServiceManager.getService(project, classOf[CompilerLock])
 }
 
-private class CompilerLockImpl
+private class CompilerLockImpl(project: Project)
   extends CompilerLock {
 
   private val semaphore = new Semaphore(1)
 
   override def lock(): Unit =
-    semaphore.acquire()
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+      semaphore.acquire()
 
   override def unlock(): Unit =
-    semaphore.release()
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+      semaphore.release()
 
   override def isLocked: Boolean =
     semaphore.availablePermits() == 0

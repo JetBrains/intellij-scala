@@ -458,8 +458,7 @@
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.ServerMediatorTask"/>
-        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.LockCompileTask"/>
-        <compiler.task execute="AFTER" implementation="org.jetbrains.plugins.scala.compiler.UnlockCompilerTask"/>
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.CompilerLockTask"/>
 
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
@@ -1715,6 +1714,8 @@
                   class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetDumbModeListener"/>
         <listener topic="org.jetbrains.sbt.project.settings.SbtProjectSettingsListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$SbtProjectListener"/>
+        <listener topic="com.intellij.task.ProjectTaskListener"
+                  class="org.jetbrains.plugins.scala.compiler.CompilerUnlockListener"/>
 
         <listener topic="com.intellij.compiler.server.CustomBuilderMessageHandler"
                   class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>
