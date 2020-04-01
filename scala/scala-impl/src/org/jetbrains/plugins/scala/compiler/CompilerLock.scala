@@ -36,8 +36,13 @@ private class CompilerLockImpl(project: Project)
       semaphore.acquire()
 
   override def unlock(): Unit =
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
-      semaphore.release()
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) synchronized {
+      val permits = semaphore.availablePermits()
+      if (permits == 0)
+        semaphore.release()
+      else
+        throw new IllegalStateException(s"Can't unlock compiler for $project. Available permits: $permits")
+    }
 
   override def isLocked: Boolean =
     semaphore.availablePermits() == 0
