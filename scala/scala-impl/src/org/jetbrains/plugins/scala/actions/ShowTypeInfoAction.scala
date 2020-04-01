@@ -6,18 +6,16 @@ import _root_.com.intellij.psi._
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.tasty._
 
@@ -38,7 +36,7 @@ class ShowTypeInfoAction extends AnAction(
   override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
-    if(editor == null) return
+    if (editor == null) return
 
     val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
     if (!file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
@@ -79,7 +77,7 @@ class ShowTypeInfoAction extends AnAction(
           case _ => "Could not find type for selection"
         }
       }
-      val hint = hintForPattern orElse hintForExpression
+      val hint = (hintForPattern orElse hintForExpression).map(StringUtil.escapeXmlEntities)
       hint.foreach(ScalaActionUtil.showHint(editor, _))
 
     } else {
@@ -98,13 +96,13 @@ class ShowTypeInfoAction extends AnAction(
         }
       }
 
-      ShowTypeInfoAction.getTypeInfoHint(editor, file, offset).foreach(ScalaActionUtil.showHint(editor, _))
+      ShowTypeInfoAction.getTypeInfoHint(file, offset).foreach(ScalaActionUtil.showHint(editor, _))
     }
   }
 }
 
 object ShowTypeInfoAction {
-  def getTypeInfoHint(editor: Editor, file: PsiFile, offset: Int): Option[String] = {
+  def getTypeInfoHint(file: PsiFile, offset: Int): Option[String] = {
     val typeInfoFromRef = file.findReferenceAt(offset) match {
       case ref @ ResolvedWithSubst(e, subst) => typeTextOf(e, subst)(ref.getElement)
       case _ =>
@@ -113,26 +111,28 @@ object ShowTypeInfoAction {
         if (element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER) return None
         element match {
           case Parent(p) => typeTextOf(p, ScSubstitutor.empty)(element)
-          case _ => None
+          case _         => None
         }
     }
-    val pattern = PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScBindingPattern], false)
+
+    val pattern =
+      PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScBindingPattern], false)
+
     typeInfoFromRef.orElse(typeInfoFromPattern(pattern))
   }
 
-  def typeInfoFromPattern(p: ScBindingPattern): Option[String] = {
+  def typeInfoFromPattern(p: ScBindingPattern): Option[String] =
     p match {
       case null => None
-      case _ => typeTextOf(p, ScSubstitutor.empty)(p)
+      case _    => typeTextOf(p, ScSubstitutor.empty)(p)
     }
-  }
 
   private[this] def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
                               (implicit context: TypePresentationContext): Option[String] = {
     typeText(elem.ofNamedElement(subst))
   }
 
-  private[this] def typeText(optType: Option[ScType], s: ScSubstitutor = ScSubstitutor.empty)
+  private[this] def typeText(optType: Option[ScType])
                             (implicit context: TypePresentationContext): Option[String] = {
     optType.map(ScTypePresentation.withoutAliases)
   }
