@@ -224,7 +224,7 @@ final class WorksheetEditorPrinterRepl private[printers](
   /**  @return Number of the last processed line */
   def getLastProcessedLine: Option[Int] = lastProcessedLine
 
-  def setLastProcessedLine(line: Option[Int]): Unit = lastProcessedLine = line
+  def resetLastProcessedLine(): Unit = lastProcessedLine = None
 
   def updateScalaFile(file: ScalaFile): Unit = currentFile = file
 

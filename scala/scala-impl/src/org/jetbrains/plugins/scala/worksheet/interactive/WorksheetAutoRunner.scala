@@ -82,7 +82,7 @@ class WorksheetAutoRunner(project: Project) {
       if (isRepl && needToResetLastLine) {
         val manager = FileEditorManager.getInstance(project)
         WorksheetFileHook.handleEditor(manager, psiFile.getVirtualFile) { editor =>
-          WorksheetCache.getInstance(project).setLastProcessedIncremental(editor, None)
+          WorksheetCache.getInstance(project).resetLastProcessedIncremental(editor)
         }
       }
 
