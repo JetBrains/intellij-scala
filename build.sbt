@@ -9,6 +9,8 @@ intellijPluginName in ThisBuild := "Scala"
 
 intellijBuild in ThisBuild := Versions.intellijVersion
 
+intellijPlatform in ThisBuild := IntelliJPlatform.IdeaUltimate
+
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
     Resolver.typesafeIvyRepo("releases") :+
@@ -110,19 +112,17 @@ lazy val scalaImpl: sbt.Project =
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity,
       addCompilerPlugin(Dependencies.macroParadise),
-      intellijInternalPlugins := Seq(
-        "platform-langInjection",
-        "platform-images",
-        "java-i18n",
-        "android",
-        "stats-collector", // required for ml completion testing
-        "smali",      // required by Android
-        "gradle",     // required by Android
-        "Groovy",     // required by Gradle
-        "properties", // required by Gradle
-        "maven",      // TODO remove after extracting the SBT module (which depends on Maven)
-        "junit"
-      ),
+      intellijPlugins := Seq(
+        "org.intellij.intelliLang",
+        "com.intellij.java-i18n",
+        "org.jetbrains.android",
+        "com.intellij.stats.completion", // required for ml completion testing
+        "com.android.tools.idea.smali",      // required by Android
+        "com.intellij.gradle",     // required by Android
+        "org.intellij.groovy",     // required by Gradle
+        "org.jetbrains.idea.maven",      // TODO remove after extracting the SBT module (which depends on Maven)
+        "JUnit"
+      ).map(_.toPlugin),
       intellijPluginJars :=
         intellijPluginJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
@@ -245,36 +245,36 @@ lazy val devKitIntegration = newProject(
   "devKit",
   file("scala/integration/devKit")
 ).settings(
-  intellijInternalPlugins += "devkit"
+  intellijPlugins += "DevKit".toPlugin
 )
 
 lazy val androidIntegration =
   newProject("android", file("scala/integration/android"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq(
-        "android",
-        "smali", // required by Android
-        "gradle", // required by Android
-        "Groovy", // required by Gradle
-        "properties") // required by Gradle
+      intellijPlugins ++= Seq(
+        "org.jetbrains.android",
+        "com.android.tools.idea.smali",      // required by Android
+        "com.intellij.gradle",     // required by Android
+        "org.intellij.groovy",     // required by Gradle
+        "com.intellij.properties").map(_.toPlugin) // required by Gradle
     )
 
 lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq("copyright")
+      intellijPlugins += "com.intellij.copyright".toPlugin
     )
 
 lazy val gradleIntegration =
   newProject("gradle", file("scala/integration/gradle"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq(
-        "gradle",
-        "Groovy",     // required by Gradle
-        "properties") // required by Gradle
+      intellijPlugins ++= Seq(
+        "com.intellij.gradle",     // required by Android
+        "org.intellij.groovy",     // required by Gradle
+        "com.intellij.properties").map(_.toPlugin) // required by Gradle
     )
 
 lazy val intelliLangIntegration = newProject(
@@ -284,28 +284,28 @@ lazy val intelliLangIntegration = newProject(
   scalaImpl % "test->test;compile->compile"
 ).settings(
   addCompilerPlugin(Dependencies.macroParadise),
-  intellijInternalPlugins ++= Seq("platform-langInjection")
+  intellijPlugins += "org.intellij.intelliLang".toPlugin
 )
 
 lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq("maven")
+      intellijPlugins += "org.jetbrains.idea.maven".toPlugin
     )
 
 lazy val propertiesIntegration =
   newProject("properties", file("scala/integration/properties"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq("properties")
+      intellijPlugins += "com.intellij.properties".toPlugin
     )
 
 lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
     .dependsOn(scalaApi % Compile)
     .settings(
-      intellijInternalPlugins ++= Seq("java-decompiler")
+      intellijPlugins += "org.jetbrains.java.decompiler".toPlugin
     )
 
 

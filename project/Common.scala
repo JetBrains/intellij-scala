@@ -28,7 +28,7 @@ object Common {
       libraryDependencies ++= Seq(Dependencies.junitInterface),
       updateOptions := updateOptions.value.withCachedResolution(true),
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
-      intellijInternalPlugins += "java",
+      intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage,
       testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
       testFrameworks in Test := (testFrameworks in Test).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest"))),
