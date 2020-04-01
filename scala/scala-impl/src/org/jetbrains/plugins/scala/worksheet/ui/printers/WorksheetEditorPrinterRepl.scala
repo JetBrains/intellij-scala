@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.project
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
-import org.jetbrains.plugins.scala.worksheet.processor
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
@@ -31,9 +30,8 @@ final class WorksheetEditorPrinterRepl private[printers](
   file: ScalaFile
 ) extends WorksheetEditorPrinterBase(editor, viewer) {
 
-  import WorksheetEditorPrinterRepl._
   import ReplMessages._
-  import processor._
+  import WorksheetEditorPrinterRepl._
 
   private var lastProcessedLine: Option[Int] = None
   private var currentFile: ScalaFile = file
@@ -45,6 +43,10 @@ final class WorksheetEditorPrinterRepl private[printers](
 
   private val outputBuffer = StringBuilder.newBuilder
   private val psiToProcess = mutable.Queue.empty[QueuedPsi]
+  def updateEvaluatedElements(evaluatedElements: Seq[WorksheetEditorPrinterRepl.QueuedPsi]): Unit = {
+    psiToProcess.clear()
+    psiToProcess ++= evaluatedElements
+  }
 
   private val inputToOutputMapping = mutable.ListBuffer.empty[(Int, Int)]
 
@@ -65,7 +67,7 @@ final class WorksheetEditorPrinterRepl private[printers](
     }
   }
 
-  private def fetchNewPsi(): Unit = {
+  private def prepareViewerDocument(): Unit =
     lastProcessedLine match {
       case Some(inputLine) =>
         inputToOutputMapping.lastWhere(_._1 == inputLine) match {
@@ -83,16 +85,6 @@ final class WorksheetEditorPrinterRepl private[printers](
         cleanViewerFromLine(0)
     }
 
-    psiToProcess.clear()
-
-    val glue = WorksheetPsiGlue()
-    val iterator = new WorksheetInterpretExprsIterator(getScalaFile, Option(originalEditor), lastProcessedLine)
-    iterator.collectAll(x => inReadAction(glue.processPsi(x)), None)
-    val elements = glue.result
-
-    psiToProcess.enqueue(elements: _*)
-  }
-
   private def clearBuffer(): Unit =
     outputBuffer.clear()
 
@@ -106,7 +98,7 @@ final class WorksheetEditorPrinterRepl private[printers](
     line.trim match {
       case ReplStart =>
         hasErrors = false
-        fetchNewPsi()
+        prepareViewerDocument()
         if (lastProcessedLine.isEmpty)
           cleanFoldingsLater()
         clearBuffer()

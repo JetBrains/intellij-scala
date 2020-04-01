@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.content.{ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl.QueuedPsi
 
 
 private[worksheet]
@@ -15,7 +16,7 @@ object WorksheetCompilerUtil {
 
   sealed trait WorksheetCompileRunRequest
   object WorksheetCompileRunRequest {
-    final case class RunRepl(code: String) extends WorksheetCompileRunRequest
+    final case class RunRepl(code: String, evaluatedElements: Seq[QueuedPsi]) extends WorksheetCompileRunRequest
     final case class RunCompile(code: String, className: String) extends WorksheetCompileRunRequest
   }
   

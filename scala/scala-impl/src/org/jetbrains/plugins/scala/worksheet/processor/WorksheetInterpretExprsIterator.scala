@@ -1,50 +1,63 @@
 package org.jetbrains.plugins.scala.worksheet.processor
 
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.Document
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-class WorksheetInterpretExprsIterator(file: ScalaFile, editorOpt: Option[Editor], lastProcessedLine: Option[Int]) {
+private class WorksheetInterpretExprsIterator(
+  file: ScalaFile,
+  document: Document,
+  lastProcessedLine: Option[Int]
+) extends Iterator[Either[PsiErrorElement, PsiElement]] {
 
-  private val startPsiElement: PsiElement = {
-    val element = for {
-      line         <- lastProcessedLine
-      editor       <- editorOpt
-      (start, end) = lineRange(line, editor)
-      element      <- Option(file.findElementAt((start + end) / 2))
-    } yield element
+  import WorksheetInterpretExprsIterator._
 
-    element.getOrElse(file.getFirstChild)
+  private val firstElement = inReadAction {
+    firstElementToProcess(lastProcessedLine)(file, document)
   }
 
-  private def lineRange(lineIdx: Int, editor: Editor): (Int, Int) = {
-    val document = editor.getDocument
-    (document.getLineStartOffset(lineIdx), document.getLineEndOffset(lineIdx))
+  var current: PsiElement = firstElement.orNull
+  override def hasNext: Boolean = current != null
+  override def next(): Either[PsiErrorElement, PsiElement] =
+    current match {
+      case error: PsiErrorElement =>
+        current = null
+        Left(error)
+      case other =>
+        current = current.getNextSibling
+        Right(other)
+    }
+}
+
+private object WorksheetInterpretExprsIterator {
+
+  private def firstElementToProcess(lastProcessedLine: Option[Int])
+                                   (implicit file: PsiFile, document: Document): Option[PsiElement] =
+    lastProcessedLine match {
+      case Some(line) =>
+        val topMost = topMostElementAtLine(line)
+        topMost.flatMap(_.nextSibling)
+      case None        =>
+        Option(file.getFirstChild)
+    }
+
+  private def topMostElementAtLine(lastProcessedLine: Int)
+                                  (implicit file: PsiFile, document: Document): Option[PsiElement] =
+    for {
+      element <- findElementAtLine(lastProcessedLine)
+      topMost <- element.withParentsInFile.lastOption
+    } yield topMost
+
+  private def findElementAtLine(line: Int)
+                               (implicit file: PsiFile, document: Document): Option[PsiElement] = {
+    val (start, end) = document.lineRange(line)
+    Option(file.findElementAt((start + end) / 2))
   }
 
-  // TODO: rewrite this in a more functional streaming way
-  //  rewrite WorksheetPsiGlue that add and then removes elements to store
-  def collectAll(acc: PsiElement => Unit, onError: Option[PsiErrorElement => Unit]): Unit = {
-    var current = inReadAction {
-      startPsiElement.parentsInFile.lastOption.getOrElse(startPsiElement)
-    }
+  implicit class DocumentExt(private val document: Document) extends AnyVal {
 
-    if (lastProcessedLine.isDefined)
-      current = current.getNextSibling
-    
-    while (current != null) {
-      current match {
-        case error: PsiErrorElement =>
-          onError.foreach { handler =>
-            handler(error)
-            return
-          }
-        case other =>
-          acc(other)
-      }
-
-      current = current.getNextSibling
-    }
+    def lineRange(lineIdx: Int): (Int, Int) =
+      (document.getLineStartOffset(lineIdx), document.getLineEndOffset(lineIdx))
   }
 }

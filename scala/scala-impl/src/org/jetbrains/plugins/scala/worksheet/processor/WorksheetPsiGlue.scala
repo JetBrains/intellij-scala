@@ -10,25 +10,25 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterR
 
 import scala.collection.mutable
 
-class WorksheetPsiGlue private(val store: mutable.Buffer[QueuedPsi]) {
+private final class WorksheetPsiGlue {
 
+  private val store = mutable.ArrayBuffer[QueuedPsi]()
   private var afterSemicolon = false
 
-  def result: Seq[QueuedPsi] = store
+  def prepareEvaluatedElements(elements: Traversable[PsiElement]): Seq[QueuedPsi] = {
+    elements.foreach(this.processPsi)
+    store
+  }
 
-  def processPsi(psi: PsiElement): Unit = psi match {
+  private def processPsi(psi: PsiElement): Unit = psi match {
     case (_: LeafPsiElement) && ElementType(ScalaTokenTypes.tSEMICOLON) => afterSemicolon = true
-    case _: PsiComment                                                  => afterSemicolon &&= !psi.textContains('\n')
-    case _: PsiWhiteSpace                                               => afterSemicolon &&= !psi.textContains('\n')
+    case _: PsiComment | _: PsiWhiteSpace                               => afterSemicolon &&= !psi.textContains('\n')
     case element: ScalaPsiElement =>
       process(element)
       afterSemicolon = false
     case _ =>
       afterSemicolon = false
   }
-
-  private def add(psiElement: PsiElement): Unit =
-    store += SingleQueuedPsi(psiElement)
 
   private def process(element: ScalaPsiElement): Unit = {
 
@@ -40,14 +40,14 @@ class WorksheetPsiGlue private(val store: mutable.Buffer[QueuedPsi]) {
         store.remove(store.length - 1)
         store += ClassObjectPsi(clazz, obj, getTextBetween(first, second), isClassFirst)
       } else {
-        add(second)
+        store += SingleQueuedPsi(second)
       }
     }
 
     val previousElement = store.lastOption match {
       case Some(value) => value
       case None        =>
-        add(element)
+        store += SingleQueuedPsi(element)
         return
     }
 
@@ -63,7 +63,7 @@ class WorksheetPsiGlue private(val store: mutable.Buffer[QueuedPsi]) {
       case (traid: ScTrait, SingleQueuedPsi(obj: ScObject)) => processInner(traid, obj, isClassFirst = false)
       case (obj: ScObject, SingleQueuedPsi(clazz: ScClass)) => processInner(clazz, obj, isClassFirst = true)
       case (obj: ScObject, SingleQueuedPsi(traid: ScTrait)) => processInner(traid, obj, isClassFirst = true)
-      case (other, _)                                       => add(other)
+      case (other, _)                                       => store += SingleQueuedPsi(other)
     }
   }
 
@@ -77,9 +77,4 @@ class WorksheetPsiGlue private(val store: mutable.Buffer[QueuedPsi]) {
     case SemicolonSeqPsi(elements)     => elements
     case co@ClassObjectPsi(_, _, _, _) => co.first :: co.second :: Nil
   }
-}
-
-object WorksheetPsiGlue {
-
-  def apply(): WorksheetPsiGlue = new WorksheetPsiGlue(mutable.ListBuffer[QueuedPsi]())
 }

@@ -54,10 +54,11 @@ object WorksheetExternalRunType {
       WorksheetEditorPrinterFactory.getDefaultUiFor(editor, file)
 
     override def process(srcFile: ScalaFile, editor: Editor): Either[WorksheetPreprocessError, WorksheetCompileRunRequest] = {
-      import WorksheetDefaultSourcePreprocessor.PreprocessResult
       val result = WorksheetDefaultSourcePreprocessor.preprocess(srcFile, editor.getDocument)
       result
-        .map { case PreprocessResult(code, className) => WorksheetCompileRunRequest.RunCompile(code, className) }
+        .map { case WorksheetDefaultSourcePreprocessor.PreprocessResult(code, className) =>
+          WorksheetCompileRunRequest.RunCompile(code, className)
+        }
         .left.map(WorksheetPreprocessError(_, Some(editor)))
     }
   }
@@ -73,8 +74,9 @@ object WorksheetExternalRunType {
     override def process(srcFile: ScalaFile, editor: Editor): Either[WorksheetPreprocessError, WorksheetCompileRunRequest] = {
       val result = WorksheetIncrementalSourcePreprocessor.preprocess(srcFile, editor)
       result
-        .map(_.commandsEncoded)
-        .map(WorksheetCompileRunRequest.RunRepl)
+        .map { case WorksheetIncrementalSourcePreprocessor.PreprocessResult(commandsEncoded, queuedElements) =>
+          WorksheetCompileRunRequest.RunRepl(commandsEncoded, queuedElements)
+        }
         .left.map(WorksheetPreprocessError(_, Some(editor)))
     }
   }

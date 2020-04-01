@@ -141,15 +141,10 @@ class WorksheetCompiler(
     val printer = runType.createPrinter(editor, worksheetFile)
     // do not show error messages in Plain mode on auto-run
     val ignoreCompilerMessages = request match {
-      case RunRepl(_)       => false
-      case RunCompile(_, _) => autoTriggered
+      case _: RunRepl    => false
+      case _: RunCompile => autoTriggered
     }
     val consumer = new CompilerInterfaceImpl(task, printer, ignoreCompilerMessages)
-    printer match {
-      case replPrinter: WorksheetEditorPrinterRepl =>
-        replPrinter.updateMessagesConsumer(consumer)
-      case _ =>
-    }
 
     // this is needed to close the timer of printer in one place
     val callback: EvaluationCallback = result => {
@@ -166,7 +161,11 @@ class WorksheetCompiler(
     }
 
     val args = request match {
-      case RunRepl(code) =>
+      case RunRepl(code, evaluatedElements) =>
+        val replPrinter = printer.asInstanceOf[WorksheetEditorPrinterRepl]
+        replPrinter.updateMessagesConsumer(consumer)
+        replPrinter.updateEvaluatedElements(evaluatedElements)
+
         ReplModeArgs(virtualFile.getCanonicalPath, code)
       case RunCompile(code, className) =>
         val (_, tempFile, outputDir) = cache.updateOrCreateCompilationInfo(virtualFile.getCanonicalPath, worksheetFile.getName)
