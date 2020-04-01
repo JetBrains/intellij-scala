@@ -133,7 +133,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
         }
       case None          =>
     }
-    ScalaPluginUpdater.askUpdatePluginBranch()
+    ScalaPluginUpdater.askUpdatePluginBranchIfNeeded()
   }
 
   private def showIncompatiblePluginNotification(plugin: IdeaPluginDescriptor, @Nls message: String)(callback: String => Unit): Unit = {

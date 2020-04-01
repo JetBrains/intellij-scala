@@ -308,7 +308,7 @@ object ScalaPluginUpdater {
     tempFile.delete()
   }
 
-  def askUpdatePluginBranch(): Unit = {
+  def askUpdatePluginBranchIfNeeded(): Unit = {
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val applicationSettings = ScalaApplicationSettings.getInstance()
     if (infoImpl.isEAP
@@ -316,15 +316,15 @@ object ScalaPluginUpdater {
       && ScalaPluginUpdater.pluginIsRelease) {
       val message =
         """Please select Scala plugin update channel:<p/>
-          |<a href="Nightly">Nightly</a>, <a href="EAP">EAP</a>, <a href="Release">Release</a>""".stripMargin
+          |<a href="Release">Stable Releases</a> | <a href="EAP">Early Access Program</a> | <a href="Nightly">Nightly Bulds</a>""".stripMargin
 
       val notification = new Notification(updGroupId, title, message, NotificationType.INFORMATION, (notification: Notification, event: HyperlinkEvent) => {
         notification.expire()
         applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
         event.getDescription match {
+          case "Release" => doUpdatePluginHostsAndCheck(Release)
           case "EAP" => doUpdatePluginHostsAndCheck(EAP)
           case "Nightly" => doUpdatePluginHostsAndCheck(Nightly)
-          case "Release" => doUpdatePluginHostsAndCheck(Release)
           case _ => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
         }
       })
