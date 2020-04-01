@@ -58,7 +58,20 @@ object TypeParameter {
             lType: ScType,
             uType: ScType): TypeParameter = StrictTp(psiTypeParameter, typeParameters, lType, uType)
 
-  def light(name: String, typeParameters: Seq[TypeParameter], lower: ScType, upper: ScType): TypeParameter =
+  def light(
+    name:           String,
+    typeParameters: Seq[TypeParameter],
+    lower:          ScType,
+    upper:          ScType
+  ): TypeParameter =
+    LightTypeParameter(name, typeParameters, () => lower, () => upper)
+
+  def light(
+    name:           String,
+    typeParameters: Seq[TypeParameter],
+    lower:          () => ScType,
+    upper:          () => ScType
+  ): TypeParameter =
     LightTypeParameter(name, typeParameters, lower, upper)
 
   def unapply(tp: TypeParameter): Option[(PsiTypeParameter, Seq[TypeParameter], ScType, ScType)] =
@@ -90,11 +103,16 @@ object TypeParameter {
     override def upperType: ScType = javaPsiTypeParameterUpperType(psiTypeParameter)
   }
 
-  private case class LightTypeParameter(override val name: String,
-                                        override val typeParameters: Seq[TypeParameter],
-                                        override val lowerType: ScType,
-                                        override val upperType: ScType) extends TypeParameter {
+  private case class LightTypeParameter(
+    override val name:           String,
+    override val typeParameters: Seq[TypeParameter],
+    lower:                       () => ScType,
+    upper:                       () => ScType
+  ) extends TypeParameter {
+    override def lowerType: ScType = lower()
+    override def upperType: ScType = upper()
 
-    override val psiTypeParameter: PsiTypeParameter = new DummyLightTypeParam(name)(lowerType.projectContext)
+    override val psiTypeParameter: PsiTypeParameter =
+      new DummyLightTypeParam(name)(lowerType.projectContext)
   }
 }

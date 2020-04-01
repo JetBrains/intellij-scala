@@ -70,10 +70,7 @@ object ScExistentialArgument {
     private var _lower: ScType = _
     private var _upper: ScType = _
 
-    override def initialize(): Unit = {
-      if (isInitialized)
-        throw new IllegalStateException("Existential argument is already initialized")
-
+    override def initialize(): Unit = if (!isInitialized) {
       _lower = lowerBound()
       _upper = upperBound()
 

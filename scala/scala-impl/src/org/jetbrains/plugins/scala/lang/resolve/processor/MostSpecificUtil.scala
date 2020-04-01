@@ -34,7 +34,6 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   implicit def ctx: ProjectContext = elem
 
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult],
-                                   hasTypeParametersCall: Boolean = false,
                                    expandInnerResult: Boolean = true): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
       case Some(rr) if expandInnerResult =>
@@ -82,10 +81,30 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     inners.filter(!isMoreSpecific(innerResult, _, checkImplicits = false)).map(_.repr)
   }
 
-  private class InnerScalaResolveResult[T](val element: PsiNamedElement, val implicitConversionClass: Option[PsiClass],
-                                           val repr: T, val substitutor: ScSubstitutor,
-                                           val callByNameImplicit: Boolean = false,
-                                           val implicitCase: Boolean = false)
+  private class InnerScalaResolveResult[T](
+    val element:                 PsiNamedElement,
+    val implicitConversionClass: Option[PsiClass],
+    val repr:                    T,
+    val substitutor:             ScSubstitutor,
+    val callByNameImplicit:      Boolean = false,
+    val implicitCase:            Boolean = false
+  )
+
+  private class ExistentialAbstractionBuilder(tparams: Seq[TypeParameter]) {
+    private lazy val existentialArgumentSubst: ScSubstitutor = {
+      ScSubstitutor.bind(tparams)(
+        tp =>
+          ScExistentialArgument.deferred(
+            tp.name,
+            tp.typeParameters,
+            () => existentialArgumentSubst(tp.lowerType),
+            () => existentialArgumentSubst(tp.upperType)
+          )
+      )
+    }
+
+    def substitutor: ScSubstitutor = existentialArgumentSubst
+  }
 
   //todo: make implementation closer to scala.tools.nsc.typechecker.Infer.Inferencer.isAsSpecific
   private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T],
@@ -98,9 +117,6 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         val (t1, t2) = (r1.substitutor(getType(m1, r1.implicitCase)), r2.substitutor(getType(m2, r2.implicitCase)))
 
         def calcParams(tp: ScType, undefine: Boolean): Either[Seq[Parameter], ScType] = {
-          def toExistentialArg(tp: TypeParameter) =
-            ScExistentialArgument(tp.name, tp.typeParameters, tp.lowerType, tp.upperType)
-
           tp match {
             case ScMethodType(_, params, _) => Left(params)
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
@@ -110,8 +126,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 Left(params.map(p => p.copy(paramType = s(p.paramType))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
-              val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
-              Right(ScExistentialType(s(internal)))
+              val existentialSubst = new ExistentialAbstractionBuilder(typeParams).substitutor
+
+              val substedInternal = existentialSubst(internal).visitRecursively {
+                case arg: ScExistentialArgument => arg.initialize()
+                case _                          => ()
+              }
+
+              Right(ScExistentialType(substedInternal))
             case _ => Right(tp)
           }
         }

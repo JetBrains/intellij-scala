@@ -677,10 +677,7 @@ object MethodResolveProcessor {
 
       if (filtered.size == 1) filtered
       else
-        MostSpecificUtil(ref, len).mostSpecificForResolveResult(
-          filtered,
-          hasTypeParametersCall = typeArgElements.nonEmpty
-        ) match {
+        MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered) match {
           case Some(r) => Set(r)
           case None    => filtered
         }

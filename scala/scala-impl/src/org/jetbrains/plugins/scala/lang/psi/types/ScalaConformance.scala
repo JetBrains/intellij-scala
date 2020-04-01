@@ -1026,30 +1026,34 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      def lightTypeParam(arg: ScExistentialArgument): TypeParameter =
-        TypeParameter.light(arg.name, arg.typeParameters, arg.lower, arg.upper)
-
-      val undefines = e.wildcards.map(w => UndefinedType(lightTypeParam(w)))
-      val wildcardsToUndefined = e.wildcards.zip(undefines).toMap
-
-      val updatedWithUndefinedTypes = e.quantified.recursiveUpdate {
-        case arg: ScExistentialArgument => ReplaceWith(wildcardsToUndefined.getOrElse(arg, arg))
-        case _: ScExistentialType       => Stop
-        case _                          => ProcessSubtypes
+      val (updatedWithUndefinedTypes, undefines) = {
+        val remapper = new ExistentialArgumentsToTypeParameters(e.wildcards, UndefinedType(_))
+        (remapper.remapExistentials(e.quantified), remapper.remapped)
       }
 
-      conformsInner(updatedWithUndefinedTypes, r, HashSet.empty, constraints) match {
-        case unSubst@ConstraintSystem(solvingSubstitutor) =>
+      val skolemizeExistentialsOnTheRight = r match {
+        case etpe: ScExistentialType =>
+          new ExistentialArgumentsToTypeParameters(etpe.wildcards, TypeParameterType(_))
+            .remapExistentials(etpe.quantified)
+        case t => t
+      }
+
+      conformsInner(updatedWithUndefinedTypes, skolemizeExistentialsOnTheRight, HashSet.empty, constraints) match {
+        case unSubst @ ConstraintSystem(solvingSubstitutor) =>
           for (un <- undefines if result == null) {
             val solvedType = solvingSubstitutor(un)
 
-            var t = conformsInner(solvedType, un.typeParameter.lowerType.unpackedType, constraints = constraints)
+            val lowerBoundSubsted = solvingSubstitutor(un.typeParameter.lowerType.unpackedType)
+            var t = conformsInner(solvedType, lowerBoundSubsted, constraints = constraints)
             if (solvedType != un && t.isLeft) {
               result = ConstraintsResult.Left
               return
             }
+
             constraints = t.constraints
-            t = conformsInner(un.typeParameter.upperType.unpackedType, solvedType, constraints = constraints)
+            val upperBoundSubsted = solvingSubstitutor(un.typeParameter.upperType.unpackedType)
+            t = conformsInner(upperBoundSubsted, solvedType, constraints = constraints)
+
             if (solvedType != un && t.isLeft) {
               result = ConstraintsResult.Left
               return
@@ -1059,9 +1063,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
           if (result == null) {
             //ignore undefined types from existential arguments
-            val typeParamIds = undefines.map {
-              _.typeParameter.typeParamId
-            }.toSet
+            val typeParamIds = undefines
+              .map(_.typeParameter.typeParamId)
+              .toSet
 
             constraints += unSubst.removeTypeParamIds(typeParamIds)
             result = constraints
@@ -1213,6 +1217,18 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       checkEquiv()
       if (result != null) return
+
+      r match {
+        case tpt2: ScExistentialArgument =>
+          val res = conformsInner(s.lower, r, HashSet.empty, constraints)
+          if (res.isRight) {
+            result = res
+            return
+          }
+          result = conformsInner(l, tpt2.upper, HashSet.empty, constraints)
+          return
+        case _ =>
+      }
 
       val t = conformsInner(s.lower, r, HashSet.empty, constraints)
 
@@ -1446,5 +1462,33 @@ private object ScalaConformance {
     case object Lower       extends Bound
     case object Upper       extends Bound
     case object Equivalence extends Bound
+  }
+
+  private class ExistentialArgumentsToTypeParameters[T <: ScType](
+    exs:             Seq[ScExistentialArgument],
+    typeParamToType: TypeParameter => T
+  ) {
+    private[this] lazy val remapExistentials: Map[ScExistentialArgument, T] =
+      exs.map(
+        ex =>
+          ex -> typeParamToType(
+            TypeParameter.light(
+              ex.name,
+              ex.typeParameters,
+              () => remapExistentials(ex.lower),
+              () => remapExistentials(ex.upper)
+            )
+          )
+      )(collection.breakOut)
+
+    def remapExistentials(tpe: ScType): ScType =
+      tpe.recursiveUpdate {
+        case arg: ScExistentialArgument => ReplaceWith(remapExistentials.getOrElse(arg, arg))
+        case _: ScExistentialType       => Stop
+        case _                          => ProcessSubtypes
+      }
+
+
+    def remapped: Seq[T] = remapExistentials.values.toSeq
   }
 }

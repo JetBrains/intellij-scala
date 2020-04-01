@@ -220,7 +220,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
           case _ =>
         }
 
-        if (tvMap.get(id).isEmpty) {
+        if (!tvMap.contains(id)) {
           tvMap += ((id, Nothing))
         }
         tvMap.contains(id)
@@ -333,7 +333,7 @@ private object ConstraintSystemImpl {
         )
     }
 
-  private[this] def recursiveVarianceUpdate(`type`: ScType, variance: Variance, revertVariances: Boolean = false)
+  private[this] def recursiveVarianceUpdate(`type`: ScType, variance: Variance)
                                            (invariantAbstract: ScAbstractType => ScType,
                                             invariantExistentialArg: ScExistentialArgument => ScType) =
     `type`.recursiveVarianceUpdate(variance) {

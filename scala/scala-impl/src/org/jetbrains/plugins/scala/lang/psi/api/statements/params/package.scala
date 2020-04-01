@@ -84,8 +84,8 @@ package object params {
   object TypeParamId {
     implicit val psi: TypeParamId[PsiTypeParameter] = {
       case sc: ScTypeParam => sc.typeParamId
-      case null => -1
-      case p => cachedId(p, p.name)
+      case null            => -1
+      case p               => cachedId(p, p.name)
     }
 
     implicit val typeParam: TypeParamId[TypeParameter] = t => psi.typeParamId(t.psiTypeParameter)

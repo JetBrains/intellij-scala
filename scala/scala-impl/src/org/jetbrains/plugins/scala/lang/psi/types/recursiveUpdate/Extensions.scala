@@ -40,7 +40,6 @@ class Extensions(val tp: ScType) extends AnyVal {
     found
   }
 
-
   private def foreachSubtypeUpdate(fun: ScType => Unit): SimpleUpdate = scType => {
     fun(scType)
     ProcessSubtypes
