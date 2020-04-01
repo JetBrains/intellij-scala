@@ -59,7 +59,7 @@ private[resolver] object BspResolverLogic {
   }
 
   private[resolver] def getScalaSdkData(target: ScalaBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): (JdkData, ScalaSdkData) = {
-    val jdk = getJdkData(target.getJvmBuildTarget)
+    val jdk = Option(target.getJvmBuildTarget).fold(JdkData(null, null))(getJdkData)
 
     val scalaOptionsStrings = scalacOptionsItem.map(item => item.getOptions).getOrElse(Collections.emptyList())
     val scala = ScalaSdkData(
