@@ -122,4 +122,9 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   private def comma = createComma.getNode
 
   private def space = createNewLineNode(" ")
+
+  override def deleteChildInternal(child: ASTNode): Unit = {
+    ScalaPsiUtil.deleteCommaAfterElementInCommaSeparatedList(this, child)
+    super.deleteChildInternal(child)
+  }
 }
