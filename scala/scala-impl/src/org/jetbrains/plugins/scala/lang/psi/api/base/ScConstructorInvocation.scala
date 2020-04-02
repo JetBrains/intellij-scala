@@ -18,7 +18,7 @@ import scala.collection.Seq
 * Date: 22.02.2008
 */
 
-trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocationLike with ImplicitArgumentsOwner {
+trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocationLike {
   def typeElement: ScTypeElement
 
   def simpleTypeElement: Option[ScSimpleTypeElement]
