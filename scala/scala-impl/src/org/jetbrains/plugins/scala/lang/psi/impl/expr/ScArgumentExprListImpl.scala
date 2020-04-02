@@ -119,7 +119,6 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
     this
   }
-
   private def comma = createComma.getNode
 
   private def space = createNewLineNode(" ")

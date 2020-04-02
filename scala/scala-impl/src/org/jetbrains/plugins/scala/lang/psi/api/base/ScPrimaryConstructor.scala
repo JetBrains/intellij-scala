@@ -67,19 +67,18 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
   def methodType(result: Option[ScType]): ScType = {
     val parameters: ScParameters = parameterList
     val clauses = parameters.clauses
-    val returnType: ScType = result.getOrElse({
+    val returnType: ScType = result.getOrElse {
       val clazz = getParent.asInstanceOf[ScTypeDefinition]
       val typeParameters = clazz.typeParameters
       val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
       val designatorType: ScType =
-        if (parentClazz != null)
-          ScProjectionType(ScThisType(parentClazz), clazz)
-        else ScDesignatorType(clazz)
+        if (parentClazz == null) ScDesignatorType(clazz)
+        else ScProjectionType(ScThisType(parentClazz), clazz)
       if (typeParameters.isEmpty) designatorType
       else {
         ScParameterizedType(designatorType, typeParameters.map(TypeParameterType(_)))
       }
-    })
+    }
     if (clauses.isEmpty) return ScMethodType(returnType, Seq.empty, isImplicit = false)
     val res = clauses.foldRight[ScType](returnType){(clause: ScParameterClause, tp: ScType) =>
       ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)

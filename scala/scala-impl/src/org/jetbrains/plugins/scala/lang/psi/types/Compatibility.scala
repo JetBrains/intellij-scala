@@ -12,9 +12,8 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
-import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction

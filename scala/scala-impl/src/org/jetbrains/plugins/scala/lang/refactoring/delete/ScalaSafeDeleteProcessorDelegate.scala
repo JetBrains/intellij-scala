@@ -3,7 +3,7 @@ package lang
 package refactoring
 package delete
 
-import java.util.{ArrayList => JArrayList, List => JList}
+import java.util.{List => JList}
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
@@ -35,14 +35,14 @@ class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
         insideDeletedCondition
       case m: ScFunction => // TODO Scala specific override/implements, extend to vals, members, type aliases etc.
         findMethodUsages(m, allElementsToDelete, usages)
-      case _: ScParameter =>
-        findParameterUsages(element.asInstanceOf[PsiParameter], usages)
+      case param: ScParameter =>
+        findParameterUsages(param, usages)
         insideDeletedCondition
       case _ =>
         insideDeletedCondition
     }
 
-    return new NonCodeUsageSearchInfo(insideDeletedCondition, element)
+    new NonCodeUsageSearchInfo(insideDeletedCondition, element)
   }
 
   override def preprocessUsages(project: Project, usages: Array[UsageInfo]): Array[UsageInfo] = {
