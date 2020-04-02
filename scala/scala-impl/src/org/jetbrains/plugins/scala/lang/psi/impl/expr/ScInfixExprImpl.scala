@@ -60,6 +60,12 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
     }.getOrElse(super.innerType)
   }
 
+  override def deleteChildInternal(child: ASTNode): Unit = {
+    super.deleteChildInternal(child)
+    // the resulting tree is not a valid infix expression, so we have to recreate it
+    replace(ScalaPsiElementFactory.createElementFromText(this.getText))
+  }
+
   override def toString: String = "InfixExpression"
 }
 

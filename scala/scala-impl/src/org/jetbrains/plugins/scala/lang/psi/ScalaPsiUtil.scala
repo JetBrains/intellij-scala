@@ -6,7 +6,8 @@ import java.{util => ju}
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.extapi.psi.StubBasedPsiElementBase
+import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
+import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
@@ -15,6 +16,7 @@ import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
+import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -1517,6 +1519,24 @@ object ScalaPsiUtil {
         }
 
       case _ => false
+    }
+  }
+
+  // returns true if a comma was deleted
+  def deleteCommaAfterElementInCommaSeparatedList(list: ASTDelegatePsiElement, element: ASTNode): Boolean = {
+    def isComma(node: ASTNode): Boolean = node != null && node.getElementType == ScalaTokenTypes.tCOMMA
+    val next = PsiImplUtil.skipWhitespaceAndComments(element.getTreeNext)
+    if (isComma(next)) {
+      list.deleteChildInternal(next)
+      true
+    } else {
+      val prev = PsiImplUtil.skipWhitespaceAndCommentsBack(element.getTreePrev)
+      if (isComma(prev)) {
+        list.deleteChildInternal(prev)
+        true
+      } else {
+        false
+      }
     }
   }
 }

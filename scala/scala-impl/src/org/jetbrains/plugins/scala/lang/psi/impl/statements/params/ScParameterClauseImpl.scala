@@ -7,6 +7,7 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.PsiImplUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -108,6 +109,19 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
       node.addChild(space, rParen)
     }
     this
+  }
+
+  override def deleteChildInternal(child: ASTNode): Unit = {
+    val commaWasDeleted = ScalaPsiUtil.deleteCommaAfterElementInCommaSeparatedList(this, child)
+    if (!commaWasDeleted) {
+      // if there was no comma it is the last parameter, so delete the implicit keyword
+      val prev = PsiImplUtil.skipWhitespaceAndCommentsBack(child.getTreePrev)
+      if (prev != null && prev.getElementType == ScalaTokenTypes.kIMPLICIT) {
+        deleteChildInternal(prev)
+      }
+    }
+
+    super.deleteChildInternal(child)
   }
 
   override def owner: PsiElement = {
