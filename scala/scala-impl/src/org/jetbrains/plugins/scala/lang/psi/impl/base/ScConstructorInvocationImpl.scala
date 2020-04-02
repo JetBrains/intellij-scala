@@ -6,14 +6,12 @@ package base
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -28,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
@@ -38,7 +35,9 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 22.02.2008
 */
 
-class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructorInvocation {
+class ScConstructorInvocationImpl(node: ASTNode)
+  extends ScalaPsiElementImpl(node)
+    with ScConstructorInvocation with ConstructorInvocationLikeImpl {
 
   override def typeElement: ScTypeElement =
     findNotNullChildByClass(classOf[ScTypeElement])
@@ -161,7 +160,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
                 param => Parameter(mySubst(param.paramType), param.isRepeated, param.index)
               )
 
-              val extRes = Compatibility.checkConformanceExt(false, undefParams, paramsByClauses.map(_._1), false, false)
+              val extRes = Compatibility.checkConformanceExt(checkNames = false, undefParams, paramsByClauses.map(_._1), checkWithImplicits = false, isShapesResolve = false)
               val maybeSubstitutor = extRes.constraints match {
                 case ConstraintSystem(substitutor) => Some(substitutor)
                 case _ => None
@@ -221,28 +220,5 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     visitor.visitConstructorInvocation(this)
   }
 
-  override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
-
-  @Cached(ModCount.getBlockModificationCount, this)
-  def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {
-    val paramClauses = this.reference.map(_.resolve()).orNull match {
-      case ScalaConstructor(constr) => constr.effectiveParameterClauses.map(_.effectiveParameters)
-      case JavaConstructor(constr)  => Seq(constr.parameters)
-      case _                        => Seq.empty
-    }
-    (for {
-      (paramClause, argList) <- paramClauses.zip(arguments)
-    } yield {
-      for ((arg, idx) <- argList.exprs.zipWithIndex) yield
-        arg match {
-          case ScAssignment(refToParam: ScReferenceExpression, Some(expr)) =>
-            val param = paramClause.find(_.getName == refToParam.refName)
-              .orElse(refToParam.resolve().asOptionOf[ScParameter])
-            param.map(p => (expr, Parameter(p))).toSeq
-          case expr =>
-            val paramIndex = Math.min(idx, paramClause.size - 1)
-            paramClause.lift(paramIndex).map(p => (expr, Parameter(p))).toSeq
-        }
-    }).map(_.flatten)
-  }
+  override protected def resolveConstructor(): PsiElement = this.reference.map(_.resolve()).orNull
 }
