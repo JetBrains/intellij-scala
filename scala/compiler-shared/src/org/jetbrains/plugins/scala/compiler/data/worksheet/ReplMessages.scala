@@ -8,5 +8,5 @@ object ReplMessages {
    val ReplChunkStart            = "$$worksheet$$repl$$chunk$$start$$"
    val ReplChunkEnd              = "$$worksheet$$repl$$chunk$$end$$"
    val ReplChunkCompilationError = "$$worksheet$$repl$$chunk$$compilation$$error$$"
-   val ReplLastChunkProcessed    = "$$worksheet$$repl$$last$$chunk$$processed$$"
+   val ReplEnd                   = "$$worksheet$$repl$$end$$"
 }

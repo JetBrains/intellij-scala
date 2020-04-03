@@ -57,6 +57,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TermSignat
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
+import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
@@ -1397,7 +1398,7 @@ package object extensions {
     def traceSafe(@NonNls message: => String): Unit =
       if (logger.isTraceEnabled) {
         logger.trace(message)
-      } else if (ApplicationManager.getApplication.isUnitTestMode) {
+      } else if (ApplicationManager.getApplication.isUnitTestMode || ScalaPluginUtils.isRunningFromSources) {
         logger.debugSafe(message)
       }
   }

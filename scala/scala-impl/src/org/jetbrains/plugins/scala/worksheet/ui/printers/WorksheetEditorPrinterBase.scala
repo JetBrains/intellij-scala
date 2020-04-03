@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet.ui.printers
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.FoldingModelEx
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{ThrowableExt, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
@@ -27,20 +28,29 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
   private var inited = false
 
-  override def internalError(errorMessage: String): Unit =
+  override def internalError(ex: Throwable): Unit =
     invokeLater {
       inWriteAction {
-        val internalErrorPrefix = ScalaBundle.message("worksheet.internal.error")
-        val reason = if(errorMessage == null) "" else s": $errorMessage"
-        val fullErrorMessage = s"$internalErrorPrefix$reason"
-        val documentAlreadyContainsErrors = viewerDocument.getCharsSequence.startsWith(internalErrorPrefix)
-        if(documentAlreadyContainsErrors) {
+        val fullErrorMessage = internalErrorMessage(ex)
+        if (alreadyContainsInternalErrors(viewerDocument)) {
           simpleAppend("\n" + fullErrorMessage, viewerDocument)
         } else {
           simpleUpdate(fullErrorMessage, viewerDocument)
         }
       }
     }
+
+  protected final def internalErrorPrefix: String =
+    ScalaBundle.message("worksheet.internal.error")
+
+  protected final def alreadyContainsInternalErrors(document: Document): Boolean =
+    document.getCharsSequence.startsWith(internalErrorPrefix)
+
+  protected final def internalErrorMessage(ex: Throwable): String = {
+    val stacktraceText = ex.stackTraceText
+    val reason = if(stacktraceText == null) "" else s":\n$stacktraceText"
+    s"$internalErrorPrefix$reason"
+  }
 
   override def diffSplitter: Option[SimpleWorksheetSplitter] = getWorksheetSplitter
 
@@ -135,6 +145,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 }
 
 private object WorksheetEditorPrinterBase {
+
 
   case class FoldingOffsets(
     outputStartLine: Int,

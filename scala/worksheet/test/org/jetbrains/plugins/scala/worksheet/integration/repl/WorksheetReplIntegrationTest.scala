@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.NoFolding
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -21,7 +23,7 @@ import scala.language.postfixOps
 class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 
-  // FIXME: fails for scala 2.10:
+  // fixme (minor) : fails for scala 2.10:
   //  sbt.internal.inc.CompileFailed: Error compiling the sbt component 'repl-wrapper-2.10.7-55.0-2-ILoopWrapperImpl.jar'
   //  https://youtrack.jetbrains.com/issue/SCL-16175
   override protected def supportedIn(version: ScalaVersion): Boolean = version > Scala_2_10
@@ -82,6 +84,58 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     doRenderTest(left, right)
   }
 
+  def testTrimChunkOutputFromTheRightButNotFromTheLeft(): Unit = {
+    val left =
+      """println("\n\n1\n2\n3\n\n")
+        |val x = 42
+        |""".stripMargin
+
+    val right =
+      s"""
+         |
+         |${foldStart}1
+         |2
+         |3$foldEnd
+         |x: Int = 42""".stripMargin
+
+    doRenderTest(left, right)
+  }
+
+  def testMultipleFoldings_WithSpacesBetweenSpaces(): Unit = {
+    val left =
+      """
+        |println("1\n2\n3")
+        |
+        |
+        |val x = 42
+        |
+        |
+        |println("4\n5\n6")
+        |
+        |
+        |val y = 23
+        |""".stripMargin
+
+    val right =
+      s"""
+         |${foldStart}1
+         |2
+         |3$foldEnd
+         |
+         |
+         |x: Int = 42
+         |
+         |
+         |${foldStart}4
+         |5
+         |6$foldEnd
+         |
+         |
+         |y: Int = 23""".stripMargin
+
+    doRenderTest(left, right)
+  }
+
   def testLongLineOutput(): Unit = {
     val left =
       """val text = "1\n^\n2\n3\n4\n^\n5\n6\n7\n8\n9"
@@ -106,11 +160,6 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     doRenderTest(left, right)
   }
 
-
-  override def stackTraceLineStart = "..."
-
-  override def exceptionOutputShouldBeExpanded = false
-
   def testDisplayFirstRuntimeException(): Unit = {
     val left =
       """println("1\n2")
@@ -126,19 +175,24 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
          |
          |""".stripMargin
 
-    val errorMessage = "java.lang.ArithmeticException: / by zero"
-
-    val editor = testDisplayFirstRuntimeException(left, right, errorMessage)
+    val exceptionOutputAssert: String => Unit = text => {
+      assertStringMatches(
+        text,
+        """\Qjava.lang.ArithmeticException: / by zero\E
+          |\s+...\s*\d+\s+elided\s*""".replace("\r", "").stripMargin.r
+      )
+    }
+    val editor = testDisplayFirstRuntimeException(left, right, NoFolding, exceptionOutputAssert)
 
     val printer = worksheetCache.getPrinter(editor).get.asInstanceOf[WorksheetEditorPrinterRepl]
     def assertLastLine(): Unit = assertEquals(
       "last processed line should point to last successfully evaluated line",
-      Some(0), printer.getLastProcessedLine
+      Some(0), printer.lastProcessedLine
     )
 
     assertLastLine()
     // run again with same editor, the output should be the same between these runs
-    testDisplayFirstRuntimeException(editor, right, errorMessage)
+    testDisplayFirstRuntimeException(editor, right, NoFolding, exceptionOutputAssert)
     assertLastLine()
   }
 
@@ -223,7 +277,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     val printer = worksheetCache.getPrinter(editor).get.asInstanceOf[WorksheetEditorPrinterRepl]
     assertEquals(
       "last processed line should point to last successfully-compiled and evaluated line",
-      Some(1), printer.getLastProcessedLine
+      Some(1), printer.lastProcessedLine
     )
   }
 
@@ -253,7 +307,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       viewer.getDocument.getModificationStamp != stamp
     }
 
-    assertViewerEditorText(editor)(
+    assertViewerEditorText(editor,
       """res0: Int = 42
         |res1: Int = 23""".stripMargin
     )
@@ -274,7 +328,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
 
     MyUiUtils.wait(5 seconds)
 
-    assertViewerEditorText(editor)(
+    assertViewerEditorText(editor,
       """res0: Int = 42
         |""".stripMargin
     )
@@ -454,4 +508,265 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |Cons(42,Empty)""".stripMargin
     doRenderTest(before, after)
   }
+
+  // see SCL-11450
+  def testLambdaValueDefinitionOutputShouldBeFancy(): Unit = {
+    val before = """val foo: String => Int = _.length"""
+
+    doRenderTest(before, actual => {
+      assertStringMatches(actual, """foo: String => Int = <function\d*>[\d\w]*""".r)
+    })
+  }
+
+  def testSameWorksheetEvaluatedSeveralTimesShouldntAddAnyNewOutput(): Unit = {
+    val before =
+      """val x = 42
+        |val y = 23""".stripMargin
+    val after =
+      """x: Int = 42
+        |y: Int = 23""".stripMargin
+    val worksheetEditor = prepareWorksheetEditor(before)
+    runWorksheetEvaluationAndWait(worksheetEditor)
+    assertViewerEditorText(worksheetEditor, after)
+    runWorksheetEvaluationAndWait(worksheetEditor)
+    assertViewerEditorText(worksheetEditor, after)
+  }
+
+  def testSystemExit(): Unit =
+    doRenderTest(
+      """val x = 42
+        |println(s"x: $x")
+        |System.exit(0)""".stripMargin,
+      """x: Int = 42
+        |x: 42""".stripMargin
+    )
+
+  def testManyCompanionClassesAndObjectsWithVariousNewSpaces(): Unit = {
+    val before =
+      """val x = 1
+        |
+        |class A
+        |object A
+        |
+        |class X
+        |object X {
+        |
+        |}
+        |
+        |
+        |class Y {
+        |
+        |}
+        |object Y
+        |
+        |
+        |class Z {
+        |
+        |}
+        |object Z {
+        |
+        |}
+        |
+        |/////////////
+        |
+        |class XX
+        |
+        |object XX {
+        |
+        |}
+        |
+        |
+        |class YY {
+        |
+        |}
+        |
+        |object YY
+        |
+        |
+        |class ZZ {
+        |
+        |}
+        |
+        |object ZZ {
+        |
+        |}""".stripMargin
+    val after =
+      """x: Int = 1
+        |
+        |defined class A
+        |defined object A
+        |
+        |defined class X
+        |defined object X
+        |
+        |
+        |
+        |
+        |defined class Y
+        |
+        |
+        |defined object Y
+        |
+        |
+        |defined class Z
+        |
+        |
+        |defined object Z
+        |
+        |
+        |
+        |
+        |
+        |defined class XX
+        |
+        |defined object XX
+        |
+        |
+        |
+        |
+        |defined class YY
+        |
+        |
+        |
+        |defined object YY
+        |
+        |
+        |defined class ZZ
+        |
+        |
+        |
+        |defined object ZZ""".stripMargin
+    doRenderTest(before, after)
+  }
+
+  def testManyCompanionClassesAndObjectsWithVariousTypeOfClasses(): Unit = {
+    val before =
+      """class C1
+        |object C1
+        |
+        |abstract class C2
+        |object C2
+        |
+        |final class C3
+        |object C3
+        |
+        |trait T1
+        |object T1
+        |
+        |sealed trait T2
+        |object T2
+        |
+        |object O
+        |trait O""".stripMargin
+    val after  =
+      """defined class C1
+        |defined object C1
+        |
+        |defined class C2
+        |defined object C2
+        |
+        |defined class C3
+        |defined object C3
+        |
+        |defined trait T1
+        |defined object T1
+        |
+        |defined trait T2
+        |defined object T2
+        |
+        |defined object O
+        |defined trait O""".stripMargin
+    doRenderTest(before, after)
+  }
+
+  def testManyComments(): Unit =
+    doRenderTest(
+      """
+        |/*
+        |*
+        |* */
+        |class Zyx {
+        |  val x = 42
+        |}
+        |object Zyx {
+        |  val y = 42
+        |}
+        |
+        |// comment 1
+        |class Abc {
+        |  val x = 42
+        |}
+        |
+        |// comment 1
+        |
+        |// comment 3
+        |/**
+        |  *
+        |  */
+        |object Abc {
+        |  val y = 42
+        |}
+        |""".stripMargin,
+      """
+        |
+        |
+        |
+        |defined class Zyx
+        |
+        |
+        |defined object Zyx
+        |
+        |
+        |
+        |
+        |defined class Abc
+        |
+        |
+        |
+        |
+        |
+        |
+        |
+        |
+        |
+        |defined object Abc""".stripMargin
+    )
+
+  // yes, this is a very strange case, but anyway
+  def testSemicolonSeparatedExpressions(): Unit =
+    doRenderTest(
+      """val x = 23; val y = 42; def f(i: Int): String = "hello"; println("1\n2")""",
+      s"""${foldStart}1
+        |2
+        |x: Int = 23
+        |y: Int = 42
+        |f: (i: Int)String$foldEnd""".stripMargin
+    )
+
+  def testSemicolonSeparatedExpressions_OnMultipleLines(): Unit =
+    doRenderTest(
+      """val x = 23; val y =
+        |  42; def f(i: Int): String = "hello"; println(
+        |  "1\n2"
+        |)""".stripMargin,
+      s"""1
+         |2
+         |x: Int = 23
+         |${foldStart}y: Int = 42
+         |f: (i: Int)String$foldEnd""".stripMargin
+    )
+
+
+  /** TODO: add tests for cases
+   * 4. (minor) several evaluations of this isn't evaluated multiple times, it's broken now, if last statement has semicolon-separated expressions
+   * {{{
+   * val x = 42; val y =
+   *   23
+   * }}}
+   *
+   * 7. (SCL-17300) For scala 3
+   * sealed trait T
+   * case class A() extends T
+   * case class B() extends T
+   */
 }

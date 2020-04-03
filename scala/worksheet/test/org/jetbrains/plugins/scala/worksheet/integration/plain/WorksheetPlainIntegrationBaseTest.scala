@@ -4,16 +4,18 @@ import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStringMatches
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.Folded
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType, WorksheetFileSettings}
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain
+import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinterFactory, WorksheetEditorPrinterPlain}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.ViewerEditorState
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -89,11 +91,6 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     doRenderTest(left, right)
   }
 
-  override def stackTraceLineStart = "\tat"
-
-  // TODO: fix within SCL-16585
-  override def exceptionOutputShouldBeExpanded = false
-
   def testDisplayFirstRuntimeException(): Unit = {
     val left =
       """println("1\n2")
@@ -110,10 +107,20 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |
          |""".stripMargin
 
-    val errorMessage = "java.lang.ArithmeticException: / by zero"
-    val editor = testDisplayFirstRuntimeException(left, right, errorMessage)
+    val exceptionOutputAssert: String => Unit = text => {
+      val stackTraceDepthLimit = WorksheetEditorPrinterFactory.BULK_COUNT
+      assertStringMatches(
+        text,
+        ("\\Qjava.lang.ArithmeticException: / by zero\\E" +
+          s"(\n\tat [^\n]*){1,$stackTraceDepthLimit}" +
+          s"(\nOutput exceeds cutoff limit\\.)?").r
+      )
+    }
+
+
+    val editor = testDisplayFirstRuntimeException(left, right, Folded(expanded = false), exceptionOutputAssert)
     // run again with same editor, the output should be the same between these runs
-    testDisplayFirstRuntimeException(editor, right, errorMessage)
+    testDisplayFirstRuntimeException(editor, right, Folded(expanded = false), exceptionOutputAssert)
   }
 
   def testCompilationError(): Unit = {
@@ -203,7 +210,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
       viewer.getDocument.getModificationStamp != stamp
     }
 
-    assertViewerEditorText(editor)(
+    assertViewerEditorText(editor,
       """res0: Int = 42
         |res1: Int = 23
         |""".stripMargin
@@ -226,7 +233,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     MyUiUtils.wait(5 seconds)
 
-    assertViewerEditorText(editor)(
+    assertViewerEditorText(editor,
       """res0: Int = 42
         |""".stripMargin
     )

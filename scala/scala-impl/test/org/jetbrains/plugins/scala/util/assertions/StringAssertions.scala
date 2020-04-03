@@ -2,7 +2,20 @@ package org.jetbrains.plugins.scala.util.assertions
 
 import org.junit.Assert._
 
+import scala.util.matching.Regex
+
 trait StringAssertions {
+
+  def assertStringMatches(string: String, regex: Regex): Unit =
+    regex.findAllMatchIn(string).toSeq match {
+      case Seq(_) =>
+      case _ =>
+        fail(
+          s"""string doesn't match regular expression:
+             |regex: $regex
+             |actual: $string""".stripMargin
+        )
+    }
 
   def assertStartsWith(string: String, prefix: String): Unit =
     if (!string.startsWith(prefix)) {

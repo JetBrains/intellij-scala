@@ -84,8 +84,8 @@ final class WorksheetEditorPrinterPlain private[printers](
     false
   }
 
-  override def internalError(errorMessage: String): Unit = {
-    super.internalError(errorMessage)
+  override def internalError(ex: Throwable): Unit = {
+    super.internalError(ex)
     terminated = true
     stopTimer()
   }

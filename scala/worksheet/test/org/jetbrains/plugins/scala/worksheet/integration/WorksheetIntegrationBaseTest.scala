@@ -4,13 +4,13 @@ import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.AssertionMatchers._
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -95,6 +95,17 @@ abstract class WorksheetIntegrationBaseTest
     doRenderTest(beforeFixed, afterFixed, foldings)
   }
 
+  protected def doRenderTest(before: String, afterAssert: String => Unit): Editor = {
+    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, afterAssert)
+
+    evaluationResult shouldBe RunWorksheetActionResult.Done
+
+    assertNoErrorMessages(editor)
+    assertNoWarningMessages(editor)
+
+    editor
+  }
+
   protected def doRenderTest(editor: Editor, afterWithFoldings: String): Editor = {
     val (afterFixed, foldings) = preprocessViewerText(afterWithFoldings)
     doRenderTest(editor, afterFixed, foldings)
@@ -142,7 +153,16 @@ abstract class WorksheetIntegrationBaseTest
     foldings: Seq[Folding]
   ): TestRunResult = {
     val result = runWorksheetEvaluationAndWait(before)
-    assertViewerOutput(result.worksheetEditor)(after, foldings)
+    assertViewerOutput(result.worksheetEditor, after, foldings)
+    result
+  }
+
+  private def doRenderTestWithoutCompilationChecks(
+    before: String,
+    afterAssert: String => Unit
+  ): TestRunResult = {
+    val result = runWorksheetEvaluationAndWait(before)
+    assertViewerEditorText(result.worksheetEditor, afterAssert)
     result
   }
 
@@ -152,7 +172,7 @@ abstract class WorksheetIntegrationBaseTest
     foldings: Seq[Folding]
   ): TestRunResult = {
     val result = runWorksheetEvaluationAndWait(editor)
-    assertViewerOutput(editor)(after, foldings)
+    assertViewerOutput(editor, after, foldings)
     result
   }
 

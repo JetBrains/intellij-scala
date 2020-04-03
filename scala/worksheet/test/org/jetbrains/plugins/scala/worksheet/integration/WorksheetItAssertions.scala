@@ -5,21 +5,33 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
 trait WorksheetItAssertions {
   self: WorksheetIntegrationBaseTest =>
 
-  def assertViewerEditorText(editor: Editor)(expectedText: String): Unit = {
-    val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(editor)
-    assertEquals(expectedText.withNormalizedSeparator, actualText)
+  def assertViewerEditorText(editor: Editor, expectedText: String): Unit =
+    assertViewerEditorText(
+      editor,
+      assertEquals(expectedText.withNormalizedSeparator, _)
+    )
+
+  def assertViewerEditorText(editor: Editor, textAssert: String => Unit): Unit = {
+    val ViewerEditorData(_, actualText, _) = viewerEditorDataFromLeftEditor(editor)
+    textAssert(actualText)
   }
 
-  def assertViewerOutput(editor: Editor)(expectedText: String, expectedFoldings: Seq[Folding]): Unit = {
+  def assertViewerOutput(editor: Editor, expectedText: String, expectedFoldings: Seq[Folding]): Unit =
+    assertViewerOutput(
+      editor,
+      assertEquals(expectedText.withNormalizedSeparator, _),
+      expectedFoldings
+    )
+
+  def assertViewerOutput(editor: Editor, textAssert: String => Unit, expectedFoldings: Seq[Folding]): Unit = {
     val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(editor)
     try {
-      assertEquals(expectedText.withNormalizedSeparator, actualText)
+      textAssert(actualText)
     } catch {
       case ex: AssertionError =>
         printCollectedCompilerMessages(editor)

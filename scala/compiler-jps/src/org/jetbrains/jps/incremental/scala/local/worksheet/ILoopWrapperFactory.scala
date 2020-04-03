@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgsRepl
 import scala.collection.JavaConverters.{collectionAsScalaIterableConverter, seqAsJavaListConverter}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
 
+import scala.util.control.NonFatal
+
 class ILoopWrapperFactory {
 
   //maximum count of repl sessions handled at any time
@@ -54,7 +56,7 @@ class ILoopWrapperFactory {
       case writer: MyUpdatePrintWriter => writer.updateOut(outStream)
       case _                           =>
     }
-    client.progress("Worksheet execution started")
+    client.progress("Worksheet execution started", Some(0))
     printService(out, ReplStart)
     try out.flush()
     catch {
@@ -62,26 +64,42 @@ class ILoopWrapperFactory {
         e.printStackTrace()
     }
     val code = new String(Base64.getDecoder.decode(args.codeChunk), StandardCharsets.UTF_8)
-    val statements = code.split(Pattern.quote(ReplDelimiter))
-    for (statement <- statements) {
+    // note: do not remove String generic parameter, it will fail in JVM 11
+    val statements = if (code.isEmpty) Array.empty[String] else code.split(Pattern.quote(ReplDelimiter))
+    for  { (statement, idx) <- statements.zipWithIndex } {
       val commandAction = if (statement.startsWith(":")) commands.get(statement) else None
       commandAction match {
         case Some(action) =>
           action.apply(inst)
         case _        =>
           printService(out, ReplChunkStart)
-          val shouldContinue = statement.trim.length == 0 || inst.processChunk(statement)
-          client.progress("Executing worksheet...") // TODO: add fraction
-          if (shouldContinue) {
-            printService(out, ReplChunkEnd)
-          } else {
-            printService(out, ReplChunkCompilationError)
-            return
+          try {
+            val shouldContinue = statement.trim.length == 0 || inst.processChunk(statement)
+            val progress = (idx + 1f) / statements.size
+            client.progress("Executing worksheet...", Some(progress))
+            if (shouldContinue) {
+              printService(out, ReplChunkEnd)
+            } else {
+              printService(out, ReplChunkCompilationError)
+              return
+            }
+          } catch {
+            case NonFatal(ex) =>
+              printStackTrace(ex, out)
+              printService(out, ReplChunkCompilationError)
+              return
           }
       }
     }
-    printService(out, ReplLastChunkProcessed)
+    printService(out, ReplEnd)
   }
+
+  private def printStackTrace(ex: Throwable, output: Flushable): Unit =
+    output match {
+      case stream: MyUpdatePrintStream => ex.printStackTrace(stream)
+      case writer: MyUpdatePrintWriter => ex.printStackTrace(writer)
+      case _                           =>
+    }
 
   private def printService(out: Flushable, txt: String): Unit =
     out match {

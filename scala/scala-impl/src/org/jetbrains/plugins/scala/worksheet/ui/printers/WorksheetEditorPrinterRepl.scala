@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.worksheet.ui.printers
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.compiler.CompilerMessageImpl
-import com.intellij.openapi.compiler.CompilerMessageCategory
+import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
+import org.jetbrains.annotations.{CalledInAwt, CalledWithWriteLock}
 import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter
 import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter.MessageLineParsed
 import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.project
+import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaPluginUtils}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
@@ -33,222 +35,249 @@ final class WorksheetEditorPrinterRepl private[printers](
   import ReplMessages._
   import WorksheetEditorPrinterRepl._
 
-  private var lastProcessedLine: Option[Int] = None
+  // Mapping of successfully-processed chunks from left editor to the output end in the right editor
+  private val inputToOutputMapping = mutable.ArrayBuffer.empty[InputOutputMappingItem]
+  /**  @return index of the last processed line */
+  def lastProcessedLine: Option[Int] = inputToOutputMapping.lastOption.map(_.inputLine)
+  def resetLastProcessedLine(): Unit = inputToOutputMapping.clear()
+
   private var currentFile: ScalaFile = file
-  private var hasErrors = false
+  override def getScalaFile: ScalaFile = currentFile
+  def updateScalaFile(file: ScalaFile): Unit = currentFile = file
 
   /* we have to inject this interface because we have to restore the original error positions in worksheet editor
    * and for now this can only be done in this printer  */
   private var messagesConsumerOpt: Option[CompilerMessagesConsumer] = None
+  def updateMessagesConsumer(consumer: CompilerMessagesConsumer): Unit = messagesConsumerOpt = Some(consumer)
 
-  private val outputBuffer = StringBuilder.newBuilder
   private val psiToProcess = mutable.Queue.empty[QueuedPsi]
   def updateEvaluatedElements(evaluatedElements: Seq[WorksheetEditorPrinterRepl.QueuedPsi]): Unit = {
     psiToProcess.clear()
     psiToProcess ++= evaluatedElements
   }
 
-  private val inputToOutputMapping = mutable.ListBuffer.empty[(Int, Int)]
+  private val chunkOutputBuffer = StringBuilder.newBuilder
+  private var chunkIsBeingProcessed = false
 
-  private def cleanViewerFromLine(lineIdx: Int): Unit = {
-    if (lineIdx == 0) {
-      invokeLater {
-        inWriteAction {
-          simpleUpdate("", viewerDocument)
-          cleanFoldings()
-        }
-      }
-    } else {
-      inWriteCommandAction {
-        val start = (viewerDocument.getLineStartOffset(lineIdx) - 1).max(0) // capture previous new line as well
-        val end   = viewerDocument.getTextLength
-        viewerDocument.deleteString(start, end)
-      }
-    }
-  }
-
-  private def prepareViewerDocument(): Unit =
-    lastProcessedLine match {
-      case Some(inputLine) =>
-        inputToOutputMapping.lastWhere(_._1 == inputLine) match {
-          case Some((_, outputLine)) =>
-            if (outputLine + 1 < viewerDocument.getLineCount) {
-              cleanViewerFromLine(outputLine)
-            }
-            if (inputToOutputMapping.length > outputLine + 1) {
-              inputToOutputMapping.remove(outputLine + 1, inputToOutputMapping.length - outputLine - 1)
-            }
-          case _ =>
-            cleanViewerFromLine(0)
-        }
-      case _ =>
-        cleanViewerFromLine(0)
-    }
-
-  private def clearBuffer(): Unit =
-    outputBuffer.clear()
-
-  override def getScalaFile: ScalaFile = currentFile
+  private def debug(text: => String): Unit =
+    println(s"[${Thread.currentThread.getId}] $text")
 
   // FIXME: now all return boolean values are not processed anywhere and do not mean anything, remove or handle
   // FIXME: handle exceptions in process line
-  override def processLine(line: String): Boolean = {
+  // TODO: better to abstract away from "line string" to some kind of message / event, wrap the line
+  //  we already WorksheetEditorPrinterRepl.ReplMessage.unapply, could generalize over all type of output
+  override def processLine(line: String): Boolean = chunkOutputBuffer.synchronized {
     if (!isInited) init()
+    //debug(s"line: '" + line.replaceAll("[\n\r]", "\\\\n ") + "'")
 
-    line.trim match {
+    val command = line.trim
+    command match {
       case ReplStart =>
-        hasErrors = false
         prepareViewerDocument()
         if (lastProcessedLine.isEmpty)
           cleanFoldingsLater()
-        clearBuffer()
+        chunkOutputBuffer.clear()
         false
-      case ReplLastChunkProcessed =>
+      case ReplEnd   =>
         flushBuffer()
         updateLastLineMarker()
         true
 
       case ReplChunkStart =>
+        chunkIsBeingProcessed = true
         false
-      case ReplChunkEnd =>
-        flushBuffer()
-        false
-      case ReplChunkCompilationError =>
-        hasErrors = true
-        flushBuffer()
-        true
+      case ReplChunkEnd | ReplChunkCompilationError =>
+        chunkIsBeingProcessed = false
+        //prepareViewerDocument()
 
-      case "" =>
-        false
+        val outputText = chunkOutputBuffer.toString.trimRight
+        chunkOutputBuffer.clear()
+
+        val successfully = command == ReplChunkEnd
+        chunkProcessed(outputText, successfully)
+
+        updateLastLineMarker()
+
+        !successfully
       case ReplMessage(line) =>
-        messagesConsumerOpt.foreach(handleReplMessageLine(_, line))
+        handleReplMessageLine(line)
         false
-      case outputLine =>
-        outputBuffer.append(augmentLine(outputLine)).append("\n")
+      case _ =>
+        if (chunkIsBeingProcessed)
+          chunkOutputBuffer.append(adjustOutputLineContent(line))
         false
     }
   }
 
-  override def flushBuffer(): Unit = {
-    if (psiToProcess.isEmpty) return // empty output is possible see SCL-11720
+  private def prepareViewerDocument(): Unit =
+    inputToOutputMapping.lastOption.map(_.outputLastLine) match {
+      case Some(outputLine) =>
+        val nextLine = outputLine + 1
+        if (viewerDocument.getLineCount > nextLine)
+          cleanViewer(fromLineIdx = nextLine)
+      case _                =>
+        cleanViewer()
+    }
 
-    val outputText = outputBuffer.toString.trim
-    outputBuffer.clear()
-
-    val queuedPsi: QueuedPsi = psiToProcess.dequeue()
-    if (!queuedPsi.isValid) return //warning here?
-
-    val linesCountOutput = countNewLines(outputText) + 1
-    val linesCountInput  = countNewLines(queuedPsi.getText) + 1
-
-    @inline
-    /** @return lines index (0-based) */
-    def originalLine(offset: Int): Int = originalDocument.getLineNumber(offset)
-
-    val originalTextRange = inReadAction(queuedPsi.getWholeTextRange)
-
-    val processedStartLine    = originalLine(queuedPsi.getFirstProcessedOffset)
-    val processedStartEndLine = originalLine(queuedPsi.getLastProcessedOffset)
-    val processedEndLine      = originalLine(originalTextRange.getEndOffset)
-
-    if (!hasErrors)
-      lastProcessedLine = Some(processedStartEndLine)
-
-    WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, originalTextRange.getEndOffset)
-
-    invokeLater {
-      inWriteAction {
-        val viewerDocumentLastLine = (viewerDocument.getLineCount - 1).max(0)
-
-        // 1) append blank lines indentation to align input line from left editor with output line from right editor
-
-        // a single visible line can actually contain many folded lines, so actual indexes can shift further
-        // but the used does not see those folded lines so we need to extract folded lines
-        val numberOfFoldedLines = foldGroup.foldedLines
-        val viewerDocumentLastVisibleLine = (viewerDocumentLastLine - numberOfFoldedLines).max(0)
-
-        val blankLinesBase = (processedStartLine - viewerDocumentLastVisibleLine).max(0)
-
-        val prefix = buildNewLines(blankLinesBase)
-        val currentOutput = new mutable.StringBuilder(prefix.length)
-        currentOutput.append(prefix)
-
-        // 2) append current queuedPsi evaluation output
-
-        val outputChunks = queuedPsi.getPrintChunks(outputText)
-        val outputTextWithNewLinesOffset = outputChunks.map { case PrintChunk(absoluteOffset, relativeOffset, chunkText) =>
-          val currChunkLine = originalLine(absoluteOffset)
-          val prevChunkLine = originalLine(absoluteOffset - relativeOffset)
-          val linesBetween = currChunkLine - prevChunkLine
-          (chunkText, linesBetween)
-        }
-        outputTextWithNewLinesOffset.foreach { case (chunkText, newLinesOffset) =>
-          val prefix = buildNewLines(newLinesOffset)
-          currentOutput.append(prefix)
-          currentOutput.append(chunkText)
-        }
-
-        simpleAppend(currentOutput, viewerDocument)
-
-        val blankLinesFromOutput = outputTextWithNewLinesOffset.foldLeft(0)(_ + _._2)
-
-        val inputLine  = processedStartEndLine
-        val outputLine = viewerDocumentLastLine + blankLinesBase + linesCountOutput  + blankLinesFromOutput
-        inputToOutputMapping.append((inputLine, outputLine))
-
-        saveEvaluationResult(viewerDocument.getText)
-
-        if (linesCountOutput > linesCountInput) {
-          val lineCount = viewerDocument.getLineCount
-
-          val outputStartLine = viewerDocumentLastLine + blankLinesBase
-          val outputEndOffset = viewerDocument.getLineEndOffset(lineCount - 1)
-
-          val foldings = FoldingOffsets(
-            outputStartLine,
-            outputEndOffset,
-            linesCountInput,
-            processedEndLine
-          )
-          updateFoldings(Seq(foldings))
-        }
+  private def cleanViewer(fromLineIdx: Int = 0): Unit =
+    inWriteCommandAction {
+      //debug(s"cleanViewer: $fromLineIdx")
+      if (fromLineIdx == 0) {
+        simpleUpdate("", viewerDocument)
+        cleanFoldings()
+      } else {
+        val start = (viewerDocument.getLineStartOffset(fromLineIdx) - 1).max(0) // capture previous new line as well
+        val end   = viewerDocument.getTextLength
+        viewerDocument.deleteString(start, end)
       }
     }
-  }
 
   override def close(): Unit = {}
+
+  //nothing to flush, content is flushed inside chunkProcessed, not expecting any other unflushed content content
+  override def flushBuffer(): Unit = {}
 
   // Looks like we don't need any flushing here
   override def scheduleWorksheetUpdate(): Unit = {}
 
-  /**  @return Number of the last processed line */
-  def getLastProcessedLine: Option[Int] = lastProcessedLine
+  private def chunkProcessed(outputText: String, successfully: Boolean): Unit = {
+    if (psiToProcess.isEmpty) {
+      // not expecting to be empty, elements count in original psiToProcess should be equal to number of executed  commands in REPL
+      //noinspection ScalaExtractStringToBundle
+      if (ScalaPluginUtils.isRunningFromSources)
+        NotificationUtil.showMessage(project, "psiToProcess is empty")
+      return
+    }
 
-  def resetLastProcessedLine(): Unit = lastProcessedLine = None
+    val queuedPsi: QueuedPsi = psiToProcess.dequeue()
+    if (!queuedPsi.isValid) {
+      // This case can be observed if between "run worksheet" action and end of the worksheet evaluation output
+      // user decided to change some psi element in left editor, or even clean editor content completely.
+      // We can't detect the original line number correctly in this situation, so for now just ignoring any output of such chunks
+      return
+    }
 
-  def updateScalaFile(file: ScalaFile): Unit = currentFile = file
-
-  def updateMessagesConsumer(consumer: CompilerMessagesConsumer): Unit = messagesConsumerOpt = Some(consumer)
-
-  private def augmentLine(inputLine: String): String = {
-    val idx = inputLine.indexOf("$Lambda$")
-
-    if (idx == -1) inputLine else {
-      val prefix = inputLine.substring(0, Math.max(idx - 1, 0))
-      val suffix = inputLine.substring(Math.min(inputLine.length, LAMBDA_LENGTH + idx + 1))
-      prefix + "<function>" + suffix
+    invokeAndWait {
+      inWriteAction {
+        chunkProcessed(queuedPsi, outputText, successfully)
+      }
     }
   }
 
-  private def handleReplMessageLine(messagesConsumer: CompilerMessagesConsumer, messageLine: String): Unit = {
-    val currentPsi = psiToProcess.headOption match {
-      case Some(value) => value
-      case None        => return
+  @CalledInAwt
+  @CalledWithWriteLock
+  private def chunkProcessed(queuedPsi: QueuedPsi, outputText: String, successfully: Boolean): Unit = {
+    @inline
+    /** @return lines index (0-based) */
+    def originalLine(offset: Int): Int = originalDocument.getLineNumber(offset)
+
+    val chunkTextRange = inReadAction(queuedPsi.getWholeTextRange)
+
+    val inputBeginningStartLine = originalLine(queuedPsi.getFirstProcessedOffset)
+    val inputBeginningEndLine   = originalLine(queuedPsi.getLastProcessedOffset)
+    val inputEndLine            = originalLine(chunkTextRange.getEndOffset)
+
+    ///////////////////////////////////////
+
+    val currentOutput = new mutable.StringBuilder()
+
+    // 1) append blank lines indentation to align input line from left editor with output line from right editor
+
+    // a single visible line can actually contain many folded lines, so actual indexes can shift further
+    // but the used does not see those folded lines so we need to extract folded lines
+    val numberOfFoldedLines = foldGroup.foldedLines
+    val lastProcessedChunkOutputLine = inputToOutputMapping.lastOption.map(_.outputLastLine).getOrElse(0)
+    val viewerDocumentLastVisibleLine = (lastProcessedChunkOutputLine - numberOfFoldedLines).max(0)
+
+    val prefixBlankLinesCount = (inputBeginningStartLine - viewerDocumentLastVisibleLine).max(0)
+    val prefixBlankLinesString = buildNewLines(prefixBlankLinesCount)
+    currentOutput.append(prefixBlankLinesString)
+
+    // 2) append current queuedPsi evaluation output
+
+    val outputChunks = queuedPsi.getPrintChunks(outputText)
+    val outputTextWithNewLinesOffset = outputChunks.map { case PrintChunk(absoluteOffset, relativeOffset, chunkText) =>
+      val currChunkLine = originalLine(absoluteOffset)
+      val prevChunkLine = originalLine(absoluteOffset - relativeOffset)
+      val linesBetween = currChunkLine - prevChunkLine
+      (chunkText, linesBetween)
+    }
+    outputTextWithNewLinesOffset.foreach { case (chunkText, newLinesOffset) =>
+      val prefix = buildNewLines(newLinesOffset)
+      currentOutput.append(prefix)
+      currentOutput.append(chunkText)
     }
 
-    val ReplMessageInfo(message, lineContent, lineOffset, columnOffset, severity) =
-      extractReplMessage(messageLine)
-        .getOrElse(ReplMessageInfo(messageLine, "", 0, 0, CompilerMessageCategory.INFORMATION))
+    simpleAppend(currentOutput, viewerDocument)
+
+    val blankLinesFromOutput = outputTextWithNewLinesOffset.foldLeft(0)(_ + _._2)
+
+    // do not update mapping / folding for first chunk which failed to be evaluated (compilation error/exception/etc...)
+    // consider that tailed chunk will be the last in current worksheet run session
+    if (successfully) {
+      WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, chunkTextRange.getEndOffset)
+
+      val inputLineCount  = linesCount(queuedPsi.getText)
+      val outputLineCount = linesCount(outputText)
+
+      val mapping = InputOutputMappingItem(
+        inputBeginningEndLine,
+        lastProcessedChunkOutputLine + prefixBlankLinesCount + (outputLineCount - 1).max(0) + (blankLinesFromOutput - 1).max(0)
+      )
+      inputToOutputMapping.append(mapping)
+
+      if (outputLineCount > inputLineCount) {
+        val lineCount = viewerDocument.getLineCount
+
+        val outputStartLine = lastProcessedChunkOutputLine + prefixBlankLinesCount
+        val outputEndOffset = viewerDocument.getLineEndOffset(lineCount - 1)
+
+        val foldings = FoldingOffsets(
+          outputStartLine,
+          outputEndOffset,
+          inputLineCount,
+          inputEndLine
+        )
+        updateFoldings(Seq(foldings))
+        //debug(s"foldings: $foldings")
+      }
+
+      saveEvaluationResult(viewerDocument.getText)
+    }
+
+    // debug(s"mapping: ${inputToOutputMapping.map(InputOutputMappingItem.unapply(_).get)}")
+  }
+
+  private def adjustOutputLineContent(outputLine: String): String =
+    adjustLambdaDefinitionOutput(outputLine)
+
+  /**
+   * Handles lambda functions definitions
+   * for input: `val f: (Int) => Boolean = _ == 42`
+   * prints: `f: Int => Boolean = <function>134087`
+   * instead of: `f: Int => Boolean = $$Lambda$2299/0x000000010152a040@747dd14a`
+   */
+  private def adjustLambdaDefinitionOutput(outputLine: String): String =
+    outputLine.indexOf(LAMBDA_PREFIX) match {
+      case -1 => outputLine
+      case idx =>
+        val prefix = outputLine.substring(0, Math.max(idx - 1, 0))
+        val suffix = outputLine.substring(Math.min(outputLine.length, LAMBDA_LENGTH + idx + 1))
+        prefix + "<function>" + suffix
+    }
+
+  private def handleReplMessageLine(messageLine: String): Unit = {
+    val messagesConsumer = messagesConsumerOpt.getOrElse(return)
+    val currentPsi = psiToProcess.headOption.getOrElse(return)
+    val compilerMessage = buildCompilerMessage(messageLine, currentPsi)
+    messagesConsumer.message(compilerMessage)
+  }
+
+  private def buildCompilerMessage(messageLine: String, currentPsi: QueuedPsi): CompilerMessage = {
+    val replMessageInfo = extractReplMessage(messageLine)
+      .getOrElse(ReplMessageInfo(messageLine, "", 0, 0, CompilerMessageCategory.INFORMATION))
+
+    val ReplMessageInfo(message, lineContent, lineOffset, columnOffset, severity) = replMessageInfo
 
     val (hOffset, vOffset) = extraOffset(WorksheetFileSettings(getScalaFile).getModuleFor)
     val columnOffsetFixed = columnOffset - vOffset
@@ -269,7 +298,7 @@ final class WorksheetEditorPrinterRepl private[printers](
     }
 
     val messageLines = (message.split('\n'):+ lineContentClean).map(_.trim).filter(_.length > 0)
-    val compilerMessage = new CompilerMessageImpl(
+    new CompilerMessageImpl(
       project,
       severity,
       messageLines.mkString("\n"),
@@ -278,7 +307,6 @@ final class WorksheetEditorPrinterRepl private[printers](
       messagePosition.column + 1,
       null
     )
-    messagesConsumer.message(compilerMessage)
   }
 
   private def extractReplMessage(messageLine: String): Option[ReplMessageInfo] =
@@ -300,8 +328,7 @@ final class WorksheetEditorPrinterRepl private[printers](
 
 object WorksheetEditorPrinterRepl {
 
-  private val CONSOLE_REPORT_PREFIX = PrintWriterReporter.IJReportPrefix
-
+  private val LAMBDA_PREFIX = "$Lambda$"
   private val LAMBDA_LENGTH = 32
 
   // Required due to compiler reports wrong error positions with extra offsets which we need to fix.
@@ -334,6 +361,7 @@ object WorksheetEditorPrinterRepl {
   }
 
   def countNewLines(str: String): Int = StringUtil.countNewLines(str)
+  private def linesCount(str: String): Int = countNewLines(str) + 1
 
   private case class ReplMessageInfo(text: String,
                                      lineContent: String,
@@ -342,6 +370,8 @@ object WorksheetEditorPrinterRepl {
                                      messageCategory: CompilerMessageCategory)
 
   object ReplMessage {
+
+    private val CONSOLE_REPORT_PREFIX = PrintWriterReporter.IJReportPrefix
 
     def unapply(line: String): Option[String] =
       if (line.startsWith(CONSOLE_REPORT_PREFIX)) {
@@ -361,6 +391,7 @@ object WorksheetEditorPrinterRepl {
         } yield (content, lineIdx)
     }
 
+  // TODO: Extract to a separate file
   sealed trait QueuedPsi {
     /**
      * @return underlying psi(-s) is valid
@@ -386,7 +417,7 @@ object WorksheetEditorPrinterRepl {
     def getWholeTextRange: TextRange
 
     /**
-     * @param output the whole trimmed output from the interpreter
+     * @param output the whole output from the interpreter
      */
     def getPrintChunks(output: String): Seq[QueuedPsi.PrintChunk]
 
@@ -452,7 +483,7 @@ object WorksheetEditorPrinterRepl {
     override def getWholeTextRange: TextRange = new TextRange(first.startOffset, second.endOffset)
 
     override def getPrintChunks(output: String): Seq[PrintChunk] = {
-      //we assume output is class A defined \n class B defined
+      //we assume output is `class A defined<new_line>object A defined`
       val newLineIdx = output.indexOf('\n')
       val (text1, text2) =
         if (newLineIdx == -1) (output, "")
@@ -491,4 +522,10 @@ object WorksheetEditorPrinterRepl {
     override def getFirstProcessedOffset: Int = startPsiOffset(elements.head)
     override def getLastProcessedOffset: Int = startPsiOffset(elements.last)
   }
+
+  /**
+   * @param inputLine      0-based input chunk start line
+   * @param outputLastLine 0-based output last line inclusive
+   */
+  private case class InputOutputMappingItem(inputLine: Int, outputLastLine: Int)
 }

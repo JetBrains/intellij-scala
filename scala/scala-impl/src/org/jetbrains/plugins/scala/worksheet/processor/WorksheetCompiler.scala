@@ -14,10 +14,10 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
-import org.jetbrains.plugins.scala.extensions.{LoggerExt, ThrowableExt, using}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.extensions.{LoggerExt, using}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.ScalaSdkNotConfiguredException
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaSdkNotConfiguredException}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{CompileServerIsNotRunningError, Precondition, PreconditionError}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest
@@ -48,8 +48,8 @@ class WorksheetCompiler(
 
   private implicit val project: Project = worksheetFile.getProject
 
-  private val runType = WorksheetFileSettings.getRunType(worksheetFile)
-  private val makeType = WorksheetCompiler.getMakeType(project, runType)
+  private val runType : WorksheetExternalRunType = WorksheetFileSettings.getRunType(worksheetFile)
+  private val makeType: WorksheetMakeType        = WorksheetCompiler.getMakeType(project, runType)
 
   private val virtualFile = worksheetFile.getVirtualFile
 
@@ -144,7 +144,11 @@ class WorksheetCompiler(
       case _: RunRepl    => false
       case _: RunCompile => autoTriggered
     }
-    val consumer = new CompilerInterfaceImpl(task, printer, ignoreCompilerMessages)
+    val logUnexpectedException: Throwable => Unit = ex => {
+      val message = (Seq("Unexpected exc exception occurred during worksheet execution") ++ errorDetails(module) :+ runType.getName :+ makeType).mkString(", ")
+      Log.error(message, ex)
+    }
+    val consumer = new CompilerInterfaceImpl(logUnexpectedException, task, printer, ignoreCompilerMessages)
 
     // this is needed to close the timer of printer in one place
     val callback: EvaluationCallback = result => {
@@ -254,7 +258,8 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
     def collectedMessages: Seq[CompilerMessage]
   }
 
-  class CompilerInterfaceImpl(
+  private class CompilerInterfaceImpl(
+    logUnexpectedException: Throwable => Unit,
     task: CompilerTask,
     worksheetPrinter: WorksheetEditorPrinter,
     ignoreCompilerMessages: Boolean
@@ -298,9 +303,30 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
       worksheetPrinter.processLine(text)
 
     override def trace(ex: Throwable): Unit = {
-      val message = "\n" + ex.stackTraceText // stacktrace already contains thr.toString which contains message
-      worksheetPrinter.internalError(message)
+      logUnexpectedException(ex)
+      worksheetPrinter.internalError(ex)
     }
+  }
+
+  private def errorDetails(module: Module): Seq[String] =
+    if (module.isDisposed) Seq() else {
+      val scalaMajorVersion = module.scalaLanguageLevel.map("Scala: " + _)
+      val project = module.getProject
+      val jdk: Option[String] =
+        if (project.isDisposed) None else {
+          val version = CompileServerLauncher.compileServerJdk(project).toOption.flatMap(JDKVersionDetector.jdkVersion)
+          version.map("JDK: " + _)
+        }
+
+      scalaMajorVersion.toSeq ++ jdk
+    }
+
+  private object JDKVersionDetector {
+    // non-existing versions added just in case for the future...
+    private val versions = Seq(16, 15, 14, 13, 12, 11, 9, 8)
+    // assuming that jdk name is a sensitive information, so can't directly use jdkName
+    def jdkVersion(jdk: JDK): Option[Int] =
+      versions.find(v => jdk.name.contains(v.toString))
   }
 
   private def getMakeType(project: Project, runType: WorksheetExternalRunType): WorksheetMakeType =

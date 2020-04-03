@@ -75,7 +75,7 @@ final class WorksheetCache extends Disposable {
 
   def getLastProcessedIncremental(inputEditor: Editor): Option[Int] =
     Option(allReplPrinters.get(inputEditor)).flatMap {
-      case in: WorksheetEditorPrinterRepl => in.getLastProcessedLine
+      case in: WorksheetEditorPrinterRepl => in.lastProcessedLine
       case _                              => None
     }
 
