@@ -7,12 +7,12 @@ import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages.ReplDeli
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
+import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi
 
 object WorksheetIncrementalSourcePreprocessor {
 
   // can consist of code snippets (e.g. `val x = 42; println(23);`) or native REPL commands (e.g. :reset, :help)
-  case class PreprocessResult(commandsEncoded: String, evaluatedElements: Seq[WorksheetEditorPrinterRepl.QueuedPsi])
+  case class PreprocessResult(commandsEncoded: String, evaluatedElements: Seq[QueuedPsi])
 
   def preprocess(srcFile: ScalaFile, editor: Editor): Either[PsiErrorElement, PreprocessResult] = {
     val lastProcessedLine = WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(editor)
