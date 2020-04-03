@@ -38,10 +38,7 @@ private class JpsCompilerImpl(project: Project)
 
   override def compile(): Unit = {
     saveProjectOnce()
-    if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED)
-      return
-    else
-      CompileServerLauncher.ensureServerRunning(project)
+    CompileServerLauncher.ensureServerRunning(project)
 
     val projectPath = project.getBasePath
     val globalOptionsPath = PathManager.getOptionsPath
