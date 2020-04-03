@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.codeHighlighting.Pass
-import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil}
-import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
@@ -61,10 +60,11 @@ object ExternalHighlighters {
 
   def informWolf(project: Project, state: HighlightingState): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+      val errorTypes = Set(HighlightInfoType.ERROR, HighlightInfoType.WRONG_REF)
       ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
       val wolf = WolfTheProblemSolver.getInstance(project)
       val errorFiles = state.collect {
-        case (file, fileState) if fileState.exists(_.severity == HighlightSeverity.ERROR) => file
+        case (file, fileState) if fileState.exists(errorTypes contains _.highlightType) => file
       }
       errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, this))
     }
@@ -77,14 +77,12 @@ object ExternalHighlighters {
         )
         .getOrElse(TextRange.EMPTY_RANGE)
 
-    val highlightInfoType = HighlightInfo.convertSeverity(highlighting.severity)
-
     val message = highlighting.message
     // TODO: new lines are not handled, everything is displayed in a single, concatenated line
     val description: String = message.trim.stripSuffix(lineText(message))
 
     HighlightInfo
-      .newHighlightInfo(highlightInfoType)
+      .newHighlightInfo(highlighting.highlightType)
       .range(highlightRange)
       .descriptionAndTooltip(description)
       .group(Pass.EXTERNAL_TOOLS)

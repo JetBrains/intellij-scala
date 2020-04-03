@@ -211,7 +211,7 @@ object RemoteServerConnector {
       consumer.trace(exception)
 
     override def message(msg: Client.ClientMsg): Unit = {
-      val Client.ClientMsg(kind, text, source, line, column) = msg
+      val Client.ClientMsg(kind, text, source, line, column, _, _) = msg
       val lines = (if(text == null) "" else "").split("\n")
       val linesLength = lines.length
 
