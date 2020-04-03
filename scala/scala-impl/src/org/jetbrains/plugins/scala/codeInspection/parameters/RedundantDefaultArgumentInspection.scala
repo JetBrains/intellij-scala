@@ -37,7 +37,7 @@ class DeleteRedundantDefaultArgumentQuickFix(arg: ScExpression)
 
   override protected def doApplyFix(element: ScExpression)
                                    (implicit project: Project): Unit = {
-    RedundantDefaultArgumentUtil.deleteFromCommaSeparatedList(element)
+    element.delete()
   }
 }
 
@@ -65,16 +65,5 @@ object RedundantDefaultArgumentUtil {
   def isAllArgumentsNamedAfterIndex(expressions: Seq[ScExpression], index: Int): Boolean = expressions.drop(index + 1).forall {
     case assign: ScAssignment if assign.isNamedParameter => true
     case _ => false
-  }
-
-  def deleteFromCommaSeparatedList(element: ScalaPsiElement): Unit = {
-    element.getPrevSiblingNotWhitespaceComment match {
-      case prev: PsiElement if prev.textMatches(",") => prev.delete()
-      case _ => element.getNextSiblingNotWhitespaceComment match {
-        case next if next.textMatches(",") => next.delete()
-        case _ =>
-      }
-    }
-    element.delete()
   }
 }
