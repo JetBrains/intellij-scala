@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.remote
 
 import java.io._
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.{Base64, Timer, TimerTask}
 
@@ -18,7 +18,6 @@ import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
-import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgsCompileOnly
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import scala.util.{Failure, Success, Try}
@@ -137,7 +136,6 @@ object Main {
     }
 
     worksheetArgs match {
-      case Some(_: WorksheetArgsCompileOnly) =>
       case Some(wa) if !client.hasErrors =>
         worksheetServer.loadAndRun(wa, args, client)
       case _ =>

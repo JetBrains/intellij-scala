@@ -21,9 +21,3 @@ final case class WorksheetArgsRepl(
   codeChunk: String,
   outputDirs: Seq[File]
 ) extends WorksheetArgs
-
-final case class WorksheetArgsCompileOnly(
-  worksheetTempFile: File,
-  originalFileName: String,
-  outputDirs: Seq[File],
-) extends WorksheetArgs

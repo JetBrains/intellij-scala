@@ -17,7 +17,7 @@ import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
-import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsCompileOnly, WorksheetArgsPlain, WorksheetArgsRepl}
+import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
 import org.jetbrains.plugins.scala.compiler.{CompilationProcess, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterR
 // TODO: split to REPL and PLAIN args, change serialization format
 // TODO: clean up this shit with arguments, half in constructor, half in method call
 private[worksheet]
-class RemoteServerConnector(
+final class RemoteServerConnector(
   module: Module,
   worksheetPsiFile: ScFile,
   args: RemoteServerConnector.Args,
@@ -55,27 +55,23 @@ class RemoteServerConnector(
       case _ =>
         val argsTransformed = args match {
           case Args.PlainModeArgs(sourceFile, outputDir, className) =>
-            WorksheetArgsPlain(
+            Some(WorksheetArgsPlain(
               className,
               ScalaPluginJars.runnersJar,
               sourceFile,
               sourceFile.getName,
               outputDir +: outputDirs,
-            )
-          case Args.ReplModeArgs(path, codeChunk)        =>
-            WorksheetArgsRepl(
+            ))
+          case Args.ReplModeArgs(path, codeChunk) =>
+            Some(WorksheetArgsRepl(
               sessionId = path,
               codeChunk,
               outputDirs
-            )
-          case Args.CompileOnly(sourceFile, outputDir) =>
-            WorksheetArgsCompileOnly(
-              sourceFile,
-              sourceFile.getName,
-              outputDir +: outputDirs,
-            )
+            ))
+          case Args.CompileOnly(_, _) =>
+            None // just compile (data is taken from CompilationData)
         }
-        Some(argsTransformed)
+        argsTransformed
     }
 
   override val scalaParameters: Seq[String] = {
@@ -209,6 +205,9 @@ object RemoteServerConnector {
 
     override def trace(exception: Throwable): Unit =
       consumer.trace(exception)
+
+    override def internalDebug(text: String): Unit =
+      Log.debug(text)
 
     override def message(msg: Client.ClientMsg): Unit = {
       val Client.ClientMsg(kind, text, source, line, column) = msg
