@@ -5,6 +5,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.PlatformTestUtil
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.HighlightingTests
@@ -125,18 +126,52 @@ class ScalaCompilerHighlightingTest
     )
   )
 
-  private def runTestCase(fileName: String,
-                          content: String,
-                          expectedResult: ExpectedResult): Unit = withErrorsFromCompiler {
-    val virtualFile = addFileToProjectSources(fileName, content)
-    FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
+  def testReplaceWrapperClassNameFromErrorMessages(): Unit = runTestCaseWithoutRebuild(
+    fileName = "worksheet.sc",
+    content =
+      """object X {}
+        |X.foo()
+        |this.bar()""".stripMargin,
+    expectedResult = expectedResult(
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(new TextRange(14, 17)),
+        msgPrefix = "value foo is not a member of object X"
+      ),
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(new TextRange(25, 28)),
+        msgPrefix = "value bar is not a member of worksheet.sc"
+      )
+    )
+  )
 
-    compiler.rebuild()
+
+  private def runTestCase(
+    fileName: String,
+    content: String,
+    expectedResult: ExpectedResult,
+    waitUntilFileIsHighlighted: VirtualFile => Unit
+  ): Unit = withErrorsFromCompiler {
+    val virtualFile = addFileToProjectSources(fileName, content)
+
+    waitUntilFileIsHighlighted(virtualFile)
 
     val document = virtualFile.findDocument.get
     val actualResult = DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala
-
     assertThat(actualResult, expectedResult)
+  }
+
+
+  private def runTestCase(fileName: String,
+                          content: String,
+                          expectedResult: ExpectedResult): Unit = withErrorsFromCompiler {
+    val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
+      FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
+      compiler.rebuild()
+    }
+    runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
   }
 
   private def runTestCaseWithoutRebuild(
@@ -144,27 +179,27 @@ class ScalaCompilerHighlightingTest
     content: String,
     expectedResult: ExpectedResult
   ): Unit = withErrorsFromCompiler {
-    val virtualFile = addFileToProjectSources(fileName, content)
-    lazy val document = virtualFile.findDocument.get
+    val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
+      // Compilation is done on file opening (see RegisterCompilationListener.MyFileEditorManagerListener)
+      // There is no explicit compile worksheet action for now, like we have in Build with JPS.
+      // In order to detect the end of we wait until special event is generated
+      val promise = Promise[Unit]()
+      val listener: CompilerGeneratedStateTopicListener = _ => {
+        promise.complete(Success(())) // todo (minor): we should also ensure that the file is actually the tested file
+      }
+      getProject.getMessageBus.connect().subscribe(CompilerGeneratedStateTopic, listener)
 
-    val promise = Promise[Unit]()
-    val listener: CompilerGeneratedStateTopicListener = _ => {
-      promise.complete(Success(())) // todo (minor): we should also ensure that the file is actually the tested file
+      FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
+
+      val timeout = 60.seconds
+      TestUtilsScala.awaitWithoutUiStarving(promise.future, timeout) match {
+        case Some(Success(_))  =>
+        case Some(Failure(ex)) => throw ex
+        case None              => fail(s"Document wasn't highlighted during expected time frame: $timeout")
+      }
+      PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
     }
-    getProject.getMessageBus.connect().subscribe(CompilerGeneratedStateTopic, listener)
-
-    FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
-
-    val timeout = 60.seconds
-    TestUtilsScala.awaitWithoutUiStarving(promise.future, timeout) match {
-      case Some(Success(_))  =>
-      case Some(Failure(ex)) => throw ex
-      case None              => fail(s"Document wasn't highlighted during expected time frame: $timeout")
-    }
-    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
-
-    val actualResult = DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala
-    assertThat(actualResult, expectedResult)
+    runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
   }
 }
 
@@ -180,11 +215,11 @@ object ScalaCompilerHighlightingTest {
 
     override protected def valueMatches(actualValue: Seq[HighlightInfo]): Boolean = {
       expected.size == actualValue.size &&
-      expected.zip(actualValue).forall { case (expected, actual) =>
-        actual.getSeverity == expected.severity &&
-          expected.range.forall(_ == actual.range) &&
-          actual.getDescription.startsWith(expected.msgPrefix)
-      }
+        expected.zip(actualValue).forall { case (expected, actual) =>
+          actual.getSeverity == expected.severity &&
+            expected.range.forall(_ == actual.range) &&
+            actual.getDescription.startsWith(expected.msgPrefix)
+        }
     }
 
     override protected def description: String =

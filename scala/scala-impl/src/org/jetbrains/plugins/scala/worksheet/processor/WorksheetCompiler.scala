@@ -323,7 +323,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
 
   private object WorksheetWrapper {
     val className = "WorksheetWrapper"
-    private val header = "class " + className + " {\n"
+    private val header = "object " + className + " {\n"
     private val footer = "\n}"
     val headerLines: Int = header.linesIterator.size
     def writeWrappedToFile(worksheetCode: String, file: File): Unit =
@@ -365,7 +365,11 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
       msg.copy(
         line = msg.line.map(line => (line - WorksheetWrapper.headerLines).max(0)),
         source = msg.source.map(_ => originalFile),
-        text = msg.text.replace(s"class ${WorksheetWrapper.className}", originalFile.getName).trim
+        text = msg.text
+          .replace(s"object ${WorksheetWrapper.className}.", "object ") // object WorksheetWrapper.X -> object X
+          .replace(s"object ${WorksheetWrapper.className}", originalFile.getName) // object WorksheetWrapper -> worksheet name
+          .replace(s"${WorksheetWrapper.className}", originalFile.getName) // other unknown cases
+          .trim
       )
 
     override def compilationEnd(sources: Set[File]): Unit = {
