@@ -29,22 +29,19 @@ object ExternalHighlighters {
                         editor: Editor,
                         state: HighlightingState): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-      for (vFile <- findScalaFile(editor)) {
-        state.get(vFile) match {
-          case Some(externalHighlights) =>
-            invokeLater {
-              val highlightInfos = externalHighlights.map(toHighlightInfo(_, editor))
-              val document = editor.getDocument
-              UpdateHighlightersUtil.setHighlightersToEditor(
-                project,
-                document, 0, document.getTextLength,
-                highlightInfos.toSeq.asJava,
-                editor.getColorsScheme,
-                Pass.EXTERNAL_TOOLS
-              )
-            }
-          case _ =>
-        }
+      for {
+        vFile <- findScalaFile(editor)
+        externalHighlights <- state.get(vFile)
+      } invokeLater {
+        val highlightInfos = externalHighlights.map(toHighlightInfo(_, editor))
+        val document = editor.getDocument
+        UpdateHighlightersUtil.setHighlightersToEditor(
+          project,
+          document, 0, document.getTextLength,
+          highlightInfos.toSeq.asJava,
+          editor.getColorsScheme,
+          Pass.EXTERNAL_TOOLS
+        )
       }
     }
 
