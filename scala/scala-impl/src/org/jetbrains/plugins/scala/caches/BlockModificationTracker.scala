@@ -24,14 +24,6 @@ object BlockModificationTracker {
 
   private val key: Key[ExpressionModificationTracker] = Key.create("local.modification.counter")
 
-  def redirect(mirrorElement: ScExpression, originalElement: ScExpression): Unit = {
-    val originalCounter = ExpressionModificationTracker(originalElement)
-
-    assert(hasStableType(mirrorElement))
-
-    mirrorElement.putUserData(key, originalCounter)
-  }
-
   private object ExpressionModificationTracker {
     def apply(expression: ScExpression): ExpressionModificationTracker = {
       assert(hasStableType(expression))
@@ -73,13 +65,20 @@ object BlockModificationTracker {
         case None       => scalaTopLevelModTracker(element.getProject)
       }
 
-  @tailrec
   def contextWithStableType(element: PsiElement): Option[ScExpression] =
+    withStableType(element, _.getContext)
+
+  def parentWithStableType(element: PsiElement): Option[ScExpression] =
+    withStableType(element, _.getParent)
+
+  @tailrec
+  private def withStableType(element: PsiElement, nextElement: PsiElement => PsiElement): Option[ScExpression] =
     element match {
       case null | _: ScalaFile => None
       case owner: ScExpression if hasStableType(owner) => Some(owner)
-      case owner => contextWithStableType(owner.getContext)
+      case owner => withStableType(nextElement(owner), nextElement)
     }
+
 
   private def hasUnstableType(expr: ScExpression): Boolean = expr.getContext match {
     case f: ScFunction => f.returnTypeElement.isEmpty && f.hasAssign
