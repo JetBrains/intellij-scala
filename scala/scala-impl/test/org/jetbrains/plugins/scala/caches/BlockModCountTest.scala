@@ -42,7 +42,7 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
       val (countsToChangeBefore, countsToStayBefore) =
         (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
 
-      changePsiAt(caretOffset, charToTypeAndRemove)
+      typeAndRemoveChar(caretOffset, charToTypeAndRemove)
 
       val (countsToChangeAfter, countsToStayAfter) =
         (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
