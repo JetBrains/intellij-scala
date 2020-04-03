@@ -10,8 +10,8 @@ import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType, isContextAncestor}
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker.contextWithStableType
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker.{contextWithStableType, parentWithStableType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -23,9 +23,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters
@@ -132,48 +134,53 @@ package object completion {
       Some(context.getEditor, context.getDocument, context.getFile, context.getProject)
   }
 
+
+  /**
+   * "Completion file" is used for analysis for completion by default. It is a copy of original file with
+   * dummy identifier inserted at current offset to ensure we have a non-empty reference there.
+   *
+   * See [[com.intellij.codeInsight.completion.CompletionParameters#getPosition()]]
+   *
+   * This approach doesn't work well with Scala Plugin caches, because there are no psi events in non-physical files.
+   * Also, reanalyzing the whole file may have bad performance. Instead, we create a
+   * copy a fragment of a "completion file" and insert it to the original file. This fragment is invalidated for any
+   * physical psi change, so we don't need to care about caches there.
+   *
+   */
   def positionFromParameters(implicit parameters: CompletionParameters): PsiElement = {
-    val positionInCompletionFile = parameters.getPosition
-    val originalPosition = parameters.getOriginalPosition
+    val defaultPosition = parameters.getPosition
 
-    def blockModCount(element: PsiElement) = BlockModificationTracker(element).getModificationCount
+    mirrorPosition(parameters.getOriginalFile, defaultPosition)
+      .getOrElse(defaultPosition)
+  }
 
-    def areTheSame(element: PsiElement, originalElement: PsiElement): Boolean = {
-      element.startOffset == originalElement.startOffset &&
-        element.getClass == originalElement.getClass
-    }
+  private def mirrorPosition(originalFile: PsiFile, positionInCompletionFile: PsiElement): Option[PsiElement] = {
 
-    @tailrec
-    def sameInOriginalFile(elementContext: PsiElement, originalPlace: PsiElement): Option[ScExpression] = {
-      contextWithStableType(originalPlace) match {
-        case Some(ctx) =>
-          if (areTheSame(ctx, elementContext)) Some(ctx)
-          else sameInOriginalFile(elementContext, ctx.getContext)
-        case _ => None
+    @CachedInUserData(originalFile, CachesUtil.fileModTracker(originalFile))
+    def cachedFor(positionInCompletionFile: PsiElement): Option[PsiElement] = {
+      val placeOffset = positionInCompletionFile match {
+        case ElementType(ScalaTokenTypes.tIDENTIFIER) => positionInCompletionFile.getParent.startOffset
+        case _                                        => positionInCompletionFile.startOffset
       }
-    }
+      val placeInOriginalFile = originalFile.findElementAt(placeOffset)
 
-    if (originalPosition != null) {
+      //todo: we may probably choose a smaller fragment to copy in many cases SCL-17106
       for {
-        elementContext <- contextWithStableType(positionInCompletionFile)
-        originalContext <- sameInOriginalFile(elementContext, originalPosition)
+        anchor           <- parentWithStableType(placeInOriginalFile)
+        expressionToCopy <- parentWithStableType(positionInCompletionFile)
+      } yield {
 
-        if !isContextAncestor(elementContext, originalContext, /*strict*/ false)
-      } {
+        val copy = expressionToCopy.copy().asInstanceOf[ScExpression]
+        copy.context = anchor.getContext
+        copy.child = anchor
 
-        //consistent local modification count in completion file
-        BlockModificationTracker.redirect(elementContext, originalContext)
-
-        //resolve should go to original file outside of context with stable type
-        // + consistent block modification count
-        elementContext.context = originalContext.getContext
-        elementContext.child = originalContext
-
-        assert(blockModCount(elementContext) == blockModCount(originalContext))
+        val newOffset = positionInCompletionFile.startOffset - expressionToCopy.startOffset + copy.startOffset
+        copy.getContainingFile.findElementAt(newOffset)
       }
+
     }
 
-    positionInCompletionFile
+    cachedFor(positionInCompletionFile)
   }
 
   private[completion] def dummyIdentifier(file: PsiFile, offset: Int): String = {
