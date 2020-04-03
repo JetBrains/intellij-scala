@@ -11,7 +11,9 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
@@ -64,6 +66,7 @@ final class RemoteServerConnector(
             Some(WorksheetArgsRepl(
               sessionId = path,
               codeChunk,
+              continueOnChunkError = Registry.is(WorksheetContinueOnFirstFailure),
               outputDirs
             ))
           case Args.CompileOnly(_, _) =>
@@ -261,4 +264,8 @@ object RemoteServerConnector {
 
     def isCompiledWithErrors: Boolean
   }
+
+  // to test restoring of compiler messages positions in original worksheet file in one test method
+  @TestOnly
+  val WorksheetContinueOnFirstFailure = "scala.worksheet.continue.evalutaion.on.first.expression.failure"
 }

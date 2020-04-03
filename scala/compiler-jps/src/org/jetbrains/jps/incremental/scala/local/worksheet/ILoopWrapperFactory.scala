@@ -74,9 +74,11 @@ class ILoopWrapperFactory {
         case _        =>
           printService(out, ReplChunkStart)
           try {
-            val shouldContinue = statement.trim.length == 0 || inst.processChunk(statement)
             val progress = (idx + 1f) / statements.size
             client.progress("Executing worksheet...", Some(progress))
+
+            val noErrors = inst.processChunk(statement)
+            val shouldContinue = noErrors || args.continueOnChunkError
             if (shouldContinue) {
               printService(out, ReplChunkEnd)
             } else {

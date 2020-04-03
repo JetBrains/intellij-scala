@@ -19,5 +19,6 @@ final case class WorksheetArgsPlain(
 final case class WorksheetArgsRepl(
   sessionId: String,
   codeChunk: String,
+  continueOnChunkError: Boolean, // NOTE: this is currently only used for testing purposes
   outputDirs: Seq[File]
 ) extends WorksheetArgs

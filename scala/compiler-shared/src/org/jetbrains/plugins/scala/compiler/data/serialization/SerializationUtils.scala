@@ -4,6 +4,8 @@ import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
 
+import scala.util.Try
+
 /*private[data]*/ object SerializationUtils {
 
   final val Delimiter = "\n"
@@ -18,6 +20,11 @@ import com.intellij.openapi.util.io.FileUtil
   // probably better separate parsing from validation (nullability, file existence, etc...), but nit critical now
   def notNull(value: String, argName: String): Either[String, String] =
     Option(value).toRight(s"Argument '$argName' is null")
+
+  def boolean(value: String, argName: String): Either[String, Boolean] = {
+    val notNullValue = Option(value).toRight(s"Argument '$argName' is null")
+    notNullValue.flatMap(s => Try(s.toBoolean).toEither.left.map(_ => s"Invalid boolean value for argument '$argName': $value"))
+  }
 
   def pathToFileValidated(path: String, argName: String): Either[String, File] =
     for {

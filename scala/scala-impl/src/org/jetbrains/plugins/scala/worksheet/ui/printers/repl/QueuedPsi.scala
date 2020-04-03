@@ -8,6 +8,13 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi.PrintChu
 
 sealed trait QueuedPsi {
 
+  // I am planning to unify all QueuedPsi later
+  final def getElements: Seq[PsiElement] = this match {
+    case SingleQueuedPsi(psi)             => Seq(psi)
+    case ClassObjectPsi(clazz, obj, _, _) => Seq(clazz, obj)
+    case SemicolonSeqPsi(elements)        => elements
+  }
+
   /** @return underlying psi(-s) is valid */
   final def isValid: Boolean = inReadAction(isValidImpl)
   protected def isValidImpl: Boolean
@@ -38,18 +45,6 @@ sealed trait QueuedPsi {
   }
 
   protected def startPsiOffset(psi: PsiElement): Int = computeStartPsi(psi).startOffset
-
-  protected def getPsiTextWithCommentLine(psi: PsiElement): String =
-    getPsiTextWithCommentLine(psi.getText)
-
-  protected def getPsiTextWithCommentLine(text: String): String =
-    storeLineInfoRepl(text.linesIterator.toIterable)
-
-  protected def storeLineInfoRepl(lines: Iterable[String]): String = {
-    lines.zipWithIndex
-      .map { case (line, index) => s"$line //$index" }
-      .mkString("\n")
-  }
 }
 
 object QueuedPsi {
@@ -65,7 +60,7 @@ object QueuedPsi {
 case class SingleQueuedPsi(psi: PsiElement) extends QueuedPsi {
   override protected def isValidImpl: Boolean = psi.isValid
 
-  override protected def getTextImpl: String = getPsiTextWithCommentLine(psi)
+  override protected def getTextImpl: String = psi.getText
 
   override def getWholeTextRange: TextRange = psi.getTextRange
 
@@ -85,7 +80,7 @@ case class ClassObjectPsi(
 
   override protected def isValidImpl: Boolean = clazz.isValid && obj.isValid
 
-  override protected def getTextImpl: String = getPsiTextWithCommentLine(first) + mid + getPsiTextWithCommentLine(second)
+  override protected def getTextImpl: String = first.getText + mid + second.getText
 
   override def getWholeTextRange: TextRange = new TextRange(first.startOffset, second.endOffset)
 
@@ -113,10 +108,8 @@ case class ClassObjectPsi(
 case class SemicolonSeqPsi(elements: Seq[PsiElement]) extends QueuedPsi {
   override protected def isValidImpl: Boolean = elements.nonEmpty && elements.forall(_.isValid)
 
-  override protected def getTextImpl: String = {
-    val concat = elements.map(_.getText).mkString(" ; ")
-    getPsiTextWithCommentLine(concat)
-  }
+  override protected def getTextImpl: String =
+    elements.map(_.getText).mkString(" ; ")
 
   override def getWholeTextRange: TextRange = TextRange.create(elements.head.startOffset, elements.last.endOffset)
 

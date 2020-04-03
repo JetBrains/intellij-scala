@@ -72,14 +72,15 @@ trait WorksheetItAssertions {
   // This is not the most fine-grained testing but quite easy to produce new test data,
   // just copying from actual messages window (though should be checked manually first)
   protected def assertCompilerMessages(editor: Editor)(expectedAllMessagesText: String): Unit = {
-    val messages = collectedCompilerMessages(editor)
+    val messages = collectedCompilerMessages(editor).sortBy(m => (m.getLine, m.getColumn))
     val messagesRendered = messages.map { message: CompilerMessageImpl =>
       val level = message.getCategory.toString.toLowerCase.capitalize
       s"$level:(${message.getLine}, ${message.getColumn}) ${message.getMessage}"
     }
-    val actualAllMessagesText = messagesRendered.mkString("\n\n")
+    val actualAllMessagesText = messagesRendered.mkString("\n")
+    val expectedWithoutBlankLines = expectedAllMessagesText.withNormalizedSeparator.replaceAll("\n\n+", "\n").trim
     assertEquals(
-      expectedAllMessagesText.withNormalizedSeparator,
+      expectedWithoutBlankLines,
       actualAllMessagesText
     )
   }

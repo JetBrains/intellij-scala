@@ -8,14 +8,21 @@ import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 
 import scala.util.Try
 
-/**
- * @author Nikolay.Tropin
- */
 object CompilerTestUtil {
 
   trait RevertableChange {
+
     def apply(): Unit
     def revert(): Unit
+
+    final def run(body: => Any): Unit = {
+      this.apply()
+      try
+        body
+      finally
+        this.revert()
+    }
+
     final def |+| (change: RevertableChange): RevertableChange = {
       val changes = this match {
         case composite: CompositeRevertableChange => composite.changes :+ change
@@ -103,4 +110,16 @@ object CompilerTestUtil {
       settings.USE_DEFAULT_SDK = false
       settings.COMPILE_SERVER_SDK = sdk.getName
     }
+
+  def withModifiedRegistryValue(key: String, newValue: Boolean): RevertableChange = new RevertableChange {
+    private var before: Option[Boolean] = None
+
+    override def apply(): Unit = {
+      before = Some(Registry.is(key, false))
+      Registry.get(key).setValue(newValue)
+    }
+
+    override def revert(): Unit =
+      before.foreach(Registry.get(key).setValue)
+  }
 }

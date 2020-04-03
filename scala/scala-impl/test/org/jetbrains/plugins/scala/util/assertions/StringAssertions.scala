@@ -37,6 +37,10 @@ trait StringAssertions {
       )
     }
 
+  def assertIsBlank(string: String): Unit =
+    if (!string.trim.isEmpty)
+      fail(s"expected blank string but got:\n${string}")
+
   private def display(str: String): String =
     str.replace("\\n", "\\\\n")
       .replace("\\r", "\\\\r")

@@ -4,7 +4,7 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.annotations.{CalledInAwt, CalledWithWriteLock}
 import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter
@@ -12,7 +12,10 @@ import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter.M
 import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.project
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaPluginUtils}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
@@ -57,7 +60,7 @@ final class WorksheetEditorPrinterRepl private[printers](
   private val chunkOutputBuffer = StringBuilder.newBuilder
   private var chunkIsBeingProcessed = false
 
-  private def debug(text: => String): Unit =
+  private def debug(text: String): Unit =
     println(s"[${Thread.currentThread.getId}] $text")
 
   // FIXME: now all return boolean values are not processed anywhere and do not mean anything, remove or handle
@@ -271,37 +274,39 @@ final class WorksheetEditorPrinterRepl private[printers](
     messagesConsumer.message(compilerMessage)
   }
 
-  private def buildCompilerMessage(messageLine: String, currentPsi: QueuedPsi): CompilerMessage = {
+  private def buildCompilerMessage(messageLine: String, chunk: QueuedPsi): CompilerMessage = {
     val replMessageInfo = extractReplMessage(messageLine)
       .getOrElse(ReplMessageInfo(messageLine, "", 0, 0, CompilerMessageCategory.INFORMATION))
 
     val ReplMessageInfo(message, lineContent, lineOffset, columnOffset, severity) = replMessageInfo
 
-    val (hOffset, vOffset) = extraOffset(WorksheetFileSettings(getScalaFile).getModuleFor)
-    val columnOffsetFixed = columnOffset - vOffset
-    val (lineContentClean, lineOffsetFinal) = splitLineNumberFromRepl(lineContent).getOrElse {
-      (lineContent, lineOffset - hOffset)
-    }
+    val module = WorksheetFileSettings(getScalaFile).getModuleFor
+    val sdk = module.scalaSdk
+    val (hOffset, vOffset) = sdk.map(extraOffset(_, chunk)).getOrElse((0, 0))
+
+    val columnOffsetFixed  = columnOffset - vOffset
+    val lineOffsetFixed    = lineOffset - hOffset
 
     val messagePosition: LogicalPosition = {
       val elementPosition = inReadAction {
-        val offset = currentPsi.getWholeTextRange.getStartOffset
+        val offset = chunk.getWholeTextRange.getStartOffset
         originalEditor.offsetToLogicalPosition(offset)
       }
 
-      new LogicalPosition(
-        (elementPosition.line + lineOffsetFinal).max(0),
-        (elementPosition.column + columnOffsetFixed).max(0)
-      )
+      val line   = elementPosition.line + lineOffsetFixed
+      val column = elementPosition.column + columnOffsetFixed
+      new LogicalPosition(line.max(0), column.max(0))
     }
 
-    val messageLines = (message.split('\n'):+ lineContentClean).map(_.trim).filter(_.length > 0)
+    val messageLines = (message.split('\n'):+ lineContent).map(_.trim).filter(_.length > 0)
     new CompilerMessageImpl(
       project,
       severity,
       messageLines.mkString("\n"),
       file.getVirtualFile,
-      messagePosition.line + 1, // compiler messages positions are 1-based
+      // compiler messages positions are 1-based
+      // (NOTE: Scala 3 doesn't report errors at this moment, it prints them to stdout/err)
+      messagePosition.line + 1,
       messagePosition.column + 1,
       null
     )
@@ -333,29 +338,30 @@ object WorksheetEditorPrinterRepl {
   // This happens because compiler prepossesses original input adding extra classes, indents, imports, etc...
   // Ideally lines from compiler (see extractReplMessage) should be relative to the original input
   // but unfortunately old scala versions does not provide such API
-  private def extraOffset(module: Module): (Int, Int) = {
+  private def extraOffset(scalaSdk: LibraryEx, chunk: QueuedPsi): (Int, Int) = {
     import project._
     import ScalaLanguageLevel._
 
-    val sdk = module.scalaSdk
-    val languageLevel = sdk.map(_.properties.languageLevel)
-    val compilerVersion = sdk.flatMap(_.compilerVersion)
+    val languageLevel = scalaSdk.properties.languageLevel
 
-    val consoleHeaders = languageLevel.map {
-      case Scala_2_9 | Scala_2_10                                        => 7
-      case Scala_2_11 if compilerVersion.forall(!_.startsWith("2.11.8")) => 7
-      case Scala_2_13                                                    => 0
-      case _                                                             => 11
+    // this hacks takes into account only major versions
+    val consoleHeaders = languageLevel match {
+      case Scala_2_13             => 0 // looks like scala 13 reports errors fine, no hacks needed
+      case Scala_2_9 | Scala_2_10 => 7
+      case _                      =>
+        // for any definition, val, var, class, trait, etc... error positions are shifted by one (at least what I observed)
+        val hasSomeDefinition = chunk.getElements.exists(_.is[ScMember, ScValueOrVariable])
+        val definitionOffset = if (hasSomeDefinition) 1 else 0 //
+        11 - definitionOffset
     }
 
     val verticalOffset   = consoleHeaders
-    val horizontalOffset = languageLevel.map {
+    val horizontalOffset = languageLevel match {
       case Scala_2_11 => 7
       case _          => 0
     }
 
-
-    (verticalOffset.getOrElse(0), horizontalOffset.getOrElse(0))
+    (verticalOffset, horizontalOffset)
   }
 
   def countNewLines(str: String): Int = StringUtil.countNewLines(str)
@@ -378,16 +384,6 @@ object WorksheetEditorPrinterRepl {
         None
       }
   }
-
-  private def splitLineNumberFromRepl(line: String): Option[(String, Int)] =
-    line.lastIndexOf("//") match {
-      case -1 => None
-      case commentIdx =>
-        val (content, comment) =  line.splitAt(commentIdx)
-        for {
-          lineIdx <- comment.substring(2).trim.toIntOpt
-        } yield (content, lineIdx)
-    }
 
   /**
    * @param inputLine      0-based input chunk start line

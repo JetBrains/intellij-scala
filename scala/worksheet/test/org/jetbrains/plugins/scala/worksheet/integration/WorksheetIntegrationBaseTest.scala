@@ -157,7 +157,7 @@ abstract class WorksheetIntegrationBaseTest
     result
   }
 
-  private def doRenderTestWithoutCompilationChecks(
+  protected def doRenderTestWithoutCompilationChecks(
     before: String,
     afterAssert: String => Unit
   ): TestRunResult = {
