@@ -216,7 +216,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
                                  fromUnderscore: Boolean = true): Array[ParameterType] = {
     import expr.projectContext
 
-    if (isInIncompeteCode(expr)) {
+    if (expr.isPhysical && isInIncompeteCode(expr)) {
       return Array.empty
     }
 
@@ -270,7 +270,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
     }
 
-    val result: Array[ParameterType] = expr.getContext match {
+    val result: Array[ParameterType] = sameInContext.getContext match {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
       //see SLS[6.11]
       case b: ScBlockExpr => b.resultExpression match {
