@@ -9,6 +9,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <runConfigurationClassExtractor implementation="org.jetbrains.bsp.project.test.environment.ScalaTestClassExtractor"/>
+        <runConfigurationClassExtractor implementation="org.jetbrains.bsp.project.test.environment.ApplicationConfigurationClassExtractor"/>
+
         <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
 
@@ -47,7 +49,7 @@
         <statusBarWidgetProvider implementation="org.jetbrains.bsp.BspServerWidgetProvider"/>
 
         <java.programPatcher implementation="org.jetbrains.bsp.project.test.environment.BspJvmEnvironmentProgramPatcher"/>
-        <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchTestEnvironmentTaskProvider"/>
+        <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskProvider"/>
     </extensions>
 
     <projectListeners>

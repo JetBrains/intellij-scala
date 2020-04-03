@@ -6,13 +6,13 @@ import com.intellij.execution.BeforeRunTask
 import org.jdom.Element
 import com.intellij.openapi.util.Key
 
-object BspFetchTestEnvironmentTask {
-  val runTaskKey: Key[BspFetchTestEnvironmentTask] = Key.create("BSP.BeforeRunTask")
+object BspFetchEnvironmentTask {
+  val runTaskKey: Key[BspFetchEnvironmentTask] = Key.create("BSP.BeforeRunTask")
 
-  val jvmTestEnvironmentKey: Key[JvmTestEnvironment] = Key.create("BSP.JvmTestEnvironment")
+  val jvmEnvironmentKey: Key[JvmTestEnvironment] = Key.create("BSP.JvmTestEnvironment")
 }
-class BspFetchTestEnvironmentTask
-  extends BeforeRunTask[BspFetchTestEnvironmentTask](BspFetchTestEnvironmentTask.runTaskKey) {
+class BspFetchEnvironmentTask
+  extends BeforeRunTask[BspFetchEnvironmentTask](BspFetchEnvironmentTask.runTaskKey) {
 
   var state: Option[String] = None
 

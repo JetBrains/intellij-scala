@@ -39,23 +39,22 @@ case class JvmTestEnvironment(
                                jvmOptions: Seq[String]
                              )
 
-case object JvmTestEnvironmentNotSupported
-  extends Throwable(BspBundle.message("bsp.task.error.test.env.not.supported"))
+case class JvmEnvironmentEndpointNotSupported(message: String) extends Throwable(message)
 
-class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchTestEnvironmentTask] {
+class BspFetchEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchEnvironmentTask] {
   private val logger = Logger.getInstance(classOf[BspCommunication])
 
-  override def getId: Key[BspFetchTestEnvironmentTask] = BspFetchTestEnvironmentTask.runTaskKey
+  override def getId: Key[BspFetchEnvironmentTask] = BspFetchEnvironmentTask.runTaskKey
 
   override def getName: String = BspBundle.message("bsp.task.name")
 
   override def getIcon: Icon = Icons.BSP
 
-  override def createTask(runConfiguration: RunConfiguration): BspFetchTestEnvironmentTask = new BspFetchTestEnvironmentTask
+  override def createTask(runConfiguration: RunConfiguration): BspFetchEnvironmentTask = new BspFetchEnvironmentTask
 
   override def isConfigurable: Boolean = true
 
-  override def configureTask(context: DataContext, configuration: RunConfiguration, task: BspFetchTestEnvironmentTask): Promise[lang.Boolean] = {
+  override def configureTask(context: DataContext, configuration: RunConfiguration, task: BspFetchEnvironmentTask): Promise[lang.Boolean] = {
     configuration match {
       case moduleBasedConfiguration: ModuleBasedConfiguration[_,_] =>
         val modules = moduleBasedConfiguration.getModules
@@ -81,17 +80,19 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
   override def executeTask(context: DataContext,
                            configuration: RunConfiguration,
                            env: ExecutionEnvironment,
-                           task: BspFetchTestEnvironmentTask): Boolean = Try {
+                           task: BspFetchEnvironmentTask): Boolean = Try {
     configuration match {
       case config: ModuleBasedConfiguration[_, _]
         if BspUtil.isBspModule(config.getConfigurationModule.getModule) && BspTesting.isBspRunnerSupportedConfiguration(config) =>
         val module = config.getConfigurationModule.getModule
         val taskResult: Either[BspGetEnvironmentError, Unit] = for {
+          extractor <- RunConfigurationClassExtractor.getClassExtractor(configuration)
+            .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.no.class.extractor", configuration.getClass.getName)))
           potentialTargets <- getBspTargets(module)
           projectPath <- Option(ES.getExternalProjectPath(module))
             .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.extract.path", module.getName)))
           workspaceUri = Paths.get(projectPath).toUri
-          testClasses = getApplicableClasses(configuration)
+          testClasses = extractor.classes(config).getOrElse(List())
           testSources = testClasses.flatMap(class2File(_, module.getProject))
           targetsMatchingSources <- fetchTargetIdsFromFiles(testSources, workspaceUri, module.getProject, potentialTargets)
             .map(Right(_))
@@ -101,14 +102,14 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
             .orElse(toOptionIfSingle(potentialTargets).map(_.getUri))
             .orElse(askUserForTargetId(config.getProject, potentialTargets.map(_.getUri), task))
             .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.choose.any.target.id")))
-          testEnvironment <-
-            fetchJvmTestEnvironment(new BuildTargetIdentifier(chosenTargetId), workspaceUri, module.getProject)
+          environment <-
+            fetchJvmEnvironment(new BuildTargetIdentifier(chosenTargetId), workspaceUri, module.getProject, extractor.environmentType)
               .map(Right(_))
               .recover{
-                case err: JvmTestEnvironmentNotSupported.type => Left(BspGetEnvironmentError(err.getMessage))
+                case JvmEnvironmentEndpointNotSupported(msg) => Left(BspGetEnvironmentError(msg))
               }
               .getOrElse(Left(BspGetEnvironmentError(BspBundle.message("bsp.task.error.could.not.fetch.test.jvm.environment"))))
-          _ = config.putUserData(BspFetchTestEnvironmentTask.jvmTestEnvironmentKey, testEnvironment)
+          _ = config.putUserData(BspFetchEnvironmentTask.jvmEnvironmentKey, environment)
         } yield ()
         taskResult match {
           case Left(value) =>
@@ -125,7 +126,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     }
   }.getOrElse(true)
 
-  private def askUserForTargetId(project: Project, targetIds: Seq[String], task: BspFetchTestEnvironmentTask): Option[String] = {
+  private def askUserForTargetId(project: Project, targetIds: Seq[String], task: BspFetchEnvironmentTask): Option[String] = {
     var chosenTarget: Option[URI] = None
     ApplicationManager.getApplication.invokeAndWait { () => {
       chosenTarget = BspSelectTargetDialog.promptForBspTarget(project, targetIds.map(new URI(_)), task.state.map(new URI(_)))
@@ -196,31 +197,18 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     if (matchedClasses.length <= 1) matchedClasses.headOption.map(_.getContainingFile) else None
   }
 
-  private def getApplicableClasses(configuration: RunConfiguration): Seq[String] = {
-    configuration match {
-      case moduleBasedRunConfig: ModuleBasedConfiguration[_, _]
-        if BspUtil.isBspModule(moduleBasedRunConfig.getConfigurationModule.getModule) =>
-
-        val cl = RunConfigurationClassExtractor.EP_NAME.getExtensionList().asScala
-          .find(_.runConfigurationSupported(moduleBasedRunConfig))
-          .flatMap(_.classes(moduleBasedRunConfig))
-
-        cl.getOrElse(List())
-    }
-  }
-
   private def processLog(report: BuildToolWindowReporter): ProcessLogger = { message =>
     report.log(message)
   }
 
-  private def fetchJvmTestEnvironment(target: BuildTargetIdentifier, workspace: URI, project: Project): Try[JvmTestEnvironment] = {
+  private def fetchJvmEnvironment(target: BuildTargetIdentifier, workspace: URI, project: Project, environmentType: ExecutionEnvironmentType): Try[JvmTestEnvironment] = {
     val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile)
     val bspTaskId: EventId = BuildMessages.randomEventId
     val cancelToken = scala.concurrent.Promise[Unit]()
     val cancelAction = new CancelBuildAction(cancelToken)
     implicit val reporter: BuildToolWindowReporter = new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.fetching.jvm.test.environment"), cancelAction)
     val job = communication.run(
-      bspSessionTask = jvmTestEnvironmentBspRequest(List(target))(_, _),
+      bspSessionTask = jvmEnvironmentBspRequest(List(target), environmentType)(_, _),
       notifications = _ => (),
       processLogger = processLog(reporter),
     )
@@ -228,7 +216,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
     BspJob.waitForJob(job, retries = 10).flatMap {
           case Left(value) => Failure(value)
           case Right(value) =>
-            val environment = value.getItems.asScala.head
+            val environment = value.head
             Success(JvmTestEnvironment(
               classpath = environment.getClasspath.asScala.map(x => new URI(x).getPath),
               workdir = environment.getWorkingDirectory,
@@ -244,14 +232,35 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
       res = data.targetIds.asScala.map(id => new BuildTargetIdentifier(id.toString))
     } yield res
 
-  private def jvmTestEnvironmentBspRequest(targets: Seq[BuildTargetIdentifier])
+  private def jvmEnvironmentBspRequest(targets: Seq[BuildTargetIdentifier], environmentType: ExecutionEnvironmentType)
                                           (implicit server: BspServer,
-                                           capabilities: BuildServerCapabilities): CompletableFuture[Either[JvmTestEnvironmentNotSupported.type, JvmTestEnvironmentResult]] =
-    if (Option(capabilities.getJvmTestEnvironmentProvider).exists(_.booleanValue())) {
-      server.jvmTestEnvironment(new JvmTestEnvironmentParams(targets.asJava)).thenApply(Right(_))
-    } else {
-      CompletableFuture.completedFuture(Left(JvmTestEnvironmentNotSupported))
+                                           capabilities: BuildServerCapabilities):
+  CompletableFuture[Either[JvmEnvironmentEndpointNotSupported, Seq[JvmEnvironmentItem]]] = {
+    def testEnvironment: CompletableFuture[Either[JvmEnvironmentEndpointNotSupported, Seq[JvmEnvironmentItem]]]= {
+      if (Option(capabilities.getJvmTestEnvironmentProvider).exists(_.booleanValue)) {
+        server.jvmTestEnvironment(new JvmTestEnvironmentParams(targets.asJava)).thenApply(response => Right(response.getItems.asScala))
+      } else {
+        CompletableFuture.completedFuture(Left(JvmEnvironmentEndpointNotSupported(
+          BspBundle.message("bsp.task.error.env.not.supported", "buildTarget/jvmTestEnvironment")))
+        )
+      }
     }
+
+    def runEnvironment: CompletableFuture[Either[JvmEnvironmentEndpointNotSupported, Seq[JvmEnvironmentItem]]] = {
+      if (Option(capabilities.getJvmRunEnvironmentProvider).exists(_.booleanValue)) {
+        server.jvmRunEnvironment(new JvmRunEnvironmentParams(targets.asJava)).thenApply(response => Right(response.getItems.asScala))
+      } else {
+        CompletableFuture.completedFuture(Left(JvmEnvironmentEndpointNotSupported(
+          BspBundle.message("bsp.task.error.env.not.supported", "buildTarget/jvmRunEnvironment")))
+        )
+      }
+    }
+
+    environmentType match {
+      case ExecutionEnvironmentType.TEST => testEnvironment
+      case ExecutionEnvironmentType.RUN => runEnvironment
+    }
+  }
 
   private def getFiles(target: Seq[BuildTargetIdentifier])
                       (implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[SourcesResult] =

@@ -17,5 +17,7 @@ class JUnitClassExtractor extends RunConfigurationClassExtractor {
       case _ => None
     }
   }
+
+  override def environmentType: ExecutionEnvironmentType = ExecutionEnvironmentType.TEST
 }
 

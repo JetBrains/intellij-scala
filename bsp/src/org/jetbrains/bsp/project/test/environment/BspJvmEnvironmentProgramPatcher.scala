@@ -13,7 +13,7 @@ class BspJvmEnvironmentProgramPatcher extends JavaProgramPatcher {
   override def patchJavaParameters(executor: Executor, configuration: RunProfile, javaParameters: JavaParameters): Unit = {
     configuration match {
       case testConfig: UserDataHolderBase =>
-        val env = testConfig.getUserData(BspFetchTestEnvironmentTask.jvmTestEnvironmentKey)
+        val env = testConfig.getUserData(BspFetchEnvironmentTask.jvmEnvironmentKey)
         if (env != null) {
           val oldEnvironmentVariables = javaParameters.getEnv.asScala.toMap
           val newEnvironmentVariables = oldEnvironmentVariables ++ env.environmentVariables

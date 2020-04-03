@@ -10,6 +10,8 @@ class ScalaTestClassExtractor extends RunConfigurationClassExtractor {
   override def runConfigurationSupported(config: RunConfiguration): Boolean =
     config.isInstanceOf[ScalaTestRunConfiguration]
 
+  override def environmentType: ExecutionEnvironmentType = ExecutionEnvironmentType.TEST
+
   override def classes(config: RunConfiguration): Option[List[String]] = {
     config match {
       case scalaTestConfig: ScalaTestRunConfiguration =>
