@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createComma, createNewLineNode}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -124,7 +124,22 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   private def space = createNewLineNode(" ")
 
   override def deleteChildInternal(child: ASTNode): Unit = {
-    ScalaPsiUtil.deleteCommaAfterElementInCommaSeparatedList(this, child)
-    super.deleteChildInternal(child)
+    val exprs = this.exprs
+    def childIsLastArgument = exprs.length == 1 && exprs.exists(_.getNode == child)
+    def isLastArgumentClause = getParent match {
+      case method@ScMethodCall(base, _) =>
+        !base.isInstanceOf[ScMethodCall] && !method.getParent.isInstanceOf[ScMethodCall]
+      case _: ConstructorInvocationLike =>
+        !this.getPrevSiblingNotWhitespaceComment.isInstanceOf[ScArgumentExprList] &&
+          !this.getNextSiblingNotWhitespaceComment.isInstanceOf[ScArgumentExprList]
+      case _ => true
+    }
+
+    if (childIsLastArgument && !isLastArgumentClause) {
+      this.delete()
+    } else {
+      ScalaPsiUtil.deleteCommaAfterElementInCommaSeparatedList(this, child)
+      super.deleteChildInternal(child)
+    }
   }
 }

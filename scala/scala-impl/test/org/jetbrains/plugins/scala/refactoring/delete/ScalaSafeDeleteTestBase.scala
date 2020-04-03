@@ -14,7 +14,7 @@ abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestA
   private def wrapText(content: String): String =
     s"""
        |class Test {
-       |  ${content.trim.replace("\n", "\n  ")}
+       |  ${content.trim.replace("\n", "\n  ").replace("  \n", "\n")}
        |}
        |""".stripMargin.trim
 
