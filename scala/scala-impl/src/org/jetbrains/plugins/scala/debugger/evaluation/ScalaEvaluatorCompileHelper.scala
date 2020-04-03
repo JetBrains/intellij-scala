@@ -31,7 +31,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with Eval
   private val listener = new DebuggerManagerListener {
     override def sessionAttached(session: DebuggerSession): Unit = {
       if (EvaluatorCompileHelper.needCompileServer && project.hasScala) {
-        CompileServerLauncher.ensureNotRunning(project)
+        CompileServerLauncher.ensureServerNotRunning(project)
       }
     }
 

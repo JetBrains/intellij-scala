@@ -51,16 +51,7 @@ object CompileServerLauncher {
         invokeAndWait {
           CompileServerManager.configureWidget(project)
         }
-
-        if (CompileServerLauncher.needRestart(project)) {
-          stop()
-        }
-
-        if (!running) {
-          invokeAndWait {
-            tryToStart(project)
-          }
-        }
+        CompileServerLauncher.ensureServerRunning(project)
       }
     }
   }
@@ -69,7 +60,7 @@ object CompileServerLauncher {
     if (running) stop()
   )
 
-  def tryToStart(project: Project): Boolean =
+  def tryToStart(project: Project): Boolean = serverStartLock.synchronized {
     if (running) true else {
       val started = start(project)
       if (started) {
@@ -84,6 +75,7 @@ object CompileServerLauncher {
       }
       started
     }
+  }
 
   private def start(project: Project): Boolean = {
     val result = for {
@@ -177,7 +169,7 @@ object CompileServerLauncher {
             val watcher = new ProcessWatcher(process, "scalaCompileServer")
             serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), jdk))
             watcher.startNotify()
-            LOG.info(s"compile server process starter with port: $freePort, jdk: ${jdk.name}")
+            LOG.info(s"compile server process started with port: $freePort, jdk: ${jdk.name}")
             process
           }
       case (_, absentFiles) =>
@@ -262,10 +254,12 @@ object CompileServerLauncher {
     xmx ++ otherParams
   }
 
+  private val serverStartLock = new Object
 
   // TODO: make it thread safe, call from a single thread OR use some locking mechanism
-  def ensureServerRunning(project: Project): Boolean = {
-    LOG.traceSafe("ensureServerRunning")
+
+  def ensureServerRunning(project: Project): Boolean = serverStartLock.synchronized {
+    LOG.traceSafe(s"ensureServerRunning ${Thread.currentThread.getId}")
     if (needRestart(project)) {
       LOG.traceSafe("ensureServerRunning: need to restart, stopping")
       stop()
@@ -290,7 +284,7 @@ object CompileServerLauncher {
     }
   }
 
-  def ensureNotRunning(project: Project): Unit = {
+  def ensureServerNotRunning(project: Project): Unit = serverStartLock.synchronized {
     if (running) stop(project)
   }
 

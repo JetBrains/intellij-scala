@@ -69,7 +69,7 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
 
     override def stop(): Unit = {
       // TODO: SCL-17265 do not stop the whole server! INvestigate whether we can cancel
-      CompileServerLauncher.ensureNotRunning(project)
+      CompileServerLauncher.ensureServerNotRunning(project)
     }
   }
 }
