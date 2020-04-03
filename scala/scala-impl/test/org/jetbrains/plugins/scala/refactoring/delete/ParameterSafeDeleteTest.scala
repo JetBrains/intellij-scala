@@ -82,22 +82,120 @@ class ParameterSafeDeleteTest extends ScalaSafeDeleteTestBase {
       |""".stripMargin
   )
 
-  def test_unreferenced_in_second_param_clause(): Unit = doSafeDeleteTest(
+  def test_second_param_clause(): Unit = doSafeDeleteTest(
     s"""
        |def test(blub: Int)
        |        (param1: String,
        |         par${|}am: Int, after: Float,
-       |         param2: Boolean) = {
+       |         param2: Boolean) = ()
        |
-       |}
+       |test(1)
+       |    ("",
+       |     1.1,
+       |     true)
        |""".stripMargin,
     """
       |def test(blub: Int)
       |        (param1: String,
       |         after: Float,
-      |         param2: Boolean) = {
+      |         param2: Boolean) = ()
       |
-      |}
+      |test(1)
+      |    ("",
+      |     1.1,
+      |     true)
+      |""".stripMargin
+  )
+
+  def test_second_param_clause_with_single_param(): Unit = doSafeDeleteTest(
+    s"""
+       |def test(blub: Int)
+       |        (par${|}am: Int) = ()
+       |
+       |test(1)(2)
+       |""".stripMargin,
+    """
+      |def test(blub: Int) = ()
+      |
+      |test(1)
+      |""".stripMargin
+  )
+
+  def test_multi_param_clause_delete_first(): Unit = doSafeDeleteTest(
+    s"""
+       |def test(a${|}a: Int)(bb: Int)(cc: Int) = ()
+       |
+       |test(1)(2)(3)
+       |""".stripMargin,
+    """
+      |def test(bb: Int)(cc: Int) = ()
+      |
+      |test(2)(3)
+      |""".stripMargin
+  )
+
+  def test_multi_param_clause_delete_middle(): Unit = doSafeDeleteTest(
+    s"""
+       |def test(aa: Int)(b${|}b: Int)(cc: Int) = ()
+       |
+       |test(1)(2)(3)
+       |""".stripMargin,
+    """
+      |def test(aa: Int)(cc: Int) = ()
+      |
+      |test(1)(3)
+      |""".stripMargin
+  )
+
+  def test_multi_param_clause_delete_last(): Unit = doSafeDeleteTest(
+    s"""
+       |def test(aa: Int)(bb: Int)(c${|}c: Int) = ()
+       |
+       |test(1)(2)(3)
+       |""".stripMargin,
+    """
+      |def test(aa: Int)(bb: Int) = ()
+      |
+      |test(1)(2)
+      |""".stripMargin
+  )
+
+  def test_multi_class_param_clause_delete_first(): Unit = doSafeDeleteTest(
+    s"""
+       |class Test(a${|}a: Int)(bb: Int)(cc: Int)
+       |
+       |new Test(1)(2)(3)
+       |""".stripMargin,
+    """
+      |class Test(bb: Int)(cc: Int)
+      |
+      |new Test(2)(3)
+      |""".stripMargin
+  )
+
+  def test_multi_class_param_clause_delete_middle(): Unit = doSafeDeleteTest(
+    s"""
+       |class Test(aa: Int)(b${|}b: Int)(cc: Int)
+       |
+       |new Test(1)(2)(3)
+       |""".stripMargin,
+    """
+      |class Test(aa: Int)(cc: Int)
+      |
+      |new Test(1)(3)
+      |""".stripMargin
+  )
+
+  def test_multi_class_param_clause_delete_last(): Unit = doSafeDeleteTest(
+    s"""
+       |class Test(aa: Int)(bb: Int)(c${|}c: Int)
+       |
+       |new Test(1)(2)(3)
+       |""".stripMargin,
+    """
+      |class Test(aa: Int)(bb: Int)
+      |
+      |new Test(1)(2)
       |""".stripMargin
   )
 
@@ -115,7 +213,7 @@ class ParameterSafeDeleteTest extends ScalaSafeDeleteTestBase {
        |def test(blub: Int)(implicit bl${|}ub: Int) = ()
        |""".stripMargin,
     """
-      |def test(blub: Int)() = ()
+      |def test(blub: Int) = ()
       |""".stripMargin
   )
 
