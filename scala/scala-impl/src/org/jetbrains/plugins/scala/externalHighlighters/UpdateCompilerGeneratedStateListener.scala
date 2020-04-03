@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.externalHighlighters
 import java.io.File
 import java.util.EventListener
 
-import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.messages.Topic
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
@@ -27,25 +28,12 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           source <- msg.source
           virtualFile <- source.toVirtualFile
           highlighting = ExternalHighlighting(
-            severity = kindToSeverity(msg.kind),
+            highlightType = kindToHighlightInfoType(msg.kind, text),
             message = text,
             fromLine = line.toInt,
             fromColumn = column.toInt,
-            toLine = None,
-            toColumn = None
-          )
-          fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
-        } yield replaceOrAppendFileState(virtualFile, fileState)
-      case CompilerEvent.RangeMessageEmitted(compilationId, msg) =>
-        for {
-          virtualFile <- msg.source.toVirtualFile
-          highlighting = ExternalHighlighting(
-            severity = msg.severity,
-            message = msg.text,
-            fromLine = msg.fromLine,
-            fromColumn = msg.fromColumn,
-            toLine = msg.toLine,
-            toColumn = msg.toColumn
+            toLine = msg.toLine.map(_.toInt),
+            toColumn = msg.toColumn.map(_.toInt)
           )
           fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
         } yield replaceOrAppendFileState(virtualFile, fileState)
@@ -77,10 +65,17 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     }
   }
 
-  private def kindToSeverity(kind: Kind): HighlightSeverity = kind match {
-    case Kind.ERROR => HighlightSeverity.ERROR
-    case Kind.WARNING => HighlightSeverity.WARNING
-    case _ => HighlightSeverity.INFORMATION
+  private def kindToHighlightInfoType(kind: Kind, text: String): HighlightInfoType = kind match {
+    case Kind.ERROR if StringUtils.startsWithIgnoreCase(text, "not found:") =>
+      HighlightInfoType.WRONG_REF
+    case Kind.ERROR =>
+      HighlightInfoType.ERROR
+    case Kind.WARNING =>
+      HighlightInfoType.WARNING
+    case Kind.INFO =>
+      HighlightInfoType.WEAK_WARNING
+    case _ =>
+      HighlightInfoType.INFORMATION
   }
 
   private def replaceOrAppendFileState(file: VirtualFile, fileState: FileCompilerGeneratedState): CompilerGeneratedState =

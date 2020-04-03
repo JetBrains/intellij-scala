@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.compiler
 
 import java.io.File
 
-import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.compiler.CompilerEventType.CompilerEventType
@@ -25,23 +24,11 @@ sealed trait CompilerEvent {
 
 object CompilerEvent {
 
-  // TODO merge MessageEmitted and RangeMessageEmitted into one class
   case class MessageEmitted(override val compilationId: CompilationId, msg: Client.ClientMsg)
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.MessageEmitted
   }
-
-  final case class RangeMessageEmitted(override val compilationId: CompilationId, msg: RangeMessage)
-    extends CompilerEvent {
-
-    override def eventType: CompilerEventType = CompilerEventType.RangeMessageEmitted
-  }
-
-  final case class RangeMessage(
-    severity: HighlightSeverity, text: String, source: File,
-    fromLine: Int, fromColumn: Int,
-    toLine: Option[Int], toColumn: Option[Int])
 
   // can be sent multiple times for different modules by jps compiler
   case class CompilationFinished(override val compilationId: CompilationId, sources: Set[File])

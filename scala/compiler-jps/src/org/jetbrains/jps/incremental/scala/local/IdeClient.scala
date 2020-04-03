@@ -25,7 +25,7 @@ abstract class IdeClient(compilerName: String,
   protected val compilationId: CompilationId = CompilationId.generate()
 
   override def message(msg: Client.ClientMsg): Unit = {
-    val Client.ClientMsg(kind, text, source, line, column) = msg
+    val Client.ClientMsg(kind, text, source, line, column, _, _) = msg
     if (kind == Kind.ERROR) {
       hasErrors = true
     }

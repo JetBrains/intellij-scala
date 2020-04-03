@@ -6,6 +6,8 @@ import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.project.Project
+import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -18,7 +20,7 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
 
   private val files = mutable.Set[File]()
 
-  private def publish(severity: HighlightSeverity, text: String, position: Option[FilePosition]) = {
+  private def publish(kind: Kind, text: String, position: Option[FilePosition]) = {
     position.map { pos =>
       val l0 = pos.getStartLine
       val c0 = pos.getStartColumn
@@ -27,9 +29,9 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
         if (pos.getEndLine == l0 && pos.getEndColumn == c0)
           (None, None)
         else
-          (Some(pos.getEndLine), Some(pos.getEndColumn))
-      val msg = CompilerEvent.RangeMessage(severity, text, pos.getFile, l0, c0, l1, c1)
-      val event = CompilerEvent.RangeMessageEmitted(compilationId, msg)
+          (Some(pos.getEndLine.toLong), Some(pos.getEndColumn.toLong))
+      val msg = Client.ClientMsg(kind, text, Some(pos.getFile), Some(l0), Some(c0), l1, c1)
+      val event = CompilerEvent.MessageEmitted(compilationId, msg)
       files.add(pos.getFile)
       publisher.eventReceived(event)
     }
@@ -52,13 +54,13 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
   override def finishCanceled(): Unit = finishFiles()
 
   override def warning(message: String, position: Option[FilePosition]): Unit =
-    publish(HighlightSeverity.WARNING, message, position)
+    publish(Kind.WARNING, message, position)
 
   override def error(message: String, position: Option[FilePosition]): Unit =
-    publish(HighlightSeverity.ERROR, message, position)
+    publish(Kind.ERROR, message, position)
 
   override def info(message: String, position: Option[FilePosition]): Unit =
-    publish(HighlightSeverity.WEAK_WARNING, message, position)
+    publish(Kind.INFO, message, position)
 
   override def start(): Unit = ()
   override def log(message: String): Unit = ()

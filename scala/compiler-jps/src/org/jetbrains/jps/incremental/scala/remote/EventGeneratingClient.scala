@@ -24,8 +24,8 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
   override def isCanceled: Boolean = canceled
 
   override def message(msg: Client.ClientMsg): Unit = {
-    val Client.ClientMsg(kind, text, source, line, column) = msg
-    publishEvent(MessageEvent(kind, text, source, line, column))
+    val Client.ClientMsg(kind, text, source, line, column, toLine, toColumn) = msg
+    publishEvent(MessageEvent(kind, text, source, line, column, toLine, toColumn))
   }
 
   override def trace(exception: Throwable): Unit = {

@@ -19,8 +19,14 @@ object Event {
     ObjectSerialization.fromBytes(bytes)
 }
 
-@SerialVersionUID(1317094340928824239L)
-case class MessageEvent(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) extends Event
+@SerialVersionUID(-284506638701953916L)
+case class MessageEvent(kind: Kind,
+                        text: String,
+                        source: Option[File],
+                        line: Option[Long],
+                        column: Option[Long],
+                        toLine: Option[Long],
+                        toColumn: Option[Long]) extends Event
 
 @SerialVersionUID(-6777609711619086870L)
 case class ProgressEvent(text: String, done: Option[Float]) extends Event

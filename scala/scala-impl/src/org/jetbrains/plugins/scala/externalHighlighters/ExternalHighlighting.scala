@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 
 /**
  * All information that needed for highlighting.
  *
  * Note: potentially this class can be a sealed ADT.
  */
-final case class ExternalHighlighting(severity: HighlightSeverity,
+final case class ExternalHighlighting(highlightType: HighlightInfoType,
                                       message: String,
                                       fromLine: Int,
                                       fromColumn: Int,

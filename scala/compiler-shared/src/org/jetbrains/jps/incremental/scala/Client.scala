@@ -19,26 +19,34 @@ trait Client {
                     @Nls text: String,
                     source: Option[File] = None,
                     line: Option[Long] = None,
-                    column: Option[Long] = None): Unit =
-    message(ClientMsg(kind, text, source, line, column))
+                    column: Option[Long] = None,
+                    toLine: Option[Long] = None,
+                    toColumn: Option[Long] = None): Unit =
+    message(ClientMsg(kind, text, source, line, column, toLine, toColumn))
 
   final def error(@Nls text: String,
                   source: Option[File] = None,
                   line: Option[Long] = None,
-                  column: Option[Long] = None): Unit =
-    message(Kind.ERROR, text, source, line, column)
+                  column: Option[Long] = None,
+                  toLine: Option[Long] = None,
+                  toColumn: Option[Long] = None): Unit =
+    message(Kind.ERROR, text, source, line, column, toLine, toColumn)
 
   final def warning(@Nls text: String,
                     source: Option[File] = None,
                     line: Option[Long] = None,
-                    column: Option[Long] = None): Unit =
-    message(Kind.WARNING, text, source, line, column)
+                    column: Option[Long] = None,
+                    toLine: Option[Long] = None,
+                    toColumn: Option[Long] = None): Unit =
+    message(Kind.WARNING, text, source, line, column, toLine, toColumn)
 
   final def info(@Nls text: String,
                  source: Option[File] = None,
                  line: Option[Long] = None,
-                 column: Option[Long] = None): Unit =
-    message(Kind.INFO, text, source, line, column)
+                 column: Option[Long] = None,
+                 toLine: Option[Long] = None,
+                 toColumn: Option[Long] = None): Unit =
+    message(Kind.INFO, text, source, line, column, toLine, toColumn)
 
   def trace(exception: Throwable): Unit
 
@@ -71,5 +79,7 @@ object Client {
                              text: String,
                              source: Option[File],
                              line: Option[Long],
-                             column: Option[Long])
+                             column: Option[Long],
+                             toLine: Option[Long],
+                             toColumn: Option[Long])
 }
