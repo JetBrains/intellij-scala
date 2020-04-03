@@ -55,7 +55,10 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           virtualFile <- source.toVirtualFile
         } yield virtualFile
         val emptyState = FileCompilerGeneratedState(compilationId, Set.empty)
-        Some(replaceOrAppendFileState(vFiles, emptyState))
+        val newState = vFiles.foldLeft(CompilerGeneratedStateManager.get(project)) { case (acc, file) =>
+          replaceOrAppendFileState(acc, file, emptyState)
+        }
+        Some(newState)
       case CompilerEvent.ProgressEmitted(_, progress) =>
         Some(updateProgress(progress))
       case _ =>
@@ -80,23 +83,23 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     case _ => HighlightSeverity.INFORMATION
   }
 
-  private def replaceOrAppendFileState(files: Traversable[VirtualFile], fileState: FileCompilerGeneratedState): CompilerGeneratedState = {
-    val oldState = CompilerGeneratedStateManager.get(project)
-    val oldFileStates = oldState.files
-    val newFileStates = files.foldLeft(oldFileStates) { case (acc, file) =>
-      val newFileState = acc.get(file) match {
-        case Some(oldFileState) if oldFileState.compilationId == fileState.compilationId =>
-          oldFileState.withExtraHighlightings(fileState.highlightings)
-        case _ =>
-          fileState
-      }
-      acc.updated(file, newFileState)
+  private def replaceOrAppendFileState(file: VirtualFile, fileState: FileCompilerGeneratedState): CompilerGeneratedState =
+    replaceOrAppendFileState(CompilerGeneratedStateManager.get(project), file, fileState)
+
+  private def replaceOrAppendFileState(
+    oldState: CompilerGeneratedState,
+    file: VirtualFile,
+    fileState: FileCompilerGeneratedState
+  ): CompilerGeneratedState = {
+    val newFileState = oldState.files.get(file) match {
+      case Some(oldFileState) if oldFileState.compilationId == fileState.compilationId =>
+        oldFileState.withExtraHighlightings(fileState.highlightings)
+      case _ =>
+        fileState
     }
+    val newFileStates = oldState.files.updated(file, newFileState)
     oldState.copy(files = newFileStates)
   }
-
-  private def replaceOrAppendFileState(file: VirtualFile, fileState: FileCompilerGeneratedState): CompilerGeneratedState =
-    replaceOrAppendFileState(Some(file), fileState)
 
   private def updateProgress(progress: Double): CompilerGeneratedState =
     CompilerGeneratedStateManager.get(project).copy(progress = progress)
