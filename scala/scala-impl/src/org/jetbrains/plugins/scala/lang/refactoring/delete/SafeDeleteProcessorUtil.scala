@@ -18,9 +18,10 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScPrimaryConstructor, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScSelfInvocation}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScMethodCall, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -338,6 +339,20 @@ object SafeDeleteProcessorUtil {
     isInsideDeleted
   }
 
+  private def findMethodOrConstructorInvocation(element: PsiElement): Iterator[ImplicitArgumentsOwner] = {
+    val parent = element.getParent
+    val invocation = element
+      .asOptionOf[MethodInvocation]
+      .orElse(parent.asOptionOf[MethodInvocation])
+      .orElse(element.asOptionOf[ScSelfInvocation])
+      .orElse(parent.getParent.asOptionOf[ScConstructorInvocation])
+
+    invocation match {
+      case Some(call: ScMethodCall) => call.withParents.takeWhile(_.is[ScMethodCall]).map(_.asInstanceOf[ScMethodCall])
+      case _ => invocation.toIterator
+    }
+  }
+
   def findParameterUsages(parameter: ScParameter, usages: util.List[UsageInfo]): Unit = {
     val owner = parameter.owner
     val namedArguments = mutable.Set.empty[PsiElement]
@@ -345,13 +360,8 @@ object SafeDeleteProcessorUtil {
       referenceSearch(methodLike).forEach(new Processor[PsiReference] {
         override def process(reference: PsiReference): Boolean = {
           val element: PsiElement = reference.getElement
-          val parent = element.getParent
           for {
-            call <- element
-                      .asOptionOf[MethodInvocation]
-                      .orElse(parent.asOptionOf[MethodInvocation])
-                      .orElse(element.asOptionOf[ScSelfInvocation])
-                      .orElse(parent.getParent.asOptionOf[ScConstructorInvocation])
+            call <- findMethodOrConstructorInvocation(element)
             (arg, param) <- call.matchedParameters
             if param.psiParam.contains(parameter)
           } {
@@ -365,7 +375,7 @@ object SafeDeleteProcessorUtil {
             usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(realArg, parameter, true))
           }
 
-          parent match {
+          element.getParent match {
             case ScConstructorPattern(_, args) =>
               args.patterns.lift(parameter.index).foreach { arg =>
                 usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(arg, parameter, false))
