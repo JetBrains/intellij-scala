@@ -63,7 +63,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
   }
 
   private def kindToHighlightInfoType(kind: Kind, text: String): HighlightInfoType = kind match {
-    case Kind.ERROR if StringUtils.startsWithIgnoreCase(text, "not found:") =>
+    case Kind.ERROR if isErrorMessageAboutWrongRef(text) =>
       HighlightInfoType.WRONG_REF
     case Kind.ERROR =>
       HighlightInfoType.ERROR
@@ -74,6 +74,10 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     case _ =>
       HighlightInfoType.INFORMATION
   }
+  
+  private def isErrorMessageAboutWrongRef(text: String): Boolean =
+    StringUtils.startsWithIgnoreCase(text, "value") && text.contains("is not a member of") ||
+    StringUtils.startsWithIgnoreCase(text, "not found:")
 
   private def replaceOrAppendFileState(files: Traversable[VirtualFile], fileState: FileCompilerGeneratedState): CompilerGeneratedState = {
     val oldState = CompilerGeneratedStateManager.get(project)
