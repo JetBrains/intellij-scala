@@ -6,25 +6,24 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.testFramework.EdtTestUtil
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.extensions.HighlightInfoExt
+import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, invokeAndWait}
 import org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener.{CompilerGeneratedStateTopic, CompilerGeneratedStateTopicListener}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
-import org.jetbrains.plugins.scala.util.TestUtilsScala
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.junit.Assert.{assertThat, fail}
+import org.junit.Assert.assertThat
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import scala.collection.JavaConverters._
-import scala.concurrent.Promise
 import scala.concurrent.duration.DurationInt
-import scala.util.{Failure, Success}
+import scala.concurrent.{Await, Promise}
+import scala.util.Success
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[HighlightingTests]))
@@ -33,6 +32,12 @@ class ScalaCompilerHighlightingTest
     with HamcrestMatchers {
 
   override def useCompileServer: Boolean = true
+  override def runInDispatchThread: Boolean = false
+
+  override def setUp(): Unit =
+    EdtTestUtil.runInEdtAndWait(() => {
+      ScalaCompilerHighlightingTest.super.setUp()
+    })
 
   import ScalaCompilerHighlightingTest._
 
@@ -88,9 +93,9 @@ class ScalaCompilerHighlightingTest
       |val x = 23
       |"""
 
-  /** see [[org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
+  /** see [[org. jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
-  def testOnlyErrorsAreExpectedInWorksheet_Scala_2_13(): Unit = runTestCaseWithoutRebuild(
+  def testOnlyErrorsAreExpectedInWorksheet_Scala_2_13(): Unit = runTestCaseForWorksheet(
     fileName = "worksheet.sc",
     content = worksheetContent.stripMargin,
     expectedResult = expectedResult(
@@ -109,7 +114,7 @@ class ScalaCompilerHighlightingTest
 
   /* see [[org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
-  def testOnlyErrorsAreExpectedInWorksheet_Scala_3(): Unit = runTestCaseWithoutRebuild(
+  def testOnlyErrorsAreExpectedInWorksheet_Scala_3(): Unit = runTestCaseForWorksheet(
     fileName = "worksheet.sc",
     content = worksheetContent.stripMargin,
     expectedResult = expectedResult(
@@ -127,7 +132,7 @@ class ScalaCompilerHighlightingTest
   )
 
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
-  def testReplaceWrapperClassNameFromErrorMessages(): Unit = runTestCaseWithoutRebuild(
+  def testReplaceWrapperClassNameFromErrorMessages(): Unit = runTestCaseForWorksheet(
     fileName = "worksheet.sc",
     content =
       """object X {}
@@ -158,8 +163,10 @@ class ScalaCompilerHighlightingTest
 
     waitUntilFileIsHighlighted(virtualFile)
 
-    val document = virtualFile.findDocument.get
-    val actualResult = DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala
+    val actualResult = invokeAndWait {
+      val document = virtualFile.findDocument.get
+      DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala
+    }
     assertThat(actualResult, expectedResult)
   }
 
@@ -168,13 +175,15 @@ class ScalaCompilerHighlightingTest
                           content: String,
                           expectedResult: ExpectedResult): Unit = withErrorsFromCompiler {
     val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
-      FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
-      compiler.rebuild()
+      invokeAndWait {
+        FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
+        compiler.rebuild()
+      }
     }
     runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
   }
 
-  private def runTestCaseWithoutRebuild(
+  private def runTestCaseForWorksheet(
     fileName: String,
     content: String,
     expectedResult: ExpectedResult
@@ -189,15 +198,12 @@ class ScalaCompilerHighlightingTest
       }
       getProject.getMessageBus.connect().subscribe(CompilerGeneratedStateTopic, listener)
 
-      FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
+      invokeAndWait {
+        FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
+      }
 
       val timeout = 60.seconds
-      TestUtilsScala.awaitWithoutUiStarving(promise.future, timeout) match {
-        case Some(Success(_))  =>
-        case Some(Failure(ex)) => throw ex
-        case None              => fail(s"Document wasn't highlighted during expected time frame: $timeout")
-      }
-      PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+      Await.result(promise.future, timeout)
     }
     runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
   }
