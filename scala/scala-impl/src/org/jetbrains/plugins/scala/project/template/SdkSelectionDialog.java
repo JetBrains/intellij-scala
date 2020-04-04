@@ -43,7 +43,7 @@ public class SdkSelectionDialog extends JDialog {
 
         myParent = parent;
 
-        setTitle("Select JAR's for the new Scala SDK");
+        setTitle(ScalaBundle.message("sdk.create.select.files"));
 
         setContentPane(contentPane);
         setModal(true);
@@ -110,7 +110,7 @@ public class SdkSelectionDialog extends JDialog {
             }
         }
 
-        throw new RuntimeException("No Scala " + version + " in the Ivy repository");
+        throw new RuntimeException(ScalaBundle.message("sdk.create.missing.version", version));
     }
 
     private void onDownload() {

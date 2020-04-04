@@ -24,7 +24,13 @@ trait ScalaSdkDetector {
 
 object ScalaSdkDetector {
   def allDetectors(contextDirectory: VirtualFile) =
-    Seq(new ProjectLocalDetector(contextDirectory), SystemDetector, BrewDetector, IvyDetector, MavenDetector, CoursierDetector)
+    Seq(new ProjectLocalDetector(contextDirectory),
+      SystemDetector,
+      BrewDetector,
+      IvyDetector,
+      MavenDetector,
+      SdkmanDetector,
+      CoursierDetector)
 }
 
 

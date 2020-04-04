@@ -8,9 +8,10 @@ package template
 sealed abstract class SdkChoice(val sdk: ScalaSdkDescriptor,
                                 val source: String)
 
-case class ProjectSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Project")
-case class SystemSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "System")
-case class IvySdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Ivy")
-case class MavenSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Maven")
-case class CoursierSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Coursier")
-case class BrewSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Brew")
+final case class ProjectSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Project")
+final case class SystemSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "System")
+final case class IvySdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Ivy")
+final case class MavenSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Maven")
+final case class CoursierSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Coursier")
+final case class BrewSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "Brew")
+final case class SdkmanSdkChoice(override val sdk: ScalaSdkDescriptor) extends SdkChoice(sdk, "SDKMAN!")
