@@ -1,6 +1,7 @@
 package org.jetbrains.bsp.protocol.session
 
 import java.io._
+import java.lang.reflect.{InvocationHandler, Method}
 import java.nio.file.{Files, Paths}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -159,7 +160,7 @@ class BspSession private(bspIn: InputStream,
       .traceMessages(bspTraceLogger)
       .create()
     val listening = launcher.startListening()
-    val bspServer = launcher.getRemoteProxy
+    val bspServer = cancellationSafeBspServer(launcher.getRemoteProxy)
     localClient.onConnectWithServer(bspServer)
 
     val messageHandler = new BspProcessMessageHandler(bspErr)
@@ -178,6 +179,38 @@ class BspSession private(bspIn: InputStream,
     }
 
     ServerConnection(bspServer, cancelable, listening)
+  }
+
+  /**
+   * Some BSP endpoints return `CompletableFuture`s that represend BSP jobs that are
+   * currently running on BSP server. In order to cancel these, jobs, the `cancel`
+   * method of this future should be called. Unfortunately, the original futures that come
+   * from lsp4j does not support transformations well - after calling `thenApply`, the `cancel`
+   * method of the new future does not stop the job. This method returns a BspServer's proxy that
+   * return fixed CancellableFuture's
+   *
+   * @param bspServer original bspServer with endpoints returning regular `CompletableFuture`s
+   * @return proxy of bspServer with endpoints returning fixed `CompletableFuture`s
+   */
+  private def cancellationSafeBspServer(bspServer: BspServer): BspServer = {
+    val invocationHandler = new InvocationHandler {
+      override def invoke(proxy: Any, method: Method, args: Array[AnyRef]): AnyRef = {
+        val resultFromBsp = method.invoke(bspServer, args:_*)
+        // Some BSP endpoints return CompletableFutures, but other return void
+        resultFromBsp match {
+          case future: CompletableFuture[_] => CancellableFuture.from(future)
+          case x => x
+        }
+      }
+    }
+
+    val safeBspServer = java.lang.reflect.Proxy
+      .newProxyInstance(invocationHandler.getClass.getClassLoader,
+        Array(classOf[BspServer]),
+        invocationHandler
+      ).asInstanceOf[BspServer]
+
+    safeBspServer
   }
 
   private def initializeSession: CompletableFuture[bsp4j.InitializeBuildResult] = {
