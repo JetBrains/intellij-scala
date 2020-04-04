@@ -121,7 +121,7 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
         runningTask.set(Some(errorFuture))
     }
 
-    promise.failure(error)
+    promise.tryFailure(error)
   }
 }
 
