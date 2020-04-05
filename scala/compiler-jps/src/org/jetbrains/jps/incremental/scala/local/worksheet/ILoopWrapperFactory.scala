@@ -66,30 +66,28 @@ class ILoopWrapperFactory {
     val code = new String(Base64.getDecoder.decode(args.codeChunk), StandardCharsets.UTF_8)
     // note: do not remove String generic parameter, it will fail in JVM 11
     val statements = if (code.isEmpty) Array.empty[String] else code.split(Pattern.quote(ReplDelimiter))
-    for  { (statement, idx) <- statements.zipWithIndex } {
+    for  { (statement, idx) <- statements.zipWithIndex if statement.trim.nonEmpty } {
       val commandAction = if (statement.startsWith(":")) commands.get(statement) else None
       commandAction match {
         case Some(action) =>
           action.apply(inst)
         case _        =>
           printService(out, ReplChunkStart)
-          try {
-            val progress = (idx + 1f) / statements.size
-            client.progress("Executing worksheet...", Some(progress))
 
-            val noErrors = inst.processChunk(statement)
-            val shouldContinue = noErrors || args.continueOnChunkError
-            if (shouldContinue) {
-              printService(out, ReplChunkEnd)
-            } else {
-              printService(out, ReplChunkCompilationError)
-              return
-            }
-          } catch {
+          val progress = (idx + 1f) / statements.size
+          client.progress("Executing worksheet...", Some(progress))
+
+          val noErrors = try inst.processChunk(statement) catch {
             case NonFatal(ex) =>
               printStackTrace(ex, out)
-              printService(out, ReplChunkCompilationError)
-              return
+              false
+          }
+          val shouldContinue = noErrors || args.continueOnChunkError
+          if (shouldContinue) {
+            printService(out, ReplChunkEnd)
+          } else {
+            printService(out, ReplChunkCompilationError)
+            return
           }
       }
     }
@@ -180,8 +178,12 @@ private object ILoopWrapperFactory {
   private case class ILoopCreationException(cause: Throwable) extends Exception(cause)
 
   private class MySimpleCache(val limit: Int) {
+
     private val comparator    = new ReplSessionComparator
     private val sessionsQueue = new ju.PriorityQueue[ReplSession](limit)
+
+    private def findById(id: String): Option[ReplSession] =
+      sessionsQueue.asScala.find(session => session != null && session.id == id)
 
     def clear(): Unit = {
       sessionsQueue.asScala.foreach(_.wrapper.shutdown())
@@ -211,9 +213,6 @@ private object ILoopWrapperFactory {
       sessionsQueue.offer(newSession)
       newSession.wrapper
     }
-
-    private def findById(id: String): Option[ReplSession] =
-      sessionsQueue.asScala.find(session => session != null && session.id == id)
 
     private class ReplSessionComparator extends ju.Comparator[ReplSession] {
       private val storage = new ju.HashMap[String, Integer]
