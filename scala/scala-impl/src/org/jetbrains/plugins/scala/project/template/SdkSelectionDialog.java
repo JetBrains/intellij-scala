@@ -102,7 +102,7 @@ public class SdkSelectionDialog extends JDialog {
         };
     }
 
-    private int setSelectionInterval(String version) {
+    private int setSelectionInterval(String version) throws RuntimeException {
         for (int i = 0; i < myTable.getRowCount(); i++) {
             if ("Ivy".equals(myTable.getValueAt(i, 0)) &&
                     version.equals(myTable.getValueAt(i, 1))) {
