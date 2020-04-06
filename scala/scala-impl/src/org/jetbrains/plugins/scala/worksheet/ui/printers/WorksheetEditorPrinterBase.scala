@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.worksheet.ui.printers
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.FoldingModelEx
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
@@ -11,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.{ThrowableExt, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
 
 abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
                                           protected val worksheetViewer: Editor)
@@ -28,14 +27,17 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
   private var inited = false
 
+  private def debug(obj: Any): Unit =
+    println(s"[${Thread.currentThread.getId}] $obj")
+
   override def internalError(ex: Throwable): Unit =
     invokeLater {
       inWriteAction {
         val fullErrorMessage = internalErrorMessage(ex)
         if (alreadyContainsInternalErrors(viewerDocument)) {
-          simpleAppend("\n" + fullErrorMessage, viewerDocument)
+          simpleAppend(viewerDocument, "\n" + fullErrorMessage)
         } else {
-          simpleUpdate(fullErrorMessage, viewerDocument)
+          simpleUpdate(viewerDocument, fullErrorMessage)
         }
       }
     }
@@ -79,16 +81,22 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     }
   }
 
-  protected final def updateFoldings(foldings: Seq[FoldingOffsets]): Unit = startCommand() {
-    def addRegion(fo: FoldingOffsets): Unit = {
-      val FoldingOffsets(outputStartLine, outputEndOffset, inputLinesCount, inputEndLine, expanded) = fo
+  protected final def updateFoldings(folding: InputOutputFoldingInfo): Unit =
+    updateFoldings(Seq(folding))
 
+  protected final def updateFoldings(foldings: Seq[InputOutputFoldingInfo]): Unit = startCommand() {
+    //debug(s"foldings: $foldings")
+
+    def addRegion(fo: InputOutputFoldingInfo): Unit = {
+      val InputOutputFoldingInfo(inputStartLine, inputEndLine, outputStartLine, outputEndLine, expanded) = fo
+
+      val inputLinesCount = inputEndLine - inputStartLine + 1
       val foldStartLine = outputStartLine + inputLinesCount - 1
-      val foldEndLine = viewerDocument.getLineNumber(outputEndOffset)
+      val foldEndLine = outputEndLine
       val foldedLinesCount = foldEndLine - foldStartLine
 
       val foldStartOffset = viewerDocument.getLineStartOffset(foldStartLine)
-      val foldEndOffset = outputEndOffset
+      val foldEndOffset = viewerDocument.getLineEndOffset(foldEndLine)
 
       val leftEndOffset = originalDocument.getLineEndOffset(inputEndLine.min(originalDocument.getLineCount))
 
@@ -128,14 +136,15 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     PsiDocumentManager.getInstance(project).commitDocument(doc)
   }
 
-  protected def simpleUpdate(text: CharSequence, document: Document): Unit = {
+  protected def simpleUpdate(document: Document, text: CharSequence): Unit = {
     document.setText(text)
     commitDocument(document)
   }
 
-  protected def simpleAppend(text: CharSequence, document: Document): Unit =
+  protected def simpleAppend(document: Document, text: CharSequence): Unit =
     executeUndoTransparentAction {
-      document.insertString(document.getTextLength, text)
+      val documentLength = document.getTextLength
+      document.insertString(documentLength, text)
       commitDocument(document)
     }
 
@@ -146,12 +155,11 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
 private object WorksheetEditorPrinterBase {
 
-
-  case class FoldingOffsets(
-    outputStartLine: Int,
-    outputEndOffset: Int,
-    inputLinesCount: Int,
+  case class InputOutputFoldingInfo(
+    inputStartLine: Int,
     inputEndLine: Int,
+    outputStartLine: Int,
+    outputEndLine: Int,
     var isExpanded: Boolean = false
   )
 }

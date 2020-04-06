@@ -118,7 +118,6 @@ class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTe
          |
          |helloworld!
          |res2: Unit = ()
-         |
          |""".stripMargin
 
     doRenderTest(left, right)

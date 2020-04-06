@@ -3,8 +3,9 @@ package org.jetbrains.plugins.scala.worksheet.ui.printers
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
-import com.intellij.openapi.editor.{Editor, LogicalPosition}
+import com.intellij.openapi.editor.{Document, Editor, LogicalPosition}
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.annotations.{CalledInAwt, CalledWithWriteLock}
 import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter
@@ -20,9 +21,8 @@ import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaPluginUtils}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
-import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi
-import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi.PrintChunk
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
+import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.{PrintChunk, QueuedPsi}
 
 import scala.collection.mutable
 
@@ -39,7 +39,9 @@ final class WorksheetEditorPrinterRepl private[printers](
   // Mapping of successfully-processed chunks from left editor to the output end in the right editor
   private val inputToOutputMapping = mutable.ArrayBuffer.empty[InputOutputMappingItem]
   /**  @return index of the last processed line */
-  def lastProcessedLine: Option[Int] = inputToOutputMapping.lastOption.map(_.inputLine)
+  def lastProcessedLine: Option[Int] = inputToOutputMapping.lastOption.map(_.inputLinesInfo.lastElementLine)
+  // can be different from number of lines in viewerDocument cause document can contains errors in the end
+  private def lastProcessedOutputLine: Option[Int] = inputToOutputMapping.lastOption.map(_.outputLinesInfo.outputEndLine)
   def resetLastProcessedLine(): Unit = inputToOutputMapping.clear()
 
   private var currentFile: ScalaFile = file
@@ -59,9 +61,6 @@ final class WorksheetEditorPrinterRepl private[printers](
 
   private val chunkOutputBuffer = StringBuilder.newBuilder
   private var chunkIsBeingProcessed = false
-
-  private def debug(text: String): Unit =
-    println(s"[${Thread.currentThread.getId}] $text")
 
   // FIXME: now all return boolean values are not processed anywhere and do not mean anything, remove or handle
   // FIXME: handle exceptions in process line
@@ -91,7 +90,7 @@ final class WorksheetEditorPrinterRepl private[printers](
         chunkIsBeingProcessed = false
         //prepareViewerDocument()
 
-        val outputText = chunkOutputBuffer.toString.trimRight
+        val outputText = chunkOutputBuffer.toString.stripTrailing
         chunkOutputBuffer.clear()
 
         val successfully = command == ReplChunkEnd
@@ -111,7 +110,7 @@ final class WorksheetEditorPrinterRepl private[printers](
   }
 
   private def prepareViewerDocument(): Unit =
-    inputToOutputMapping.lastOption.map(_.outputLastLine) match {
+    lastProcessedOutputLine match {
       case Some(outputLine) =>
         val nextLine = outputLine + 1
         if (viewerDocument.getLineCount > nextLine)
@@ -124,7 +123,7 @@ final class WorksheetEditorPrinterRepl private[printers](
     inWriteCommandAction {
       //debug(s"cleanViewer: $fromLineIdx")
       if (fromLineIdx == 0) {
-        simpleUpdate("", viewerDocument)
+        simpleUpdate(viewerDocument, "")
         cleanFoldings()
       } else {
         val start = (viewerDocument.getLineStartOffset(fromLineIdx) - 1).max(0) // capture previous new line as well
@@ -135,19 +134,31 @@ final class WorksheetEditorPrinterRepl private[printers](
 
   override def close(): Unit = {}
 
-  //nothing to flush, content is flushed inside chunkProcessed, not expecting any other unflushed content content
+  //nothing to flush, content is flushed inside chunkProcessed, not expecting any other not-flushed content
   override def flushBuffer(): Unit = {}
 
   // Looks like we don't need any flushing here
   override def scheduleWorksheetUpdate(): Unit = {}
 
-  private def chunkProcessed(outputText: String, successfully: Boolean): Unit = {
+  override def internalError(ex: Throwable): Unit = {
+    val fullErrorMessage = internalErrorMessage(ex)
+    if (!chunkProcessed(fullErrorMessage, successfully = false)) {
+      // no queued psi for the error for some reason (e.g. if error occurred in the end of the processing of all chunks)
+      invokeAndWait {
+        inWriteAction {
+          simpleAppend(viewerDocument, "\n" +  fullErrorMessage)
+        }
+      }
+    }
+  }
+
+  private def popCurrentQueuedPsi(): Option[QueuedPsi] = {
     if (psiToProcess.isEmpty) {
       // not expecting to be empty, elements count in original psiToProcess should be equal to number of executed  commands in REPL
       //noinspection ScalaExtractStringToBundle
       if (ScalaPluginUtils.isRunningFromSources)
         NotificationUtil.showMessage(project, "psiToProcess is empty")
-      return
+      return None
     }
 
     val queuedPsi: QueuedPsi = psiToProcess.dequeue()
@@ -155,99 +166,112 @@ final class WorksheetEditorPrinterRepl private[printers](
       // This case can be observed if between "run worksheet" action and end of the worksheet evaluation output
       // user decided to change some psi element in left editor, or even clean editor content completely.
       // We can't detect the original line number correctly in this situation, so for now just ignoring any output of such chunks
-      return
+      return None
     }
+    Some(queuedPsi)
+  }
 
+  private def chunkProcessed(outputText: String, successfully: Boolean): Boolean =
     invokeAndWait {
       inWriteAction {
-        chunkProcessed(queuedPsi, outputText, successfully)
+        popCurrentQueuedPsi() match {
+          case Some(queuedPsi) =>
+            chunkProcessed(queuedPsi, outputText, successfully)
+            true
+          case None =>
+            false
+        }
       }
     }
-  }
 
   @CalledInAwt
   @CalledWithWriteLock
   private def chunkProcessed(queuedPsi: QueuedPsi, outputText: String, successfully: Boolean): Unit = {
-    @inline
-    /** @return lines index (0-based) */
-    def originalLine(offset: Int): Int = originalDocument.getLineNumber(offset)
+    val inputLinesInfo  = buildInputLinesInfo(queuedPsi)
+    val outputInfo      = buildOutputInfo(inputLinesInfo, queuedPsi, outputText)
+    val outputLinesInfo = outputInfo.linesInfo
 
-    val chunkTextRange = inReadAction(queuedPsi.getWholeTextRange)
+    // Adding new lines before the actual chunk output to align input line from left editor with output line from right editor
 
-    val inputBeginningStartLine = originalLine(queuedPsi.getFirstProcessedOffset)
-    val inputBeginningEndLine   = originalLine(queuedPsi.getLastProcessedOffset)
-    val inputEndLine            = originalLine(chunkTextRange.getEndOffset)
-
-    ///////////////////////////////////////
-
-    val currentOutput = new mutable.StringBuilder()
-
-    // 1) append blank lines indentation to align input line from left editor with output line from right editor
-
-    // a single visible line can actually contain many folded lines, so actual indexes can shift further
-    // but the used does not see those folded lines so we need to extract folded lines
-    val numberOfFoldedLines = foldGroup.foldedLines
-    val lastProcessedChunkOutputLine = inputToOutputMapping.lastOption.map(_.outputLastLine).getOrElse(0)
-    val viewerDocumentLastVisibleLine = (lastProcessedChunkOutputLine - numberOfFoldedLines).max(0)
-
-    val prefixBlankLinesCount = (inputBeginningStartLine - viewerDocumentLastVisibleLine).max(0)
-    val prefixBlankLinesString = buildNewLines(prefixBlankLinesCount)
-    currentOutput.append(prefixBlankLinesString)
-
-    // 2) append current queuedPsi evaluation output
-
-    val outputChunks = queuedPsi.getPrintChunks(outputText)
-    val outputTextWithNewLinesOffset = outputChunks.map { case PrintChunk(absoluteOffset, relativeOffset, chunkText) =>
-      val currChunkLine = originalLine(absoluteOffset)
-      val prevChunkLine = originalLine(absoluteOffset - relativeOffset)
-      val linesBetween = currChunkLine - prevChunkLine
-      (chunkText, linesBetween)
-    }
-    outputTextWithNewLinesOffset.foreach { case (chunkText, newLinesOffset) =>
-      val prefix = buildNewLines(newLinesOffset)
-      currentOutput.append(prefix)
-      currentOutput.append(chunkText)
-    }
-
-    simpleAppend(currentOutput, viewerDocument)
-
-    val blankLinesFromOutput = outputTextWithNewLinesOffset.foldLeft(0)(_ + _._2)
+    simpleAppend(viewerDocument, buildNewLines(outputLinesInfo.prefixNewLines))
+    simpleAppend(viewerDocument, outputInfo.actualOutputText)
 
     // do not update mapping / folding for first chunk which failed to be evaluated (compilation error/exception/etc...)
     // consider that tailed chunk will be the last in current worksheet run session
     if (successfully) {
-      WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, chunkTextRange.getEndOffset)
-
-      val inputLineCount  = linesCount(queuedPsi.getText)
-      val outputLineCount = linesCount(outputText)
-
-      val mapping = InputOutputMappingItem(
-        inputBeginningEndLine,
-        lastProcessedChunkOutputLine + prefixBlankLinesCount + (outputLineCount - 1).max(0) + (blankLinesFromOutput - 1).max(0)
-      )
+      val mapping = InputOutputMappingItem(inputLinesInfo, outputLinesInfo)
       inputToOutputMapping.append(mapping)
 
-      if (outputLineCount > inputLineCount) {
-        val lineCount = viewerDocument.getLineCount
-
-        val outputStartLine = lastProcessedChunkOutputLine + prefixBlankLinesCount
-        val outputEndOffset = viewerDocument.getLineEndOffset(lineCount - 1)
-
-        val foldings = FoldingOffsets(
-          outputStartLine,
-          outputEndOffset,
-          inputLineCount,
-          inputEndLine
-        )
-        updateFoldings(Seq(foldings))
+      val needsFolding = outputLinesInfo.outputLinesCount > inputLinesInfo.inputLinesCount
+      if (needsFolding) {
+        val foldingInfo = buildFoldingInfo(inputLinesInfo, outputLinesInfo)
         //debug(s"foldings: $foldings")
+        updateFoldings(foldingInfo)
       }
 
+      WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, inputLinesInfo.range.getEndOffset)
       saveEvaluationResult(viewerDocument.getText)
     }
 
     // debug(s"mapping: ${inputToOutputMapping.map(InputOutputMappingItem.unapply(_).get)}")
   }
+
+  private def originalLine(offset: Int): Option[Int] = originalDocument.lineNumberSafe(offset)
+
+  private def buildInputLinesInfo(queuedPsi: QueuedPsi): InputLinesInfo = {
+    val range = queuedPsi.textRange
+
+    InputLinesInfo(
+      originalLine(queuedPsi.firstElementOffset).getOrElse(0),
+      originalLine(queuedPsi.lastElementOffset).getOrElse(0),
+      originalLine(range.getStartOffset).getOrElse(0),
+      originalLine(range.getEndOffset).getOrElse(0),
+      range
+    )
+  }
+
+  private def buildOutputInfo(inputInfo: InputLinesInfo, queuedPsi: QueuedPsi, outputText: String): OutputInfo = {
+    val actualOutputText = buildActualOutputText(queuedPsi, outputText)
+    val linesInfo = buildOutputLinesInfo(inputInfo, actualOutputText)
+    OutputInfo(linesInfo, actualOutputText)
+  }
+
+  private def buildOutputLinesInfo(inputInfo: InputLinesInfo, actualOutputText: String): OutputLinesInfo = {
+    // a single visible line can actually contain many folded lines,
+    // but user does not see those folded lines so we need to subtract them
+    val foldedLinesCount = foldGroup.foldedLinesCount
+    val lastChunkOutputLine = lastProcessedOutputLine.getOrElse(0)
+    val lastChunkOutputVisibleLine = (lastChunkOutputLine - foldedLinesCount).max(0)
+
+    val prefixNewLines = (inputInfo.firstElementLine - lastChunkOutputVisibleLine).max(0)
+    val outputStartLine = lastChunkOutputLine + prefixNewLines
+    val outputEndLine = outputStartLine + StringUtil.countNewLines(actualOutputText)
+
+    OutputLinesInfo(
+      prefixNewLines,
+      outputStartLine,
+      outputEndLine
+    )
+  }
+
+  private def buildActualOutputText(queuedPsi: QueuedPsi, outputText: String): String = {
+    val printChunks = PrintChunk.buildChunksFor(queuedPsi, outputText, originalLine)
+    //debug("printChunks: " + printChunks.toArray.toSeq)
+    val buffer = new mutable.StringBuilder()
+    printChunks.foreach { case PrintChunk(linesBetween, text) =>
+      buffer.append(buildNewLines(linesBetween))
+      buffer.append(text)
+    }
+    buffer.toString()
+  }
+
+  private def buildFoldingInfo(inputLines: InputLinesInfo, outputLines: OutputLinesInfo) =
+    InputOutputFoldingInfo(
+      inputLines.firstElementLine,
+      inputLines.contentEndLine,
+      outputLines.outputStartLine,
+      outputLines.outputEndLine
+    )
 
   private def adjustOutputLineContent(outputLine: String): String =
     adjustLambdaDefinitionOutput(outputLine)
@@ -289,7 +313,7 @@ final class WorksheetEditorPrinterRepl private[printers](
 
     val messagePosition: LogicalPosition = {
       val elementPosition = inReadAction {
-        val offset = chunk.getWholeTextRange.getStartOffset
+        val offset = chunk.textRange.getStartOffset
         originalEditor.offsetToLogicalPosition(offset)
       }
 
@@ -364,9 +388,6 @@ object WorksheetEditorPrinterRepl {
     (verticalOffset, horizontalOffset)
   }
 
-  def countNewLines(str: String): Int = StringUtil.countNewLines(str)
-  private def linesCount(str: String): Int = countNewLines(str) + 1
-
   private case class ReplMessageInfo(text: String,
                                      lineContent: String,
                                      lineOffset: Int,
@@ -385,9 +406,64 @@ object WorksheetEditorPrinterRepl {
       }
   }
 
+  private case class InputOutputMappingItem(
+    inputLinesInfo: InputLinesInfo,
+    outputLinesInfo: OutputLinesInfo
+  )
+
   /**
-   * @param inputLine      0-based input chunk start line
-   * @param outputLastLine 0-based output last line inclusive
+   * all lines are 0-based
+   * contentStartLine <= firstElementLine <= lastElementLine <= contentEndLine
+   * @example {{{
+   *     // comment 1   // contentStartLine
+   *     class A {      // firstElementLine
+   *     }
+   *
+   *     // comment 2
+   *     // comment 3
+   *     object A {    // lastElementLine
+   *     }             // contentEndLine
+   * }}}
    */
-  private case class InputOutputMappingItem(inputLine: Int, outputLastLine: Int)
+  private case class InputLinesInfo(
+    firstElementLine: Int,
+    lastElementLine: Int,
+    contentStartLine: Int,
+    contentEndLine: Int,
+    range: TextRange
+  ) {
+    def inputLinesCount: Int = (contentEndLine - firstElementLine) + 1
+  }
+
+  /**
+   * @example {{{
+   *  line input:       |  output
+   *    0  42           |  val res0 = 42
+   *    1               |                 \
+   *    2               |                  | prefixNewLines= 3
+   *    3  // comment   |                 /
+   *    4  println(     |  23             | outputStartLine = 4
+   *    5      23       |
+   *    6  )            |                 | outputEndLine = 6
+   * }}}
+   */
+  private final case class OutputLinesInfo(
+    prefixNewLines: Int,
+    outputStartLine: Int,
+    outputEndLine: Int
+  ) {
+    def outputLinesCount: Int = outputEndLine - outputStartLine + 1
+  }
+
+  private final case class OutputInfo(
+    linesInfo: OutputLinesInfo,
+    actualOutputText: String
+  )
+
+  implicit class DocumentOps(private val document: Document) extends AnyVal {
+    def lineNumberSafe(offset: Int): Option[Int] = {
+      if (offset <= document.getTextLength) Some(document.getLineNumber(offset))
+      else None
+    }
+  }
 }

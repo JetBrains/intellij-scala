@@ -44,8 +44,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     val right =
       """a: Int = 1
-        |b: Int = 2
-        |""".stripMargin
+        |b: Int = 2""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -61,8 +60,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |2
          |3
          |res0: Unit = ()$foldEnd
-         |x: Int = 42
-         |""".stripMargin
+         |x: Int = 42""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -85,8 +83,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |5
          |6
          |res1: Unit = ()$foldEnd
-         |y: Int = 23
-         |""".stripMargin
+         |y: Int = 23""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -184,16 +181,14 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
       """var a1 = new Array[Int](3)
         |val a2 = Array(1, 2, 3)""".stripMargin,
       """a1: Array[Int] = Array(0, 0, 0)
-        |a2: Array[Int] = Array(1, 2, 3)
-        |""".stripMargin
+        |a2: Array[Int] = Array(1, 2, 3)""".stripMargin
     )
   }
 
   def testInteractive(): Unit = {
     val editor = doRenderTest(
       """42""",
-      """res0: Int = 42
-        |""".stripMargin
+      """res0: Int = 42""".stripMargin
     )
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
@@ -212,8 +207,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     assertViewerEditorText(editor,
       """res0: Int = 42
-        |res1: Int = 23
-        |""".stripMargin
+        |res1: Int = 23""".stripMargin
     )
     assertNoErrorMessages(editor)
   }
@@ -221,8 +215,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
   def testInteractive_WithError(): Unit = {
     val editor = doRenderTest(
       """42""",
-      """res0: Int = 42
-        |""".stripMargin
+      """res0: Int = 42""".stripMargin
     )
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     WorksheetFileSettings(file).setInteractive(true)
@@ -234,8 +227,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     MyUiUtils.wait(5 seconds)
 
     assertViewerEditorText(editor,
-      """res0: Int = 42
-        |""".stripMargin
+      """res0: Int = 42""".stripMargin
     )
     assertNoErrorMessages(editor)
   }
@@ -273,13 +265,13 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     //noinspection RedundantBlock
     val rightExtraMidFlushes = Array(
-      s"Hello 1\n",
-      s"${foldStart}Hello 1\nHello 2${foldEnd}\n",
-      s"${foldStart}Hello 1\nHello 2\nHello 3${foldEnd}\n",
-      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\nHello 1\n",
-      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2$foldEnd\n",
-      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3$foldEnd\n",
-      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3\nres2: Unit = ()$foldEnd\n",
+      s"Hello 1",
+      s"${foldStart}Hello 1\nHello 2${foldEnd}",
+      s"${foldStart}Hello 1\nHello 2\nHello 3${foldEnd}",
+      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\nHello 1",
+      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2$foldEnd",
+      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3$foldEnd",
+      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3\nres2: Unit = ()$foldEnd",
     )
 
     val rightTextStates: Array[String] = rightExtraMidFlushes.map(rightCommonText + _)
@@ -362,8 +354,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     profile.setSettings(newSettings)
     doRenderTest(editor,
       """foo: foo[F[_],A](val fa: F[A]) => String
-        |res0: String = 123
-        |""".stripMargin
+        |res0: String = 123""".stripMargin
     )
   }
 
@@ -389,8 +380,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     profile.setSettings(newSettings)
     doRenderTest(editor,
       """foo: foo[F[_],A](val fa: F[A]) => String
-        |res0: String = 123
-        |""".stripMargin
+        |res0: String = 123""".stripMargin
     )
   }
 
@@ -516,8 +506,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |${foldStart}Empty
          |val res5: Unit = ()${foldEnd}
          |${foldStart}Cons(42,Empty)
-         |val res6: Unit = ()${foldEnd}
-         |""".stripMargin
+         |val res6: Unit = ()${foldEnd}""".stripMargin
     doRenderTest(before, after)
   }
 }

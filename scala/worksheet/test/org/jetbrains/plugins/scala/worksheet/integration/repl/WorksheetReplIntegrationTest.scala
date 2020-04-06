@@ -340,7 +340,6 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     )
   }
 
-
   private def TestProfileName = "TestProfileName"
   private val PartialUnificationCompilerOptions = Seq("-Ypartial-unification", "-language:higherKinds")
   private val PartialUnificationTestText =
@@ -542,28 +541,46 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |x: 42""".stripMargin
     )
 
-  def testManyCompanionClassesAndObjectsWithVariousNewSpaces(): Unit = {
+  def testManyCompanionClassesAndObjects_WithVariousSpacesAndComments(): Unit = {
     val before =
       """val x = 1
         |
+        |//
+        |//
         |class A
+        |
+        |
+        |/*
+        | */
         |object A
         |
+        |
+        |/*
+        | *
+        | */
         |class X
+        |
         |object X {
         |
         |}
         |
         |
+        |/**
+        |  *
+        |  */
         |class Y {
         |
         |}
+        |
         |object Y
         |
-        |
+        |/*
+        | */
         |class Z {
         |
         |}
+        |
+        |/////////////
         |object Z {
         |
         |}
@@ -576,12 +593,15 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |
         |}
         |
+        |/////////////
         |
         |class YY {
         |
         |}
         |
         |object YY
+        |
+        |/////////////
         |
         |
         |class ZZ {
@@ -594,11 +614,25 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     val after =
       """x: Int = 1
         |
+        |
+        |
         |defined class A
+        |
+        |
+        |
+        |
         |defined object A
         |
+        |
+        |
+        |
+        |
         |defined class X
+        |
         |defined object X
+        |
+        |
+        |
         |
         |
         |
@@ -606,10 +640,14 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |defined class Y
         |
         |
+        |
         |defined object Y
         |
         |
+        |
         |defined class Z
+        |
+        |
         |
         |
         |defined object Z
@@ -625,11 +663,14 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |
         |
         |
+        |
         |defined class YY
         |
         |
         |
         |defined object YY
+        |
+        |
         |
         |
         |defined class ZZ
@@ -640,7 +681,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     doRenderTest(before, after)
   }
 
-  def testManyCompanionClassesAndObjectsWithVariousTypeOfClasses(): Unit = {
+  def testManyCompanionClassesAndObjects_WithVariousTypeOfClasses(): Unit = {
     val before =
       """class C1
         |object C1
@@ -679,59 +720,6 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |defined trait O""".stripMargin
     doRenderTest(before, after)
   }
-
-  def testManyComments(): Unit =
-    doRenderTest(
-      """
-        |/*
-        |*
-        |* */
-        |class Zyx {
-        |  val x = 42
-        |}
-        |object Zyx {
-        |  val y = 42
-        |}
-        |
-        |// comment 1
-        |class Abc {
-        |  val x = 42
-        |}
-        |
-        |// comment 1
-        |
-        |// comment 3
-        |/**
-        |  *
-        |  */
-        |object Abc {
-        |  val y = 42
-        |}
-        |""".stripMargin,
-      """
-        |
-        |
-        |
-        |defined class Zyx
-        |
-        |
-        |defined object Zyx
-        |
-        |
-        |
-        |
-        |defined class Abc
-        |
-        |
-        |
-        |
-        |
-        |
-        |
-        |
-        |
-        |defined object Abc""".stripMargin
-    )
 
   // yes, this is a very strange case, but anyway
   def testSemicolonSeparatedExpressions(): Unit =
@@ -860,7 +848,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
           |Error:(17, 9) not found: value unknown5
           |unknown5
           |Error:(22, 5) not found: value unknown6
-          |unknown6 ; val z =
+          |unknown6; val z =
           |Error:(23, 7) not found: value unknown7
           |unknown7
           |Error:(29, 5) not found: value unknown8
@@ -909,7 +897,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
           |Error:(17, 9) not found: value unknown5
           |unknown5
           |Error:(22, 5) not found: value unknown6
-          |unknown6 ; val z =
+          |unknown6; val z =
           |Error:(23, 7) not found: value unknown7
           |unknown7
           |Error:(29, 5) not found: value unknown8
@@ -950,7 +938,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
           |Error:(17, 9) not found: value unknown5
           |unknown5
           |Error:(22, 5) not found: value unknown6
-          |unknown6 ; val z =
+          |unknown6; val z =
           |Error:(23, 7) not found: value unknown7
           |unknown7
           |Error:(29, 5) not found: value unknown8

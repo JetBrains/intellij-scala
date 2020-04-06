@@ -33,7 +33,7 @@ final class WorksheetFoldGroup(
   private val _regions = mutable.ArrayBuffer[FoldRegionInfo]()
   private val unfolded = new util.TreeMap[Int, Int]()
 
-  def foldedLines: Int = _regions.map(_.spaces).sum
+  def foldedLinesCount: Int = _regions.map(_.spaces).sum
 
   def expandedRegionsIndexes: Seq[Int] = _regions.zipWithIndex.filter(_._1.expanded).map(_._2)
 

@@ -27,7 +27,8 @@ object WorksheetIncrementalSourcePreprocessor {
         }
     }
     val commands = {
-      val codeCommands = elementsToEvaluate.map(_.getText)
+      val fileText = inReadAction(srcFile.getText)
+      val codeCommands = elementsToEvaluate.map(_.textRange.substring(fileText))
 
       val needToReset = lastProcessedLine.isEmpty
       val additionalCommands = if (needToReset) Seq(":reset") else Nil

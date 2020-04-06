@@ -6,23 +6,30 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.{ClassObjectPsi, QueuedPsi, SemicolonSeqPsi, SingleQueuedPsi}
+import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi
+import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi._
 
-import scala.collection.mutable
+import scala.collection.{immutable, mutable}
 
 private final class WorksheetPsiGlue {
 
-  private val store = mutable.ArrayBuffer[QueuedPsi]()
+  private val result = mutable.ArrayBuffer[QueuedPsi]()
+  private val currentBuffer = mutable.ArrayBuffer[ScalaPsiElement]()
+
   private var afterSemicolon = false
 
-  def prepareEvaluatedElements(elements: Traversable[PsiElement]): Seq[QueuedPsi] = {
-    elements.foreach(this.processPsi)
-    store
+  def prepareEvaluatedElements(elements: Traversable[PsiElement]): immutable.Seq[QueuedPsi] = {
+    elements.foreach(this.process)
+    flushCurrentBuffer()
+    println(result)
+    result.toList
   }
 
-  private def processPsi(psi: PsiElement): Unit = psi match {
-    case (_: LeafPsiElement) && ElementType(ScalaTokenTypes.tSEMICOLON) => afterSemicolon = true
-    case _: PsiComment | _: PsiWhiteSpace                               => afterSemicolon &&= !psi.textContains('\n')
+  private def process(psi: PsiElement): Unit = psi match {
+    case (_: LeafPsiElement) && ElementType(ScalaTokenTypes.tSEMICOLON) =>
+      afterSemicolon = true
+    case _: PsiComment | _: PsiWhiteSpace =>
+      afterSemicolon &&= !psi.textContains('\n')
     case element: ScalaPsiElement =>
       process(element)
       afterSemicolon = false
@@ -31,50 +38,50 @@ private final class WorksheetPsiGlue {
   }
 
   private def process(element: ScalaPsiElement): Unit = {
-
-    /** @param clazz class or trait */
-    def processInner(clazz: ScTypeDefinition, obj: ScObject, isClassFirst: Boolean): Unit = {
-      val (first, second) = if (isClassFirst) (clazz, obj) else (obj, clazz)
-
-      if (clazz.baseCompanionModule.contains(obj)) {
-        store.remove(store.length - 1)
-        store += ClassObjectPsi(clazz, obj, getTextBetween(first, second), isClassFirst)
-      } else {
-        store += SingleQueuedPsi(second)
-      }
-    }
-
-    val previousElement = store.lastOption match {
-      case Some(value) => value
-      case None        =>
-        store += SingleQueuedPsi(element)
-        return
-    }
-
-    if (afterSemicolon) {
-      // NOTE: it is not optimal to collect semicolons-separated elements like this,
-      // but this requires the least changes and we consider semicolons as a rare edge case
-      store.remove(store.length - 1)
-      val elementsPrev = elements(previousElement)
-      val elementsNew = elementsPrev :+ element
-      store += SemicolonSeqPsi(elementsNew)
-    } else (element, previousElement) match {
-      case (clazz: ScClass, SingleQueuedPsi(obj: ScObject)) => processInner(clazz, obj, isClassFirst = false)
-      case (traid: ScTrait, SingleQueuedPsi(obj: ScObject)) => processInner(traid, obj, isClassFirst = false)
-      case (obj: ScObject, SingleQueuedPsi(clazz: ScClass)) => processInner(clazz, obj, isClassFirst = true)
-      case (obj: ScObject, SingleQueuedPsi(traid: ScTrait)) => processInner(traid, obj, isClassFirst = true)
-      case (other, _)                                       => store += SingleQueuedPsi(other)
-    }
+    val startsNewChunk = canStartIndependentChunk(element)
+    if (startsNewChunk)
+      flushCurrentBuffer()
+    currentBuffer += element
   }
 
-  private def getTextBetween(first: PsiElement, second: PsiElement): String = {
-    val it = second.prevSiblings
-    it.takeWhile(_ != first).map(_.getText).mkString
+  private def flushCurrentBuffer(): Unit = {
+    currentBuffer.toList match {
+      case Nil =>
+      case elements =>
+        result += buildChunk(elements)
+    }
+    currentBuffer.clear()
   }
 
-  private def elements(last: QueuedPsi): Seq[PsiElement] = last match {
-    case SingleQueuedPsi(psi)          => psi :: Nil
-    case SemicolonSeqPsi(elements)     => elements
-    case co@ClassObjectPsi(_, _, _, _) => co.first :: co.second :: Nil
+  private def buildChunk(elements: List[PsiElement]): QueuedPsi=
+    if (elements.forall(_.isInstanceOf[ScTypeDefinition]))
+      RelatedTypeDefs(elements.map(_.asInstanceOf[ScTypeDefinition]))
+    else
+      QueuedPsiSeq(elements)
+
+  private def canStartIndependentChunk(current: ScalaPsiElement): Boolean = {
+    if (afterSemicolon) return false
+    if (currentBuffer.isEmpty) return true
+
+    val previous = currentBuffer.last
+    canStartIndependentChunk(current, previous)
+  }
+
+  private def canStartIndependentChunk(current: ScalaPsiElement, previous: ScalaPsiElement): Boolean =
+    (current, previous) match {
+      case (currentDef: ScTypeDefinition, previousDef: ScTypeDefinition) => !shouldGoTogether(currentDef, previousDef)
+      case _                                                             => true
+    }
+
+  private def shouldGoTogether(current: ScTypeDefinition, previous: ScTypeDefinition): Boolean =
+    areCompanions(current, previous)
+
+  private def areCompanions(def1: ScTypeDefinition, def2: ScTypeDefinition) =
+    canBeCompanions(def1, def2) && def1.baseCompanionModule.contains(def2)
+
+  private def canBeCompanions(def1: ScTypeDefinition, def2: ScTypeDefinition): Boolean = (def1, def2) match {
+    case (_: ScClass | _: ScTrait, _: ScObject) => true
+    case (_: ScObject, _: ScClass | _: ScTrait) => true
+    case _                                      => false
   }
 }

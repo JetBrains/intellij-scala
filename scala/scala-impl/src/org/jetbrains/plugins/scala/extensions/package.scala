@@ -472,6 +472,8 @@ package object extensions {
       case _: NumberFormatException => None
     }
 
+    // TODO: remove, and use stripTrailing() (available since JDK 11)
+    //  (search for similar methods definitions in project)
     def trimRight: String = StringExt.TrimRightRegex.replaceFirstIn(string, "")
   }
 
@@ -705,6 +707,9 @@ package object extensions {
       prev
     }
 
+    def prevSiblingNotWhitespace: Option[PsiElement] =
+       Option(getPrevSiblingNotWhitespace)
+
     def getPrevSiblingNotWhitespaceComment: PsiElement = {
       var prev: PsiElement = element.getPrevSibling
       while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
@@ -713,6 +718,9 @@ package object extensions {
       prev
     }
 
+    def prevSiblingNotWhitespaceComment: Option[PsiElement] =
+      Option(getPrevSiblingNotWhitespaceComment)
+
     def getNextSiblingNotWhitespace: PsiElement = {
       var next: PsiElement = element.getNextSibling
       while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
@@ -720,12 +728,26 @@ package object extensions {
       next
     }
 
-    def getFirstChildNotWhitespace: PsiElement = {
+    def nextSiblingNotWhitespace: Option[PsiElement] =
+      Option(getNextSiblingNotWhitespace)
+
+    def getFirstChildNotWhitespace: PsiElement =
       element.getFirstChild match {
         case ws: PsiWhiteSpace => ws.getNextSiblingNotWhitespace
         case child => child
       }
-    }
+
+    def firstChildNotWhitespace: Option[PsiElement] =
+      Option(getFirstChildNotWhitespace)
+
+    def getFirstChildNotWhitespaceComment: PsiElement =
+      element.getFirstChild match {
+        case ws@(_: PsiWhiteSpace | _: PsiComment) => ws.getNextSiblingNotWhitespaceComment
+        case child => child
+      }
+
+    def firstChildNotWhitespaceComment: Option[PsiElement] =
+      Option(getFirstChildNotWhitespaceComment)
 
     def getNextSiblingNotWhitespaceComment: PsiElement = {
       var next: PsiElement = element.getNextSibling
@@ -734,6 +756,9 @@ package object extensions {
         next = next.getNextSibling
       next
     }
+
+    def nextSiblingNotWhitespaceComment: Option[PsiElement] =
+      Option(getNextSiblingNotWhitespaceComment)
 
     /** skips empty annotations, modifiers, etc.. */
     def getPrevNonEmptyLeaf: PsiElement = {

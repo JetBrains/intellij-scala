@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain._
 
 import scala.collection.mutable.ArrayBuffer
@@ -60,7 +60,7 @@ final class WorksheetEditorPrinterPlain private[printers](
 
       WorksheetDefaultSourcePreprocessor.inputLinesRangeFromEnd(line) match {
         case Some((inputStartLine, inputEndLine)) =>
-          val output = currentOutputBuffer.mkString
+          val output = currentOutputBufferText
           val chunk  = EvaluationChunk(inputStartLine, inputEndLine, output)
           evaluatedChunks += chunk
         case _ =>
@@ -142,12 +142,15 @@ final class WorksheetEditorPrinterPlain private[printers](
     if (StringUtils.isNotBlank(currentOutputBuffer)) {
       val (inputStartLine, inputEndLine) =
         currentResultStartLine.flatMap(WorksheetDefaultSourcePreprocessor.inputLinesRangeFromStart).getOrElse(0, 0)
-      val output = currentOutputBuffer.mkString
+      val output = currentOutputBufferText
       Some(EvaluationChunk(inputStartLine, inputEndLine, output))
     } else {
       None
     }
   }
+
+  private def currentOutputBufferText: String =
+    currentOutputBuffer.result.stripTrailing
 
   private def isTerminationLine(line: String): Boolean =
     line.stripSuffix("\n") == WorksheetDefaultSourcePreprocessor.END_OUTPUT_MARKER
@@ -158,13 +161,13 @@ final class WorksheetEditorPrinterPlain private[printers](
   private def isResultEnd(line: String): Boolean =
     line.startsWith(WorksheetDefaultSourcePreprocessor.END_TOKEN_MARKER)
 
-  private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[FoldingOffsets]): Unit =
+  private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[InputOutputFoldingInfo]): Unit =
     invokeLater {
       inWriteAction {
         val editorScroll = originalEditor.getScrollingModel.getVerticalScrollOffset
         val viewerScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset
 
-        simpleUpdate(text, document)
+        simpleUpdate(document, text)
 
         originalEditor.getScrollingModel.scrollVertically(editorScroll)
         worksheetViewer.getScrollingModel.scrollHorizontally(viewerScroll)
@@ -196,8 +199,8 @@ object WorksheetEditorPrinterPlain {
   private case class EvaluationChunk(inputStartLine: Int,
                                      inputEndLine: Int,
                                      outputText: String) {
-    // REMEMBER: output always goes with trailing new line
-    def outputLinesCount: Int = StringUtil.countNewLines(outputText)
+
+    def outputLinesCount: Int = StringUtil.countNewLines(outputText) + 1
   }
 
   /**
@@ -228,22 +231,21 @@ object WorksheetEditorPrinterPlain {
   }
 
 
+  // TODO: unify with REPL printer, reuse concepts
   @Measure
-  private def renderText(chunks: Seq[EvaluationChunk]): (CharSequence, Seq[FoldingOffsets]) = {
+  private def renderText(chunks: Seq[EvaluationChunk]): (CharSequence, Seq[InputOutputFoldingInfo]) = {
     val resultText = StringBuilder.newBuilder
-    val resultFoldings = ArrayBuffer.empty[FoldingOffsets]
+    val resultFoldings = ArrayBuffer.empty[InputOutputFoldingInfo]
+    var foldedLines = 0
 
     val chunksGrouped: Seq[Seq[EvaluationChunk]] = WorksheetEditorPrinterPlain.groupChunks(chunks)
-    var foldedLines = 0
 
     for { group <- chunksGrouped.iterator } {
       val inputStartLine   = group.head.inputStartLine
       val inputEndLine     = group.last.inputEndLine
       val inputLinesCount  = inputEndLine - inputStartLine + 1
-      val outputTextLength = group.map(_.outputText.length).sum
       val outputLinesCount = group.map(_.outputLinesCount).sum
 
-      val totalOutputLength            = resultText.length
       val totalOutputLinesCount        = StringUtil.countNewLines(resultText)
       val totalOutputVisibleLinesCount = totalOutputLinesCount - foldedLines
 
@@ -268,15 +270,16 @@ object WorksheetEditorPrinterPlain {
       }
 
       val diffLocal = outputLinesCount - inputLinesCount
-      if (diffLocal > 0) {
+      val needFolding = diffLocal > 0
+      if (needFolding) {
         // current output is longer than input, need to fold some output lines to align with input start/end lines
         val outputStartLine = totalOutputLinesCount + leadingNewLinesCount
-        val outputEndOffset = totalOutputLength + leadingNewLinesCount + outputTextLength - 1
-        val folding = FoldingOffsets(
+        val outputEndLine = outputStartLine + outputLinesCount - 1
+        val folding = InputOutputFoldingInfo(
+          inputStartLine,
+          inputEndLine,
           outputStartLine,
-          outputEndOffset,
-          inputLinesCount,
-          inputEndLine
+          outputEndLine,
         )
 
         foldedLines += diffLocal
