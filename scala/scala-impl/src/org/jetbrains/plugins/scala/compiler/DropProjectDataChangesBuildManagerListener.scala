@@ -16,16 +16,20 @@ class DropProjectDataChangesBuildManagerListener
 
   override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+      val getProjectPathMethod = classOf[BuildManager]
+        .getDeclaredMethod("getProjectPath", classOf[Project])
       val getProjectDataMethod = classOf[BuildManager]
         .getDeclaredMethod("getProjectData", classOf[String])
       val dropChangesMethod = Class.forName("com.intellij.compiler.server.BuildManager$ProjectData")
         .getDeclaredMethod("dropChanges")
 
+      getProjectPathMethod.setAccessible(true)
       getProjectDataMethod.setAccessible(true)
       dropChangesMethod.setAccessible(true)
 
       val buildManager = BuildManager.getInstance()
-      val projectData = getProjectDataMethod.invoke(buildManager, project.getBasePath)
+      val projectPath = getProjectPathMethod.invoke(buildManager, project)
+      val projectData = getProjectDataMethod.invoke(buildManager, projectPath)
       dropChangesMethod.invoke(projectData)
     }
 }
