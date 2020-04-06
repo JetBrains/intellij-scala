@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTes
 
 import scala.collection.JavaConverters._
 
-class ScalaTestClassExtractor extends RunConfigurationClassExtractor {
+class BspEnvironmentScalaTestRunnerExtension extends BspEnvironmentRunnerExtension {
   override def runConfigurationSupported(config: RunConfiguration): Boolean =
     config.isInstanceOf[ScalaTestRunConfiguration]
 

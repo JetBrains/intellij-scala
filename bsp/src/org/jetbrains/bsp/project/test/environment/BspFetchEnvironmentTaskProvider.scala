@@ -86,7 +86,7 @@ class BspFetchEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchEnvi
         if BspUtil.isBspModule(config.getConfigurationModule.getModule) && BspTesting.isBspRunnerSupportedConfiguration(config) =>
         val module = config.getConfigurationModule.getModule
         val taskResult: Either[BspGetEnvironmentError, Unit] = for {
-          extractor <- RunConfigurationClassExtractor.getClassExtractor(configuration)
+          extractor <- BspEnvironmentRunnerExtension.getClassExtractor(configuration)
             .toRight(BspGetEnvironmentError(BspBundle.message("bsp.task.error.no.class.extractor", configuration.getClass.getName)))
           potentialTargets <- getBspTargets(module)
           projectPath <- Option(ES.getExternalProjectPath(module))

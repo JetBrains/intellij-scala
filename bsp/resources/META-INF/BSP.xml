@@ -3,13 +3,13 @@
 <idea-plugin>
     <depends optional="true" config-file="BSP-JUnit.xml">JUnit</depends>
     <extensionPoints>
-        <extensionPoint qualifiedName="com.intellij.runConfigurationClassExtractor"
-                        interface="org.jetbrains.bsp.project.test.environment.RunConfigurationClassExtractor"/>
+        <extensionPoint qualifiedName="com.intellij.bspEnvironmentRunnerExtension"
+                        interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
-        <runConfigurationClassExtractor implementation="org.jetbrains.bsp.project.test.environment.ScalaTestClassExtractor"/>
-        <runConfigurationClassExtractor implementation="org.jetbrains.bsp.project.test.environment.ApplicationConfigurationClassExtractor"/>
+        <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentScalaTestRunnerExtension"/>
+        <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentApplicationRunnerExtension"/>
 
         <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
