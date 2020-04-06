@@ -12,6 +12,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.containers.ComparatorUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -80,7 +81,7 @@ public class ScalaCompileServerForm implements Configurable {
     @Override
     @Nls
     public String getDisplayName() {
-        return "Scala Compile Server";
+        return ScalaBundle.message("scala.compile.server.title");
     }
 
     @Override
