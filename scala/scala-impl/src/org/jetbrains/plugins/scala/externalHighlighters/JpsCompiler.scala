@@ -7,11 +7,13 @@ import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}
@@ -30,7 +32,12 @@ object JpsCompiler {
 private class JpsCompilerImpl(project: Project)
   extends JpsCompiler {
 
+  // SCL-17295
+  @Cached(ProjectRootManager.getInstance(project), null)
+  private def saveProjectOnce(): Unit = project.save()
+
   override def compile(): Unit = {
+    saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
 
     val projectPath = project.getBasePath
