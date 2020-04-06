@@ -71,7 +71,7 @@ class BspFetchEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchEnvi
     }
   }
 
-  case class BspGetEnvironmentError(msg: String)
+  case class BspGetEnvironmentError(msg: String) extends Throwable(msg)
 
   def toOptionIfSingle[A](sequence: Seq[A]): Option[A] = {
     if (sequence.length == 1) sequence.headOption else None
@@ -215,14 +215,14 @@ class BspFetchEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchEnvi
 
     BspJob.waitForJob(job, retries = 10).flatMap {
           case Left(value) => Failure(value)
-          case Right(value) =>
-            val environment = value.head
+          case Right(Seq(environment)) =>
             Success(JvmTestEnvironment(
               classpath = environment.getClasspath.asScala.map(x => new URI(x).getPath),
               workdir = environment.getWorkingDirectory,
               environmentVariables = environment.getEnvironmentVariables.asScala.toMap,
               jvmOptions = environment.getJvmOptions.asScala.toList
             ))
+          case _ => Failure(BspGetEnvironmentError(BspBundle.message("bsp.task.invalid.environment.response")))
     }
   }
 
