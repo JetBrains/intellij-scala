@@ -436,7 +436,6 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 
     assertMessagesSorted(errorsFromScalaCode(code))(
       Error("withFilter", "Cannot resolve symbol withFilter"),
-      Error("<-", "Cannot resolve symbol foreach"),
       Error("a", "Cannot resolve symbol a"),
       Error("withFilter", "Cannot resolve symbol withFilter"),
       Error("b", "Cannot resolve symbol b"),
