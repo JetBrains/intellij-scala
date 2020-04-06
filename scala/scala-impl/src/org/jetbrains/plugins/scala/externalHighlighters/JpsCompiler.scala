@@ -7,12 +7,14 @@ import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand}
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerEvent, CompilerEventListener, CompilerLock, RemoteServerRunner}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import scala.concurrent.duration.Duration
@@ -34,7 +36,12 @@ private class JpsCompilerImpl(project: Project)
 
   import JpsCompilerImpl.CompilationClient
 
+  // SCL-17295
+  @Cached(ProjectRootManager.getInstance(project), null)
+  private def saveProjectOnce(): Unit = project.save()
+
   override def compile(): Unit = {
+    saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
     val projectPath = project.getBasePath
     val globalOptionsPath = PathManager.getOptionsPath
@@ -49,6 +56,7 @@ private class JpsCompilerImpl(project: Project)
       dataStorageRootPath = dataStorageRootPath
     ).asArgsWithoutToken
     val promise = Promise[Unit]
+
     val taskMsg = ScalaBundle.message("highlighting.compilation")
     val task: Task = new Task.Backgroundable(project, taskMsg, false) {
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
