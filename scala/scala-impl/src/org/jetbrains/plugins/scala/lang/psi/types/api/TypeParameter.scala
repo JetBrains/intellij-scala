@@ -66,7 +66,7 @@ object TypeParameter {
   ): TypeParameter =
     LightTypeParameter(name, typeParameters, () => lower, () => upper)
 
-  def light(
+  def deferred(
     name:           String,
     typeParameters: Seq[TypeParameter],
     lower:          () => ScType,
@@ -112,7 +112,7 @@ object TypeParameter {
     override def lowerType: ScType = lower()
     override def upperType: ScType = upper()
 
-    override val psiTypeParameter: PsiTypeParameter =
+    override lazy val psiTypeParameter: PsiTypeParameter =
       new DummyLightTypeParam(name)(lowerType.projectContext)
   }
 }
