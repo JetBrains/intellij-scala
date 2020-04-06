@@ -182,10 +182,7 @@ private object MultipleScalaVersionsRunner {
   private def makeDescription(klass: Class[_], test: Test): Description = test match {
     case ts: TestSuite =>
       val name = Option(ts.getName).getOrElse(createSuiteDescriptionName(ts))
-      val annotations = ts match {
-        case _: ScalaVersionTestSuite => findAnnotation(klass, classOf[Category]).toSeq
-        case _                        => Seq()
-      }
+      val annotations =  findAnnotation(klass, classOf[Category]).toSeq
       val description = Description.createSuiteDescription(name, annotations: _*)
       ts.tests.asScala.foreach { childTest =>
         // compiler fails on TeamCity without this case, no idea why
