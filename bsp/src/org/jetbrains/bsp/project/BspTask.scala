@@ -76,7 +76,7 @@ class BspTask[T](project: Project,
   }
 
   override def onCancel(): Unit = {
-    resultPromise.failure(new ProcessCanceledException())
+    resultPromise.tryFailure(new ProcessCanceledException())
   }
 
   override def run(indicator: ProgressIndicator): Unit = {
@@ -132,7 +132,7 @@ class BspTask[T](project: Project,
     }
     else reporter.finish(combinedMessages)
 
-    resultPromise.success(combinedMessages)
+    resultPromise.trySuccess(combinedMessages)
   }
 
   private def messagesWithStatus(reporter: BuildReporter,

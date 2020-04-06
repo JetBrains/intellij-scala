@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 import scala.collection.JavaConverters._
 
 class BspJvmEnvironmentProgramPatcher extends JavaProgramPatcher {
-  def patchJavaParameters(executor: Executor, configuration: RunProfile, javaParameters: JavaParameters): Unit = {
+
+  override def patchJavaParameters(executor: Executor, configuration: RunProfile, javaParameters: JavaParameters): Unit = {
     configuration match {
       case testConfig: UserDataHolderBase =>
         val env = testConfig.getUserData(BspFetchTestEnvironmentTask.jvmTestEnvironmentKey)
@@ -26,6 +27,7 @@ class BspJvmEnvironmentProgramPatcher extends JavaProgramPatcher {
           javaParameters.setWorkingDirectory(env.workdir)
           javaParameters.getVMParametersList.addAll(env.jvmOptions.asJava)
         }
+      case _ =>
     }
   }
 }
