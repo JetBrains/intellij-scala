@@ -17,11 +17,12 @@ private final class WorksheetPsiGlue {
   private val currentBuffer = mutable.ArrayBuffer[ScalaPsiElement]()
 
   private var afterSemicolon = false
+  private var sealedTypeDef: Option[ScTypeDefinition] = None
 
   def prepareEvaluatedElements(elements: Traversable[PsiElement]): immutable.Seq[QueuedPsi] = {
     elements.foreach(this.process)
     flushCurrentBuffer()
-    println(result)
+    ///println(result)
     result.toList
   }
 
@@ -39,9 +40,17 @@ private final class WorksheetPsiGlue {
 
   private def process(element: ScalaPsiElement): Unit = {
     val startsNewChunk = canStartIndependentChunk(element)
-    if (startsNewChunk)
+    if (startsNewChunk) {
       flushCurrentBuffer()
+      sealedTypeDef = None
+    }
     currentBuffer += element
+
+    element match {
+      case typeDef: ScTypeDefinition if typeDef.isSealed && sealedTypeDef.isEmpty =>
+        sealedTypeDef = Some(typeDef)
+      case _ =>
+    }
   }
 
   private def flushCurrentBuffer(): Unit = {
@@ -73,8 +82,12 @@ private final class WorksheetPsiGlue {
       case _                                                             => true
     }
 
-  private def shouldGoTogether(current: ScTypeDefinition, previous: ScTypeDefinition): Boolean =
-    areCompanions(current, previous)
+  private def shouldGoTogether(current: ScTypeDefinition, previous: ScTypeDefinition): Boolean = {
+    areCompanions(current, previous) || isInSealedHierarchy(current)
+  }
+
+  private def isInSealedHierarchy(typeDef: ScTypeDefinition): Boolean =
+    sealedTypeDef.exists(base => typeDef.supers.exists(_ eq base))
 
   private def areCompanions(def1: ScTypeDefinition, def2: ScTypeDefinition) =
     canBeCompanions(def1, def2) && def1.baseCompanionModule.contains(def2)

@@ -36,6 +36,8 @@ import scala.language.postfixOps
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
 ))
+// TODO: probably we do not have to run all tests on both JDKs,
+//  we could run all tests on JDK 11 and several some health check tests for JDK 1.8
 @RunWithJdkVersions(Array(
   TestJdkVersion.JDK_1_8,
   TestJdkVersion.JDK_11

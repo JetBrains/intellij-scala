@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
+import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
@@ -21,6 +22,7 @@ import org.junit.experimental.categories.Category
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8))
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
@@ -93,7 +95,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |""".stripMargin
 
     val right =
-      s"""${foldStart}
+      s"""$foldStart
          |
          |1
          |2
@@ -185,17 +187,18 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       )
     }
     val editor = testDisplayFirstRuntimeException(left, right, NoFolding, exceptionOutputAssert)
-
-    val printer = worksheetCache.getPrinter(editor).get.asInstanceOf[WorksheetEditorPrinterRepl]
-    def assertLastLine(): Unit = assertEquals(
-      "last processed line should point to last successfully evaluated line",
-      Some(0), printer.lastProcessedLine
-    )
-
-    assertLastLine()
+    assertLastLine(editor, 0)
     // run again with same editor, the output should be the same between these runs
     testDisplayFirstRuntimeException(editor, right, NoFolding, exceptionOutputAssert)
-    assertLastLine()
+    assertLastLine(editor, 0)
+  }
+
+  private def assertLastLine(editor: Editor, line: Int): Unit = {
+    val printer = worksheetCache.getPrinter(editor).get.asInstanceOf[WorksheetEditorPrinterRepl]
+    assertEquals(
+      "last processed line should point to last successfully evaluated line",
+      Some(line), printer.lastProcessedLine
+    )
   }
 
   @NotSupportedScalaVersions(Array(TestScalaVersion.Scala_2_11))
@@ -719,6 +722,192 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |defined object O
         |defined trait O""".stripMargin
     doRenderTest(before, after)
+  }
+
+  def testSealedTraitHierarchy_1(): Unit = {
+    val editor = doRenderTest(
+      """sealed trait T""",
+      """defined trait T"""
+    )
+    assertLastLine(editor, 0)
+  }
+
+  def testSealedTraitHierarchy_2(): Unit = {
+    val editor = doRenderTest(
+      """sealed trait T
+        |case class A() extends T""".stripMargin,
+      """defined trait T
+        |defined class A""".stripMargin
+    )
+    assertLastLine(editor, 1)
+  }
+
+  def testSealedTraitHierarchy_3(): Unit = {
+    val editor = doRenderTest(
+      """sealed trait T
+        |case class A() extends T
+        |case class B() extends T""".stripMargin,
+      """defined trait T
+        |defined class A
+        |defined class B""".stripMargin
+    )
+    assertLastLine(editor, 2)
+  }
+
+  def testSealedTraitHierarchy_WithSpacesAndComments(): Unit = {
+    val editor = doRenderTest(
+      """sealed trait T
+        |case class A() extends T
+        |case class B() extends T
+        |
+        |//
+        |//
+        |case class C() extends T
+        |
+        |
+        |/**
+        |  *
+        |  */
+        |case class D() extends T""".stripMargin,
+      """defined trait T
+        |defined class A
+        |defined class B
+        |
+        |
+        |
+        |defined class C
+        |
+        |
+        |
+        |
+        |
+        |defined class D""".stripMargin
+    )
+    assertLastLine(editor, 12)
+  }
+
+  def testSealedTraitHierarchy_Several(): Unit = {
+    val editor = doRenderTest(
+      """sealed trait T1
+        |
+        |val x = 1
+        |
+        |sealed trait T2
+        |case class A() extends T2
+        |case class B() extends T2
+        |
+        |sealed trait T3
+        |case class C() extends T3""".stripMargin,
+      """defined trait T1
+        |
+        |x: Int = 1
+        |
+        |defined trait T2
+        |defined class A
+        |defined class B
+        |
+        |defined trait T3
+        |defined class C""".stripMargin
+    )
+    assertLastLine(editor, 9)
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
+  def testSealedTraitHierarchy_1_Scala3(): Unit = {
+    return // TODO: fix after this is fixed: https://github.com/lampepfl/dotty/issues/8677
+    val editor = doRenderTest(
+      """sealed trait T""",
+      """// defined trait T"""
+    )
+    assertLastLine(editor, 0)
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
+  def testSealedTraitHierarchy_2_Scala3(): Unit = {
+    return // TODO: same as above
+    val editor = doRenderTest(
+      """sealed trait T
+        |case class A() extends T""".stripMargin,
+      """// defined trait T
+        |// defined class A""".stripMargin
+    )
+    assertLastLine(editor, 2)
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
+  def testSealedTraitHierarchy_3_Scala3(): Unit = {
+    return // TODO: same as above
+    val editor = doRenderTest(
+      """sealed trait T
+        |case class A() extends T
+        |case class B() extends T""".stripMargin,
+      """// defined trait T
+        |// defined case class A
+        |// defined case class B""".stripMargin
+    )
+    assertLastLine(editor, 2)
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
+  def testSealedTraitHierarchy_WithSpacesAndComments_Scala3(): Unit = {
+    return // TODO: same as above
+    val editor = doRenderTest(
+      """sealed trait T
+        |case class A() extends T
+        |case class B() extends T
+        |
+        |//
+        |//
+        |case class C() extends T
+        |
+        |
+        |/**
+        |  *
+        |  */
+        |case class D() extends T""".stripMargin,
+      """// defined trait T
+        |// defined case class A
+        |// defined case class B
+        |
+        |
+        |
+        |// defined case class C
+        |
+        |
+        |
+        |
+        |
+        |// defined case class D""".stripMargin
+    )
+    assertLastLine(editor, 12)
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
+  def testSealedTraitHierarchy_Several_Scala3(): Unit = {
+    return // TODO: same as above
+    val editor = doRenderTest(
+      """sealed trait T1
+        |
+        |val x = 1
+        |
+        |sealed trait T2
+        |case class A() extends T2
+        |case class B() extends T2
+        |
+        |sealed trait T3
+        |case class C() extends T3""".stripMargin,
+      """// defined trait T1
+        |
+        |val x: Int = 1
+        |
+        |// defined trait T2
+        |// defined case class A
+        |// defined case class B
+        |
+        |// defined trait T3
+        |// defined case class C""".stripMargin
+    )
+    assertLastLine(editor, 9)
   }
 
   // yes, this is a very strange case, but anyway
