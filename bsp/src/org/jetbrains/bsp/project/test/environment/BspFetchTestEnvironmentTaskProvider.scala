@@ -81,7 +81,7 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
   override def executeTask(context: DataContext,
                            configuration: RunConfiguration,
                            env: ExecutionEnvironment,
-                           task: BspFetchTestEnvironmentTask): Boolean = {
+                           task: BspFetchTestEnvironmentTask): Boolean = Try {
     configuration match {
       case config: ModuleBasedConfiguration[_, _]
         if BspUtil.isBspModule(config.getConfigurationModule.getModule) && BspTesting.isBspRunnerSupportedConfiguration(config) =>
@@ -118,8 +118,12 @@ class BspFetchTestEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetch
         }
       case _ => true
     }
-
-  }
+  }.recover{
+    case error: Throwable => {
+      logger.error(error)
+      true
+    }
+  }.getOrElse(true)
 
   private def askUserForTargetId(project: Project, targetIds: Seq[String], task: BspFetchTestEnvironmentTask): Option[String] = {
     var chosenTarget: Option[URI] = None
