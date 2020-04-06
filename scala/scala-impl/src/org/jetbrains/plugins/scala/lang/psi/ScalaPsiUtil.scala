@@ -1327,17 +1327,19 @@ object ScalaPsiUtil {
     val (contextAppliedVirtualBounds, contextAppliedVirtualBoundsTexts) =
       if (parameterOwner.contextAppliedEnabled &&
         // context-applied doesn't work inside classes extending AnyVal
-        paramClauses.parentOfType[ScTypeDefinition].forall(_.superTypes.forall(_ != StdTypes.instance(parameterOwner.projectContext).AnyVal))) {
+        !paramClauses.parentOfType[PsiClass].exists(ValueClassType.extendsAnyVal)) {
+
         val paramNames = paramClauses.getParameters.map(_.getName)
+
         val caBounds = for {
           (typeParameter, name) <- namedTypeParameters
           if typeParameter.contextBoundTypeElement.nonEmpty
           // if there's already a param with the name of type param, then skip this type param
           if !paramNames.contains(name)
           // reverse is necessary for bounds with common ancestors, resolving ancestor methods to the first bound
-          boundTypes = typeParameter.contextBoundTypeElement.reverse
+          boundTypes   = typeParameter.contextBoundTypeElement.reverse
           compoundText = boundTypes.map(_.getText + s"[$name]").mkString(" with ")
-          compound = createTypeElementFromText(compoundText)(typeParameter.projectContext)
+          compound     = createTypeElementFromText(compoundText)(typeParameter.projectContext)
         } yield ParameterDescriptor(typeParameter, name, compound, 0)
 
         val caBoundsTexts = caBounds.map {
