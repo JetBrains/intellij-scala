@@ -254,4 +254,34 @@ class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
       evalEquals("foo", "1")
     }
   }
+
+  addFileWithBreakpoints("InnerOuterInheritedOuterFieldEtc.scala",
+    s"""
+       |object InnerOuterInheritedOuterFieldEtc {
+       |  class Outer extends BaseClass {
+       |    class HasOuterField {
+       |      def capture = Outer.this
+       |    }
+       |    class Z extends HasOuterField {
+       |      def goo {
+       |        ""$bp
+       |      }
+       |    }
+       |
+       |    def goo {
+       |      new Z {}.goo
+       |    }
+       |  }
+       |  def main(args: Array[String]) {
+       |    new Outer().goo
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
+  def testInnerOuterInheritedOuterFieldEtc(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("foo", "1")
+    }
+  }
 }
