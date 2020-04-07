@@ -21,7 +21,6 @@ import scala.collection.mutable
 class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuilder(category) {
 
   import ModuleLevelBuilder._
-  import ScalaBuilder._
 
   override def getPresentableName: String = "Scala IDEA builder"
 
@@ -47,7 +46,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     val sources = collectSources(context, chunk, dirtyFilesHolder)
     if (sources.isEmpty) return ExitCode.NOTHING_DONE
 
-    if (hasBuildModules(chunk)) return ExitCode.NOTHING_DONE // *.scala files in sbt "build" modules are rightly excluded from compilation
+    if (ScalaBuilder.hasBuildModules(chunk)) return ExitCode.NOTHING_DONE // *.scala files in sbt "build" modules are rightly excluded from compilation
 
     if (!InitialScalaBuilder.hasScalaModules(context, chunk)) {
       val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
@@ -82,7 +81,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava
 
-    compile(context, chunk, sources, Seq.empty, modules, client) match {
+    ScalaBuilder.compile(context, chunk, sources, Seq.empty, modules, client) match {
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT
@@ -101,7 +100,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     java.util.Arrays.asList("scala", "java")
 
   private def isDisabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
-    val settings = projectSettings(context)
+    val settings = ScalaBuilder.projectSettings(context)
 
     def wrongIncrType = settings.getIncrementalityType != IncrementalityType.IDEA
 
@@ -124,7 +123,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val project = context.getProjectDescriptor
 
-    val compileOrder = projectSettings(context).getCompilerSettings(chunk).getCompileOrder
+    val compileOrder = ScalaBuilder.projectSettings(context).getCompilerSettings(chunk).getCompileOrder
     val extensionsToCollect = compileOrder match {
       case CompileOrder.Mixed => List(".scala", ".java")
       case _ => List(".scala")

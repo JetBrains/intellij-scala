@@ -147,7 +147,7 @@ object ScalaCompilerTestBase {
 
   def stopAndWait(timeout: Duration = 10.seconds): Unit = assertTrue(
     s"Compile server process have not terminated after $timeout",
-    CompileServerLauncher.stopAndWaitTermination(timeout.toMillis)
+    CompileServerLauncher.stop(timeout.toMillis)
   )
 
   implicit class ListCompilerMessageExt(val messages: JList[CompilerMessage])

@@ -30,15 +30,14 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 import scala.util.control.Exception._
 
-/**
- * @author Pavel Fatin
- */
 object CompileServerLauncher {
+
   private var serverInstance: Option[ServerInstance] = None
   private val LOG = Logger.getInstance(getClass)
 
   private val NailgunRunnerFQN = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
 
+  /* @see [[org.jetbrains.plugins.scala.compiler.ServerMediatorTask]] */
   private class Listener extends BuildManagerListener {
 
     override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit =
@@ -51,6 +50,7 @@ object CompileServerLauncher {
       val settings = ScalaCompileServerSettings.getInstance
 
       val compileServerRequired = settings.COMPILE_SERVER_ENABLED && project.hasScala
+      LOG.traceSafe(s"Listener.compileServerRequired: $compileServerRequired")
       if (compileServerRequired) {
         invokeAndWait {
           CompileServerManager.configureWidget(project)
@@ -110,7 +110,7 @@ object CompileServerLauncher {
   } yield new File(pluginsLibs, filesPath)
 
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
-    LOG.traceSafe(s"starting server with jdk: $jdk")
+    LOG.traceSafe(s"starting server")
 
     val settings = ScalaCompileServerSettings.getInstance
 
@@ -171,9 +171,10 @@ object CompileServerLauncher {
           .left.map(_.getMessage)
           .map { process =>
             val watcher = new ProcessWatcher(process, "scalaCompileServer")
-            serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), jdk))
+            val instance = ServerInstance(watcher, freePort, builder.directory(), jdk)
+            serverInstance = Some(instance)
             watcher.startNotify()
-            LOG.info(s"compile server process started with port: $freePort, jdk: ${jdk.name}")
+            LOG.info(s"compile server process started: ${instance.summary}")
             process
           }
       case (_, absentFiles) =>
@@ -189,13 +190,8 @@ object CompileServerLauncher {
     Try(Files.delete(CompileServerToken.tokenPathForPort(freePort)))
 
   // TODO stop server more gracefully
-  def stop(): Unit = {
-    serverInstance.foreach { it =>
-      it.destroyAndWait(0L)
-    }
-  }
-
-  def stopAndWaitTermination(timeoutMs: Long): Boolean = {
+  def stop(timeoutMs: Long = 0): Boolean = {
+    LOG.traceSafe(s"stop: ${serverInstance.map(_.summary)}")
     serverInstance.forall { it =>
       it.destroyAndWait(timeoutMs)
     }
@@ -263,7 +259,7 @@ object CompileServerLauncher {
   // TODO: make it thread safe, call from a single thread OR use some locking mechanism
 
   def ensureServerRunning(project: Project): Boolean = serverStartLock.synchronized {
-    LOG.traceSafe(s"ensureServerRunning ${Thread.currentThread.getId}")
+    LOG.traceSafe(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
     if (needRestart(project)) {
       LOG.traceSafe("ensureServerRunning: need to restart, stopping")
       stop()
@@ -276,7 +272,7 @@ object CompileServerLauncher {
     val currentInstance = serverInstance
     val settings = ScalaCompileServerSettings.getInstance()
     currentInstance match {
-      case None => true
+      case None => false // if no server running, then nothing to restart
       case Some(instance) =>
         val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
         val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
@@ -353,5 +349,13 @@ private case class ServerInstance(watcher: ProcessWatcher,
   def destroyAndWait(timeoutMs: Long): Boolean = {
     stopped = true
     watcher.destroyAndWait(timeoutMs)
+  }
+
+  def summary: String = {
+    s"port: $port" +
+      s", jdk: $jdk" +
+      s", stopped: $stopped" +
+      s", running: $running" +
+      s", errors: ${errors().mkString("(", ", ", ")")}"
   }
 }
