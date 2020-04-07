@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask}
 import com.intellij.openapi.module.{Module, ModuleManager}
@@ -9,15 +8,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.ui.Messages
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
 
 /**
- * Pavel Fatin
+ * Checks whether all modules have different output directories for production files.
+ * Shows a notification suggesting to fix it if output directories are the same.
+ * Имя уже устарело, изначально он отвечал за запуск компайл сервера перед компиляцией.
  */
-
-class ServerMediatorTask extends BuildManagerListener with CompileTask {
+final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends CompileTask {
 
   override def execute(context: CompileContext): Boolean = {
     val project = context.getProject
