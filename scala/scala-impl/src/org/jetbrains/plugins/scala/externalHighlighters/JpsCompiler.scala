@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import java.io.File
 
-import com.intellij.compiler.progress.CompilerTask
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
