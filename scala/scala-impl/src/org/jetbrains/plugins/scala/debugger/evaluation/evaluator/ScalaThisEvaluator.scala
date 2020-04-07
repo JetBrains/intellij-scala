@@ -20,7 +20,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
     if (objRef == null) {
       return null
     }
-    val list = objRef.referenceType.fields.asScala
+    val list = objRef.referenceType.visibleFields.asScala
     for (field <- list) {
       val name: String = field.name
       if (name != null && name.startsWith("$outer")) {
