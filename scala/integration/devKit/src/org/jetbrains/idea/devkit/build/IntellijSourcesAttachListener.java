@@ -8,14 +8,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.Alarm;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-
 import static org.jetbrains.idea.devkit.build.AttachIntellijSourcesAction.attachIJSources;
+import static org.jetbrains.idea.devkit.build.SbtIdeaPluginDetector.hasSbtIdeaPlugin;
 
 public class IntellijSourcesAttachListener extends ExternalSystemTaskNotificationListenerAdapter {
 
-    private static final Predicate<String> PROJECT_NAME_PATTERN = Pattern.compile("^scalaUltimate|scalaCommunity|((scala-plugin-for-ultimate|intellij-scala)(_\\d+)?)$").asPredicate();
     private static final int MAX_ATTEMPTS = 10;
     private static final int RETRY_DELAY_MS = 1000;
 
@@ -27,7 +24,7 @@ public class IntellijSourcesAttachListener extends ExternalSystemTaskNotificatio
         if (project == null || project.isDisposed())
             return;
 
-        if (PROJECT_NAME_PATTERN.test(project.getName())) {
+        if (hasSbtIdeaPlugin(project)) {
             tryAttach(project, 0);
         }
     }

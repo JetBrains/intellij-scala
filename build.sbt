@@ -241,8 +241,9 @@ lazy val bsp =
 
 lazy val devKitIntegration = newProject(
   "devKit",
-  file("scala/integration/devKit")
-).settings(
+  file("scala/integration/devKit"))
+  .dependsOn(scalaImpl)
+  .settings(
   intellijPlugins += "DevKit".toPlugin
 )
 
