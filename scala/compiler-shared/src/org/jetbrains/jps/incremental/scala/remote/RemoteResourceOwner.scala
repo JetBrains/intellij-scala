@@ -15,8 +15,9 @@ import org.jetbrains.jps.incremental.scala._
  * @author Dmitry Naydanov
  */
 trait RemoteResourceOwner {
-  protected val address: InetAddress
-  protected val port: Int
+
+  protected def address: InetAddress
+  protected def port: Int
   
   protected val currentDirectory: String = System.getProperty("user.dir")
 
@@ -83,6 +84,29 @@ trait RemoteResourceOwner {
   private def toBytes(s: String) = s.getBytes
 
   private def fromBytes(bytes: Array[Byte]) = new String(bytes)
+
+  protected def cantConnectToCompileServerErrorMessage: String =
+    s"Cannot connect to compile server at ${address.toString}:$port"
+
+  protected def unknownHostErrorMessage: String =
+    s"Unknown IP address of compile server host: ${address.toString}"
+
+  protected def reportException(message: String, ex: Throwable, client: Client): Unit = {
+    val className = this.getClass.getSimpleName
+    val pid = ProcessHandle.current.pid
+    client.internalInfo(s"[p:$pid, t:$className] $message\n${exceptionText(ex)}")
+  }
+
+  protected def exceptionText(ex: Throwable): String =
+    s"${ex.toString}\n${stackTraceText(ex)}"
+
+  private def stackTraceText(exception: Throwable): String =
+    stackTraceText(exception.getStackTrace)
+
+  private def stackTraceText(stackTrace: Array[StackTraceElement]): String = {
+    val linePrefix = "\tat "
+    stackTrace.mkString(linePrefix, "\n" + linePrefix, "")
+  }
 }
 
 object RemoteResourceOwner {
