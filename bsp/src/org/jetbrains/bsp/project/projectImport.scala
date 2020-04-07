@@ -194,7 +194,9 @@ object BspProjectOpenProcessor {
 
     val bspConnectionProtocolSupported = BspUtil.bspConfigFiles(ioWorkspace).nonEmpty
     val bloopProject = BspUtil.bloopConfigDir(ioWorkspace).isDefined
-    val sbtProject = SbtProjectImportProvider.canImport(workspace)
+    // val sbtProject = SbtProjectImportProvider.canImport(workspace)
+    // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
+    val sbtProject = false
 
     bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject
   }
