@@ -129,10 +129,8 @@ lazy val scalaImpl: sbt.Project =
       packageLibraryMappings ++= Seq(
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
         "com.trueaccord.scalapb" %% "scalapb-runtime" % ".*"  -> None,
-        "com.google.protobuf" % "protobuf-java" % ".*"        -> None,
         "com.trueaccord.lenses" %% "lenses" % ".*"            -> None,
         "com.lihaoyi" %% "fastparse-utils" % ".*"             -> None,
-        "commons-lang" % "commons-lang" % ".*"                -> None,
         Dependencies.scalaXml                                 -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect                             -> Some("lib/scala-reflect.jar"),
         Dependencies.scalaLibrary                             -> None
