@@ -38,15 +38,10 @@ class SbtOpenProjectProvider() extends AbstractOpenProjectProvider {
     ExternalSystemUtil.refreshProject(externalProjectPath,
       new ImportSpecBuilder(project, SbtProjectSystem.Id)
         .usePreviewMode()
-        .use(ProgressExecutionMode.START_IN_FOREGROUND_ASYNC)
-        .callback(new ExternalProjectRefreshCallback {
-          override def onSuccess(externalProject: DataNode[ProjectData]): Unit =
-            ExternalSystemUtil.refreshProject(externalProjectPath,
-              new ImportSpecBuilder(project, SbtProjectSystem.Id)
-                .callback(new FinalImportCallback(project, settings))
-            )
-        })
-    )
+        .use(ProgressExecutionMode.MODAL_SYNC))
+    ExternalSystemUtil.refreshProject(externalProjectPath,
+      new ImportSpecBuilder(project, SbtProjectSystem.Id)
+        .callback(new FinalImportCallback(project, settings)))
   }
 
 
