@@ -166,7 +166,8 @@ class BspProjectImportProvider(builder: BspProjectImportBuilder)
     this(ProjectImportBuilder.EXTENSIONS_POINT_NAME.findExtensionOrFail(classOf[BspProjectImportBuilder]))
 
   override def canImport(fileOrDirectory: VirtualFile, project: Project): Boolean =
-    BspProjectOpenProcessor.canOpenProject(fileOrDirectory)
+    BspProjectOpenProcessor.canOpenProject(fileOrDirectory) ||
+      SbtProjectImportProvider.canImport(fileOrDirectory)
 
   override def createSteps(context: WizardContext): Array[ModuleWizardStep] =
     ModuleWizardStep.EMPTY_ARRAY
