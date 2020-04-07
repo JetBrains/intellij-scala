@@ -40,14 +40,18 @@ object CompileServerLauncher {
   private val NailgunRunnerFQN = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
 
   private class Listener extends BuildManagerListener {
-    override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
-      startCompileServer(project)
-    }
 
-    private def startCompileServer(project: Project): Unit = {
+    override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit =
+      ensureCompileServerRunning(project)
+
+    override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
+      ensureCompileServerRunning(project)
+
+    private def ensureCompileServerRunning(project: Project): Unit = {
       val settings = ScalaCompileServerSettings.getInstance
 
-      if (settings.COMPILE_SERVER_ENABLED && project.hasScala) {
+      val compileServerRequired = settings.COMPILE_SERVER_ENABLED && project.hasScala
+      if (compileServerRequired) {
         invokeAndWait {
           CompileServerManager.configureWidget(project)
         }
