@@ -31,18 +31,14 @@ object ClassTemplateBlock {
           ClassParents parse builder
           //parse template body
           builder.getTokenType match {
-            case ScalaTokenTypes.tLBRACE =>
-              if (builder.twoNewlinesBeforeCurrentToken) {
-                extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
-                return nonEmpty
-              }
+            case ScalaTokenTypes.tLBRACE if !builder.twoNewlinesBeforeCurrentToken =>
               TemplateBody parse builder
-              extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
-              nonEmpty
+            case ScalaTokenTypes.tCOLON if builder.isScala3 =>
+              TemplateBody parse builder
             case _ =>
-              extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
-              nonEmpty
           }
+          extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
+          nonEmpty
         }
         else {
           //parse template body
@@ -60,18 +56,14 @@ object ClassTemplateBlock {
         }
         //parse template body
         builder.getTokenType match {
-          case ScalaTokenTypes.tLBRACE =>
-            if (builder.twoNewlinesBeforeCurrentToken) {
-              extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
-              return nonEmpty
-            }
+          case ScalaTokenTypes.tLBRACE if !builder.twoNewlinesBeforeCurrentToken =>
             TemplateBody parse builder
-            extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
-            nonEmpty
+          case ScalaTokenTypes.tCOLON if builder.isScala3 =>
+            TemplateBody parse builder
           case _ =>
-            extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
-            nonEmpty
         }
+        extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
+        nonEmpty
     }
   }
 }

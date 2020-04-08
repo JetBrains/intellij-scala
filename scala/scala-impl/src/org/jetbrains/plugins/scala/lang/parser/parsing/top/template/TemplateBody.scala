@@ -35,7 +35,7 @@ sealed abstract class Body extends ParsingRule {
             BlockIndentation.noBlock -> indentO
           case _ =>
             builder error ScalaBundle.message("expected.indented.template.body")
-            marker.drop()
+            marker.rollbackTo()
             builder.restoreNewlinesState()
             return true
         }
