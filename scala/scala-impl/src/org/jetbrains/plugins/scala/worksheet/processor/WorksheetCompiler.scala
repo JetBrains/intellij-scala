@@ -184,7 +184,7 @@ class WorksheetCompiler(
           makeType match {
             case OutOfProcessServer =>
               val plainArgs = args.asInstanceOf[PlainModeArgs]
-              WorksheetCompilerLocalEvaluator.executeWorksheet(worksheetFile, plainArgs.className, plainArgs.outputDir.getAbsolutePath)(callback, printer)(module)
+              WorksheetCompilerLocalEvaluator.executeWorksheet(virtualFile, plainArgs.className, plainArgs.outputDir.getAbsolutePath)(callback, printer)(module)
             case _ =>
               callback(WorksheetCompilerResult.CompiledAndEvaluated)
           }

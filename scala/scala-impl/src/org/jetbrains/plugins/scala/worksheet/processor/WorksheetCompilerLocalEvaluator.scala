@@ -9,9 +9,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiFile
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.extensions.invokeLater
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.{EvaluationCallback, WorksheetCompilerResult}
@@ -24,18 +23,18 @@ private object WorksheetCompilerLocalEvaluator {
   private val RunnerClassName = "org.jetbrains.plugins.scala.worksheet.PlainWorksheetRunner"
 
   // this method is only used when run type is [[org.jetbrains.plugins.scala.worksheet.server.OutOfProcessServer]]
-   def executeWorksheet(scalaFile: ScalaFile, mainClassName: String, addToCp: String)
+   def executeWorksheet(file: VirtualFile, mainClassName: String, addToCp: String)
                        (callback: EvaluationCallback, worksheetPrinter: WorksheetEditorPrinter)
                        (implicit module: Module): Unit =
     invokeLater {
       try {
-        val params: JavaParameters = createDefaultParameters(scalaFile, mainClassName, addToCp)
+        val params: JavaParameters = createDefaultParameters(file, mainClassName, addToCp)
         val processHandler = params.createOSProcessHandler()
 
-        WorksheetFileHook.updateStoppableProcess(scalaFile.getVirtualFile, Some(() => processHandler.destroyProcess()))
+        WorksheetFileHook.updateStoppableProcess(file, Some(() => processHandler.destroyProcess()))
         processHandler.addProcessListener(new ProcessAdapter {
           override def processTerminated(event: ProcessEvent): Unit =
-            WorksheetFileHook.updateStoppableProcess(scalaFile.getVirtualFile, None)
+            WorksheetFileHook.updateStoppableProcess(file, None)
         })
 
         processHandler.addProcessListener(processListener(callback, worksheetPrinter))
@@ -48,14 +47,18 @@ private object WorksheetCompilerLocalEvaluator {
       }
     }
 
-  private def createDefaultParameters(file: PsiFile, mainClassName: String, addToCp: String)
+  private def createDefaultParameters(originalFile: VirtualFile, mainClassName: String, addToCp: String)
+                                     (implicit module: Module): JavaParameters =
+    createDefaultParameters(originalFile.getCanonicalPath, mainClassName, addToCp)
+
+  private def createDefaultParameters(originalFilePath: String, mainClassName: String, addToCp: String)
                                      (implicit module: Module): JavaParameters =
     createParameters(
       module = module,
       mainClassName = mainClassName,
       workingDirectory = Option(module.getProject.baseDir).fold("")(_.getPath),
       additionalCp = addToCp,
-      worksheetField = file.getVirtualFile.getCanonicalPath
+      worksheetField = originalFilePath
     )
 
   private def createParameters(module: Module,
