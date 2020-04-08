@@ -29,6 +29,7 @@ import scala.language.postfixOps
   TODO 3: test clean action
   TODO 4: test Repl iterative evaluation
   TODO 5: test split SimpleWorksheetSplitter polygons coordinates in different scrolling positions
+  TODO 6: make tests methods more composible, there are just too many methods in this class now
 */
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_10,
@@ -97,6 +98,12 @@ abstract class WorksheetIntegrationBaseTest
     doRenderTest(beforeFixed, afterFixed, foldings)
   }
 
+  protected def doRenderTestWithoutCompilationWarningsChecks(before: String, afterWithFoldings: String): Editor = {
+    val beforeFixed = before
+    val (afterFixed, foldings) = preprocessViewerText(afterWithFoldings)
+    doRenderTestWithoutCompilationWarningsChecks(beforeFixed, afterFixed, foldings)
+  }
+
   protected def doRenderTest(before: String, afterAssert: String => Unit): Editor = {
     val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, afterAssert)
 
@@ -124,6 +131,20 @@ abstract class WorksheetIntegrationBaseTest
 
     assertNoErrorMessages(editor)
     assertNoWarningMessages(editor)
+
+    editor
+  }
+
+  private def doRenderTestWithoutCompilationWarningsChecks(
+    before: String,
+    after: String,
+    foldings: Seq[Folding]
+  ): Editor = {
+    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, after, foldings)
+
+    evaluationResult shouldBe RunWorksheetActionResult.Done
+
+    assertNoErrorMessages(editor)
 
     editor
   }
@@ -199,7 +220,7 @@ abstract class WorksheetIntegrationBaseTest
       MarkersUtils.extractSequentialMarkers(text.withNormalizedSeparator, markers)
     }
     val foldings = ranges.map { case (TextRangeExt(startOffset, endOffset), markerType) =>
-      Folding(startOffset, endOffset, textFixed.substring(startOffset, endOffset), isExpanded = markerType == 1)
+      Folding(startOffset, endOffset, isExpanded = markerType == 1)
     }
     (textFixed, foldings)
   }
@@ -211,7 +232,8 @@ abstract class WorksheetIntegrationBaseTest
 
   protected def viewerEditorData(viewer: Editor): ViewerEditorData = {
     val renderedText = viewer.getDocument.getText
-    val foldings = viewer.getFoldingModel.getAllFoldRegions.map(Folding.apply)
+    val foldRegions = viewer.getFoldingModel.getAllFoldRegions
+    val foldings = foldRegions.map(Folding.apply)
     ViewerEditorData(viewer, renderedText, foldings)
   }
 }
@@ -229,16 +251,17 @@ object WorksheetIntegrationBaseTest {
     foldings: Seq[Folding]
   )
 
+  // placeholder text isn't tested, but it actually has some construction logic which limits placeholder length:
+  // see org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup.addRegion
   case class Folding(
     startOffset: Int,
     endOffset: Int,
-    placeholderText: String,
     isExpanded: Boolean = false
   )
 
   object Folding {
 
     def apply(region: FoldRegion): Folding =
-      Folding(region.getStartOffset, region.getEndOffset, region.getPlaceholderText, region.isExpanded)
+      Folding(region.getStartOffset, region.getEndOffset, region.isExpanded)
   }
 }

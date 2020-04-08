@@ -27,7 +27,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
   private var inited = false
 
-  private def debug(obj: Any): Unit =
+  protected def debug(obj: Any): Unit =
     println(s"[${Thread.currentThread.getId}] $obj")
 
   override def internalError(ex: Throwable): Unit =
@@ -148,6 +148,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
       commitDocument(document)
     }
 
+  // TODO: not used, but should, now instead org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory.BULK_COUNT is used
   protected def getOutputLimit: Int = scalaSettings.getOutputLimit
 
   private def scalaSettings = ScalaProjectSettings.getInstance(project)

@@ -4,7 +4,6 @@ import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.psi.PsiErrorElement
 import org.jetbrains.annotations.{NonNls, NotNull}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetDefaultSourcePreprocessor, WorksheetIncrementalSourcePreprocessor}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError

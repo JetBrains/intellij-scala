@@ -15,9 +15,10 @@ import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBa
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.{FoldingDataForTests, ViewerEditorState}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinterFactory, WorksheetEditorPrinterPlain}
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.ViewerEditorState
 import org.junit.Assert._
+import org.junit.ComparisonFailure
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.DurationInt
@@ -36,7 +37,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     TestScalaVersion.Scala_2_12_0,
     TestScalaVersion.Scala_2_13_0,
   ))
-  def testSimpleDeclaration(): Unit = {
+  def testSimple_1(): Unit = {
     val left =
       """val a = 1
         |val b = 2
@@ -48,6 +49,71 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     doRenderTest(left, right)
   }
+
+  def testSimple_2(): Unit = {
+    val left =
+      """val s = "Boo"
+        |var b = 2
+        |
+        |class A {
+        |  def foo = 1
+        |}
+        |
+        |b = new A().foo
+        |""".stripMargin
+
+    val right =
+      """s: String = Boo
+        |b: Int = 2
+        |
+        |defined class A
+        |
+        |
+        |
+        |b: Int = 1""".stripMargin
+
+    doRenderTest(left, right)
+  }
+
+  def testTemplateDeclarations(): Unit = doRenderTest(
+    """trait A {
+      |}
+      |trait B
+      |abstract class C extends A
+      |case class D(i: Int, s: String) extends C with B
+      |object E extends B
+      |
+      |sealed trait Parent
+      |case class Child1() extends Parent
+      |case class Child2() extends Parent
+      |object Child3 extends Parent
+      |""".stripMargin,
+    """defined trait A
+      |
+      |defined trait B
+      |defined class C
+      |defined class D
+      |defined object E
+      |
+      |defined trait Parent
+      |defined class Child1
+      |defined class Child2
+      |defined object Child3""".stripMargin
+  )
+
+  def testTypeAlias(): Unit = doRenderTest(
+    """class A[T] {
+      |  def foo(t: T): T = t
+      |}
+      |
+      |type B = A[String]
+      |""".stripMargin,
+    """defined class A
+      |
+      |
+      |
+      |defined type alias B""".stripMargin
+  )
 
   def testSimpleFolding(): Unit = {
     val left =
@@ -71,6 +137,19 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |val x = 42
         |println("4\n5\n6")
         |val y = 23
+        |
+        |val c = true
+        |
+        |if (c) {
+        |  for (_ <- 1 to 10) println("boo!")
+        |}
+        |
+        |val a = 123
+        |
+        |a match {
+        |  case 1 =>
+        |  case _ =>
+        |}
         |""".stripMargin
 
     val right =
@@ -83,10 +162,109 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |5
          |6
          |res1: Unit = ()$foldEnd
-         |y: Int = 23""".stripMargin
+         |y: Int = 23
+         |
+         |c: Boolean = true
+         |
+         |boo!
+         |boo!
+         |${foldStart}boo!
+         |boo!
+         |boo!
+         |boo!
+         |boo!
+         |boo!
+         |boo!
+         |boo!
+         |res2: Unit = ()$foldEnd
+         |
+         |a: Int = 123
+         |
+         |res3: Unit = ()
+         |
+         |
+         |""".stripMargin
 
     doRenderTest(left, right)
   }
+
+  def testFunctions(): Unit = doRenderTestWithoutCompilationWarningsChecks(
+    """def foo() = 123
+      |
+      |def boo(i: Int) {
+      |  for (_ <- 1 to i) println("boo!")
+      |}
+      |
+      |def bar(s: String): Unit = println(s)
+      |
+      |def concat(s1: String, s2: String, s3: String) = s1 + s2 + s3
+      |
+      |val a: Int = foo()
+      |boo(a)
+      |bar("boo")
+      |val s: String = concat("b", "o", "o")
+      |""".stripMargin,
+    s"""foo: foo[]() => Int
+       |
+       |boo: boo[](val i: Int) => Unit
+       |
+       |
+       |
+       |bar: bar[](val s: String) => Unit
+       |
+       |concat: concat[](val s1: String,val s2: String,val s3: String) => String
+       |
+       |a: Int = 123
+       |${foldStart}boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |boo!
+       |Output exceeds cutoff limit.$foldEnd
+       |${foldStart}boo
+       |res1: Unit = ()$foldEnd
+       |s: String = boo""".stripMargin
+  )
+
+  def doRenderTestWithoutCompilationWarningsChecks(): Unit = doRenderTest(
+    """import java.util._
+      |import java.lang.Math
+      |
+      |class A {
+      |  import scala.collection.mutable._
+      |
+      |  def foo = HashMap[String, String]()
+      |}
+      |
+      |def bar() {
+      |  import java.io.File
+      |  val f = new File("")
+      |}
+      |""".stripMargin,
+    """import java.util._
+      |import java.lang.Math
+      |
+      |defined class A
+      |
+      |
+      |
+      |
+      |
+      |bar: bar[]() => Unit
+      |
+      |
+      |""".stripMargin
+  )
 
   def testDisplayFirstRuntimeException(): Unit = {
     val left =
@@ -311,8 +489,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
       val isHelperFolding = startOffset == endOffset && startOffset == text.length
       if (!isHelperFolding) {
         builder.append(if (isExpanded) foldStartExpanded else foldStart)
-          .append(placeholder)
-          //.append(text, startOffset, endOffset)
+          //.append(placeholder)
+          .append(text, startOffset, endOffset)
           .append(if (isExpanded) foldEndExpanded else foldEnd)
       }
     }
@@ -331,7 +509,9 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     val viewerStates: Seq[ViewerEditorData] =
       printer.viewerEditorStates.map { case ViewerEditorState(text, foldings) =>
-        val foldingsConverted = foldings.map { case (start, end, placeholder, expanded) => Folding(start, end, placeholder, expanded) }
+        val foldingsConverted = foldings.map { case FoldingDataForTests(start, end, _, expanded) =>
+          Folding(start, end, expanded)
+        }
         ViewerEditorData(viewer, text, foldingsConverted)
       }
 

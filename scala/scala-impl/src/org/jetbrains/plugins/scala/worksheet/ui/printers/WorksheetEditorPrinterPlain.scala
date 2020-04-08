@@ -7,11 +7,12 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.util.text.StringUtil
 import javax.swing.Timer
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.TestOnly
+import org.jetbrains.annotations.{CalledInAwt, TestOnly}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor.ServiceMarkers
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain._
 
@@ -24,7 +25,7 @@ final class WorksheetEditorPrinterPlain private[printers](
 ) extends WorksheetEditorPrinterBase(editor, viewer) {
 
   // used to flush collected output if there is some long process generating running
-  private val flushTimer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, _ => midFlush())
+  private val flushTimer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, _ => flushOnTimer())
 
   private val evaluatedChunks = ArrayBuffer[EvaluationChunk]()
 
@@ -46,7 +47,9 @@ final class WorksheetEditorPrinterPlain private[printers](
 
   override def scheduleWorksheetUpdate(): Unit = flushTimer.start()
 
+  /** @param line single worksheet output line, currently expecting with '\n' in the end */
   override def processLine(line: String): Boolean = {
+    //debug(s"line: ${line.replaceAll("\n", " \\\\n ")}")
     if (isTerminationLine(line)) {
       flushBuffer()
       terminated = true
@@ -70,6 +73,7 @@ final class WorksheetEditorPrinterPlain private[printers](
       currentOutputNewLinesCount = 0
       cutoffPrinted = false
     } else {
+      // TODO BULK_COUNT is unused
       if (currentOutputNewLinesCount < WorksheetEditorPrinterFactory.BULK_COUNT) {
         currentOutputBuffer.append(line)
       } else if (!cutoffPrinted) {
@@ -85,6 +89,7 @@ final class WorksheetEditorPrinterPlain private[printers](
   }
 
   override def internalError(ex: Throwable): Unit = {
+    flushBuffer()
     super.internalError(ex)
     terminated = true
     stopTimer()
@@ -98,7 +103,7 @@ final class WorksheetEditorPrinterPlain private[printers](
 
     flushContent()
 
-    invokeLater {
+    invokeAndWait {
       worksheetViewer.getMarkupModel.removeAllHighlighters()
 
       inWriteAction {
@@ -109,15 +114,17 @@ final class WorksheetEditorPrinterPlain private[printers](
 
   // currently we re-render text on each mid-flush (~once per 1 second for long processes),
   // for now we are ok with this cause `renderText` proved to be quite a lightweight operation
-  private def midFlush(): Unit = {
-    if (terminated || buffed  == 0) return
-
-    buffed = 0
+  // Called from timer, so body invoked in EDT
+  @CalledInAwt
+  private def flushOnTimer(): Unit = {
+    if (terminated) return
 
     flushContent()
   }
 
   private def flushContent(): Unit = {
+    if (buffed == 0) return
+
     val lastChunkOpt = buildIncompleteLastChunkOpt
     val (text, foldings) = renderText(evaluatedChunks ++ lastChunkOpt)
 
@@ -127,7 +134,11 @@ final class WorksheetEditorPrinterPlain private[printers](
         folding.isExpanded = true
     }
 
-    updateWithPersistentScroll(viewerDocument, text, foldings)
+    invokeAndWait {
+      inWriteAction {
+        updateWithPersistentScroll(viewerDocument, text, foldings)
+      }
+    }
   }
 
   override def close(): Unit =
@@ -152,40 +163,39 @@ final class WorksheetEditorPrinterPlain private[printers](
   private def currentOutputBufferText: String =
     currentOutputBuffer.result.stripTrailing
 
+  // TODO: there can be a lot of worksheet output, make these checks mor efficient to lower GC usage
   private def isTerminationLine(line: String): Boolean =
-    line.stripSuffix("\n") == WorksheetDefaultSourcePreprocessor.END_OUTPUT_MARKER
+    line.stripSuffix("\n") == ServiceMarkers.EVALUATION_END_MARKER
 
   private def isResultStart(line: String): Boolean =
-    line.startsWith(WorksheetDefaultSourcePreprocessor.START_TOKEN_MARKER)
+    line.startsWith(ServiceMarkers.CHUNK_OUTPUT_START_MARKER)
 
   private def isResultEnd(line: String): Boolean =
-    line.startsWith(WorksheetDefaultSourcePreprocessor.END_TOKEN_MARKER)
+    line.startsWith(ServiceMarkers.CHUNK_OUTPUT_END_MARKER)
 
-  private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[InputOutputFoldingInfo]): Unit =
-    invokeLater {
-      inWriteAction {
-        val editorScroll = originalEditor.getScrollingModel.getVerticalScrollOffset
-        val viewerScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset
+  @CalledInAwt
+  private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[InputOutputFoldingInfo]): Unit = {
+    val editorScroll = originalEditor.getScrollingModel.getVerticalScrollOffset
+    val viewerScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset
 
-        simpleUpdate(document, text)
+    simpleUpdate(document, text)
 
-        originalEditor.getScrollingModel.scrollVertically(editorScroll)
-        worksheetViewer.getScrollingModel.scrollHorizontally(viewerScroll)
+    originalEditor.getScrollingModel.scrollVertically(editorScroll)
+    worksheetViewer.getScrollingModel.scrollHorizontally(viewerScroll)
 
-        // NOTE: if a folding already exists in a folding group it will note be duplicated
-        // see FoldingModelImpl.createFoldRegion
-        cleanFoldings()
-        updateFoldings(foldings)
-        foldGroup.initMappings()
+    // NOTE: if a folding already exists in a folding group it will note be duplicated
+    // see FoldingModelImpl.createFoldRegion
+    cleanFoldings()
+    updateFoldings(foldings)
+    foldGroup.initMappings()
 
-        if (ApplicationManager.getApplication.isUnitTestMode) {
-          val actualFoldings = viewer.getFoldingModel.getAllFoldRegions.map { f =>
-            (f.getStartOffset, f.getEndOffset, f.getPlaceholderText, f.isExpanded)
-          }
-          viewerEditorStates += ViewerEditorState(document.getText, actualFoldings)
-        }
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      val actualFoldings = viewer.getFoldingModel.getAllFoldRegions.map { f =>
+        FoldingDataForTests(f.getStartOffset, f.getEndOffset, f.getPlaceholderText, f.isExpanded)
       }
+      viewerEditorStates += ViewerEditorState(document.getText, actualFoldings)
     }
+  }
 }
 
 object WorksheetEditorPrinterPlain {
@@ -298,5 +308,11 @@ object WorksheetEditorPrinterPlain {
   }
 
   @TestOnly
-  case class ViewerEditorState(documentText: String, foldings: Seq[(Int, Int, String, Boolean)])
+  case class ViewerEditorState(documentText: String, foldings: Seq[FoldingDataForTests])
+  case class FoldingDataForTests(
+    startOffset: Int,
+    endOffset: Int,
+    placeholderText: String,
+    isFolded: Boolean
+  )
 }

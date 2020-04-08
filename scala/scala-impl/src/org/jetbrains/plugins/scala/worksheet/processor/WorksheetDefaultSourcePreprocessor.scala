@@ -25,12 +25,14 @@ import scala.collection.mutable.ArrayBuffer
 
 object WorksheetDefaultSourcePreprocessor {
 
-  // TODO: it is probably enough just START_TOKEN_MARKER, without END_TOKEN_MARKER, leave just one
-  //  BUT FIRST: finish covering worksheets with tests, due to rendering logic is quite complicated
-  val START_TOKEN_MARKER   = "###worksheet###$$start$$"
-  val END_TOKEN_MARKER     = "###worksheet###$$end$$"
-  val END_OUTPUT_MARKER    = "###worksheet###$$end$$!@#$%^&*(("
-  val END_GENERATED_MARKER = "/* ###worksheet### generated $$end$$ */ "
+  object ServiceMarkers {
+    val CHUNK_OUTPUT_START_MARKER = "###worksheet###$$start$$"
+    val CHUNK_OUTPUT_END_MARKER   = "###worksheet###$$end$$"
+    val EVALUATION_END_MARKER     = "###worksheet###$$end$$!@#$%^&*(("
+    val END_GENERATED_MARKER      = "/* ###worksheet### generated $$end$$ */ "
+  }
+
+  import ServiceMarkers._
 
   private val GenericPrintMethodName = "println"
   private val ArrayPrintMethodName = "print$$$Worksheet$$$Array$$$"
@@ -202,7 +204,7 @@ object WorksheetDefaultSourcePreprocessor {
           s"""def main()$mainReturnType {
              |  val $instanceName = new $className
              |""".stripMargin,
-          s"""  $printMethodName("$END_OUTPUT_MARKER")
+          s"""  $printMethodName("$EVALUATION_END_MARKER")
              |}""".stripMargin
         )
       }
@@ -525,10 +527,10 @@ object WorksheetDefaultSourcePreprocessor {
       mainMethodBuilder.append(withPrintRaw(text))
 
     @inline final def appendStartPsiLineInfo(numberStr: String): Unit =
-      printInMain(s""""$START_TOKEN_MARKER$numberStr"""")
+      printInMain(s""""$CHUNK_OUTPUT_START_MARKER$numberStr"""")
 
     @inline final def appendEndPsiLineInfo(numberStr: String): Unit =
-      printInMain(s""""$END_TOKEN_MARKER$numberStr"""")
+      printInMain(s""""$CHUNK_OUTPUT_END_MARKER$numberStr"""")
 
     @inline final def withPrecomputedLines(psi: ScalaPsiElement)(body: => Unit): Unit = {
       val lineNum = psiToLineNumbers(psi)
@@ -613,10 +615,10 @@ object WorksheetDefaultSourcePreprocessor {
   }
 
   def inputLinesRangeFromEnd(encodedLine: String): Option[(Int, Int)] =
-    inputLinesRangeFrom(encodedLine, END_TOKEN_MARKER)
+    inputLinesRangeFrom(encodedLine, CHUNK_OUTPUT_END_MARKER)
 
   def inputLinesRangeFromStart(encodedLine: String): Option[(Int, Int)] =
-    inputLinesRangeFrom(encodedLine, START_TOKEN_MARKER)
+    inputLinesRangeFrom(encodedLine, CHUNK_OUTPUT_START_MARKER)
 
   private def inputLinesRangeFrom(encodedLine: String, prefixMarker: String): Option[(Int, Int)] = {
     if (encodedLine.startsWith(prefixMarker)) {

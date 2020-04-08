@@ -188,7 +188,7 @@ object RemoteServerConnector {
   }
 
   private class MyTranslatingClient(project: Project, worksheet: VirtualFile, consumer: CompilerInterface) extends DummyClient {
-    private val endMarker = WorksheetDefaultSourcePreprocessor.END_GENERATED_MARKER
+    private val endMarker = WorksheetDefaultSourcePreprocessor.ServiceMarkers.END_GENERATED_MARKER
 
     override def progress(text: String, done: Option[Float]): Unit =
       consumer.progress(text, done)
@@ -201,7 +201,7 @@ object RemoteServerConnector {
 
     override def message(msg: Client.ClientMsg): Unit = {
       val Client.ClientMsg(kind, text, source, line, column, _, _) = msg
-      val lines = (if(text == null) "" else "").split("\n")
+      val lines = (if (text == null) "" else text).split("\n")
       val linesLength = lines.length
 
       val differ = if (linesLength > 2) {
