@@ -33,7 +33,7 @@ object ExternalHighlighters {
         vFile <- findScalaFile(editor)
         externalHighlights <- state.get(vFile)
       } invokeLater {
-        val highlightInfos = externalHighlights.map(toHighlightInfo(_, editor))
+        val highlightInfos = externalHighlights.flatMap(toHighlightInfo(_, editor))
         val document = editor.getDocument
         UpdateHighlightersUtil.setHighlightersToEditor(
           project,
@@ -66,25 +66,21 @@ object ExternalHighlighters {
       errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, this))
     }
 
-  private def toHighlightInfo(highlighting: ExternalHighlighting, editor: Editor): HighlightInfo = {
-    val highlightRange =
-      highlightingRange(editor.getDocument, highlighting)
-        .orElse(
-          offset(highlighting, editor).flatMap(findRangeToHighlight(editor, _))
-        )
-        .getOrElse(TextRange.EMPTY_RANGE)
+  private def toHighlightInfo(highlighting: ExternalHighlighting, editor: Editor): Option[HighlightInfo] =
+    highlightingRange(editor.getDocument, highlighting)
+      .orElse(offset(highlighting, editor).flatMap(findRangeToHighlight(editor, _)))
+      .map { highlightRange =>
+        val message = highlighting.message
+        // TODO: new lines are not handled, everything is displayed in a single, concatenated line
+        val description: String = message.trim.stripSuffix(lineText(message))
 
-    val message = highlighting.message
-    // TODO: new lines are not handled, everything is displayed in a single, concatenated line
-    val description: String = message.trim.stripSuffix(lineText(message))
-
-    HighlightInfo
-      .newHighlightInfo(highlighting.highlightType)
-      .range(highlightRange)
-      .descriptionAndTooltip(description)
-      .group(Pass.EXTERNAL_TOOLS)
-      .create()
-  }
+        HighlightInfo
+          .newHighlightInfo(highlighting.highlightType)
+          .range(highlightRange)
+          .descriptionAndTooltip(description)
+          .group(Pass.EXTERNAL_TOOLS)
+          .create()
+      }
 
   private def findRangeToHighlight(editor: Editor, offset: Int): Option[TextRange] = {
     for {
