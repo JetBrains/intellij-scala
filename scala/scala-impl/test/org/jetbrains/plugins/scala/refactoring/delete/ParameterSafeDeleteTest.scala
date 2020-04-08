@@ -557,7 +557,7 @@ class ParameterSafeDeleteTest extends ScalaSafeDeleteTestBase {
       |  def +() = ()
       |}
       |
-      |O +
+      |O.+()
       |""".stripMargin
   )
 

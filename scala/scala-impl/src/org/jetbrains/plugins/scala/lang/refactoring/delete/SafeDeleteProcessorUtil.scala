@@ -372,13 +372,13 @@ object SafeDeleteProcessorUtil {
                 namedArg
               case _ => arg
             }
-            usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(realArg, parameter, true))
+            usages.add(new SafeDeleteScalaArgumentDeleteUsageInfo(realArg, parameter, true))
           }
 
           element.getParent match {
             case ScConstructorPattern(_, args) =>
               args.patterns.lift(parameter.index).foreach { arg =>
-                usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(arg, parameter, false))
+                usages.add(new SafeDeleteScalaArgumentDeleteUsageInfo(arg, parameter, false))
               }
             case _ =>
           }
@@ -460,7 +460,7 @@ object SafeDeleteProcessorUtil {
         val isNamedArgument = namedArguments.contains(element.getParent)
         // named arguments are handled above
         if (!isNamedArgument) {
-          usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, parameter, isSafeDelete))
+          usages.add(new SafeDeleteScalaArgumentDeleteUsageInfo(element, parameter, isSafeDelete))
         }
         true
       }
