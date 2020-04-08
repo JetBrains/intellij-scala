@@ -65,12 +65,12 @@ Click it, navigate to the sdk directory and select `sources.zip`, then choose "A
 To run tests properly, the plugin needs to be packaged.
 On the sbt shell:
 
-1. `packagePluginCommunity`
+1. `packageArtifact`
 2. `runFastTests`
 
-The "fast tests" can take over an hour. To get a quick feedback on project health, run the "typeInference tests"
+The "fast tests" can take over an hour. To get a quick feedback on project health, run only the type inference tests
 
-    > testOnly org.jetbrains.plugins.scala.lang.typeInference.*
+    > runTypeInferenceTests
     
 ## Travis CI
 
@@ -88,7 +88,7 @@ set up the project as described above.
 
 To run and distribute a modified version of the plugin in a regular IntelliJ instance, you need to package it.
 
-1. on the sbt shell, run `packagePluginZip`. This will output the generated plugin zip location
+1. on the sbt shell, run `packageArtifactZip`. This will output the generated plugin zip location
    (typically into `<project directory>/target/scala-plugin.zip`).
 2. In IntelliJ, open Preferences, section Plugins, choose "Install plugin from disk..." and navigate to the scala-plugin.zip
 3. Restart IntelliJ
