@@ -14,11 +14,12 @@ class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLan
 }
 
 object ScalaTokenType {
-  val ClassKeyword  = new ScalaTokenType("class")
-  val TraitKeyword  = new ScalaTokenType("trait")
-  val EnumKeyword   = new ScalaTokenType("enum")
-  val ObjectKeyword = new ScalaTokenType("object")
-  val GivenKeyword  = new ScalaTokenType("given")
+  val ClassKeyword     = new ScalaTokenType("class")
+  val TraitKeyword     = new ScalaTokenType("trait")
+  val EnumKeyword      = new ScalaTokenType("enum")
+  val ObjectKeyword    = new ScalaTokenType("object")
+  val GivenKeyword     = new ScalaTokenType("given")
+  val ExtensionKeyword = new ScalaTokenType("extension")
 
   val NewKeyword = new ScalaTokenType("new")
 

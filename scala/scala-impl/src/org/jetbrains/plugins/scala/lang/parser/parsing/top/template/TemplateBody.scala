@@ -6,6 +6,7 @@ package top
 package template
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 
@@ -75,6 +76,7 @@ sealed abstract class Body extends ParsingRule {
           builder.advanceLexer() // Ate }
         return
       case _ if isOutdent(baseIndentation) =>
+        End()
         return
       case _ if statementRule() =>
         builder.getTokenType match {
@@ -83,6 +85,7 @@ sealed abstract class Body extends ParsingRule {
               builder.advanceLexer() // Ate }
             return
           case _ if isOutdent(baseIndentation) =>
+            End()
             return
           case `tSEMICOLON` =>
           case _ if builder.newlineBeforeCurrentToken =>

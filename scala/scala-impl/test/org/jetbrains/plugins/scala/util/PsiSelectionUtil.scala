@@ -10,8 +10,10 @@ import scala.reflect.ClassTag
 trait PsiSelectionUtil {
   type NamedElementPath = List[String]
 
-  def selectElement[R: ClassTag](elem: PsiElement, path: NamedElementPath): R = {
-    def getInner(elem: PsiElement, path: List[String]): Option[R] = {
+  def selectElement[R: ClassTag](elem: PsiElement, path: NamedElementPath, searchElement: Boolean = false): R = {
+    val typeName = implicitly[ClassTag[R]].runtimeClass.getName
+    def getInner(elem: PsiElement, path: List[String]): Either[String, R] = {
+      def pathString = path.mkString("/")
       path match {
         case name :: rest =>
           for {
@@ -21,16 +23,31 @@ trait PsiSelectionUtil {
             }
             found <- getInner(candidate, rest)
           } {
-            return Some(found)
+            return Right(found)
           }
-          None
+          Left(s"Couldn't find path ${path.mkString("/")}")
+        case _ if searchElement =>
+          val foundElements = elem.depthFirst().collect { case e: R => e }.toStream
+          foundElements match {
+            case Stream(foundElement) => Right(foundElement)
+            case _ => Left(s"Found no element of type $pathString in ${path.mkString("/")}")
+          }
         case _ =>
-          Some(elem).collect { case e: R => e }
+          elem match {
+            case e: R => Right(e)
+            case e => Left(s"Found element at path $pathString, but it is of type ${e.getClass.getName}, not expected $typeName")
+          }
       }
     }
 
-    getInner(elem, path).getOrElse(throw new NoSuchElementException(s"Element ${path.mkString(".")} was not found"))
+    getInner(elem, path) match {
+      case Right(e) => e
+      case Left(str) => throw new NoSuchElementException(str)
+    }
   }
+
+  def searchElement[R: ClassTag](elem: PsiElement, path: NamedElementPath = List.empty): R =
+    selectElement(elem, path, searchElement = true)
 
   def path(path: String*): List[String] = path.toList
 }
