@@ -181,6 +181,9 @@ object ScalaElementType {
   val ANNOTATION_EXPR: ScalaElementType = new ScalaElementType("annotation expression") {
     override def createElement(node: ASTNode) = new ScAnnotationExprImpl(node)
   }
+  val END_STMT: ScalaElementType = new ScalaElementType("end") {
+    override def createElement(node: ASTNode): ScalaPsiElement = new ScEndImpl(node)
+  }
 
   /** ***********************************************************************************/
   /** ****************************** TYPES **********************************************/

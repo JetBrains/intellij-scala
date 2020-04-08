@@ -29,6 +29,7 @@ object ScalaTokenType {
 
   val ExportKeyword = new ScalaTokenType("export")
   val Then          = new ScalaTokenType("then")
+  val EndKeyword    = new ScalaTokenType("end")
 
   val As                             = new ScalaTokenType("as")
   val Derives                        = new ScalaTokenType("derives")
