@@ -233,7 +233,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
   }
 
   def testAutoFlushOnLongEvaluation(): Unit = {
-    val sleepTime = 1000
+    val sleepTime = WorksheetEditorPrinterFactory.IDLE_TIME_MLS
     val leftText =
       s"""println("a\\nb\\nc")
          |
@@ -263,39 +263,41 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |
          |""".stripMargin
 
+    // NOTE: this test operates with race condition (worksheet prints with timeout, printer timer flushes with timout)
+    // so it's hard to test the exact states during evaluation. But we know for sure that the resulting states should
+    // be from the below set in the same order. (so, some states can be missing)
     //noinspection RedundantBlock
-    val rightExtraMidFlushes = Array(
+    val rightTimerFlushedStates = Array(
       s"Hello 1",
       s"${foldStart}Hello 1\nHello 2${foldEnd}",
       s"${foldStart}Hello 1\nHello 2\nHello 3${foldEnd}",
+      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}",
       s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\nHello 1",
       s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2$foldEnd",
       s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3$foldEnd",
       s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3\nres2: Unit = ()$foldEnd",
     )
 
-    val rightTextStates: Array[String] = rightExtraMidFlushes.map(rightCommonText + _)
+    val rightTextStates: Array[String] = rightTimerFlushedStates.map(rightCommonText + _).map(_.withNormalizedSeparator)
 
-    val viewerStates = runLongEvaluation(leftText)
+    val viewerStates: Seq[ViewerEditorData] = runLongEvaluation(leftText).distinct
 
-    def expectedAndActualText =
-      s"""expected:
-         |${rightTextStates.zipWithIndex.map { case (state, idx) => s"$idx: $state" }}
-         |
-         |actual:
-         |${viewerStates.zipWithIndex.map { case (state, idx) => s"$idx: ${state.text}" }}"""
+    val statesSeparator = "\n#####\n"
+    def expectedStates = rightTextStates.zipWithIndex.map { case (state, idx) => s"$idx: $state" }.toSeq.mkString(statesSeparator)
 
-    viewerStates.zipAll(rightTextStates, null, null).zipWithIndex
-      .foreach { case ((actualViewerState: ViewerEditorData, expectedTextWithFoldings: String), idx) =>
-        if (actualViewerState == null) fail(s"too few intermediate flushes:\n$expectedAndActualText")
-        if (expectedTextWithFoldings == null) fail(s"unexpected intermediate flushes:\n$expectedAndActualText")
-
-        val actualTextWithFoldings = renderViewerData(actualViewerState)
-        assertEquals(s"Worksheet output at step $idx differs from expected",
-          expectedTextWithFoldings.withNormalizedSeparator,
-          actualTextWithFoldings
-        )
+    val flushAtLeast = 3
+    assertTrue(s"editor should be flushed at least $flushAtLeast times", viewerStates.size >= flushAtLeast)
+    var lastStateIdx = -1
+    viewerStates.zipWithIndex.foreach { case (actualViewerState, actualStateIdx) =>
+      val actualTextWithFoldings = renderViewerData(actualViewerState)
+      rightTextStates.indexWhere(_ == actualTextWithFoldings) match {
+        case idx if idx > lastStateIdx=>
+          lastStateIdx = idx
+        case _ =>
+          val message = s"editor state at step $actualStateIdx doesn't match any expected state"
+          throw new ComparisonFailure(message, expectedStates, actualTextWithFoldings)
       }
+    }
   }
 
   private def renderViewerData(viewerData: ViewerEditorData): String = {
@@ -303,8 +305,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     val foldings = viewerData.foldings
     val builder = new java.lang.StringBuilder()
 
-    val foldingsWithHelpers = Folding(0, 0, "") +: foldings :+ Folding(text.length, text.length, "")
-    foldingsWithHelpers.sliding(2).foreach { case Seq(prev, Folding(startOffset, endOffset, placeholder, isExpanded)) =>
+    val foldingsWithHelpers = Folding(0, 0) +: foldings :+ Folding(text.length, text.length)
+    foldingsWithHelpers.sliding(2).foreach { case Seq(prev, Folding(startOffset, endOffset, isExpanded)) =>
       builder.append(text, prev.endOffset, startOffset)
       val isHelperFolding = startOffset == endOffset && startOffset == text.length
       if (!isHelperFolding) {
