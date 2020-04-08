@@ -226,7 +226,7 @@ object Main {
     delay.foreach { t =>
       val delayMs = t * 60 * 1000
       val shutdownTask = new TimerTask {
-        override def run(): Unit = context.getNGServer.shutdown()
+        override def run(): Unit = context.getNGServer.shutdown(true)
       }
 
       synchronized {

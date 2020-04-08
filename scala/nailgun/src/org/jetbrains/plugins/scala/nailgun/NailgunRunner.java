@@ -134,7 +134,7 @@ public class NailgunRunner {
         tokenFile.deleteOnExit();
       }
 
-      myServer.shutdown();
+      myServer.shutdown(false);
 
       for (int i = 0; i < TIMEOUT; i++) {
         if (!myServer.isRunning()) break;
