@@ -16,7 +16,7 @@ public class PlainWorksheetRunner {
       Class<?> klass = ClassLoader.getSystemClassLoader().loadClass(className); //It's in default package, so name == fqn
       for (Method method : klass.getDeclaredMethods()) {
         if ("main".equals(method.getName()))
-          method.invoke(null, java.lang.System.out);
+          method.invoke(null);
       }
     } catch (InvocationTargetException e) {
       Throwable newThrowable = new StackTraceClean(e.getCause() == null? e : e.getCause(), fileName, className + "$" + className).clean();

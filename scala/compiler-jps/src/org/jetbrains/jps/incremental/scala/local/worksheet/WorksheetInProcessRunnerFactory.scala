@@ -57,7 +57,7 @@ class WorksheetInProcessRunnerFactory {
 
         cl.getDeclaredMethods.find(_.getName == "main").map { method =>
           IOUtils.patchSystemOut(out)
-          method.invoke(null, new PrintStream(out))
+          method.invoke(null)
         }
       } catch {
         case userEx: InvocationTargetException =>

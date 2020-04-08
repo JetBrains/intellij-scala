@@ -199,7 +199,7 @@ object WorksheetDefaultSourcePreprocessor {
         val unitReturnType = ": Unit ="
         val mainReturnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType, unitReturnType)
         (
-          s"""def main(ignored: java.io.PrintStream)$mainReturnType {
+          s"""def main()$mainReturnType {
              |  val $instanceName = new $className
              |""".stripMargin,
           s"""  $printMethodName("$END_OUTPUT_MARKER")
