@@ -38,13 +38,15 @@ public class NailgunRunner {
   public static void main(String[] args) throws IOException, ClassNotFoundException {
     if (args.length != 3) throw new IllegalArgumentException("Usage: NailgunRunner [port] [id] [classpath]");
 
-    InetAddress address = InetAddress.getByName(null);
     int port = Integer.parseInt(args[0]);
     String id = args[1];
-    URLClassLoader classLoader = constructClassLoader(args[2]);
+    String classpath = args[2];
 
-    writeTokenTo(tokenPathFor(port), UUID.randomUUID());
+    URLClassLoader classLoader = constructClassLoader(classpath);
 
+    TokensGenerator.generateAndWriteTokenFor(port);
+
+    InetAddress address = InetAddress.getByName(null);
     NGServer server = createServer(address, port, id, classLoader);
 
     Thread thread = new Thread(server);
@@ -72,32 +74,6 @@ public class NailgunRunner {
             .map(pathToUrl)
             .toArray(URL[]::new);
     return new URLClassLoader(urls, NailgunRunner.class.getClassLoader());
-  }
-
-  /** duplicated in {@link org.jetbrains.plugins.scala.server.CompileServerToken} */
-  private static Path tokenPathFor(int port) {
-    return Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", Integer.toString(port));
-  }
-
-  private static void writeTokenTo(Path path, UUID uuid) throws IOException {
-    File directory = path.getParent().toFile();
-
-    if (!directory.exists()) {
-      if (!directory.mkdirs()) {
-        throw new IOException("Cannot create directory: " + directory);
-      }
-    }
-
-    Files.write(path, uuid.toString().getBytes());
-
-    PosixFileAttributeView view = Files.getFileAttributeView(path, PosixFileAttributeView.class);
-    if (view != null) {
-      try {
-        view.setPermissions(new HashSet<>(asList(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)));
-      } catch (IOException e) {
-        System.err.println("Cannot set permissions: " + path);
-      }
-    }
   }
 
   private static NGServer createServer(InetAddress address, int port, String id, URLClassLoader classLoader)
@@ -129,10 +105,7 @@ public class NailgunRunner {
     }
 
     public void run() {
-      File tokenFile = tokenPathFor(myServer.getPort()).toFile();
-      if (!tokenFile.delete()) {
-        tokenFile.deleteOnExit();
-      }
+      TokensGenerator.deleteTokenFor(myServer.getPort());
 
       myServer.shutdown(false);
 
@@ -144,6 +117,47 @@ public class NailgunRunner {
         } catch (InterruptedException e) {
           // do nothing
         }
+      }
+    }
+  }
+
+  private static class TokensGenerator {
+
+    static void generateAndWriteTokenFor(int port) throws IOException {
+      Path path = tokenPathFor(port);
+      writeTokenTo(path, UUID.randomUUID());
+    }
+
+    /** duplicated in {@link org.jetbrains.plugins.scala.server.CompileServerToken} */
+    static Path tokenPathFor(int port) {
+      return Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", Integer.toString(port));
+    }
+
+    static void writeTokenTo(Path path, UUID uuid) throws IOException {
+      File directory = path.getParent().toFile();
+
+      if (!directory.exists()) {
+        if (!directory.mkdirs()) {
+          throw new IOException("Cannot create directory: " + directory);
+        }
+      }
+
+      Files.write(path, uuid.toString().getBytes());
+
+      PosixFileAttributeView view = Files.getFileAttributeView(path, PosixFileAttributeView.class);
+      if (view != null) {
+        try {
+          view.setPermissions(new HashSet<>(asList(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)));
+        } catch (IOException e) {
+          System.err.println("Cannot set permissions: " + path);
+        }
+      }
+    }
+
+    public static void deleteTokenFor(int port) {
+      File tokenFile = tokenPathFor(port).toFile();
+      if (!tokenFile.delete()) {
+        tokenFile.deleteOnExit();
       }
     }
   }
