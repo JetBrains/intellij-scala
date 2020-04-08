@@ -16,9 +16,9 @@ import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
-import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
@@ -49,7 +49,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -1029,10 +1028,7 @@ object ScalaPsiUtil {
       if (clauses.isEmpty) None
       else {
         val params = clauses.head.parameters
-        if (params.length > n)
-          Some(params(n))
-        else
-          None
+        params.lift(n)
       }
     case _ => None
   }
@@ -1552,21 +1548,31 @@ object ScalaPsiUtil {
     }
   }
 
-  // returns true if a comma was deleted
-  def deleteCommaAfterElementInCommaSeparatedList(list: ASTDelegatePsiElement, element: ASTNode): Boolean = {
-    def isComma(node: ASTNode): Boolean = node != null && node.getElementType == ScalaTokenTypes.tCOMMA
-    val next = PsiImplUtil.skipWhitespaceAndComments(element.getTreeNext)
-    if (isComma(next)) {
-      list.deleteChildInternal(next)
-      true
-    } else {
-      val prev = PsiImplUtil.skipWhitespaceAndCommentsBack(element.getTreePrev)
-      if (isComma(prev)) {
-        list.deleteChildInternal(prev)
-        true
-      } else {
-        false
+  def deleteElementInCommaSeparatedList(list: ASTDelegatePsiElement, element: ASTNode): Unit = {
+    val (end, foundAfterComma) = {
+      var last = element
+      var cur = element.getTreeNext
+      while (cur.isWhitespaceOrComment) {
+        last = cur
+        cur = cur.getTreeNext
       }
+      if (cur.hasElementType(ScalaTokenTypes.tCOMMA))
+        (cur, true)
+      else (last, false)
     }
+
+    val begin = {
+      var last = element
+      var cur = element.getTreePrev
+      while (cur.isWhitespaceOrComment) {
+        last = cur
+        cur = cur.getTreePrev
+      }
+      if (!foundAfterComma && cur.hasElementType(ScalaTokenTypes.tCOMMA))
+        cur
+      else last
+    }
+
+    CodeEditUtil.removeChildren(list.getNode, begin, end)
   }
 }

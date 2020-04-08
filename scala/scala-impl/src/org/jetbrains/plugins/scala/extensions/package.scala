@@ -24,6 +24,7 @@ import com.intellij.openapi.util._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
+import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.source.tree.SharedImplUtil
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
@@ -657,6 +658,10 @@ package object extensions {
 
     def isWhitespace: Boolean = element.isInstanceOf[PsiWhiteSpace]
 
+    def isComment: Boolean = element.isInstanceOf[PsiComment]
+
+    def isWhitespaceOrComment: Boolean = isWhitespace || isComment
+
     // TODO Scala 2.13: use Iterator.unfold to extract prevElements and nextElements methods
     def prevElementNotWhitespace: Option[PsiElement] = element.prevElement.flatMap(e => if (e.isWhitespace) e.prevElement else Some(e))
 
@@ -1013,6 +1018,13 @@ package object extensions {
   implicit class ASTNodeExt(private val node: ASTNode) extends AnyVal {
     def treeNextNodes: Iterator[ASTNode] = new ASTNodeTreeNextIterator(node)
     def treePrevNodes: Iterator[ASTNode] = new ASTNodeTreePrevIterator(node)
+
+    def hasElementType(elementType: IElementType): Boolean =
+      node.nullSafe.exists(_.getElementType == elementType)
+
+    def isWhitespaceOrComment: Boolean = {
+      node != null && PsiImplUtil.isWhitespaceOrComment(node)
+    }
   }
 
   implicit class PipedObject[T](private val value: T) extends AnyVal {

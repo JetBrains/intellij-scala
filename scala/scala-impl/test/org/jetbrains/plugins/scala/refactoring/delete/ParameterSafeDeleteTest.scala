@@ -74,11 +74,39 @@ class ParameterSafeDeleteTest extends ScalaSafeDeleteTestBase {
        |}
        |""".stripMargin,
     """
-      |def test(param1: String,
-      |         after: Float,
+      |def test(param1: String, after: Float,
       |         param2: Boolean) = {
       |
       |}
+      |""".stripMargin
+  )
+
+  def test_delete_last_param(): Unit = doSafeDeleteTest(
+    s"""
+       |def test(aa: Int, b${|}b: Int): Unit = ()
+       |
+       |test(1, 2)
+       |""".stripMargin,
+    """
+      |def test(aa: Int): Unit = ()
+      |
+      |test(1)
+      |""".stripMargin
+  )
+
+  def test_delete_trailing_comma(): Unit = doSafeDeleteTest(
+    s"""
+       |def test(aa: Int,
+       |         b${|}b: Int,
+       |): Unit = ()
+       |
+       |test(1, 2)
+       |""".stripMargin,
+    """
+      |def test(aa: Int,
+      |        ): Unit = ()
+      |
+      |test(1)
       |""".stripMargin
   )
 
@@ -96,8 +124,7 @@ class ParameterSafeDeleteTest extends ScalaSafeDeleteTestBase {
        |""".stripMargin,
     """
       |def test(blub: Int)
-      |        (param1: String,
-      |         after: Float,
+      |        (param1: String, after: Float,
       |         param2: Boolean) = ()
       |
       |test(1)
