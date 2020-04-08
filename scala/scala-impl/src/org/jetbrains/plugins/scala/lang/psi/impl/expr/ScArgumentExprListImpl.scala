@@ -125,7 +125,8 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
 
   override def deleteChildInternal(child: ASTNode): Unit = {
     val exprs = this.exprs
-    def childIsLastArgument = exprs.length == 1 && exprs.exists(_.getNode == child)
+    val childIsArgument = exprs.exists(_.getNode == child)
+    def childIsLastArgumentTeBeDeleted = exprs.length == 1 && childIsArgument
     def isLastArgumentClause = getParent match {
       case method@ScMethodCall(base, _) =>
         !base.isInstanceOf[ScMethodCall] && !method.getParent.isInstanceOf[ScMethodCall]
@@ -135,10 +136,11 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       case _ => true
     }
 
-    if (childIsLastArgument && !isLastArgumentClause) {
+    if (childIsLastArgumentTeBeDeleted && !isLastArgumentClause) {
       this.delete()
+    } else if (childIsArgument){
+      ScalaPsiUtil.deleteElementInCommaSeparatedList(this, child)
     } else {
-      ScalaPsiUtil.deleteCommaAfterElementInCommaSeparatedList(this, child)
       super.deleteChildInternal(child)
     }
   }

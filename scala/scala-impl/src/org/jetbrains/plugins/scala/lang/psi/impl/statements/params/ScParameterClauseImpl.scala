@@ -113,23 +113,23 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def deleteChildInternal(child: ASTNode): Unit = {
     val parameters = this.parameters
-    def childIsLastParameter = parameters.length == 1 && parameters.exists(_.getNode == child)
-    def isLastParamClause =
+    val isParameter = parameters.exists(_.getNode == child)
+    def childIsLastParameterToBeDeleted = parameters.length == 1 && isParameter
+    def isSingleParameterClause =
       !this.getPrevSiblingNotWhitespaceComment.isInstanceOf[ScParameterClause] &&
         !this.getNextSiblingNotWhitespaceComment.isInstanceOf[ScParameterClause]
 
-    if (childIsLastParameter && !isLastParamClause) {
+    if (childIsLastParameterToBeDeleted && !isSingleParameterClause) {
       this.delete()
-    } else {
-      val commaWasDeleted = ScalaPsiUtil.deleteCommaAfterElementInCommaSeparatedList(this, child)
-      if (!commaWasDeleted) {
-        // if there was no comma it is the last parameter, so delete the implicit keyword
+    } else if (isParameter) {
+      if (childIsLastParameterToBeDeleted) {
         val prev = PsiImplUtil.skipWhitespaceAndCommentsBack(child.getTreePrev)
-        if (prev != null && prev.getElementType == ScalaTokenTypes.kIMPLICIT) {
+        if (prev.hasElementType(ScalaTokenTypes.kIMPLICIT)) {
           deleteChildInternal(prev)
         }
       }
-
+      ScalaPsiUtil.deleteElementInCommaSeparatedList(this, child)
+    } else {
       super.deleteChildInternal(child)
     }
   }

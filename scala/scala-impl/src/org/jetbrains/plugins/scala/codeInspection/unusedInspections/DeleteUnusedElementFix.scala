@@ -26,20 +26,16 @@ class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentio
 
   override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (FileModificationService.getInstance.prepareFileForWrite(startElement.getContainingFile)) {
-      implicit val implicitlyProject: Project = project
-
       startElement match {
-        case p: ScParameter if !p.owner.is[ScFunctionExpr] => removeParameter(p)
+        case p: ScParameter if !p.owner.is[ScFunctionExpr] => removeParameter(p, project)
         case _ =>
-          inWriteAction {
-            invokeInWriteAction(startElement)
-          }
+          removeInWriteAction(startElement, project)
       }
     }
   }
 
-  private def invokeInWriteAction(startElement: PsiElement)(implicit project: Project): Unit = {
-    def wildcard = createWildcardNode.getPsi
+  private def removeInWriteAction(startElement: PsiElement, project: Project): Unit = inWriteAction {
+    def wildcard = createWildcardNode(project).getPsi
     startElement match {
       case ref: ScReferencePattern => ref.getContext match {
         case pList: ScPatternList if pList.patterns == Seq(ref) =>
@@ -54,7 +50,7 @@ class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentio
         case _ =>
           // val (a, b) = t
           // val (_, b) = t
-          ref.replace(createWildcardPattern)
+          ref.replace(createWildcardPattern(project))
       }
       case typed: ScTypedPattern => typed.nameId.replace(wildcard)
       case p: ScParameter => p.nameId.replace(wildcard)
@@ -63,7 +59,7 @@ class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentio
     }
   }
 
-  private def removeParameter(p: ScParameter)(implicit project: Project): Unit = {
+  private def removeParameter(p: ScParameter, project: Project): Unit = {
     val processor = SafeDeleteProcessor.createInstance(project, null, Array(p), true, true)
     processor.run()
   }
