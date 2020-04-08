@@ -1697,6 +1697,8 @@
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterCompilationListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.CompileProjectWhenOpenedListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.CompilerLockBuildManagerListener"/>
