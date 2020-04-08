@@ -790,7 +790,7 @@ object ScalaPsiElementFactory {
 
   // TODO method should be eliminated eventually
   def createExpressionWithContextFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScExpression = {
-    val methodCall = createElementWithContext[ScMethodCall](s"foo($text)", context, child)(expressions.Expr.parse)
+    val methodCall = createElementWithContext[ScMethodCall](s"foo($text)", context, child)(expressions.Expr.parse(_))
 
     val firstArgument = methodCall.argumentExpressions
       .headOption
