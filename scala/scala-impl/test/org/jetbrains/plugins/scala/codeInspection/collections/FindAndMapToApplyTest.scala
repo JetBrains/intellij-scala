@@ -10,8 +10,6 @@ import com.intellij.testFramework.EditorTestUtil
   */
 class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[FindAndMapToApplyInspection] =
     classOf[FindAndMapToApplyInspection]
 

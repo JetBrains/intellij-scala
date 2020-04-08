@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.extensions._
 class TypedParameterWithoutParenthesisInspectionTest extends ScalaQuickFixTestBase with ForceInspectionSeverity {
 
   import CodeInsightTestFixture.CARET_MARKER
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[TypedParameterWithoutParenthesisInspection]
 

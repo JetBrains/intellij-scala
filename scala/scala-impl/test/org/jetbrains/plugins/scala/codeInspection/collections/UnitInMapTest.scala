@@ -9,8 +9,6 @@ import com.intellij.testFramework.EditorTestUtil
  */
 class UnitInMapTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[UnitInMapInspection]
 

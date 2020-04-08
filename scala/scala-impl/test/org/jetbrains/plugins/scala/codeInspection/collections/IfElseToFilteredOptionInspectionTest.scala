@@ -11,8 +11,6 @@ class IfElseToFilteredOptionInspectionTest extends OperationsOnCollectionInspect
 
   override protected val hint: String = "Replace if with filtered option"
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   private val evenFunction = "def isEven(x:Int) = x % 2 == 0;"
 
   def testShouldReplaceWhenReturningSome(): Unit = {

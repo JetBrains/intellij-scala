@@ -9,8 +9,6 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQ
 class EmptyParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   import CodeInsightTestFixture.{CARET_MARKER => CARET}
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[AccessorLikeMethodInspection.EmptyParentheses]
 

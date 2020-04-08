@@ -9,7 +9,6 @@ import com.intellij.testFramework.EditorTestUtil
   */
 class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
   import varCouldBeValInspection.VarCouldBeValInspection
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

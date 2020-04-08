@@ -36,6 +36,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   import libraryLoaders._
 
   val CARET = EditorTestUtil.CARET_TAG
+  val START = EditorTestUtil.SELECTION_START_TAG
+  val END = EditorTestUtil.SELECTION_END_TAG
 
   override final def getFixture: JavaCodeInsightTestFixture = myFixture
 

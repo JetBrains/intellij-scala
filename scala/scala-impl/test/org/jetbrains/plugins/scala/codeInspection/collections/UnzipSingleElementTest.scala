@@ -8,8 +8,6 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
   */
 class UnzipSingleElementTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[UnzipSingleElementInspection]
 

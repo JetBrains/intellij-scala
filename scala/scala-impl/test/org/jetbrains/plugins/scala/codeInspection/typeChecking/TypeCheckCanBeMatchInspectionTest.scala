@@ -13,8 +13,6 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 class TypeCheckCanBeMatchInspectionTest extends ScalaQuickFixTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[TypeCheckCanBeMatchInspection]
 

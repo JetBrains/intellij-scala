@@ -13,8 +13,6 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 class ProcedureDefinitionInspectionTest extends ScalaQuickFixTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[UnitMethodInspection.ProcedureDefinition]
 

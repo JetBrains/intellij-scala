@@ -10,8 +10,6 @@ import com.intellij.testFramework.EditorTestUtil
  */
 class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override val hint = ScalaInspectionBundle.message("filter.headOption.hint")
   def test_1(): Unit = {
     val selected = s"List(0).${START}filter(x => true).headOption$END"

@@ -5,8 +5,6 @@ import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 class SourceNotClosedInspectionTest extends ScalaQuickFixTestBase {
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[SourceNotClosedInspection]
 
   override protected val description: String = ScalaInspectionBundle.message("source.not.closed")

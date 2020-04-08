@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInsight.intentions.implementAbstract
 
 import com.intellij.codeInsight.intention.impl.ImplementAbstractMethodAction
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
@@ -12,8 +11,6 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
  * 12/27/13
  */
 class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
-
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   override def familyName: String = new ImplementAbstractMethodAction().getFamilyName
 

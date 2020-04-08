@@ -10,8 +10,6 @@ import com.intellij.testFramework.EditorTestUtil
  */
 class GetOrElseNullTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override val hint: String = ScalaInspectionBundle.message("getOrElse.null.hint")
 
   def test_1(): Unit = {

@@ -10,8 +10,6 @@ import com.intellij.testFramework.EditorTestUtil
  */
 class GetGetOrElseTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override val hint = ScalaInspectionBundle.message("get.getOrElse.hint")
   override val classOfInspection = classOf[GetGetOrElseInspection]
 
