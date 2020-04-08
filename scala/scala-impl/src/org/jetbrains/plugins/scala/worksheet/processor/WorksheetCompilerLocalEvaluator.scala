@@ -3,13 +3,15 @@ package worksheet.processor
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.JavaParameters
-import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
+import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent, ProcessTerminatedListener}
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.io.BaseDataReader.SleepingPolicy
+import com.intellij.util.io.BaseOutputReader
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
@@ -28,8 +30,8 @@ private object WorksheetCompilerLocalEvaluator {
                        (implicit module: Module): Unit =
     invokeLater {
       try {
-        val params: JavaParameters = createDefaultParameters(file, mainClassName, addToCp)
-        val processHandler = params.createOSProcessHandler()
+        val params = createJavaParameters(file, mainClassName, addToCp)
+        val processHandler = createOSProcessHandler(params)
 
         WorksheetFileHook.updateStoppableProcess(file, Some(() => processHandler.destroyProcess()))
         processHandler.addProcessListener(new ProcessAdapter {
@@ -47,8 +49,8 @@ private object WorksheetCompilerLocalEvaluator {
       }
     }
 
-  private def createDefaultParameters(originalFile: VirtualFile, mainClassName: String, addToCp: String)
-                                     (implicit module: Module): JavaParameters =
+  private def createJavaParameters(originalFile: VirtualFile, mainClassName: String, addToCp: String)
+                                  (implicit module: Module): JavaParameters =
     createDefaultParameters(originalFile.getCanonicalPath, mainClassName, addToCp)
 
   private def createDefaultParameters(originalFilePath: String, mainClassName: String, addToCp: String)
@@ -89,6 +91,24 @@ private object WorksheetCompilerLocalEvaluator {
     params.getProgramParametersList.prepend(mainClassName) //IMPORTANT! this must be first program argument
 
     params
+  }
+
+  // originally copied from com.intellij.execution.configurations.SimpleJavaParameters.createOSProcessHandler
+  private def createOSProcessHandler(params: JavaParameters): OSProcessHandler = {
+    val options = new BaseOutputReader.Options() {
+      // (SCL-17363) Currently we rely on that complete lines are passed to
+      // org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.processLine
+      // Be cautious though, it leads to outbound buffer increase if someone prints long lines
+      // (see com.intellij.util.io.BaseOutputReader.myLineBuffer)
+      override def sendIncompleteLines = false
+      override def splitToLines = true
+      override def policy: SleepingPolicy = SleepingPolicy.NON_BLOCKING
+    }
+    val processHandler = new OSProcessHandler(params.toCommandLine) {
+      override def readerOptions(): BaseOutputReader.Options = options
+    }
+    ProcessTerminatedListener.attach(processHandler)
+    processHandler
   }
 
   private def processListener(callback: EvaluationCallback, worksheetPrinter: WorksheetEditorPrinter): ProcessAdapter =
