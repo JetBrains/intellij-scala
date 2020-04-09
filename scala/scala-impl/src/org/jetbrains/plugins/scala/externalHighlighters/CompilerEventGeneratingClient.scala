@@ -9,7 +9,9 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.util.CompilationId
 
-private class CompilerEventGeneratingClient(project: Project, indicator: ProgressIndicator) extends DummyClient {
+private class CompilerEventGeneratingClient(project: Project,
+                                            indicator: ProgressIndicator)
+  extends DummyClient {
 
   final val compilationId = CompilationId.generate()
 
@@ -25,6 +27,9 @@ private class CompilerEventGeneratingClient(project: Project, indicator: Progres
 
   override def message(msg: Client.ClientMsg): Unit =
     sendEvent(CompilerEvent.MessageEmitted(compilationId, msg))
+
+  override def compilationStart(): Unit =
+    sendEvent(CompilerEvent.CompilationStarted(compilationId))
 
   override def compilationEnd(sources: Set[File]): Unit =
     sendEvent(CompilerEvent.CompilationFinished(compilationId, sources))

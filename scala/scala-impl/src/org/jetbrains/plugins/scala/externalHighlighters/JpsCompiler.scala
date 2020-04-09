@@ -12,7 +12,7 @@ import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.concurrent.duration.Duration
@@ -46,7 +46,7 @@ private class JpsCompilerImpl(project: Project)
       new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory)),
       projectPath
     ).getCanonicalPath
-    val commad = CompileServerCommand.CompileJps(
+    val command = CompileServerCommand.CompileJps(
       token = "",
       projectPath = projectPath,
       globalOptionsPath = globalOptionsPath,
@@ -58,7 +58,7 @@ private class JpsCompilerImpl(project: Project)
     val task: Task = new Task.Backgroundable(project, taskMsg, false) {
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         val client = new CompilerEventGeneratingClient(project, indicator)
-        val result = Try(new RemoteServerRunner(project).buildProcess(commad, client).runSync())
+        val result = Try(new RemoteServerRunner(project).buildProcess(command, client).runSync())
         promise.complete(result)
       }
       override val isHeadless: Boolean = !ApplicationManager.getApplication.isInternal

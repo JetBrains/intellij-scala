@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.CompilationId
 import scala.collection.mutable
 
 class CompilerEventReporter(project: Project, compilationId: CompilationId) extends BuildReporter {
-
+  
   private val publisher = project.getMessageBus
     .syncPublisher(CompilerEventListener.topic)
 
@@ -49,6 +49,12 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
     publisher.eventReceived(event)
   }
 
+
+  override def start(): Unit = {
+    val event = CompilerEvent.CompilationStarted(compilationId)
+    publisher.eventReceived(event)
+  }
+  
   override def finish(messages: BuildMessages): Unit = finishFiles()
   override def finishWithFailure(err: Throwable): Unit = finishFiles()
   override def finishCanceled(): Unit = finishFiles()
@@ -62,7 +68,6 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
   override def info(message: String, position: Option[FilePosition]): Unit =
     publish(Kind.INFO, message, position)
 
-  override def start(): Unit = ()
   override def log(message: String): Unit = ()
   override def startTask(eventId: BuildMessages.EventId, parent: Option[BuildMessages.EventId], message: String, time: Long): Unit = ()
   override def progressTask(eventId: BuildMessages.EventId, total: Long, progress: Long, unit: String, message: String, time: Long): Unit = ()

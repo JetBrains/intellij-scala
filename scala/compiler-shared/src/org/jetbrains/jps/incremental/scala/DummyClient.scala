@@ -14,6 +14,7 @@ class DummyClient extends Client {
   override def trace(exception: Throwable): Unit = ()
   override def generated(source: File, module: File, name: String): Unit = ()
   override def worksheetOutput(text: String): Unit = ()
+  override def compilationStart(): Unit = ()
   override def compilationEnd(sources: Set[File]): Unit = ()
   override def processingEnd(): Unit = ()
   override def sourceStarted(source: String): Unit = ()

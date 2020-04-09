@@ -36,9 +36,6 @@ class IdeClientSbt(compilerName: String,
     consumer.registerCompiledClass(target, compiledClass)
   }
 
-  override def compilationEnd(sources: Set[File]): Unit =
-    context.processMessage(CompilerEvent.CompilationFinished(compilationId, sources).toCustomMessage)
-
   override def worksheetOutput(text: String): Unit = ()
 
   override def processingEnd(): Unit = ()

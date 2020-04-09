@@ -65,6 +65,8 @@ trait Client {
 
   def worksheetOutput(text: String): Unit
 
+  def compilationStart(): Unit
+  
   def compilationEnd(sources: Set[File]): Unit
 
   def processingEnd(): Unit

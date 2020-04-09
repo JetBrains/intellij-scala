@@ -30,6 +30,9 @@ class ClientEventProcessor(client: Client) {
       case DeletedEvent(module) =>
         client.deleted(module)
 
+      case CompilationStartEvent() =>
+        client.compilationStart()
+        
       case CompilationEndEvent(sources) =>
         client.compilationEnd(sources)
 
