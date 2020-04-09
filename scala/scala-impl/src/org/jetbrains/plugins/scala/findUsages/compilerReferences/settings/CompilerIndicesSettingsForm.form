@@ -109,6 +109,15 @@
                     <properties/>
                     <border type="none"/>
                     <children>
+                      <component id="9b057" class="com.intellij.ui.components.JBLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="2" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <componentStyle value="SMALL"/>
+                          <text resource-bundle="messages/ScalaBundle" key="add.line.to.plugins.sbt"/>
+                        </properties>
+                      </component>
                       <component id="97d14" class="javax.swing.JTextArea" binding="pluginSettignsTextArea">
                         <constraints>
                           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false">
@@ -118,16 +127,7 @@
                         <properties>
                           <editable value="false"/>
                           <rows value="1"/>
-                          <text resource-bundle="messages/ScalaBundle" key="scala.compiler.indices.sbt.plugin.text"/>
-                        </properties>
-                      </component>
-                      <component id="9b057" class="com.intellij.ui.components.JBLabel">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="2" fill="1" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <componentStyle value="SMALL"/>
-                          <text resource-bundle="messages/ScalaBundle" key="add.line.to.plugins.sbt"/>
+                          <text value="" noi18n="true"/>
                         </properties>
                       </component>
                     </children>
