@@ -4,6 +4,7 @@ package psi
 package impl
 
 import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.atomic.AtomicReference
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
@@ -466,27 +467,28 @@ object ScalaPsiManager {
     }
 }
 
-private class ScalaPsiManagerHolder {
-  private var scalaPsiManager: ScalaPsiManager = _
+private class ScalaPsiManagerHolder(implicit project: Project) {
+  private val scalaPsiManager: AtomicReference[ScalaPsiManager] = new AtomicReference()
 
-  def get: ScalaPsiManager = scalaPsiManager
-
-  def init(implicit project: Project): Unit =
-    scalaPsiManager = new ScalaPsiManager
+  def get: ScalaPsiManager = {
+    if (scalaPsiManager.get() == null && !project.isDisposed) {
+      scalaPsiManager.compareAndSet(null, new ScalaPsiManager)
+    }
+    scalaPsiManager.get()
+  }
 
   def dispose(): Unit =
-    scalaPsiManager = null
+    scalaPsiManager.set(null)
 }
 
 private class ScalaPsiManagerListener extends ProjectManagerListener {
 
   override def projectOpened(project: Project): Unit = {
     val holder = managerHolder(project)
-    holder.init(project)
     holder.get.projectOpened()
   }
 
-  override def projectClosed(project: Project): Unit = {
+  override def projectClosing(project: Project): Unit = {
     val holder = managerHolder(project)
     holder.get.clearAllCaches()
     holder.dispose()
