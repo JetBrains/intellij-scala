@@ -34,6 +34,8 @@ private class CompilerEventGeneratingClient(project: Project,
   override def compilationEnd(sources: Set[File]): Unit =
     sendEvent(CompilerEvent.CompilationFinished(compilationId, sources))
 
+  override def isCanceled: Boolean = indicator.isCanceled
+
   private def sendEvent(event: CompilerEvent): Unit =
     project.getMessageBus
       .syncPublisher(CompilerEventListener.topic)

@@ -3,7 +3,6 @@ package org.jetbrains.jps.incremental.scala.remote
 import java.io._
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.{Base64, Timer, TimerTask}
 
 import com.martiansoftware.nailgun.NGContext
@@ -34,9 +33,7 @@ object Main {
   private val worksheetServer = new WorksheetServer
 
   private var shutdownTimer: Timer = _
-
-  private val compilingNowCounter = new AtomicInteger
-
+  
   /**
    * This method is called by NGServer
    *
@@ -106,28 +103,13 @@ object Main {
     }
   }
 
-  private def handleCommand(command: CompileServerCommand, client: EncodingEventGeneratingClient): Unit = {
-    def compilingNowCounterDecorated(action: => Unit): Unit =
-      if (command.isCompilation) {
-        compilingNowCounter.incrementAndGet()
-        try {
-          action
-        } finally {
-          compilingNowCounter.decrementAndGet()
-        }
-      } else {
-        action
-      }
-
-    compilingNowCounterDecorated {
-      command match {
-        case CompileServerCommand.Compile(arguments) =>
-          compileLogic(arguments, client)
-        case compileJpsArgs: CompileServerCommand.CompileJps =>
-          compileJpsLogic(compileJpsArgs, client)
-      }
+  private def handleCommand(command: CompileServerCommand, client: EncodingEventGeneratingClient): Unit =
+    command match {
+      case CompileServerCommand.Compile(arguments) =>
+        compileLogic(arguments, client)
+      case compileJps: CompileServerCommand.CompileJps =>
+        compileJpsLogic(compileJps, client)
     }
-  }
 
   private def compileLogic(args: Arguments, client: EncodingEventGeneratingClient): Unit = {
     val worksheetArgs = args.worksheetArgs
@@ -142,8 +124,8 @@ object Main {
     }
   }
 
-  private def compileJpsLogic(args: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(_, projectPath, globalOptionsPath, dataStorageRootPath) = args
+  private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
+    val CompileServerCommand.CompileJps(_, projectPath, globalOptionsPath, dataStorageRootPath) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -171,7 +153,7 @@ object Main {
       client.compilationStart()
       buildRunner.runBuild(
         descriptor,
-        CanceledStatus.NULL,
+        () => client.isCanceled,
         null,
         messageHandler,
         BuildType.BUILD,
@@ -183,7 +165,7 @@ object Main {
       descriptor.release()
     }
   }
-
+  
   private def parseArgs(command: String, argsEncoded: Seq[String]): Try[CompileServerCommand] = {
     val args = argsEncoded.map(decodeArgument)
     CompileServerCommandParser.parse(command, args)
