@@ -202,9 +202,17 @@ object ScExpression {
               Parameter(tpe, isRepeated = false, index = index)
           }
           val methType =
-            ScMethodType(expr.getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
-              fromUnderscore = true).tr.getOrAny,
-              params, isImplicit = false)
+            ScMethodType(
+              expr
+                .getTypeAfterImplicitConversion(
+                  ignoreBaseTypes = ignoreBaseType,
+                  fromUnderscore  = true
+                )
+                .tr
+                .getOrAny,
+              params,
+              isImplicit = false
+            )
           Right(methType)
         }
       }

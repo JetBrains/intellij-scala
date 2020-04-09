@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -436,8 +436,9 @@ object InferUtil {
 
     val withoutImplicits = withoutImplicitClause(tpe)
     expr match {
-      case inv: MethodInvocation => removeNComponents(withoutImplicits, countParameterLists(inv))
-      case _                     => withoutImplicits
+      case _: ScPostfixExpr | _: ScInfixExpr => withoutImplicits
+      case inv: MethodInvocation             => removeNComponents(withoutImplicits, countParameterLists(inv))
+      case _                                 => withoutImplicits
     }
   }
 
