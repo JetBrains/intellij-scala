@@ -6,7 +6,6 @@ package processor
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -214,7 +213,10 @@ object MethodResolveProcessor {
       )
     }
 
-    val substitutor = tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo)(UndefinedType(_)))
+    val unresovledTps = c.unresolvedTypeParameters.getOrElse(Seq.empty)
+
+    val substitutor =
+      tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo ++ unresovledTps)(UndefinedType(_)))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
@@ -222,7 +224,10 @@ object MethodResolveProcessor {
       case _               => Seq.empty
     })
 
-    def addExpectedTypeProblems(eOption: Option[ScType] = expectedOption(), result: Option[ConformanceExtResult] = None): ConformanceExtResult = {
+    def addExpectedTypeProblems(
+      eOption: Option[ScType]               = expectedOption(),
+      result:  Option[ConformanceExtResult] = None
+    ): ConformanceExtResult = {
       if (eOption.isEmpty) return result.map(_.copy(problems)).getOrElse(ConformanceExtResult(problems))
 
       val expected = eOption.get
