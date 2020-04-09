@@ -402,8 +402,15 @@ class ImplicitCollector(place: PsiElement,
       }
 
       try {
-        val (resType, implicitParams0) = InferUtil.updateTypeWithImplicitParameters(nonValueType, place, Some(fun),
-          canThrowSCE = !fullInfo, searchImplicitsRecursively + 1, fullInfo)
+        val (resType, implicitParams0) =
+          InferUtil.updateTypeWithImplicitParameters(
+            nonValueType,
+            place,
+            Some(fun),
+            canThrowSCE = !fullInfo,
+            searchImplicitsRecursively + 1,
+            fullInfo
+          )
         val implicitParams = implicitParams0.getOrElse(Seq.empty)
 
         if (implicitParams.exists(_.isImplicitParameterProblem))
@@ -432,7 +439,7 @@ class ImplicitCollector(place: PsiElement,
 
         case Some(nonValueType0) =>
           try {
-            updateImplicitParameters(c, nonValueType0, nonValueFunTypes.hasImplicitClause, nonValueFunTypes.hadDependents)
+            updateImplicitParameters(c, c.substitutor(nonValueType0), nonValueFunTypes.hasImplicitClause, nonValueFunTypes.hadDependents)
           }
           catch {
             case _: SafeCheckException =>
