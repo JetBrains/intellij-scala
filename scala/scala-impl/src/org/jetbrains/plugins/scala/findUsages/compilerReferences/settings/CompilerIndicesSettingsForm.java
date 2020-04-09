@@ -88,16 +88,14 @@ public class CompilerIndicesSettingsForm {
     }
 
     private void updateSbtPluginTextArea() {
+        String version = BuildInfo.sbtIdeaCompilerIndicesVersion();
         pluginSettignsTextArea.setText(
-                ScalaBundle.message(
-                        "scala.compiler.indices.sbt.plugin.text",
-                        BuildInfo.sbtIdeaCompilerIndicesVersion()
-                )
+                "addSbtPlugin(\"org.jetbrains\" % \"sbt-idea-compiler-indices\" % \"" + version + "\")"
         );
     }
 
     private void updateSbtKeysTextAreaText() {
-        String messagePrefix = ScalaBundle.message("scala.compiler.indices.sbt.keys.text");
+        String messagePrefix = "ideaPort in Global :";
         buildSettingsTextArea.setText(String.format("%s %d", messagePrefix, portSelector.getNumber()));
     }
 
@@ -213,15 +211,15 @@ public class CompilerIndicesSettingsForm {
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(2, 1, new Insets(3, 0, 0, 0), -1, -1));
         manualConfigPanel.add(panel3, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        pluginSettignsTextArea = new JTextArea();
-        pluginSettignsTextArea.setEditable(false);
-        pluginSettignsTextArea.setRows(1);
-        pluginSettignsTextArea.setText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.compiler.indices.sbt.plugin.text"));
-        panel3.add(pluginSettignsTextArea, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, 1, null, new Dimension(150, 25), null, 0, false));
         final JBLabel jBLabel1 = new JBLabel();
         jBLabel1.setComponentStyle(UIUtil.ComponentStyle.SMALL);
         this.$$$loadLabelText$$$(jBLabel1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "add.line.to.plugins.sbt"));
         panel3.add(jBLabel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        pluginSettignsTextArea = new JTextArea();
+        pluginSettignsTextArea.setEditable(false);
+        pluginSettignsTextArea.setRows(1);
+        pluginSettignsTextArea.setText("");
+        panel3.add(pluginSettignsTextArea, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, 1, null, new Dimension(150, 25), null, 0, false));
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new GridLayoutManager(2, 1, new Insets(3, 0, 0, 0), -1, -1));
         manualConfigPanel.add(panel4, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
