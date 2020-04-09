@@ -153,10 +153,14 @@ object InferUtil {
   }
 
 
-  def findImplicits(params: Seq[Parameter], coreElement: Option[ScNamedElement], place: PsiElement,
-                    canThrowSCE: Boolean, searchImplicitsRecursively: Int = 0,
-                    abstractSubstitutor: ScSubstitutor = ScSubstitutor.empty
-                   ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
+  def findImplicits(
+    params:                     Seq[Parameter],
+    coreElement:                Option[ScNamedElement],
+    place:                      PsiElement,
+    canThrowSCE:                Boolean,
+    searchImplicitsRecursively: Int = 0,
+    abstractSubstitutor:        ScSubstitutor = ScSubstitutor.empty
+  ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
 
     implicit val project: ProjectContext = place.getProject
 
