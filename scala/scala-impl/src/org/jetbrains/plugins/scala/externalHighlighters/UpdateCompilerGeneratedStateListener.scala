@@ -4,7 +4,7 @@ import java.io.File
 import java.util.EventListener
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.messages.Topic
@@ -14,12 +14,23 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener.CompilerGeneratedStateTopic
 import org.jetbrains.plugins.scala.project.template.FileExt
+import org.jetbrains.plugins.scala.editor.DocumentExt
 
 private class UpdateCompilerGeneratedStateListener(project: Project)
   extends CompilerEventListener {
 
+  import UpdateCompilerGeneratedStateListener.HandleEventResult
+  
   override def eventReceived(event: CompilerEvent): Unit = {
-    val newState = Option(event).flatMap {
+    val oldState = CompilerGeneratedStateManager.get(project)
+
+    val handleEventResult = event match {
+      case CompilerEvent.CompilationStarted(_) =>
+        val newHighlightOnCompilationFinished = oldState.toHighlightingState.collect {
+          case (virtualFile, highlightings) if highlightings.nonEmpty => virtualFile
+        }.toSet
+        val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
+        Some(HandleEventResult(newState, Set.empty))
       case CompilerEvent.MessageEmitted(compilationId, msg) =>
         for {
           text <- Option(msg.text)
@@ -36,32 +47,39 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
             toColumn = msg.toColumn.map(_.toInt)
           )
           fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
-        } yield replaceOrAppendFileState(virtualFile, fileState)
+          newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
+        } yield HandleEventResult(
+          newState = newState,
+          toHighlight = Set(virtualFile).filterNot(oldState.highlightOnCompilationFinished(_))
+        )
+      case CompilerEvent.ProgressEmitted(_, progress) =>
+        val newState = oldState.copy(progress = progress)
+        Some(HandleEventResult(newState, Set.empty))
       case CompilerEvent.CompilationFinished(compilationId, sources) =>
         val vFiles = for {
           source <- sources
           virtualFile <- source.toVirtualFile
         } yield virtualFile
         val emptyState = FileCompilerGeneratedState(compilationId, Set.empty)
-        val newState = vFiles.foldLeft(CompilerGeneratedStateManager.get(project)) { case (acc, file) =>
+        val newState = vFiles.foldLeft(oldState) { case (acc, file) =>
           replaceOrAppendFileState(acc, file, emptyState)
-        }
-        Some(newState)
-      case CompilerEvent.ProgressEmitted(_, progress) =>
-        Some(updateProgress(progress))
+        }.copy(progress = 1.0, highlightOnCompilationFinished = Set.empty)
+        val toHighlight = vFiles.filter(oldState.highlightOnCompilationFinished(_))
+        Some(HandleEventResult(newState, toHighlight))
       case _ =>
         None
     }
-
-    newState.foreach { state =>
-      CompilerGeneratedStateManager.update(project, state)
+    
+    handleEventResult.foreach { case HandleEventResult(newState, toHighlight) =>
+      CompilerGeneratedStateManager.update(project, newState)
+      updateHighlightings(toHighlight, newState.toHighlightingState)
     }
 
     event match {
-      case CompilerEvent.CompilationFinished(_, sources) if ApplicationManager.getApplication.isUnitTestMode =>
+      case CompilerEvent.CompilationFinished(_, sources) =>
         val publisher = project.getMessageBus.syncPublisher(CompilerGeneratedStateTopic)
         publisher.stateUpdated(sources)
-      case _                                                                                                 =>
+      case _ =>
     }
   }
 
@@ -77,19 +95,14 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     case _ =>
       HighlightInfoType.INFORMATION
   }
-  
+
   private def isErrorMessageAboutWrongRef(text: String): Boolean =
     StringUtils.startsWithIgnoreCase(text, "value") && text.contains("is not a member of") ||
-    StringUtils.startsWithIgnoreCase(text, "not found:")
+      StringUtils.startsWithIgnoreCase(text, "not found:")
 
-  private def replaceOrAppendFileState(file: VirtualFile, fileState: FileCompilerGeneratedState): CompilerGeneratedState =
-    replaceOrAppendFileState(CompilerGeneratedStateManager.get(project), file, fileState)
-
-  private def replaceOrAppendFileState(
-    oldState: CompilerGeneratedState,
-    file: VirtualFile,
-    fileState: FileCompilerGeneratedState
-  ): CompilerGeneratedState = {
+  private def replaceOrAppendFileState(oldState: CompilerGeneratedState,
+                                       file: VirtualFile,
+                                       fileState: FileCompilerGeneratedState): CompilerGeneratedState = {
     val newFileState = oldState.files.get(file) match {
       case Some(oldFileState) if oldFileState.compilationId == fileState.compilationId =>
         oldFileState.withExtraHighlightings(fileState.highlightings)
@@ -100,12 +113,21 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     oldState.copy(files = newFileStates)
   }
 
-  private def updateProgress(progress: Double): CompilerGeneratedState =
-    CompilerGeneratedStateManager.get(project).copy(progress = progress)
+  private def updateHighlightings(virtualFiles: Set[VirtualFile], state: HighlightingState): Unit =
+    for {
+      editor <- EditorFactory.getInstance.getAllEditors
+      editorProject <- Option(editor.getProject)
+      if editorProject == project
+      vFile <- editor.getDocument.virtualFile
+      if virtualFiles contains vFile
+    } ExternalHighlighters.applyHighlighting(project, editor, state)
 }
 
 object UpdateCompilerGeneratedStateListener {
 
+  private case class HandleEventResult(newState: CompilerGeneratedState,
+                                       toHighlight: Set[VirtualFile])
+  
   @TestOnly
   trait CompilerGeneratedStateTopicListener extends EventListener {
     def stateUpdated(sources: Set[File]): Unit

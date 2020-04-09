@@ -41,6 +41,12 @@ abstract class IdeClient(compilerName: String,
     }
   }
 
+  override def compilationStart(): Unit =
+    context.processMessage(CompilerEvent.CompilationStarted(compilationId).toCustomMessage)
+
+  override def compilationEnd(sources: Set[File]): Unit =
+    context.processMessage(CompilerEvent.CompilationFinished(compilationId, sources).toCustomMessage)
+
   override def trace(exception: Throwable): Unit =
     context.processMessage(CompilerMessage.createInternalCompilationError(compilerName, exception))
 

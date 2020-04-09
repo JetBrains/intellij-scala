@@ -15,7 +15,7 @@ sealed trait CompilerEvent {
 
   def compilationId: CompilationId
 
-  def toCustomMessage: CustomBuilderMessage = new CustomBuilderMessage(
+  final def toCustomMessage: CustomBuilderMessage = new CustomBuilderMessage(
     CompilerEvent.BuilderId,
     eventType.toString,
     ObjectSerialization.toBase64(this)
@@ -24,23 +24,30 @@ sealed trait CompilerEvent {
 
 object CompilerEvent {
 
+  // can be sent multiple times for different modules by jps compiler
+  case class CompilationStarted(override val compilationId: CompilationId)
+    extends CompilerEvent {
+    
+    override def eventType: CompilerEventType = CompilerEventType.CompilationStarted
+  }
+  
   case class MessageEmitted(override val compilationId: CompilationId, msg: Client.ClientMsg)
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.MessageEmitted
   }
 
+  case class ProgressEmitted(override val compilationId: CompilationId, progress: Double)
+    extends CompilerEvent {
+
+    override def eventType: CompilerEventType = CompilerEventType.ProgressEmitted
+  }
+  
   // can be sent multiple times for different modules by jps compiler
   case class CompilationFinished(override val compilationId: CompilationId, sources: Set[File])
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.CompilationFinished
-  }
-
-  case class ProgressEmitted(override val compilationId: CompilationId, progress: Double)
-    extends CompilerEvent {
-
-    override def eventType: CompilerEventType = CompilerEventType.ProgressEmitted
   }
 
   def fromCustomMessage(customMessage: CustomBuilderMessage): Option[CompilerEvent] = {

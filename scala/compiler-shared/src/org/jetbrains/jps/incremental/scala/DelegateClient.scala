@@ -31,6 +31,9 @@ class DelegateClient(client: Client)
   override def worksheetOutput(text: String): Unit =
     client.worksheetOutput(text)
 
+  override def compilationStart(): Unit =
+    client.compilationStart()
+  
   override def compilationEnd(sources: Set[File]): Unit =
     client.compilationEnd(sources)
 

@@ -168,6 +168,7 @@ object Main {
     val scopes = CmdlineProtoUtil.createAllModulesScopes(false)
 
     try {
+      client.compilationStart()
       buildRunner.runBuild(
         descriptor,
         CanceledStatus.NULL,

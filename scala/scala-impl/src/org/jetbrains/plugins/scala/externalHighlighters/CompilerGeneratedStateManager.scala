@@ -16,9 +16,6 @@ private object CompilerGeneratedStateManager {
 
   def update(project: Project, newState: CompilerGeneratedState): CompilerGeneratedState = {
     mutableState(project).state = newState
-    val highlightingState = newState.toHighlightingState
-    ExternalHighlighters.updateOpenEditors(project, highlightingState)
-    ExternalHighlighters.informWolf(project, highlightingState)
     newState
   }
 
@@ -26,6 +23,6 @@ private object CompilerGeneratedStateManager {
     ServiceManager.getService(project, classOf[MutableState])
 
   private class MutableState {
-    var state: CompilerGeneratedState = CompilerGeneratedState(Map.empty, 1.0)
+    var state: CompilerGeneratedState = CompilerGeneratedState(Map.empty, 1.0, Set.empty)
   }
 }

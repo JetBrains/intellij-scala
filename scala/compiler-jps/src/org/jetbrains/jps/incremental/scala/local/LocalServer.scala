@@ -39,10 +39,11 @@ class LocalServer extends Server {
     }
 
     if (!collectingSourcesClient.isCanceled) {
+      client.compilationStart()
       compiler.compile(compilationData, collectingSourcesClient)
+      client.compilationEnd(collectingSourcesClient.sources ++ compilationData.sources)
     }
 
-    client.compilationEnd(collectingSourcesClient.sources)
     ExitCode.OK
   }
 

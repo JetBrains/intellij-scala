@@ -46,6 +46,9 @@ case class GeneratedEvent(source: File, module: File, name: String) extends Even
 @SerialVersionUID(-7935816100194567870L)
 case class DeletedEvent(module: File) extends Event
 
+@SerialVersionUID(-6907017854101285465L)
+case class CompilationStartEvent() extends Event
+
 @SerialVersionUID(2848760871163806524L)
 case class CompilationEndEvent(sources: Set[File]) extends Event
 
