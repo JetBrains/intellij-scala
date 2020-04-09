@@ -55,7 +55,7 @@ private class JpsCompilerImpl(project: Project)
     val promise = Promise[Unit]
 
     val taskMsg = ScalaBundle.message("highlighting.compilation")
-    val task: Task = new Task.Backgroundable(project, taskMsg, false) {
+    val task: Task = new Task.Backgroundable(project, taskMsg, true) {
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         val client = new CompilerEventGeneratingClient(project, indicator)
         val result = Try(new RemoteServerRunner(project).buildProcess(command, client).runSync())

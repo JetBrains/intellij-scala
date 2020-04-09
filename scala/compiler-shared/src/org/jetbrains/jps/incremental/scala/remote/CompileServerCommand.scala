@@ -8,8 +8,6 @@ sealed trait CompileServerCommand {
 
   def asArgs: Seq[String]
 
-  def isCompilation: Boolean
-
   def id: String
 
   final def asArgsWithoutToken: Seq[String] =
@@ -23,8 +21,6 @@ object CompileServerCommand {
 
     override def token: String = arguments.token
 
-    override def isCompilation: Boolean = true
-
     override def id: String = CommandIds.Compile
 
     override def asArgs: Seq[String] = arguments.asStrings
@@ -35,8 +31,6 @@ object CompileServerCommand {
                         globalOptionsPath: String,
                         dataStorageRootPath: String)
     extends CompileServerCommand {
-
-    override def isCompilation: Boolean = true
 
     override def id: String = CommandIds.CompileJps
 
