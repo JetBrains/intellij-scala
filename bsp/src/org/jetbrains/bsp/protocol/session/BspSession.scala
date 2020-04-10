@@ -182,7 +182,7 @@ class BspSession private(bspIn: InputStream,
   }
 
   /**
-   * Some BSP endpoints return `CompletableFuture`s that represend BSP jobs that are
+   * Some BSP endpoints return `CompletableFuture`s that represent BSP jobs that are
    * currently running on BSP server. In order to cancel these, jobs, the `cancel`
    * method of this future should be called. Unfortunately, the original futures that come
    * from lsp4j does not support transformations well - after calling `thenApply`, the `cancel`
