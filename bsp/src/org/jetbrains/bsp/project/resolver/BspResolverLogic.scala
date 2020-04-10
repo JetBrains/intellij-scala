@@ -411,7 +411,9 @@ private[resolver] object BspResolverLogic {
     }
 
   private[resolver] def projectNode(workspace: File,
-                                    projectModules: ProjectModules): DataNode[ProjectData] = {
+                                    projectModules: ProjectModules,
+                                    excludedPaths: List[File]
+                                   ): DataNode[ProjectData] = {
 
     val projectRootPath = workspace.getCanonicalPath
     val moduleFilesDirectoryPath = moduleFilesDirectory(workspace).getCanonicalPath
@@ -461,11 +463,23 @@ private[resolver] object BspResolverLogic {
 
     // effects
     addModuleDependencies(moduleDeps ++ synthDeps, idToModuleMap)
+    addRootExclusions(modules, projectRoot, excludedPaths)
     modules.foreach(projectNode.addChild)
     projectNode.addChild(bspProjectData)
 
     projectNode
   }
+
+  private def addRootExclusions(modules: Set[DataNode[ModuleData]], projectRoot: File, excludedPaths: List[File]): Unit =
+    for {
+      m <- modules.toList
+      c <- m.getChildren.asScala
+      data <- Option(c.getData(ProjectKeys.CONTENT_ROOT)).toList
+      if new File(data.getRootPath) == projectRoot
+      p <- excludedPaths
+    } {
+      data.storePath(ExternalSystemSourceType.EXCLUDED, p.getAbsolutePath)
+    }
 
   private def inferProjectJdk(modules: Set[DataNode[ModuleData]]) = {
     val groupedJdks = modules

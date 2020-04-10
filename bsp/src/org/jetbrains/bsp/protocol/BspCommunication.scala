@@ -153,16 +153,7 @@ object BspCommunication {
     val connectionDetails = findBspConfigs(base)
     val configuredMethods = connectionDetails.map(ProcessBsp)
 
-    val vfm = VirtualFileManager.getInstance()
-
-    val compilerOutputDirFromConfig = for {
-      projectDir <- Option(vfm.findFileByUrl(base.toPath.toUri.toString)) // path.toUri is rendered with :// separator which findFileByUrl needs
-      project <- Option(ProjectUtil.guessProjectForFile(projectDir))
-      cpe = CompilerProjectExtension.getInstance(project)
-      output <- Option(cpe.getCompilerOutput)
-    } yield new File(output.getCanonicalPath)
-
-    val compilerOutputDir = compilerOutputDirFromConfig
+    val compilerOutputDir = BspUtil.compilerOutputDirFromConfig(base)
       .getOrElse(new File(base, "out"))
 
     // TODO user dialog when multiple valid connectors exist: https://youtrack.jetbrains.com/issue/SCL-14880

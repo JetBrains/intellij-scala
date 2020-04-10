@@ -23,7 +23,7 @@ import org.scalatest.prop.Checkers
 import scala.collection.JavaConverters._
 
 @Category(Array(classOf[SlowTests]))
-class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
+class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
 
   implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
 
@@ -128,7 +128,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
 
         val projectRootPath = root.toString
         val projectModules = ProjectModules(moduleDescriptions, Seq.empty)
-        val node = projectNode(root.toFile, projectModules)
+        val node = projectNode(root.toFile, projectModules, BspProjectResolver.rootExclusions(root.toFile))
 
         // TODO more thorough properties
         node.getChildren.size >= moduleDescriptions.size

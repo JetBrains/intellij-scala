@@ -8,7 +8,9 @@ import java.util.concurrent.CompletableFuture
 import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.roots.CompilerProjectExtension
+import com.intellij.openapi.vfs.VirtualFileManager
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -66,6 +68,16 @@ object BspUtil {
       .getLinkedProjectsSettings
 
     ! settings.isEmpty
+  }
+
+  def compilerOutputDirFromConfig(base: File): Option[File] = {
+    val vfm = VirtualFileManager.getInstance()
+    for {
+      projectDir <- Option(vfm.findFileByUrl(base.toPath.toUri.toString)) // path.toUri is rendered with :// separator which findFileByUrl needs
+      project <- Option(ProjectUtil.guessProjectForFile(projectDir))
+      cpe = CompilerProjectExtension.getInstance(project)
+      output <- Option(cpe.getCompilerOutput)
+    } yield new File(output.getCanonicalPath)
   }
 
   implicit class ResponseErrorExceptionOps(err: ResponseErrorException) {

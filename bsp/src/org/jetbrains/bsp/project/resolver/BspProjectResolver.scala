@@ -20,15 +20,15 @@ import org.jetbrains.bsp.project.resolver.BspResolverLogic._
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled}
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.sbt.{Sbt, SbtUtil}
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam, upgradedSbtVersion}
 import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectImportProvider}
+import org.jetbrains.sbt.{Sbt, SbtUtil}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -60,7 +60,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val result = if (isPreviewMode) {
       val modules = ProjectModules(Nil, Nil)
       reporter.finish(BuildMessages.empty.status(BuildMessages.OK))
-      projectNode(workspace, modules)
+      projectNode(workspace, modules, rootExclusions(workspace))
     } else {
       runImport(workspace, executionSettings)
     }
@@ -99,7 +99,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             val descriptions = calculateModuleDescriptions(
               targets, scalacOptions, sources, resources, depSources
             )
-            projectNode(workspace, descriptions)
+            projectNode(workspace, descriptions, rootExclusions(workspace))
           }
           .reportFinished(
             reporter, structureEventId,
@@ -329,4 +329,8 @@ object BspProjectResolver {
   private def isResourcesProvider(implicit capabilities: BuildServerCapabilities) =
     Option(capabilities.getResourcesProvider).exists(_.booleanValue())
 
+  private[resolver] def rootExclusions(workspace: File): List[File] = List(
+    new File(workspace, BspUtil.BloopConfigDirName),
+    new File(workspace, BspUtil.BspConfigDirName),
+  ) ++ BspUtil.compilerOutputDirFromConfig(workspace).toList
 }
