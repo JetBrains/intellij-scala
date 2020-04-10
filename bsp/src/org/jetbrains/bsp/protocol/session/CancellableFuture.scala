@@ -3,8 +3,8 @@ package org.jetbrains.bsp.protocol.session
 import java.util.concurrent.CompletableFuture
 
 /**
- * JDK's CompletableFutre does not handle cancellation well.
- * When a future does have an overriden `cancel` method, it is lost
+ * JDK's CompletableFuture does not handle cancellation well.
+ * When a future overrides a `cancel` method, it is lost
  * when doing transformations like `thenApply` or `thenCompose`.
  *
  * In Java 9, the new CompletableFuture's method was introduced: `newIncompleteFuture`.
