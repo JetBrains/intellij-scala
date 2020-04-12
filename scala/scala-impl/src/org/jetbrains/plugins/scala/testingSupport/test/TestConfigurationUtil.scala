@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
@@ -24,19 +23,18 @@ object TestConfigurationUtil {
   val uTestConfigurationProducer = new UTestConfigurationProducer
   val scalaTestConfigurationProducer = new ScalaTestConfigurationProducer
 
-  def isPackageConfiguration(element: PsiElement, configuration: RunConfiguration): Boolean = {
+  def isPackageConfiguration(element: PsiElement, configuration: AbstractTestRunConfiguration): Boolean = {
     val pack: PsiPackage = element match {
       case dir: PsiDirectory => JavaDirectoryService.getInstance.getPackage(dir)
-      case pack: PsiPackage => pack
+      case pack: PsiPackage  => pack
+      case _                 => null
     }
-    if (pack == null) return false
-    configuration match {
-      case configuration: AbstractTestRunConfiguration =>
-        configuration.testConfigurationData.isInstanceOf[AllInPackageTestData] &&
-          configuration.getTestPackagePath == pack.getQualifiedName
-      case _ => false
-    }
+    pack != null && isPackageConfiguration(pack, configuration)
   }
+
+  private def isPackageConfiguration(pack: PsiPackage, configuration: AbstractTestRunConfiguration): Boolean =
+    configuration.testConfigurationData.isInstanceOf[AllInPackageTestData] &&
+      configuration.getTestPackagePath == pack.getQualifiedName
 
   def isInheritor(clazz: ScTemplateDefinition, fqn: String): Boolean = {
     val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.resolveScope, fqn)

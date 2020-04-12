@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
-import com.intellij.execution.Location
-import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil, RunConfiguration}
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDirectory, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTuplePattern
@@ -15,44 +13,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
 
 // TODO: there are to many redundant TestNodeProvider.* method calls that actually check the same thing on same elements
 //  eliminate this
-class UTestConfigurationProducer extends AbstractTestConfigurationProducer[UTestRunConfiguration] {
+final class UTestConfigurationProducer extends AbstractTestConfigurationProducer[UTestRunConfiguration] {
 
-  override def configurationFactory: ConfigurationFactory = {
+  override def getConfigurationFactory: ConfigurationFactory = {
     val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[UTestConfigurationType])
     configurationType.confFactory
   }
 
   override def suitePaths: Seq[String] = UTestUtil.suitePaths
 
-  override protected def configurationNameForPackage(packageName: String): String = ScalaBundle.message("test.in.scope.utest.presentable.text", packageName)
+  override protected def configurationNameForPackage(packageName: String): String =
+    ScalaBundle.message("test.in.scope.utest.presentable.text", packageName)
 
   override protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
     StringUtil.getShortName(testClass.qualifiedName) + (if (testName == null) "" else "\\" + testName)
-
-  override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
-    val element = location.getPsiElement
-    if (element == null) return false
-    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      if (!configuration.isInstanceOf[UTestRunConfiguration]) return false
-      return TestConfigurationUtil.isPackageConfiguration(element, configuration)
-    }
-    val (testClass, testName) = getTestClassWithTestName(location)
-    if (testClass == null) return false
-    val testClassPath = testClass.qualifiedName
-    configuration match {
-      case configuration: UTestRunConfiguration =>
-        configuration.testConfigurationData match {
-          case testData: SingleTestData => testData.testClassPath == testClassPath && testData.testName == testName
-          case classData: ClassTestData => classData.testClassPath == testClassPath && testName == null
-          case _ => false
-        }
-      case _ => false
-    }
-  }
 
   /**
     * Provides name of a test suite (i.e. single test defined as a val is uTest TestSuite) from a an 'apply' method call
@@ -119,7 +96,7 @@ class UTestConfigurationProducer extends AbstractTestConfigurationProducer[UTest
       case _ => None
     }
 
-  override def getTestClassWithTestName(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+  override def getTestClassWithTestName(location: PsiElementLocation): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
     val fail = (null, null)
     //first, check that containing type definition is a uTest suite

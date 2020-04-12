@@ -129,7 +129,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
     var res: RunnerAndConfigurationSettings = null
     EdtTestUtil.runInEdtAndWait(() => {
-      res = configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
+      res = configurationProducer.createConfigurationFromLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
         case Some(testConfig) => testConfig
         case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
       }
@@ -153,7 +153,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   }
 
   private def createTestFromDirectory(directory: PsiDirectory) =
-    configurationProducer.createConfigurationByLocation(new PsiLocation(getProject, directory)).map(_._2) match {
+    configurationProducer.createConfigurationFromLocation(new PsiLocation(getProject, directory)).map(_._2) match {
       case Some(testConfig) => testConfig
       case _ => throw new RuntimeException(failedConfigMessage(directory.getName))
     }

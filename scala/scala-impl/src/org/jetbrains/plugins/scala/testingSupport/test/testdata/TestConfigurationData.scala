@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
-import com.intellij.execution.{ExecutionException, ExternalizablePath}
 import com.intellij.execution.configurations.{RuntimeConfigurationError, RuntimeConfigurationException}
+import com.intellij.execution.{ExecutionException, ExternalizablePath}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
@@ -156,4 +156,16 @@ object TestConfigurationData {
     case TestKind.REGEXP         => new RegexpTestData(configuration)
      case null                    => new ClassTestData(configuration)
   }
+
+  def copy(from: TestConfigurationData, to: TestConfigurationData): Unit = {
+    to.javaOptions = from.javaOptions
+    to.envs = from.envs
+    to.testArgs = from.testArgs
+    to.useSbt = from.useSbt
+    to.useUiWithSbt = from.useUiWithSbt
+    to.jrePath = from.jrePath
+    to.showProgressMessages = from.showProgressMessages
+    to.setWorkingDirectory(from.getWorkingDirectory)
+  }
+
 }

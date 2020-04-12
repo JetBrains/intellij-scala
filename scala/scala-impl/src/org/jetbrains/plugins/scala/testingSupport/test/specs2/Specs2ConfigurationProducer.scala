@@ -1,21 +1,18 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.specs2
 
-import com.intellij.execution._
-import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil, RunConfiguration}
-import com.intellij.psi._
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 
-class Specs2ConfigurationProducer extends AbstractTestConfigurationProducer[Specs2RunConfiguration] {
+final class Specs2ConfigurationProducer extends AbstractTestConfigurationProducer[Specs2RunConfiguration] {
 
-  override def configurationFactory: ConfigurationFactory = {
+  override def getConfigurationFactory: ConfigurationFactory = {
     val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[Specs2ConfigurationType])
     configurationType.confFactory
   }
@@ -31,7 +28,7 @@ class Specs2ConfigurationProducer extends AbstractTestConfigurationProducer[Spec
   override protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
     testClass.name
 
-  override protected def prepareRunConfiguration(runConfiguration: Specs2RunConfiguration, location: Location[_ <: PsiElement], testClass: ScTypeDefinition, testName: String): Unit = {
+  override protected def prepareRunConfiguration(runConfiguration: Specs2RunConfiguration, location: PsiElementLocation, testClass: ScTypeDefinition, testName: String): Unit = {
     super.prepareRunConfiguration(runConfiguration, location, testClass, testName)
 
     // If the selected element is a non-empty string literal, we assume that this
@@ -43,45 +40,27 @@ class Specs2ConfigurationProducer extends AbstractTestConfigurationProducer[Spec
     }
   }
 
-  override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
-    val element = location.getPsiElement
-    if (element == null) return false
-    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      if (!configuration.isInstanceOf[Specs2RunConfiguration]) return false
-      return TestConfigurationUtil.isPackageConfiguration(element, configuration)
-    }
-    val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
+  override protected def isClassOfTestConfigurationFromLocation(configuration: Specs2RunConfiguration, location: PsiElementLocation): Boolean = {
+    val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(location.getPsiElement, classOf[ScTypeDefinition], false)
     if (parent == null) return false
-    val suiteClasses = suitePaths.flatMap {
-      parent.elementScope.getCachedClass(_)
-    }
+    val suiteClasses = suitePaths.flatMap(parent.elementScope.getCachedClass)
     if (suiteClasses.isEmpty) return false
-    val suiteClazz = suiteClasses.head
+    val suiteClazz = suiteClasses.head // TODO: why head?
 
-    if (!ScalaPsiUtil.isInheritorDeep(parent, suiteClazz)) return false
-
-    val (testClass, testName) = getTestClassWithTestName(location)
-    if (testClass == null) return false
-    val testClassPath = testClass.qualifiedName
-
-    configuration match {
-      case configuration: Specs2RunConfiguration =>
-        configuration.testConfigurationData match {
-          case testData: SingleTestData => testData.testClassPath == testClassPath && testData.testName == testName
-          case classData: ClassTestData => classData.testClassPath == testClassPath && testName == null
-          case _ => false
-        }
-      case _ => false
+    if (ScalaPsiUtil.isInheritorDeep(parent, suiteClazz)) {
+      super.isClassOfTestConfigurationFromLocation(configuration, location)
+    } else {
+      false
     }
   }
 
-  private def extractStaticTestName(testDefExpr: ScInfixExpr): Option[String] = {
+  private def extractStaticTestName(testDefExpr: ScInfixExpr): Option[String] =
     testDefExpr.getChildren.toSeq
-      .filterBy[ScExpression].headOption
+      .filterBy[ScExpression]
+      .headOption
       .flatMap(TestConfigurationUtil.getStaticTestName(_))
-  }
 
-  override def getTestClassWithTestName(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+  override def getTestClassWithTestName(location: PsiElementLocation): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
     val testClassDef: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (testClassDef == null) return (null, null)
