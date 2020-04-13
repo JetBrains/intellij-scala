@@ -540,6 +540,8 @@
                      description="Show errors from dotty compiler in the editor"/>
         <registryKey key="scala.highlighting.compilation.delay.millis" defaultValue="500" restartRequired="false"
                      description="Delay between runs of the compilation for highlighting, millis"/>
+        <registryKey key="scala.highlighting.compilation.timeout.to.show.progress.millis" defaultValue="7000" restartRequired="false"
+                     description="The progress of compilation for highlighting will be shown after this timeout"/>
 
         <registryKey key="scala.worksheet.continue.evalutaion.on.first.expression.failure" defaultValue="false" restartRequired="false"
                      description="Allow to continue worksheet expressions evaluation even if some expression failed in REPL mode"/>

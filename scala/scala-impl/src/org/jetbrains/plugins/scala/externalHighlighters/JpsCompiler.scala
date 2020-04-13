@@ -5,17 +5,22 @@ import java.io.File
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
+import org.jetbrains.plugins.scala.extensions.ToNullSafe
+import org.jetbrains.plugins.scala.util.FutureUtil
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
 
@@ -52,19 +57,41 @@ private class JpsCompilerImpl(project: Project)
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath
     )
+    
     val promise = Promise[Unit]
-
+    val future = promise.future
     val taskMsg = ScalaBundle.message("highlighting.compilation")
-    val task: Task = new Task.Backgroundable(project, taskMsg, true) {
+    val task: Task.Backgroundable = new Task.Backgroundable(project, taskMsg, true) {
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         val client = new CompilerEventGeneratingClient(project, indicator)
         val result = Try(new RemoteServerRunner(project).buildProcess(command, client).runSync())
         promise.complete(result)
       }
-      override val isHeadless: Boolean = !ApplicationManager.getApplication.isInternal
     }
-    ProgressManager.getInstance.run(task)
+    
+    val indicator = new DeferredShowProgressIndicator(task)
+    ProgressManager.getInstance.runProcessWithProgressAsynchronously(task, indicator)
+    FutureUtil.executeIfTimeout(future, timeout = ScalaHighlightingMode.compilationTimeoutToShowProgress) {
+      indicator.show()
+    }
+    Await.result(future, Duration.Inf)
+  }
+  
+  private class DeferredShowProgressIndicator(task: Task.Backgroundable)
+    extends ProgressIndicatorBase {
+    
+    setOwnerTask(task)
 
-    Await.result(promise.future, Duration.Inf)
+    /**
+     * Shows the progress in the Status bar.
+     * This method partially duplicates constructor of the 
+     * [[com.intellij.openapi.progress.impl.BackgroundableProcessIndicator]].
+     */
+    def show(): Unit =
+      if (!project.isDisposed && !project.isDefault && !ApplicationManager.getApplication.isUnitTestMode)
+        for {
+          frameHelper <- WindowManagerEx.getInstanceEx.findFrameHelper(project).nullSafe
+          statusBar <- frameHelper.getStatusBar.nullSafe
+        } statusBar.asInstanceOf[StatusBarEx].addProgress(this, task)
   }
 }
