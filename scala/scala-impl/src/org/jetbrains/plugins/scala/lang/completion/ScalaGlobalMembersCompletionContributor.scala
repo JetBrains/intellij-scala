@@ -21,6 +21,7 @@ import scala.collection.JavaConverters
 final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaGlobalMembersCompletionContributor._
+  import global._
 
   //extension methods with import
   extend(

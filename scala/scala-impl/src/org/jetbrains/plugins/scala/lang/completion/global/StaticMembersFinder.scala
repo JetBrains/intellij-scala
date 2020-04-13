@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
 package completion
+package global
 
 import com.intellij.codeInsight.completion.PrefixMatcher
 import com.intellij.openapi.project.Project
@@ -8,7 +9,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.StaticMembersFinder.classesToImportFor
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -16,11 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.findInheritorObjects
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private final class StaticMembersFinder(namePredicate: String => Boolean)
-                                       (isAccessible: PsiMember => Boolean)
-                                       (implicit private val project: Project,
-                                        private val scope: GlobalSearchScope)
+private[completion] final class StaticMembersFinder private(namePredicate: String => Boolean)
+                                                           (isAccessible: PsiMember => Boolean)
+                                                           (implicit private val project: Project,
+                                                            private val scope: GlobalSearchScope)
   extends GlobalMembersFinder {
+
+  import StaticMembersFinder._
 
   private val cacheManager = ScalaShortNamesCacheManager.getInstance
 
@@ -80,7 +82,7 @@ private final class StaticMembersFinder(namePredicate: String => Boolean)
 
 }
 
-private object StaticMembersFinder {
+object StaticMembersFinder {
 
   def apply(place: ScReferenceExpression,
             matcher: PrefixMatcher,

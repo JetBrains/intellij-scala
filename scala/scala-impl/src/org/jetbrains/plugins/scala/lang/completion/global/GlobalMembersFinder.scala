@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
 package completion
+package global
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion.{JavaCompletionFeatures, JavaCompletionUtil}

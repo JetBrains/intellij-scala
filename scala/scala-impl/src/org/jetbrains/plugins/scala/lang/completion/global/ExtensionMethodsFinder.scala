@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
 package completion
+package global
 
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -12,7 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
-private final class ExtensionMethodsFinder(originalType: ScType, place: ScExpression) extends GlobalMembersFinder {
+private[completion] final class ExtensionMethodsFinder private(originalType: ScType, place: ScExpression)
+  extends GlobalMembersFinder {
+
   lazy val originalTypeMemberNames: collection.Set[String] = candidatesForType(originalType).map(_.name)
 
   override protected def candidates: Iterable[GlobalMemberResult] = for {
@@ -20,8 +23,8 @@ private final class ExtensionMethodsFinder(originalType: ScType, place: ScExpres
 
     if ImplicitConversionProcessor.applicable(key.function, place)
 
-    (resultType, _)       <- targetTypeAndSubstitutor(conversionData, originalType, place).toIterable
-    item                  <- extensionCandidates(key.function, key.containingObject, resultType)
+    (resultType, _) <- targetTypeAndSubstitutor(conversionData, originalType, place).toIterable
+    item <- extensionCandidates(key.function, key.containingObject, resultType)
   } yield item
 
   private def extensionCandidates(conversion: ScFunction, conversionContainer: ScObject, resultType: ScType): Iterable[ExtensionMethodCandidate] = {
@@ -51,7 +54,7 @@ private final class ExtensionMethodsFinder(originalType: ScType, place: ScExpres
   }
 }
 
-private object ExtensionMethodsFinder {
+object ExtensionMethodsFinder {
   def apply(qualifier: ScExpression): Option[ExtensionMethodsFinder] = {
     val qualifierType = qualifier.getTypeWithoutImplicits().toOption
 
