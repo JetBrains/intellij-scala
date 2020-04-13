@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.specs2
 
 import javax.swing.Icon
-import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, ConfigurationTypeUtil}
 import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
@@ -20,4 +20,10 @@ class Specs2ConfigurationType extends ConfigurationType with DumbAware {
   override def getId: String = "Specs2RunConfiguration" //if you want to change id, change it in Android plugin too
 
   override def getIcon: Icon = Icons.SCALA_TEST
+}
+
+object Specs2ConfigurationType {
+
+  def instance: Specs2ConfigurationType =
+    ConfigurationTypeUtil.findConfigurationType(classOf[Specs2ConfigurationType])
 }

@@ -2,52 +2,35 @@ package org.jetbrains.plugins.scala.testingSupport.test.sbt
 
 import java.util.regex.{Matcher, Pattern}
 
-import com.intellij.execution.process.{ProcessHandler, ProcessOutputTypes}
+import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
+import org.jetbrains.plugins.scala.testingSupport.test.sbt.ReportingSbtTestEventHandler.TeamCityTestStatusReporter
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ShellEvent, TaskComplete, TaskStart}
 
-/**
-  * @author Roman.Shein
-  *         Date: 20.02.2017
-  */
-class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[ShellEvent, Unit] {
+private[test]
+trait SbtTestEventHandler {
+
+  def processEvent(event: ShellEvent): Unit
+}
+
+private[test]
+class ReportingSbtTestEventHandler(messageConsumer: TeamCityTestStatusReporter)
+  extends SbtTestEventHandler {
+
+  import ReportingSbtTestEventHandler._
+
   private var currentId = 0
   private var idStack = List[Int](0)
   private var testCount = 0
 
-  protected def report(message: String): Unit = {
-    processHandler.notifyTextAvailable(message, SbtTestEventHandler.processOutputType)
-//    println(message)
-  }
-
-  protected def openScope(matcher: Matcher, isSuite: Boolean): Unit = {
-    import TestRunnerUtil.escapeString
-    currentId += 1
-    report(s"\n##teamcity[testSuiteStarted name='${escapeString(matcher.group(if (isSuite) 1 else 2))}' " +
-      s"nodeId='$currentId' parentNodeId='${idStack.head}' captureStandardOutput='true']\n")
-    idStack = currentId :: idStack
-  }
-
-  protected def closeScope(matcher: Matcher, isSuite: Boolean): Unit = {
-    import TestRunnerUtil.escapeString
-    val suiteId = idStack.head
-    idStack = idStack.tail
-    report(s"\n##teamcity[testSuiteFinished name='${escapeString(matcher.group(if (isSuite) 1 else 2))}' " +
-      s"nodeId='$suiteId' parentNodeId='${idStack.head}'" +
-      (if (isSuite) s" duration='${SbtTestEventHandler.getDuration(matcher.group(2))}'" else "") + "]\n")
-  }
-
-  def closeRoot(): Unit = processHandler.destroyProcess()
-
-  override def apply(se: ShellEvent): Unit = se match {
+  override def processEvent(se: ShellEvent): Unit = se match {
     case TaskStart =>
     case TaskComplete =>
     case ErrorWaitForInput => throw new Exception("error running sbt")
     case SbtShellCommunication.Output(output) =>
-      import SbtTestEventHandler._
       import TestRunnerUtil._
       val infoIdx = output.indexOf(sbtInfo)
       if (infoIdx == -1) return
@@ -96,9 +79,31 @@ class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[Shel
         }
       }
   }
+
+  protected def report(message: String): Unit =
+    messageConsumer.report(message, ReportingSbtTestEventHandler.processOutputType)
+
+  protected def openScope(matcher: Matcher, isSuite: Boolean): Unit = {
+    import TestRunnerUtil.escapeString
+    currentId += 1
+    report(s"\n##teamcity[testSuiteStarted name='${escapeString(matcher.group(if (isSuite) 1 else 2))}' " +
+      s"nodeId='$currentId' parentNodeId='${idStack.head}' captureStandardOutput='true']\n")
+    idStack = currentId :: idStack
+  }
+
+  protected def closeScope(matcher: Matcher, isSuite: Boolean): Unit = {
+    import TestRunnerUtil.escapeString
+    val suiteId = idStack.head
+    idStack = idStack.tail
+    report(s"\n##teamcity[testSuiteFinished name='${escapeString(matcher.group(if (isSuite) 1 else 2))}' " +
+      s"nodeId='$suiteId' parentNodeId='${idStack.head}'" +
+      (if (isSuite) s" duration='${ReportingSbtTestEventHandler.getDuration(matcher.group(2))}'" else "") + "]\n")
+  }
+
 }
 
-object SbtTestEventHandler {
+object ReportingSbtTestEventHandler {
+
   val timePattern: Pattern = Pattern.compile("((\\d+) hour(s?), )?((\\d+) minute(s?), )?((\\d+) second(s?), )?(\\d+) millisecond(s?)")
 
   val testStartRegex: Pattern = Pattern.compile("\\[info\\] Test Starting - ([^:]+): (.+)")
@@ -131,4 +136,11 @@ object SbtTestEventHandler {
   def opt(string: String): Long = Option(string).map(_.toLong).getOrElse(0L)
 
   val sbtInfo = "[info]"
+
+  trait TeamCityTestStatusReporter {
+    /**
+     * @param message test status reprot message in TeamCity format
+     */
+    def report(message: String, key: Key[_]): Unit
+  }
 }

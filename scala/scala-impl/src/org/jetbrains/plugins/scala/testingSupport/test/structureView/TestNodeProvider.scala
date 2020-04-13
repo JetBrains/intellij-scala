@@ -13,7 +13,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
@@ -25,13 +25,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
 import org.jetbrains.plugins.scala.lang.structureView.element.{Test, TypeDefinition, Value}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.ClassWithTestName
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
 
 import scala.annotation.tailrec
 
-
+// used on "Structure view" (Alt + 7)
 class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
   override def getCheckBoxText: String = ScalaBundle.message("test.node.provider.show.scala.tests")
 
@@ -560,20 +561,25 @@ object TestNodeProvider {
     val suiteName = aSuite.getQualifiedName
     import scala.collection.JavaConverters._
     val nodeProvider = new TestNodeProvider
-    getTestLeaves(configurationProducer match {
+
+    val elements: Iterable[TreeElement] = configurationProducer match {
       case _: UTestConfigurationProducer =>
-        new TypeDefinition(aSuite).getChildren flatMap {
+        val children = new TypeDefinition(aSuite).getChildren
+        children.flatMap {
           case scVal: Value if !scVal.inherited => nodeProvider.provideNodes(scVal).asScala
-          case _ => List.empty
+          case _                                => List.empty
         }
-      case _ =>
+      case _=>
         nodeProvider.provideNodes(new TypeDefinition(aSuite)).asScala
-    }).map { e =>
-      Option(configurationProducer.getTestClassWithTestName(new PsiLocation(e.element))) filter {
-        case (suite, testName) =>
-          suite != null && suite.getQualifiedName == suiteName && testName != null
-      }
-    }.filter(_.isDefined).map(_.get._2)
+    }
+    val leaves = getTestLeaves(elements)
+    val suitesWithTestNames = leaves.flatMap { e =>
+      configurationProducer.getTestClassWithTestName(new PsiLocation(e.element))
+    }
+    suitesWithTestNames.collect {
+      case ClassWithTestName(suite, Some(testName)) if suite.getQualifiedName == suiteName =>
+        testName
+    }
   }
 }
 

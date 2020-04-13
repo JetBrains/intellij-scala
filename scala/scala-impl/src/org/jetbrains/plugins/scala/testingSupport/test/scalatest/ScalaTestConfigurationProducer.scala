@@ -2,33 +2,32 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
 import com.intellij.execution._
-import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil}
+import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo._
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
 import org.scalatest.finders.{Selection => TestFindersSelection}
 
 final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProducer[ScalaTestRunConfiguration] {
 
-  override def getConfigurationFactory: ConfigurationFactory = {
-    val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[ScalaTestConfigurationType])
-    configurationType.confFactory
-  }
+  override def getConfigurationFactory: ConfigurationFactory = ScalaTestConfigurationType.instance.confFactory
 
   override def suitePaths: Seq[String] = List("org.scalatest.Suite")
 
-  override protected def configurationNameForPackage(packageName: String): String =
-    ScalaBundle.message("test.in.scope.scalatest.presentable.text", packageName)
+  override protected def configurationName(contextInfo: CreateFromContextInfo): String = contextInfo match {
+    case AllInPackage(_, packageName)           =>
+      ScalaBundle.message("test.in.scope.scalatest.presentable.text", packageName)
+    case ClassWithTestName(testClass, testName) =>
+      StringUtil.getShortName(testClass.qualifiedName) + testName.fold("")("." + _)
+  }
 
-  override protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
-    StringUtil.getShortName(testClass.qualifiedName) + (if (testName == null) "" else "." + testName)
-
-  // TODO: avoid nulls
-  override def getTestClassWithTestName(location: PsiElementLocation): (ScTypeDefinition, String) = {
+  override def getTestClassWithTestName(location: PsiElementLocation): Option[ClassWithTestName] = {
     val element = location.getPsiElement
 
     def matchesSomeTestSuite(typ: ScTemplateDefinition): Boolean = suitePaths.exists(isInheritor(typ, _))
@@ -43,9 +42,7 @@ final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProd
         PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     }
 
-    def nullResult: (Null, Null) = (null, null) // TODO: eliminate nulls in testingSupport package
-
-    if (clazz == null) return nullResult
+    if (clazz == null) return None
 
     val templateBody: ScTemplateBody = clazz.extendsBlock.templateBody.orNull
 
@@ -56,17 +53,17 @@ final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProd
 
     clazz match {
       case _: ScClass | _: ScTrait if matchesSomeTestSuite(clazz) =>
-      case _ => return nullResult
+      case _ => return None
     }
 
     ScalaTestAstTransformer.testSelection(location) match {
       case Some(selection) =>
-        val result1 = testClassWithTestNameForSelection(clazz, selection)
+        val result1 = testClassWithTestNameForSelection(clazz, selection).map(t => ClassWithTestName(t._1, Option(t._2)))
         val result2 = result1.orElse(testClassWithTestNameForParent(location))
-        result2.getOrElse(nullResult)
+        result2
       case None =>
         val finder = new ScalaTestSingleTestLocationFinderOld(element, clazz, templateBody)
-        finder.testClassWithTestName
+        Option(finder.testClassWithTestName).map(t => ClassWithTestName(t._1, Option(t._2)))
     }
   }
 
@@ -82,10 +79,10 @@ final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProd
       None
     }
 
-  private def testClassWithTestNameForParent(location: PsiElementLocation): Option[(ScTypeDefinition, String)] =
+  private def testClassWithTestNameForParent(location: PsiElementLocation): Option[ClassWithTestName] =
     for {
       parent      <- Option(location.getPsiElement.getParent)
-      newLocation = new PsiLocation(location.getProject, parent)
-      result      <- Option(getTestClassWithTestName(newLocation))
+      newLocation = new PsiLocation(location.getProject, location.getModule, parent)
+      result      <- getTestClassWithTestName(newLocation)
     } yield result
 }

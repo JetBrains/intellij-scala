@@ -70,16 +70,14 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
 
     def getClasses(pack: ScPackage): Seq[PsiClass] = {
       val buffer = new ArrayBuffer[PsiClass]
-
       buffer ++= pack.getClasses(scope)
-      for (p <- pack.getSubPackages) {
+      for (p <- pack.getSubPackages)
         buffer ++= getClasses(ScPackageImpl(p))
-      }
+
       if (config.configurationFactory.getType.isInstanceOf[UTestConfigurationType])
-        buffer.filter {
-          _.isInstanceOf[ScObject]
-        }
-      else buffer
+        buffer.filter(_.isInstanceOf[ScObject])
+      else
+        buffer
     }
 
     for (cl <- getClasses(pack)) {

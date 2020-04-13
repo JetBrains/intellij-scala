@@ -90,4 +90,7 @@ object ClassTestData {
     } else {
       apply(config, className)
     }
+
+  def apply(config: AbstractTestRunConfiguration, className: String, testName: Option[String]): ClassTestData =
+    apply(config, className, testName.orNull)
 }

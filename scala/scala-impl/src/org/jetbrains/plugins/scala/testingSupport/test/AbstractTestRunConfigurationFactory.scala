@@ -3,12 +3,9 @@ package testingSupport.test
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, RunConfiguration}
 
-abstract class AbstractTestRunConfigurationFactory(val typez: ConfigurationType)
-  extends ConfigurationFactory(typez)  {
+abstract class AbstractTestRunConfigurationFactory(val typ: ConfigurationType)
+  extends ConfigurationFactory(typ)  {
 
-  override final def getId: String = getIdExplicit
-  def getIdExplicit: String
-
-  override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration =
-    super.createConfiguration(name, template).asInstanceOf[AbstractTestRunConfiguration]
+  def id: String
+  override final def getId: String = id
 }

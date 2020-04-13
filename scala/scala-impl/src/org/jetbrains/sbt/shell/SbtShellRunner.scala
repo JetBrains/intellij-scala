@@ -46,7 +46,9 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   // is called from AbstractConsoleRunnerWithHistory.initAndRun synchronously
   override def createProcess: Process = myProcessHandler.getProcess
 
-  override def createProcessHandler(process: Process): OSProcessHandler = myProcessHandler
+  // TODO: why is ignored? rethink API
+  override def createProcessHandler(ignored : Process): OSProcessHandler = myProcessHandler
+  def createProcessHandler: OSProcessHandler = createProcessHandler(null)
 
   //called manually by Scala Plugin, underlying initialization can be done asynchronously, so
   //right after the method execution `getConsoleView` can still return `null` and `isRunning` return false

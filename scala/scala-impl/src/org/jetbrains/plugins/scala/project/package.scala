@@ -144,6 +144,14 @@ package object project {
       ModuleRootManager.getInstance(module).getDependencies
         .find(_.isSharedSourceModule)
 
+    def dependencyModules: Seq[Module] = {
+      val manager = ModuleManager.getInstance(module.getProject)
+      manager.getModules.filter(manager.isModuleDependent(module, _))
+    }
+
+    def withDependencyModules: Seq[Module] =
+      module +: dependencyModules
+
     def modifiableModel: ModifiableRootModel =
       ModuleRootManager.getInstance(module).getModifiableModel
 

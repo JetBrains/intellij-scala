@@ -11,6 +11,7 @@ import scala.collection.mutable
   * @author Roman.Shein
   *         Date: 16.02.2017
   */
+private[test]
 case class SbtProcessHandlerWrapper(inner: OSProcessHandler) extends ProcessHandler() {
 
   private val myListeners: mutable.ListBuffer[ProcessListener] = mutable.ListBuffer()

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
-import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil}
+import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo._
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
@@ -18,18 +20,16 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 //  eliminate this
 final class UTestConfigurationProducer extends AbstractTestConfigurationProducer[UTestRunConfiguration] {
 
-  override def getConfigurationFactory: ConfigurationFactory = {
-    val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[UTestConfigurationType])
-    configurationType.confFactory
-  }
+  override def getConfigurationFactory: ConfigurationFactory = UTestConfigurationType.instance.confFactory
 
   override def suitePaths: Seq[String] = UTestUtil.suitePaths
 
-  override protected def configurationNameForPackage(packageName: String): String =
-    ScalaBundle.message("test.in.scope.utest.presentable.text", packageName)
-
-  override protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
-    StringUtil.getShortName(testClass.qualifiedName) + (if (testName == null) "" else "\\" + testName)
+  override protected def configurationName(contextInfo: CreateFromContextInfo): String = contextInfo match {
+    case AllInPackage(_, packageName)           =>
+      ScalaBundle.message("test.in.scope.utest.presentable.text", packageName)
+    case ClassWithTestName(testClass, testName) =>
+      StringUtil.getShortName(testClass.qualifiedName) + testName.fold("")("\\" + _)
+  }
 
   /**
     * Provides name of a test suite (i.e. single test defined as a val is uTest TestSuite) from a an 'apply' method call
@@ -96,19 +96,21 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
       case _ => None
     }
 
-  override def getTestClassWithTestName(location: PsiElementLocation): (ScTypeDefinition, String) = {
+  override def getTestClassWithTestName(location: PsiElementLocation): Option[ClassWithTestName] = {
     val element = location.getPsiElement
-    val fail = (null, null)
+
     //first, check that containing type definition is a uTest suite
     // TODO: eliminate code duplication
     var containingObject: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
-    if (containingObject == null) return fail
+    if (containingObject == null)
+      return None
     while (!containingObject.isInstanceOf[ScObject] && PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true) != null) {
       containingObject = PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true)
     }
     //this is checked once we provide a concrete class for test run
     //    if (!containingObject.isInstanceOf[ScObject]) return fail
-    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath))) return fail
+    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath)))
+      return None
 
     import TestNodeProvider._
     val nameContainer = ScalaPsiUtil.getParentWithProperty(element, strict = false, p => {
@@ -119,14 +121,14 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
         isUTestTestsCall(p)
     })
     val testNameOpt = nameContainer.flatMap {
-      case infixExpr: ScInfixExpr                                         => buildPathFromTestExpr(infixExpr) //test location is a scope defined through infix '-'
-      case methodCall: ScMethodCall if isUTestApplyCall(methodCall)       => buildPathFromTestExpr(methodCall) //test location is a scope define without use of '-' method
-      case methodCall: ScMethodCall if isUTestObjectApplyCall(methodCall) => buildPathFromTestObjectApplyCall(methodCall) // test("testName") {}
-      case methodCall: ScMethodCall                                       => getTestSuiteName(methodCall) //test location is a test method definition
-      case _                                                              => None
+      case infixExpr: ScInfixExpr                             => buildPathFromTestExpr(infixExpr) //test location is a scope defined through infix '-'
+      case call: ScMethodCall if isUTestApplyCall(call)       => buildPathFromTestExpr(call) //test location is a scope define without use of '-' method
+      case call: ScMethodCall if isUTestObjectApplyCall(call) => buildPathFromTestObjectApplyCall(call) // test("testName") {}
+      case call: ScMethodCall                                 => getTestSuiteName(call) //test location is a test method definition
+      case _                                                  => None
     }
     //it is also possible that element is on left-hand of test suite definition
-    val testName = testNameOpt.orElse(TestNodeProvider.getUTestLeftHandTestDefinition(element).flatMap(getTestSuiteName)).orNull
-    (containingObject, testName)
+    val testName = testNameOpt.orElse(TestNodeProvider.getUTestLeftHandTestDefinition(element).flatMap(getTestSuiteName))
+    Some(ClassWithTestName(containingObject, testName))
   }
 }

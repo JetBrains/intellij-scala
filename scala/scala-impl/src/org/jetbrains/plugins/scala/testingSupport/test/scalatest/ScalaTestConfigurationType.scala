@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
 import javax.swing.Icon
-import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, ConfigurationTypeUtil}
 import com.intellij.openapi.project.DumbAware
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 
 class ScalaTestConfigurationType extends ConfigurationType with DumbAware {
@@ -20,4 +19,10 @@ class ScalaTestConfigurationType extends ConfigurationType with DumbAware {
   override def getId: String = "ScalaTestRunConfiguration" //if you want to change id, change it in Android plugin too
 
   override def getIcon: Icon = Icons.SCALA_TEST
+}
+
+object ScalaTestConfigurationType {
+
+  def instance: ScalaTestConfigurationType =
+    ConfigurationTypeUtil.findConfigurationType(classOf[ScalaTestConfigurationType])
 }

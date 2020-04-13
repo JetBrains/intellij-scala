@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class Specs2Runner {
 
-  private static final String REPORTER_FQN = Specs2Notifier.class.getName();
+  public static final String REPORTER_FQN = Specs2Notifier.class.getName();
 
   public static void main(String[] argsRaw) throws NoSuchMethodException, IllegalAccessException, IOException {
     final boolean isSpecs2_3;

@@ -27,14 +27,10 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.intellij.util.xmlb.Converter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.RegexpTestData;
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.SingleTestData;
@@ -46,8 +42,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.List;
 
 @SuppressWarnings(value = "unchecked")
 public class TestRunConfigurationForm {
@@ -62,7 +58,7 @@ public class TestRunConfigurationForm {
     private TextFieldWithBrowseButton workingDirectoryField;
     private JPanel searchForTestsPanel;
     private final ConfigurationModuleSelector myModuleSelector;
-    private final java.util.List<String> suitePaths;
+    private final List<String> suitePaths;
 
     private JComboBox<SearchForTest> searchForTestsComboBox;
 
@@ -234,7 +230,7 @@ public class TestRunConfigurationForm {
         });
         boolean hasSbt = hasSbt(configuration.getProject());
         setSbtVisible(hasSbt);
-        setSbtUiVisible(hasSbt && configuration.allowsSbtUiRun());
+        setSbtUiVisible(hasSbt && configuration.sbtSupport().allowsSbtUiRun());
         useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
 
         suitePaths = configuration.javaSuitePaths();
@@ -345,7 +341,7 @@ public class TestRunConfigurationForm {
         }
         boolean hasSbt = hasSbt(configuration.getProject());
         setSbtVisible(hasSbt);
-        setSbtUiVisible(hasSbt && configuration.allowsSbtUiRun());
+        setSbtUiVisible(hasSbt && configuration.sbtSupport().allowsSbtUiRun());
         setUseSbt(configuration.testConfigurationData().useSbt());
         setUseUiWithSbt(configuration.testConfigurationData().useUiWithSbt());
         setWorkingDirectory(configuration.testConfigurationData().getWorkingDirectory());

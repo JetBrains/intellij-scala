@@ -129,7 +129,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
     var res: RunnerAndConfigurationSettings = null
     EdtTestUtil.runInEdtAndWait(() => {
-      res = configurationProducer.createConfigurationFromLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
+      res = configurationProducer.createConfigurationFromContextLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
         case Some(testConfig) => testConfig
         case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
       }
@@ -153,7 +153,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   }
 
   private def createTestFromDirectory(directory: PsiDirectory) =
-    configurationProducer.createConfigurationFromLocation(new PsiLocation(getProject, directory)).map(_._2) match {
+    configurationProducer.createConfigurationFromContextLocation(new PsiLocation(getProject, directory)).map(_._2) match {
       case Some(testConfig) => testConfig
       case _ => throw new RuntimeException(failedConfigMessage(directory.getName))
     }
@@ -166,7 +166,6 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
                                           ): (String, Option[AbstractTestProxy]) = {
     configurationAssert(runConfig)
     assertTrue("runConfig not instance of AbstractRunConfiguration", runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
-    runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
     val testResultListener = new TestResultListener(runConfig.getName)
     var testTreeRoot: Option[AbstractTestProxy] = None
 
