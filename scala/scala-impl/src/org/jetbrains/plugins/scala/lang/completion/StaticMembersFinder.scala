@@ -9,6 +9,7 @@ import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.StaticMembersFinder.classesToImportFor
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
@@ -63,12 +64,18 @@ private final class StaticMembersFinder(namePredicate: String => Boolean)
     classToImport <- classesToImportFor(property)
   } yield StaticMemberResult(namedElement, classToImport)
 
-  private final case class StaticMemberResult(override val elementToImport: PsiNamedElement,
-                                              override val containingClass: PsiClass,
-                                              override val isOverloadedForClassName: Boolean = false) extends GlobalMemberResult {
-    override val classToImport: PsiClass = containingClass
-
-    override protected val resolveResult = new ScalaResolveResult(elementToImport)
+  private final case class StaticMemberResult(elementToImport: PsiNamedElement,
+                                              classToImport: PsiClass,
+                                              isOverloadedForClassName: Boolean = false)
+    extends GlobalMemberResult(
+      new ScalaResolveResult(elementToImport),
+      elementToImport,
+      classToImport,
+      Some(classToImport)
+    ) {
+    override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
+      lookupItem.isOverloadedForClassName = isOverloadedForClassName
+    }
   }
 
 }

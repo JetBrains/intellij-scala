@@ -1,79 +1,91 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion.{JavaCompletionFeatures, JavaCompletionUtil}
 import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.psi.{PsiClass, PsiFile, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 abstract class GlobalMembersFinder {
 
+  import GlobalMembersFinder._
+
   FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
 
-  final def lookupItems(originalFile: PsiFile, reference: ScReferenceExpression): Seq[ScalaLookupItem] =
-    candidates.filterNot(c => isInExcludedPackage(c.classToImport)).toSeq match {
-      case Seq() => Seq.empty
-      case globalCandidates =>
-        val simpleElements = reference.completionVariants().toSet[ScalaLookupItem].map(_.element)
-        globalCandidates.flatMap(_.createLookupItem(originalFile, simpleElements))
-    }
+  final def lookupItems(reference: ScReferenceExpression, originalFile: PsiFile): Seq[ScalaLookupItem] = {
+    val shouldImport = new ShouldImportPredicate(reference, originalFile)
+
+    candidates.flatMap(_.createLookupItem(shouldImport)).toSeq
+  }
 
   protected def candidates: Iterable[GlobalMemberResult]
 
-  protected abstract class GlobalMemberResult {
+  protected abstract class GlobalMemberResult(resolveResult: ScalaResolveResult,
+                                              elementToImport: PsiNamedElement,
+                                              classToImport: PsiClass,
+                                              containingClass: Option[PsiClass] = None) {
 
-    val classToImport: PsiClass
+    final def createLookupItem(shouldImport: PsiNamedElement => Boolean): Option[ScalaLookupItem] =
+      if (isApplicable)
+        resolveResult.getLookupElement(
+          isClassName = true,
+          containingClass = containingClass
+        ).map { lookupItem =>
+          lookupItem.shouldImport = shouldImport(lookupItem.element)
+          lookupItem.classToImport = Some(classToImport)
+          lookupItem.elementToImport = Some(elementToImport)
+          patchItem(lookupItem)
+          lookupItem.putUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR, Boolean.box(true))
+          lookupItem
+        }
+      else
+        None
 
-    protected val resolveResult: ScalaResolveResult
-    protected val isOverloadedForClassName: Boolean
-    protected val containingClass: PsiClass
-    protected val elementToImport: PsiNamedElement
-
-    def createLookupItem(originalFile: PsiFile,
-                         elements: Set[PsiNamedElement]): Option[ScalaLookupItem] =
-      resolveResult.getLookupElement(
-        isClassName = true,
-        isOverloadedForClassName = isOverloadedForClassName,
-        shouldImport = shouldImport(resolveResult.element, originalFile, elements),
-        containingClass = Option(containingClass)
-      ).headOption.map { lookupItem =>
-        lookupItem.classToImport = Some(classToImport)
-        lookupItem.elementToImport = Some(elementToImport)
-        lookupItem.putUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR, Boolean.box(true))
-        lookupItem
-      }
-
-    private def shouldImport(element: PsiNamedElement,
-                             originalFile: PsiFile,
-                             elements: Set[PsiNamedElement]): Boolean = element.getContainingFile match {
-      case `originalFile` =>
-        def contextContainingClassName(element: PsiNamedElement): Option[String] =
-          element.containingClassOfNameContext.flatMap(_.qualifiedName.toOption)
-
-        //complex logic to detect static methods in same file, which we shouldn't import
-        val name = element.name
-        val objectNames = for {
-          e <- elements
-          if e.getContainingFile == originalFile && e.name == name
-          className <- contextContainingClassName(e)
-        } yield className
-
-        contextContainingClassName(element).forall(!objectNames.contains(_))
-      case _ => !elements.contains(element)
+    protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
     }
-  }
 
-  private def isInExcludedPackage(c: PsiClass): Boolean = {
-    val qName = c.qualifiedName
-    if (qName == null) false
-    else {
-      CodeInsightSettings.getInstance.EXCLUDED_PACKAGES.exists { excludedPackage =>
-        qName == excludedPackage ||  qName.startsWith(excludedPackage + ".")
-      }
-    }
+    private def isApplicable: Boolean = Option(classToImport.qualifiedName).forall(isNotExcluded)
   }
 }
 
+object GlobalMembersFinder {
+
+  private final class ShouldImportPredicate(reference: ScReferenceExpression,
+                                            originalFile: PsiFile) extends (PsiNamedElement => Boolean) {
+
+    private lazy val elements = reference
+      .completionVariants()
+      .toSet[ScalaLookupItem]
+      .map(_.element)
+
+    override def apply(element: PsiNamedElement): Boolean = element.getContainingFile match {
+      case `originalFile` =>
+        contextContainingClassName(element).forall { className =>
+          //complex logic to detect static methods in the same file, which we shouldn't import
+          val name = element.name
+          !elements
+            .filter(_.getContainingFile == originalFile)
+            .filter(_.name == name)
+            .flatMap(contextContainingClassName)
+            .contains(className)
+        }
+      case _ => !elements.contains(element)
+    }
+
+    private def contextContainingClassName(element: PsiNamedElement) =
+      element.containingClassOfNameContext.flatMap { clazz =>
+        Option(clazz.qualifiedName)
+      }
+  }
+
+  private def isNotExcluded(qualifiedName: String): Boolean = {
+    CodeInsightSettings.getInstance.EXCLUDED_PACKAGES.forall { excludedPackage =>
+      qualifiedName != excludedPackage && !qualifiedName.startsWith(excludedPackage + ".")
+    }
+  }
+}

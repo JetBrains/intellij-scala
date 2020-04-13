@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
-import com.intellij.psi.{PsiClass, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -39,19 +40,13 @@ private final class ExtensionMethodsFinder(originalType: ScType, place: ScExpres
     processor.candidatesS
   }
 
-  private final case class ExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
-                                                    override val elementToImport: ScFunction,
-                                                    override val classToImport: ScObject) extends GlobalMemberResult {
+  private final case class ExtensionMethodCandidate(resolveResult: ScalaResolveResult,
+                                                    elementToImport: ScFunction,
+                                                    classToImport: ScObject)
+    extends GlobalMemberResult(resolveResult, elementToImport, classToImport) {
 
-    override protected val isOverloadedForClassName = false
-    override protected val containingClass: PsiClass = null
-
-    override def createLookupItem(originalFile: PsiFile,
-                                  elements: Set[PsiNamedElement]): Option[ScalaLookupItem] = {
-      super.createLookupItem(originalFile, elements).map { lookupItem =>
-        lookupItem.usedImportStaticQuickfix = true
-        lookupItem
-      }
+    override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
+      lookupItem.usedImportStaticQuickfix = true
     }
   }
 }

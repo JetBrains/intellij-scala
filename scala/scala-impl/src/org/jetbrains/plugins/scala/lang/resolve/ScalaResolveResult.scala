@@ -310,7 +310,6 @@ object ScalaResolveResult {
     def getLookupElement(qualifierType: Option[ScType] = None,
                          isClassName: Boolean = false,
                          isInImport: Boolean = false,
-                         isOverloadedForClassName: Boolean = false,
                          shouldImport: Boolean = false,
                          isInStableCodeReference: Boolean = false,
                          containingClass: Option[PsiClass] = None,
@@ -363,7 +362,6 @@ object ScalaResolveResult {
           val result = new ScalaLookupItem(element, name, containingClass)
           result.isClassName = isClassName
           result.isNamedParameter = resolveResult.isNamedParameter
-          result.isOverloadedForClassName = isOverloadedForClassName
           result.isRenamed = isRenamed
           result.isUnderlined = resolveResult.implicitFunction.isDefined
           result.isAssignment = isAssignment

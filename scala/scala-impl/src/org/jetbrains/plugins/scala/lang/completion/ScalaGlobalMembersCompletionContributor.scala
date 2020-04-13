@@ -38,7 +38,7 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
           qual    <- qualifier(refExpr)
           finder  <- ExtensionMethodsFinder(qual)
         } {
-          val items = finder.lookupItems(parameters.getOriginalFile, refExpr)
+          val items = finder.lookupItems(refExpr, parameters.getOriginalFile)
           addGlobalCompletions(items, resultSet)
         }
       }
@@ -61,7 +61,7 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
           if qualifier(refExpr).isEmpty
           finder <- StaticMembersFinder(refExpr, resultSet.getPrefixMatcher, invocationCount)
         } {
-          val items = finder.lookupItems(parameters.getOriginalFile, refExpr)
+          val items = finder.lookupItems(refExpr, parameters.getOriginalFile)
           addGlobalCompletions(items, resultSet)
         }
       }
