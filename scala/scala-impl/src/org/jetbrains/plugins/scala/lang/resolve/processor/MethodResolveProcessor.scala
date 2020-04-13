@@ -50,13 +50,11 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              val nameArgForDynamic: Option[String] = None)
   extends ResolveProcessor(kinds, ref, refName) {
 
-  private def isUpdate: Boolean = {
-    if (ref == null) return false
-    ref.getContext match {
+  private def isUpdate: Boolean =
+    ref != null && (ref.getContext match {
       case call: ScMethodCall => call.isUpdateCall
-      case _ => false
-    }
-  }
+      case _                  => false
+    })
 
   def isDynamic: Boolean = nameArgForDynamic.nonEmpty
 
@@ -133,8 +131,6 @@ class MethodResolveProcessor(override val ref: PsiElement,
     true
   }
 
-
-
   override def candidatesS: Set[ScalaResolveResult] = {
     if (isDynamic) {
       collectCandidates(super.candidatesS.map(_.copy(nameArgForDynamic = nameArgForDynamic))).filter(_.isApplicable())
@@ -176,16 +172,18 @@ class MethodResolveProcessor(override val ref: PsiElement,
 object MethodResolveProcessor {
   private lazy val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor")
 
-  private def problemsFor(c: ScalaResolveResult,
-                          checkWithImplicits: Boolean,
-                          ref: PsiElement,
-                          argumentClauses: List[Seq[Expression]],
-                          typeArgElements: Seq[ScTypeElement],
-                          selfConstructorResolve: Boolean,
-                          prevTypeInfo: Seq[TypeParameter],
-                          expectedOption: () => Option[ScType],
-                          isUnderscore: Boolean,
-                          isShapeResolve: Boolean): ConformanceExtResult = {
+  private def problemsFor(
+    c:                      ScalaResolveResult,
+    checkWithImplicits:     Boolean,
+    ref:                    PsiElement,
+    argumentClauses:        List[Seq[Expression]],
+    typeArgElements:        Seq[ScTypeElement],
+    selfConstructorResolve: Boolean,
+    prevTypeInfo:           Seq[TypeParameter],
+    expectedOption:         () => Option[ScType],
+    isUnderscore:           Boolean,
+    isShapeResolve:         Boolean
+  ): ConformanceExtResult = {
 
     implicit val ctx: ProjectContext = c.element
 
@@ -689,7 +687,7 @@ object MethodResolveProcessor {
     }
   }
 
-  private def expandApplyMethod(
+  private def expandApplyOrUpdateMethod(
     r:    ScalaResolveResult,
     proc: MethodResolveProcessor
   ): Set[(ScalaResolveResult, Boolean)] = {
@@ -705,7 +703,8 @@ object MethodResolveProcessor {
           case _ => (r.substitutor, false)
         }
 
-      val processor = new CollectMethodsProcessor(ref, "apply")
+      val methodName = if (isUpdate) "update" else "apply"
+      val processor  = new CollectMethodsProcessor(ref, methodName)
       processor.processType(substitutor(tp), ref)
 
       val cands =
@@ -736,7 +735,7 @@ object MethodResolveProcessor {
   ): Set[ScalaResolveResult] = {
     import proc._
 
-    val expanded = input.flatMap(expandApplyMethod(_, proc)).iterator
+    val expanded = input.flatMap(expandApplyOrUpdateMethod(_, proc)).iterator
     var results  = ArrayBuffer.empty[ScalaResolveResult]
 
     //problemsFor make all the work, wrapping it in scala collection API adds 9 unnecessary methods to the stacktrace
