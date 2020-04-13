@@ -17,6 +17,7 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, IteratorExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase._
+import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.{MarkersUtils, TestUtils}
 import org.junit.Assert._
@@ -64,6 +65,9 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     })
   )
 
+  def tempFileName: String =
+    getTestName(true) + ".scala"
+
   def doTest(): Unit =
     doTest(getTestName(false) + ".scala", getTestName(false) + "_after.scala")
 
@@ -74,7 +78,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doTextTest(text, textAfter, 1)
 
   def doTextTest(text: String, textAfter: String, repeats: Int): Unit =
-    doTextTest(TestData.reformat(text, textAfter, repeats))
+    doTextTest(TestData.reformat(text, textAfter, tempFileName, repeats))
 
   def doTextTest(text: String, textAfter: String, fileName: String): Unit =
     doTextTest(TestData.reformat(text, textAfter, fileName))
@@ -86,7 +90,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doTextTest(value, value, actionRepeats)
 
   private def doTextTest(action: Action, text: String, textAfter: String): Unit =
-    doTextTest(TestData(text, textAfter, TempFileName, action, 1))
+    doTextTest(TestData(text, textAfter, tempFileName, action, 1))
 
   /**
    * For a given selection create all possible selections text ranges with borders leaf elements ranges borders.
@@ -102,7 +106,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
       case other       => fail(s"expecting single range for all ranges test, but got: $other").asInstanceOf[Nothing]
     }
 
-    val file = createFile(TempFileName, textClean)
+    val file = createFile(tempFileName, textClean)
     val startElement = file.findElementAt(selection.getStartOffset)
     //val endElement = file.findElementAt(selection.getEndOffset)
     val element = // select non-leaf element
@@ -137,6 +141,13 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
           throw t
       }
     }
+
+    val expectedFormats = allRanges.size
+    val actualFormats = ScalaFmtPreFormatProcessor.formattedCountMap.get(file.getVirtualFile)
+    assertTrue(
+      "All generated range should be actually used for formatting",
+      actualFormats >= expectedFormats // intermediate formats from platform expected
+    )
   }
 
   private def allPossibleSubRanges(element: PsiElement): Seq[TextRange] = {
@@ -196,7 +207,6 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 }
 
 private object AbstractScalaFormatterTestBase {
-  val TempFileName = "A.scala"
 
   sealed trait Action
   object Action {
@@ -219,8 +229,7 @@ private object AbstractScalaFormatterTestBase {
       val (afterWithoutMarkers, _) = MarkersUtils.extractMarkers(after.withNormalizedSeparator)
       TestData(beforeWithoutMarkers, afterWithoutMarkers, fileName, action, selectedTextRanges, actionRepeats)
     }
-    def reformat(before: String, after: String): TestData = TestData(before, after, TempFileName, Action.Reformat, 1)
-    def reformat(before: String, after: String, repeats: Int): TestData = TestData(before, after, TempFileName, Action.Reformat, repeats)
+    def reformat(before: String, after: String, fileName: String, repeats: Int): TestData = TestData(before, after, fileName, Action.Reformat, repeats)
     def reformat(before: String, after: String, fileName: String): TestData = TestData(before, after, fileName, Action.Reformat, 1)
   }
 

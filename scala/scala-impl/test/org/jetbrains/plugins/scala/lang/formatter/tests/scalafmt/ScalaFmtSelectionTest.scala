@@ -6,8 +6,7 @@ import org.jetbrains.plugins.scala.util.Markers
 class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
 
   def testExprSelection(): Unit = {
-    val before =
-      s"class Test { val v = ${startMarker}1    +     22  $endMarker}"
+    val before = s"class Test { val v = ${startMarker}1    +     22  $endMarker}"
     val after = "class Test { val v = 1 + 22 }"
     doTextTest(before, after)
   }
@@ -1045,7 +1044,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
       s"""object Test extends App {
          |  val some = Some(0)
          |  some match {
-         |    case Some(test) => test + 1
+         |    case Some(test) => test + 1 + 2
          |  }
          |}
          |""".stripMargin

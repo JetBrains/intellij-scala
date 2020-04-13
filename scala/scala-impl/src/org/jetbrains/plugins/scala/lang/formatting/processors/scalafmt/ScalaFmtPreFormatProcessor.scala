@@ -10,6 +10,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -17,7 +18,7 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang.StringUtils
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.PsiChange._
 import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor._
@@ -29,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScConstructorPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -52,6 +53,7 @@ import scala.util.control.NonFatal
 class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
 
   override def process(element: ASTNode, range: TextRange): TextRange = {
+
     val psiFile = Option(element.getPsi).flatMap(_.getContainingFile.toOption)
     val useScalaFmt = psiFile.exists(CodeStyle.getCustomSettings(_, classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER)
     if (!useScalaFmt) return range
@@ -82,6 +84,7 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
 
 //noinspection HardCodedStringLiteral
 object ScalaFmtPreFormatProcessor {
+
   private val Log = Logger.getInstance(getClass)
 
   private val StartMarker = "/**StartMarker*/"
@@ -92,6 +95,9 @@ object ScalaFmtPreFormatProcessor {
   private val DummyWrapperClassName = "ScalaFmtFormatWrapper"
   private val DummyWrapperClassPrefix = s"class $DummyWrapperClassName {\n"
   private val DummyWrapperClassSuffix = "\n}"
+
+  @TestOnly
+  val formattedCountMap = new java.util.concurrent.ConcurrentHashMap[VirtualFile, Int]()
 
   private def shiftRange(file: PsiFile, range: TextRange): TextRange = {
     rangesDeltaCache.get(file).filterNot(_.isEmpty).map { deltas =>
@@ -124,7 +130,14 @@ object ScalaFmtPreFormatProcessor {
 
     val rangeUpdated = fixRangeStartingOnPsiElement(file, range)
 
-    formatRange(file, config, rangeUpdated).foreach { (delta: Int) =>
+    val result = formatRange(file, config, rangeUpdated)
+    for {
+      res <- result
+      _ = if (ApplicationManager.getApplication.isUnitTestMode) {
+        formattedCountMap.merge(file.getVirtualFile, 1, (a, b) => a + b)
+      }
+      delta <- res
+    } {
       def moveRanges(textRanges: TextRanges): TextRanges = {
         textRanges.ranges.map { otherRange =>
           if (otherRange.getEndOffset <= rangeUpdated.getStartOffset) otherRange
@@ -137,9 +150,10 @@ object ScalaFmtPreFormatProcessor {
         if (cachedFileTimeStamp == file.getModificationStamp) moveRanges(cachedRange)
         else new TextRanges
 
-      if (rangeUpdated.getLength + delta > 0)
-        file.putUserData(
-          FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp, configTimestamp))
+      if (rangeUpdated.getLength + delta > 0) {
+        val tuple = (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp, configTimestamp)
+        file.putUserData(FORMATTED_RANGES_KEY, tuple)
+      }
     }
   }
 
@@ -163,8 +177,11 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def formatInSingleFile(elements: Seq[PsiElement], config: ScalafmtDynamicConfig, shouldWrap: Boolean)
-                                (implicit project: Project): Option[WrappedCode] = {
+  private def formatInSingleFile(
+    elements: Seq[PsiElement],
+    config: ScalafmtDynamicConfig,
+    shouldWrap: Boolean
+  )(implicit project: Project): Option[WrappedCode] = {
     val wrappedCode: WrappedCode =
       if (shouldWrap) {
         wrap(elements)
@@ -176,10 +193,10 @@ object ScalaFmtPreFormatProcessor {
     val scalaFmt: ScalafmtReflect = config.fmtReflect
     scalaFmt.tryFormat(wrappedCode.text, config) match {
       case Left(value) =>
-        if (ApplicationManager.getApplication.isUnitTestMode || true)
+        if (ApplicationManager.getApplication.isUnitTestMode)
           throw value.cause
         None
-      case Right(formattedText)             =>
+      case Right(formattedText) =>
         Some(wrappedCode.withText(formattedText))
     }
   }
@@ -337,11 +354,11 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def formatRange(file: PsiFile, config: ScalafmtDynamicConfig, range: TextRange): Option[Int] = {
+  private def formatRange(file: PsiFile, config: ScalafmtDynamicConfig, range: TextRange): Either[Unit, Option[Int]] = {
     implicit val project: Project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
     val document = manager.getDocument(file)
-    if (document == null) return None
+    if (document == null) return Left(())
     implicit val fileText: String = file.getText
 
     val rangeIncludesWholeFile = range.contains(file.getTextRange)
@@ -351,14 +368,14 @@ object ScalaFmtPreFormatProcessor {
       formatWithoutCommit(document, config) match {
         case Right(_) =>
           manager.commitDocument(document)
-          return None
+          return Right(None)
         case Left(error: ScalafmtFormatError) =>
           wholeFileFormatError = Some(error)
         case _ =>
       }
     }
 
-    def processRange(elements: Seq[PsiElement], wrap: Boolean): Option[Int] = {
+    def processRange(elements: Seq[PsiElement], wrap: Boolean): Either[Unit, Option[Int]] = {
       val hasRewriteRules = config.hasRewriteRules
       val rewriteElements: Seq[PsiElement] = if (hasRewriteRules) elements.flatMap(maybeRewriteElements(_, range)) else Seq.empty
       val rewriteElementsToFormatted: Seq[(PsiElement, WrappedCode)] = attachFormattedCode(rewriteElements, config)
@@ -369,10 +386,13 @@ object ScalaFmtPreFormatProcessor {
         manager.commitDocument(document)
         textRangeDelta
       }
+
       if (result.isEmpty) {
         reportInvalidCodeFailure(file, wholeFileFormatError)
+        Left(())
+      } else {
+        Right(result)
       }
-      result
     }
 
     val elementsWrapped: Seq[PsiElement] = elementsInRangeWrapped(file, range)
@@ -380,11 +400,12 @@ object ScalaFmtPreFormatProcessor {
       if (rangeIncludesWholeFile) {
         //wanted to format whole file, failed with file and with file elements wrapped, report failure
         reportInvalidCodeFailure(file, wholeFileFormatError)
+        Left(())
       } else {
         //failed to wrap some elements, try the whole file
         processRange(Seq(file), wrap = false)
+        Right(None)
       }
-      None
     } else {
       processRange(elementsWrapped, wrap = true)
     }
@@ -765,6 +786,9 @@ object ScalaFmtPreFormatProcessor {
     }
 
     if (ScalaCodeStyleSettings.getInstance(project).SCALAFMT_SHOW_INVALID_CODE_WARNINGS && !failSilent) {
+      if (ApplicationManager.getApplication.isUnitTestMode)
+        error.map(_.cause).foreach(throw _)
+
       error.map(_.cause) match {
         case Some(cause: scala.meta.ParseException) =>
           displayParseError(cause.getMessage, cause.pos.start.offset)
@@ -776,6 +800,8 @@ object ScalaFmtPreFormatProcessor {
           val errorMessage = ScalaBundle.message("scalafmt.format.errors.failed.to.find.correct.surrounding.code", fileLink(fileName))
           val listener = fileLinkListener(project, file, 0)
           displayError(errorMessage, listener = Some(listener))
+          if (ApplicationManager.getApplication.isUnitTestMode)
+            throw new AssertionError(errorMessage)
       }
     }
   }
@@ -908,7 +934,7 @@ object ScalaFmtPreFormatProcessor {
     def tryFormat(code: String, config: ScalafmtDynamicConfig): Either[ScalafmtFormatError, String] = {
       Try(scalafmt.format(code, config)).toEither.left.map {
         case ReflectionException(e) => ScalafmtFormatError(e)
-        case e => ScalafmtFormatError(e)
+        case e                      => ScalafmtFormatError(e)
       }
     }
   }
