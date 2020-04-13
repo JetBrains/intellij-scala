@@ -9,7 +9,7 @@ intellijPluginName in ThisBuild := "Scala"
 
 intellijBuild in ThisBuild := Versions.intellijVersion
 
-intellijPlatform in ThisBuild := IntelliJPlatform.IdeaUltimate
+intellijPlatform in ThisBuild := IntelliJPlatform.IdeaCommunity
 
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
