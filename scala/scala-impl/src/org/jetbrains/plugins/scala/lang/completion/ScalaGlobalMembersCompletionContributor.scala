@@ -8,7 +8,6 @@ import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -55,14 +54,12 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
                                   context: ProcessingContext,
                                   resultSet: CompletionResultSet): Unit = {
         val invocationCount = parameters.getInvocationCount
-
         if (invocationCount < 2) return
-        val accessAll = invocationCount >= 3
 
         for {
           refExpr <- findReference(parameters)
           if qualifier(refExpr).isEmpty
-          finder  <- StaticMembersFinder(refExpr, resultSet.getPrefixMatcher, accessAll)
+          finder <- StaticMembersFinder(refExpr, resultSet.getPrefixMatcher, invocationCount)
         } {
           val items = finder.lookupItems(parameters.getOriginalFile, refExpr)
           addGlobalCompletions(items, resultSet)

@@ -1,29 +1,32 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
 import com.intellij.codeInsight.completion.PrefixMatcher
+import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiMethodExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.StaticMembersFinder.classesToImportFor
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.findInheritorObjects
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private final class StaticMembersFinder(place: ScReferenceExpression, matcher: PrefixMatcher, accessAll: Boolean)
+private final class StaticMembersFinder(namePredicate: String => Boolean)
+                                       (isAccessible: PsiMember => Boolean)
+                                       (implicit private val project: Project,
+                                        private val scope: GlobalSearchScope)
   extends GlobalMembersFinder {
 
-  private implicit val ElementScope(project, scope) = place.elementScope
   private val cacheManager = ScalaShortNamesCacheManager.getInstance
-  private def nameMatches(s: String): Boolean = matcher.prefixMatches(s)
 
   override protected def candidates: Iterable[GlobalMemberResult] = methodsLookups ++ fieldsLookups ++ propertiesLookups
 
   private def methodsLookups = for {
-    method <- cacheManager.allFunctions(nameMatches) ++ cacheManager.allMethods(nameMatches)
+    method <- cacheManager.allFunctions(namePredicate) ++ cacheManager.allMethods(namePredicate)
     if isAccessible(method)
 
     classToImport <- classesToImportFor(method)
@@ -44,7 +47,7 @@ private final class StaticMembersFinder(place: ScReferenceExpression, matcher: P
   } yield StaticMemberResult(namedElement, classToImport, isOverloadedForClassName)
 
   private def fieldsLookups = for {
-    field <- cacheManager.allFields(nameMatches)
+    field <- cacheManager.allFields(namePredicate)
     if isAccessible(field) && isStatic(field)
 
     classToImport = field.containingClass
@@ -52,16 +55,13 @@ private final class StaticMembersFinder(place: ScReferenceExpression, matcher: P
   } yield StaticMemberResult(field, classToImport)
 
   private def propertiesLookups = for {
-    property <- cacheManager.allProperties(nameMatches)
+    property <- cacheManager.allProperties(namePredicate)
     if isAccessible(property)
 
     namedElement = property.declaredElements.head
 
     classToImport <- classesToImportFor(property)
   } yield StaticMemberResult(namedElement, classToImport)
-
-  private def isAccessible(member: PsiMember) = accessAll ||
-    ResolveUtils.isAccessible(member, place, forCompletion = true)
 
   private final case class StaticMemberResult(override val elementToImport: PsiNamedElement,
                                               override val containingClass: PsiClass,
@@ -75,20 +75,20 @@ private final class StaticMembersFinder(place: ScReferenceExpression, matcher: P
 
 private object StaticMembersFinder {
 
-  def apply(place: ScReferenceExpression, prefixMatcher: PrefixMatcher, accessAll: Boolean): Option[StaticMembersFinder] =
-    if (prefixMatcher.getPrefix.nonEmpty) Some(new StaticMembersFinder(place, prefixMatcher, accessAll))
-    else None
-
-  private def classesToImportFor(m: PsiMember): Iterable[PsiClass] = {
-    val cClass = m.containingClass
-    if (cClass == null)
-      return Seq.empty
-
-    if (isStatic(m)) Seq(cClass)
-    else {
-      cClass.asOptionOf[ScTemplateDefinition]
-        .map(ScalaInheritors.findInheritorObjects).getOrElse(Set.empty)
+  def apply(place: ScReferenceExpression,
+            matcher: PrefixMatcher,
+            invocationCount: Int): Option[StaticMembersFinder] =
+    if (matcher.getPrefix.isEmpty) {
+      None
+    } else {
+      val isAccessible = invocationCount >= 3 ||
+        completion.isAccessible(_: PsiMember)(place)
+      Some(new StaticMembersFinder(matcher.prefixMatches)(isAccessible)(place.getProject, place.resolveScope))
     }
-  }
 
+  private def classesToImportFor(member: PsiMember): Set[_ <: PsiClass] = member.containingClass match {
+    case clazz: ScTemplateDefinition => findInheritorObjects(clazz)
+    case clazz: PsiClass if isStatic(member) => Set(clazz)
+    case _ => Set.empty
+  }
 }
