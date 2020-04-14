@@ -22,7 +22,7 @@ class CancellableFuture[T](original: CompletableFuture[_]) extends CompletableFu
     super.cancel(mayInterruptIfRunning)
   }
 
-  override def newIncompleteFuture[U](): CompletableFuture[U] = {
+  def newIncompleteFuture[U](): CompletableFuture[U] = {
     new CancellableFuture(original)
   }
 }
