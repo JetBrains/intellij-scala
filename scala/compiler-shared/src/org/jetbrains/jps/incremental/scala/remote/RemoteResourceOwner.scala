@@ -93,9 +93,8 @@ trait RemoteResourceOwner {
 
   protected def reportException(message: String, ex: Throwable, client: Client): Unit = {
     val className = this.getClass.getSimpleName
-    val pid = ProcessHandle.current.pid
     val tid = Thread.currentThread
-    client.internalInfo(s"[$className] [t$tid p:$pid] $message\n${exceptionText(ex)}")
+    client.internalInfo(s"[$className] [t$tid] $message\n${exceptionText(ex)}")
   }
 
   protected def exceptionText(ex: Throwable): String =

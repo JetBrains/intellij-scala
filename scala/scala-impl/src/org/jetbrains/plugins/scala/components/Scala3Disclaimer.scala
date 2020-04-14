@@ -104,7 +104,7 @@ object Scala3Disclaimer {
 
   private def read(file: File): String = new String(Files.readAllBytes(file.toPath))
 
-  private def write(file: File, contents: String): Unit = Files.writeString(file.toPath, contents)
+  private def write(file: File, contents: String): Unit = Files.write(file.toPath, contents.getBytes)
 
   private def useDottyVersionActionIn(project: Project, version: String): NotificationAction = new NotificationAction(ScalaBundle.message("adjust.dotty.version", version)) {
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {

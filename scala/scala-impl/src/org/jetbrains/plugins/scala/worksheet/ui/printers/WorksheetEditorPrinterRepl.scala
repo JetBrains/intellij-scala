@@ -90,7 +90,7 @@ final class WorksheetEditorPrinterRepl private[printers](
         chunkIsBeingProcessed = false
         //prepareViewerDocument()
 
-        val outputText = chunkOutputBuffer.toString.stripTrailing
+        val outputText = chunkOutputBuffer.toString.replaceFirst("\\s++$", "")
         chunkOutputBuffer.clear()
 
         val successfully = command == ReplChunkEnd

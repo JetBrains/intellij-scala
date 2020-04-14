@@ -57,14 +57,14 @@ public class AttachIntellijSourcesAction extends AnAction {
         LOG.info("Found " + ijLibraries.size() + " IJ libraries without sources");
 
         Optional<VirtualFile> ideaInstallationFolder = application.runReadAction(getLibraryRoot(ijLibraries));
-        if (ideaInstallationFolder.isEmpty()) {
+        if (!ideaInstallationFolder.isPresent()) {
             LOG.info("Couldn't find IDEA installation folder");
             return;
         }
         LOG.info("Found IDEA installation folder at " + ideaInstallationFolder.get());
 
         Optional<VirtualFile> maybeSourcesZip = ideaInstallationFolder.flatMap(AttachIntellijSourcesAction::findSourcesZip);
-        if (maybeSourcesZip.isEmpty()) {
+        if (!maybeSourcesZip.isPresent()) {
             LOG.info("Couldn't find IDEA sources in installation folder: " + ideaInstallationFolder.get());
             return;
         }

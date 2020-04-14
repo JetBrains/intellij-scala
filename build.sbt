@@ -16,6 +16,10 @@ resolvers in ThisBuild ++=
     Resolver.typesafeIvyRepo("releases") :+
     Resolver.sonatypeRepo("snapshots")
 
+javacOptions in Global := globalJavacOptions
+
+scalacOptions in Global := globalScalacOptions
+
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
@@ -106,9 +110,6 @@ lazy val scalaImpl: sbt.Project =
     .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
-      javacOptions in Global ++= globalJavacOptions,
-      javacOptions ++= Seq("--add-exports", "jdk.jdi/com.sun.jdi=ALL-UNNAMED"),
-      scalacOptions in Global ++= globalScalacOptions,
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity,
       addCompilerPlugin(Dependencies.macroParadise),
@@ -129,10 +130,8 @@ lazy val scalaImpl: sbt.Project =
       packageLibraryMappings ++= Seq(
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
         "com.trueaccord.scalapb" %% "scalapb-runtime" % ".*"  -> None,
-        "com.google.protobuf" % "protobuf-java" % ".*"        -> None,
         "com.trueaccord.lenses" %% "lenses" % ".*"            -> None,
         "com.lihaoyi" %% "fastparse-utils" % ".*"             -> None,
-        "commons-lang" % "commons-lang" % ".*"                -> None,
         Dependencies.scalaXml                                 -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect                             -> Some("lib/scala-reflect.jar"),
         Dependencies.scalaLibrary                             -> None
@@ -165,8 +164,6 @@ lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
     .dependsOn(compilerShared, repackagedZinc)
     .settings(
-      javacOptions            := jpsJavacOptions,
-      scalacOptions           := jpsScalacOptions,
       packageMethod           :=  PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
       libraryDependencies     ++= Dependencies.nailgun :: Dependencies.zincInterface  :: Nil,
       packageLibraryMappings  ++= Dependencies.nailgun       -> Some("lib/jps/nailgun.jar") ::
@@ -184,8 +181,6 @@ lazy val repackagedZinc =
 lazy val compilerShared =
   newProject("compiler-shared", file("scala/compiler-shared"))
     .settings(
-      javacOptions        := jpsJavacOptions,
-      scalacOptions       := jpsScalacOptions,
       libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.compilerIndicesProtocol),
       packageLibraryMappings ++= Seq(
         Dependencies.nailgun                 -> Some("lib/jps/nailgun.jar"),
@@ -197,8 +192,6 @@ lazy val compilerShared =
 lazy val runners =
   newProject("runners", file("scala/runners"))
     .settings(
-      javacOptions  := jpsJavacOptions,
-      scalacOptions := jpsScalacOptions,
       packageMethod := PackagingMethod.Standalone(static = true),
       libraryDependencies ++= DependencyGroups.runners,
       // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
@@ -209,8 +202,6 @@ lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
     .dependsOn(runners)
     .settings(
-      javacOptions        := jpsJavacOptions,
-      scalacOptions       := jpsScalacOptions,
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
       packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)

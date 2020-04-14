@@ -1,7 +1,7 @@
 language: scala
 
 jdk:
-  - openjdk11
+  - openjdk8
 
 sudo: true
 
