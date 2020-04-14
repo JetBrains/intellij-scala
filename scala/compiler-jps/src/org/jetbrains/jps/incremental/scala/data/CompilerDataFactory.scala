@@ -128,7 +128,7 @@ object CompilerDataFactory
 
   private def bootCpArgs(hasDotty: => Boolean, hasOldScala: => Boolean): Seq[String] =
     if (hasDotty) {
-      Seq("-javabootclasspath", File.pathSeparator)
+      Seq.empty
     } else if (hasOldScala) {
       Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
     } else {
