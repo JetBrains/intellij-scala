@@ -17,10 +17,15 @@ object BspEnvironmentRunnerExtension {
   val EP_NAME: ExtensionPointName[BspEnvironmentRunnerExtension] =
     ExtensionPointName.create("com.intellij.bspEnvironmentRunnerExtension")
 
-  def getClassExtractor(runConfiguration: RunConfiguration): Option[BspEnvironmentRunnerExtension] =
-    EP_NAME.getExtensionList().asScala
-      .find(_.runConfigurationSupported(runConfiguration))
+  def isSupported(config: RunConfiguration): Boolean =
+    extensions.exists(_.runConfigurationSupported(config))
 
+  def getClassExtractor(runConfiguration: RunConfiguration): Option[BspEnvironmentRunnerExtension] =
+    extensions.find(_.runConfigurationSupported(runConfiguration))
+
+  private def extensions = {
+    EP_NAME.getExtensionList().asScala.iterator
+  }
 }
 
 /**

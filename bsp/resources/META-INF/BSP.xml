@@ -7,6 +7,10 @@
                         interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"/>
     </extensionPoints>
 
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <worksheetCompilerExtension implementation="org.jetbrains.bsp.project.test.environment.BspWorksheetCompilerExtension"/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.intellij">
         <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentScalaTestRunnerExtension"/>
         <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentApplicationRunnerExtension"/>
@@ -50,6 +54,7 @@
 
         <java.programPatcher implementation="org.jetbrains.bsp.project.test.environment.BspJvmEnvironmentProgramPatcher"/>
         <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskProvider"/>
+        <moduleService serviceImplementation="org.jetbrains.bsp.project.test.environment.PersistentBspTargetIdHolder"/>
     </extensions>
 
     <projectListeners>
