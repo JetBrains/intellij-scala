@@ -1,6 +1,5 @@
 package org.jetbrains.bsp.settings
 
-import java.beans.BeanProperty
 import java.io.File
 import java.util
 
@@ -15,6 +14,8 @@ import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.annotations.XCollection
 import javax.swing.JCheckBox
 import org.jetbrains.bsp.{BspBundle, _}
+
+import scala.beans.BeanProperty
 
 class BspProjectSettings extends ExternalProjectSettings {
 

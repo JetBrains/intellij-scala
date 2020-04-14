@@ -124,7 +124,7 @@ public class AttachSourcesUtil {
                 librariesToAppendSourcesTo.put(null, null);
 
                 LibraryOrderEntry[] orderEntries = librariesToAppendSourcesTo.values().toArray(new LibraryOrderEntry[0]);
-                BaseListPopupStep<LibraryOrderEntry> popupStep = new BaseListPopupStep<>("<html><body>" + ScalaBundle.message("multiple.libraries.contain.file") + "</body></html>", orderEntries) {
+                BaseListPopupStep<LibraryOrderEntry> popupStep = new BaseListPopupStep<LibraryOrderEntry>("<html><body>" + ScalaBundle.message("multiple.libraries.contain.file") + "</body></html>", orderEntries) {
 
                     @Nullable
                     @Override
@@ -184,7 +184,7 @@ public class AttachSourcesUtil {
             );
 
             return orderRoots.stream()
-                    .map(OrderRoot::getFile).collect(Collectors.toUnmodifiableList());
+                    .map(OrderRoot::getFile).collect(Collectors.toList());
         }
 
         @Nullable

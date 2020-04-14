@@ -146,7 +146,7 @@ package object template {
     def toLibraryRootURL: String = VfsUtil.getUrlForLibraryRoot(delegate)
 
     def toVirtualFile: Option[VirtualFile] = {
-      val url = URLDecoder.decode(delegate.toPath.toUri.toString, StandardCharsets.UTF_8)
+      val url = URLDecoder.decode(delegate.toPath.toUri.toString, StandardCharsets.UTF_8.name())
       Option(VirtualFileManager.getInstance.findFileByUrl(url))
     }
   }

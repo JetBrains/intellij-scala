@@ -84,6 +84,10 @@ class FetchScalaTestClassesTask(project: Project,
   private def requestTestClasses(params: ScalaTestClassesParams)(bsp: BspServer, capabilities: BuildServerCapabilities):
   CompletableFuture[ScalaTestClassesResult] =
     if (! capabilities.getTestProvider.getLanguageIds.isEmpty) bsp.buildTargetScalaTestClasses(params)
-    else CompletableFuture.failedFuture(BspErrorMessage(BspBundle.message("bsp.test.server.does.not.support.testing")))
+    else {
+      val result = new CompletableFuture[ScalaTestClassesResult]()
+      result.completeExceptionally(BspErrorMessage(BspBundle.message("bsp.test.server.does.not.support.testing")))
+      result
+    }
 
 }
