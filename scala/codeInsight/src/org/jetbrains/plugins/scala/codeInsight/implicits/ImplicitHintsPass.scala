@@ -62,16 +62,14 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
 
     def implicitArgumentsOrErrorHints(owner: ImplicitArgumentsOwner): Seq[Hint] = {
       val showShowImplicitErrors = showImplicitErrors(owner)
-      val shouldSearch = ImplicitHints.enabled || showShowImplicitErrors
+      val compilerErrorsEnabled = ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
+      val shouldSearch = (ImplicitHints.enabled || showShowImplicitErrors) && !compilerErrorsEnabled
 
-      def shouldShow(arguments: Seq[ScalaResolveResult]) = {
-        val compilerErrorsEnabled = ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
-        val basicCondition = ImplicitHints.enabled || (showShowImplicitErrors && arguments.exists(it =>
+      def shouldShow(arguments: Seq[ScalaResolveResult]) =
+        ImplicitHints.enabled || (showShowImplicitErrors && arguments.exists(it =>
           it.isImplicitParameterProblem &&
             (if (probableArgumentsFor(it).size > 1) settings.isShowAmbiguousImplicitArguments
             else settings.isShowNotFoundImplicitArguments)))
-        !compilerErrorsEnabled && basicCondition
-      }
 
       if (shouldSearch) {
         owner.findImplicitArguments.toSeq.flatMap {
