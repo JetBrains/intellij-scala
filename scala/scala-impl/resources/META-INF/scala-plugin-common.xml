@@ -21,6 +21,7 @@
         <extensionPoint name="unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider" dynamic="true"/>
         <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider" dynamic="true"/>
         <extensionPoint name="fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor" dynamic="true"/>
+        <extensionPoint name="worksheetCompilerExtension" interface="org.jetbrains.plugins.scala.compiler.WorksheetCompilerExtension"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">

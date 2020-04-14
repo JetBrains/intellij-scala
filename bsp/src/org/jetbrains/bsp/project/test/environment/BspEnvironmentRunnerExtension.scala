@@ -16,6 +16,9 @@ object BspEnvironmentRunnerExtension
 
   def getClassExtractor(runConfiguration: RunConfiguration): Option[BspEnvironmentRunnerExtension] =
     implementations.find(_.runConfigurationSupported(runConfiguration))
+
+  def isSupported(config: RunConfiguration): Boolean =
+    implementations.exists(_.runConfigurationSupported(config))
 }
 
 trait BspEnvironmentRunnerExtension {
