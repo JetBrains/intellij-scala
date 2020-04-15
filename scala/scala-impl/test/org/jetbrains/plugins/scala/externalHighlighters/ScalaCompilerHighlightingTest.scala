@@ -93,7 +93,7 @@ class ScalaCompilerHighlightingTest
       |val x = 23
       |"""
 
-  /** see [[org. jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
+  /** see [[org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
   def testOnlyErrorsAreExpectedInWorksheet_Scala_2_13(): Unit = runTestCaseForWorksheet(
     fileName = "worksheet.sc",
