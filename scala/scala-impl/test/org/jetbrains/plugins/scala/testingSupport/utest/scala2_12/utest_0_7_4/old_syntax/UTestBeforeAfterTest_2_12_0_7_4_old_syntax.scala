@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala.testingSupport.utest.scala2_12.utest_0_5_4
+package org.jetbrains.plugins.scala.testingSupport.utest.scala2_12.utest_0_7_4.old_syntax
 
-import org.jetbrains.plugins.scala.SlowTests
-import org.junit.experimental.categories.Category
+import org.jetbrains.plugins.scala.testingSupport.utest.scala2_12.utest_0_7_4
 
-class UTestBeforeAfterTest_2_12_0_5_4 extends UTestTestBase_2_12_0_5_4 {
+class UTestBeforeAfterTest_2_12_0_7_4_old_syntax extends utest_0_7_4.UTestTestBase_2_12_0_7_4 {
 
   val beforeAfterTestName = "BeforeAfterTest"
   val beforeAfterFileName = beforeAfterTestName + ".scala"

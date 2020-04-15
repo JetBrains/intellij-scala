@@ -44,20 +44,6 @@ public class UTestRunner {
     return new UTestPath(className, testPath, method);
   }
 
-  private static Method getRunAsynchMethod(Class<?> treeSeqClass) {
-    try {
-      return treeSeqClass.getMethod("runFuture", scala.Function2.class, Seq.class, Seq.class, scala.concurrent.Future.class, scala.concurrent.ExecutionContext.class);
-    } catch (NoSuchMethodException ignored) {
-      // ignore
-    }
-    try {
-      return treeSeqClass.getMethod("runFuture", scala.Function2.class, Seq.class, Seq.class, scala.Function1.class, scala.concurrent.Future.class, scala.concurrent.ExecutionContext.class);
-    } catch (NoSuchMethodException ignored) {
-      // ignore
-    }
-    return null;
-  }
-
   public static void main(String[] args) throws IOException {
     String[] newArgs = TestRunnerUtil.getNewArgs(args);
     Map<String, Set<UTestPath>> classesToTests = new HashMap<>();
@@ -104,27 +90,17 @@ public class UTestRunner {
       }
     }
 
-    Class treeSeqClass = null;
-    Method runAsyncMethod = null;
-    try {
-      treeSeqClass = Class.forName("utest.framework.TestTreeSeq");
-      runAsyncMethod = getRunAsynchMethod(treeSeqClass);
-    } catch (ClassNotFoundException ignored) {
-      // ignore
-    }
-
     Map<String, Set<UTestPath>> suitesAndTests = failedUsed ? failedTestMap : classesToTests;
     // TODO: (from Nikolay Tropin)
     //  I think it would be better to encapsulate waiting logic in UTestRunner.
     //  Reporter shouldn't be aware about number of tests and manage concurrency.
     UTestReporter reporter = new UTestReporter(suitesAndTests.size());
-    UTestSuiteRunner runner = runAsyncMethod != null
-        ? new UTestSuiteReflectionRunner(runAsyncMethod, treeSeqClass)
-        : new UTestSuite540Runner();
+    UTestSuiteRunner runner = new UTestSuite540Runner();
     for (String className : suitesAndTests.keySet()) {
       runner.runTestSuites(className, suitesAndTests.get(className), reporter);
     }
     reporter.waitUntilReportingFinished();
+
     System.exit(0);
   }
 }
