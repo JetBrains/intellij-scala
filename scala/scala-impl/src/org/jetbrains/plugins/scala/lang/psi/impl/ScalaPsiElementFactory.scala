@@ -265,7 +265,7 @@ object ScalaPsiElementFactory {
       }
 
   def createPatternFromTextWithContext(@NonNls patternText: String, context: PsiElement, child: PsiElement): ScPattern =
-    createElementWithContext[ScCaseClause](kCASE + " " + patternText, context, child)(patterns.CaseClause.parse)
+    createElementWithContext[ScCaseClause](kCASE + " " + patternText, context, child)(patterns.CaseClause.parse(_))
       .pattern
       .getOrElse {
         throw elementCreationException("pattern", patternText, context)

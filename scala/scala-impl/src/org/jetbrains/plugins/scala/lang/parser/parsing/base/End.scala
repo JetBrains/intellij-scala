@@ -25,7 +25,8 @@ object End extends ParsingRule {
       return false
 
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-          builder.getTokenText == "end") {
+          builder.getTokenText == "end" &&
+          builder.findPreviousIndent.isDefined) {
       val marker = builder.mark()
       builder.remapCurrentToken(ScalaTokenType.EndKeyword)
       builder.advanceLexer()

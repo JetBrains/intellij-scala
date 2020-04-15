@@ -5,6 +5,7 @@ package parsing
 package expressions
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -112,9 +113,8 @@ object Expr1 extends ParsingRule {
         val catchMarker = builder.mark
         builder.getTokenType match {
           case ScalaTokenTypes.kCATCH =>
-            // todo: handle indention
             builder.advanceLexer() //Ate catch
-            if (!Expr()) {
+            if (!CaseClausesOrExprCaseClause() && !Expr()) {
               builder.error(ErrMsg("wrong.expression"))
             }
             catchMarker.done(ScalaElementType.CATCH_BLOCK)
@@ -132,6 +132,7 @@ object Expr1 extends ParsingRule {
           case _ =>
             finallyMarker.drop()
         }
+        End()
         exprMarker.done(ScalaElementType.TRY_STMT)
         return true
       //----------------do statement----------------//
@@ -269,7 +270,6 @@ object Expr1 extends ParsingRule {
             exprMarker.done(ScalaElementType.TYPED_EXPR_STMT)
             return true
           case ScalaTokenTypes.kMATCH =>
-            // todo: handle indention
             builder.advanceLexer() //Ate match
             builder.getTokenType match {
               case ScalaTokenTypes.tLBRACE =>
@@ -282,8 +282,14 @@ object Expr1 extends ParsingRule {
                 }
                 ParserUtils.parseLoopUntilRBrace(builder, foo _)
                 builder.restoreNewlinesState()
+
+              case ScalaTokenTypes.kCASE if builder.isScala3 =>
+                CaseClausesInIndentationRegion()
+
               case _ => builder error ErrMsg("case.clauses.expected")
             }
+
+            End()
             exprMarker.done(ScalaElementType.MATCH_STMT)
             return true
           case _ =>
