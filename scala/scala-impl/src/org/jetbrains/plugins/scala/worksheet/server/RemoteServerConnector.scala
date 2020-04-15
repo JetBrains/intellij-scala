@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.PlainModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
@@ -160,13 +159,14 @@ object RemoteServerConnector {
 
   sealed trait Args {
     final def compiledFile: Option[File] = this match {
-      case PlainModeArgs(sourceFile, _, _) => Some(sourceFile)
-      case Args.CompileOnly(sourceFile, _) => Some(sourceFile)
-      case Args.ReplModeArgs(_, _)         => None
+      case Args.PlainModeArgs(sourceFile, _, _) => Some(sourceFile)
+      case Args.CompileOnly(sourceFile, _)      => Some(sourceFile)
+      case Args.ReplModeArgs(_, _)              => None
     }
     final def compilationOutputDir: Option[File] = this match {
-      case PlainModeArgs(_, outputDir, _) => Some(outputDir)
-      case _                              => None
+      case Args.PlainModeArgs(_, outputDir, _) => Some(outputDir)
+      case Args.CompileOnly(_, outputDir)      => Some(outputDir)
+      case _                                   => None
     }
   }
   object Args {
