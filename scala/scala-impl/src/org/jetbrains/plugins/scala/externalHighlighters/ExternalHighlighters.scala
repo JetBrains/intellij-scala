@@ -19,31 +19,24 @@ import scala.collection.JavaConverters._
 
 object ExternalHighlighters {
 
-  // it would be cool to distinguish between worksheet and ordinary source files, do not update in one bulk
-  def updateOpenEditors(project: Project, state: HighlightingState): Unit = {
-    val editors = EditorFactory.getInstance.getAllEditors.filter(_.getProject == project)
-    editors.foreach(applyHighlighting(project, _, state))
-  }
-
   def applyHighlighting(project: Project,
                         editor: Editor,
                         state: HighlightingState): Unit =
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-      for {
-        vFile <- findScalaFile(editor)
-        externalHighlights <- state.get(vFile)
-      } invokeLater {
-        val highlightInfos = externalHighlights.flatMap(toHighlightInfo(_, editor))
-        val document = editor.getDocument
-        UpdateHighlightersUtil.setHighlightersToEditor(
-          project,
-          document, 0, document.getTextLength,
-          highlightInfos.toSeq.asJava,
-          editor.getColorsScheme,
-          Pass.EXTERNAL_TOOLS
-        )
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+      findScalaFile(editor).foreach { virtualFile =>
+        val externalHighlights = state.getOrElse(virtualFile, Set.empty)
+        invokeLater {
+          val highlightInfos = externalHighlights.flatMap(toHighlightInfo(_, editor))
+          val document = editor.getDocument
+          UpdateHighlightersUtil.setHighlightersToEditor(
+            project,
+            document, 0, document.getTextLength,
+            highlightInfos.toSeq.asJava,
+            editor.getColorsScheme,
+            Pass.EXTERNAL_TOOLS
+          )
+        }
       }
-    }
 
   private def findScalaFile(editor: Editor): Option[VirtualFile] =
     editor.getDocument.virtualFile.filter(isScalaFile)
