@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.uTest;
 
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
-import scala.collection.Seq;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -11,7 +10,7 @@ import static org.jetbrains.plugins.scala.testingSupport.uTest.UTestSuiteRunner.
 
 public class UTestRunner {
 
-  protected static Class getClassByFqn(String errorMessage, String... options) {
+  protected static Class<?> getClassByFqn(String errorMessage, String... options) {
     for (String fqn: options) {
       try {
         return Class.forName(fqn);
@@ -26,7 +25,7 @@ public class UTestRunner {
     String[] nameArgs = argsString.split("\\\\");
     List<String> asList = Arrays.asList(nameArgs);
     List<String> testPath = asList.subList(1, asList.size());
-    Class clazz;
+    Class<?> clazz;
     try {
       clazz = Class.forName(className);
     } catch (ClassNotFoundException e) {
@@ -52,41 +51,47 @@ public class UTestRunner {
     String currentClass = null;
     boolean failedUsed = false;
     while (i < newArgs.length) {
-      if (newArgs[i].equals("-s")) {
-        ++i;
-        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          classesToTests.put(newArgs[i], new HashSet<>());
-          currentClass = newArgs[i];
+      switch (newArgs[i]) {
+        case "-s":
           ++i;
-        }
-      } else if (newArgs[i].equals("-testName")) {
-        ++i;
-        if (currentClass == null) throw new RuntimeException("Failed to run tests: no suite class specified for test " + newArgs[i]);
-        while (!newArgs[i].startsWith("-")) {
-          String testName = newArgs[i];
-          UTestPath aTest = parseTestPath(currentClass, testName);
-          if (aTest != null) {
-            classesToTests.get(currentClass).add(aTest);
+          while (i < newArgs.length && !newArgs[i].startsWith("-")) {
+            classesToTests.put(newArgs[i], new HashSet<>());
+            currentClass = newArgs[i];
+            ++i;
           }
+          break;
+        case "-testName":
           ++i;
-        }
-      } else if (newArgs[i].equals("-failedTests")) {
-        failedUsed = true;
-        ++i;
-        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          String failedClassName = newArgs[i];
-          UTestPath testPath = parseTestPath(failedClassName, newArgs[i + 1]);
-          Set<UTestPath> testSet = failedTestMap.get(failedClassName);
-          if (testSet == null)
-            testSet = new HashSet<>();
-          if (testPath != null) {
-            testSet.add(testPath);
+          if (currentClass == null)
+            throw new RuntimeException("Failed to run tests: no suite class specified for test " + newArgs[i]);
+          while (!newArgs[i].startsWith("-")) {
+            String testName = newArgs[i];
+            UTestPath aTest = parseTestPath(currentClass, testName);
+            if (aTest != null) {
+              classesToTests.get(currentClass).add(aTest);
+            }
+            ++i;
           }
-          failedTestMap.put(failedClassName, testSet);
-          i += 2;
-        }
-      } else {
-        ++i;
+          break;
+        case "-failedTests":
+          failedUsed = true;
+          ++i;
+          while (i < newArgs.length && !newArgs[i].startsWith("-")) {
+            String failedClassName = newArgs[i];
+            UTestPath testPath = parseTestPath(failedClassName, newArgs[i + 1]);
+            Set<UTestPath> testSet = failedTestMap.get(failedClassName);
+            if (testSet == null)
+              testSet = new HashSet<>();
+            if (testPath != null) {
+              testSet.add(testPath);
+            }
+            failedTestMap.put(failedClassName, testSet);
+            i += 2;
+          }
+          break;
+        default:
+          ++i;
+          break;
       }
     }
 

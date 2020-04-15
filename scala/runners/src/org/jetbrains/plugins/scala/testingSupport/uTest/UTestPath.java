@@ -21,21 +21,21 @@ public class UTestPath {
   }
 
   public UTestPath(String qualifiedClassName, Method method) {
-    this(qualifiedClassName, new LinkedList<String>(), method);
+    this(qualifiedClassName, new LinkedList<>(), method);
   }
 
   public UTestPath(String qualifiedClassName) {
-    this(qualifiedClassName, new LinkedList<String>(), null);
+    this(qualifiedClassName, new LinkedList<>(), null);
   }
 
   public UTestPath append(String scope) {
-    List<String> newPath = new LinkedList<String>(path);
+    List<String> newPath = new LinkedList<>(path);
     newPath.add(scope);
     return new UTestPath(qualifiedClassName, newPath, method);
   }
 
   public UTestPath append(List<String> scopes) {
-    List<String> newPath = new LinkedList<String>(path);
+    List<String> newPath = new LinkedList<>(path);
     newPath.addAll(scopes);
     return new UTestPath(qualifiedClassName, newPath, method);
   }
@@ -48,12 +48,12 @@ public class UTestPath {
     return qualifiedClassName;
   }
 
-  public UTestPath getclassTestPath() {
+  public UTestPath getClassTestPath() {
     return new UTestPath(qualifiedClassName);
   }
 
   public UTestPath getMethodPath() {
-    return new UTestPath(qualifiedClassName, new LinkedList<String>(), method);
+    return new UTestPath(qualifiedClassName, new LinkedList<>(), method);
   }
 
   public UTestPath parent() {
@@ -80,10 +80,6 @@ public class UTestPath {
 
   public List<String> getPath() {
     return Collections.unmodifiableList(path);
-  }
-
-  public boolean isMethodRepresentation() {
-    return path.isEmpty() && method != null;
   }
 
   public boolean isSuiteRepresentation() {

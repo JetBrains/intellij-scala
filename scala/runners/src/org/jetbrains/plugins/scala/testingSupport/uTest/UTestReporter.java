@@ -25,21 +25,22 @@ public final class UTestReporter {
     myLatch = new CountDownLatch(classCount);
   }
 
-  private AtomicInteger idHolder = new AtomicInteger();
-  private final Map<UTestPath, Integer> testPathToId = new HashMap<UTestPath, Integer>();
-  private final Map<String, Integer> fqnToMethodCount = new HashMap<String, Integer>();
-  private final Map<UTestPath, Integer> testToClosedChildren = new HashMap<UTestPath, Integer>();
+  private final AtomicInteger idHolder = new AtomicInteger();
+  private final Map<UTestPath, Integer> testPathToId = new HashMap<>();
+  private final Map<String, Integer> fqnToMethodCount = new HashMap<>();
+  private final Map<UTestPath, Integer> testToClosedChildren = new HashMap<>();
 
   protected int getNextId() {
     return idHolder.incrementAndGet();
   }
 
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public synchronized boolean isStarted(UTestPath testPath) {
     return testPathToId.containsKey(testPath);
   }
 
   /**
-   * Try to deduce location of test in class. Only works whtn both class name and test name are provided and test name
+   * Try to deduce location of test in class. Only works with both class name and test name are provided and test name
    * is provided in test definition as a string literal.
    *
    * @param className full qualified class name
@@ -60,7 +61,7 @@ public final class UTestReporter {
     String testName = testPath.getTestName();
     if (parent == null) {
       //a method scope is opened, parent is class scope
-      int parentId = testPathToId.get(testPath.getclassTestPath());
+      int parentId = testPathToId.get(testPath.getClassTestPath());
       int id = getNextId();
       assert(isScope);
       testPathToId.put(testPath, id);
@@ -81,17 +82,13 @@ public final class UTestReporter {
 
     UTestPath parent = testPath.parent();
     if (parent != null) {
-      if (testToClosedChildren.get(parent) == null) {
-        testToClosedChildren.put(parent, 1);
-      } else {
-        testToClosedChildren.put(parent, testToClosedChildren.get(parent) + 1);
-      }
+      testToClosedChildren.merge(parent, 1, Integer::sum);
     }
 
     if (!isScope && result != null && result.value() instanceof Failure) {
       int testId = testPathToId.get(testPath);
       String testName = testPath.getTestName();
-      Failure failure = (Failure) result.value();
+      Failure<?> failure = (Failure<?>) result.value();
       StringWriter stringWriter = new StringWriter();
       PrintWriter printWriter = new PrintWriter(stringWriter);
       failure.exception().printStackTrace(printWriter);

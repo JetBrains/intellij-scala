@@ -20,11 +20,11 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
   @Override
   public void doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) throws UTestRunExpectedError {
     Collection<UTestPath> testsToRun;
-    Class clazz;
+    Class<?> clazz;
     Object testObject;
     try {
       clazz = Class.forName(className);
-      Class testObjClass = Class.forName(className + "$");
+      Class<?> testObjClass = Class.forName(className + "$");
       testObject = testObjClass.getField("MODULE$").get(null);
     } catch (ClassNotFoundException e) {
       throw expectedError(e.getClass().getSimpleName() + " for " + className + ": " + e.getMessage());
@@ -37,7 +37,7 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
     if (!tests.isEmpty()) {
       testsToRun = tests;
     } else {
-      testsToRun = new LinkedList<UTestPath>();
+      testsToRun = new LinkedList<>();
       for (Method method : clazz.getMethods()) {
         if (method.getReturnType().equals(Tests.class) && method.getParameterTypes().length == 0) {
           testsToRun.add(new UTestPath(className, method));
@@ -46,10 +46,10 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
     }
     reporter.reportClassSuiteStarted(className);
 
-    Set<Method> testMethods = new HashSet<Method>();
-    List<UTestPath> leafTests = new LinkedList<UTestPath>();
-    Map<UTestPath, Integer> childrenCount = new HashMap<UTestPath, Integer>();
-    Map<UTestPath, Tests> pathToResolvedTests = new HashMap<UTestPath, Tests>();
+    Set<Method> testMethods = new HashSet<>();
+    List<UTestPath> leafTests = new LinkedList<>();
+    Map<UTestPath, Integer> childrenCount = new HashMap<>();
+    Map<UTestPath, Tests> pathToResolvedTests = new HashMap<>();
 
     //collect test data required to perform test launch without scope duplication
     for (UTestPath testPath : testsToRun) {
@@ -104,7 +104,7 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
           getReportFunction(reporter, testPath.getMethodPath(), leafTests, childrenCount);
 
       Tree<String> subtree = findSubtree(resolveResult.nameTree(), testPath);
-      List<Tree<String>> treeList = new LinkedList<Tree<String>>();
+      List<Tree<String>> treeList = new LinkedList<>();
       if (subtree != null) {
         treeList.add(subtree);
       }
@@ -113,7 +113,12 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
     }
   }
 
-  private void runAsync(Object testObject, Tests resolveResult, Function2<Seq<String>, Result, BoxedUnit> reportFunction, List<Tree<String>> treeList) throws UTestRunExpectedError {
+  private void runAsync(
+          final Object testObject,
+          final Tests resolveResult,
+          final Function2<Seq<String>, Result, BoxedUnit> reportFunction,
+          final List<Tree<String>> treeList
+  ) throws UTestRunExpectedError {
     try {
       TestRunner.runAsync(
           resolveResult,
@@ -155,7 +160,7 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
 
   private Tree<String> findSubtree(Tree<String> root, UTestPath path) throws UTestRunExpectedError {
     Tree<String> current = root;
-    List<String> walkupNodes = new LinkedList<String>();
+    List<String> walkupNodes = new LinkedList<>();
     if (path.getPath().isEmpty()) return null;
     for (String node: path.getPath()) {
       scala.collection.Seq<Tree<String>> children = getChildren(current);
@@ -175,7 +180,7 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
     }
     Collections.reverse(walkupNodes);
     for (String walkup : walkupNodes) {
-      List<Tree<String>> dummyList = new LinkedList<Tree<String>>();
+      List<Tree<String>> dummyList = new LinkedList<>();
       dummyList.add(current);
       current = newTree(walkup, dummyList);
     }

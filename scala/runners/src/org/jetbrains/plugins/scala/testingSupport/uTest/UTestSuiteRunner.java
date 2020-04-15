@@ -31,8 +31,11 @@ public abstract class UTestSuiteRunner {
 
   abstract protected void doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) throws UTestRunExpectedError;
 
-  static Class getTreeClass() {
-    return getClassByFqn("Failed to load Tree class from uTest libary.", "utest.util.Tree", "utest.framework.Tree");
+  static Class<?> getTreeClass() {
+    return getClassByFqn(
+            "Failed to load Tree class from uTest library.",
+            "utest.util.Tree", "utest.framework.Tree"
+    );
   }
 
   void countTests(Map<UTestPath, Integer> childrenCount, List<UTestPath> leafTests) {
@@ -53,14 +56,16 @@ public abstract class UTestSuiteRunner {
     }
   }
 
-  static protected scala.Function2<Seq<String>, Result, BoxedUnit> getReportFunction(final UTestReporter reporter,
-                                                                                     final UTestPath testPath,
-                                                                                     final List<UTestPath> leafTests,
-                                                                                     final Map<UTestPath, Integer> childrenCount) {
+  static protected scala.Function2<Seq<String>, Result, BoxedUnit> getReportFunction(
+          final UTestReporter reporter,
+          final UTestPath testPath,
+          final List<UTestPath> leafTests,
+          final Map<UTestPath, Integer> childrenCount
+  ) {
     return new scala.runtime.AbstractFunction2<Seq<String>, Result, BoxedUnit>() {
       @Override
-      public BoxedUnit apply(Seq < String > seq, Result result) {
-        synchronized(reporter) {
+      public BoxedUnit apply(Seq<String> seq, Result result) {
+        synchronized (reporter) {
           //this is a temporary implementation
           List<String> resSeq = MyJavaConverters.toJava(seq);
           UTestPath resTestPath = testPath.append(resSeq);
