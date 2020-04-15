@@ -65,8 +65,6 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     addOutRoot()
   }
 
-  override protected def getProjectLanguageLevel: LanguageLevel = LanguageLevel.JDK_11
-
   override protected def tearDown(): Unit = try {
     compilerTester.tearDown()
     ScalaCompilerTestBase.stopAndWait()
@@ -83,9 +81,13 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(includeScalaReflect = true),
-    HeavyJDKLoader(getProjectLanguageLevel),
+    HeavyJDKLoader(testProjectJdkVersion),
     SourcesLoader(getSourceRootDir.getCanonicalPath)
   ) ++ additionalLibraries
+
+  override def defaultJdkVersion: LanguageLevel =
+    if (version < ScalaVersion.Scala_2_11) LanguageLevel.JDK_1_8
+    else super.defaultJdkVersion
 
   override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK(testProjectJdkVersion)
 
