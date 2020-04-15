@@ -30,7 +30,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           case (virtualFile, highlightings) if highlightings.nonEmpty => virtualFile
         }.toSet
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
-        Some(HandleEventResult(newState, Set.empty))
+        Some(HandleEventResult(newState, Set.empty, informWolf = false))
       case CompilerEvent.MessageEmitted(compilationId, msg) =>
         for {
           text <- Option(msg.text)
@@ -50,11 +50,12 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
         } yield HandleEventResult(
           newState = newState,
-          toHighlight = Set(virtualFile).filterNot(oldState.highlightOnCompilationFinished(_))
+          toHighlight = Set(virtualFile).filterNot(oldState.highlightOnCompilationFinished(_)),
+          informWolf = false
         )
       case CompilerEvent.ProgressEmitted(_, progress) =>
         val newState = oldState.copy(progress = progress)
-        Some(HandleEventResult(newState, Set.empty))
+        Some(HandleEventResult(newState, Set.empty, informWolf = false))
       case CompilerEvent.CompilationFinished(compilationId, sources) =>
         val vFiles = for {
           source <- sources
@@ -65,16 +66,19 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           replaceOrAppendFileState(acc, file, emptyState)
         }.copy(progress = 1.0, highlightOnCompilationFinished = Set.empty)
         val toHighlight = vFiles.filter(oldState.highlightOnCompilationFinished(_))
-        Some(HandleEventResult(newState, toHighlight))
+        Some(HandleEventResult(newState, toHighlight, informWolf = true))
       case _ =>
         None
     }
     
-    handleEventResult.foreach { case HandleEventResult(newState, toHighlight) =>
+    handleEventResult.foreach { case HandleEventResult(newState, toHighlight, informWolf) =>
       CompilerGeneratedStateManager.update(project, newState)
-      updateHighlightings(toHighlight, newState.toHighlightingState)
+      val highlightingState = newState.toHighlightingState
+      updateHighlightings(toHighlight, highlightingState)
+      if (informWolf) ExternalHighlighters.informWolf(project, highlightingState)
     }
 
+    // for test purposes only
     event match {
       case CompilerEvent.CompilationFinished(_, sources) =>
         val publisher = project.getMessageBus.syncPublisher(CompilerGeneratedStateTopic)
@@ -126,7 +130,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
 object UpdateCompilerGeneratedStateListener {
 
   private case class HandleEventResult(newState: CompilerGeneratedState,
-                                       toHighlight: Set[VirtualFile])
+                                       toHighlight: Set[VirtualFile],
+                                       informWolf: Boolean)
   
   @TestOnly
   trait CompilerGeneratedStateTopicListener extends EventListener {
