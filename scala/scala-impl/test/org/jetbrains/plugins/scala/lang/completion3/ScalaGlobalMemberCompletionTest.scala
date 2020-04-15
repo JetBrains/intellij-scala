@@ -200,6 +200,98 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     assertTrue(lookups.exists(hasLookupString(_, "doSmthPrivate")))
   }
 
+  def testCompanionObjectMethod(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  f$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(): Unit = {}
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  Foo.foo()$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(): Unit = {}
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectValue(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  f$CARET
+         |}
+         |
+         |object Foo {
+         |  val (_, foo) = (42, 42)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  Foo.foo$CARET
+         |}
+         |
+         |object Foo {
+         |  val (_, foo) = (42, 42)
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testNestedCompanionObjectValue(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  trait Bar {
+         |    f$CARET
+         |  }
+         |}
+         |
+         |object Foo {
+         |  val (_, foo) = (42, 42)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  trait Bar {
+         |    Foo.foo$CARET
+         |  }
+         |}
+         |
+         |object Foo {
+         |  val (_, foo) = (42, 42)
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectVariable(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  f$CARET
+         |}
+         |
+         |object Foo {
+         |  var foo = 42
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  Foo.foo$CARET
+         |}
+         |
+         |object Foo {
+         |  var foo = 42
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
   def testGlobalMemberInherited(): Unit = {
     configureFromFileText(
       fileText =

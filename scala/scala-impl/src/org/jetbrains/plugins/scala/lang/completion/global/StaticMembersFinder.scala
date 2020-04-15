@@ -3,7 +3,6 @@ package lang
 package completion
 package global
 
-import com.intellij.codeInsight.completion.PrefixMatcher
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
@@ -84,16 +83,10 @@ private[completion] final class StaticMembersFinder private(namePredicate: Strin
 
 object StaticMembersFinder {
 
-  def apply(place: ScReferenceExpression,
-            matcher: PrefixMatcher,
-            invocationCount: Int): Option[StaticMembersFinder] =
-    if (matcher.getPrefix.isEmpty) {
-      None
-    } else {
-      val isAccessible = invocationCount >= 3 ||
-        completion.isAccessible(_: PsiMember)(place)
-      Some(new StaticMembersFinder(matcher.prefixMatches)(isAccessible)(place.getProject, place.resolveScope))
-    }
+  def apply(place: ScReferenceExpression, accessAll: Boolean)
+           (namePredicate: String => Boolean) = new StaticMembersFinder(namePredicate)(member =>
+    accessAll || isAccessible(member)(place)
+  )(place.getProject, place.resolveScope)
 
   private def classesToImportFor(member: PsiMember): Set[_ <: PsiClass] = member.containingClass match {
     case clazz: ScTemplateDefinition => findInheritorObjects(clazz)

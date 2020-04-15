@@ -7,11 +7,11 @@ import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
-import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType, isContextAncestor}
+import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker.{contextWithStableType, parentWithStableType}
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker.parentWithStableType
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -23,13 +23,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
-import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
 package object completion {
@@ -79,6 +77,9 @@ package object completion {
 
   def regardlessAccessibility(invocationCount: Int): Boolean =
     invocationCount >= 2
+
+  def accessAll(invocationCount: Int): Boolean =
+    invocationCount >= 3
 
   def isInImport(place: PsiElement): Boolean =
     getContextOfType(place, classOf[ScImportStmt]) != null
