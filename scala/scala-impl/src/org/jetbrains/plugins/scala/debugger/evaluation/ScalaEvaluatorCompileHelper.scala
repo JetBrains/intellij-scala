@@ -31,7 +31,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with Eval
   private val listener = new DebuggerManagerListener {
     override def sessionAttached(session: DebuggerSession): Unit = {
       if (EvaluatorCompileHelper.needCompileServer && project.hasScala) {
-        CompileServerLauncher.ensureServerNotRunning(project)
+        CompileServerLauncher.ensureServerRunning(project)
       }
     }
 
@@ -39,7 +39,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with Eval
       clearTempFiles()
 
       if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
-        CompileServerLauncher.ensureServerRunning(project)
+        CompileServerLauncher.ensureServerNotRunning(project)
       }
     }
   }
