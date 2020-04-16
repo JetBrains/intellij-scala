@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedT
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater.TypeParameterUpdateExt
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 import scala.collection.Set
@@ -47,22 +46,22 @@ private object NonValueFunctionTypes {
 
     if (typeParameters.isEmpty && implicitClause.isEmpty) {
       None
-    }
-    else {
+    } else {
       val undefinedReturnType = undefinedTypeData.undefinedType
 
       val methodOrReturnType = implicitClause match {
         case None => undefinedReturnType
-        case Some(clause) => ScMethodType(undefinedReturnType, clause.getSmartParameters, isImplicit = true)(fun.elementScope)
+        case Some(clause) =>
+          ScMethodType(undefinedReturnType, clause.getSmartParameters, isImplicit = true)(fun.elementScope)
       }
 
-      val polymorphicTypeParameters = typeParameters.map(TypeParameter(_).update(substitutor))
+      val polymorphicTypeParameters = typeParameters.map(TypeParameter(_))
 
       val scType =
         if (polymorphicTypeParameters.isEmpty) methodOrReturnType
         else ScTypePolymorphicType(methodOrReturnType, polymorphicTypeParameters)
 
-      Some(MethodTypeData(scType, implicitClause.nonEmpty))
+      Some(MethodTypeData(substitutor(scType), implicitClause.nonEmpty))
     }
   }
 
