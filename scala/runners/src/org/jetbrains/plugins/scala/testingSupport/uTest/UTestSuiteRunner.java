@@ -14,12 +14,60 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
-// current supported version: 0.7.x (0.5.x should also work, but not tested)
-public final class UTestSuiteRunner extends UTestSuiteRunnerBase {
+/**
+ * Current supported version: 0.7.x (0.5.x should also work, but not tested)
+ * Class is not reusable due to reused CountDownLatch
+ */
+public final class UTestSuiteRunner  {
 
-  @Override
-  public void doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) throws UTestRunExpectedError {
+  protected final UTestReporter reporter;
+
+  protected CountDownLatch testSuitesLatch;
+
+  public UTestSuiteRunner(UTestReporter reporter) {
+    this.reporter = reporter;
+  }
+
+  final public void runTestSuites(Map<String, Set<UTestPath>> suitesAndTests) {
+    int suitesCount = suitesAndTests.size();
+    testSuitesLatch = new CountDownLatch(suitesCount);
+
+    for (String className : suitesAndTests.keySet()) {
+      runTestSuites(className, suitesAndTests.get(className));
+    }
+
+    try {
+      testSuitesLatch.await();
+    } catch (InterruptedException e) {
+      reporter.reportError("Reporter awaiting for test execution to finish has been interrupted: " + e);
+    }
+  }
+
+  private void runTestSuites(String className, Collection<UTestPath> tests) {
+    try {
+      doRunTestSuites(className, tests);
+    } catch (UTestRunExpectedError expectedError) {
+      reporter.reportError(expectedError.getMessage());
+      testSuiteFinished();
+    } catch (Throwable ex) {
+      reporter.reportError(ex.getMessage());
+      testSuiteFinished();
+      ex.printStackTrace();
+      throw ex;
+    }
+  }
+
+  private void testSuiteFinished() {
+    testSuitesLatch.countDown();
+  }
+
+  private UTestRunExpectedError expectedError(String message) {
+    return new UTestRunExpectedError(message);
+  }
+
+  private void doRunTestSuites(String className, Collection<UTestPath> tests) throws UTestRunExpectedError {
     Collection<UTestPath> testsToRun;
     Class<?> clazz;
     Object testObject;
@@ -101,32 +149,56 @@ public final class UTestSuiteRunner extends UTestSuiteRunnerBase {
         }
       }
 
-      scala.Function2<scala.collection.Seq<String>, Result, BoxedUnit> reportFunction =
-          getReportFunction(reporter, testPath.getMethodPath(), leafTests, childrenCount);
-
       Tree<String> subtree = findSubtree(resolveResult.nameTree(), testPath);
       List<Tree<String>> treeList = new LinkedList<>();
       if (subtree != null) {
         treeList.add(subtree);
       }
 
-      runAsync(testObject, resolveResult, reportFunction, treeList);
+      TestFinishListener listener = (result, resSeq) -> {
+        UTestPath resTestPath = testPath.getMethodPath().append(resSeq);
+        if (leafTests.contains(resTestPath)) {
+          boolean isScope = !leafTests.contains(resTestPath);
+          boolean isClassSuiteFinished = reporter.reportFinished(resTestPath, result, isScope, childrenCount);
+          if (isClassSuiteFinished)
+            testSuiteFinished();
+        }
+      };
+      runAsync(testObject, resolveResult, treeList, new ReportFunction(listener));
+    }
+  }
+
+  protected void countTests(Map<UTestPath, Integer> childrenCount, List<UTestPath> leafTests) {
+    for (UTestPath leaf: leafTests) {
+      traverseTestTreeUp(leaf, childrenCount);
+    }
+  }
+
+  private void traverseTestTreeUp(UTestPath currentPath, Map<UTestPath, Integer> childrenCount) {
+    UTestPath parent = currentPath.parent();
+    if (parent != null) {
+      if (childrenCount.containsKey(parent)) {
+        childrenCount.put(parent, childrenCount.get(parent) + 1);
+      } else {
+        childrenCount.put(parent, 1);
+      }
+      traverseTestTreeUp(parent, childrenCount);
     }
   }
 
   private void runAsync(
           final Object testObject,
           final Tests resolveResult,
-          final Function2<Seq<String>, Result, BoxedUnit> reportFunction,
-          final List<Tree<String>> treeList
+          final List<Tree<String>> treeList,
+          final Function2<Seq<String>, Result, BoxedUnit> reportFunction
   ) throws UTestRunExpectedError {
     try {
       TestRunner.runAsync(
-          resolveResult,
-          reportFunction,
-          MyJavaConverters.toScala(treeList),
-          (Executor) testObject,
-          ExecutionContext.RunNow$.MODULE$
+              resolveResult,
+              reportFunction,
+              MyJavaConverters.toScala(treeList),
+              (Executor) testObject,
+              ExecutionContext.RunNow$.MODULE$
       );
     } catch (NoSuchMethodError error) {
       runAsync_13(testObject, resolveResult, reportFunction, treeList);
@@ -138,18 +210,18 @@ public final class UTestSuiteRunner extends UTestSuiteRunnerBase {
     try {
       Class<? extends TestRunner$> runnerClazz = TestRunner$.MODULE$.getClass();
       Class<?>[] paramTypes = {
-          Tests.class,
-          Function2.class,
-          scala.collection.immutable.Seq.class,
-          Executor.class,
-          scala.concurrent.ExecutionContext.class
+              Tests.class,
+              Function2.class,
+              scala.collection.immutable.Seq.class,
+              Executor.class,
+              scala.concurrent.ExecutionContext.class
       };
       Object[] paramValues = {
-        resolveResult,
-          reportFunction,
-          MyJavaConverters.toScala(treeList),
-          testObject,
-          ExecutionContext.RunNow$.MODULE$
+              resolveResult,
+              reportFunction,
+              MyJavaConverters.toScala(treeList),
+              testObject,
+              ExecutionContext.RunNow$.MODULE$
       };
       Method method = runnerClazz.getDeclaredMethod("runAsync", paramTypes);
       method.invoke(TestRunner$.MODULE$, paramValues);
@@ -250,5 +322,30 @@ public final class UTestSuiteRunner extends UTestSuiteRunnerBase {
 
   private String errorMessage(ReflectiveOperationException e) {
     return e.getClass().getSimpleName() + ": " + e.getMessage();
+  }
+
+  private static class ReportFunction extends scala.runtime.AbstractFunction2<Seq<String>, Result, BoxedUnit> {
+    final TestFinishListener listener;
+
+    private ReportFunction(TestFinishListener listener) {
+      this.listener = listener;
+    }
+
+    @Override
+    public BoxedUnit apply(Seq<String> seq, Result result) {
+      synchronized (listener) {
+        //this is a temporary implementation
+        List<String> resSeq = MyJavaConverters.toJava(seq);
+        listener.testFinished(result, resSeq);
+        return BoxedUnit.UNIT;
+      }
+    }
+  }
+
+  @FunctionalInterface
+  private interface TestFinishListener {
+
+    // TODO: more meaningful naming
+    void testFinished(Result result, List<String> resSeq);
   }
 }

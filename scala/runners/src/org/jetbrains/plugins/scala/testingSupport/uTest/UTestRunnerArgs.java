@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.testingSupport.uTest;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static org.jetbrains.plugins.scala.testingSupport.uTest.UTestSuiteRunnerBase.getTreeClass;
-
 public final class UTestRunnerArgs {
 
     final Map<String, Set<UTestPath>> classesToTests;
@@ -73,5 +71,22 @@ public final class UTestRunnerArgs {
             return null;
         }
         return new UTestPath(className, testPath, method);
+    }
+
+    private static Class<?> getTreeClass() {
+        Class<?> clazz = findClassByFqn("utest.util.Tree", "utest.framework.Tree");
+        if (clazz != null) return clazz;
+        else throw new RuntimeException("Failed to load Tree class from uTest library.");
+    }
+
+    protected static Class<?> findClassByFqn(String... options) {
+        for (String fqn: options) {
+            try {
+                return Class.forName(fqn);
+            } catch (ClassNotFoundException ignored) {
+                // ignore
+            }
+        }
+        return null;
     }
 }

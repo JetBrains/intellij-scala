@@ -6,8 +6,8 @@ import utest.framework.Result;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
@@ -19,11 +19,6 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeSt
 public final class UTestReporter {
 
   private static final long NO_DURATION = -1;
-  private final CountDownLatch myLatch;
-
-  public UTestReporter(int classCount) {
-    myLatch = new CountDownLatch(classCount);
-  }
 
   private final AtomicInteger idHolder = new AtomicInteger();
   private final Map<UTestPath, Integer> testPathToId = new HashMap<>();
@@ -96,20 +91,24 @@ public final class UTestReporter {
   private void reportStartedInner(String name, int nodeId, int parentId, String locationHint, boolean isScope) {
     String stageName = isScope ? "testSuiteStarted" : "testStarted";
     String message = String.format(
-            "\n##teamcity[%s name='%s' nodeId='%d' parentNodeId='%d' %s captureStandardOutput='true']",
+            "##teamcity[%s name='%s' nodeId='%d' parentNodeId='%d' %s captureStandardOutput='true']",
             stageName, escapeString(name), nodeId, parentId, locationHint
     );
     reportMessage(message);
   }
 
-  public void reportFinished(UTestPath testPath, Result result, boolean isScope,
-                             Map<UTestPath, Integer> childrenCount) {
+  /**
+   * @return true if class suite is finished, false otherwise
+   */
+  public boolean reportFinished(UTestPath testPath, Result result, boolean isScope,
+                                Map<UTestPath, Integer> childrenCount) {
 
     UTestPath parent = testPath.parent();
     if (parent != null) {
       testToClosedChildren.merge(parent, 1, Integer::sum);
     }
 
+    boolean isClassSuiteFinished = false;
     if (!isScope && result != null && result.value() instanceof Failure) {
       int testId = testPathToId.get(testPath);
       String testName = testPath.getTestName();
@@ -118,7 +117,7 @@ public final class UTestReporter {
       PrintWriter printWriter = new PrintWriter(stringWriter);
       failure.exception().printStackTrace(printWriter);
       String message = String.format(
-              "\n##teamcity[testFailed name='%s' message='%s' details='%s' nodeId='%d']",
+              "##teamcity[testFailed name='%s' message='%s' details='%s' nodeId='%d']",
               escapeString(testName),
               escapeString(failure.exception().getMessage()),
               escapeString(stringWriter.toString()),
@@ -133,24 +132,28 @@ public final class UTestReporter {
 
         if (testToClosedChildren.get(testPath).equals(childrenCount.get(testPath))) {
           //all children have been closed, report current scope
-          reportScopeOrTestFinished(testPath, isScope, result);
+          isClassSuiteFinished = reportScopeOrTestFinished(testPath, isScope, result);
         }
       } else {
-        reportScopeOrTestFinished(testPath, isScope, result);
+        isClassSuiteFinished = reportScopeOrTestFinished(testPath, isScope, result);
       }
     }
     if (parent != null) {
-      reportFinished(parent, null, true, childrenCount);
+      return isClassSuiteFinished || reportFinished(parent, null, true, childrenCount);
+    } else {
+      return isClassSuiteFinished;
     }
   }
 
-  private void reportScopeOrTestFinished(UTestPath testPath, boolean isScope, Result result) {
+  private boolean reportScopeOrTestFinished(UTestPath testPath, boolean isScope, Result result) {
     int testId = testPathToId.get(testPath);
     String testName = testPath.getTestName();
     if (testPath.isSuiteRepresentation()) {
       reportClassSuiteFinished(testPath.getQualifiedClassName());
+      return true;
     } else {
       reportFinishedInner(testName, testId, isScope, (!isScope && result != null) ? result.milliDuration() : NO_DURATION);
+      return false;
     }
   }
 
@@ -158,24 +161,20 @@ public final class UTestReporter {
    * Reports the end of test suite run.
    * @param classQualifiedName FQN of test suite class
    */
-  public void reportClassSuiteFinished(String classQualifiedName) {
-
+  private void reportClassSuiteFinished(String classQualifiedName) {
     int classScopeId = testPathToId.get(new UTestPath(classQualifiedName));
     reportFinishedInner(getSuiteName(classQualifiedName), classScopeId, true, NO_DURATION);
-
-    myLatch.countDown();
   }
 
   private void reportFinishedInner(String name, int id, boolean isScope, long duration) {
     String stageName = isScope ? "testSuiteFinished" : "testFinished";
     String durationStr = duration > 0 ? String.format("duration='%d'", duration) : "";
     String message = String.format(
-            "\n##teamcity[%s name='%s' %s nodeId='%d']",
+            "##teamcity[%s name='%s' %s nodeId='%d']",
             stageName, escapeString(name), durationStr, id
     );
     reportMessage(message);
   }
-
 
   private String getSuiteName(String className) {
     int lastDotPosition = className.lastIndexOf(".");
@@ -191,25 +190,15 @@ public final class UTestReporter {
     fqnToMethodCount.put(classFqn, methodCount);
   }
 
-  /**
-   * Awaits until all the tests have finished execution and have been reported to the IDE.
-   */
-  public void waitUntilReportingFinished() {
-    try {
-      myLatch.await();
-    } catch (InterruptedException e) {
-      reportMessage("Reporter awaiting for test execution to finish has been interrupted: " + e);
-    }
-  }
 
   public void reportMessage(String message) {
-    System.out.println(message);
+    //new line prefix needed cause there can be some user unflushed output
+    System.out.println("\n" + message);
   }
 
   public void reportError(String errorMessage) {
     if (errorMessage != null) {
       System.err.println(errorMessage);
     }
-    myLatch.countDown();
   }
 }
