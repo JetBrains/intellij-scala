@@ -4,7 +4,7 @@ import java.io.File
 
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.Client.ClientMsg
+import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
 
 /**
  * TODO: add documentation with method contracts, currently there are too many methods with vague meaning
@@ -18,35 +18,27 @@ trait Client {
   final def message(kind: Kind,
                     @Nls text: String,
                     source: Option[File] = None,
-                    line: Option[Long] = None,
-                    column: Option[Long] = None,
-                    toLine: Option[Long] = None,
-                    toColumn: Option[Long] = None): Unit =
-    message(ClientMsg(kind, text, source, line, column, toLine, toColumn))
+                    from: PosInfo = PosInfo.Empty,
+                    to: PosInfo = PosInfo.Empty): Unit =
+    message(ClientMsg(kind, text, source, from, to))
 
   final def error(@Nls text: String,
                   source: Option[File] = None,
-                  line: Option[Long] = None,
-                  column: Option[Long] = None,
-                  toLine: Option[Long] = None,
-                  toColumn: Option[Long] = None): Unit =
-    message(Kind.ERROR, text, source, line, column, toLine, toColumn)
+                  from: PosInfo = PosInfo.Empty,
+                  to: PosInfo = PosInfo.Empty): Unit =
+    message(Kind.ERROR, text, source, from, to)
 
   final def warning(@Nls text: String,
                     source: Option[File] = None,
-                    line: Option[Long] = None,
-                    column: Option[Long] = None,
-                    toLine: Option[Long] = None,
-                    toColumn: Option[Long] = None): Unit =
-    message(Kind.WARNING, text, source, line, column, toLine, toColumn)
+                    from: PosInfo = PosInfo.Empty,
+                    to: PosInfo = PosInfo.Empty): Unit =
+    message(Kind.WARNING, text, source, from, to)
 
   final def info(@Nls text: String,
                  source: Option[File] = None,
-                 line: Option[Long] = None,
-                 column: Option[Long] = None,
-                 toLine: Option[Long] = None,
-                 toColumn: Option[Long] = None): Unit =
-    message(Kind.INFO, text, source, line, column, toLine, toColumn)
+                 from: PosInfo = PosInfo.Empty,
+                 to: PosInfo = PosInfo.Empty): Unit =
+    message(Kind.INFO, text, source, from, to)
 
   def trace(exception: Throwable): Unit
 
@@ -80,8 +72,18 @@ object Client {
   final case class ClientMsg(kind: Kind,
                              text: String,
                              source: Option[File],
-                             line: Option[Long],
-                             column: Option[Long],
-                             toLine: Option[Long],
-                             toColumn: Option[Long])
+                             from: PosInfo,
+                             to: PosInfo)
+
+  /**
+   * Information about the position in the source file.
+   */
+  final case class PosInfo(line: Option[Long],
+                           column: Option[Long],
+                           offset: Option[Long])
+  
+  object PosInfo {
+    
+    final val Empty: PosInfo = PosInfo(None, None, None)
+  }
 }

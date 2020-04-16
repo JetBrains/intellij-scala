@@ -4,6 +4,7 @@ package remote
 import java.io._
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 /**
@@ -23,10 +24,8 @@ object Event {
 case class MessageEvent(kind: Kind,
                         text: String,
                         source: Option[File],
-                        line: Option[Long],
-                        column: Option[Long],
-                        toLine: Option[Long],
-                        toColumn: Option[Long]) extends Event
+                        from: PosInfo,
+                        to: PosInfo) extends Event
 
 @SerialVersionUID(-6777609711619086870L)
 case class ProgressEvent(text: String, done: Option[Float]) extends Event

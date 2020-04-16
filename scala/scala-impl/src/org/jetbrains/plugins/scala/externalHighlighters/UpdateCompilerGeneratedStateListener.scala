@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListene
 import org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener.CompilerGeneratedStateTopic
 import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.plugins.scala.editor.DocumentExt
+import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
 
 private class UpdateCompilerGeneratedStateListener(project: Project)
   extends CompilerEventListener {
@@ -34,17 +35,15 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
       case CompilerEvent.MessageEmitted(compilationId, msg) =>
         for {
           text <- Option(msg.text)
-          line <- msg.line
-          column <- msg.column
+          from <- Pos.fromPosInfo(msg.from)
+          to = Pos.fromPosInfo(msg.to).getOrElse(from)
           source <- msg.source
           virtualFile <- source.toVirtualFile
           highlighting = ExternalHighlighting(
             highlightType = kindToHighlightInfoType(msg.kind, text),
             message = text,
-            fromLine = line.toInt,
-            fromColumn = column.toInt,
-            toLine = msg.toLine.map(_.toInt),
-            toColumn = msg.toColumn.map(_.toInt)
+            from = from,
+            to = to
           )
           fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
           newState = replaceOrAppendFileState(oldState, virtualFile, fileState)

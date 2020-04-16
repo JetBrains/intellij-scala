@@ -4,7 +4,6 @@ package remote
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import sbt.internal.inc.CompileFailed
 
 /**
@@ -24,8 +23,8 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
   override def isCanceled: Boolean = canceled
 
   override def message(msg: Client.ClientMsg): Unit = {
-    val Client.ClientMsg(kind, text, source, line, column, toLine, toColumn) = msg
-    publishEvent(MessageEvent(kind, text, source, line, column, toLine, toColumn))
+    val Client.ClientMsg(kind, text, source, from, to) = msg
+    publishEvent(MessageEvent(kind, text, source, from, to))
   }
 
   override def trace(exception: Throwable): Unit = {

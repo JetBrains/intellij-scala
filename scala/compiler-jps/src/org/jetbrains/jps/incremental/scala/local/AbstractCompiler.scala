@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Supplier
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import xsbti._
 import xsbti.compile._
 import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
@@ -116,9 +117,12 @@ abstract class AbstractCompiler extends Compiler {
 
     private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {
       val source = pos.sourceFile.toOption
-      val line = pos.line.toOption.map(_.toLong)
-      val column = pos.pointer.toOption.map(_.toLong + 1L)
-      client.message(kind, msg, source, line, column)
+      val fromPosInfo = PosInfo(
+        line = pos.line.toOption.map(_.toLong),
+        column = pos.pointer.toOption.map(_.toLong + 1L),
+        offset = pos.offset.toOption.map(_.toLong)
+      )
+      client.message(kind, msg, source, fromPosInfo)
     }
   }
 

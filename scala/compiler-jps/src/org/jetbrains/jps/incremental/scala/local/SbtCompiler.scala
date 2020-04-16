@@ -126,7 +126,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
               |  ${e.getStackTrace.mkString("\n  ")}
           """.stripMargin
 
-        client.error(msg, None, None, None)
+        client.error(msg, None)
     }
 
     zincMetadata.compilationFinished(compilationData, compilationResult, intellijClassfileManager, cacheDetails)
