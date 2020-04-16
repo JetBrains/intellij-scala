@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.uTest;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static org.jetbrains.plugins.scala.testingSupport.uTest.UTestSuiteRunner.getTreeClass;
+import static org.jetbrains.plugins.scala.testingSupport.uTest.UTestSuiteRunnerBase.getTreeClass;
 
 public final class UTestRunnerArgs {
 

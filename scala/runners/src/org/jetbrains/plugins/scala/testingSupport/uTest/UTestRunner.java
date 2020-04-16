@@ -17,7 +17,7 @@ public class UTestRunner {
     //  I think it would be better to encapsulate waiting logic in UTestRunner.
     //  Reporter shouldn't be aware about number of tests and manage concurrency.
     UTestReporter reporter = new UTestReporter(suitesAndTests.size());
-    UTestSuiteRunner runner = new UTestSuite540Runner();
+    UTestSuiteRunnerBase runner = new UTestSuiteRunner();
     for (String className : suitesAndTests.keySet()) {
       runner.runTestSuites(className, suitesAndTests.get(className), reporter);
     }
