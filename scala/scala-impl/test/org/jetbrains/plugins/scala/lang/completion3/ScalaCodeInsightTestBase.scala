@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.junit.Assert._
 
+import scala.collection.JavaConverters._
+
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -138,8 +140,12 @@ object ScalaCodeInsightTestBase {
         presentation.isItemTextItalic == itemTextItalic &&
         presentation.isItemTextBold == itemTextBold &&
         presentation.getTailText == tailText &&
-        presentation.isTailGrayed == grayed
+        isTailGrayed(presentation) == grayed
     case _ => false
+  }
+
+  private def isTailGrayed(presentation: LookupElementPresentation): Boolean = {
+    presentation.getTailFragments.asScala.headOption.exists(_.isGrayed)
   }
 
   private def allItems(impl: LookupImpl) = {
