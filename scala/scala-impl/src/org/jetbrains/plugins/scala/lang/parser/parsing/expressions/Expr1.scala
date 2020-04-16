@@ -4,7 +4,7 @@ package parser
 package parsing
 package expressions
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
@@ -56,6 +56,15 @@ object Expr1 extends ParsingRule {
                 builder error ErrMsg("rparenthesis.expected")
             }
             builder.restoreNewlinesState()
+          case _ if builder.isScala3 =>
+            if (!Expr()) {
+              builder error ErrMsg("wrong.expression")
+            }
+            if (builder.getTokenType == ScalaTokenType.Then) {
+              builder.advanceLexer()
+            } else if (!builder.isPrecededByNewIndent) {
+              builder error ErrMsg("expected.then")
+            }
           case _ =>
             builder error ErrMsg("condition.expected")
         }

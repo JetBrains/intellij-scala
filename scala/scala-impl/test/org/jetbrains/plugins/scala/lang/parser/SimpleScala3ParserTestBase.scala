@@ -3,9 +3,11 @@ package lang
 package parser
 
 import com.intellij.psi.PsiErrorElement
+import com.intellij.psi.impl.DebugUtil.psiToString
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.junit.Assert.assertEquals
 
 trait SimpleScala3ParserTestBase extends SimpleTestCase {
   def err(err: String): String = {
@@ -43,5 +45,11 @@ trait SimpleScala3ParserTestBase extends SimpleTestCase {
       assert(notFoundErrors.isEmpty, "Expected errors but didn't find: " + notFoundErrors.mkString(", "))
     }
     file
+  }
+
+  def checkTree(code: String, expectedTree: String): Unit = {
+    val file = parseText(code, lang = Scala3Language.INSTANCE)
+    val resultTree = psiToString(file, false).replace(": " + file.name, "")
+    assertEquals(expectedTree.trim, resultTree.trim)
   }
 }

@@ -116,5 +116,9 @@ package object parser {
       try body
       finally repr.popIndentationWidth()
     }
+
+    def isPrecededByNewIndent: Boolean = {
+      findPreviousIndent.exists(_ > repr.currentIndentationWidth)
+    }
   }
 }
