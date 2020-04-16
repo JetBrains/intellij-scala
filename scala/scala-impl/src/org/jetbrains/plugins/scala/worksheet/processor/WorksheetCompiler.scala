@@ -348,7 +348,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
 
   private object WorksheetWrapper {
     val className = "WorksheetWrapper"
-    private val header = "object " + className + " {\n"
+    val header = "object " + className + " {\n"
     private val footer = "\n}"
     val headerLines: Int = header.linesIterator.size
     def writeWrappedToFile(worksheetCode: String, file: File): Unit =
@@ -386,9 +386,12 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
       msg.kind == Kind.ERROR
 
     // note that messages text will contain positions from the wrapped code
-    private def fixMessage(msg: Client.ClientMsg): Client.ClientMsg =
+    private def fixMessage(msg: Client.ClientMsg): Client.ClientMsg = {
+      val fixedFromLine = msg.from.line.map(line => (line - WorksheetWrapper.headerLines).max(0))
+      val fixedFromOffset = msg.from.offset.map(offset => (offset - WorksheetWrapper.header.length).max(0))
+      val fixedFrom = msg.from.copy(line = fixedFromLine, offset = fixedFromOffset)
       msg.copy(
-        line = msg.line.map(line => (line - WorksheetWrapper.headerLines).max(0)),
+        from = fixedFrom,
         source = msg.source.map(_ => originalFile),
         text = msg.text
           .replace(s"object ${WorksheetWrapper.className}.", "object ") // object WorksheetWrapper.X -> object X
@@ -396,6 +399,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
           .replace(s"${WorksheetWrapper.className}", originalFile.getName) // other unknown cases
           .trim
       )
+    }
 
     override def compilationEnd(sources: Set[File]): Unit = {
       Log.assertTrue(sources.size <= 1, "expecting at most 1 source file during worksheet compilation")

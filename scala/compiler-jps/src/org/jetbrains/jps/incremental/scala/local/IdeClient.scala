@@ -8,6 +8,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.messages.{CompilerMessage, FileDeletedEvent, ProgressMessage}
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -25,7 +26,7 @@ abstract class IdeClient(compilerName: String,
   protected val compilationId: CompilationId = CompilationId.generate()
 
   override def message(msg: Client.ClientMsg): Unit = {
-    val Client.ClientMsg(kind, text, source, line, column, _, _) = msg
+    val Client.ClientMsg(kind, text, source, PosInfo(line, column, _), _) = msg
     if (kind == Kind.ERROR) {
       hasErrors = true
     }

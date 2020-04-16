@@ -16,6 +16,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
@@ -200,7 +201,7 @@ object RemoteServerConnector {
       Log.debug(text)
 
     override def message(msg: Client.ClientMsg): Unit = {
-      val Client.ClientMsg(kind, text, source, line, column, _, _) = msg
+      val Client.ClientMsg(kind, text, source, PosInfo(line, column, _), _) = msg
       val lines = (if (text == null) "" else text).split("\n")
       val linesLength = lines.length
 

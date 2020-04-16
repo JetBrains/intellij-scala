@@ -8,6 +8,8 @@ import org.jetbrains.jps.incremental.scala.local.JavacOutputParsing._
 import xsbti.Logger
 import java.util.function.Supplier
 
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
+
 import scala.util.matching.Regex
 
 /**
@@ -37,7 +39,12 @@ trait JavacOutputParsing extends Logger {
         lines :+= message
       case PointerPattern(prefix) if header.isDefined =>
         val text = (lines :+ line).mkString("\n")
-        client.message(header.get.kind, text, header.map(_.file), header.map(_.line), Some(1L + prefix.length))
+        val fromPosInfo = PosInfo(
+          line = header.map(_.line),
+          column = Some(1L + prefix.length),
+          offset = None
+        )
+        client.message(header.get.kind, text, header.map(_.file), fromPosInfo)
         header = None
         lines = Vector.empty
       case NotePattern(message) =>

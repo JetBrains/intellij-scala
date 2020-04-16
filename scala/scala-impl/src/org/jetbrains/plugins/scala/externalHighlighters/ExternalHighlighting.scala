@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
+import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
 
 /**
  * All information that needed for highlighting.
@@ -9,7 +11,21 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfoType
  */
 final case class ExternalHighlighting(highlightType: HighlightInfoType,
                                       message: String,
-                                      fromLine: Int,
-                                      fromColumn: Int,
-                                      toLine: Option[Int],
-                                      toColumn: Option[Int])
+                                      from: Pos,
+                                      to: Pos)
+
+object ExternalHighlighting {
+  
+  sealed trait Pos
+  
+  object Pos {
+    final case class LineColumn(line: Int, column: Int) extends Pos
+    final case class Offset(offset: Int) extends Pos
+    
+    def fromPosInfo(posInfo: PosInfo): Option[Pos] =
+      Option(posInfo).collect {
+        case PosInfo(_, _, Some(offset)) => Offset(offset.toInt)
+        case PosInfo(Some(line), Some(column), _) => LineColumn(line.toInt, column.toInt)
+      }
+  }
+}

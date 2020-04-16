@@ -8,6 +8,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -20,22 +21,23 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
 
   private val files = mutable.Set[File]()
 
-  private def publish(kind: Kind, text: String, position: Option[FilePosition]) = {
-    position.map { pos =>
-      val l0 = pos.getStartLine
-      val c0 = pos.getStartColumn
-      // if start and end position are the same, we assume actual range is not known
-      val (l1,c1) =
-        if (pos.getEndLine == l0 && pos.getEndColumn == c0)
-          (None, None)
-        else
-          (Some(pos.getEndLine.toLong), Some(pos.getEndColumn.toLong))
-      val msg = Client.ClientMsg(kind, text, Some(pos.getFile), Some(l0), Some(c0), l1, c1)
+  private def publish(kind: Kind, text: String, position: Option[FilePosition]) =
+    position.foreach { pos =>
+      val from = PosInfo(
+        line = Some(pos.getStartLine),
+        column = Some(pos.getStartColumn),
+        offset = None
+      )
+      val to = PosInfo(
+        line = Some(pos.getEndLine.toLong),
+        column = Some(pos.getEndColumn.toLong),
+        offset = None
+      )
+      val msg = Client.ClientMsg(kind, text, Some(pos.getFile), from, to)
       val event = CompilerEvent.MessageEmitted(compilationId, msg)
       files.add(pos.getFile)
       publisher.eventReceived(event)
     }
-  }
 
   private def finishFiles(): Unit = {
     val event = CompilerEvent.CompilationFinished(compilationId, files.toSet)
