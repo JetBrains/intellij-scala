@@ -501,7 +501,6 @@ class ImplicitCollector(place: PsiElement,
       ImplicitCollector.cache(project).getNonValueTypes(fun, c.substitutor, typeFromMacro)
 
     nonValueFunctionTypes.undefinedType match {
-
       case Some(undefined: ScType) =>
 
         val undefinedConforms =
