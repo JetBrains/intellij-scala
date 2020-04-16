@@ -93,22 +93,48 @@ object Expr1 extends ParsingRule {
       //--------------------while statement-----------------------//
       case ScalaTokenTypes.kWHILE =>
         builder.advanceLexer() //Ate while
-        builder.getTokenType match {
-          case ScalaTokenTypes.tLPARENTHESIS =>
-            builder.advanceLexer() //Ate (
-            builder.disableNewlines()
-            if (!Expr()) builder error ErrMsg("wrong.expression")
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHESIS =>
-                builder.advanceLexer() //Ate )
-              case _ =>
-                builder error ErrMsg("rparenthesis.expected")
+        val parseNormal =
+          if (builder.isScala3) {
+            val rollbackMarker = builder.mark()
+            val hasLParen = builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS
+            if (ExprInIndentationRegion()) {
+              if (builder.getTokenType == ScalaTokenTypes.kDO) {
+                builder.advanceLexer()
+                rollbackMarker.drop()
+                false
+              } else if (!hasLParen) {
+                builder error ErrMsg("expected.do")
+                rollbackMarker.drop()
+                false
+              } else {
+                rollbackMarker.rollbackTo()
+                true
+              }
+            } else {
+              rollbackMarker.drop()
+              true
             }
-            builder.restoreNewlinesState()
-          case _ =>
-            builder error ErrMsg("condition.expected")
+          } else {
+            true
+          }
+        if (parseNormal) {
+          builder.getTokenType match {
+            case ScalaTokenTypes.tLPARENTHESIS =>
+              builder.advanceLexer() //Ate (
+              builder.disableNewlines()
+              if (!Expr()) builder error ErrMsg("wrong.expression")
+              builder.getTokenType match {
+                case ScalaTokenTypes.tRPARENTHESIS =>
+                  builder.advanceLexer() //Ate )
+                case _ =>
+                  builder error ErrMsg("rparenthesis.expected")
+              }
+              builder.restoreNewlinesState()
+            case _ =>
+              builder error ErrMsg("condition.expected")
+          }
         }
-        if (!Expr()) {
+        if (!ExprInIndentationRegion()) {
           builder error ErrMsg("wrong.expression")
         }
         exprMarker.done(ScalaElementType.WHILE_STMT)
