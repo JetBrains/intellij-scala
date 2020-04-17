@@ -16,7 +16,6 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTi
 
 /**
  * referred in:
- * {@link org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner}
  * {@link org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration}
  */
 public class ScalaTestReporter implements Reporter {

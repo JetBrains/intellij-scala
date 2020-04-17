@@ -179,6 +179,9 @@ object DependencyGroups {
     bcel
   )
 
+  // TODO: cleanup a mess with runners dependencies:
+  //  1: versions are outdated
+  //  2. runners partial use reflection, partially static bindinf
   val runners: Seq[ModuleID] = Seq(
     specs2,
     "org.scala-lang" % "scala-compiler" % scalaVersion,

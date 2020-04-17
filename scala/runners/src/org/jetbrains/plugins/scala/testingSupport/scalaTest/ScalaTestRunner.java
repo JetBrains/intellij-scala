@@ -6,25 +6,25 @@ import org.scalatest.tools.Runner;
 import scala.None$;
 import scala.Option;
 import scala.Some$;
-import scala.collection.immutable.Map;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.*;
-import java.util.jar.JarFile;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-/**
- * @author Alexander Podkhalyuzin
- */
 public class ScalaTestRunner {
-  private static final String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
 
-  public static void main(String[] args) {
+  public static final String REPORTER_FQN = ScalaTestReporter.class.getName();
+  public static final String REPORTER_WITH_LOCATION_FQN = ScalaTestReporterWithLocation.class.getName();
+
+  public static void main(String[] argsRaw) {
     try {
-      if (isScalaTest2()) {
-        runScalaTest2(args);
+      String[] argsRawFixed = TestRunnerUtil.getNewArgs(argsRaw);
+      ScalaTestRunnerArgs args = ScalaTestRunnerArgs.parse(argsRawFixed);
+
+      if (ScalaTestUtils.isScalaTest2or3()) {
+        runScalaTest2or3(args);
       } else {
         runScalaTest1(args);
       }
@@ -35,184 +35,78 @@ public class ScalaTestRunner {
     System.exit(0);
   }
 
-  private static boolean isScalaTest2() {
-    try {
-      ScalaTestRunner.class.getClassLoader().loadClass("org.scalatest.events.Location");
-      return true;
-    }
-    catch(ClassNotFoundException e) {
-      return false;
-    }
+  private static void runScalaTest2or3(ScalaTestRunnerArgs args) {
+    // TODO: WHY USING REFLECTION??? the class is in this module
+    TestRunnerUtil.configureReporter(REPORTER_FQN, args.showProgressMessages);
+
+    String[] scalatestLibArgs = toScalatest2or3LibArgs(args);
+    Runner.run(scalatestLibArgs);
   }
 
-  private static void runScalaTest2(String[] args) throws IOException {
-    ArrayList<String> argsArray = new ArrayList<>();
-    HashMap<String, Set<String>> classesToTests = new HashMap<>();
-    HashMap<String, Set<String>> failedTestMap = new HashMap<>();
-    boolean failedUsed = false;
-    String currentClass = null;
-    boolean showProgressMessages = true;
-    boolean useVersionFromOptions = false;
-    boolean isOlderScalaVersionFromOptions = false;
+  /**
+   * org.scalatest.tools.Runner arguments:
+   * http://www.scalatest.org/user_guide/using_the_runner
+   */
+  private static String[] toScalatest2or3LibArgs(ScalaTestRunnerArgs args) {
+    List<String> scalatestArgs = new ArrayList<>(args.otherArgs);
 
-    String[] newArgs  = TestRunnerUtil.getNewArgs(args);
-    int i = 0;
-    while (i < newArgs.length) {
-      if (newArgs[i].equals("-s")) {
-        ++i;
-        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          classesToTests.put(newArgs[i], new HashSet<>());
-          currentClass = newArgs[i];
-          ++i;
-        }
-      } else if (newArgs[i].equals("-testName")) {
-        if (currentClass == null) throw new RuntimeException("Failed to run tests: no suite class specified for test " + newArgs[i]);
-        ++i;
-        String testNames = newArgs[i];
-        String testNamesUnescaped = TestRunnerUtil.unescapeTestName(testNames);
-        classesToTests.get(currentClass).add(testNamesUnescaped);
-        ++i;
-      } else if (newArgs[i].equals("-showProgressMessages")) {
-        ++i;
-        showProgressMessages = Boolean.parseBoolean(newArgs[i]);
-        ++i;
-      } else if (newArgs[i].equals("-failedTests")) {
-        failedUsed = true;
-        ++i;
-        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          String failedClassName = newArgs[i];
-          String failedTestName = newArgs[i + 1];
-          Set<String> testSet = failedTestMap.get(failedClassName);
-          if (testSet == null)
-            testSet = new HashSet<>();
-          testSet.add(failedTestName);
-          failedTestMap.put(failedClassName, testSet);
-          i += 2;
-        }
-      } else if (newArgs[i].startsWith("-setScalaTestVersion=")) {
-        useVersionFromOptions = true;
-        isOlderScalaVersionFromOptions = isOlderScalaVersionFromOptions(newArgs[i]);
-        ++i;
-      } else if (newArgs[i].equals("-C")) {
-        if (useVersionFromOptions) {
-          argsArray.add(isOlderScalaVersionFromOptions ? "-r" : newArgs[i]);
-        } else {
-          argsArray.add(isOlderScalaTestVersion() ? "-r" : newArgs[i]);
-        }
-        if (i + 1 < newArgs.length) argsArray.add(newArgs[i + 1].equals(reporterQualName) ? newArgs[i + 1] + "WithLocation" : newArgs[i + 1]);
-        i += 2;
-      } else {
-        argsArray.add(newArgs[i]);
-        ++i;
-      }
+    // why do we need this if later we setup default reporter? (this was before, I just simplified args construction logic)
+    if (args.reporterFqn != null) {
+      String reporterFqn = args.reporterFqn.equals(REPORTER_FQN) ? REPORTER_WITH_LOCATION_FQN : args.reporterFqn;
+      scalatestArgs.add(ScalaTestUtils.isOlderScalaTestVersion() ? "-r" : "-C");
+      scalatestArgs.add(reporterFqn);
     }
 
-    TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-    if (failedUsed) {
-      // TODO: How to support -s -i -t here, to support rerunning nested suite's test.
-      for (java.util.Map.Entry<String, Set<String>> entry : failedTestMap.entrySet()) {
-        argsArray.add("-s");
-        argsArray.add(entry.getKey());
-        for (String failedTestName : entry.getValue()) {
-          argsArray.add("-t");
-          argsArray.add(failedTestName);
-        }
-      }
+    args.classesToTests.forEach((className, tests) -> {
+      scalatestArgs.add("-s");
+      scalatestArgs.add(className);
+      tests.forEach(test -> {
+        scalatestArgs.add("-t");
+        scalatestArgs.add(test);
+      });
+    });
 
-    } else {
-      for (String className : classesToTests.keySet()) {
-        argsArray.add("-s");
-        argsArray.add(className);
-        for (String test: classesToTests.get(className)) {
-          argsArray.add("-t");
-          argsArray.add(test);
-        }
-      }
-
-    }
-    Runner.run(argsArray.toArray(new String[argsArray.size()]));
+    return scalatestArgs.toArray(new String[0]);
   }
 
-  private static void runScalaTest1(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, IOException {
-    ArrayList<String> argsArray = new ArrayList<>();
-    ArrayList<String> classes = new ArrayList<>();
-    ArrayList<String> failedTests = new ArrayList<>();
-    boolean failedUsed = false;
-    List<String> testNames = new LinkedList<>();
-    boolean showProgressMessages = true;
-    boolean useVersionFromOptions = false;
-    boolean isOlderScalaVersionFromOptions = false;
-    int i = 0;
-    String[] newArgs = TestRunnerUtil.getNewArgs(args);
-    while (i < newArgs.length) {
-      if (newArgs[i].equals("-s")) {
-        ++i;
-        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          classes.add(newArgs[i]);
-          ++i;
-        }
-      } else if (newArgs[i].equals("-testName")) {
-        ++i;
-        String testNamesUnescaped = TestRunnerUtil.unescapeTestName(newArgs[i]);
-        testNames.add(testNamesUnescaped);
-        ++i;
-      } else if (newArgs[i].equals("-showProgressMessages")) {
-        ++i;
-        showProgressMessages = Boolean.parseBoolean(newArgs[i]);
-        ++i;
-      } else if (newArgs[i].equals("-failedTests")) {
-        failedUsed = true;
-        ++i;
-        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          failedTests.add(newArgs[i]);
-          ++i;
-        }
-      } else if (newArgs[i].startsWith("-setScalaTestVersion=")) {
-        useVersionFromOptions = true;
-        isOlderScalaVersionFromOptions = isOlderScalaVersionFromOptions(newArgs[i]);
-        ++i;
-      } else if (newArgs[i].equals("-C")) {
-        if (useVersionFromOptions) {
-          argsArray.add(isOlderScalaVersionFromOptions ? "-r" : newArgs[i]);
-        } else {
-          argsArray.add(isOlderScalaTestVersion() ? "-r" : newArgs[i]);
-        }
-        if (i + 1 < newArgs.length) argsArray.add(newArgs[i + 1]);
-        i += 2;
-      } else {
-        argsArray.add(newArgs[i]);
-        ++i;
+  private static void runScalaTest1(ScalaTestRunnerArgs args) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    if (allTestsAreEmpty(args.classesToTests)) {
+      List<String> scalatestArgs = new ArrayList<>(args.otherArgs);
+      // why do we need this if later we setup default reporter? (this was before, I just simplified args construction logic)
+      if (args.reporterFqn != null) {
+        scalatestArgs.add(ScalaTestUtils.isOlderScalaTestVersion() ? "-r" : "-C");
+        scalatestArgs.add(args.reporterFqn);
       }
-    }
-    Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().loadClass(reporterQualName);
-    Reporter reporter = (Reporter) reporterClass.newInstance();
-    if (failedUsed) {
-      i = 0;
-      while (i + 1 < failedTests.size()) {
-        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(failedTests.get(i + 1), failedTests.get(i), reporter);
-        i += 2;
-      }
-    } else if (testNames.isEmpty()) {
-      String[] arga = argsArray.toArray(new String[argsArray.size() + 2]);
-      arga[arga.length - 2] = "-s";
-      for (String clazz : classes) {
-        arga[arga.length - 1] = clazz;
-        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        Runner.run(arga);
+      String[] scalatestArgsArr = scalatestArgs.toArray(new String[scalatestArgs.size() + 2]);
+      scalatestArgsArr[scalatestArgsArr.length - 2] = "-s";
+      for (String clazz : args.classesToTests.keySet()) {
+        scalatestArgsArr[scalatestArgsArr.length - 1] = clazz;
+        TestRunnerUtil.configureReporter(REPORTER_FQN, args.showProgressMessages);
+        Runner.run(scalatestArgsArr);
       }
     } else {
+      // TODO: why need reflection???
+      Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().loadClass(REPORTER_FQN);
+      Reporter reporter = (Reporter) reporterClass.newInstance();
+
       //'test' kind of run should only contain one class, better fail then try to run something irrelevant
-      assert(classes.size() == 1);
-      for (String clazz : classes) {
-        for (String tn : testNames) {
-          TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-          runSingleTest(tn, clazz, reporter);
-        }
+      assert(args.classesToTests.size() == 1);
+      Map.Entry<String, Set<String>> entry = args.classesToTests.entrySet().iterator().next();
+      String className = entry.getKey();
+      Set<String> testNames = entry.getValue();
+      for (String test : testNames) {
+        TestRunnerUtil.configureReporter(REPORTER_FQN, args.showProgressMessages);
+        runSingleTest(test, className, reporter);
       }
     }
   }
 
+  private static boolean allTestsAreEmpty(java.util.Map<String, Set<String>> classesToTests) {
+    for (java.util.Map.Entry<String, Set<String>> stringSetEntry : classesToTests.entrySet())
+      if (!stringSetEntry.getValue().isEmpty())
+        return false;
+    return true;
+  }
 
   private static void runSingleTest(String testName, String clazz, Reporter reporter) {
     try {
@@ -221,7 +115,7 @@ public class ScalaTestRunner {
     Class<?> suiteClass = Class.forName("org.scalatest.Suite");
     Method method = suiteClass.getMethod(
         "run",
-        Option.class, Reporter.class, Stopper.class, org.scalatest.Filter.class, Map.class, Option.class, Tracker.class
+        Option.class, Reporter.class, Stopper.class, org.scalatest.Filter.class, scala.collection.immutable.Map.class, Option.class, Tracker.class
     );
     // This stopper could be used to request stop to runner
     Stopper stopper = new Stopper() {
@@ -236,56 +130,18 @@ public class ScalaTestRunner {
         stopRequested = true;
       }
     };
-    method.invoke(suite, Some$.MODULE$.apply(testName), reporter, stopper, Filter$.MODULE$.getClass().getMethod("apply").invoke(Filter$.MODULE$),
-        scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, Tracker.class.getConstructor().newInstance());
+      method.invoke(suite,
+              Some$.MODULE$.apply(testName),
+              reporter,
+              stopper,
+              Filter$.MODULE$.getClass().getMethod("apply").invoke(Filter$.MODULE$),
+              scala.collection.immutable.Map$.MODULE$.empty(),
+              None$.MODULE$,
+              Tracker.class.getConstructor().newInstance());
     }
     catch(Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
-  }
-
-  private static boolean isOlderScalaTestVersion() {
-    try {
-      Class<?> suiteClass = Class.forName("org.scalatest.Suite");
-      URL location = suiteClass.getResource('/' + suiteClass.getName().replace('.', '/') + ".class");
-      String path = location.getPath();
-      String jarPath = path.substring(5, path.indexOf("!"));
-      JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
-      String version = jar.getManifest().getMainAttributes().getValue("Bundle-Version");
-      jar.close();
-      return parseVersion(version);
-    } catch (IOException | ClassNotFoundException e) {
-      return true;
-    }
-  }
-
-  private static boolean isOlderScalaVersionFromOptions(String arg) {
-    if (arg.indexOf("=") + 1 < arg.length()) {
-      String version = arg.substring(arg.indexOf("=") + 1);
-      return parseVersion(version);
-    } else {
-      return true;
-    }
-  }
-
-  private static boolean parseVersion(String version) {
-    try {
-      if (version != null && !version.isEmpty()) {
-        String[] nums = version.split("\\.");
-        if (nums.length >= 2) {
-          if (Integer.parseInt(nums[0]) == 1 && Integer.parseInt(nums[1]) >= 8) {
-            return false;
-          } else if (Integer.parseInt(nums[0]) == 2 && Integer.parseInt(nums[1]) >= 0) {
-            return false;
-          } else if (Integer.parseInt(nums[0]) == 3 && Integer.parseInt(nums[1]) >= 0) {
-            return false;
-          }
-        }
-      }
-    } catch (NumberFormatException e) {
-      return true;
-    }
-    return true;
   }
 }

@@ -140,6 +140,7 @@ public class TestRunnerUtil {
    * @return
    * 1. new arguments read from file with name `args[0]` if it starts with `@` char <br>
    * 2. original arguments otherwise
+   * TODO: rename
    */
   public static String[] getNewArgs(String[] args) throws IOException {
     String[] newArgs;
