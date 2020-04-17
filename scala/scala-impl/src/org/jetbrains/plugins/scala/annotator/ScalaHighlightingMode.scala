@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiFile, PsiJavaFile}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.concurrent.duration._
 
@@ -23,8 +24,8 @@ object ScalaHighlightingMode {
 
   def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean =
     file match {
-      case scalaFile: ScalaFile =>
-        isShowErrorsFromCompilerEnabled(scalaFile)
+      case scalaFile: ScalaFile => isShowErrorsFromCompilerEnabled(scalaFile)
+      case javaFile: PsiJavaFile => isShowErrorsFromCompilerEnabled(javaFile)
       case _ => false
     }
 
@@ -45,9 +46,11 @@ object ScalaHighlightingMode {
     }
   }
 
-  // do we need this method now? we have a flag for scala 2 so `isShowErrorsFromCompilerEnabled` should be enough
+  def isShowErrorsFromCompilerEnabled(javaFile: PsiJavaFile): Boolean =
+    showDotcErrors && javaFile.isInScala3Module
+
   def showParserErrors(file: PsiFile): Boolean = {
-    val shouldSkip = file.isScala3File && isShowErrorsFromCompilerEnabled(file)
+    val shouldSkip = file.isInScala3Module && isShowErrorsFromCompilerEnabled(file)
 
     !shouldSkip
   }
