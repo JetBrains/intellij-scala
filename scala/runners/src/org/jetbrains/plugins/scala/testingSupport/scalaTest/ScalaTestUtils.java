@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -19,19 +21,28 @@ public class ScalaTestUtils {
         }
     }
 
-    public static boolean isOlderScalaTestVersion() {
+    public static boolean isOldScalaTestVersion() {
         try {
-            Class<?> suiteClass = Class.forName("org.scalatest.Suite");
-            URL location = suiteClass.getResource('/' + suiteClass.getName().replace('.', '/') + ".class");
-            String path = location.getPath();
-            String jarPath = path.substring(5, path.indexOf("!"));
-            JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
-            String version = jar.getManifest().getMainAttributes().getValue("Bundle-Version");
-            jar.close();
+            String version = detectVersionFromClasspath();
             return isOldScalaTestVersion(version);
         } catch (IOException | ClassNotFoundException e) {
             return true;
         }
+    }
+
+    private static String detectVersionFromClasspath() throws ClassNotFoundException, IOException {
+        String scalatestJarPath = detectScalatestJarFromInClasspath();
+        try (JarFile jar = new JarFile(URLDecoder.decode(scalatestJarPath, "UTF-8"))) {
+            return jar.getManifest().getMainAttributes().getValue("Bundle-Version");
+        }
+    }
+
+    @NotNull
+    private static String detectScalatestJarFromInClasspath() throws ClassNotFoundException {
+        Class<?> suiteClass = Class.forName("org.scalatest.Suite");
+        URL location = suiteClass.getResource('/' + suiteClass.getName().replace('.', '/') + ".class");
+        String path = location.getPath();
+        return path.substring(5, path.indexOf("!"));
     }
 
     private static boolean isOldScalaTestVersion(String versionStr) {

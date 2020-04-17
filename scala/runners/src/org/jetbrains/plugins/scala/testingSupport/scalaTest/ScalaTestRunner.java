@@ -53,7 +53,7 @@ public class ScalaTestRunner {
     // why do we need this if later we setup default reporter? (this was before, I just simplified args construction logic)
     if (args.reporterFqn != null) {
       String reporterFqn = args.reporterFqn.equals(REPORTER_FQN) ? REPORTER_WITH_LOCATION_FQN : args.reporterFqn;
-      scalatestArgs.add(ScalaTestUtils.isOlderScalaTestVersion() ? "-r" : "-C");
+      scalatestArgs.add("-C");
       scalatestArgs.add(reporterFqn);
     }
 
@@ -74,7 +74,7 @@ public class ScalaTestRunner {
       List<String> scalatestArgs = new ArrayList<>(args.otherArgs);
       // why do we need this if later we setup default reporter? (this was before, I just simplified args construction logic)
       if (args.reporterFqn != null) {
-        scalatestArgs.add(ScalaTestUtils.isOlderScalaTestVersion() ? "-r" : "-C");
+        scalatestArgs.add(ScalaTestUtils.isOldScalaTestVersion() ? "-r" : "-C");
         scalatestArgs.add(args.reporterFqn);
       }
       String[] scalatestArgsArr = scalatestArgs.toArray(new String[scalatestArgs.size() + 2]);
