@@ -8,6 +8,7 @@ import org.scalatest.events.SuiteStarting;
 import java.util.Stack;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
+import static org.jetbrains.plugins.scala.testingSupport.scalaTest.TeamcityReporter.reportMessage;
 
 /**
  * @author Roman.Shein
@@ -15,65 +16,11 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeSt
  */
 public class SequentialTreeBuilder implements TreeBuilder {
 
-  private final Stack<Integer> idStack = new Stack<Integer>();
-  private final Stack<String> waitingScopeMessagesQueue = new Stack<String>();
+  private final Stack<Integer> idStack = new Stack<>();
+  private final Stack<String> waitingScopeMessagesQueue = new Stack<>();
   //ID is static because scalaTest v1.9.2 creates multiple reporters when running in package
   private static int id = 0;
   private int getCurrentId() {return idStack.peek();}
-
-  public void openScope(String message, Ordinal ordinal, String suiteId, boolean isTestStarted) {
-    int parentId = idStack.peek();
-    idStack.push(++id);
-    waitingScopeMessagesQueue.push("\n##teamcity[" + message + " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
-    if (isTestStarted) onTestStarted();
-  }
-
-  public void openSuite(String message, SuiteStarting suiteStarting) {
-    int parentId = idStack.peek();
-    idStack.push(++id);
-    waitingScopeMessagesQueue.push("\n##teamcity[" + message + " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
-  }
-
-  private void onTestStarted() {
-    for (String openScopeMessage : waitingScopeMessagesQueue) {
-      System.out.println(openScopeMessage);
-    }
-    waitingScopeMessagesQueue.clear();
-  }
-
-  public void closePendingScope(String scopePendingMessage, Ordinal ordinal, String suiteId) {
-    if (waitingScopeMessagesQueue.isEmpty()) {
-      //print three messages from ScopePending event processing
-      System.out.println("\n##teamcity[testIgnored name='(Scope Pending)' message='" +
-          escapeString("Scope Pending") + "' nodeId='" + getCurrentId() + "']");
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(scopePendingMessage) + "' message='" +
-          escapeString("Scope Pending") + "' nodeId='" + getCurrentId() + "']");
-      System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(scopePendingMessage) + "' nodeId='" + getCurrentId() + "']");
-    } else {
-      waitingScopeMessagesQueue.pop();
-    }
-    idStack.pop();
-  }
-
-  public void closeScope(String message, Ordinal ordinal, String suiteId, boolean isTestFinished) {
-    if (waitingScopeMessagesQueue.isEmpty()) {
-      //there are no open empty scopes, so scope currently being closed must be not empty, print the actual message
-      System.out.println("\n##teamcity[" + message +  "nodeId='" + getCurrentId() + "']");
-    } else {
-      waitingScopeMessagesQueue.pop();
-    }
-    idStack.pop();
-  }
-
-  public void closeSuite(String message, SuiteCompleted suiteCompleted) {
-    if (waitingScopeMessagesQueue.isEmpty()) {
-      //there are no open empty scopes, so scope currently being closed must be not empty, print the actual message
-      System.out.println("\n##teamcity[" + message +  "nodeId='" + getCurrentId() + "']");
-    } else {
-      waitingScopeMessagesQueue.pop();
-    }
-    idStack.pop();
-  }
 
   public void initRun(RunStarting runStarting) {
     idStack.push(0);
@@ -85,5 +32,64 @@ public class SequentialTreeBuilder implements TreeBuilder {
    */
   public boolean isInitialized() {
     return !idStack.isEmpty();
+  }
+
+  @Override
+  public void openScope(String message, Ordinal ordinal, String suiteId, boolean isTestStarted) {
+    int parentId = idStack.peek();
+    idStack.push(++id);
+    waitingScopeMessagesQueue.push("##teamcity[" + message + " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
+    if (isTestStarted)
+      onTestStarted();
+  }
+
+  private void onTestStarted() {
+    for (String openScopeMessage : waitingScopeMessagesQueue) {
+      reportMessage(openScopeMessage);
+    }
+    waitingScopeMessagesQueue.clear();
+  }
+
+
+  @Override
+  public void openSuite(String message, SuiteStarting suiteStarting) {
+    int parentId = idStack.peek();
+    idStack.push(++id);
+    waitingScopeMessagesQueue.push("##teamcity[" + message + " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
+  }
+
+  @Override
+  public void closePendingScope(String scopePendingMessage, Ordinal ordinal, String suiteId) {
+    if (waitingScopeMessagesQueue.isEmpty()) {
+      //print three messages from ScopePending event processing
+      reportMessage("##teamcity[testIgnored name='(Scope Pending)' message='" + escapeString("Scope Pending") + "' nodeId='" + getCurrentId() + "']");
+      reportMessage("##teamcity[testIgnored name='" + escapeString(scopePendingMessage) + "' message='" + escapeString("Scope Pending") + "' nodeId='" + getCurrentId() + "']");
+      reportMessage("##teamcity[testSuiteFinished name='" + escapeString(scopePendingMessage) + "' nodeId='" + getCurrentId() + "']");
+    } else {
+      waitingScopeMessagesQueue.pop();
+    }
+    idStack.pop();
+  }
+
+  @Override
+  public void closeScope(String message, Ordinal ordinal, String suiteId, boolean isTestFinished) {
+    if (waitingScopeMessagesQueue.isEmpty()) {
+      //there are no open empty scopes, so scope currently being closed must be not empty, print the actual message
+      reportMessage("##teamcity[" + message +  "nodeId='" + getCurrentId() + "']");
+    } else {
+      waitingScopeMessagesQueue.pop();
+    }
+    idStack.pop();
+  }
+
+  @Override
+  public void closeSuite(String message, SuiteCompleted suiteCompleted) {
+    if (waitingScopeMessagesQueue.isEmpty()) {
+      //there are no open empty scopes, so scope currently being closed must be not empty, print the actual message
+      reportMessage("##teamcity[" + message +  "nodeId='" + getCurrentId() + "']");
+    } else {
+      waitingScopeMessagesQueue.pop();
+    }
+    idStack.pop();
   }
 }
