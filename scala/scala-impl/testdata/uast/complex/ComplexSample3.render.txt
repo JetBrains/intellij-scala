@@ -29,7 +29,7 @@ public final class RandomClient$ {
                 }
 
         }
-        catch (e) {
+        catch () {
             { public var x: int ->
                 {
                     return x < 100
@@ -52,7 +52,7 @@ public final class RandomClient$ {
             in.close()
             socket.close()
         }
-        catch (e) {
+        catch () {
             e.printStackTrace()
         }
 
@@ -66,7 +66,7 @@ public final class RandomServer$ {
             while (true) ServerThread(listener.accept()).start()
             listener.close()
         }
-        catch (e) {
+        catch () {
             System.err.println("Could not listen on port: 9999.")
             System.exit(-1)
         }
@@ -96,9 +96,9 @@ public class ServerThread : java.lang.Thread {
             in.close()
             socket.close()
         }
-        catch (e) {
+        catch () {
         }
-        catch (e) {
+        catch () {
             e.printStackTrace()
         }
 
