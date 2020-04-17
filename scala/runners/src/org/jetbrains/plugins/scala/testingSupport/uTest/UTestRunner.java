@@ -9,8 +9,8 @@ import java.util.Set;
 public class UTestRunner {
 
   public static void main(String[] argsRaw) throws IOException {
-    String[] newArgs = TestRunnerUtil.getNewArgs(argsRaw);
-    UTestRunnerArgs args = UTestRunnerArgs.parse(newArgs);
+    String[] argsRawFixed = TestRunnerUtil.getNewArgs(argsRaw);
+    UTestRunnerArgs args = UTestRunnerArgs.parse(argsRawFixed);
 
     Map<String, Set<UTestPath>> suitesAndTests = args.classesToTests;
     // TODO: (from Nikolay Tropin)

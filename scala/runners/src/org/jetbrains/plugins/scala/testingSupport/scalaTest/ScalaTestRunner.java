@@ -43,29 +43,30 @@ public class ScalaTestRunner {
   }
 
   /**
+   * @return raw arguments passed to ScalaTest internal runner
    * org.scalatest.tools.Runner arguments:
    * http://www.scalatest.org/user_guide/using_the_runner
    */
   private static String[] toScalatest2or3LibArgs(ScalaTestRunnerArgs args) {
-    List<String> scalatestArgs = new ArrayList<>(args.otherArgs);
+    List<String> libArgs = new ArrayList<>(args.otherArgs);
 
     // why do we need this if later we setup default reporter? (this was before, I just simplified args construction logic)
     if (args.reporterFqn != null) {
       String reporterFqn = args.reporterFqn.equals(REPORTER_FQN) ? REPORTER_WITH_LOCATION_FQN : args.reporterFqn;
-      scalatestArgs.add("-C");
-      scalatestArgs.add(reporterFqn);
+      libArgs.add("-C");
+      libArgs.add(reporterFqn);
     }
 
     args.classesToTests.forEach((className, tests) -> {
-      scalatestArgs.add("-s");
-      scalatestArgs.add(className);
+      libArgs.add("-s");
+      libArgs.add(className);
       tests.forEach(test -> {
-        scalatestArgs.add("-t");
-        scalatestArgs.add(test);
+        libArgs.add("-t");
+        libArgs.add(test);
       });
     });
 
-    return scalatestArgs.toArray(new String[0]);
+    return libArgs.toArray(new String[0]);
   }
 
   private static void runScalaTest1(ScalaTestRunnerArgs args) {
