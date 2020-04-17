@@ -11,7 +11,7 @@ class DottyProjectTemplatesFactory extends ProjectTemplatesFactory {
   override def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] = {
     val url = getClass.getClassLoader.getResource("projectTemplates/dottyTemplate.zip")
     val templateName = SbtBundle.message("project.template.name.dotty.experimental")
-    val description = SbtBundle.message("project.template.description.dotty").stripMargin
+    val description = SbtBundle.message("project.template.description.dotty")
 
     //todo: try to download latest version of https://github.com/lampepfl/dotty.g8
     Array(ArchivedSbtProjectTemplate(templateName, description, url))
