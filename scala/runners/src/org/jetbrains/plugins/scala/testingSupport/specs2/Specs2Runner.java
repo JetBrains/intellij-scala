@@ -16,22 +16,15 @@ public class Specs2Runner {
 
   private static final String REPORTER_FQN = Specs2Notifier.class.getName();
 
-  private static final String CLASS_RUNNER_FQN = "org.specs2.runner.ClassRunner";
-
-  private static boolean isSpecs2_3(Class<?> runnerClass) {
-    assert runnerClass != null;
-    return runnerClass.isInterface();
-  }
-
   public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, IOException {
-    Class<?> runnerClass;
+    final boolean isSpecs2_3;
     try {
-      runnerClass = Class.forName(CLASS_RUNNER_FQN);
-    } catch (ClassNotFoundException e) {
-      System.out.println("ClassNotFoundException for " + CLASS_RUNNER_FQN + ": " + e.getMessage());
+      isSpecs2_3 = Spec2VersionUtils.isSpecs2_3();
+    } catch (Spec2RunExpectedError spec2RunExpectedError) {
+      System.out.println(spec2RunExpectedError.getMessage());
       return;
     }
-    boolean isSpecs2_3 = isSpecs2_3(runnerClass);
+
     ArrayList<String> specialArgs = new ArrayList<>();
     HashMap<String, Set<String>> classesToTests = new HashMap<>();
     String currentClass = null;
