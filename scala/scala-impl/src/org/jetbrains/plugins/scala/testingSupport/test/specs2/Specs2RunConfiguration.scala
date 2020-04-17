@@ -26,9 +26,9 @@ class Specs2RunConfiguration(project: Project,
 
   override def suitePaths: List[String] = Specs2Util.suitePaths
 
-  override def runnerClassName = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
+  override def runnerClassName = "org.jetbrains.plugins.scala.testingSupport.specs2.Specs2Runner"
 
-  override def reporterClass = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Notifier"
+  override def reporterClass = "org.jetbrains.plugins.scala.testingSupport.specs2.Specs2Notifier"
 
   override def errorMessage: String = ScalaBundle.message("spec2.config.specs2.is.not.specified")
 

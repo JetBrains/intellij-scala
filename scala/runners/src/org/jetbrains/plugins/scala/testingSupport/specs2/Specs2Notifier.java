@@ -16,7 +16,7 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatCu
 /**
  * @author Alexander Podkhalyuzin
  */
-public class JavaSpecs2Notifier implements Notifier {
+public class Specs2Notifier implements Notifier {
   public static boolean myShowProgressMessages = true;
 
   private static final AtomicInteger id = new AtomicInteger(0);
@@ -43,25 +43,33 @@ public class JavaSpecs2Notifier implements Notifier {
     System.out.println("\n##teamcity[" + message + "]");
   }
 
-  private final Stack<Integer> idStack = new Stack<Integer>();
+  private final Stack<Integer> idStack = new Stack<>();
 
+  @Override
   public void specStart(@NonNls String title, @NonNls String location) {
     int parentId = descend();
-    report("testSuiteStarted name='" + escapeString(title) + "'"+ TestRunnerUtil.parseLocation(location).toHint() +
-        " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "'");
+    String message = String.format(
+            "testSuiteStarted name='%s'%s nodeId='%d' parentNodeId='%d'",
+            escapeString(title), TestRunnerUtil.parseLocation(location).toHint(), getCurrentId(), parentId
+    );
+    report(message);
   }
 
+  @Override
   public void specEnd(@NonNls String title, @NonNls String location) {
-    report("testSuiteFinished name='" + escapeString(title) + "' nodeId='" +
-        getCurrentId() + "'");
+    report(String.format("testSuiteFinished name='%s' nodeId='%d'", escapeString(title), getCurrentId()));
     ascend();
   }
 
+  @Override
   public void contextStart(@NonNls String text, @NonNls String location) {
     if (text.trim().length() == 0) return;
     int parentId = descend();
-    report("testSuiteStarted name='" + escapeString(text) + "'" + TestRunnerUtil.parseLocation(location).toHint() +
-        " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "'");
+    String message = String.format(
+            "testSuiteStarted name='%s'%s nodeId='%d' parentNodeId='%d'",
+            escapeString(text), TestRunnerUtil.parseLocation(location).toHint(), getCurrentId(), parentId
+    );
+    report(message);
     if (myShowProgressMessages) {
       String escapedMessage = escapeString(text.replaceFirst("\\s+$", ""));
       if (!escapedMessage.isEmpty()) {
@@ -70,22 +78,30 @@ public class JavaSpecs2Notifier implements Notifier {
     }
   }
 
+  @Override
   public void contextEnd(@NonNls String text, @NonNls String location) {
     if (text.trim().length() == 0) return;
-    report("testSuiteFinished name='" + escapeString(text) + "'"+ TestRunnerUtil.parseLocation(location).toHint() +
-        " nodeId='" + getCurrentId() + "'");
+    String message = String.format(
+            "testSuiteFinished name='%s'%s nodeId='%d'",
+            escapeString(text),
+            TestRunnerUtil.parseLocation(location).toHint(), getCurrentId()
+    );
+    report(message);
     ascend();
   }
 
+  @Override
   public void text(@NonNls String text, @NonNls String location) {
   }
 
+  @Override
   public void exampleStarted(@NonNls String name, @NonNls String location) {
     int parentId = descend();
     report("testStarted name='" + escapeString(name) + "'" + TestRunnerUtil.parseLocation(location).toHint() +
             " captureStandardOutput='true' nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "'");
   }
 
+  @Override
   public void exampleSuccess(@NonNls String text, long duration) {
     report("testFinished name='" + escapeString(text) + "' duration='"+ duration +
         "' nodeId='" + getCurrentId() + "'");
@@ -98,25 +114,28 @@ public class JavaSpecs2Notifier implements Notifier {
     }
   }
 
+  @Override
   public void exampleFailure(@NonNls String name, @NonNls String message, @NonNls String location, Throwable f, Details details, long duration) {
     String actualExpectedAttrs = TestRunnerUtil.actualExpectedAttrsSpecs2(message, details);
     exampleFailureOrError(name, message, f, false, actualExpectedAttrs);
   }
 
+  @Override
   public void exampleError(@NonNls String name, @NonNls String message, @NonNls String location, Throwable f, long duration) {
     String actualExpectedAttrs = "";
     exampleFailureOrError(name, message, f, true, actualExpectedAttrs);
   }
 
+  @Override
   public void exampleSkipped(@NonNls String name, @NonNls String message, long duration) {
-    report("testIgnored name='" + escapeString(name) + "' message='" + escapeString(message) +
-        "' nodeId='" + getCurrentId() + "'");
+    String tsMessage = String.format("testIgnored name='%s' message='%s' nodeId='%d'", escapeString(name), escapeString(message), getCurrentId());
+    report(tsMessage);
     ascend();
   }
 
   public void exampleSkipped(@NonNls String name, @NonNls String message, @NonNls String location, long duration) {
-    report("testIgnored name='" + escapeString(name) + "' message='" + escapeString(message) +
-        "' nodeId='" + getCurrentId() + "'");
+    String tsMessage = String.format("testIgnored name='%s' message='%s' nodeId='%d'", escapeString(name), escapeString(message), getCurrentId());
+    report(tsMessage);
     ascend();
   }
 
@@ -134,12 +153,15 @@ public class JavaSpecs2Notifier implements Notifier {
     StringWriter writer = new StringWriter();
     f.printStackTrace(new PrintWriter(writer));
     detail = writer.getBuffer().toString();
-    String res = "testFailed name='" + escapeString(name) + "' message='" + escapeString(message) +
-        "' details='" + escapeString(detail) + "'";
-    if (error) res += "error = 'true'";
-    res += actualExpectedAttrs;
-    res += " timestamp='" + escapeString(formatCurrentTimestamp()) +  "' nodeId='" + getCurrentId() + "'";
-    report(res);
+
+    StringBuilder res = new StringBuilder();
+    res.append(String.format("testFailed name='%s' message='%s' details='%s'", escapeString(name), escapeString(message), escapeString(detail)));
+    if (error)
+      res.append("error = 'true'");
+    res.append(actualExpectedAttrs);
+    res.append(String.format(" timestamp='%s' nodeId='%d'", escapeString(formatCurrentTimestamp()), getCurrentId()));
+
+    report(res.toString());
     ascend();
     //exampleSuccess(name, 0);
   }
