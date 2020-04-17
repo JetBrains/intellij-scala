@@ -6,5 +6,4 @@ IntegrationTest
 Optional
 Provided
 Runtime
-Test
 */
