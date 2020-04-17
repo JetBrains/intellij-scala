@@ -7,9 +7,9 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.jar.JarFile;
 
-public class ScalaTestUtils {
+public class ScalaTestVersionUtils {
 
-    private ScalaTestUtils() {
+    private ScalaTestVersionUtils() {
     }
 
     public static boolean isScalaTest2or3() {

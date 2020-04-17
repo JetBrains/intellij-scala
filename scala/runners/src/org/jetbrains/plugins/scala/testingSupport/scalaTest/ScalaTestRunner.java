@@ -23,7 +23,7 @@ public class ScalaTestRunner {
       String[] argsRawFixed = TestRunnerUtil.getNewArgs(argsRaw);
       ScalaTestRunnerArgs args = ScalaTestRunnerArgs.parse(argsRawFixed);
 
-      if (ScalaTestUtils.isScalaTest2or3()) {
+      if (ScalaTestVersionUtils.isScalaTest2or3()) {
         runScalaTest2or3(args);
       } else {
         runScalaTest1(args);
@@ -74,7 +74,7 @@ public class ScalaTestRunner {
       List<String> scalatestArgs = new ArrayList<>(args.otherArgs);
       // why do we need this if later we setup default reporter? (this was before, I just simplified args construction logic)
       if (args.reporterFqn != null) {
-        scalatestArgs.add(ScalaTestUtils.isOldScalaTestVersion() ? "-r" : "-C");
+        scalatestArgs.add(ScalaTestVersionUtils.isOldScalaTestVersion() ? "-r" : "-C");
         scalatestArgs.add(args.reporterFqn);
       }
       String[] scalatestArgsArr = scalatestArgs.toArray(new String[scalatestArgs.size() + 2]);
