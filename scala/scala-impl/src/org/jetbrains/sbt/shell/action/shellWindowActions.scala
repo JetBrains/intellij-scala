@@ -16,15 +16,16 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{ExecutionManager, ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.ex.util.EditorUtil
+import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import javax.swing.{Icon, KeyStroke}
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.shell.action.CopyFromHistoryViewerAction._
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellToolWindowFactory}
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellConsoleView, SbtShellToolWindowFactory}
 
 import scala.collection.JavaConverters._
 
@@ -124,13 +125,43 @@ class EOFAction(project: Project) extends DumbAwareAction {
   }
 }
 
-class SigIntAction(project: Project) extends DumbAwareAction {
+class SigIntAction(project: Project, view: SbtShellConsoleView) extends DumbAwareAction {
 
-  setShortcutSet(new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK)))
+  setShortcutSet(`ctrl + C`)
+
+  override def update(e: AnActionEvent): Unit = {
+    e.getPresentation.setEnabled(!CopyFromHistoryViewerAction.isEnabled(view))
+  }
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     SbtShellCommunication.forProject(project).sendSigInt()
   }
+}
+
+class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAction {
+
+  setShortcutSet(`ctrl + C`)
+
+  override def update(e: AnActionEvent): Unit = {
+    e.getPresentation.setEnabled(CopyFromHistoryViewerAction.isEnabled(view))
+  }
+
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    copyFromHistoryToClipboard(view)
+  }
+}
+
+private object CopyFromHistoryViewerAction {
+  def `ctrl + C` = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK))
+
+  private def selectionModel(view: SbtShellConsoleView): SelectionModel =
+    view.getHistoryViewer.getSelectionModel
+
+  def isEnabled(view: SbtShellConsoleView): Boolean =
+    selectionModel(view).hasSelection
+
+  private def copyFromHistoryToClipboard(view: SbtShellConsoleView): Unit =
+    selectionModel(view).copySelectionToClipboard()
 }
 
 class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnection]) extends ToggleAction {
