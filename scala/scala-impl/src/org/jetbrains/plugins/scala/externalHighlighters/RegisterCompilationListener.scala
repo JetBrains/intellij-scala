@@ -7,7 +7,7 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerList
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
+import com.intellij.psi.{PsiFile, PsiJavaFile, PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -90,14 +90,7 @@ object RegisterCompilationListener {
           tryHighlight(file, virtualFile)
       }
 
-    protected def tryHighlight(file: PsiFile, virtualFile: VirtualFile): Unit =
-      file match {
-        case scalaFile: ScalaFile =>
-          tryHighlight(scalaFile, virtualFile)
-        case _ =>
-      }
-
-    protected def tryHighlight(file: ScalaFile, virtualFile: VirtualFile): Unit = {
+    protected def tryHighlight(file: PsiFile, virtualFile: VirtualFile): Unit = {
       // in case user has "use compile server" setting disabled (for any reason) do not even try highlighting
       // yes, then user will not have any error highlighting
       // We already discussed once that probably nobody have the server disabled, and maybe we should remove this legacy
@@ -106,21 +99,20 @@ object RegisterCompilationListener {
 
       if (!virtualFile.isInLocalFileSystem) return
       if (!ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) return
-      val document = virtualFile.findDocument match {
-        case Some(doc) => doc
-        case _         => return
-      }
+      val document = virtualFile.findDocument.getOrElse(return)
 
       val delay = ScalaHighlightingMode.compilationDelay
-      if (file.isWorksheetFile) {
-        worksheetScheduler.schedule(delay, virtualFile.getPath) {
-          compileWorksheet(file, document)
-        }
-      } else {
-        document.syncToDisk(project)
-        executor.schedule(delay) {
-          compiler.compile()
-        }
+      file match {
+        case scalaFile: ScalaFile if scalaFile.isWorksheetFile =>
+          worksheetScheduler.schedule(delay, virtualFile.getPath) {
+            compileWorksheet(scalaFile, document)
+          }
+        case _: ScalaFile | _: PsiJavaFile =>
+          document.syncToDisk(project)
+          executor.schedule(delay) {
+            compiler.compile()
+          }
+        case _ =>
       }
     }
 
