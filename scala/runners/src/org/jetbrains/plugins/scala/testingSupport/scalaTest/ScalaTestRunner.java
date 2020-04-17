@@ -23,6 +23,8 @@ public class ScalaTestRunner {
       String[] argsRawFixed = TestRunnerUtil.getNewArgs(argsRaw);
       ScalaTestRunnerArgs args = ScalaTestRunnerArgs.parse(argsRawFixed);
 
+      ScalaTestReporter.myShowProgressMessages = args.showProgressMessages;
+
       if (ScalaTestVersionUtils.isScalaTest2or3()) {
         runScalaTest2or3(args);
       } else {
@@ -36,9 +38,6 @@ public class ScalaTestRunner {
   }
 
   private static void runScalaTest2or3(ScalaTestRunnerArgs args) {
-    // TODO: WHY USING REFLECTION??? the class is in this module
-    TestRunnerUtil.configureReporter(REPORTER_FQN, args.showProgressMessages);
-
     String[] scalatestLibArgs = toScalatest2or3LibArgs(args);
     Runner.run(scalatestLibArgs);
   }
@@ -69,7 +68,7 @@ public class ScalaTestRunner {
     return scalatestArgs.toArray(new String[0]);
   }
 
-  private static void runScalaTest1(ScalaTestRunnerArgs args) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+  private static void runScalaTest1(ScalaTestRunnerArgs args) {
     if (allTestsAreEmpty(args.classesToTests)) {
       List<String> scalatestArgs = new ArrayList<>(args.otherArgs);
       // why do we need this if later we setup default reporter? (this was before, I just simplified args construction logic)
@@ -81,22 +80,17 @@ public class ScalaTestRunner {
       scalatestArgsArr[scalatestArgsArr.length - 2] = "-s";
       for (String clazz : args.classesToTests.keySet()) {
         scalatestArgsArr[scalatestArgsArr.length - 1] = clazz;
-        TestRunnerUtil.configureReporter(REPORTER_FQN, args.showProgressMessages);
         Runner.run(scalatestArgsArr);
       }
     } else {
-      // TODO: why need reflection???
-      Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().loadClass(REPORTER_FQN);
-      Reporter reporter = (Reporter) reporterClass.newInstance();
-
       //'test' kind of run should only contain one class, better fail then try to run something irrelevant
       assert(args.classesToTests.size() == 1);
+      Reporter reporter = new ScalaTestReporter();
       Map.Entry<String, Set<String>> entry = args.classesToTests.entrySet().iterator().next();
       String className = entry.getKey();
       Set<String> testNames = entry.getValue();
-      for (String test : testNames) {
-        TestRunnerUtil.configureReporter(REPORTER_FQN, args.showProgressMessages);
-        runSingleTest(test, className, reporter);
+      for (String testName : testNames) {
+        runSingleTest(className, testName, reporter);
       }
     }
   }
@@ -108,28 +102,35 @@ public class ScalaTestRunner {
     return true;
   }
 
-  private static void runSingleTest(String testName, String clazz, Reporter reporter) {
+  private static void runSingleTest(String className, String testName, Reporter reporter) {
     try {
-    Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(clazz);
-    Suite suite = (Suite) aClass.newInstance();
-    Class<?> suiteClass = Class.forName("org.scalatest.Suite");
-    Method method = suiteClass.getMethod(
-        "run",
-        Option.class, Reporter.class, Stopper.class, org.scalatest.Filter.class, scala.collection.immutable.Map.class, Option.class, Tracker.class
-    );
-    // This stopper could be used to request stop to runner
-    Stopper stopper = new Stopper() {
-      private volatile boolean stopRequested = false;
-      public boolean apply() {
-        return stopRequested();
-      }
-      public boolean stopRequested() {
-        return stopRequested;
-      }
-      public void requestStop() {
-        stopRequested = true;
-      }
-    };
+      Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(className);
+      Suite suite = (Suite) aClass.newInstance();
+      // This stopper could be used to request stop to runner
+      Stopper stopper = new Stopper() {
+        private volatile boolean stopRequested = false;
+        public boolean apply() {
+          return stopRequested();
+        }
+        public boolean stopRequested() {
+          return stopRequested;
+        }
+        public void requestStop() {
+          stopRequested = true;
+        }
+      };
+
+      Class<?> baseSuiteClass = Class.forName("org.scalatest.Suite");
+      Method method = baseSuiteClass.getMethod(
+              "run",
+              Option.class,
+              Reporter.class,
+              Stopper.class,
+              org.scalatest.Filter.class,
+              scala.collection.immutable.Map.class,
+              Option.class,
+              Tracker.class
+      );
       method.invoke(suite,
               Some$.MODULE$.apply(testName),
               reporter,
@@ -138,8 +139,7 @@ public class ScalaTestRunner {
               scala.collection.immutable.Map$.MODULE$.empty(),
               None$.MODULE$,
               Tracker.class.getConstructor().newInstance());
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
