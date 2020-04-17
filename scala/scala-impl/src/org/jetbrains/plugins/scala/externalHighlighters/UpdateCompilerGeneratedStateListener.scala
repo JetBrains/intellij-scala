@@ -101,7 +101,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
 
   private def isErrorMessageAboutWrongRef(text: String): Boolean =
     StringUtils.startsWithIgnoreCase(text, "value") && text.contains("is not a member of") ||
-      StringUtils.startsWithIgnoreCase(text, "not found:")
+      StringUtils.startsWithIgnoreCase(text, "not found:") ||
+      StringUtils.startsWithIgnoreCase(text, "cannot find symbol")
 
   private def replaceOrAppendFileState(oldState: CompilerGeneratedState,
                                        file: VirtualFile,
