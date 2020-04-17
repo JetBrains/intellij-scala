@@ -50,7 +50,7 @@ class ScalaRedundantConversionInspection extends AbstractInspection(ScalaInspect
     val descriptor = {
       val range = new TextRange(offset, element.getTextLength)
 
-      val message = "Casting '%s' to '%s' is redundant".format(left.getText, conversionType)
+      val message = ScalaInspectionBundle.message("casting.a.to.b.is.redundant", left.getText, conversionType)
 
       new ProblemDescriptorImpl(element, element, message, Array(new RemoveConversionQuickFix(element, left)),
         ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, range, null, false)
