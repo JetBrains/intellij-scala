@@ -21,6 +21,7 @@ object BundleExtraction {
 
   case class BundleExtractionInfo(bundleClassName: String, bundleQualifiedClassName: String, key: String, arguments: Seq[String])
 
+  //noinspection ScalaExtractStringToBundle
   def executeBundleExtraction(element: PsiElement, parts: Seq[ExtractPart], project: Project)(f: BundleExtractionInfo => Unit): Unit = {
     val showErrorDialog = Messages.showErrorDialog(project, _: String, _: String)
     val BundleUsageInfo(elementPath, srcRoot, _, maybeBundlePath) =
@@ -94,10 +95,11 @@ object BundleExtraction {
         val argNum = argNums.next()
         (lastWord(value).getOrElse(keyAlternative), s"{$argNum}", Some(value))
     }
-    val (keyParts, textParts, arguments) = bindings.unzip3
+    val (keyParts, textParts, argumentsPerPart) = bindings.unzip3
+    val arguments = argumentsPerPart.flatten
     val key = I18nBundleContent.convertStringToKey(keyParts.mkString("."))
     val text = I18nBundleContent.escapeText(textParts.mkString, arguments.nonEmpty)
-    (key, text, arguments.flatten)
+    (key, text, arguments)
   }
 
   private class BundleNameInputValidator(bundle: I18nBundleContent) extends InputValidatorEx {
