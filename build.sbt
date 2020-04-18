@@ -200,7 +200,6 @@ lazy val runners =
 
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
-    .dependsOn(runners)
     .settings(
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
