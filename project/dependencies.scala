@@ -86,9 +86,6 @@ object Dependencies {
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
   val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.11"
 
-  //  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
-  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
-
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.4.0"
@@ -180,12 +177,13 @@ object DependencyGroups {
   )
 
   val runners: Seq[ModuleID] = Seq(
-    specs2,
     "org.scala-lang" % "scala-compiler" % scalaVersion,
     // "provided" danger: we statically depend on a single version, but need to support all the version
     // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
     "org.scalatest" %% "scalatest" % "3.0.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.5.4" % "provided"
+    "com.lihaoyi" %% "utest" % "0.5.4" % "provided",
+    "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+    //  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   )
 
   val runtime: Seq[ModuleID] = Seq(
