@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 
-// see for details: http://www.scalatest.org/release_notes/3.1.0
+/**
+ * ScalaTest 3.1.0 had a lot of refactorings. A lot of classes moved to other packages.
+ * This utility class helps to migrate old (prior 3.1.0) class full qualified names to new ones.
+ * see for details: http://www.scalatest.org/release_notes/3.1.0
+ */
 private object ScalaTestMigrationUtils {
 
   object MigrationOps {
@@ -40,6 +44,10 @@ private object ScalaTestMigrationUtils {
       }
     }
   }
+
+  //
+  // Mappings below copied from tables from http://www.scalatest.org/release_notes/3.1.0
+  //
 
   private val FunSuite =
     Map(
