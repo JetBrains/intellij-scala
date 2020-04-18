@@ -4,14 +4,11 @@ package testingSupport.test.utest
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.TestFramework
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtCommandsBuilder, SbtCommandsBuilderBase, SbtTestRunningSupport, SbtTestRunningSupportBase}
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SuiteValidityChecker, SuiteValidityCheckerBase, TestConfigurationUtil, TestFrameworkRunnerInfo}
-
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SuiteValidityChecker, SuiteValidityCheckerBase, TestConfigurationUtil}
 
 class UTestRunConfiguration(
   project: Project,

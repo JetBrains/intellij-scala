@@ -179,12 +179,11 @@ object DependencyGroups {
     bcel
   )
 
-  // TODO: cleanup a mess with runners dependencies:
-  //  1: versions are outdated
-  //  2. runners partial use reflection, partially static bindinf
   val runners: Seq[ModuleID] = Seq(
     specs2,
     "org.scala-lang" % "scala-compiler" % scalaVersion,
+    // "provided" danger: we statically depend on a single version, but need to support all the version
+    // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
     "org.scalatest" %% "scalatest" % "3.0.1" % "provided",
     "com.lihaoyi" %% "utest" % "0.5.4" % "provided"
   )

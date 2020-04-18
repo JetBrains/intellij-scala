@@ -10,16 +10,13 @@ import java.util.Set;
 public class Spec2RunnerArgs {
 
     final HashMap<String, Set<String>> classesToTests;
-    final String reporterFqn;
     final boolean showProgressMessages;
     final ArrayList<String> otherArgs;
 
     public Spec2RunnerArgs(HashMap<String, Set<String>> classesToTests,
-                           String reporterFqn,
                            boolean showProgressMessages,
                            ArrayList<String> otherArgs) {
         this.classesToTests = classesToTests;
-        this.reporterFqn = reporterFqn;
         this.showProgressMessages = showProgressMessages;
         this.otherArgs = otherArgs;
     }
@@ -28,7 +25,6 @@ public class Spec2RunnerArgs {
         HashMap<String, Set<String>> classesToTests = new HashMap<>();
         boolean showProgressMessages = true;
         ArrayList<String> otherArgs = new ArrayList<>();
-        String reporterFqn = null;
 
         int argIdx = 0;
         String currentClass = null;
@@ -54,11 +50,6 @@ public class Spec2RunnerArgs {
                     showProgressMessages = Boolean.parseBoolean(args[argIdx]);
                     ++argIdx;
                     break;
-                case "-C":
-                    ++argIdx;
-                    reporterFqn = args[argIdx];
-                    ++argIdx;
-                    break;
                 default:
                     otherArgs.add(args[argIdx]);
                     ++argIdx;
@@ -66,6 +57,6 @@ public class Spec2RunnerArgs {
             }
         }
 
-        return new Spec2RunnerArgs(classesToTests, reporterFqn, showProgressMessages, otherArgs);
+        return new Spec2RunnerArgs(classesToTests, showProgressMessages, otherArgs);
     }
 }

@@ -8,7 +8,7 @@ import com.intellij.testIntegration.TestFramework
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{SettingMap, TestFrameworkRunnerInfo}
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtCommandsBuilder, SbtCommandsBuilderBase, SbtTestRunningSupport, SbtTestRunningSupportBase}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, RegexpTestData}
@@ -36,8 +36,7 @@ class Specs2RunConfiguration(
   override protected val validityChecker: SuiteValidityChecker = Specs2RunConfiguration.validityChecker
 
   override protected val runnerInfo: TestFrameworkRunnerInfo = TestFrameworkRunnerInfo(
-    classOf[org.jetbrains.plugins.scala.testingSupport.specs2.Specs2Runner].getName,
-    org.jetbrains.plugins.scala.testingSupport.specs2.Specs2Runner.REPORTER_FQN
+    classOf[org.jetbrains.plugins.scala.testingSupport.specs2.Specs2Runner].getName
   )
 
   override protected val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {

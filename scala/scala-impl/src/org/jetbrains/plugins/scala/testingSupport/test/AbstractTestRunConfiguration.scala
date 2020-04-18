@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.SbtTestRunningSupport
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, TestConfigurationData}
@@ -244,4 +245,10 @@ object AbstractTestRunConfiguration {
 
     def getRunConfigurationBase: RunConfigurationBase[_]
   }
+
+  /**
+   * see runners module for details
+   * @param runnerClass fully qualified name of runner class
+   */
+  case class TestFrameworkRunnerInfo(runnerClass: String)
 }

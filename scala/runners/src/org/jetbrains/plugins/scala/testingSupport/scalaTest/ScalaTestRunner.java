@@ -15,8 +15,8 @@ import java.util.Set;
 
 public class ScalaTestRunner {
 
-  public static final String REPORTER_FQN = ScalaTestReporter.class.getName();
-  public static final String REPORTER_WITH_LOCATION_FQN = ScalaTestReporterWithLocation.class.getName();
+  private static final String REPORTER_FQN = ScalaTestReporter.class.getName();
+  private static final String REPORTER_WITH_LOCATION_FQN = ScalaTestReporterWithLocation.class.getName();
 
   public static void main(String[] argsRaw) {
     try {
@@ -50,12 +50,8 @@ public class ScalaTestRunner {
   private static String[] toScalatest2or3LibArgs(ScalaTestRunnerArgs args) {
     List<String> libArgs = new ArrayList<>(args.otherArgs);
 
-    // why do we need this if later we setup default reporter? (this was before, I just simplified args construction logic)
-    if (args.reporterFqn != null) {
-      String reporterFqn = args.reporterFqn.equals(REPORTER_FQN) ? REPORTER_WITH_LOCATION_FQN : args.reporterFqn;
-      libArgs.add("-C");
-      libArgs.add(reporterFqn);
-    }
+    libArgs.add("-C");
+    libArgs.add(REPORTER_WITH_LOCATION_FQN);
 
     args.classesToTests.forEach((className, tests) -> {
       libArgs.add("-s");
@@ -72,11 +68,8 @@ public class ScalaTestRunner {
   private static void runScalaTest1(ScalaTestRunnerArgs args) {
     if (allTestsAreEmpty(args.classesToTests)) {
       List<String> scalatestArgs = new ArrayList<>(args.otherArgs);
-      // why do we need this if later we setup default reporter? (this was before, I just simplified args construction logic)
-      if (args.reporterFqn != null) {
-        scalatestArgs.add(ScalaTestVersionUtils.isOldScalaTestVersion() ? "-r" : "-C");
-        scalatestArgs.add(args.reporterFqn);
-      }
+      scalatestArgs.add(ScalaTestVersionUtils.isOldScalaTestVersion() ? "-r" : "-C");
+      scalatestArgs.add(REPORTER_FQN);
       String[] scalatestArgsArr = scalatestArgs.toArray(new String[scalatestArgs.size() + 2]);
       scalatestArgsArr[scalatestArgsArr.length - 2] = "-s";
       for (String clazz : args.classesToTests.keySet()) {

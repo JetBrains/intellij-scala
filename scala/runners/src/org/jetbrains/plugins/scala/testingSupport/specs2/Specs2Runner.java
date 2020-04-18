@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class Specs2Runner {
 
-  public static final String REPORTER_FQN = Specs2Notifier.class.getName();
+  private static final String REPORTER_FQN = Specs2Notifier.class.getName();
 
   public static void main(String[] argsRaw) throws NoSuchMethodException, IllegalAccessException, IOException {
     final boolean isSpecs2_3;
@@ -30,7 +30,7 @@ public class Specs2Runner {
 
     String[] argRawFixed  = TestRunnerUtil.getNewArgs(argsRaw);
     Spec2RunnerArgs args = Spec2RunnerArgs.parse(argRawFixed);
-    List<List<String>> runnerArgsList = toSpec2LibArgsList(args, isSpecs2_3);
+    List<List<String>> runnerArgsList = toSpec2LibArgsList(args);
 
     Specs2Notifier.myShowProgressMessages = args.showProgressMessages;
 
@@ -52,18 +52,10 @@ public class Specs2Runner {
    * org.specs2.runner.NotifierRunner arguments:
    * https://etorreborre.github.io/specs2/guide/SPECS2-3.0.1/org.specs2.guide.ArgumentsReference.html
    */
-  private static List<String> toSpec2LibArgs(Spec2RunnerArgs args, boolean isSpecs2_3) {
+  private static List<String> toSpec2LibArgs(Spec2RunnerArgs args) {
     List<String> libArgs = new ArrayList<>(args.otherArgs);
-    if (!REPORTER_FQN.equals(args.reporterFqn)) {
-      //don't duplicate the reporter
-      libArgs.add("-notifier");
-      libArgs.add(args.reporterFqn);
-    }
-    if (isSpecs2_3) {
-      //there is a bug with specs2 v3.1+: notifier does not get passed properly through NotifierRunner
-      libArgs.add("-notifier");
-      libArgs.add(REPORTER_FQN);
-    }
+    libArgs.add("-notifier");
+    libArgs.add(REPORTER_FQN);
     return libArgs;
   }
 
@@ -71,8 +63,8 @@ public class Specs2Runner {
    * One each class should passed separately to Spec2 runner, so for single Spec2RunnerArgs
    * we generate several args sets which will be passed to Spec2 runner.
    */
-  private static List<List<String>> toSpec2LibArgsList(Spec2RunnerArgs args, boolean isSpecs2_3) {
-    List<String> commonArgs = toSpec2LibArgs(args, isSpecs2_3);
+  private static List<List<String>> toSpec2LibArgsList(Spec2RunnerArgs args) {
+    List<String> commonArgs = toSpec2LibArgs(args);
     return args.classesToTests
             .entrySet().stream()
             .map(entry -> {

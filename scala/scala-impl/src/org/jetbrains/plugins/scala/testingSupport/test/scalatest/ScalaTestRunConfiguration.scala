@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{SettingMap, TestFrameworkRunnerInfo}
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtCommandsBuilder, SbtCommandsBuilderBase, SbtTestRunningSupport, SbtTestRunningSupportBase}
 import org.jetbrains.sbt.shell.SbtShellCommunication
@@ -38,8 +38,7 @@ class ScalaTestRunConfiguration(
   override protected def validityChecker: SuiteValidityChecker = ScalaTestRunConfiguration.validityChecker
 
   override protected val runnerInfo: TestFrameworkRunnerInfo = TestFrameworkRunnerInfo(
-    classOf[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner].getName,
-    org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner.REPORTER_FQN
+    classOf[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner].getName
   )
 
   override protected val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {

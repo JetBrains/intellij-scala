@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, using}
 import org.jetbrains.plugins.scala.project.{PathsListExt, ProjectExt}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, TestFrameworkRunnerInfo}
 import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState._
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.SearchForTest
 import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction
@@ -122,10 +122,9 @@ class ScalaTestFrameworkCommandLineState(
 
   private def buildProgramParameters(suitesToTests: Map[String, Set[String]]): Seq[String] = {
     val classesAndTests = buildClassesAndTestsParameters(suitesToTests)
-    val runner = runnerInfo.reporterClass.toSeq.flatMap(Seq("-C", _))
     val progress = Seq("-showProgressMessages", testConfigurationData.showProgressMessages.toString)
     val other = ParametersList.parse(testConfigurationData.getTestArgs)
-    classesAndTests ++ runner ++ progress ++ other
+    classesAndTests ++ progress ++ other
   }
 
   private def buildClassesAndTestsParameters(suitesToTests: Map[String, Set[String]]): Seq[String] = {
