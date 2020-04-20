@@ -31,8 +31,9 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
     val logger = getLogger(client, logFilter)
     val clientCallback = new ClientCallback(client, compilationData.output.toPath)
 
+    val outputDirsCount = compilationData.outputGroups.map(_._2).distinct.size
     val out =
-      if (compilationData.outputGroups.size <= 1) CompileOutput(compilationData.output)
+      if (outputDirsCount <= 1) CompileOutput(compilationData.output)
       else CompileOutput(compilationData.outputGroups: _*)
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.classpathOptions)
     val options = cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
