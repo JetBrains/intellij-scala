@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.template
+package org.jetbrains.plugins.scala
+package annotator
+package template
 
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.intention.IntentionAction
@@ -9,10 +11,9 @@ import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
 import com.intellij.psi.{PsiFile, PsiNamedElement}
 import com.intellij.util.ObjectUtils
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.{ImplicitToImport, ScalaAddImportAction}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitParameterNotFoundResult
 import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitInstance, ImplicitCollector}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -58,7 +59,10 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: Implicit
   }
 
   private def searchAndSuggestImport(typeToSearch: ScType, editor: Editor): Unit = {
-    val instances = GlobalImplicitInstance.compatibleInstances(typeToSearch, place.elementScope)
+    val instances = GlobalImplicitInstance.compatibleInstances(
+      typeToSearch,
+      place.resolveScope
+    )(place.getProject)
 
     if (instances.isEmpty)
       HintManager.getInstance().showInformationHint(editor, "Applicable implicits not found")
@@ -88,9 +92,10 @@ private object SearchImplicitQuickFix {
     if (visited(parameter.element))
       return Seq.empty
 
-    val arguments = ImplicitCollector.probableArgumentsFor(parameter).flatMap {
+    import ImplicitCollector._
+    val arguments = probableArgumentsFor(parameter).flatMap {
       case (arg, ImplicitParameterNotFoundResult) => arg.implicitParameters.flatMap(withProbableArguments(_, visited + parameter.element))
-      case _                                      => Seq.empty
+      case _ => Seq.empty
     }
 
     parameter +: arguments
