@@ -3,12 +3,12 @@ package lang
 package completion
 package global
 
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.targetTypeAndSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitConversionCache, ImplicitConversionProcessor}
+import org.jetbrains.plugins.scala.lang.psi.implicits._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
@@ -16,30 +16,25 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 private[completion] final class ExtensionMethodsFinder private(originalType: ScType, place: ScExpression)
   extends GlobalMembersFinder {
 
-  lazy val originalTypeMemberNames: collection.Set[String] = candidatesForType(originalType).map(_.name)
+  private lazy val originalTypeMemberNames: collection.Set[String] = candidatesForType(originalType).map(_.name)
 
   override protected def candidates: Iterable[GlobalMemberResult] = for {
-    (key, conversionData) <- ImplicitConversionCache.getOrScheduleUpdate(place.elementScope)
+    (GlobalImplicitConversion(classToImport, elementToImport), conversionData) <- ImplicitConversionCache.getOrScheduleUpdate(place.resolveScope)(place.getProject)
+    if ImplicitConversionProcessor.applicable(elementToImport, place)
 
-    if ImplicitConversionProcessor.applicable(key.function, place)
+    (resultType, _) <- ScImplicitlyConvertible.targetTypeAndSubstitutor(
+      conversionData,
+      originalType,
+      place
+    ).toIterable
 
-    (resultType, _) <- targetTypeAndSubstitutor(conversionData, originalType, place).toIterable
-    item <- extensionCandidates(key.function, key.containingObject, resultType)
-  } yield item
+    resolveResult <- candidatesForType(resultType)
+    if !originalTypeMemberNames.contains(resolveResult.name)
+  } yield ExtensionMethodCandidate(resolveResult, elementToImport, classToImport)
 
-  private def extensionCandidates(conversion: ScFunction, conversionContainer: ScObject, resultType: ScType): Iterable[ExtensionMethodCandidate] = {
-    val newCandidates =
-      candidatesForType(resultType)
-        .filterNot(c => originalTypeMemberNames.contains(c.name))
-
-    newCandidates.map {
-      ExtensionMethodCandidate(_, conversion, conversionContainer)
-    }
-  }
-
-  private def candidatesForType(tp: ScType): collection.Set[ScalaResolveResult] = {
+  private def candidatesForType(`type`: ScType): collection.Set[ScalaResolveResult] = {
     val processor = new CompletionProcessor(StdKinds.methodRef, place)
-    processor.processType(tp, place)
+    processor.processType(`type`, place)
     processor.candidatesS
   }
 
