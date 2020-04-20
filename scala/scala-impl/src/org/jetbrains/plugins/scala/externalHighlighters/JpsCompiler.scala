@@ -18,11 +18,12 @@ import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ToNullSafe
-import org.jetbrains.plugins.scala.util.FutureUtil
+import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
+import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
 
 trait JpsCompiler {
   def compile(): Unit
@@ -37,6 +38,8 @@ object JpsCompiler {
 private class JpsCompilerImpl(project: Project)
   extends JpsCompiler {
 
+  private val showIndicatorExecutor = new RescheduledExecutor(s"show-indicator-${project.getName}")
+  
   // SCL-17295
   @Cached(ProjectRootManager.getInstance(project), null)
   private def saveProjectOnce(): Unit = project.save()
@@ -71,8 +74,11 @@ private class JpsCompilerImpl(project: Project)
     
     val indicator = new DeferredShowProgressIndicator(task)
     ProgressManager.getInstance.runProcessWithProgressAsynchronously(task, indicator)
-    FutureUtil.executeIfTimeout(future, timeout = ScalaHighlightingMode.compilationTimeoutToShowProgress) {
+    showIndicatorExecutor.schedule(ScalaHighlightingMode.compilationTimeoutToShowProgress) {
       indicator.show()
+    }
+    future.onComplete { _ =>
+      showIndicatorExecutor.cancelLast()
     }
     Await.result(future, Duration.Inf)
   }
