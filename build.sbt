@@ -11,9 +11,6 @@ intellijBuild in ThisBuild := Versions.intellijVersion
 
 intellijPlatform in ThisBuild := IntelliJPlatform.IdeaCommunity
 
-// we have a specific special case of testdata folder setup
-generateJUnitTemplate in ThisBuild := false
-
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
     Resolver.typesafeIvyRepo("releases") :+
