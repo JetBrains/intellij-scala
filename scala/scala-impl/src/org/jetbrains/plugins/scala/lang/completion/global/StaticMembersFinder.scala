@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.findInheritorObjects
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private[completion] final class StaticMembersFinder private(namePredicate: String => Boolean)
+private[completion] final class StaticMembersFinder private(namePredicate: NamePredicate)
                                                            (isAccessible: PsiMember => Boolean)
                                                            (implicit private val project: Project,
                                                             private val scope: GlobalSearchScope)
@@ -83,10 +83,9 @@ private[completion] final class StaticMembersFinder private(namePredicate: Strin
 
 object StaticMembersFinder {
 
-  def apply(place: ScReferenceExpression, accessAll: Boolean)
-           (namePredicate: String => Boolean) = new StaticMembersFinder(namePredicate)(member =>
-    accessAll || isAccessible(member)(place)
-  )(place.getProject, place.resolveScope)
+  def apply(place: ScReferenceExpression)
+           (isAccessible: PsiMember => Boolean): NamePredicate => StaticMembersFinder =
+    new StaticMembersFinder(_)(isAccessible)(place.getProject, place.resolveScope)
 
   private def classesToImportFor(member: PsiMember): Set[_ <: PsiClass] = member.containingClass match {
     case clazz: ScTemplateDefinition => findInheritorObjects(clazz)

@@ -43,7 +43,6 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
     }
   )
 
-  //static members with import
   extend(
     CompletionType.BASIC,
     identifierWithParentPattern(classOf[ScReferenceExpression]),
@@ -58,18 +57,25 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
         val invocationCount = parameters.getInvocationCount
         val requiresAdvertisement = regardlessAccessibility(invocationCount)
 
+        val matcher = resultSet.getPrefixMatcher
         val maybeFinder = reference match {
-          case Qualifier(_) => None
+          case Qualifier(qualifier) =>
+            qualifier.getTypeWithoutImplicits()
+              .toOption
+              .map(CompanionObjectMembersFinder.ExtensionLike(_, qualifier))
           case _ =>
-            val matcher = resultSet.getPrefixMatcher
             val finder = if (requiresAdvertisement && matcher.getPrefix.nonEmpty)
-              StaticMembersFinder(reference, accessAll(invocationCount))(_)
+              StaticMembersFinder(reference) {
+                accessAll(invocationCount) || isAccessible(_)(reference)
+              }
             else
-              new CompanionObjectMembersFinder(reference)(_)
-            Some(finder(matcher.prefixMatches))
+              CompanionObjectMembersFinder.Regular(reference)
+            Some(finder)
         }
 
-        val items = maybeFinder.fold(Seq.empty[ScalaLookupItem]) {
+        val items = maybeFinder.map {
+          _.apply(matcher.prefixMatches)
+        }.fold(Seq.empty[ScalaLookupItem]) {
           _.lookupItems(reference, parameters.getOriginalFile)
         }
         addGlobalCompletions(items, resultSet, requiresAdvertisement)

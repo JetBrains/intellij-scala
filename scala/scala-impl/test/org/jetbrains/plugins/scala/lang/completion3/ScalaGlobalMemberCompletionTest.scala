@@ -247,7 +247,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
   def testNestedCompanionObjectValue(): Unit = doCompletionTest(
     fileText =
       s"""class Foo {
-         |  trait Bar {
+         |  class Bar {
          |    f$CARET
          |  }
          |}
@@ -258,7 +258,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""class Foo {
-         |  trait Bar {
+         |  class Bar {
          |    Foo.foo$CARET
          |  }
          |}
@@ -287,6 +287,68 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |
          |object Foo {
          |  var foo = 42
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectExtensionLikeMethod(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  class Bar {
+         |    val foo = new Foo
+         |  }
+         |
+         |  val bar = new Bar
+         |  bar.foo.$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  class Bar {
+         |    val foo = new Foo
+         |  }
+         |
+         |  val bar = new Bar
+         |  Foo.foo(bar.foo)$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectInvalidExtensionLikeMethodInvalidArgumentsCount(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo {
+         |  val foo = new Foo
+         |  foo.$CARET
+         |}
+         |
+         |object Foo {
+         |  def bar(foo: Foo, bar: Int): Unit = {}
+         |}
+         |""".stripMargin,
+    item = "bar"
+  )
+
+  def testCompanionObjectInvalidExtensionLikeMethodInvalidArgumentType(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo {
+         |  class Bar
+         |
+         |  val bar = new Bar
+         |  bar.$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
          |}
          |""".stripMargin,
     item = "foo"

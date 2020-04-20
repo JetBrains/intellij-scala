@@ -3,37 +3,147 @@ package lang
 package completion
 package global
 
+import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private[completion] final class CompanionObjectMembersFinder(reference: ScReferenceExpression)
-                                                            (namePredicate: String => Boolean)
+private[completion] sealed abstract class CompanionObjectMembersFinder(place: ScExpression)
+                                                                      (namePredicate: NamePredicate)
   extends GlobalMembersFinder {
 
-  override protected def candidates: Iterable[GlobalMemberResult] = for {
-    context <- reference.withContexts.toIterable
+  // todo import, class scope import setting reconsider
+
+  override protected final def candidates: Iterable[GlobalMemberResult] = for {
+    context <- place.withContexts.toIterable
     if context.isInstanceOf[ScClass] || context.isInstanceOf[ScTrait]
+    targetClass = context.asInstanceOf[ScTypeDefinition]
 
-    objectToImport <- context.asInstanceOf[ScTypeDefinition].baseCompanionModule.iterator
+    // todo ScalaPsiUtil.getCompanionModule / fakeCompanionModule
+    targetCompanion <- targetClass.baseCompanionModule.iterator
+    targetObject = targetCompanion.asInstanceOf[ScObject]
 
-    member <- objectToImport.functions ++ objectToImport.members.flatMap {
-      case value: ScValueOrVariable => value.declaredElements
+    member <- functions(targetObject) ++ members(targetObject)
+
+    if namePredicate(member.name)
+  } yield createResult(member, targetObject)
+
+  protected def functions(`object`: ScObject): Seq[ScFunction] =
+    `object`.functions
+
+  protected def members(`object`: ScObject): Seq[ScTypedDefinition] =
+    `object`.members.flatMap {
+      case value: ScValueOrVariable /* todo if isAccessible */ => value.declaredElements
       case _ => Seq.empty
     }
 
-    if namePredicate(member.name)
-  } yield CompanionObjectMemberResult(member, objectToImport.asInstanceOf[ScObject])
+  protected def createResult(member: ScTypedDefinition,
+                             `object`: ScObject): CompanionObjectMemberResult
 
-  private final case class CompanionObjectMemberResult(member: ScTypedDefinition,
-                                                       objectToImport: ScObject)
+  protected sealed abstract class CompanionObjectMemberResult(private val member: ScTypedDefinition,
+                                                              private val `object`: ScObject)
     extends GlobalMemberResult(
       new ScalaResolveResult(member),
       member,
-      objectToImport,
-      Some(objectToImport)
-    ) {}
+      `object`,
+      Some(`object`)
+    ) {
+
+    override def equals(other: Any): Boolean = other match {
+      case that: CompanionObjectMemberResult if getClass == that.getClass =>
+        member == that.member &&
+          `object` == that.`object`
+      case _ => false
+    }
+
+    override def hashCode: Int =
+      31 * member.hashCode + `object`.hashCode
+
+    override def toString: String =
+      s"CompanionObjectMemberResult($member, ${`object`})"
+  }
+}
+
+private[completion] object CompanionObjectMembersFinder {
+
+  final class Regular private(place: ScReferenceExpression)
+                             (namePredicate: NamePredicate)
+    extends CompanionObjectMembersFinder(place)(namePredicate) {
+
+    override protected def createResult(member: ScTypedDefinition,
+                                        `object`: ScObject): CompanionObjectMemberResult =
+      new CompanionObjectMemberResult(member, `object`) {}
+  }
+
+  object Regular {
+
+    def apply(place: ScReferenceExpression): NamePredicate => Regular =
+      new Regular(place)(_)
+  }
+
+  final class ExtensionLike private(private val originalType: ScType,
+                                    place: ScExpression)
+                                   (namePredicate: NamePredicate)
+    extends CompanionObjectMembersFinder(place)(namePredicate) {
+
+    override protected def functions(`object`: ScObject): Seq[ScFunction] = for {
+      function <- super.functions(`object`)
+
+      parameters = function.parameters
+      if parameters.size == 1
+
+      parameterType <- parameters.head
+        .getRealParameterType
+        .toOption
+      if originalType.conforms(parameterType)
+    } yield function
+
+    override protected def members(`object`: ScObject) =
+      Seq.empty[ScTypedDefinition]
+
+    override protected def createResult(member: ScTypedDefinition,
+                                        `object`: ScObject): CompanionObjectMemberResult =
+      new CompanionObjectMemberResult(member, `object`) {
+
+        override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
+          lookupItem.setInsertHandler(createPostfixInsertHandler())
+        }
+      }
+
+    private def createPostfixInsertHandler() = new InsertHandler[ScalaLookupItem] {
+
+      override def handleInsert(context: InsertionContext, item: ScalaLookupItem): Unit = {
+        val reference@ScReferenceExpression.withQualifier(qualifier) = context
+          .getFile
+          .findReferenceAt(context.getStartOffset)
+
+        val Some(targetObject: ScObject) = item.classToImport
+        val Some(targetFunction: ScFunction) = item.elementToImport
+
+        val newReference = createExpressionWithContextFromText(
+          targetObject.name + "." + targetFunction.name + "(" + qualifier.getText + ")",
+          reference.getContext,
+          reference
+        )
+
+        reference.replaceExpression(
+          newReference,
+          removeParenthesis = true
+        )
+      }
+    }
+  }
+
+  object ExtensionLike {
+
+    def apply(originalType: ScType,
+              place: ScExpression): NamePredicate => ExtensionLike =
+      new ExtensionLike(originalType, place)(_)
+  }
 }
