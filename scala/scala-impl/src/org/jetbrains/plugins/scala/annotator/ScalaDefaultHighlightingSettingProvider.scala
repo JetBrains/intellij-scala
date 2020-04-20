@@ -10,14 +10,11 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 class ScalaDefaultHighlightingSettingProvider
   extends DefaultHighlightingSettingProvider {
 
-  override def getDefaultSetting(project: Project, file: VirtualFile): FileHighlightingSetting = {
-    val isJavaOrScalaInScala3Module = Option(PsiManager.getInstance(project).findFile(file)).exists {
-      case psiFile@(_: ScalaFile | _: PsiJavaFile) => psiFile.isInScala3Module
-      case _ => false  
-    }
-    if (isJavaOrScalaInScala3Module)
-      FileHighlightingSetting.SKIP_INSPECTION
-    else
-      null
-  }
+  override def getDefaultSetting(project: Project, file: VirtualFile): FileHighlightingSetting =
+    Option(PsiManager.getInstance(project).findFile(file))
+      .filter(_.isInScala3Module)
+      .collect {
+        case _: ScalaFile => FileHighlightingSetting.SKIP_INSPECTION
+        case _: PsiJavaFile => FileHighlightingSetting.SKIP_HIGHLIGHTING
+      }.orNull
 }
