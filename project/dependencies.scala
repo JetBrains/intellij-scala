@@ -181,7 +181,7 @@ object DependencyGroups {
     // "provided" danger: we statically depend on a single version, but need to support all the version
     // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
     "org.scalatest" %% "scalatest" % "3.0.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.5.4" % "provided",
+    "com.lihaoyi" %% "utest" % "0.7.4" % "provided",
     "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
     //  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   )
