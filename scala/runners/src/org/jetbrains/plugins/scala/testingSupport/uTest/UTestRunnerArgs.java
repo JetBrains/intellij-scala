@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.uTest;
 
+import org.jetbrains.plugins.scala.testingSupport.uTest.utils.UTestUtils;
+
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -36,10 +38,9 @@ public final class UTestRunnerArgs {
                         throw new RuntimeException("Failed to run tests: no suite class specified for test " + args[argIdx]);
                     while (!args[argIdx].startsWith("-")) {
                         String testName = args[argIdx];
-                        UTestPath aTest = parseTestPath(currentClass, testName);
-                        if (aTest != null) {
-                            classesToTests.get(currentClass).add(aTest);
-                        }
+                        UTestPath testPath = parseTestPathSafe(currentClass, testName);
+                        if (testPath != null)
+                            classesToTests.get(currentClass).add(testPath);
                         ++argIdx;
                     }
                     break;
@@ -51,42 +52,22 @@ public final class UTestRunnerArgs {
         return new UTestRunnerArgs(classesToTests);
     }
 
-    private static UTestPath parseTestPath(String className, String argsString) {
+    private static UTestPath parseTestPathSafe(String currentClass, String testName) {
+        try {
+            return parseTestPath(currentClass, testName);
+        } catch (UTestRunExpectedError error) {
+            System.err.println(error.getMessage());
+            return null;
+        }
+    }
+
+    private static UTestPath parseTestPath(String className, String argsString) throws UTestRunExpectedError {
         String[] nameArgs = argsString.split("\\\\");
         List<String> asList = Arrays.asList(nameArgs);
+        // drop first element which corresponds to common `tests` method
         List<String> testPath = asList.subList(1, asList.size());
-        final Class<?> clazz;
-        try {
-            clazz = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            System.out.println("ClassNotFoundException for " + className + ": " + e.getMessage());
-            return null;
-        }
-        final Method method;
-        try {
-            method = clazz.getMethod(asList.get(0));
-            assert (method.getReturnType().equals(getTreeClass()));
-        } catch (NoSuchMethodException e) {
-            System.out.println("NoSuchMethodException for " + asList.get(0) + " in " + className + ": " + e.getMessage());
-            return null;
-        }
+        final Class<?> clazz = UTestUtils.findClass(className);
+        final Method method = UTestUtils.findTestDefinitionMethod(clazz);
         return new UTestPath(className, testPath, method);
-    }
-
-    private static Class<?> getTreeClass() {
-        Class<?> clazz = findClassByFqn("utest.util.Tree", "utest.framework.Tree");
-        if (clazz != null) return clazz;
-        else throw new RuntimeException("Failed to load Tree class from uTest library.");
-    }
-
-    protected static Class<?> findClassByFqn(String... options) {
-        for (String fqn: options) {
-            try {
-                return Class.forName(fqn);
-            } catch (ClassNotFoundException ignored) {
-                // ignore
-            }
-        }
-        return null;
     }
 }

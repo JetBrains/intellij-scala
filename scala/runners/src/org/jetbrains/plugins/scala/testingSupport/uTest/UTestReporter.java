@@ -5,191 +5,192 @@ import utest.framework.Result;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
 
-/**
- * @author Roman.Shein
- * @since 12.08.2015.
- */
 public final class UTestReporter {
 
   private static final long NO_DURATION = -1;
 
   private final AtomicInteger idHolder = new AtomicInteger();
   private final Map<UTestPath, Integer> testPathToId = new HashMap<>();
-  private final Map<String, Integer> fqnToMethodCount = new HashMap<>();
   private final Map<UTestPath, Integer> testToClosedChildren = new HashMap<>();
 
   protected int getNextId() {
     return idHolder.incrementAndGet();
   }
 
+  private int allocateIdForPath(UTestPath testPath) {
+    int id = getNextId();
+    assert(!testPathToId.containsKey(testPath));
+    testPathToId.put(testPath, id);
+    return id;
+  }
+
+
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public synchronized boolean isStarted(UTestPath testPath) {
     return testPathToId.containsKey(testPath);
   }
 
-  /**
-   * Try to deduce location of test in class. Only works with both class name and test name are provided and test name
-   * is provided in test definition as a string literal.
-   *
-   * @param className full qualified class name
-   * @param testName  name of test under consideration
-   * @return location hint in buildserver notation
-   */
-  private static String getLocationHint(String className, String testName) {
+  // TODO: location hings do not work for nested tests,
+  //   see org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
+  private static String getClassSuiteLocationHint(UTestPath suitPath) {
+    String className = suitPath.getQualifiedClassName();
+    String testName = suitPath.getTestName();
     String uri = escapeString("scalatest://TopOfClass:" + className + "TestName:" + escapeString(testName));
     return "locationHint='" + uri + "'";
   }
 
-  private static String getLocationHint(String className, Method method, String testName) {
-    String uri = escapeString("scalatest://TopOfMethod:" + className + ":" + method.getName() + "TestName:" + testName);
+  private static String getScopeLocationHint(UTestPath testPath) {
+    return getTestLocationHint(testPath);
+  }
+
+  private static String getTestLocationHint(UTestPath testPath) {
+    String className = testPath.getQualifiedClassName();
+    String methodName = testPath.getMethod().getName();
+    String testName = testPath.getTestName();
+    String uri = escapeString("scalatest://TopOfMethod:" + className + ":" + methodName + "TestName:" + testName);
     return "locationHint='" + uri + "'";
   }
 
-  /**
-   * Reports a beginning of test suite.
-   * @param classQualifiedName FQN of test suite class
-   */
-  public void reportClassSuiteStarted(String classQualifiedName) {
-    int classScopeId = getNextId();
-
-    UTestPath testPath = new UTestPath(classQualifiedName);
-    assert(!testPathToId.containsKey(testPath));
-    testPathToId.put(testPath, classScopeId);
-
-    String suiteName = getSuiteName(classQualifiedName);
-    reportStartedInner(suiteName, classScopeId, 0, getLocationHint(classQualifiedName, suiteName), true);
-  }
-
-  public void reportStarted(UTestPath testPath, boolean isScope) {
+  public void reportTestStarted(UTestPath testPath) {
     UTestPath parent = testPath.parent();
-    if (parent != null && !isStarted(parent))
-      reportStarted(parent, true);
+    if (parent != null) // should also be true
+      reportScopeStarted(parent);
 
-    final int parentId;
-    if (parent == null) {
-      //a method scope is opened, parent is class scope
-      assert(isScope);
-      parentId = testPathToId.get(testPath.getClassTestPath());
-    } else {
-      parentId = testPathToId.get(parent);
-    }
-
-    String testName = testPath.getTestName();
-    int id = getNextId();
-    testPathToId.put(testPath, id);
-    String locationHint = getLocationHint(testPath.getQualifiedClassName(), testPath.getMethod(), testName);
-    reportStartedInner(testName, id, parentId, locationHint, isScope);
+    reportTestStarted(testPath, getTestLocationHint(testPath));
   }
 
-  private void reportStartedInner(String name, int nodeId, int parentId, String locationHint, boolean isScope) {
-    String stageName = isScope ? "testSuiteStarted" : "testStarted";
+  private void reportScopeStarted(UTestPath scopePath) {
+    UTestPath parent = scopePath.parent();
+    boolean isTestSuitePath = parent == null;
+
+    if (!isStarted(parent))
+      if (isTestSuitePath)
+        reportClassSuiteStarted(scopePath);
+      else
+        reportScopeStarted(parent);
+
+    if (!isTestSuitePath)
+      reportScopeStarted(scopePath, getScopeLocationHint(scopePath));
+  }
+
+  public void reportClassSuiteStarted(UTestPath suitePath) {
+    String locationHint = getClassSuiteLocationHint(suitePath);
+    reportScopeStarted(suitePath, 0, locationHint);
+  }
+
+  private void reportScopeStarted(UTestPath testPath, int parentId, String locationHint) {
+    String testName = testPath.getTestName();
+    int nodeId = allocateIdForPath(testPath);
     String message = String.format(
-            "##teamcity[%s name='%s' nodeId='%d' parentNodeId='%d' %s captureStandardOutput='true']",
-            stageName, escapeString(name), nodeId, parentId, locationHint
+            "##teamcity[testSuiteStarted name='%s' nodeId='%d' parentNodeId='%d' %s captureStandardOutput='true']",
+            escapeString(testName), nodeId, parentId, locationHint
+    );
+    reportMessage(message);
+  }
+
+  private void reportScopeStarted(UTestPath testPath, String locationHint) {
+    int parentId = testPathToId.get(testPath.parent());
+    reportScopeStarted(testPath, parentId, locationHint);
+  }
+
+  private void reportTestStarted(UTestPath testPath, String locationHint) {
+    String testName = testPath.getTestName();
+    int nodeId = allocateIdForPath(testPath);
+    int parentNodeId = testPathToId.get(testPath.parent());
+    String message = String.format(
+            "##teamcity[testStarted name='%s' nodeId='%d' parentNodeId='%d' %s captureStandardOutput='true']",
+            escapeString(testName), nodeId, parentNodeId, locationHint
     );
     reportMessage(message);
   }
 
   /**
+   * @param childrenCount number of children for scope nodes, doesn't contain leaves
    * @return true if class suite is finished, false otherwise
    */
-  public boolean reportFinished(UTestPath testPath, Result result, boolean isScope,
-                                Map<UTestPath, Integer> childrenCount) {
+  public boolean reportTestFinished(UTestPath testPath,
+                                    Result result,
+                                    Map<UTestPath, Integer> childrenCount) {
+    if (isFailedResult(result))
+      reportTestFinishedFailure(testPath, result);
+    else
+      reportTestFinishedSuccess(testPath, result != null ? result.milliDuration() : NO_DURATION);
 
+    // parent for leave shouldn't be null, but check just in case
     UTestPath parent = testPath.parent();
-    if (parent != null) {
-      testToClosedChildren.merge(parent, 1, Integer::sum);
-    }
-
-    boolean isClassSuiteFinished = false;
-    if (!isScope && result != null && result.value() instanceof Failure) {
-      int testId = testPathToId.get(testPath);
-      String testName = testPath.getTestName();
-      Failure<?> failure = (Failure<?>) result.value();
-      StringWriter stringWriter = new StringWriter();
-      PrintWriter printWriter = new PrintWriter(stringWriter);
-      failure.exception().printStackTrace(printWriter);
-      String message = String.format(
-              "##teamcity[testFailed name='%s' message='%s' details='%s' nodeId='%d']",
-              escapeString(testName),
-              escapeString(failure.exception().getMessage()),
-              escapeString(stringWriter.toString()),
-              testId
-      );
-      reportMessage(message);
-    } else {
-      if (childrenCount.containsKey(testPath) && childrenCount.get(testPath) > 0) {
-        if (!testToClosedChildren.containsKey(testPath)) {
-          testToClosedChildren.put(testPath, 0);
-        }
-
-        if (testToClosedChildren.get(testPath).equals(childrenCount.get(testPath))) {
-          //all children have been closed, report current scope
-          isClassSuiteFinished = reportScopeOrTestFinished(testPath, isScope, result);
-        }
-      } else {
-        isClassSuiteFinished = reportScopeOrTestFinished(testPath, isScope, result);
-      }
-    }
-    if (parent != null) {
-      return isClassSuiteFinished || reportFinished(parent, null, true, childrenCount);
-    } else {
-      return isClassSuiteFinished;
-    }
+    return parent != null && reportScopeFinished(parent, childrenCount);
   }
 
-  private boolean reportScopeOrTestFinished(UTestPath testPath, boolean isScope, Result result) {
-    int testId = testPathToId.get(testPath);
+  private boolean isFailedResult(Result result) {
+    return result != null && result.value() instanceof Failure;
+  }
+
+  private boolean reportScopeFinished(UTestPath scopePath, Map<UTestPath, Integer> childrenCount) {
+    UTestPath parent = scopePath.parent();
+    boolean isTestSuitePath = parent == null;
+
+    int closedScopeChildren = testToClosedChildren.merge(scopePath, 1, Integer::sum);
+    boolean allChildrenClosed = closedScopeChildren == childrenCount.get(scopePath);
+    if (allChildrenClosed)
+      if (isTestSuitePath)
+        reportClassSuiteFinished(scopePath);
+      else
+        reportScopeFinished(scopePath);
+
+    return isTestSuitePath || reportScopeFinished(parent, childrenCount);
+  }
+
+  private void reportClassSuiteFinished(UTestPath suitePath) {
+    reportScopeFinished(suitePath);
+  }
+
+  private void reportScopeFinished(UTestPath testPath) {
+    String name = testPath.getTestName();
+    int nodeId = testPathToId.get(testPath);
+    String message = String.format(
+            "##teamcity[%s name='%s' nodeId='%d']",
+            "testSuiteFinished", escapeString(name), nodeId
+    );
+    reportMessage(message);
+  }
+
+  private void reportTestFinishedSuccess(UTestPath testPath, long duration) {
     String testName = testPath.getTestName();
-    if (testPath.isSuiteRepresentation()) {
-      reportClassSuiteFinished(testPath.getQualifiedClassName());
-      return true;
-    } else {
-      reportFinishedInner(testName, testId, isScope, (!isScope && result != null) ? result.milliDuration() : NO_DURATION);
-      return false;
-    }
-  }
-
-  /**
-   * Reports the end of test suite run.
-   * @param classQualifiedName FQN of test suite class
-   */
-  private void reportClassSuiteFinished(String classQualifiedName) {
-    int classScopeId = testPathToId.get(new UTestPath(classQualifiedName));
-    reportFinishedInner(getSuiteName(classQualifiedName), classScopeId, true, NO_DURATION);
-  }
-
-  private void reportFinishedInner(String name, int id, boolean isScope, long duration) {
-    String stageName = isScope ? "testSuiteFinished" : "testFinished";
+    int testId = testPathToId.get(testPath);
     String durationStr = duration > 0 ? String.format("duration='%d'", duration) : "";
     String message = String.format(
             "##teamcity[%s name='%s' %s nodeId='%d']",
-            stageName, escapeString(name), durationStr, id
+            "testFinished", escapeString(testName), durationStr, testId
     );
     reportMessage(message);
   }
 
-  private String getSuiteName(String className) {
-    int lastDotPosition = className.lastIndexOf(".");
-    return (lastDotPosition != -1) ? className.substring(lastDotPosition + 1) : className;
+  private void reportTestFinishedFailure(UTestPath testPath, Result result) {
+    int testId = testPathToId.get(testPath);
+    String testName = testPath.getTestName();
+    Throwable exception = ((Failure<?>) result.value()).exception();
+    String message = String.format(
+            "##teamcity[testFailed name='%s' message='%s' details='%s' nodeId='%d']",
+            escapeString(testName),
+            escapeString(exception.getMessage()),
+            escapeString(getStacktraceText(exception)),
+            testId
+    );
+    reportMessage(message);
   }
 
-  /**
-   * Increases count of 'method' test paths (i.e. test paths representing a method entry point in test suite) in current
-   * test run. When all the 'method' test paths have been run, the run is considered completed, and
-   */
-  public void registerTestClass(String classFqn, int methodCount) {
-    assert(!fqnToMethodCount.containsKey(classFqn));
-    fqnToMethodCount.put(classFqn, methodCount);
+  private String getStacktraceText(Throwable exception) {
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter printWriter = new PrintWriter(stringWriter);
+    exception.printStackTrace(printWriter);
+    return stringWriter.toString();
   }
-
 
   public void reportMessage(String message) {
     //new line prefix needed cause there can be some user unflushed output
