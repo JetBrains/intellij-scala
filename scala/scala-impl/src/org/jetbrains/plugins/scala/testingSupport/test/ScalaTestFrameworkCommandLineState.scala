@@ -49,6 +49,11 @@ class ScalaTestFrameworkCommandLineState(
 
   override val getClasses: Seq[String] = testConfigurationData.getTestMap.keys.toSeq
 
+  // Debug settings
+  private def debugProcessOutput = false
+  private def attachDebugAgent = false
+  private def waitUntilDebuggerAttached = true
+
   private def suitesToTestsMap: Map[String, Set[String]] = {
     val failedTests = getFailedTests.groupBy(_._1).map { case (aClass, tests) => (aClass, tests.map(_._2).toSet) }.filter(_._2.nonEmpty)
     if (failedTests.nonEmpty) {
@@ -73,8 +78,10 @@ class ScalaTestFrameworkCommandLineState(
     }
     params.getVMParametersList.addParametersString(vmParams)
 
-    // UNCOMMENT TO DEBUG:
-    //params.getVMParametersList.addParametersString("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5007")
+    if (attachDebugAgent) {
+      val suspend = if(waitUntilDebuggerAttached) "y" else "n"
+      params.getVMParametersList.addParametersString(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5009")
+    }
 
     val workingDir = testConfigurationData.getWorkingDirectory
     params.setWorkingDirectory(expandPath(workingDir))
@@ -170,11 +177,8 @@ class ScalaTestFrameworkCommandLineState(
 
     val executionResult = createExecutionResult(consoleView, processHandler)
 
-    // uncomment for debugging
-    //processHandler.addProcessListener(new ProcessAdapter {
-    //  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit =
-    //    print(s"[$outputType] ${event.getText}")
-    //})
+    if (debugProcessOutput)
+      addDebugOutputListener(processHandler)
 
     if (useSbt) {
       Stats.trigger(FeatureKey.sbtShellTestRunConfig)
@@ -191,6 +195,17 @@ class ScalaTestFrameworkCommandLineState(
     }
 
     executionResult
+  }
+
+  private def addDebugOutputListener(processHandler: ProcessHandler): Unit = {
+    import com.intellij.execution.process.ProcessAdapter
+    import com.intellij.execution.process.ProcessEvent
+    import com.intellij.openapi.util.Key
+
+    processHandler.addProcessListener(new ProcessAdapter {
+      override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit =
+        print(s"[$outputType] ${event.getText}")
+    })
   }
 
   private def attachExtensionsToProcess(processHandler: ProcessHandler): Unit = {
