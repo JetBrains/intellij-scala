@@ -43,44 +43,44 @@ trait ScalaTestWholeSuiteTest extends ScalaTestTestCase
   )
 
   def testFeatureSpec(): Unit =
-    runTestByLocation(2, 10, featureSpecFileName,
-      checkConfigAndSettings(_, featureSpecClassName),
+    runTestByLocation2(2, 10, featureSpecFileName,
+      assertConfigAndSettings(_, featureSpecClassName),
       root => featureSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
     )
 
   def testFlatSpec(): Unit =
-    runTestByLocation(2, 10, flatSpecFileName,
-      checkConfigAndSettings(_, flatSpecClassName),
+    runTestByLocation2(2, 10, flatSpecFileName,
+      assertConfigAndSettings(_, flatSpecClassName),
       root => flatSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
     )
 
   def testFreeSpec(): Unit =
-    runTestByLocation(2, 10, freeSpecFileName,
-      checkConfigAndSettings(_, freeSpecClassName),
+    runTestByLocation2(2, 10, freeSpecFileName,
+      assertConfigAndSettings(_, freeSpecClassName),
       root => freeSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
     )
 
   def testFunSpec(): Unit =
-    runTestByLocation(2, 10, funSpecFileName,
-      checkConfigAndSettings(_, funSpecClassName),
+    runTestByLocation2(2, 10, funSpecFileName,
+      assertConfigAndSettings(_, funSpecClassName),
       root => funSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
     )
 
   def testFunSuite(): Unit =
-    runTestByLocation(2, 10, funSuiteFileName,
-      checkConfigAndSettings(_, funSuiteClassName),
+    runTestByLocation2(2, 10, funSuiteFileName,
+      assertConfigAndSettings(_, funSuiteClassName),
       root => funSuiteTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
     )
 
   def testPropSpec(): Unit =
-    runTestByLocation(2, 10, propSpecFileName,
-      checkConfigAndSettings(_, propSpecClassName),
+    runTestByLocation2(2, 10, propSpecFileName,
+      assertConfigAndSettings(_, propSpecClassName),
       root => propSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
     )
 
   def testWordSpec(): Unit =
-    runTestByLocation(2, 10, wordSpecFileName,
-      checkConfigAndSettings(_, wordSpecClassName),
+    runTestByLocation2(2, 10, wordSpecFileName,
+      assertConfigAndSettings(_, wordSpecClassName),
       root => wordSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
     )
 }

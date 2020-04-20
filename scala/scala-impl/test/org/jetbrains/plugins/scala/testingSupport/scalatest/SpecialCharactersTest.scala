@@ -49,43 +49,43 @@ trait SpecialCharactersTest extends ScalaTestTestCase {
   )
 
   def testComma(): Unit = {
-    runTestByLocation(3, 3, className + ".scala",
-      checkConfigAndSettings(_, className, "Comma , test should contain , comma"),
+    runTestByLocation2(3, 3, className + ".scala",
+      assertConfigAndSettings(_, className, "Comma , test should contain , comma"),
       root => checkResultTreeHasExactNamedPath(root, commaTestPath: _*)
     )
   }
 
   def testExclamation(): Unit = {
-    runTestByLocation(6, 3, className + ".scala",
-      checkConfigAndSettings(_, className, "! test should contain !"),
+    runTestByLocation2(6, 3, className + ".scala",
+      assertConfigAndSettings(_, className, "! test should contain !"),
       root => checkResultTreeHasExactNamedPath(root, exclamationTestPath: _*)
     )
   }
 
   def testTick(): Unit = {
-    runTestByLocation(9, 3, className + ".scala",
-      checkConfigAndSettings(_, className, "tick ' test should contain '"),
+    runTestByLocation2(9, 3, className + ".scala",
+      assertConfigAndSettings(_, className, "tick ' test should contain '"),
       root => checkResultTreeHasExactNamedPath(root, tickTestPath: _*)
     )
   }
 
   def testTilde(): Unit = {
-    runTestByLocation(15, 3, className + ".scala",
-      checkConfigAndSettings(_, className, "tilde ~ test should contain ~"),
+    runTestByLocation2(15, 3, className + ".scala",
+      assertConfigAndSettings(_, className, "tilde ~ test should contain ~"),
       root => checkResultTreeHasExactNamedPath(root, tildeTestPath: _*)
     )
   }
 
   def testBacktick(): Unit = {
-    runTestByLocation(12, 3, className + ".scala",
-      checkConfigAndSettings(_, className, "backtick ` test should contain `"),
+    runTestByLocation2(12, 3, className + ".scala",
+      assertConfigAndSettings(_, className, "backtick ` test should contain `"),
       root => checkResultTreeHasExactNamedPath(root, backtickTestPath: _*)
     )
   }
 
   def testClassInPackageWithReservedKeywordInName(): Unit = {
-    runTestByLocation(6, 10, classFilePath1,
-      checkConfigAndSettings(_, classFullName1, "test should work"),
+    runTestByLocation2(6, 10, classFilePath1,
+      assertConfigAndSettings(_, classFullName1, "test should work"),
       root => checkResultTreeHasExactNamedPath(root, classTestTreePath1: _*)
     )
   }

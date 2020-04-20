@@ -38,8 +38,8 @@ abstract class Specs2WholeSuiteTest extends Specs2TestCase {
   }
 
   def testSpecification(): Unit = {
-    runTestByLocation(3, 14, "SpecificationTest.scala",
-      checkConfigAndSettings(_, "SpecificationTest"),
+    runTestByLocation2(3, 14, "SpecificationTest.scala",
+      assertConfigAndSettings(_, "SpecificationTest"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "run single test") &&
         checkResultTreeHasExactNamedPath(root, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "ignore other test")
     )

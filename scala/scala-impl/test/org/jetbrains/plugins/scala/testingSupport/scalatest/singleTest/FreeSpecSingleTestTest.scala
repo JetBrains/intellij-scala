@@ -9,7 +9,7 @@ trait FreeSpecSingleTestTest extends FreeSpecGenerator {
 
   def testFreeSpec(): Unit =
     runTestByLocation2(6, 3, freeSpecFileName,
-      checkConfigAndSettings(_, freeSpecClassName, "A FreeSpecTest should be able to run single tests"),
+      assertConfigAndSettings(_, freeSpecClassName, "A FreeSpecTest should be able to run single tests"),
       root => checkResultTreeHasExactNamedPath(root, freeSpecTestPath:_*) &&
           checkResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
     )

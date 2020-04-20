@@ -23,14 +23,14 @@ class UTestBeforeAfterTest_2_12_0_7_4_old_syntax extends utest_0_7_4.UTestTestBa
       """.stripMargin.trim())
 
   def testBefore(): Unit = {
-    runTestByLocation(4, 10, beforeAfterFileName,
-      checkConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
+    runTestByLocation2(4, 10, beforeAfterFileName,
+      assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
       _ => true, expectedText = "BEFORE", checkOutputs = true)
   }
 
   def testAfter(): Unit = {
-    runTestByLocation(4, 10, beforeAfterFileName,
-      checkConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
+    runTestByLocation2(4, 10, beforeAfterFileName,
+      assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
       _ => true, expectedText = "AFTER", checkOutputs = true)
   }
 }

@@ -127,14 +127,16 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   private def failedConfigMessage(packageName: String) = "Failed to create run configuration for test from package " + packageName
 
   override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
-    var res: RunnerAndConfigurationSettings = null
+    var config: RunnerAndConfigurationSettings = null
     EdtTestUtil.runInEdtAndWait(() => {
-      res = configurationProducer.createConfigurationFromContextLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
+      val location = createLocation(lineNumber, offset, fileName)
+      val config1 = configurationProducer.createConfigurationFromContextLocation(location)
+      config = config1.map(_._2) match {
         case Some(testConfig) => testConfig
         case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
       }
     })
-    res
+    config
   }
 
   override protected def createTestFromPackage(packageName: String): RunnerAndConfigurationSettings =
@@ -175,12 +177,12 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
         saveChecksums()
       }
       val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find(_.getClass == classOf[DefaultJavaProgramRunner]).get
-      val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], new ProcessAdapter {
+      val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], runner, new ProcessAdapter {
         override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
           val text = event.getText
           if (debug) print(text)
         }
-      }, runner)
+      })
 
       runContentDescriptor.getExecutionConsole match {
         case descriptor: SMTRunnerConsoleView =>
@@ -195,8 +197,8 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   private def runProcess(runConfiguration: RunnerAndConfigurationSettings,
                          executorClass: Class[_ <: Executor],
-                         listener: ProcessListener,
-                         runner: ProgramRunner[_ <: RunnerSettings]): (ProcessHandler, RunContentDescriptor) = {
+                         runner: ProgramRunner[_ <: RunnerSettings],
+                         listener: ProcessListener): (ProcessHandler, RunContentDescriptor) = {
     val configuration = runConfiguration.getConfiguration
     val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(executorClass)
     val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =

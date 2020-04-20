@@ -13,7 +13,8 @@ trait FeatureSpecScopeTest extends FeatureSpecGenerator {
     val aPath = List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A")
     val bPath = List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario B")
 
-    runTestByLocation(3, 10, featureSpecFileName, checkConfigAndSettings(_, featureSpecClassName, testNames:_*),
+    runTestByLocation2(3, 10, featureSpecFileName,
+      assertConfigAndSettings(_, featureSpecClassName, testNames:_*),
       root => checkResultTreeHasExactNamedPath(root, aPath:_*) &&
         checkResultTreeHasExactNamedPath(root, bPath:_*) &&
         checkResultTreeDoesNotHaveNodes(root, "Feature: Feature 2"))

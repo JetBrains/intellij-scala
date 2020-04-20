@@ -15,7 +15,7 @@ trait FreeSpecScopeTest extends FreeSpecGenerator {
     )
     val path1 = List("[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner scope 2", "Another innermost scope")
     val path2 = List("[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner test")
-    runTestByLocation(10, 10, complexFreeSpecFileName, checkConfigAndSettings(_, complexFreeSpecClassName,
+    runTestByLocation2(10, 10, complexFreeSpecFileName, assertConfigAndSettings(_, complexFreeSpecClassName,
       testNames:_*), root => checkResultTreeHasExactNamedPath(root, path1:_*) &&
       checkResultTreeHasExactNamedPath(root, path2:_*) &&
       checkResultTreeDoesNotHaveNodes(root, "Innermost scope", "Outer scope 3") &&

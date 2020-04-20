@@ -26,8 +26,8 @@ trait SpecSingleTestTest extends ScalaTestTestCase {
 //    """.stripMargin
 //  )
   def __ignored__testSpec(): Unit = {
-    runTestByLocation(8, 12, "Spec.scala",
-      checkConfigAndSettings(_, "SpecTest", "A SpecTest When launched should run single test"),
+    runTestByLocation2(8, 12, "Spec.scala",
+      assertConfigAndSettings(_, "SpecTest", "A SpecTest When launched should run single test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecTest", "A SpecTest", "When launched", "should run single test") &&
           checkResultTreeDoesNotHaveNodes(root, "should not run other tests"),
       debug = true

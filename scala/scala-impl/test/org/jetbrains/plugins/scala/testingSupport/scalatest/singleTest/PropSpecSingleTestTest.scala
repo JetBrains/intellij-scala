@@ -8,16 +8,16 @@ trait PropSpecSingleTestTest extends PropSpecGenerator {
   val propSpecTestTaggedPath = List("[root]", propSpecClassName, "tagged")
 
   def testPropSpec(): Unit = {
-    runTestByLocation(5, 5, propSpecFileName,
-      checkConfigAndSettings(_, propSpecClassName, "Single tests should run"),
+    runTestByLocation2(5, 5, propSpecFileName,
+      assertConfigAndSettings(_, propSpecClassName, "Single tests should run"),
       root => checkResultTreeHasExactNamedPath(root, propSpecTestPath:_*) &&
           checkResultTreeDoesNotHaveNodes(root, "other tests should not run")
     )
   }
 
   def testTaggedPropSpec(): Unit = {
-    runTestByLocation(12, 5, propSpecFileName,
-      checkConfigAndSettings(_, propSpecClassName, "tagged"),
+    runTestByLocation2(12, 5, propSpecFileName,
+      assertConfigAndSettings(_, propSpecClassName, "tagged"),
       root => checkResultTreeHasExactNamedPath(root, propSpecTestTaggedPath:_*) &&
         checkResultTreeDoesNotHaveNodes(root, "other tests should not run")
     )

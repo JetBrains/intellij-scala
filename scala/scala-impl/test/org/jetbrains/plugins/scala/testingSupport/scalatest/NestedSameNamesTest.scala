@@ -20,8 +20,8 @@ trait NestedSameNamesTest extends ScalaTestTestCase {
     """.stripMargin
   )
   def testNestedSameNames(): Unit = {
-    runTestByLocation(6, 12, "FunSpecTest.scala",
-      checkConfigAndSettings(_, "FunSpecTest", "FunSpecTest FunSpecTest FunSpecTest"),
+    runTestByLocation2(6, 12, "FunSpecTest.scala",
+      assertConfigAndSettings(_, "FunSpecTest", "FunSpecTest FunSpecTest FunSpecTest"),
       root => checkResultTreeHasExactNamedPath(root, testPath: _*)
     )
   }

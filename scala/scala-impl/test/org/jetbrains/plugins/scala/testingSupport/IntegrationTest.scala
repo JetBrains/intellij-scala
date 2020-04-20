@@ -8,10 +8,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.testFramework.EdtTestUtil
-import com.intellij.util.concurrency.Semaphore
-import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.SearchForTest
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
 import org.junit.Assert
@@ -70,11 +69,6 @@ trait IntegrationTest {
 
   def getProject: Project
 
-  protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testNames: String*): Boolean = {
-    val config = configAndSettings.getConfiguration
-    checkConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
-  }
-
   protected def assertConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testNames: String*): Unit = {
     val config = configAndSettings.getConfiguration
     assertConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
@@ -95,6 +89,13 @@ trait IntegrationTest {
     assertConfig(testClass, testNames, config)
   }
 
+  private def assertModule(config: AbstractTestRunConfiguration): Unit =
+    config.testConfigurationData.searchTest match {
+      case SearchForTest.IN_WHOLE_PROJECT =>
+      case _ =>
+        assertNotNull("module should not be null", config.getModule)
+    }
+
   private def assertConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Unit = {
     assertEquals(testClass, config.getTestClassPath)
     config.testConfigurationData match {
@@ -104,6 +105,7 @@ trait IntegrationTest {
       case _: ClassTestData =>
         assertTrue("test names should be empty for whole-class test run configuration", testNames.isEmpty)
     }
+    assertModule(config)
   }
 
   protected def checkResultTreeHasExactNamedPath(root: AbstractTestProxy, names: String*): Boolean =
@@ -166,21 +168,6 @@ trait IntegrationTest {
                                        allowTail: Boolean = false): Boolean =
     getPathFromResultTree(root, conditions, allowTail).isDefined
 
-  // TODO: remove methods using configurationCheck, it does not provide detailed error message
-  def runTestByLocation(lineNumber: Int, offset: Int, fileName: String,
-                        configurationCheck: RunnerAndConfigurationSettings => Boolean,
-                        testTreeCheck: AbstractTestProxy => Boolean,
-                        expectedText: String = "OK",
-                        debug: Boolean = false,
-                        duration: Int = 10000,
-                        checkOutputs: Boolean = false): Unit =
-    runTestByLocation2(
-      lineNumber, offset, fileName,
-      assertFromCheck(configurationCheck),
-      assertFromCheck(testTreeCheck),
-      expectedText, debug, duration, checkOutputs
-    )
-
   def runTestByLocation2(lineNumber: Int, offset: Int, fileName: String,
                          configurationAssert: RunnerAndConfigurationSettings => Unit,
                          testTreeAssert: AbstractTestProxy => Unit,
@@ -228,34 +215,42 @@ trait IntegrationTest {
     assertTrue(s"config check failed for ${runConfig.getName}", configurationCheck(runConfig))
   }
 
-  protected def assertFromCheck(testTreeCheck: AbstractTestProxy => Boolean)(implicit d: DummyImplicit): AbstractTestProxy => Unit = { testTreeRoot =>
-    assertTrue(s"testTreeCheck failed for root ${testTreeRoot}", testTreeCheck(testTreeRoot))
+  protected def assertFromCheck(testTreeCheck: AbstractTestProxy => Boolean)
+                               (implicit d: DummyImplicit): AbstractTestProxy => Unit = { testTreeRoot =>
+    assertTrue(s"testTreeCheck failed for root $testTreeRoot", testTreeCheck(testTreeRoot))
   }
 
   def runDuplicateConfigTest(lineNumber: Int, offset: Int, fileName: String,
-                             configurationCheck: RunnerAndConfigurationSettings => Boolean): Unit = {
+                             assertConfigurationCheck: RunnerAndConfigurationSettings => Unit): Unit = {
     val config1 = createTestFromLocation(lineNumber, offset, fileName)
     val config2 = createTestFromLocation(lineNumber, offset, fileName)
-    //    assert(configurationCheck(config1))
-    //    assert(configurationCheck(config2))
+    //assertConfigurationCheck(config1)
+    //assertConfigurationCheck(config2)
     assertEquals(config1.getName, config2.getName)
     assertEquals(config1.getType, config2.getType)
     assertEquals(config1.getFolderName, config2.getFolderName)
     assertEquals(config1.getConfiguration.getName, config2.getConfiguration.getName)
   }
 
-  def runGoToSourceTest(lineNumber: Int, offset: Int, fileName: String,
-                        configurationCheck: RunnerAndConfigurationSettings => Boolean, testNames: Iterable[String],
+  def runGoToSourceTest(lineNumber: Int, offset: Int,
+                        fileName: String,
+                        assertConfiguration: RunnerAndConfigurationSettings => Unit,
+                        testNames: Iterable[String],
                         sourceLine: Int): Unit = {
     val runConfig = createTestFromLocation(lineNumber, offset, fileName)
 
-    val (_, testTreeRoot) = runTestFromConfig(assertFromCheck(configurationCheck), runConfig)
+    val (_, testTreeRoot) = runTestFromConfig(assertConfiguration, runConfig)
 
     assertTrue("testTreeRoot not defined", testTreeRoot.isDefined)
-    EdtTestUtil.runInEdtAndWait(() => checkGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine))
+    EdtTestUtil.runInEdtAndWait(() => {
+      assertGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine)
+    })
   }
 
-  private def checkGoToSourceTest(testRoot: AbstractTestProxy, testNames: Iterable[String], sourceFile: String, sourceLine: Int): Unit = {
+  private def assertGoToSourceTest(testRoot: AbstractTestProxy,
+                                   testNames: Iterable[String],
+                                   sourceFile: String,
+                                   sourceLine: Int): Unit = {
     val testPathOpt = getExactNamePathFromResultTree(testRoot, testNames, allowTail = true)
     assertTrue(s"no test path found under ${testRoot.getName} for test names ${testNames.mkString(", ")}", testPathOpt.isDefined)
     val test = testPathOpt.get.last
@@ -265,9 +260,9 @@ trait IntegrationTest {
     val psiFile = psiElement.getContainingFile
     val textRange = psiElement.getTextRange
     val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
-    assertEquals(psiFile.getName, sourceFile)
+    assertEquals(sourceFile, psiFile.getName)
     val startLineNumber = document.getLineNumber(textRange.getStartOffset)
-    assertEquals(startLineNumber, sourceLine)
+    assertEquals(sourceLine, startLineNumber)
   }
 
   protected def parseTestName(testName: String): Seq[String] = {

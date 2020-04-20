@@ -7,8 +7,8 @@ trait FreeSpecPathSingleTestTest extends FreeSpecPathGenerator {
   val freeSpecPathTestPath = List("[root]", freeSpecPathClassName, "A FreeSpecTest", "should be able to run single test")
 
   def testFreeSpecPath(): Unit = {
-    runTestByLocation(5, 15, freeSpecPathFileName,
-      checkConfigAndSettings(_, freeSpecPathClassName, "A FreeSpecTest should be able to run single test"),
+    runTestByLocation2(5, 15, freeSpecPathFileName,
+      assertConfigAndSettings(_, freeSpecPathClassName, "A FreeSpecTest should be able to run single test"),
       root => checkResultTreeHasExactNamedPath(root, freeSpecPathTestPath:_*) &&
           checkResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
     )

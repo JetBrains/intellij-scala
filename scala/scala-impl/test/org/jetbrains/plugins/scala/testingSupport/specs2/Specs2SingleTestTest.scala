@@ -34,20 +34,20 @@ abstract class Specs2SingleTestTest extends Specs2TestCase {
   )
 
   def testSpecification(): Unit = {
-    runTestByLocation(5, 10, specsTestFileName,
-      checkConfigAndSettings(_, specsTestClassName, "run single test"),
+    runTestByLocation2(5, 10, specsTestFileName,
+      assertConfigAndSettings(_, specsTestClassName, "run single test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run single test") &&
         checkResultTreeDoesNotHaveNodes(root, "ignore other test", "run greater test", "run exclamation test"),
       debug = true
     )
 
-    runTestByLocation(10, 35, specsTestFileName,
-      checkConfigAndSettings(_, specsTestClassName, "run exclamation test"),
+    runTestByLocation2(10, 35, specsTestFileName,
+      assertConfigAndSettings(_, specsTestClassName, "run exclamation test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run exclamation test") &&
         checkResultTreeDoesNotHaveNodes(root, "ignore other test", "run single test", "run greater test"))
 
-    runTestByLocation(12, 10, specsTestFileName,
-      checkConfigAndSettings(_, specsTestClassName, "run greater test"),
+    runTestByLocation2(12, 10, specsTestFileName,
+      assertConfigAndSettings(_, specsTestClassName, "run greater test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run greater test") &&
         checkResultTreeDoesNotHaveNodes(root, "ignore other test", "run single test", "run exclamation test"))
   }
