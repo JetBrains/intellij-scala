@@ -24,7 +24,7 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.CompileServerToken
-import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, ScalaPluginJars}
+import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
@@ -233,6 +233,7 @@ object CompileServerLauncher {
     IntellijPlatformJars.utilJar,
     IntellijPlatformJars.trove4jJar,
     IntellijPlatformJars.protobufJava,
+    LibraryJars.scalaParserCombinators,
     ScalaPluginJars.scalaLibraryJar,
     ScalaPluginJars.scalaReflectJar,
     ScalaPluginJars.scalaNailgunRunnerJar,

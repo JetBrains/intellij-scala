@@ -9,6 +9,8 @@ import com.intellij.util.PathUtil
 import gnu.trove.TByteArrayList
 import org.jetbrains.jps.incremental.BuilderService
 
+import scala.util.parsing.combinator.RegexParsers
+
 object ScalaPluginJars {
 
   val libRoot: File = {
@@ -48,4 +50,8 @@ object IntellijPlatformJars {
   val utilJar        = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
   val trove4jJar     = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
   val protobufJava = new File(PathUtil.getJarPathForClass(classOf[GeneratedMessageLite[_, _]]))
+}
+
+object LibraryJars {
+  val scalaParserCombinators = new File(PathUtil.getJarPathForClass(classOf[RegexParsers]))
 }
