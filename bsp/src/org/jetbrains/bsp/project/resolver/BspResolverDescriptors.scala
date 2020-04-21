@@ -9,51 +9,51 @@ import org.jetbrains.bsp.data.{SbtBuildModuleDataBsp, ScalaSdkData}
 import scala.util.Try
 
 
-private[resolver] object BspResolverDescriptors {
+object BspResolverDescriptors {
 
-  private[resolver] type TestClassId = String
+  type TestClassId = String
 
-  private[resolver] case class ModuleDescription(data: ModuleDescriptionData,
-                                                 moduleKindData: ModuleKind)
+  case class ModuleDescription(data: ModuleDescriptionData,
+                               moduleKindData: ModuleKind)
 
-  private[resolver] case class ModuleDescriptionData(id: String,
-                                                     name: String,
-                                                     targets: Seq[BuildTarget],
-                                                     targetDependencies: Seq[BuildTargetIdentifier],
-                                                     targetTestDependencies: Seq[BuildTargetIdentifier],
-                                                     basePath: Option[File],
-                                                     output: Option[File],
-                                                     testOutput: Option[File],
-                                                     sourceDirs: Seq[SourceDirectory],
-                                                     testSourceDirs: Seq[SourceDirectory],
-                                                     resourceDirs: Seq[SourceDirectory],
-                                                     testResourceDirs: Seq[SourceDirectory],
-                                                     classpath: Seq[File],
-                                                     classpathSources: Seq[File],
-                                                     testClasspath: Seq[File],
-                                                     testClasspathSources: Seq[File])
+  case class ModuleDescriptionData(id: String,
+                                   name: String,
+                                   targets: Seq[BuildTarget],
+                                   targetDependencies: Seq[BuildTargetIdentifier],
+                                   targetTestDependencies: Seq[BuildTargetIdentifier],
+                                   basePath: Option[File],
+                                   output: Option[File],
+                                   testOutput: Option[File],
+                                   sourceDirs: Seq[SourceDirectory],
+                                   testSourceDirs: Seq[SourceDirectory],
+                                   resourceDirs: Seq[SourceDirectory],
+                                   testResourceDirs: Seq[SourceDirectory],
+                                   classpath: Seq[File],
+                                   classpathSources: Seq[File],
+                                   testClasspath: Seq[File],
+                                   testClasspathSources: Seq[File])
 
-  private[resolver] case class ProjectModules(modules: Seq[ModuleDescription], synthetic: Seq[ModuleDescription])
+  case class ProjectModules(modules: Seq[ModuleDescription], synthetic: Seq[ModuleDescription])
 
-  private[resolver] sealed abstract class ModuleKind
+  sealed abstract class ModuleKind
 
-  private[resolver] case class UnspecifiedModule() extends ModuleKind
-  private[resolver] case class JvmModule(jdkData: JdkData) extends ModuleKind
-  private[resolver] case class ScalaModule(jdkData: JdkData,
-                                           scalaSdkData: ScalaSdkData
-                                          ) extends ModuleKind
+  case class UnspecifiedModule() extends ModuleKind
+  case class JvmModule(jdkData: JdkData) extends ModuleKind
+  case class ScalaModule(jdkData: JdkData,
+                         scalaSdkData: ScalaSdkData
+                        ) extends ModuleKind
 
-  private[resolver] case class SbtModule(jdkData: JdkData,
-                                         scalaSdkData: ScalaSdkData,
-                                         sbtData: SbtBuildModuleDataBsp
-                                        ) extends ModuleKind
+  case class SbtModule(jdkData: JdkData,
+                       scalaSdkData: ScalaSdkData,
+                       sbtData: SbtBuildModuleDataBsp
+                      ) extends ModuleKind
 
-  private[resolver] case class TargetData(sources: Try[SourcesResult],
-                                          dependencySources: Try[DependencySourcesResult],
-                                          resources: Try[ResourcesResult],
-                                          scalacOptions: Try[ScalacOptionsResult] // TODO should be optional
-                                         )
+  case class TargetData(sources: Try[SourcesResult],
+                        dependencySources: Try[DependencySourcesResult],
+                        resources: Try[ResourcesResult],
+                        scalacOptions: Try[ScalacOptionsResult] // TODO should be optional
+                       )
 
-  private[resolver] case class SourceDirectory(directory: File, generated: Boolean, packagePrefix: Option[String])
+  case class SourceDirectory(directory: File, generated: Boolean, packagePrefix: Option[String])
 
 }
