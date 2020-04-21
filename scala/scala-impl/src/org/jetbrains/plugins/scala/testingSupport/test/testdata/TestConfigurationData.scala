@@ -121,18 +121,18 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
 
   def initWorkingDir(): Unit = {
     if (StringUtils.isBlank(workingDirectory)) {
-      val workingDir = moduleWorkingDirectory(getModule)
-      setWorkingDirectory(workingDir)
+      val workingDir = Option(getModule).flatMap(moduleWorkingDirectory).orElse(projectWorkingDirectory)
+      setWorkingDirectory(workingDir.getOrElse(""))
     }
   }
 
-  private def moduleWorkingDirectory(module: Module): String = {
-    val provider = TestWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null)
-    provider match {
-      case Some(provider) => provider.getWorkingDirectory(module)
-      case _              => Option(getProject.baseDir).map(_.getPath).getOrElse("")
-    }
+  private def moduleWorkingDirectory(module: Module): Option[String] = {
+    val providers = TestWorkingDirectoryProvider.implementations
+    providers.iterator.map(_.getWorkingDirectory(module)).find(_.isDefined).flatten
   }
+
+  private def projectWorkingDirectory: Option[String] =
+    Option(getProject.baseDir).map(_.getPath)
 }
 
 object TestConfigurationData {
