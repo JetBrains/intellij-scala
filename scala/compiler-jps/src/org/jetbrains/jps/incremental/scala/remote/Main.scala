@@ -6,7 +6,7 @@ import java.nio.file.{Files, Path}
 import java.util.{Base64, Timer, TimerTask}
 
 import com.martiansoftware.nailgun.NGContext
-import org.jetbrains.jps.api.{BuildType, CanceledStatus, CmdlineProtoUtil}
+import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
 import org.jetbrains.jps.incremental.MessageHandler
 import org.jetbrains.jps.incremental.fs.BuildFSState
