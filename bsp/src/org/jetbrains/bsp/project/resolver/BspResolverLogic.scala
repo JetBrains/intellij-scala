@@ -544,7 +544,10 @@ private[resolver] object BspResolverLogic {
 
     moduleData.setInheritProjectCompileOutputPath(false)
 
-    val libraryData = new LibraryData(BSP.ProjectSystemId, BspBundle.message("bsp.resolver.modulename.dependencies", moduleName))
+    val libraryDataName =
+      BspResolverNamingExtension.libraryData(moduleDescription)
+        .getOrElse(BspBundle.message("bsp.resolver.modulename.dependencies", moduleName))
+    val libraryData = new LibraryData(BSP.ProjectSystemId, libraryDataName)
     moduleDescriptionData.classpath.foreach { path =>
       libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
     }
@@ -554,7 +557,10 @@ private[resolver] object BspResolverLogic {
     val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
     libraryDependencyData.setScope(DependencyScope.COMPILE)
 
-    val libraryTestData = new LibraryData(BSP.ProjectSystemId, BspBundle.message("bsp.resolver.modulename.test.dependencies", moduleName))
+    val libraryTestDataName =
+      BspResolverNamingExtension.libraryTestData(moduleDescription)
+        .getOrElse(BspBundle.message("bsp.resolver.modulename.test.dependencies", moduleName))
+    val libraryTestData = new LibraryData(BSP.ProjectSystemId, libraryTestDataName)
     moduleDescriptionData.testClasspath.foreach { path =>
       libraryTestData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
     }
