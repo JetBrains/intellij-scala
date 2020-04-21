@@ -36,7 +36,6 @@ object InterpolatedStringMacroTypeProvider {
 
   val EP_NAME: ExtensionPointName[InterpolatedStringMacroTypeProvider] = ExtensionPointName.create(CLASS_NAME)
 
-  def getTypeProvider(ref: ScReference): Option[InterpolatedStringMacroTypeProvider] = {
+  def getTypeProvider(ref: ScReference): Option[InterpolatedStringMacroTypeProvider] =
     EP_NAME.getExtensions.find(_.handlesInterpolatedString(ref))
-  }
 }

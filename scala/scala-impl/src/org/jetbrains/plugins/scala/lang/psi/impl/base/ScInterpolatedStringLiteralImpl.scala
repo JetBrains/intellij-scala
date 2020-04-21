@@ -35,10 +35,10 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
       case (reference, _) if isMetaQQ(reference) =>
         getMetaQQExprType(this)
       case (reference, call) =>
-        InterpolatedStringMacroTypeProvider.getTypeProvider(reference)
-          .fold(call.getNonValueType()) {
-            _.inferExpressionType(this)
-          }
+        val typeProvider = InterpolatedStringMacroTypeProvider.getTypeProvider(reference)
+        typeProvider.fold(call.getNonValueType()) {
+          _.inferExpressionType(this)
+        }
     }
 
   override def reference: Option[ScReferenceExpression] = getFirstChild match {
