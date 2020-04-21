@@ -25,8 +25,7 @@ import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
 import org.jetbrains.plugins.scala.components.libextensions.ui.LibExtensionsSettingsPanelWrapper;
-import org.jetbrains.plugins.scala.project.NamedValueRenderer;
-import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
+import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 
 import javax.swing.*;
@@ -38,8 +37,8 @@ import java.util.ResourceBundle;
 
 import static org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch;
 import static org.jetbrains.plugins.scala.settings.ScalaProjectSettings.*;
-import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency.ComponentWithSettings;
-import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency.EP_NAME;
+import static org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings.ComponentWithSettings;
+import static org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings.EP_NAME;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -167,7 +166,7 @@ public class ScalaProjectSettingsPanel {
         extensionsPanel = new LibExtensionsSettingsPanelWrapper((JPanel) librariesPanel.getParent(), project);
         extensionsPanel.build();
 
-        for (ScalaUiWithDependency uiWithDependency : EP_NAME.getExtensionList()) {
+        for (DependencyAwareInjectionSettings uiWithDependency : EP_NAME.getExtensionList()) {
             extraSettings.add(uiWithDependency.createComponent(injectionJPanel));
         }
 

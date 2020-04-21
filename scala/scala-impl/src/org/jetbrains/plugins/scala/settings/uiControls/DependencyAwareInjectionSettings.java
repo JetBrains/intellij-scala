@@ -9,8 +9,8 @@ import javax.swing.*;
  * User: Dmitry Naydanov
  * Date: 2/18/13
  */
-public abstract class ScalaUiWithDependency {
-  public static ExtensionPointName<ScalaUiWithDependency> EP_NAME = ExtensionPointName.create("org.intellij.scala.scalaUiWithDependency");
+public abstract class DependencyAwareInjectionSettings {
+  public static ExtensionPointName<DependencyAwareInjectionSettings> EP_NAME = ExtensionPointName.create("org.intellij.scala.dependencyAwareInjectionSettings");
 
   public abstract ComponentWithSettings createComponent(JPanel uiPlace);
   

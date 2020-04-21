@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Date: 2/18/13
  */
 @SuppressWarnings("WeakerAccess")
-public class ScalaInterpolatedPrefixMappingTable extends JBTable implements ScalaUiWithDependency.ComponentWithSettings {
+public class ScalaInterpolatedPrefixMappingTable extends JBTable implements DependencyAwareInjectionSettings.ComponentWithSettings {
   private final MyTableModel tableModel;
   private final List<String> availableIds;
 
