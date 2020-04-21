@@ -7,11 +7,9 @@ import java.util.UUID
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.compiler.server.{BuildManager, BuildManagerListener, BuildProcessParametersProvider}
-import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManagerCore}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
@@ -20,6 +18,7 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -102,11 +101,10 @@ object CompileServerLauncher {
   }
 
   private def compilerServerAdditionalCP(): Seq[File] = for {
-    extension <- NailgunServerAdditionalCp.EP_NAME.getExtensions
-    filesPath <- extension.getClasspath.split(";")
-    pluginId: PluginId = extension.getPluginDescriptor.getPluginId
-    plugin: IdeaPluginDescriptor = PluginManagerCore.getPlugin(pluginId)
-    pluginsLibs = new File(plugin.getPath, "lib")
+    extension        <- NailgunServerAdditionalCp.EP_NAME.getExtensions
+    filesPath        <- extension.getClasspath.split(";").filter(StringUtils.isNotBlank)
+    pluginDescriptor = extension.getPluginDescriptor
+    pluginsLibs      = new File(pluginDescriptor.getPluginPath.toFile, "lib")
   } yield new File(pluginsLibs, filesPath)
 
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
@@ -158,7 +156,9 @@ object CompileServerLauncher {
             extraJvmParameters ++:
             NailgunRunnerFQN +:
             freePort.toString +:
-            id.toString +: classpath +: Nil
+            id +:
+            classpath +:
+            Nil
 
         val builder = new ProcessBuilder(commands.asJava)
 
