@@ -316,14 +316,17 @@ object PhysicalMethodSignature {
   }
 }
 
-class PhysicalMethodSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
-        extends TermSignature(
-          method.name,
-          PhysicalMethodSignature.typesEval(method),
-          method.getTypeParameters.instantiate,
-          substitutor,
-          method,
-          PhysicalMethodSignature.hasRepeatedParam(method)) {
+final class PhysicalMethodSignature(
+  val method: PsiMethod,
+  override val substitutor: ScSubstitutor
+) extends TermSignature(
+  method.name,
+  PhysicalMethodSignature.typesEval(method),
+  method.getTypeParameters.instantiate,
+  substitutor,
+  method,
+  PhysicalMethodSignature.hasRepeatedParam(method)
+) {
 
   override def isJava: Boolean = method.getLanguage == JavaLanguage.INSTANCE
 }

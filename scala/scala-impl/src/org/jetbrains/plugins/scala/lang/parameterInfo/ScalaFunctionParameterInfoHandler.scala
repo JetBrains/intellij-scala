@@ -532,7 +532,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                   case ScalaResolveResult(method: ScFunction, subst: ScSubstitutor) =>
                     val signature: PhysicalMethodSignature = new PhysicalMethodSignature(method, subst.followed(collectSubstitutor(method)))
                     res += ((signature, i))
-                    res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, i) }
+                    res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map((_, i))
                   case _ =>
                 }
               }
@@ -573,7 +573,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) =>
                       val signature: PhysicalMethodSignature = new PhysicalMethodSignature(method, subst.followed(collectSubstitutor(method)))
                       res += ((signature, 0))
-                      res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, 0) }
+                      res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map((_, 0))
                     case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
                       val typez = subst(typed.`type`().getOrNothing) //todo: implicit conversions
                       collectForType(typez)
