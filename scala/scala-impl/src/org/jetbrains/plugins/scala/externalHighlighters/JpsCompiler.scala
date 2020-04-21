@@ -14,10 +14,11 @@ import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
-import org.jetbrains.plugins.scala.extensions.ToNullSafe
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
 import scala.concurrent.duration._
@@ -96,8 +97,9 @@ private class JpsCompilerImpl(project: Project)
     def show(): Unit =
       if (!project.isDisposed && !project.isDefault && !ApplicationManager.getApplication.isUnitTestMode)
         for {
-          frameHelper <- WindowManagerEx.getInstanceEx.findFrameHelper(project).nullSafe
-          statusBar <- frameHelper.getStatusBar.nullSafe
-        } statusBar.asInstanceOf[StatusBarEx].addProgress(this, task)
+          frameHelper <- WindowManagerEx.getInstanceEx.findFrameHelper(project).toOption
+          statusBar <- frameHelper.getStatusBar.toOption
+          statusBarEx <- statusBar.asOptionOf[StatusBarEx]
+        } invokeLater(statusBarEx.addProgress(this, task))
   }
 }
