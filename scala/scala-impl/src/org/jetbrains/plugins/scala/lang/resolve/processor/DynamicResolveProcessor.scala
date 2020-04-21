@@ -33,8 +33,7 @@ object DynamicResolveProcessor {
 
     def unapply(reference: PsiReference): Option[Seq[ResolveResult]] = reference match {
       case expression: ScReferenceExpression if hasValidType(expression) =>
-        import JavaConverters._
-        val results = DynamicTypeReferenceResolver.getAllResolveResult(expression).asScala
+        val results = DynamicTypeReferenceResolver.getAllResolveResult(expression)
         Some(results)
       case _ => None
     }
