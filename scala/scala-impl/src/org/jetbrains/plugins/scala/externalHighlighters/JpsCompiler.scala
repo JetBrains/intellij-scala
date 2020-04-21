@@ -11,10 +11,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.util.io.PathKt
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
@@ -100,6 +100,6 @@ private class JpsCompilerImpl(project: Project)
           frameHelper <- WindowManagerEx.getInstanceEx.findFrameHelper(project).toOption
           statusBar <- frameHelper.getStatusBar.toOption
           statusBarEx <- statusBar.asOptionOf[StatusBarEx]
-        } invokeLater(statusBarEx.addProgress(this, task))
+        } UIUtil.invokeLaterIfNeeded(() => statusBarEx.addProgress(this, task))
   }
 }
