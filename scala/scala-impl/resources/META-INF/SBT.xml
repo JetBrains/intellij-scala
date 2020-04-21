@@ -2,10 +2,6 @@
 
 <idea-plugin>
 
-    <extensionPoints>
-        <extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>
-    </extensionPoints>
-
     <extensions defaultExtensionNs="com.intellij">
         <applicationInitializedListener implementation="org.jetbrains.sbt.settings.StartupRoutine"/>
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
