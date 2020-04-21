@@ -10,9 +10,10 @@ import com.intellij.psi.PsiElement;
  * Date: 10/1/12
  */
 abstract public class IntentionAvailabilityChecker {
-  public static final ExtensionPointName<IntentionAvailabilityChecker> EP_NAME = 
+  private static final ExtensionPointName<IntentionAvailabilityChecker> EP_NAME =
       ExtensionPointName.create("org.intellij.scala.scalaIntentionAvailabilityChecker");
-  public static final IntentionAvailabilityChecker defaultChecker = new IntentionAvailabilityChecker() {};
+
+  private static final IntentionAvailabilityChecker defaultChecker = new IntentionAvailabilityChecker() {};
   
   public boolean isIntentionAvailable(BaseIntentionAction intention, PsiElement psiElement) {
     return true;
@@ -26,7 +27,7 @@ abstract public class IntentionAvailabilityChecker {
     return false;
   }
   
-  public static IntentionAvailabilityChecker getChecker(PsiElement psiElement) {
+  private static IntentionAvailabilityChecker getChecker(PsiElement psiElement) {
     for (IntentionAvailabilityChecker checker : EP_NAME.getExtensions()) {
       if (checker.canCheck(psiElement)) return checker;
     }

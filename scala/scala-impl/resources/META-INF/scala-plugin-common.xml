@@ -2,7 +2,7 @@
 <idea-plugin>
 
     <extensionPoints>
-        <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker"/>
+        <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker" dynamic="true"/>
         <extensionPoint name="scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier"/>
         <extensionPoint name="scalaUiWithDependency" interface="org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency"/>
         <extensionPoint name="scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative"/>
