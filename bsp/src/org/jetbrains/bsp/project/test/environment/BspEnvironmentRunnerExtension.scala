@@ -1,8 +1,7 @@
 package org.jetbrains.bsp.project.test.environment
 
 import com.intellij.execution.configurations.RunConfiguration
-import com.intellij.openapi.extensions.ExtensionPointName
-import scala.collection.JavaConverters._
+import org.jetbrains.plugins.scala.ExtensionPointDeclaration
 
 sealed trait ExecutionEnvironmentType
 
@@ -12,20 +11,13 @@ object ExecutionEnvironmentType {
 }
 
 
-
-object BspEnvironmentRunnerExtension {
-  val EP_NAME: ExtensionPointName[BspEnvironmentRunnerExtension] =
-    ExtensionPointName.create("com.intellij.bspEnvironmentRunnerExtension")
+object BspEnvironmentRunnerExtension
+  extends ExtensionPointDeclaration[BspEnvironmentRunnerExtension]("com.intellij.bspEnvironmentRunnerExtension") {
 
   def getClassExtractor(runConfiguration: RunConfiguration): Option[BspEnvironmentRunnerExtension] =
-    EP_NAME.getExtensionList().asScala
-      .find(_.runConfigurationSupported(runConfiguration))
-
+    implementations.find(_.runConfigurationSupported(runConfiguration))
 }
 
-/**
- * Interface for `com.intellij.bspEnvironmentRunnerExtension`
- */
 trait BspEnvironmentRunnerExtension {
   /**
    * BSP run/test environment may differ, depending on the BSP target that is chosen.
@@ -41,7 +33,7 @@ trait BspEnvironmentRunnerExtension {
   def runConfigurationSupported(config: RunConfiguration): Boolean
 
   /**
-   * BSP protocol supports two kinds of exection environments: Test Environment and Run Environment.
+   * BSP protocol supports two kinds of execution environments: Test Environment and Run Environment.
    * This endpoint is to choose which kind should be taken for the supported run configuration.
    */
   def environmentType: ExecutionEnvironmentType

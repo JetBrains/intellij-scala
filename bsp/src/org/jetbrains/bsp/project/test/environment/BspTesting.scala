@@ -8,6 +8,5 @@ import scala.collection.JavaConverters._
 
 object BspTesting {
   def isBspRunnerSupportedConfiguration(config: RunConfiguration): Boolean =
-    BspEnvironmentRunnerExtension.EP_NAME.getExtensionList().asScala
-      .exists(_.runConfigurationSupported(config))
+    BspEnvironmentRunnerExtension.implementations.exists(_.runConfigurationSupported(config))
 }
