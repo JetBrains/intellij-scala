@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project.external.{AndroidJdk, SdkReference, S
 import scala.collection.JavaConverters._
 
 class AndroidSdkResolver extends SdkResolver {
-  override def sdkOf(reference: SdkReference): Option[Sdk] = reference match {
+  override def findSdk(reference: SdkReference): Option[Sdk] = reference match {
     case AndroidJdk(version) => AndroidSdkResolver.findAndroidJdkByVersion(version)
     case _ => None
   }
