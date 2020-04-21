@@ -20,7 +20,6 @@
         <extensionPoint name="sdkResolver" interface="org.jetbrains.plugins.scala.project.external.SdkResolver"/>
         <extensionPoint name="unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider" dynamic="true"/>
         <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider"/>
-        <extensionPoint name="worksheetExternalRunType" interface="org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType"/>
         <extensionPoint name="fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor"/>
     </extensionPoints>
 
