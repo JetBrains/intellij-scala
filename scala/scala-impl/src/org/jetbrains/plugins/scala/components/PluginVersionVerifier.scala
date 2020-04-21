@@ -26,7 +26,8 @@ abstract class ScalaPluginVersionVerifier {
   def getUntilVersion: String
 }
 
-object ScalaPluginVersionVerifier {
+object ScalaPluginVersionVerifier
+  extends ExtensionPointDeclaration[ScalaPluginVersionVerifier]("org.intellij.scala.scalaPluginVersionVerifier") {
 
   class Version(private val major: Int, private val minor: Int, private val build: Int) extends Ordered[Version] with Serializable {
     override def compare(that: Version): Int = implicitly[Ordering[(Int, Int, Int)]]
@@ -52,8 +53,6 @@ object ScalaPluginVersionVerifier {
       }
     }
   }
-
-  val EP_NAME: ExtensionPointName[ScalaPluginVersionVerifier] = ExtensionPointName.create("org.intellij.scala.scalaPluginVersionVerifier")
 
   lazy val getPluginVersion: Option[Version] = {
     getClass.getClassLoader match {
@@ -92,7 +91,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
 
     ScalaPluginVersionVerifier.getPluginVersion match {
       case Some(version) =>
-        val extensions = ScalaPluginVersionVerifier.EP_NAME.getExtensions
+        val extensions = ScalaPluginVersionVerifier.implementations
 
         for (extension <- extensions) {
           var failed = false
