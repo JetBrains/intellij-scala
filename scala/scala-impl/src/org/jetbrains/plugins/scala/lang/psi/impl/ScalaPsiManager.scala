@@ -238,7 +238,7 @@ class ScalaPsiManager(implicit val project: Project) {
           p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
         }
 
-        ArrayUtil.mergeArrays(classes, SyntheticClassProducer.getAllClasses(fqn, scope))
+        classes ++ SyntheticClassProducer.getAllClasses(fqn, scope)
       } finally {
         inJavaPsiFacade.set(false)
       }
@@ -249,7 +249,7 @@ class ScalaPsiManager(implicit val project: Project) {
     val classes = getCachedFacadeClasses(scope, cleanFqn(fqn))
     val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
     val synthetic = SyntheticClassProducer.getAllClasses(fqn, scope)
-    ArrayUtil.mergeArrays(classes, ArrayUtil.mergeArrays(fromScala.toArray, synthetic))
+    Array.concat(classes, fromScala.toArray, synthetic)
   }
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
