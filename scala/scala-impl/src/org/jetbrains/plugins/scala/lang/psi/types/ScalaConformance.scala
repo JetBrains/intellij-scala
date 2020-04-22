@@ -881,49 +881,6 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      def processEquivalentDesignators(args2: Seq[ScType]): Unit = {
-        val args1 = p.typeArguments
-        val des1 = p.designator
-        if (args1.length != args2.length) {
-          result = ConstraintsResult.Left
-          return
-        }
-        des1.extractDesignated(expandAliases = true) match {
-          case Some(ownerDesignator) =>
-            val parametersIterator = ownerDesignator match {
-              case td: ScTypeParametersOwner => td.typeParameters.iterator
-              case ownerDesignator: PsiTypeParameterListOwner => ownerDesignator.getTypeParameters.iterator
-              case _ =>
-                result = ConstraintsResult.Left
-                return
-            }
-            result = checkParameterizedType(parametersIterator, args1, args2,
-              constraints, visited, checkWeak)
-          case _ =>
-            result = ConstraintsResult.Left
-        }
-      }
-
-      //todo: looks like this code can be simplified and unified.
-      //todo: what if left is type alias declaration, right is type alias definition, which is alias to that declaration?
-      p match {
-        case AliasType(ta, lower, _) =>
-          if (ta.isInstanceOf[ScTypeAliasDeclaration])
-            r match {
-              case ParameterizedType(proj, args2) if r.isAliasType && (proj equiv p.designator) =>
-                processEquivalentDesignators(args2)
-                return
-              case _ =>
-            }
-
-          result = lower match {
-            case Right(value) => conformsInner(value, r, visited, constraints)
-            case _ => ConstraintsResult.Left
-          }
-          return
-        case _ =>
-      }
-
       r match {
         case ScalaArray(rightArg) =>
           p match {
@@ -1003,7 +960,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         return
       }
 
-      rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
+      rightVisitor = new ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1024,7 +981,21 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      p match {
+        case AliasType(_, lower, _) =>
+          result = lower match {
+            case Right(value) => conformsInner(value, r, visited, constraints)
+            case _            => ConstraintsResult.Left
+          }
+          return
+        case _ =>
+      }
+
       rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
     }
 
@@ -1446,9 +1417,11 @@ private object ScalaConformance {
         Option(undef.typeParameter.psiTypeParameter).map(_.getTypeParameters.iterator)
       case tpt: TypeParameterType => Option(tpt.typeParameters.map(_.psiTypeParameter).iterator)
       case _ =>
-        des.extractClass.map {
+        des.extractDesignated(false).map {
+          case ta: ScTypeAlias      => ta.typeParameters.iterator
           case td: ScTypeDefinition => td.typeParameters.iterator
-          case other => other.getTypeParameters.iterator
+          case cls: PsiClass        => cls.getTypeParameters.iterator
+          case _                    => Iterator.empty
         }
     }
 
