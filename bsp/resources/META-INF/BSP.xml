@@ -4,9 +4,11 @@
     <depends optional="true" config-file="BSP-JUnit.xml">JUnit</depends>
     <extensionPoints>
         <extensionPoint qualifiedName="com.intellij.bspEnvironmentRunnerExtension"
-                        interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"/>
+                        interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"
+                        dynamic="true"/>
         <extensionPoint qualifiedName="com.intellij.bspResolverNamingExtension"
-                        interface="org.jetbrains.bsp.project.resolver.BspResolverNamingExtension"/>
+                        interface="org.jetbrains.bsp.project.resolver.BspResolverNamingExtension"
+                        dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">

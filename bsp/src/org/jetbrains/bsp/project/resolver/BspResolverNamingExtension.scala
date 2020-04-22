@@ -3,6 +3,12 @@ package org.jetbrains.bsp.project.resolver
 import com.intellij.openapi.extensions.ExtensionPointName
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.ModuleDescription
 
+/**
+ * This extension allows to customize names created during BSP project import/refresh.
+ * These names are displayed in class search window, as well as used to group
+ * libraries under External Libraries node in project view.
+ * You may for example use it to apply custom shortening logic for long names.
+ **/
 trait BspResolverNamingExtension {
   def libraryData(moduleDescription: ModuleDescription): Option[String]
 
