@@ -221,6 +221,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   private[this] def isStableContext(t: ScType): Boolean = {
     val expectedStable = this.expectedType() match {
       case Some(downer: DesignatorOwner)     => downer.isStable
+      case Some(t) if t eq Singleton         => true
       case Some(other) if !t.conforms(other) =>
         other match {
           case AliasType(_, Right(lower: DesignatorOwner), _)                   => lower.isStable

@@ -234,9 +234,10 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     }
 
     trait LiteralTypeWideningVisitor extends ScalaTypeVisitor {
-      override def visitLiteralType(lit: ScLiteralType): Unit = {
-        result = if (l eq Singleton) constraints else conformsInner(l, lit.wideType, visited, constraints, checkWeak)
-      }
+      override def visitLiteralType(lit: ScLiteralType): Unit =
+        result =
+          if (l eq Singleton) constraints
+          else                conformsInner(l, lit.wideType, visited, constraints, checkWeak)
     }
 
     trait UndefinedSubstVisitor extends ScalaTypeVisitor {
@@ -369,15 +370,20 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
     trait ThisVisitor extends ScalaTypeVisitor {
       override def visitThisType(t: ScThisType): Unit = {
+        if (l eq Singleton) {
+          result = constraints
+          return
+        }
+
         result = t.element.getTypeWithProjections() match {
           case Right(value) => conformsInner(l, value, visited, constraints, checkWeak)
-          case _ => ConstraintsResult.Left
+          case _            => ConstraintsResult.Left
         }
 
         if (result.isLeft) {
           result = t.element.selfType match {
             case Some(selfTp) => conformsInner(l, selfTp, visited, constraints, checkWeak)
-            case _ => result
+            case _            => result
           }
         }
       }
@@ -385,6 +391,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
     trait DesignatorVisitor extends ScalaTypeVisitor {
       override def visitDesignatorType(d: ScDesignatorType): Unit = {
+        if ((l eq Singleton) && d.isSingleton) {
+          result = constraints
+          return
+        }
+
         val maybeType = d.element match {
           case v: ScBindingPattern => v.`type`()
           case v: ScParameter      => v.`type`()
@@ -470,6 +481,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       def stopProjectionAliasOnFailure: Boolean = false
 
       override def visitProjectionType(proj2: ScProjectionType): Unit = {
+        if ((l eq Singleton) && proj2.isSingleton) {
+          result = constraints
+          return
+        }
+
         proj2 match {
           case AliasType(_, _, Left(_)) =>
           case AliasType(_, _, Right(value)) =>
@@ -477,31 +493,31 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             if (stopProjectionAliasOnFailure || res.isRight) result = res
           case _ =>
             l match {
-            case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
-              val projected1 = proj1.projected
-              val projected2 = proj2.projected
-              result = conformsInner(projected1, projected2, visited, constraints)
-            case _ =>
-              val res = proj2.actualElement match {
-                case syntheticClass: ScSyntheticClass =>
-                  result = conformsInner(l, syntheticClass.stdType, HashSet.empty, constraints)
-                  return
-                case v: ScBindingPattern => v.`type`()
-                case v: ScParameter      => v.`type`()
-                case v: ScFieldId        => v.`type`()
-                case _                   => return
-              }
+              case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
+                val projected1 = proj1.projected
+                val projected2 = proj2.projected
+                result = conformsInner(projected1, projected2, visited, constraints)
+              case _ =>
+                val res = proj2.actualElement match {
+                  case syntheticClass: ScSyntheticClass =>
+                    result = conformsInner(l, syntheticClass.stdType, HashSet.empty, constraints)
+                    return
+                  case v: ScBindingPattern => v.`type`()
+                  case v: ScParameter      => v.`type`()
+                  case v: ScFieldId        => v.`type`()
+                  case _                   => return
+                }
 
-              result = res match {
-                case Right(value) => conformsInner(l, proj2.actualSubst(value), visited, constraints)
-                case _            => ConstraintsResult.Left
+                result = res match {
+                  case Right(value) => conformsInner(l, proj2.actualSubst(value), visited, constraints)
+                  case _            => ConstraintsResult.Left
                 }
             }
         }
       }
     }
 
-    private var result: ConstraintsResult = null
+    private var result: ConstraintsResult = _
     private var constraints: ConstraintSystem = ConstraintSystem.empty
 
     def getResult: ConstraintsResult = result
@@ -563,8 +579,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new ThisVisitor with DesignatorVisitor
-        with ParameterizedAliasVisitor {}
+      rightVisitor = new ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -613,7 +628,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
       if (x eq Singleton) {
+        /** Conformance is checked in corresponding rightVisitors
+         * [[ThisVisitor]], [[LiteralTypeWideningVisitor]],
+         * [[ProjectionVisitor]] and [[DesignatorVisitor]] */
         result = ConstraintsResult.Left
+        return
       }
 
       if (x eq AnyVal) {

@@ -26,14 +26,14 @@ trait DesignatorOwner extends ValueType {
 
   override def isFinalType: Boolean = element match {
     case clazz: PsiClass if clazz.isEffectivelyFinal => true
-    case _ => false
+    case _                                           => false
   }
 
   private[types] def designatorSingletonType = element match {
-    case _: ScObject => None
-    case parameter: ScParameter if parameter.isStable => parameter.getRealParameterType.toOption
+    case _: ScObject                                          => None
+    case parameter: ScParameter if parameter.isStable         => parameter.getRealParameterType.toOption
     case definition: ScTypedDefinition if definition.isStable => definition.`type`().toOption
-    case _ => None
+    case _                                                    => None
   }
 }
 
@@ -41,6 +41,6 @@ object DesignatorOwner {
 
   def unapply(`type`: ScType): Option[PsiNamedElement] = `type` match {
     case owner: DesignatorOwner => Some(owner.element)
-    case _ => None
+    case _                      => None
   }
 }
