@@ -81,7 +81,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""
          |class TUI {
-         |  patternVal$CARET
+         |  patVal$CARET
          |}
       """.stripMargin,
     resultText =
@@ -89,10 +89,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
         |import rawObject.RawObject4
         |
         |class TUI {
-        |  RawObject4.patternValue
+        |  RawObject4.patValue
         |}
       """.stripMargin,
-    item = "patternValue",
+    item = "patValue",
     time = 2
   )
 

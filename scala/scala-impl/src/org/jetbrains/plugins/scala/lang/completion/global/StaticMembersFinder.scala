@@ -60,7 +60,7 @@ private[completion] final class StaticMembersFinder private(namePredicate: Strin
     property <- cacheManager.allProperties(namePredicate)
     if isAccessible(property)
 
-    namedElement = property.declaredElements.head
+    namedElement <- property.declaredElements
 
     classToImport <- classesToImportFor(property)
   } yield StaticMemberResult(namedElement, classToImport)
