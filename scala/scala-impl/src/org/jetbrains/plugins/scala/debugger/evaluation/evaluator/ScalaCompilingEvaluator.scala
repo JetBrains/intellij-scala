@@ -191,7 +191,7 @@ private case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement
   private def compileGeneratedClass(fileText: String): Seq[OutputFileObject] = {
     if (module == null) throw EvaluationException("Module for compilation is not found")
 
-    val helper = EvaluatorCompileHelper.EP_NAME.getExtensions.headOption.getOrElse {
+    val helper = EvaluatorCompileHelper.implementations.headOption.getOrElse {
       ScalaEvaluatorCompileHelper.instance(module.getProject)
     }
     val compiled = helper.compile(fileText, module)
