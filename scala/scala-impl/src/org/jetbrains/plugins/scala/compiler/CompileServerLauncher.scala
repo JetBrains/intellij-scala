@@ -101,10 +101,10 @@ object CompileServerLauncher {
   }
 
   private def compilerServerAdditionalCP(): Seq[File] = for {
-    extension        <- NailgunServerAdditionalCp.EP_NAME.getExtensions
-    filesPath        <- extension.getClasspath.split(";").filter(StringUtils.isNotBlank)
+    extension        <- CompileServerClasspathProvider.implementations
     pluginDescriptor = extension.getPluginDescriptor
     pluginsLibs      = new File(pluginDescriptor.getPluginPath.toFile, "lib")
+    filesPath        <- extension.classpathSeq
   } yield new File(pluginsLibs, filesPath)
 
   private def start(project: Project, jdk: JDK): Either[String, Process] = {

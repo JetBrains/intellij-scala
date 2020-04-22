@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.extensions.{ExtensionPointName, PluginAware, PluginDescriptor}
 import com.intellij.util.xmlb.annotations.{Attribute, Transient}
+import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.ExtensionPointDeclaration
 
-// TODO: unify naming with CompileServerVmOptionsProvider
-class NailgunServerAdditionalCp extends PluginAware {
+class CompileServerClasspathProvider extends PluginAware {
   private var myPluginDescriptor: PluginDescriptor = _
   private var myClasspath: String = ""
 
@@ -18,13 +19,14 @@ class NailgunServerAdditionalCp extends PluginAware {
 
   @Transient
   def getPluginDescriptor: PluginDescriptor = myPluginDescriptor
+  @Transient
+  final def classpathSeq: Seq[String] = getClasspath.split(";").filter(StringUtils.isNotBlank)
 
   override def setPluginDescriptor(pluginDescriptor: PluginDescriptor): Unit =
     myPluginDescriptor = pluginDescriptor
 }
 
-object NailgunServerAdditionalCp {
-
-  val EP_NAME: ExtensionPointName[NailgunServerAdditionalCp] =
-    ExtensionPointName.create("org.intellij.scala.nailgunServerAdditionalCp")
-}
+object CompileServerClasspathProvider
+  extends ExtensionPointDeclaration[CompileServerClasspathProvider](
+    "org.intellij.scala.compileServerClasspathProvider"
+  )
