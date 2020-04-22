@@ -40,9 +40,17 @@ object TokenSets {
     VARIABLE_DEFINITION
   )
 
-  val MEMBERS: TokenSet =
+  @volatile
+  private var _MEMBERS: TokenSet = computeMemberTypes()
+
+  def MEMBERS: TokenSet = _MEMBERS
+
+  private def computeMemberTypes() = {
     FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ PROPERTIES + PRIMARY_CONSTRUCTOR ++
-      MemberElementTypesExtension.getAllElementTypes
+      MemberElementTypesExtension.getExtraMemberTypes
+  }
+
+  MemberElementTypesExtension.EP_NAME.addExtensionPointListener(() => _MEMBERS = computeMemberTypes(), null)
 
   val DECLARED_ELEMENTS_HOLDER: TokenSet = TokenSet.orSet(FUNCTIONS, PROPERTIES)
 
