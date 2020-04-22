@@ -79,6 +79,9 @@ object SyntheticMembersInjector {
   val EP_NAME: ExtensionPointName[SyntheticMembersInjector] = ExtensionPointName.create(CLASS_NAME)
   val DYN_EP: DynamicExtensionPoint[SyntheticMembersInjector] = new DynamicExtensionPoint[SyntheticMembersInjector]
 
+  private def implementations(implicit p: Project): Seq[SyntheticMembersInjector] =
+    EP_NAME.getExtensions ++ DYN_EP.getExtensions
+
   private val LOG: Logger = Logger.getInstance(getClass)
 
 
@@ -87,8 +90,9 @@ object SyntheticMembersInjector {
 
     implicit val ctx: Project = source.getProject
     val buffer = new ArrayBuffer[ScFunction]()
+
     for {
-      injector <- EP_NAME.getExtensions.toSet ++ DYN_EP.getExtensions
+      injector <- implementations
       template <- injector.injectFunctions(source)
     } try {
       val context = source match {
@@ -115,7 +119,7 @@ object SyntheticMembersInjector {
     val buffer = new ArrayBuffer[ScTypeDefinition]()
     implicit val ctx: Project = source.getProject
     for {
-      injector <- EP_NAME.getExtensions.toSet ++ DYN_EP.getExtensions
+      injector <- implementations
       template <- injector.injectInners(source)
     } try {
       val contextClass = source match {
@@ -148,7 +152,7 @@ object SyntheticMembersInjector {
     val buffer = new ArrayBuffer[ScTypeElement]()
     implicit val ctx: Project = source.getProject
     for {
-      injector <- EP_NAME.getExtensions.toSet ++ DYN_EP.getExtensions
+      injector <- implementations
       supers <- injector.injectSupers(source)
     } try {
       val context = source match {
@@ -170,7 +174,7 @@ object SyntheticMembersInjector {
     val buffer = new ArrayBuffer[ScMember]()
     implicit val ctx: Project = source.getProject
     for {
-      injector <- EP_NAME.getExtensions.toSet ++ DYN_EP.getExtensions
+      injector <- implementations
       template <- injector.injectMembers(source)
     } try {
       val context = source match {
