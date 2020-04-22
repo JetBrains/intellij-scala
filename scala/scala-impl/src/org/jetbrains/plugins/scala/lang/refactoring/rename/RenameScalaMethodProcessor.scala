@@ -121,7 +121,7 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
       }
     }
     RenameSuperMembersUtil.prepareSuperMembers(element, newName, allRenames)
-    ScalaElementToRenameContributor.getAll(element, newName, allRenames)
+    ScalaElementToRenameContributor.addAllElements(element, newName, allRenames)
   }
 
   def getGetterOrSetterFunction(f: ScFunction): Option[ScFunction] = {

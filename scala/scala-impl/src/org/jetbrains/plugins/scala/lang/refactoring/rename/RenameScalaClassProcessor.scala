@@ -96,7 +96,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     val elems = allRenames.keySet().asScala.clone()
     elems.foreach(addLightClasses)
 
-    ScalaElementToRenameContributor.getAll(element, newName, allRenames)
+    ScalaElementToRenameContributor.addAllElements(element, newName, allRenames)
   }
 
   override def getElementToSearchInStringsAndComments(element: PsiElement): PsiElement = {

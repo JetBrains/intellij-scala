@@ -47,7 +47,7 @@ class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor with Scala
       allRenames.put(elem, newName)
     }
 
-    ScalaElementToRenameContributor.getAll(element, newName, allRenames)
+    ScalaElementToRenameContributor.addAllElements(element, newName, allRenames)
   }
 }
 
