@@ -1,5 +1,8 @@
 package org.jetbrains.bsp.data
 
+import java.io.File
+
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -10,6 +13,10 @@ import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vcs.ProjectLevelVcsManager
+import com.intellij.openapi.vcs.VcsDirectoryMapping
+import com.intellij.openapi.vcs.roots.VcsRootDetector
+import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.bsp.data.BspProjectDataService._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project.external.JdkByHome
@@ -19,22 +26,50 @@ import org.jetbrains.plugins.scala.project.external.AbstractImporter
 import org.jetbrains.plugins.scala.project.external.Importer
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 
+import scala.collection.JavaConverters._
+
+
 class BspProjectDataService extends AbstractDataService[BspProjectData, Project](BspProjectData.Key) {
 
   override def createImporter(toImport: Seq[DataNode[BspProjectData]], projectData: ProjectData, project: Project, modelsProvider: IdeModifiableModelsProvider): Importer[BspProjectData] = {
     new AbstractImporter[BspProjectData](toImport, projectData, project, modelsProvider) {
       override def importData(): Unit = {
-        dataToImport.foreach(node => configureJdk(node.getData)(project))
+        dataToImport.foreach { node =>
+          configureJdk(Option(node.getData.jdk))(project)
+          configureVcs(node.getData.vcsRootsCandidates.asScala, project)
+        }
       }
     }
   }
 }
 
 object BspProjectDataService {
-  private def configureJdk(data: BspProjectData)(implicit project: ProjectContext): Unit = executeProjectChangeAction {
+
+  private def configureVcs(vcsRootsCandidates: Seq[File], project: Project): Unit = {
+    val detectedRoots = {
+      val detector = ServiceManager.getService(project, classOf[VcsRootDetector])
+      vcsRootsCandidates.flatMap { candidate =>
+        val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(candidate)
+        detector.detect(virtualFile).asScala
+      }.distinct
+    }
+
+    val vcsManager = ProjectLevelVcsManager.getInstance(project)
+    val currentVcsRoots = vcsManager.getAllVcsRoots
+    val currentMappings = vcsManager.getDirectoryMappings
+
+    val newMappings = detectedRoots
+      .filterNot(currentVcsRoots.contains)
+      .map(root => new VcsDirectoryMapping(root.getPath.getPath, root.getVcs.getName))
+    val allMappings = (currentMappings.asScala ++ newMappings).asJava
+
+    vcsManager.setDirectoryMappings(allMappings)
+  }
+
+  private def configureJdk(jdk: Option[SdkReference])(implicit project: ProjectContext): Unit = executeProjectChangeAction {
     val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
     val projectJdk =
-      Option(data.jdk)
+      jdk
         .flatMap(findOrCreateSdkFromBsp)
         .orElse(existingJdk)
         .orElse(SdkUtils.mostRecentJdk)
