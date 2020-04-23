@@ -14,15 +14,12 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspUtil._
-import org.jetbrains.bsp.data.JdkData
-import org.jetbrains.bsp.data.{BspMetadata, BspProjectData, SbtBuildModuleDataBsp, ScalaSdkData}
+import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.project.external.JdkByHome
-import org.jetbrains.plugins.scala.project.external.JdkByVersion
-import org.jetbrains.plugins.scala.project.external.SdkReference
+import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -331,7 +328,7 @@ private[resolver] object BspResolverLogic {
                                                          ancestors: Seq[ModuleDescription]): ModuleDescription = {
     // the synthetic module "inherits" most of the "ancestors" data
     val merged = mergeModules(ancestors)
-    val sharedPrefix = "shared:"
+    val sharedPrefix = "(shared) "
     val id = sourceRoots.sortBy(_.directory).headOption
       .map { dir =>
         val idPath = allSourcesBase
