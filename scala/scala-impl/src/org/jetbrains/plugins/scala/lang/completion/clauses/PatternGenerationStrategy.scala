@@ -4,7 +4,7 @@ package completion
 package clauses
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiElement, PsiEnumConstant}
+import com.intellij.psi.{PsiClass, PsiEnumConstant}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -49,7 +49,7 @@ object PatternGenerationStrategy {
 
   def unapply(`type`: ScType)
              (implicit parameters: ClauseCompletionParameters): Option[PatternGenerationStrategy] = {
-    val valueType = `type`.extractDesignatorSingleton.getOrElse(`type`)
+    val valueType = toValueType(`type`)
     val strategy = valueType match {
       case ScProjectionType(DesignatorOwner(enumClass@ScalaEnumeration(values)), _) =>
         val membersNames = for {

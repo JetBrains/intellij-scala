@@ -6,7 +6,8 @@ package global
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -14,20 +15,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private[completion] sealed abstract class CompanionObjectMembersFinder(place: ScExpression)
-                                                                      (namePredicate: NamePredicate)
+private[completion] sealed abstract class CompanionObjectMembersFinder(private val place: ScalaPsiElement)
+                                                                      (private val namePredicate: NamePredicate)
   extends GlobalMembersFinder {
 
   // todo import, class scope import setting reconsider
 
   override protected final def candidates: Iterable[GlobalMemberResult] = for {
-    context <- place.withContexts.toIterable
-    if context.isInstanceOf[ScClass] || context.isInstanceOf[ScTrait]
-    targetClass = context.asInstanceOf[ScTypeDefinition]
-
-    // todo ScalaPsiUtil.getCompanionModule / fakeCompanionModule
-    targetCompanion <- targetClass.baseCompanionModule.iterator
-    targetObject = targetCompanion.asInstanceOf[ScObject]
+    ClassOrTrait(CompanionModule(targetObject)) <- place.withContexts.toIterable
 
     member <- functions(targetObject) ++ members(targetObject)
 
@@ -88,9 +83,9 @@ private[completion] object CompanionObjectMembersFinder {
   }
 
   final class ExtensionLike private(private val originalType: ScType,
-                                    place: ScExpression)
+                                    classOrTrait: ScConstructorOwner)
                                    (namePredicate: NamePredicate)
-    extends CompanionObjectMembersFinder(place)(namePredicate) {
+    extends CompanionObjectMembersFinder(classOrTrait)(namePredicate) {
 
     override protected def functions(`object`: ScObject): Seq[ScFunction] = for {
       function <- super.functions(`object`)
@@ -143,7 +138,7 @@ private[completion] object CompanionObjectMembersFinder {
   object ExtensionLike {
 
     def apply(originalType: ScType,
-              place: ScExpression): NamePredicate => ExtensionLike =
-      new ExtensionLike(originalType, place)(_)
+              classOrTrait: ScConstructorOwner): NamePredicate => ExtensionLike =
+      new ExtensionLike(originalType, classOrTrait)(_)
   }
 }

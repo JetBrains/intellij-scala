@@ -324,6 +324,68 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
+  def testCompanionObjectExtensionLikeMethod2(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |
+         |object Main {
+         |  (_: Foo).f$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |
+         |object Main {
+         |  Foo.foo((_: Foo))$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectExtensionLikeMethod3(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  final case class Bar() extends Foo
+         |}
+         |
+         |object Main {
+         |  val foo: Foo = Bar()
+         |  foo.f$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  final case class Bar() extends Foo
+         |}
+         |
+         |object Main {
+         |  val foo: Foo = Bar()
+         |  Foo.foo(foo)$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
   def testCompanionObjectInvalidExtensionLikeMethodInvalidArgumentsCount(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {

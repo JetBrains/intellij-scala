@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
@@ -228,6 +229,9 @@ package object completion {
 
   private[this] def requiresSuffix(element: PsiElement) =
     element != null && element.getNode.getElementType == tSTUB
+
+  private[completion] def toValueType(`type`: ScType) =
+    `type`.extractDesignatorSingleton.getOrElse(`type`)
 
   abstract class ScalaCompletionContributor extends CompletionContributor {
 

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
-private[completion] final class ExtensionMethodsFinder private(originalType: ScType, place: ScExpression)
+private[completion] final class ExtensionMethodsFinder(originalType: ScType, place: ScExpression)
   extends GlobalMembersFinder {
 
   private lazy val originalTypeMemberNames: collection.Set[String] = candidatesForType(originalType).map(_.name)
@@ -49,10 +49,3 @@ private[completion] final class ExtensionMethodsFinder private(originalType: ScT
   }
 }
 
-object ExtensionMethodsFinder {
-  def apply(qualifier: ScExpression): Option[ExtensionMethodsFinder] = {
-    val qualifierType = qualifier.getTypeWithoutImplicits().toOption
-
-    qualifierType.map(new ExtensionMethodsFinder(_, qualifier))
-  }
-}

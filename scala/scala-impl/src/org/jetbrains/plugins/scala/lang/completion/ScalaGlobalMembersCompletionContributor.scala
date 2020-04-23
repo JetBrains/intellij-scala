@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,10 +34,10 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
         if (!regardlessAccessibility(invocationCount)) return
 
         for {
-          refExpr@Qualifier(qual) <- findReference(parameters)
-          finder <- ExtensionMethodsFinder(qual)
+          reference@Qualifier(place@TypeWithoutImplicits(originalType)) <- findReference(parameters)
         } {
-          val items = finder.lookupItems(refExpr, parameters.getOriginalFile)
+          val items = new ExtensionMethodsFinder(originalType, place)
+            .lookupItems(reference, parameters.getOriginalFile)
           addGlobalCompletions(items, resultSet)
         }
       }
@@ -60,9 +61,13 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
         val matcher = resultSet.getPrefixMatcher
         val maybeFinder = reference match {
           case Qualifier(qualifier) =>
-            qualifier.getTypeWithoutImplicits()
-              .toOption
-              .map(CompanionObjectMembersFinder.ExtensionLike(_, qualifier))
+            for {
+              TypeWithoutImplicits(placeType) <- Some(qualifier)
+
+              originalType = toValueType(placeType)
+
+              ClassOrTrait(definition) <- originalType.extractClass
+            } yield CompanionObjectMembersFinder.ExtensionLike(originalType, definition)
           case _ =>
             val finder = if (requiresAdvertisement && matcher.getPrefix.nonEmpty)
               StaticMembersFinder(reference) {
@@ -127,5 +132,11 @@ object ScalaGlobalMembersCompletionContributor {
         case literal: ScInterpolatedStringLiteral => stringContextQualifier(literal)
         case _ => None
       }
+  }
+
+  private object TypeWithoutImplicits {
+
+    def unapply(qualifier: ScExpression): Option[ScType] =
+      qualifier.getTypeWithoutImplicits().toOption
   }
 }
