@@ -1725,9 +1725,6 @@
                   class="org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener"/>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterCompilationListener$MyFileEditorManagerListener"/>
-
-        <listener topic="com.intellij.execution.ExecutionListener"
-                  class="org.jetbrains.plugins.scala.runner.SyncOutputExecutionListener"/>
     </projectListeners>
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction">
