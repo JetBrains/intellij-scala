@@ -1,0 +1,59 @@
+name: Scala Plugin Build & Test
+
+on:
+  push:
+    branches: [ idea201.x ]
+  pull_request:
+    branches: [ idea201.x ]
+
+jobs:
+  build_and_test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: olafurpg/setup-scala@v5
+      with:
+        java-version: adopt@1.8
+    - name: Install JDK 8
+      run: jabba install adopt@1.8.0-242
+    - name: Install JDK 11
+      run: jabba install adopt@1.11.0-6
+    - name: Cache coursier cache
+      uses: actions/cache@v1
+      with:
+        path: ~/.coursier/cache
+        key: ${{ runner.os }}-coursier-cache-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/**/*.scala') }}
+        restore-keys: |
+          ${{ runner.os }}-coursier-cache-${{ hashFiles('**/*.sbt') }}
+          ${{ runner.os }}-coursier-cache
+    - name: Cache ivy cache
+      uses: actions/cache@v1
+      with:
+        path: ~/.ivy2/cache
+        key: ${{ runner.os }}-ivy-cache-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/**/*.scala') }}
+        restore-keys: |
+          ${{ runner.os }}-ivy-cache-${{ hashFiles('**/*.sbt') }}
+          ${{ runner.os }}-ivy-cache
+    - name: Cache sbt
+      uses: actions/cache@v1
+      with:
+        path: ~/.sbt
+        key: ${{ runner.os }}-sbt-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/**/*.scala') }}
+        restore-keys: |
+          ${{ runner.os }}-sbt-${{ hashFiles('**/*.sbt') }}
+          ${{ runner.os }}-sbt
+    - name: Cache IntelliJ IDEA SDK
+      uses: actions/cache@v1
+      with:
+        path: ~/.ScalaPluginIC/sdk
+        key: ${{ runner.os }}-idea-${{ hashFiles('project/**/*.scala') }}
+        restore-keys: |
+          ${{ runner.os }}-idea
+    - name: compile & package
+      run: sbt -no-colors clean packagePlugin test:compile
+    - name: typechecker tests
+      run: sbt -no-colors runTypeInferenceTests
+    - name: assorted tests
+      run: sbt -no-colors runFastTests
