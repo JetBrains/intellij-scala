@@ -168,12 +168,14 @@ final class CompileServerManager(project: Project) extends Disposable {
 
 object CompileServerManager {
 
-  def configureWidget(project: Project): Unit = {
-    if (!project.isDisposed) {
+  def configureWidget(project: Project): Unit =
+    // in unit tests we preload compile server before any project is started
+    if (project == null && isUnitTestMode || project.isDisposed) {
+     // ok, nothing to configure
+    } else {
       val instance = project.getService(classOf[CompileServerManager])
       instance.configureWidget()
     }
-  }
 
   def showCompileServerSettingsDialog(project: Project, filter: String = ""): Unit =
     ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[ScalaCompileServerForm], filter)

@@ -39,6 +39,21 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   private var revertable: RevertableChange = NoOpRevertableChange
 
+  /**
+   * Called on each project, but before initializing ThreadWatcher.
+   * Needed to avoid ThreadLeaked exceptions after each test run,
+   * cause we want compile server to be reused in all tests.
+   */
+  override def initApplication(): Unit = {
+    super.initApplication()
+
+    revertable =
+      CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
+        CompilerTestUtil.withCompileServerJdk(getTestProjectJdk) |+|
+        CompilerTestUtil.withForcedJdkForBuildProcess(getTestProjectJdk)
+    revertable.apply()
+  }
+
   override protected def setUp(): Unit = {
     super.setUp()
 
@@ -53,12 +68,6 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     addSrcRoot()
     compilerVmOptions.foreach(setCompilerVmOptions)
 
-    revertable =
-      CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
-        CompilerTestUtil.withCompileServerJdk(getTestProjectJdk) |+|
-        CompilerTestUtil.withForcedLanguageLevelForBuildProcess(getTestProjectJdk)
-    revertable.apply()
-
     setUpLibraries(getModule)
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
     compilerTester = new CompilerTester(getModule)
@@ -67,7 +76,11 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   override protected def tearDown(): Unit = try {
     compilerTester.tearDown()
-    ScalaCompilerTestBase.stopAndWait()
+    if (!reuseCompileServerProcessBetweenTests) {
+      ScalaCompilerTestBase.stopAndWait()
+    } else {
+      //  server will be stopped when Application shuts down (see ShutDownTracker in CompileServerLauncher)
+    }
     EdtTestUtil.runInEdtAndWait { () =>
       disposeLibraries(getModule)
     }
@@ -98,6 +111,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   protected def compilerVmOptions: Option[String] = None
 
   protected def useCompileServer: Boolean = false
+  protected def reuseCompileServerProcessBetweenTests: Boolean = false
 
   protected def compiler: CompilerTester = compilerTester
 
@@ -147,6 +161,7 @@ object ScalaCompilerTestBase {
 
   import duration.{Duration, DurationInt}
 
+  // TODO: review if needed?
   def stopAndWait(timeout: Duration = 10.seconds): Unit = assertTrue(
     s"Compile server process have not terminated after $timeout",
     CompileServerLauncher.stop(timeout.toMillis)

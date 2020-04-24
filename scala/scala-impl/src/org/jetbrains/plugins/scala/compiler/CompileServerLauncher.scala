@@ -18,7 +18,6 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
-import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -35,6 +34,9 @@ object CompileServerLauncher {
   private val LOG = Logger.getInstance(getClass)
 
   private val NailgunRunnerFQN = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
+
+  private def attachDebugAgent = false
+  private def waitUntilDebuggerAttached = false
 
   /* @see [[org.jetbrains.plugins.scala.compiler.ServerMediatorTask]] */
   private class Listener extends BuildManagerListener {
@@ -59,26 +61,33 @@ object CompileServerLauncher {
     }
   }
 
-  ShutDownTracker.getInstance().registerShutdownTask(() =>
-    if (running) stop()
-  )
+  ShutDownTracker.getInstance().registerShutdownTask { () =>
+    ensureServerNotRunning()
+  }
 
   def tryToStart(project: Project): Boolean = serverStartLock.synchronized {
     if (running) true else {
       val started = start(project)
       if (started) {
-        // TODO: implement proper wait for server initialization, addDisconnectListener command doesn't even exist
-        //  Nailgun server sends error for it via stderr which we ignore by passing null client
-        try {
-          val runner = new RemoteServerRunner(project)
-          runner.send("addDisconnectListener", Seq.empty, null)
-        } catch {
-          case _: Exception =>
-        }
+        sendDummyRequest(project)
       }
       started
     }
   }
+
+  // TODO: implement proper wait for server initialization, addDisconnectListener command doesn't even exist
+  //  Nailgun server sends error for it via stderr which we ignore by passing null client
+  private def sendDummyRequest(project: Project): Try[Unit] =
+    Try {
+      new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, null)
+    }.recoverWith { case _: Exception if isUnitTestMode =>
+      LOG.traceSafe("waiting for compile server initialization...")
+      sendDummyRequest(project)
+    }
+
+
+  private def isUnitTestMode: Boolean =
+    ApplicationManager.getApplication.isUnitTestMode
 
   private def start(project: Project): Boolean = {
     val result = for {
@@ -120,12 +129,17 @@ object CompileServerLauncher {
         val (nailgunCpFiles, classpathFiles) = presentFiles.partition(_.getName contains "nailgun")
         val nailgunClasspath = nailgunCpFiles
           .map(_.canonicalPath).mkString(File.pathSeparator)
-        val buildProcessPluginsClasspath = new BuildProcessClasspathManager(project).getBuildProcessPluginsClasspath(project)
-        val buildProcessApplicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath
-        val buildProcessClasspath = buildProcessPluginsClasspath.asScala ++ buildProcessApplicationClasspath.asScala
+        val buildProcessClasspath = {
+          // in worksheet tests we reuse compile server between project
+          // so we initialize it before the first test starts
+          val pluginsClasspath = if (isUnitTestMode && project == null) Seq() else
+            new BuildProcessClasspathManager(project).getBuildProcessPluginsClasspath(project).asScala
+          val applicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath.asScala
+          pluginsClasspath ++ applicationClasspath
+        }
         val classpath = ((jdk.tools ++ (classpathFiles ++ compilerServerAdditionalCP()))
           .map(_.canonicalPath) ++ buildProcessClasspath)
-          .mkString(File.pathSeparator)
+
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
           new RemoteServerStopper(settings.COMPILE_SERVER_PORT).sendStop()
@@ -141,10 +155,13 @@ object CompileServerLauncher {
         } else Nil
         val isScalaCompileServer = "-Dij.scala.compile.server=true"
 
-        val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensionList(project).asScala
-          .flatMap(_.getVMArguments.asScala)
-        val extraJvmParameters = CompileServerVmOptionsProvider.implementations
-          .flatMap(_.vmOptionsFor(project))
+        val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
+          val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensionList(project).asScala
+            .flatMap(_.getVMArguments.asScala)
+          val extraJvmParameters = CompileServerVmOptionsProvider.implementations
+            .flatMap(_.vmOptionsFor(project))
+          buildProcessParameters ++ extraJvmParameters
+        }
 
         val commands =
           jdk.executable.canonicalPath +:
@@ -152,12 +169,11 @@ object CompileServerLauncher {
             jvmParameters ++:
             shutdownDelayArg ++:
             isScalaCompileServer +:
-            buildProcessParameters ++:
-            extraJvmParameters ++:
+            vmOptions ++:
             NailgunRunnerFQN +:
             freePort.toString +:
             id +:
-            classpath +:
+            classpath.mkString(File.pathSeparator) +:
             Nil
 
         val builder = new ProcessBuilder(commands.asJava)
@@ -251,7 +267,13 @@ object CompileServerLauncher {
 
     val (_, otherParams) = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").partition(_.contains("-XX:MaxPermSize"))
 
-    xmx ++ otherParams
+    val debugAgent: Option[String] =
+      if (attachDebugAgent) {
+        val suspend = if(waitUntilDebuggerAttached) "y" else "n"
+        Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5006")
+      } else None
+
+    xmx ++ otherParams ++ debugAgent
   }
 
   private val serverStartLock = new Object
@@ -286,6 +308,10 @@ object CompileServerLauncher {
 
   def ensureServerNotRunning(project: Project): Unit = serverStartLock.synchronized {
     if (running) stop(project)
+  }
+
+  private def ensureServerNotRunning(): Unit = serverStartLock.synchronized {
+    if (running) stop()
   }
 
   private def findFreePort: Int = {

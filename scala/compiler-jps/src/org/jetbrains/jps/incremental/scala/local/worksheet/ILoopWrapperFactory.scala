@@ -39,6 +39,7 @@ class ILoopWrapperFactory {
   ): Unit = {
     client.progress("Retrieving REPL instance...")
     val inst = cache.getOrCreate(args.sessionId, () => {
+      client.progress("Creating REPL instance...")
       createILoopWrapper(args, replContext, replWrapper, outStream, classLoader, client) match {
         case Right(inst) =>
           inst.init()

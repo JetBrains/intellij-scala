@@ -84,7 +84,7 @@ object CompilerTestUtil {
     }
   ))
 
-  def withForcedLanguageLevelForBuildProcess(jdk: Sdk): RevertableChange = new RevertableChange {
+  def withForcedJdkForBuildProcess(jdk: Sdk): RevertableChange = new RevertableChange {
     private var jdkBefore: Option[String] = None
 
     override def apply(): Unit = {

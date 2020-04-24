@@ -65,6 +65,8 @@ abstract class WorksheetIntegrationBaseTest
 
   protected def worksheetFileName: String = s"worksheet_${getTestName(false)}.sc"
 
+  override protected def reuseCompileServerProcessBetweenTests: Boolean = true
+
   protected def setupWorksheetSettings(settings: WorksheetCommonSettings): Unit = {
     settings.setRunType(self.runType)
     settings.setInteractive(false) // TODO: test these values?
@@ -79,17 +81,21 @@ abstract class WorksheetIntegrationBaseTest
   protected def createCompilerProfileForCurrentModule(profileName: String): ScalaCompilerSettingsProfile =
     ScalaCompilerConfiguration.instanceIn(project).createCustomProfileForModule(profileName, myModule)
 
+  override def initApplication(): Unit = {
+    super.initApplication()
+
+    if (useCompileServer) {
+      val result = CompileServerLauncher.ensureServerRunning(getProject)
+      assertTrue("compile server is expected to be running", result)
+    }
+  }
+
   override def setUp(): Unit = {
     super.setUp()
 
     val settings = ScalaProjectSettings.getInstance(project)
     settings.setInProcessMode(self.runInCompileServerProcess)
     settings.setAutoRunDelay(300)
-
-    if (useCompileServer) {
-      val result = CompileServerLauncher.ensureServerRunning(project)
-      assertTrue("compile server is expected to be running", result)
-    }
   }
 
   protected def doRenderTest(before: String, afterWithFoldings: String): Editor = {
