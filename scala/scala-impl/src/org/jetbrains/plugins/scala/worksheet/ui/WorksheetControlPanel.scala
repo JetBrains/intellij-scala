@@ -55,7 +55,6 @@ final class WorksheetControlPanel extends JPanel {
       addSplitter()
       extraActions.foreach { action =>
         action.init(panel)
-        addSplitter()
       }
       panel.add(Box.createHorizontalGlue())
       addSplitter()
