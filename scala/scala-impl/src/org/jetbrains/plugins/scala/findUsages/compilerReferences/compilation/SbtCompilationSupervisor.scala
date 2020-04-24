@@ -6,11 +6,11 @@ import java.nio.file.Paths
 import java.util.UUID
 import java.util.concurrent.{ExecutorService, Executors, Future => JFuture}
 
-import com.intellij.ide.{AppLifecycleListener, ApplicationInitializedListener}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.messages.MessageBus
+import org.jetbrains.plugins.scala.components.RunOnceStartupActivity
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier._
@@ -130,14 +130,13 @@ object SbtCompilationSupervisor {
   def apply(): SbtCompilationSupervisor =
     ServiceManager.getService(classOf[SbtCompilationSupervisor])
 
-  private class Listener
-    extends ApplicationInitializedListener with AppLifecycleListener {
+  private class Activity extends RunOnceStartupActivity {
 
-    override def componentsInitialized(): Unit = {
+    override def doRunActivity(): Unit = {
       SbtCompilationSupervisor().init()
     }
 
-    override def appWillBeClosed(isRestart: Boolean): Unit = {
+    override def doCleanup(): Unit = {
       SbtCompilationSupervisor().dispose()
     }
   }

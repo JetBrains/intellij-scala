@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings.inference
 
-import com.intellij.ide.ApplicationInitializedListener
 import com.intellij.psi.codeStyle.CodeStyleScheme
 import com.intellij.psi.impl.source.codeStyle.CodeStyleSchemesImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.components.RunOnceStartupActivity
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 import scala.collection.JavaConverters._
@@ -12,9 +12,10 @@ import scala.collection.JavaConverters._
   * @author Roman.Shein
   *         Date: 24.01.2017
   */
-final class LegacyCodeStyleSettingsComponent extends ApplicationInitializedListener {
+//todo: Revalidate, add tests and remove
+final class LegacyCodeStyleSettingsComponent extends RunOnceStartupActivity {
 
-  override def componentsInitialized(): Unit = {
+  override def doRunActivity(): Unit = {
     val codeStyleSchemes: Seq[CodeStyleScheme] = CodeStyleSchemesImpl.getSchemeManager.getAllSchemes.asScala
     codeStyleSchemes.foreach { scheme =>
       val scalaSettings = scheme.getCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -27,4 +28,6 @@ final class LegacyCodeStyleSettingsComponent extends ApplicationInitializedListe
       }
     }
   }
+
+  override protected def doCleanup(): Unit = {}
 }

@@ -1672,22 +1672,21 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService$Startup"/>
-
-        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
-        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
-        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
-        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierActivity"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Activity"/>
 
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.externalHighlighters.HighlightCreatedEditorListener"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
+
+
     </extensions>
 
     <applicationListeners>
         <listener class="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
-        <listener topic="com.intellij.ide.AppLifecycleListener"
-                  class="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
@@ -1706,6 +1705,8 @@
                   class="org.jetbrains.plugins.scala.compiler.CompilerLockBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.DropProjectDataChangesBuildManagerListener"/>
+        <listener topic="com.intellij.ide.plugins.DynamicPluginListener"
+                  class="org.jetbrains.plugins.scala.components.RunOnceStartupActivity$"/>
         <!-- Formatter listeners-->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>

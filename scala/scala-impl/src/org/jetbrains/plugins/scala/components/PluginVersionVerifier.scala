@@ -3,17 +3,15 @@ package components
 
 import java.io.File
 
-import com.intellij.ide.ApplicationInitializedListener
 import com.intellij.ide.plugins._
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
 import com.intellij.openapi.application.{Application, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.extensions.{ExtensionPointName, PluginId}
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.PathUtil
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
 /**
@@ -75,8 +73,8 @@ object ScalaPluginVersionVerifier
   private[components] val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier")
 }
 
-class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener {
-  override def componentsInitialized(): Unit = {
+class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
+  override def doRunActivity(): Unit = {
     invokeLater {
       ScalaPluginUpdater.upgradeRepo()
       checkVersion()
@@ -85,6 +83,8 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
       ScalaPluginUpdater.setupReporter()
     }
   }
+
+  override protected def doCleanup(): Unit = {}
 
   private def checkVersion(): Unit = {
     import ScalaPluginVersionVerifier._

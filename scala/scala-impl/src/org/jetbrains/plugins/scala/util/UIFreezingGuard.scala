@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.util
 
 import java.awt.Event
 import java.awt.event.MouseEvent
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
 import com.intellij.concurrency.JobScheduler
 import com.intellij.diagnostic.PerformanceWatcher
-import com.intellij.ide.{ApplicationInitializedListener, IdeEventQueue}
+import com.intellij.ide.IdeEventQueue
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
 import com.intellij.openapi.progress._
+import org.jetbrains.plugins.scala.components.RunOnceStartupActivity
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard._
 
@@ -18,15 +19,19 @@ import scala.util.control.NoStackTrace
 /**
   * @author Nikolay.Tropin
   */
-class UIFreezingGuard extends ApplicationInitializedListener {
+class UIFreezingGuard extends RunOnceStartupActivity {
 
   private val periodMs = 10
+  private var periodicTask: ScheduledFuture[_] = _
 
-  override def componentsInitialized(): Unit = {
+  override def doRunActivity(): Unit = {
     if (pceEnabled) {
-      JobScheduler.getScheduler.scheduleWithFixedDelay(() => cancelOnUserInput(), periodMs, periodMs, TimeUnit.MILLISECONDS)
+      periodicTask =
+        JobScheduler.getScheduler.scheduleWithFixedDelay(() => cancelOnUserInput(), periodMs, periodMs, TimeUnit.MILLISECONDS)
     }
   }
+
+  override protected def doCleanup(): Unit = periodicTask.cancel(false)
 
   private def cancelOnUserInput(): Unit = {
     val timestamp = progress.timestamp
