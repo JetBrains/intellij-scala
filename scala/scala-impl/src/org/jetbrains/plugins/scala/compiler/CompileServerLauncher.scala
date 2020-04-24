@@ -80,7 +80,7 @@ object CompileServerLauncher {
   private def sendDummyRequest(project: Project): Try[Unit] =
     Try {
       new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, null)
-    }.recoverWith { case _: Exception if isUnitTestMode =>
+    }.recoverWith { case _: Exception if isUnitTestMode && waitUntilDebuggerAttached =>
       LOG.traceSafe("waiting for compile server initialization...")
       sendDummyRequest(project)
     }
