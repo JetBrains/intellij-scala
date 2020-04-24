@@ -45,7 +45,6 @@
                     factoryClass="org.jetbrains.bsp.BspToolWindowFactory" />
 
         <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
-        <applicationInitializedListener implementation="org.jetbrains.bsp.BspStartupRoutine"/>
         <postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>
 
         <configurationType implementation="org.jetbrains.bsp.project.test.BspTestRunType"/>
@@ -54,7 +53,11 @@
 
         <java.programPatcher implementation="org.jetbrains.bsp.project.test.environment.BspJvmEnvironmentProgramPatcher"/>
         <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskProvider"/>
+
         <moduleService serviceImplementation="org.jetbrains.bsp.project.test.environment.PersistentBspTargetIdHolder"/>
+
+        <registryKey key="BSP.system.in.process" defaultValue="true" restartRequired="true"
+                     description="Internal, do not change"/>
     </extensions>
 
     <projectListeners>

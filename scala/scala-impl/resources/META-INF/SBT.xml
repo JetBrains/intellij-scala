@@ -3,7 +3,6 @@
 <idea-plugin>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationInitializedListener implementation="org.jetbrains.sbt.settings.StartupRoutine"/>
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
         <lang.fileViewProviderFactory language="sbt"
                                       implementationClass="org.jetbrains.sbt.language.SbtFileViewProviderFactory"/>
@@ -101,6 +100,8 @@
 
         <runAnything.executionProvider implementation="org.jetbrains.sbt.SbtRunAnythingProvider"/>
 
+        <registryKey key="SBT.system.in.process" defaultValue="true" restartRequired="true"
+                     description="Internal, do not change"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
