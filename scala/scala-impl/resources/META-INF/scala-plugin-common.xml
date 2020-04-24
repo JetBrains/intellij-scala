@@ -1677,7 +1677,8 @@
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Listener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
-        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.externalHighlighters.RegisterApplicationListeners"/>
+
+        <editorFactoryListener implementation="org.jetbrains.plugins.scala.externalHighlighters.HighlightCreatedEditorListener"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
     </extensions>
