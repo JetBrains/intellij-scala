@@ -40,7 +40,7 @@ final private[findUsages] class ScalaCompilerReferenceService(project: Project) 
 
   private[this] val dirtyScopeHolder = new ScalaDirtyScopeHolder(
     project,
-    LanguageCompilerRefAdapter.INSTANCES.flatMap(_.getFileTypes.asScala),
+    LanguageCompilerRefAdapter.EP_NAME.getExtensions.flatMap(_.getFileTypes.asScala),
     projectFileIndex,
     FileDocumentManager.getInstance(),
     PsiDocumentManager.getInstance(project),
