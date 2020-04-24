@@ -43,8 +43,8 @@ public class ScalaCompileServerForm implements Configurable {
         public static String USE_COMPILE_SERVER_FOR_SCALA = "use scala compile server";
     }
 
-    public ScalaCompileServerForm(ScalaCompileServerSettings settings) {
-        mySettings = settings;
+    public ScalaCompileServerForm() {
+        mySettings = ScalaCompileServerSettings.getInstance();
 
         myEnableCompileServer.addChangeListener(e -> updateCompilationServerSettingsPanel());
 
@@ -59,7 +59,7 @@ public class ScalaCompileServerForm implements Configurable {
         myNote.setForeground(JBColor.GRAY);
         myProjectHomeNote.setForeground(JBColor.GRAY);
 
-        myShutdownDelay.setModel(new SpinnerNumberModel(settings.COMPILE_SERVER_SHUTDOWN_DELAY, 0, 24 * 60, 1));
+        myShutdownDelay.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_SHUTDOWN_DELAY, 0, 24 * 60, 1));
 
         updateCompilationServerSettingsPanel();
     }

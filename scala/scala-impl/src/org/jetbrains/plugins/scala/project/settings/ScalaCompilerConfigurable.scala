@@ -10,11 +10,13 @@ import com.intellij.openapi.project.Project
 import javax.swing.JPanel
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerConfiguration)
+class ScalaCompilerConfigurable(project: Project)
   extends AbstractConfigurable(ScalaCompilerConfigurable.Name)
     with Composite {
 
   private val form = new ScalaCompilerConfigurationPanel(project)
+
+  private def configuration = ScalaCompilerConfiguration.instanceIn(project)
   
   private val profilesPanel: ScalaCompilerProfilesPanel = form.getProfilesPanel
 
