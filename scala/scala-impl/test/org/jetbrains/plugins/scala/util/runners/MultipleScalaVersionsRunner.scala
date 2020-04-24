@@ -39,6 +39,9 @@ private object MultipleScalaVersionsRunner {
   private val DefaultJdkVersionToRun: TestJdkVersion =
     TestJdkVersion.from(InjectableJdk.DefaultJdk)
 
+  // flag to be able to run tests for different JDKs independently
+  private def filterJdkVersionRegistry = Option(System.getProperty("filter.test.jdk.version")).map(TestJdkVersion.valueOf)
+
   private case class ScalaVersionTestSuite(name: String) extends TestSuite(name) {
     def this() = this(null: String)
     def this(version: ScalaVersion) = this(sanitize(s"(scala ${version.minor})"))
@@ -64,10 +67,12 @@ private object MultipleScalaVersionsRunner {
     val filterAnnotation = findAnnotation(klass, classOf[RunWithScalaVersionsFilter])
     def filterScalaVersion(version: TestScalaVersion): Boolean =
       filterAnnotation.forall(_.value.contains(version))
+    def filterJdkVersion(version: TestJdkVersion): Boolean =
+      filterJdkVersionRegistry.forall(_ == version)
 
     val allTestCases: Seq[(TestCase, ScalaVersion, JdkVersion)] = {
       val collected = new ScalaVersionAwareTestsCollector(klass, classScalaVersions, classJdkVersions).collectTests()
-      collected.collect { case (test, sv, jv) if filterScalaVersion(sv) =>
+      collected.collect { case (test, sv, jv) if filterScalaVersion(sv) && filterJdkVersion(jv) =>
         (test, sv.toProductionVersion, jv.toProductionVersion)
       }
     }

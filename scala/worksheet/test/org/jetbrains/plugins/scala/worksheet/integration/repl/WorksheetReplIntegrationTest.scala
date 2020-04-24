@@ -22,7 +22,6 @@ import org.junit.experimental.categories.Category
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
-@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8))
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
