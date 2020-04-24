@@ -15,7 +15,7 @@
   </extensions>
     
   <extensions defaultExtensionNs="org.intellij.scala">
-      <scalaUiWithDependency implementation="org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings"/>
+      <dependencyAwareInjectionSettings implementation="org.jetbrains.plugins.scala.settings.uiControls.IntelliLangInjectionSettings"/>
   </extensions>
 
 </idea-plugin>
