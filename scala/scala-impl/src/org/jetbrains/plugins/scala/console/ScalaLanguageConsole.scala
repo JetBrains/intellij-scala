@@ -103,7 +103,7 @@ class ScalaLanguageConsole(module: Module)
   private def updateTempResultValueDefinitions(output: String, contentType: ConsoleViewContentType): Unit =
     if (contentType == ConsoleViewContentType.NORMAL_OUTPUT) {
       output match {
-        case tempValRegex(resWithType) =>
+        case tempValRegex(_, resWithType) =>
           //adding dummy declaration just to make res values visible in completion list, real value is known by underlying REPL
           ApplicationManager.getApplication.invokeLater { () =>
             processDeclarations(s"""val $resWithType = null""")
@@ -203,8 +203,9 @@ private object ScalaLanguageConsole {
   private val ScalaPromptInputInProgressText        = "     |"
   private val ScalaPromptInputInProgressTextTrimmed = ScalaPromptInputInProgressText.trim
 
-  //example: res5: Long = 42
-  private val tempValRegex = """^(res\d+: .*?)=.*\n?""".r
+  //example 1: res5: Long = 42
+  //example 2: val res5: Long = 42
+  private val tempValRegex = """(val )?(res\d+: .*?)=.*\n?""".r
 
   private val WelcomeTextContentType: ConsoleViewContentType = {
     val attributes = new TextAttributes()
