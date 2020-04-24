@@ -364,8 +364,8 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |object Main {
-         |  val foo: Foo = Bar()
-         |  foo.f$CARET
+         |  val bar = Foo.Bar()
+         |  bar.f$CARET
          |}
          |""".stripMargin,
     resultText =
@@ -379,8 +379,8 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |object Main {
-         |  val foo: Foo = Bar()
-         |  Foo.foo(foo)$CARET
+         |  val bar = Foo.Bar()
+         |  Foo.foo(bar)$CARET
          |}
          |""".stripMargin,
     item = "foo"

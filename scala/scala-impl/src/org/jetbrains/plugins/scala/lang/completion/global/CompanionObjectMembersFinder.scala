@@ -4,9 +4,9 @@ package completion
 package global
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -15,19 +15,21 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private[completion] sealed abstract class CompanionObjectMembersFinder(private val place: ScalaPsiElement)
-                                                                      (private val namePredicate: NamePredicate)
+private[completion] sealed abstract class CompanionObjectMembersFinder[E <: PsiElement](private val place: E)
+                                                                                       (private val namePredicate: NamePredicate)
   extends GlobalMembersFinder {
 
   // todo import, class scope import setting reconsider
 
   override protected final def candidates: Iterable[GlobalMemberResult] = for {
-    ClassOrTrait(CompanionModule(targetObject)) <- place.withContexts.toIterable
+    ClassOrTrait(CompanionModule(targetObject)) <- findTargets(place)
 
     member <- functions(targetObject) ++ members(targetObject)
 
     if namePredicate(member.name)
   } yield createResult(member, targetObject)
+
+  protected def findTargets(place: E): Iterable[PsiElement]
 
   protected def functions(`object`: ScObject): Seq[ScFunction] =
     `object`.functions
@@ -71,6 +73,9 @@ private[completion] object CompanionObjectMembersFinder {
                              (namePredicate: NamePredicate)
     extends CompanionObjectMembersFinder(place)(namePredicate) {
 
+    override protected def findTargets(place: ScReferenceExpression): Iterable[PsiElement] =
+      place.withContexts.toIterable
+
     override protected def createResult(member: ScTypedDefinition,
                                         `object`: ScObject): CompanionObjectMemberResult =
       new CompanionObjectMemberResult(member, `object`) {}
@@ -86,6 +91,9 @@ private[completion] object CompanionObjectMembersFinder {
                                     classOrTrait: ScConstructorOwner)
                                    (namePredicate: NamePredicate)
     extends CompanionObjectMembersFinder(classOrTrait)(namePredicate) {
+
+    override protected def findTargets(place: ScConstructorOwner): Iterable[PsiClass] =
+      place +: place.supers
 
     override protected def functions(`object`: ScObject): Seq[ScFunction] = for {
       function <- super.functions(`object`)
