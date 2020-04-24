@@ -1,4 +1,0 @@
--Xmx765m
--XX:+CMSClassUnloadingEnabled
--XX:ReservedCodeCacheSize=128m
--Dfile.encoding=UTF8
