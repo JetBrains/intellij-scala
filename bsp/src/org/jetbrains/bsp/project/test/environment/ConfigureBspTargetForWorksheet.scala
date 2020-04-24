@@ -35,4 +35,16 @@ class ConfigureBspTargetForWorksheet extends AnAction with TopComponentAction {
   private def findModule(file: PsiFile): Module = {
     WorksheetFileSettings(file).getModuleFor
   }
+
+  override def updateInner(e: AnActionEvent): Unit = {
+    Option(e).flatMap(e => Option(e.getProject)).foreach { project =>
+      if (BspUtil.isBspProject(project)) {
+        setVisible(true)
+        super.updateInner(e)
+      } else {
+        setVisible(false)
+      }
+    }
+  }
+
 }
