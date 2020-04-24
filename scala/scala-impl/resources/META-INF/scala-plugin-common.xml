@@ -1705,8 +1705,6 @@
                   class="org.jetbrains.plugins.scala.compiler.CompilerLockBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.DropProjectDataChangesBuildManagerListener"/>
-        <listener topic="com.intellij.ide.plugins.DynamicPluginListener"
-                  class="org.jetbrains.plugins.scala.components.RunOnceStartupActivity$"/>
         <!-- Formatter listeners-->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
