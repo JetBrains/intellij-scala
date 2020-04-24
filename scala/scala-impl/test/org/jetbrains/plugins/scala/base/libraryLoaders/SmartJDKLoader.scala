@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
 case class InternalJDKLoader() extends SmartJDKLoader() {
+  //noinspection ScalaDeprecation
   override protected def createSdkInstance(): Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
 }
 
@@ -47,10 +48,11 @@ abstract class SmartJDKLoader() extends LibraryLoader {
 object SmartJDKLoader {
 
   private val candidates = Seq(
-    "/usr/lib/jvm",                     // linux style
-    "C:\\Program Files\\Java\\",        // windows style
-    "C:\\Program Files (x86)\\Java\\",  // windows 32bit style
-    "/Library/Java/JavaVirtualMachines" // mac style
+    "/usr/lib/jvm",                      // linux style
+    "C:\\Program Files\\Java\\",         // windows style
+    "C:\\Program Files (x86)\\Java\\",   // windows 32bit style
+    "/Library/Java/JavaVirtualMachines", // mac style
+    System.getProperty("user.home") + "/.jabba/jdk" // jabba (for github actions)
   )
 
   def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_11): Sdk = {
@@ -68,57 +70,62 @@ object SmartJDKLoader {
     }
   }
 
-  private def discoverJDK(jdkVersion: JavaSdkVersion): Option[String] = discoverJre(candidates, jdkVersion).map(new File(_).getParent)
+  private def discoverJDK(jdkVersion: JavaSdkVersion): Option[String] =
+    discoverJre(candidates, jdkVersion).map(_.getParent)
 
-  private def discoverJre(paths: Seq[String], jdkVersion: JavaSdkVersion): Option[String] = {
-    import java.io._
+  private def discoverJre(paths: Seq[String], jdkVersion: JavaSdkVersion): Option[File] = {
+    val versionMajor = jdkVersion.ordinal().toString
+    val versionStrings = Seq(s"1.$versionMajor", s"-$versionMajor")
+    val fromEnv64 = sys.env.get(s"${jdkVersion}_x64") // teamcity style
+    val fromEnv = sys.env.get(jdkVersion.toString)
+    val priorityPaths = Seq(
+      currentJava(versionMajor),
+      fromEnv64.orElse(fromEnv).map(new File(_,"jre"))
+    ).flatten
 
-    val versionMajor = jdkVersion.toString.last.toString
+    priorityPaths.headOption
+      .orElse {
+        val fullSearchPaths = paths.flatMap { p => versionStrings.map((p, _)) }
+        val validPaths = fullSearchPaths.flatMap { case (path,ver) => inJvm(path,ver) }
+        validPaths.headOption
+      }
+  }
 
-    def isJDK(f: File) = f.listFiles().exists { b =>
-      b.getName == "bin" && b.listFiles().exists(x => x.getName == "javac.exe" || x.getName == "javac")
+  private def findJDK(dir: File) = {
+    val macDir = new File(dir, "/Contents/Home") // mac workaround
+    val candidates = List(macDir, dir)
+    candidates
+      .filter(_.isDirectory)
+      .find { _
+        .listFiles()
+        .exists { b =>
+          b.getName == "bin" &&
+            b.listFiles().exists(x => x.getName == "javac.exe" || x.getName == "javac")
+        }
     }
-    def inJvm(path: String, suffix: String) = {
-      val postfix = if (path.startsWith("/Library")) "/Contents/Home" else ""  // mac workaround
-      Option(new File(path))
-        .filter(_.exists())
-        .flatMap(_.listFiles()
+  }
+
+  private def inJvm(path: String, suffix: String) = {
+    val checkDir = Option(new File(path)).filter(_.exists())
+
+    checkDir
+      .toList
+      .flatMap { dir =>
+        dir
+          .listFiles()
           .sortBy(_.getName) // TODO somehow sort by release number to get the newest actually
           .reverse
-          .find(f => f.getName.contains(suffix) && isJDK(new File(f, postfix)))
-          .map(new File(_, s"$postfix/jre").getAbsolutePath)
-        )
-    }
-    def currentJava() = {
-      sys.props.get("java.version") match {
-        case Some(v) if v.startsWith(s"1.$versionMajor") =>
-          sys.props.get("java.home") match {
-            case Some(path) if isJDK(new File(path).getParentFile) =>
-              Some(path)
-            case _ => None
-          }
-        case _ => None
-      }
-    }
-    val versionStrings = Seq(s"1.$versionMajor", s"-$versionMajor")
-    val priorityPaths = Seq(
-      currentJava(),
-      Option(sys.env.getOrElse(s"JDK_1${versionMajor}_x64",
-        sys.env.getOrElse(s"JDK_1$versionMajor", null))
-      ).map(_+"/jre")  // teamcity style
-    )
-    if (priorityPaths.exists(_.isDefined)) {
-      priorityPaths.flatten.headOption
-    } else {
-      val fullSearchPaths = paths flatMap { p => versionStrings.map((p, _)) }
-      for ((path, ver) <- fullSearchPaths) {
-        inJvm(path, ver) match {
-          case x@Some(p) => return x
-          case _ => None
+          .filter(_.getName.contains(suffix))
+          .flatMap(findJDK)
+          .map(new File(_, "jre"))
         }
-      }
-      None
-    }
+  }
+
+  private def currentJava(versionMajor: String) = {
+    sys.props.get("java.version")
+      .filter(_.startsWith(s"1.$versionMajor"))
+      .flatMap(_ => sys.props.get("java.home"))
+      .flatMap(d => findJDK(new File(d).getParentFile))
   }
 }
 
