@@ -5,20 +5,15 @@ import java.io._
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
-import com.intellij.compiler.CompilerMessageImpl
-import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory, CompilerPaths}
+import com.intellij.openapi.compiler.{CompilerMessage, CompilerPaths}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.jps.incremental.messages.BuildMessage
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.Client.PosInfo
+import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
-import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
 import org.jetbrains.plugins.scala.compiler.{CompilationProcess, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
@@ -27,7 +22,6 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
@@ -186,70 +180,6 @@ object RemoteServerConnector {
     final case object CantInitializeProcessError extends UnhandledError
     final case class ExpectedError(cause: Throwable) extends UnhandledError
     final case class UnexpectedError(cause: Throwable) extends UnhandledError
-  }
-
-  private class MyTranslatingClient(project: Project, worksheet: VirtualFile, consumer: CompilerInterface) extends DummyClient {
-    private val endMarker = WorksheetDefaultSourcePreprocessor.ServiceMarkers.END_GENERATED_MARKER
-
-    override def progress(text: String, done: Option[Float]): Unit =
-      consumer.progress(text, done)
-
-    override def trace(exception: Throwable): Unit =
-      consumer.trace(exception)
-
-    override def internalDebug(text: String): Unit =
-      Log.debug(text)
-
-    override def message(msg: Client.ClientMsg): Unit = {
-      val Client.ClientMsg(kind, text, source, PosInfo(line, column, _), _) = msg
-      val lines = (if (text == null) "" else text).split("\n")
-      val linesLength = lines.length
-
-      val differ = if (linesLength > 2) {
-        val endLineIdx = lines(linesLength - 2).indexOf(endMarker)
-        if (endLineIdx != -1) {
-          endLineIdx + endMarker.length
-        } else 0
-      } else 0
-
-      val finalText = if (differ == 0) text else {
-        val buffer = new StringBuilder
-
-        for (j <- 0 until (linesLength - 2)) {
-          buffer.append(lines(j)).append("\n")
-        }
-
-        val lines1 = lines(linesLength - 1)
-
-        buffer
-          .append(lines(linesLength - 2).substring(differ)).append("\n")
-          .append(if (lines1.length > differ) lines1.substring(differ) else lines1).append("\n")
-
-        buffer.toString()
-      }
-
-      // TODO: current line & column calculation are broken
-      val line1 = line.map(i => i - 4).map(_.toInt).getOrElse(-1)
-      val column1 = column.map(_ - differ).map(_.toInt).getOrElse(-1)
-
-      val category = toCompilerMessageCategory(kind)
-
-      val message = new CompilerMessageImpl(project, category, finalText, worksheet, line1, column1, null)
-      consumer.message(message)
-    }
-
-    private def toCompilerMessageCategory(kind: Kind): CompilerMessageCategory = {
-      import BuildMessage.Kind._
-      kind match {
-        case INFO | JPS_INFO | OTHER        => CompilerMessageCategory.INFORMATION
-        case ERROR | INTERNAL_BUILDER_ERROR => CompilerMessageCategory.ERROR
-        case PROGRESS                       => CompilerMessageCategory.STATISTICS
-        case WARNING                        => CompilerMessageCategory.WARNING
-      }
-    }
-
-    override def worksheetOutput(text: String): Unit =
-      consumer.worksheetOutput(text)
   }
 
   // Worksheet Integration Tests rely on that this is the main entry point for all compiler messages

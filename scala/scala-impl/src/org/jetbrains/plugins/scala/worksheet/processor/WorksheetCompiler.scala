@@ -37,7 +37,8 @@ import scala.util.control.NonFatal
 import scala.util.{Success, Try}
 
 //noinspection ScalaWrongPlatformMethodsUsage
-// TODO: rename/refactor, the class has more responsibilities then to "Compile"
+// TODO 1: rename/refactor, the class has more responsibilities then to "Compile"
+// TODO 2: forbid plugin unloading if some worksheet is running using: DynamicPluginListener.checkUnloadPlugin
 //private[worksheet]
 class WorksheetCompiler(
   module: Module,
