@@ -5,12 +5,11 @@ package formatting
 import java.util
 
 import com.intellij.formatting._
-import com.intellij.lang.{ASTNode, FileASTNode}
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
-import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang3.StringUtils
@@ -69,23 +68,19 @@ object getDummyBlocks {
 
   // keeps info for interpolated multiline string literal:
   // (opening quotes alignment, margin char alignment)
-  private def alignmentsMap(project: Project): mutable.Map[InterpolatedPointer, (Alignment, Alignment)] = {
+  private def alignmentsMap(project: Project): mutable.Map[InterpolatedPointer, (Alignment, Alignment)] =
     project.getOrUpdateUserData(alignmentsMapKey, mutable.Map[InterpolatedPointer, (Alignment, Alignment)]())
-  }
 
-  private def cachedAlignment(literal: ScInterpolatedStringLiteral): Option[(Alignment, Alignment)] = {
+  private def cachedAlignment(literal: ScInterpolatedStringLiteral): Option[(Alignment, Alignment)] =
     alignmentsMap(literal.getProject).collectFirst {
       case (pointer, alignment) if pointer.getElement == literal => alignment
     }
-  }
 
-  private def multiLevelAlignmentMap(project: Project): mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]] = {
+  private def multiLevelAlignmentMap(project: Project): mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]] =
     project.getOrUpdateUserData(multiLevelAlignmentKey, mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]]())
-  }
 
-  private def isCorrectBlock(node: ASTNode): Boolean = {
+  private def isCorrectBlock(node: ASTNode): Boolean =
     StringUtils.isNotBlank(node.getChars)
-  }
 
   private class StringLineScalaBlock(myTextRange: TextRange, mainNode: ASTNode, myParentBlock: ScalaBlock,
                                      myAlignment: Alignment, myIndent: Indent, myWrap: Wrap, mySettings: CodeStyleSettings)
@@ -117,13 +112,12 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
   // TODO: there are quite many unnecessary array allocations and copies, consider passing
   //  mutable buffer/list to submethods, and measure the performance!
-  def apply(firstNode: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
+  def apply(firstNode: ASTNode, lastNode: ASTNode): util.ArrayList[Block] =
     if (lastNode != null) {
       applyInner(firstNode, lastNode)
     } else {
       applyInner(firstNode)
     }
-  }
 
   private def applyInner(node: ASTNode): util.ArrayList[Block] = {
     val children = node.getChildren(null)
@@ -492,13 +486,11 @@ class getDummyBlocks(private val block: ScalaBlock) {
     var prevChild: ASTNode = null
     def addTail(tail: List[ASTNode]): Unit = {
       for (child <- tail) {
-        if (child.getElementType != kYIELD) {
-          if (prevChild != null && prevChild.getElementType == kYIELD) {
+        if (child.getElementType != kYIELD)
+          if (prevChild != null && prevChild.getElementType == kYIELD)
             subBlocks.add(subBlock(prevChild, child))
-          } else {
+          else
             subBlocks.add(subBlock(child, null))
-          }
-        }
         prevChild = child
       }
       if (prevChild != null && prevChild.getElementType == kYIELD) {
@@ -582,14 +574,13 @@ class getDummyBlocks(private val block: ScalaBlock) {
     subBlocks
   }
 
-  private def interpolatedRefLength(node: ASTNode): Int = {
+  private def interpolatedRefLength(node: ASTNode): Int =
     if (node.getElementType == tINTERPOLATED_MULTILINE_STRING) {
       node.getPsi.getParent match {
         case str: ScInterpolatedStringLiteral => str.referenceName.length
         case _ => 0
       }
     } else 0
-  }
 
   private def buildQuotesAndMarginAlignments: (Alignment, Alignment) = {
     val quotesAlignment = if (scalaSettings.MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES) Alignment.createAlignment() else null
@@ -906,15 +897,12 @@ class getDummyBlocks(private val block: ScalaBlock) {
     }
   }
 
-  private def flattenChildren(multilineNode: ASTNode, buffer: ArrayBuffer[ASTNode]): Unit = {
-    for (nodeChild <- multilineNode.getChildren(null)) {
-      if (nodeChild.textContains('\n') && nodeChild.getFirstChildNode != null) {
+  private def flattenChildren(multilineNode: ASTNode, buffer: ArrayBuffer[ASTNode]): Unit =
+    for (nodeChild <- multilineNode.getChildren(null))
+      if (nodeChild.textContains('\n') && nodeChild.getFirstChildNode != null)
         flattenChildren(nodeChild, buffer)
-      } else {
+      else
         buffer += nodeChild
-      }
-    }
-  }
 
   private def getTemplateParentsBlocks(node: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
