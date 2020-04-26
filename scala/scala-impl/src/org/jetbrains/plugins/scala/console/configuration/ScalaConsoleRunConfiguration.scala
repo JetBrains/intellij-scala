@@ -93,7 +93,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
       case None =>
     }
 
-    protected override def createJavaParameters: JavaParameters = {
+    override protected def createJavaParameters: JavaParameters = {
       val params = createParams
       params.getProgramParametersList.addParametersString(consoleArgs)
       params
@@ -127,13 +127,14 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     }
 
     new JavaParameters {
+      configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+
       getVMParametersList.addParametersString(javaOptions)
       getClassPath.addScalaClassPath(module)
       setShortenCommandLine(getShortenCommandLineMethod(Option(getJdk)), project)
       getClassPath.addRunners()
       setWorkingDirectory(workingDirectory)
       setMainClass(MainClass)
-      configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
     }
   }
 
