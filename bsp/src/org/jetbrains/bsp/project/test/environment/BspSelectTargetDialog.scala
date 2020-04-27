@@ -3,44 +3,54 @@ package org.jetbrains.bsp.project.test.environment
 import java.awt.{BorderLayout, Toolkit}
 import java.net.URI
 
+import ch.epfl.scala.bsp4j.BuildTargetIdentifier
 import com.intellij.CommonBundle
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ComboBox, DialogWrapper}
 import javax.swing.{JComponent, JPanel, SwingConstants}
 import org.jetbrains.bsp.BspBundle
 
-object  BspSelectTargetDialog {
-  def promptForBspTarget(project: Project, targetIds: Seq[URI], selected: Option[URI]): Option[URI] = {
-    var result: Option[URI] = None
+object BspSelectTargetDialog {
+  def promptForBspTarget(
+    project: Project,
+    targetIds: Seq[BuildTargetIdentifier],
+    selected: Option[BuildTargetIdentifier]
+  ): Option[BuildTargetIdentifier] = {
+    var result: Option[BuildTargetIdentifier] = None
     val dialog = new BspSelectTargetDialog(project, targetIds, selected)
-    if(dialog.showAndGet()) {
+    if (dialog.showAndGet()) {
       result = dialog.selectedItem
     }
     result
   }
 
-  implicit class QueryAsMap(uri: URI) {
-    implicit def getQueryAsMap: Map[String, Option[String]] = {
-      uri.getQuery.split("&")
-        .map(_.split("=", 2))
-        .map(item => item(0) -> item.lift(1)).toMap
-    }
+  private[environment] def visibleNames(targetIds: Seq[BuildTargetIdentifier]): Seq[String] = {
+    targetIds.map(visibleName)
   }
 
-  def visibleNames(targetIds: Seq[URI]): Seq[String] = targetIds.map(visibleName)
+  private def visibleName(id: BuildTargetIdentifier) = {
+    getQueryAsMap(new URI(id.getUri)).get("id").flatten.getOrElse(id.getUri)
+  }
 
-  private def visibleName(uri: URI) = {
-    uri.getQueryAsMap.get("id").flatten.getOrElse(uri.toString)
+  private def getQueryAsMap(uri: URI): Map[String, Option[String]] = {
+    uri.getQuery.split("&")
+      .map(_.split("=", 2))
+      .map(item => item(0) -> item.lift(1)).toMap
   }
 }
-class BspSelectTargetDialog(project: Project, targetIds: Seq[URI], selected: Option[URI]) extends DialogWrapper(project, true) {
+
+class BspSelectTargetDialog(
+  project: Project,
+  targetIds: Seq[BuildTargetIdentifier],
+  selected: Option[BuildTargetIdentifier]
+) extends DialogWrapper(project, true) {
   setTitle(BspBundle.message("bsp.task.choose.target.title"))
   setButtonsAlignment(SwingConstants.CENTER)
   setOKButtonText(CommonBundle.getOkButtonText)
   var combo: ComboBox[String] = new ComboBox[String]()
   init()
 
-  def selectedItem: Option[URI] = targetIds.lift(combo.getSelectedIndex)
+  def selectedItem: Option[BuildTargetIdentifier] = targetIds.lift(combo.getSelectedIndex)
 
   override def createCenterPanel(): JComponent = null
 

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.ui
 import java.awt.Dimension
 
 import javax.swing._
+import org.jetbrains.plugins.scala.compiler.WorksheetCompilerExtension
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.worksheet.actions.InteractiveStatusDisplay
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
@@ -17,6 +18,7 @@ final class WorksheetControlPanel extends JPanel {
   private val cleanAction = new CleanWorksheetAction()
   private val copyAction = new CopyWorksheetAction()
   private val settingsAction = new ShowWorksheetSettingsAction()
+  private val extraActions = WorksheetCompilerExtension.extraWorksheetActions()
 
   private var runEnabled = false
 
@@ -51,6 +53,9 @@ final class WorksheetControlPanel extends JPanel {
       addSplitter()
       settingsAction.init(panel)
       addSplitter()
+      extraActions.foreach { action =>
+        action.init(panel)
+      }
       panel.add(Box.createHorizontalGlue())
       addSplitter()
       statusDisplay.init(panel)

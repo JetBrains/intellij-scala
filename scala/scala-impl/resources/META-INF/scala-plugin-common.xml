@@ -22,6 +22,7 @@
         <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider"/>
         <extensionPoint name="worksheetExternalRunType" interface="org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType"/>
         <extensionPoint name="fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor"/>
+        <extensionPoint name="worksheetCompilerExtension" interface="org.jetbrains.plugins.scala.compiler.WorksheetCompilerExtension" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
