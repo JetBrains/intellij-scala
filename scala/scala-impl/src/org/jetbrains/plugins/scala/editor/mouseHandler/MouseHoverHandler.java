@@ -130,7 +130,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
         }
 
         if (myHint != null) {
-          HintManager.getInstance().hideAllHints();
+          myHint.hide();
           myHint = null;
           myMouseLocationOnHintActivation = null;
         }
