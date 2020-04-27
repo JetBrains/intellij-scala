@@ -4,6 +4,7 @@ package compiler
 import java.io.File
 
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.OrderEnumerator
 import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -92,7 +93,11 @@ abstract class RemoteServerConnectorBase(
   protected def settings: ScalaCompileServerSettings = ScalaCompileServerSettings.getInstance()
 
   private def assemblyClasspath() = {
-    WorksheetCompilerExtension.worksheetClasspath(module)
+    val extensionCp = WorksheetCompilerExtension.worksheetClasspath(module)
+    extensionCp.getOrElse {
+      val enumerator = OrderEnumerator.orderEntries(module).compileOnly()
+      enumerator.getClassesRoots.map(_.toFile).toSeq
+    }
   }
 
   protected def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings

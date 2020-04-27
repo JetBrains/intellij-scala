@@ -2,29 +2,29 @@ package org.jetbrains.plugins.scala.compiler
 
 import java.io.File
 
-import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.roots.OrderEnumerator
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.ExtensionPointDeclaration
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.TopComponentAction
 
+/**
+ * NOTE: do not use in external plugins, due `extraWorksheetActions` results
+ * are registered in Worksheet top panel UI, and effectively the EP is not dynamic
+ */
+@ApiStatus.Internal
 trait WorksheetCompilerExtension {
   def worksheetClasspath(module: Module): Option[Seq[File]]
   def extraWorksheetActions(): Seq[TopComponentAction]
 }
 
-object WorksheetCompilerExtension {
-  val EP_NAME: ExtensionPointName[WorksheetCompilerExtension] =
-    ExtensionPointName.create("org.intellij.scala.worksheetCompilerExtension")
+object WorksheetCompilerExtension
+  extends ExtensionPointDeclaration[WorksheetCompilerExtension](
+    "org.intellij.scala.worksheetCompilerExtension"
+  ) {
 
-  def worksheetClasspath(module: Module): Seq[File] =
-    EP_NAME.getExtensions.iterator.map(_.worksheetClasspath(module)).collectFirst {
-      case Some(cp) => cp
-    }.getOrElse {
-      OrderEnumerator.orderEntries(module).compileOnly().getClassesRoots.map(_.toFile).toSeq
-    }
+  def worksheetClasspath(module: Module): Option[Seq[File]] =
+    implementations.iterator.map(_.worksheetClasspath(module)).collectFirst { case Some(cp) => cp }
 
-  def extraWorksheetActions(): Seq[TopComponentAction] = {
-    EP_NAME.getExtensions.flatMap(_.extraWorksheetActions())
-  }
+  def extraWorksheetActions(): Seq[TopComponentAction] =
+    implementations.flatMap(_.extraWorksheetActions())
 }

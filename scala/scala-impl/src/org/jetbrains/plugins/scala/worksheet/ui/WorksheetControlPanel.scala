@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetControlPanel._
 
+// TODO: check if Scala Plugin is unloadable if there are some worksheets with initialized top panel UI
 final class WorksheetControlPanel extends JPanel {
 
   private val statusDisplay = new InteractiveStatusDisplay()
