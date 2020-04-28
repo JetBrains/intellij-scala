@@ -20,8 +20,6 @@ final class ScLiteralType private(val value: ScLiteral.Value[_],
 
   def wideType: ScType = value.wideType
 
-  def widen: ScType = if (allowWiden) wideType else this
-
   def blockWiden: ScLiteralType = if (allowWiden) ScLiteralType(value, allowWiden = false) else this
 
   override def equals(obj: Any): Boolean = obj match {
