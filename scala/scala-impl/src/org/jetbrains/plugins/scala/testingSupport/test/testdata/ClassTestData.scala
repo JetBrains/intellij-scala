@@ -6,7 +6,8 @@ import org.jdom.Element
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind, TestRunConfigurationForm}
+import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty

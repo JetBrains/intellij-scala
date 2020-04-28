@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.test
+package org.jetbrains.plugins.scala.testingSupport.test.ui
 
 import java.awt._
 import java.util
@@ -15,7 +15,7 @@ import com.intellij.openapi.ui.{ComboBox, ComponentWithBrowseButton, LabeledComp
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.{EditorTextField, EditorTextFieldWithBrowseButton, EnumComboBoxModel, IdeBorderFactory}
-import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+import com.intellij.uiDesigner.core.{GridConstraints, Spacer}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -23,14 +23,14 @@ import org.jetbrains.plugins.scala.extensions.IteratorExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TextWithMnemonic.Mnemonic
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm._
+import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{RegexpTestData, SingleTestData, TestConfigurationData}
+import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm.TextWithMnemonic.Mnemonic
+import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm.{PackageChooserActionListener, _}
 import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 
-// TODO: move to `ui` package
 //noinspection ConvertNullInitializerToUnderscore
 final class TestRunConfigurationForm(val myProject: Project) {
 
@@ -268,43 +268,6 @@ final class TestRunConfigurationForm(val myProject: Project) {
     myJrePathEditor.setAnchor(myModule.getLabel)
     myCommonScalaParameters.setAnchor(myModule.getLabel)
   }
-
-  private class GridUiBuilder(panel: JPanel, val columns: Int) {
-    private var _rowIdx = 0
-    def rowIdx: Int = _rowIdx
-    panel.setLayout(new GridLayoutManager(99, columns, JBUI.emptyInsets, -1, -1))
-
-    def append[T <: JComponent](component: T): T =
-      append(component, constraint(_rowIdx)(this))
-
-    def append[T <: JComponent](component: T, constraints: Any): T = {
-      panel.add(component, constraints)
-      _rowIdx += 1
-      component
-    }
-
-    def appendRow(row: JComponent*): Unit = {
-      assert(row.size <= columns)
-      row.zipWithIndex.foreach { case (component: Component, idx: Int) =>
-        val colSpan = if (idx == row.size - 1) columns - idx else 1
-        val c = constraint(_rowIdx, idx, colSpan)
-        panel.add(component, c)
-      }
-      _rowIdx += 1
-    }
-  }
-
-  private def constraint(row: Int)(implicit builder: GridUiBuilder): GridConstraints =
-    constraint(row, 0, builder.columns)
-
-  private def constraint(row: Int, col: Int, colSpan: Int): GridConstraints =
-    new GridConstraints(
-      row, col, 1, colSpan,
-      GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
-      GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW,
-      GridConstraints.SIZEPOLICY_FIXED,
-      null, null, null, 0, false
-    )
 
   private def labeledComponent[T <: JComponent](labelText: String, component: T): LabeledComponent[T] =
     labeledComponent(labelText, component, isMultilineContent = false)

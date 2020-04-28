@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.test
+package org.jetbrains.plugins.scala.testingSupport.test.ui
 
 import com.intellij.openapi.ui.VerticalFlowLayout
 import com.intellij.ui.table.JBTable

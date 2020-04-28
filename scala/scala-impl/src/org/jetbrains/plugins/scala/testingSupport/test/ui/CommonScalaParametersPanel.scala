@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.testingSupport.test
+package org.jetbrains.plugins.scala.testingSupport.test.ui
 
 import java.awt.BorderLayout
 import java.util
 
-import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExecutionBundle}
+import com.intellij.execution.ExecutionBundle
 import com.intellij.execution.ui.CommonProgramParametersPanel
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.ui.RawCommandLineEditor

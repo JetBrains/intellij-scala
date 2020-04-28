@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.test
+package org.jetbrains.plugins.scala.testingSupport.test.ui
 
 import com.intellij.codeInsight.TestFrameworks
 import com.intellij.execution.TestStateStorage
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestLocationsFinder.TestLocations
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestTestFramework, ScalaTestTestLocationsFinder}
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework
