@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import javax.swing.JComponent
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
@@ -18,13 +19,13 @@ import scala.concurrent.Promise
 
 class BuildToolWindowReporter(project: Project,
                               buildId: EventId,
-                              title: String,
+                              @Nls title: String,
                               viewManager: BuildViewManager,
                               cancelAction: AnAction)
   extends BuildReporter {
   import MessageEvent.Kind
 
-  def this(project: Project, buildId: EventId, title: String, cancelAction: AnAction) =
+  def this(project: Project, buildId: EventId, @Nls title: String, cancelAction: AnAction) =
     this(
       project, buildId, title,
       project.getService(classOf[BuildViewManager]),
