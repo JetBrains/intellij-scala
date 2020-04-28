@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, _}
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
@@ -217,6 +216,11 @@ package object types {
       }
 
       innerUpdate(scType, Set.empty)
+    }
+
+    def widen: ScType = scType match {
+      case lit: ScLiteralType if lit.allowWiden => lit.wideType
+      case other                                => other.tryExtractDesignatorSingleton
     }
 
     def extractDesignatorSingleton: Option[ScType] = scType match {
