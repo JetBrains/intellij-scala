@@ -3,12 +3,14 @@ package codeInspection
 package typeChecking
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.runner.RunWith
 
-/**
-  * Nikolay.Tropin
-  * 9/26/13
-  */
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13
+))
 abstract class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
@@ -560,5 +562,31 @@ class TestUnderscore extends ComparingUnrelatedTypesInspectionTest {
        |  List("").filter(_.getClass.equals(classOf[String]))
        |}
       """.stripMargin
+  )
+}
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_13
+))
+class TestLiteralTypes extends ComparingUnrelatedTypesInspectionTest {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Scala_2_13
+
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "3", "4")
+
+  def testLiteralTypes(): Unit = checkTextHasError(
+    s"""
+      |val a: 3 = 3
+      |val b: 4 = 4
+      |println(${START}a == b$END)
+      |""".stripMargin
+  )
+
+  def testLiteralTypesInInstanceOf(): Unit = checkTextHasError(
+    s"""
+       |val a: 3 = 3
+       |println(${START}a.isInstanceOf[4]$END)
+       |""".stripMargin
   )
 }
