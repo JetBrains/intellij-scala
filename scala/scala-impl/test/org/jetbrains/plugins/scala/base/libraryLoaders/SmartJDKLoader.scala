@@ -47,7 +47,7 @@ abstract class SmartJDKLoader() extends LibraryLoader {
 
 object SmartJDKLoader {
 
-  private val candidates = Seq(
+  private val jdkPaths = Seq(
     "/usr/lib/jvm",                      // linux style
     "C:\\Program Files\\Java\\",         // windows style
     "C:\\Program Files (x86)\\Java\\",   // windows 32bit style
@@ -61,7 +61,7 @@ object SmartJDKLoader {
 
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
     Option(jdkTable.findJdk(jdkName)).getOrElse {
-      val pathOption = SmartJDKLoader.discoverJDK(jdkVersion)
+      val pathOption = SmartJDKLoader.discoverJDK(jdkVersion).map(_.getAbsolutePath)
       Assert.assertTrue(s"Couldn't find $jdkVersion", pathOption.isDefined)
       VfsRootAccess.allowRootAccess(pathOption.get)
       val jdk = JavaSdk.getInstance.createJdk(jdkName, pathOption.get, false)
@@ -70,23 +70,20 @@ object SmartJDKLoader {
     }
   }
 
-  private def discoverJDK(jdkVersion: JavaSdkVersion): Option[String] =
-    discoverJre(candidates, jdkVersion).map(_.getParent)
+  private def discoverJDK(jdkVersion: JavaSdkVersion): Option[File] =
+    discoverJre(jdkPaths, jdkVersion)
 
   private def discoverJre(paths: Seq[String], jdkVersion: JavaSdkVersion): Option[File] = {
     val versionMajor = jdkVersion.ordinal().toString
     val versionStrings = Seq(s"1.$versionMajor", s"-$versionMajor")
     val fromEnv64 = sys.env.get(s"${jdkVersion}_x64") // teamcity style
     val fromEnv = sys.env.get(jdkVersion.toString)
-    val priorityPaths = Seq(
-      currentJava(versionMajor),
-      fromEnv64.orElse(fromEnv).map(new File(_,"jre"))
-    ).flatten
+    val priorityPaths = Seq(currentJava(versionMajor), fromEnv64.orElse(fromEnv).map(new File(_))).flatten
 
     priorityPaths.headOption
       .orElse {
         val fullSearchPaths = paths.flatMap { p => versionStrings.map((p, _)) }
-        val validPaths = fullSearchPaths.flatMap { case (path,ver) => inJvm(path,ver) }
+        val validPaths = fullSearchPaths.flatMap((inJvm _).tupled)
         validPaths.headOption
       }
   }
@@ -105,28 +102,23 @@ object SmartJDKLoader {
     }
   }
 
-  private def inJvm(path: String, suffix: String) = {
-    val checkDir = Option(new File(path)).filter(_.exists())
-
-    checkDir
-      .toList
+  private def inJvm(path: String, versionString: String): List[File] =
+    List(new File(path))
+      .filter(_.exists())
       .flatMap { dir =>
         dir
           .listFiles()
           .sortBy(_.getName) // TODO somehow sort by release number to get the newest actually
           .reverse
-          .filter(_.getName.contains(suffix))
+          .filter(_.getName.contains(versionString))
           .flatMap(findJDK)
-          .map(new File(_, "jre"))
         }
-  }
 
-  private def currentJava(versionMajor: String) = {
+  private def currentJava(versionMajor: String) =
     sys.props.get("java.version")
-      .filter(_.startsWith(s"1.$versionMajor"))
+      .filter(v => v.startsWith(s"1.$versionMajor") || v.startsWith(versionMajor))
       .flatMap(_ => sys.props.get("java.home"))
       .flatMap(d => findJDK(new File(d).getParentFile))
-  }
 }
 
 
