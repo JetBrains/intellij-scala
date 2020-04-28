@@ -102,13 +102,9 @@ final class TestRunConfigurationForm(val myProject: Project) {
     setSearchForTest(configurationData.getSearchTest)
 
     configurationData.getKind match {
-      case TestKind.TEST_NAME      =>
-        val singleData = configurationData.asInstanceOf[SingleTestData]
-        setTestName(singleData.getTestName)
-      case TestKind.REGEXP         =>
-        val regexpData = configurationData.asInstanceOf[RegexpTestData]
-        setRegexps(regexpData.getClassRegexps, regexpData.getTestRegexps)
-      case _ =>
+      case TestKind.TEST_NAME => setTestName(configurationData.asInstanceOf[SingleTestData].getTestName)
+      case TestKind.REGEXP    => setRegexps(configurationData.asInstanceOf[RegexpTestData].regexps)
+      case _                  =>
     }
 
     resetSbtOptionsFrom(configuration)
@@ -132,7 +128,6 @@ final class TestRunConfigurationForm(val myProject: Project) {
   def getModule: Module = myModuleSelector.getModule
   def getJrePath: String = myJrePathEditor.getJrePathOrName
 
-  @deprecated def getSelectedKind: TestKind = getTestKind
   def getTestKind: TestKind = myTestKind.getComponent.getSelectedItem.asInstanceOf[TestKind]
   def getTestClassPath: String = myClass.getComponent.getText
   def getTestName: String = myTestName.getComponent.getText
@@ -152,6 +147,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   private def setTestPackagePath(s: String): Unit = myPackage.getComponent.setText(s)
   private def setSearchForTest(searchTest: SearchForTest): Unit = mySearchForTest.getComponent.setSelectedItem(searchTest)
   private def setRegexps(classRegexps: Array[String], testRegexps: Array[String]): Unit = myRegex.getComponent.setRegexps(classRegexps, testRegexps)
+  private def setRegexps(regexps: (Array[String], Array[String])): Unit = setRegexps(regexps._1, regexps._2)
   private def setUseSbt(b: Boolean): Unit = myUseSbtCheckBox.setSelected(b)
   private def setUseUiWithSbt(b: Boolean): Unit = myUseUiWithSbt.setSelected(b)
   private def setShowProgressMessages(b: Boolean): Unit = myShowProgressMessagesCheckBox.setSelected(b)
@@ -159,7 +155,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   private object UiComponentsVisibility {
 
     def update(): Unit = {
-      val testKind = getSelectedKind
+      val testKind = getTestKind
       hideAll()
       testKind match {
         case TestKind.CLAZZ          => setClassVisible(true)

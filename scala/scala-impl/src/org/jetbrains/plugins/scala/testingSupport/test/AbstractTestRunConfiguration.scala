@@ -71,7 +71,7 @@ abstract class AbstractTestRunConfiguration(
   // TODO: move to TestRunConfigurationForm.applyTo
   def apply(form: TestRunConfigurationForm): Unit = {
     setModule(form.getModule)
-    setTestKind(form.getSelectedKind)
+    setTestKind(form.getTestKind)
     testConfigurationData = TestConfigurationData.createFromForm(form, this)
     testConfigurationData.initWorkingDir()
   }

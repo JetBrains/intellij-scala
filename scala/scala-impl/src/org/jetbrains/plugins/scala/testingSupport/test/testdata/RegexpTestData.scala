@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
-import java.{util => ju}
 import java.util.regex.{Pattern, PatternSyntaxException}
+import java.{util => ju}
 
-import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.psi.search.GlobalSearchScopesCore
 import com.intellij.psi.search.searches.AllClassesSearch
@@ -31,6 +30,7 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
   @BeanProperty var testsBuf: ju.Map[String, ju.Set[String]] = new ju.HashMap()
 
   protected[test] def zippedRegexps: Array[(String, String)] = classRegexps.zipAll(testRegexps, "", "")
+  def regexps: (Array[String], Array[String]) = (classRegexps, testRegexps)
 
   private def checkRegexps(compileException: (PatternSyntaxException, String) => RuntimeConfigurationException,
                            noPatternException: RuntimeConfigurationException): CheckResult = {
@@ -155,6 +155,7 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
 }
 
 object RegexpTestData {
+
   def apply(config: AbstractTestRunConfiguration, classRegexps: Array[String], testRegexps: Array[String]): RegexpTestData = {
     val res = new RegexpTestData(config)
     res.classRegexps = classRegexps

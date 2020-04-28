@@ -151,7 +151,7 @@ object TestConfigurationData {
   }
 
   def createFromForm(form: TestRunConfigurationForm, configuration: AbstractTestRunConfiguration): TestConfigurationData = {
-    val testData = create(form.getSelectedKind, configuration)
+    val testData = create(form.getTestKind, configuration)
     testData.apply(form)
     testData
   }
