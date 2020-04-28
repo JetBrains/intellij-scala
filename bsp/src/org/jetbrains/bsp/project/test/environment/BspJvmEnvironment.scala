@@ -4,44 +4,26 @@ import java.net.URI
 import java.nio.file.Paths
 import java.util.concurrent.CompletableFuture
 
-import ch.epfl.scala.bsp4j.BuildServerCapabilities
-import ch.epfl.scala.bsp4j.BuildTargetIdentifier
-import ch.epfl.scala.bsp4j.JvmEnvironmentItem
-import ch.epfl.scala.bsp4j.JvmRunEnvironmentParams
-import ch.epfl.scala.bsp4j.JvmRunEnvironmentResult
-import ch.epfl.scala.bsp4j.JvmTestEnvironmentParams
-import ch.epfl.scala.bsp4j.JvmTestEnvironmentResult
-import ch.epfl.scala.bsp4j.SourceItem
-import ch.epfl.scala.bsp4j.SourcesItem
-import ch.epfl.scala.bsp4j.SourcesParams
-import ch.epfl.scala.bsp4j.SourcesResult
-import com.intellij.execution.configurations.ModuleBasedConfiguration
-import com.intellij.execution.configurations.RunConfiguration
-import com.intellij.openapi.application.ApplicationManager
+import ch.epfl.scala.bsp4j._
+import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiFile}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.BspMetadata
-import org.jetbrains.bsp.protocol.BspCommunication
-import org.jetbrains.bsp.protocol.BspJob
-import org.jetbrains.bsp.protocol.session.BspSession.BspServer
-import org.jetbrains.bsp.protocol.session.BspSession.BspSessionTask
-import org.jetbrains.plugins.scala.build.BuildMessages
-import org.jetbrains.plugins.scala.build.BuildToolWindowReporter
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
+import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
-import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
+import org.jetbrains.plugins.scala.extensions.{inReadAction, invokeAndWait}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Promise
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 object BspJvmEnvironment {
 
@@ -168,7 +150,7 @@ object BspJvmEnvironment {
     environmentType: ExecutionEnvironmentType
   ): Result[JvmEnvironment] = {
     bspRequest(
-      workspace, project, "bsp.task.fetching.jvm.test.environment",
+      workspace, project, BspBundle.message("bsp.task.fetching.jvm.test.environment"),
       createJvmEnvironmentRequest(List(target), environmentType)
     ).flatMap {
       case Left(value) => Failure(value)
@@ -221,7 +203,7 @@ object BspJvmEnvironment {
     project: Project
   ): Try[Seq[SourcesItem]] = {
     bspRequest(
-      workspace, project, "bsp.task.fetching.sources",
+      workspace, project, BspBundle.message("bsp.task.fetching.sources"),
       createSourcesRequest(potentialTargets)
     ).map(sources => sources.getItems.asScala.toList)
   }
@@ -232,12 +214,15 @@ object BspJvmEnvironment {
     server.buildTargetSources(new SourcesParams(targets.asJava))
   }
 
-  private def bspRequest[A](workspace: URI, project: Project, messageKey: String, task: BspSessionTask[A]): Try[A] = {
+  private def bspRequest[A](workspace: URI,
+                            project: Project,
+                            @Nls reporterTitle: String,
+                            task: BspSessionTask[A]): Try[A] = {
     val communication = BspCommunication.forWorkspace(workspace.toFile)
     val bspTaskId = BuildMessages.randomEventId
     val cancelAction = new CancelBuildAction(Promise[Unit]())
     implicit val reporter: BuildToolWindowReporter =
-      new BuildToolWindowReporter(project, bspTaskId, BspBundle.message(messageKey), cancelAction)
+      new BuildToolWindowReporter(project, bspTaskId, reporterTitle, cancelAction)
     val job = communication.run(
       bspSessionTask = task,
       notifications = _ => (),
