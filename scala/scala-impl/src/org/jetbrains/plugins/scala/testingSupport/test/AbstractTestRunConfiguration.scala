@@ -184,7 +184,7 @@ abstract class AbstractTestRunConfiguration(
 
   protected def runnerInfo: TestFrameworkRunnerInfo
 
-  protected def sbtSupport: SbtTestRunningSupport
+  def sbtSupport: SbtTestRunningSupport
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     val module = getModule

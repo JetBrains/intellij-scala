@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test
 import com.intellij.openapi.ui.VerticalFlowLayout
 import com.intellij.ui.table.JBTable
 import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ToolbarDecorator}
-import javax.swing.{JPanel, JRootPane}
+import javax.swing.JPanel
 import javax.swing.table.DefaultTableModel
 import org.jetbrains.plugins.scala.ScalaBundle
 
@@ -77,9 +77,10 @@ final class RegexpPanel extends JPanel {
     rows.foreach(model.addRow)
   }
 
-  protected def getRegexpTableColumn(column: Int): Array[String] = {
+  def getRegexps: (Array[String], Array[String]) = {
     val model = regexpTable.getModel.asInstanceOf[DefaultTableModel]
-    val columnValues = Array.tabulate(model.getRowCount)(model.getValueAt(_, column))
-    columnValues.map(_.toString)
+    val column1 = Array.tabulate(model.getRowCount)(model.getValueAt(_, 0)).map(_.toString)
+    val column2 = Array.tabulate(model.getRowCount)(model.getValueAt(_, 1)).map(_.toString)
+    (column1, column2)
   }
 }

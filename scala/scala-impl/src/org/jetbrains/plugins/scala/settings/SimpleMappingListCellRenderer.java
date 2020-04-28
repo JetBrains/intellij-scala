@@ -30,4 +30,13 @@ public final class SimpleMappingListCellRenderer<T extends Enum<T>> extends Simp
         }
         return new SimpleMappingListCellRenderer<>(mapping);
     }
+
+    @SafeVarargs
+    public static <T extends Enum<T>> SimpleMappingListCellRenderer<T> create(scala.Tuple2<T, String>... pairs) {
+        HashMap<T, String> mapping = new HashMap<>();
+        for (scala.Tuple2<T, String> pair : pairs) {
+            mapping.put(pair._1, pair._2);
+        }
+        return new SimpleMappingListCellRenderer<>(mapping);
+    }
 }

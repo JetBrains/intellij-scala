@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.testingSupport.test
 import java.awt.BorderLayout
 import java.util
 
-import com.intellij.execution.ExecutionBundle
+import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExecutionBundle}
 import com.intellij.execution.ui.CommonProgramParametersPanel
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.ui.RawCommandLineEditor
 import com.intellij.util.ui.UIUtil
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
 
 /** based on [[com.intellij.execution.ui.CommonJavaParametersPanel]] */
 class CommonScalaParametersPanel extends CommonProgramParametersPanel {
@@ -25,6 +26,12 @@ class CommonScalaParametersPanel extends CommonProgramParametersPanel {
   override protected def setupAnchor(): Unit = {
     super.setupAnchor()
     myAnchor = UIUtil.mergeComponentsWithAnchor(this, myVMParametersComponent)
+  }
+
+
+  def reset(configurationData: TestConfigurationData): Unit = {
+    super.reset(configurationData)
+    myVMParametersComponent.getComponent.setText(configurationData.javaOptions)
   }
 
   /**

@@ -39,7 +39,7 @@ class Specs2RunConfiguration(
     classOf[org.jetbrains.plugins.scala.testingSupport.specs2.Specs2Runner].getName
   )
 
-  override protected val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
+  override val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
 
     override def allowsSbtUiRun: Boolean = false //TODO temporarily disabled: SCL-11640, SCL-11638
 

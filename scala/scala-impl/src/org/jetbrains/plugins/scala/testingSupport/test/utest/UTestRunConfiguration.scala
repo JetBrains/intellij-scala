@@ -35,7 +35,7 @@ class UTestRunConfiguration(
     classOf[org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner].getName
   )
 
-  override protected val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
+  override val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
     override def commandsBuilder: SbtCommandsBuilder = new SbtCommandsBuilderBase {
       override def classKey: Option[String] = Some("--")
       override def testNameKey: Option[String] = None

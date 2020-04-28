@@ -128,8 +128,9 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
 
   override def apply(form: TestRunConfigurationForm): Unit = {
     super.apply(form)
-    classRegexps = form.getClassRegexps
-    testRegexps = form.getTestRegexps
+    val regexps = form.getRegexps
+    classRegexps = regexps._1
+    testRegexps = regexps._2
   }
 
   override protected def apply(data: RegexpTestData): Unit = {

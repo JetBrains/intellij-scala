@@ -41,7 +41,7 @@ class ScalaTestRunConfiguration(
     classOf[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner].getName
   )
 
-  override protected val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
+  override val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
 
     override def allowsSbtUiRun: Boolean = true
 
