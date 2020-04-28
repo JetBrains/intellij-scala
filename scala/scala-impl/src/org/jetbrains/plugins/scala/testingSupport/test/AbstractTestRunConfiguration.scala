@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.TestFrameworkRunnerInfo
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration._
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.SbtTestRunningSupport
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
@@ -76,34 +76,9 @@ abstract class AbstractTestRunConfiguration(
     else null
   }
 
-  private def moduleScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
-    if (withDependencies)
-      GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
-    else {
-      val sharedSourceScope =
-        module.sharedSourceDependency
-          .map(GlobalSearchScope.moduleScope)
-          .getOrElse(GlobalSearchScope.EMPTY_SCOPE)
-      sharedSourceScope.union(GlobalSearchScope.moduleScope(module))
-    }
-  }
-
-  private def unionScope(moduleGuard: Module => Boolean, withDependencies: Boolean): GlobalSearchScope = {
-    val scope: GlobalSearchScope = getModule match {
-      case null   => GlobalSearchScope.EMPTY_SCOPE
-      case module => moduleScope(module, withDependencies)
-    }
-    val projectModules = ModuleManager.getInstance(getProject).getModules
-    projectModules.iterator
-      .filter(moduleGuard)
-      .foldLeft(scope) { case (res, module) =>
-        res.union(moduleScope(module, withDependencies))
-      }
-  }
-
   private def getScope(withDependencies: Boolean): GlobalSearchScope =
     getModule match {
-      case null   => unionScope(_ => true, withDependencies)
+      case null   => projectScope(getProject, withDependencies)
       case module => moduleScope(module, withDependencies)
     }
 
@@ -144,7 +119,7 @@ abstract class AbstractTestRunConfiguration(
       case Left(ex) => throw ex
       case Right(_) =>
     }
-    JavaRunConfigurationExtensionManager.checkConfigurationIsValid(this)
+    JavaRunConfigurationExtensionManager.checkConfigurationIsValid(thisConfiguration)
   }
 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
@@ -202,12 +177,11 @@ abstract class AbstractTestRunConfiguration(
     testConfigurationData = TestConfigurationData.createFromExternal(element, this)
   }
 
-  private def migrate(element: Element): Unit = {
+  private def migrate(element: Element): Unit =
     JdomExternalizerMigrationHelper(element) { helper =>
       helper.migrateString("testKind")(x => testKind = TestKind.parse(x))
     }
-  }
-}
+ }
 
 object AbstractTestRunConfiguration {
 
@@ -242,4 +216,25 @@ object AbstractTestRunConfiguration {
    * @param runnerClass fully qualified name of runner class
    */
   case class TestFrameworkRunnerInfo(runnerClass: String)
+
+  private def moduleScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
+    if (withDependencies)
+      GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
+    else {
+      val sharedSourceScope =
+        module.sharedSourceDependency
+          .map(GlobalSearchScope.moduleScope)
+          .getOrElse(GlobalSearchScope.EMPTY_SCOPE)
+      sharedSourceScope.union(GlobalSearchScope.moduleScope(module))
+    }
+  }
+
+  private def projectScope(project: Project, withDependencies: Boolean): GlobalSearchScope = {
+    val projectModules = ModuleManager.getInstance(project).getModules
+    projectModules.iterator
+      .foldLeft(GlobalSearchScope.EMPTY_SCOPE) { case (res, module) =>
+        res.union(moduleScope(module, withDependencies))
+      }
+  }
+
 }
