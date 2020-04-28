@@ -156,7 +156,7 @@ object CompileServerLauncher {
         val isScalaCompileServer = "-Dij.scala.compile.server=true"
 
         val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
-          val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensionList(project).asScala
+          val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala
             .flatMap(_.getVMArguments.asScala)
           val extraJvmParameters = CompileServerVmOptionsProvider.implementations
             .flatMap(_.vmOptionsFor(project))

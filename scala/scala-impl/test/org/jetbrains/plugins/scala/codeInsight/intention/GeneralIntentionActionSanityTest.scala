@@ -11,11 +11,6 @@ import scala.util.Try
 
 class GeneralIntentionActionSanityTest extends SimpleTestCase {
 
-  def acquireAllIntentionActionEPs(): Seq[IntentionActionBean] =
-    IntentionManager.EP_INTENTION_ACTIONS
-      .getExtensions()
-      .toSeq
-
   def test_all_intention_actions_have_descriptions(): Unit = {
     val allMetaData = IntentionManagerSettings.getInstance().getMetaData.asScala
 
@@ -35,11 +30,4 @@ class GeneralIntentionActionSanityTest extends SimpleTestCase {
       intentionActionsWithoutDescription.isEmpty
     )
   }
-
-  /*override def setUp(): Unit = {
-    super.setUp()
-    val intentionManagerSettings = IntentionManagerSettings.getInstance()
-    acquireAllIntentionActionEPs()
-      .foreach(intentionManagerSettings.reg)
-  }*/
 }
