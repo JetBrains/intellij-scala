@@ -11,12 +11,18 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 
 abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestAdapter with Markers with AssertionMatchers {
-  private def wrapText(content: String): String =
+  private def wrapText(content: String): String = {
+    val normalized = content.trim
+      .replace("\n", "\n  ")
+      .replace("  \n", "\n")
+      .trim
+
     s"""
        |class Test {
-       |  ${content.trim.replace("\n", "\n  ").replace("  \n", "\n")}
+       |  $normalized
        |}
        |""".stripMargin.trim
+  }
 
   def doSafeDeleteTest(text: String, expectedResult: String, lang: String = "scala", expectedUnsafeDeletions: Int = 0): Unit = {
     configureFromFileText(wrapText(text), lang)
