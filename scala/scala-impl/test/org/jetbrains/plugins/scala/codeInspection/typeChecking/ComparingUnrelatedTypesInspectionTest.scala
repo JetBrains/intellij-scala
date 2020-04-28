@@ -565,6 +565,85 @@ class TestUnderscore extends ComparingUnrelatedTypesInspectionTest {
   )
 }
 
+// SCL-9704
+class TestUnderscoreAccess extends ComparingUnrelatedTypesInspectionTest {
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "String", "Line")
+
+  override def createTestText(text: String): String =
+    s"""
+       |case class Line(from: String, to: String)
+       |
+       |def findTo(path: Seq[Line], to: Line) = {
+       |    $text
+       |  }
+       |}
+       |""".stripMargin
+
+  def testFind(): Unit = checkTextHasError(
+    s"path.find(${START}_.to == to$END)"
+  )
+
+  def testFilter(): Unit = checkTextHasError(
+    s"path.filter(${START}_.to == to$END)"
+  )
+
+  def testFindWithoutUnderscore(): Unit = checkTextHasError(
+    s"path.find(p => ${START}p.to == to$END)"
+  )
+
+  def testFilterWithoutUnderscore(): Unit = checkTextHasError(
+    s"path.find(p => ${START}p.to == to$END)"
+  )
+}
+
+// SCL-13922
+class TestInstanceOfAutoBoxing extends ComparingUnrelatedTypesInspectionTest {
+
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "AnyRef", "Int")
+
+  def testInstanceOfInt(): Unit = checkTextHasNoErrors(
+    """
+      |object T {
+      |  def test(v: AnyRef): Unit = {
+      |    println(v.isInstanceOf[Int])
+      |  }
+      |  def main(args: Array[String]): Unit = {
+      |    val i1: Integer = new java.lang.Integer(2147483647)
+      |    T.test(i1)
+      |  }
+      |}
+      |""".stripMargin
+  )
+}
+
+class TestInstanceOfAutoBoxing2 extends ComparingUnrelatedTypesInspectionTest {
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Integer", "Int")
+
+  def testInstanceOfInt(): Unit = checkTextHasNoErrors(
+    """
+      |def test(v: Integer): Unit = {
+      |  println(v.isInstanceOf[Int])
+      |}
+      |""".stripMargin
+  )
+}
+
+class TestInstanceOfAutoBoxing3 extends ComparingUnrelatedTypesInspectionTest {
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "", "Int")
+
+  def testInstanceOfInt(): Unit = checkTextHasNoErrors(
+    s"""
+      |def test(v: Integer): Unit = {
+      |  println(${START}v.isInstanceOf[Byte]$END)
+      |}
+      |""".stripMargin
+  )
+}
+
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13
 ))

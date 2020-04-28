@@ -36,6 +36,13 @@ object ComparingUnrelatedTypesInspection {
     var types = Seq(type1, type2)
     if (types.exists(undefinedTypeAlias)) return false
 
+    // a comparison with AnyRef is always ok, because of autoboxing
+    // i.e:
+    //   val anyRef: AnyRef = new Integer(4)
+    //   anyRef == 4                 <- true
+    //   anyRef.isInstanceOf[Int]    <- true
+    if (types.contains(AnyRef)) return false
+
     types = types.map(extractActualType)
     if (!types.contains(Null)) {
       types = types.map(tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp))
