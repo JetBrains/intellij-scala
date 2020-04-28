@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.testdata
 import com.intellij.execution.ExecutionException
 import org.jdom.Element
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm, testdata}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind, TestRunConfigurationForm, testdata}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty

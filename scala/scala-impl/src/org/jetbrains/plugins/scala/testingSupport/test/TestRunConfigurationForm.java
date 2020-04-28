@@ -1,33 +1,35 @@
 package org.jetbrains.plugins.scala.testingSupport.test;
 
-import com.intellij.application.options.ModulesComboBox;
+import com.intellij.application.options.ModuleDescriptionsComboBox;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.configuration.BrowseModuleValueActionListener;
-import com.intellij.execution.configuration.EnvironmentVariablesComponent;
+import com.intellij.execution.junit2.configuration.JUnitConfigurable;
 import com.intellij.execution.ui.ClassBrowser;
 import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.execution.ui.DefaultJreSelector;
 import com.intellij.execution.ui.JrePathEditor;
 import com.intellij.ide.util.ClassFilter;
 import com.intellij.ide.util.PackageChooserDialog;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.ui.AnActionButtonRunnable;
+import com.intellij.ui.EditorTextField;
+import com.intellij.ui.EditorTextFieldWithBrowseButton;
 import com.intellij.ui.EnumComboBoxModel;
-import com.intellij.ui.RawCommandLineEditor;
-import com.intellij.ui.ToolbarDecorator;
-import com.intellij.ui.table.JBTable;
+import com.intellij.ui.IdeBorderFactory;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.jetbrains.annotations.NonNls;
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
@@ -39,181 +41,247 @@ import org.jetbrains.sbt.settings.SbtSettings;
 import scala.Option;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.lang.reflect.Method;
-import java.util.*;
 import java.util.List;
+import java.util.Map;
 
+// TODO 1: convert to Scala
 @SuppressWarnings(value = "unchecked")
-public class TestRunConfigurationForm {
-    private JPanel myPanel;
-    private TextFieldWithBrowseButton testClassTextField;
-    private RawCommandLineEditor VMParamsTextField;
-    private RawCommandLineEditor testOptionsTextField;
-    private TextFieldWithBrowseButton testPackageTextField;
-    private JLabel testClassLabel;
-    private JLabel testPackageLabel;
-    private ModulesComboBox moduleComboBox;
-    private TextFieldWithBrowseButton workingDirectoryField;
-    private JPanel searchForTestsPanel;
+public final class TestRunConfigurationForm {
+
+    private JPanel myWholePanel;
+    private final Project myProject;
+
+    private List<String> suitePaths;
     private final ConfigurationModuleSelector myModuleSelector;
-    private final List<String> suitePaths;
 
-    private JComboBox<SearchForTest> searchForTestsComboBox;
-
-    private JComboBox<TestKind> kindComboBox;
-
-    private JTextArea testNameTextField;
-    private JLabel testNameLabel;
-    private JCheckBox myShowProgressMessagesCheckBox;
-    private EnvironmentVariablesComponent environmentVariables;
-    private JBTable regexpTable;
-    private JLabel regexpLabel;
-    private JScrollPane testNameScrollPane;
-    private JPanel regexpPanel;
+    // TOP PANEL: TestKind-specific
+    private LabeledComponent<ComboBox<TestKind>> myTestKind;
+    private LabeledComponent<EditorTextFieldWithBrowseButton> myClass;
+    private LabeledComponent<MyMultilineEditorTextField> myTestName;
+    private LabeledComponent<EditorTextFieldWithBrowseButton> myPackage;
+    private LabeledComponent<JComboBox<SearchForTest>> mySearchForTest;
+    private LabeledComponent<RegexpPanel> myRegex;
     private JCheckBox useSbtCheckBox;
     private JCheckBox useUiWithSbt;
-    private JrePathEditor jreSelector;
 
-    private void createUIComponents() {
-        regexpTable = new JBTable();
-        final DefaultTableModel model = (DefaultTableModel) regexpTable.getModel();
-        model.addColumn(ScalaBundle.message("test.run.config.for.class.pattern"));
-        model.addColumn(ScalaBundle.message("test.run.config.test.pattern"));
+    // BOTTOM PANEL: common options
+    private CommonScalaParametersPanel myCommonScalaParameters;
+    private LabeledComponent<ModuleDescriptionsComboBox> myModule;
+    private JrePathEditor myJrePathEditor;
+    private JCheckBox myShowProgressMessagesCheckBox;
 
-        AnActionButtonRunnable addAction = anActionButton -> {
-            CellEditor editor = regexpTable.getCellEditor();
-            int rowAdd = regexpTable.getSelectedRow() + 1;
-            if (editor != null) editor.stopCellEditing();
-            model.insertRow(rowAdd, new Object[]{"", ""});
-            if (rowAdd == 0) regexpTable.requestFocus();
-            regexpTable.setRowSelectionInterval(rowAdd, rowAdd);
-            regexpTable.setColumnSelectionInterval(0, 0);
-        };
+    public TestRunConfigurationForm(final Project project) {
+        myProject = project;
 
-        AnActionButtonRunnable removeAction = anActionButton -> {
-            int row = regexpTable.getSelectedRow();
-            if (row != -1) {
-                CellEditor editor = regexpTable.getCellEditor();
-                if (editor != null) editor.stopCellEditing();
-                model.removeRow(row);
-                if (row > 0) {
-                    regexpTable.setRowSelectionInterval(row - 1, row - 1);
-                    regexpTable.setColumnSelectionInterval(0, 0);
-                }
-            }
-        };
+        createUiComponents();
 
-        regexpPanel = ToolbarDecorator.createDecorator(regexpTable)
-                .setAddAction(addAction)
-                .setRemoveAction(removeAction)
-                .createPanel();
-    }
-
-    public enum SearchForTest {
-        IN_WHOLE_PROJECT("In whole project"),
-        IN_SINGLE_MODULE("In single module"),
-        ACCROSS_MODULE_DEPENDENCIES("Across module dependencies");
-
-        //NOTE: this value is only used to persist the enum, do not change it or migrate old settings very carefully
-        private final String value;
-
-        SearchForTest(@NonNls String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-
-        public static SearchForTest parse(String str) {
-            if (IN_SINGLE_MODULE.value.equals(str)) return IN_SINGLE_MODULE;
-            else if (IN_WHOLE_PROJECT.value.equals(str)) return IN_WHOLE_PROJECT;
-            else return ACCROSS_MODULE_DEPENDENCIES;
-        }
-    }
-
-    public enum TestKind {
-        ALL_IN_PACKAGE("All in package"),
-        CLAZZ("Class"),
-        TEST_NAME("Test name"),
-        REGEXP("Regular expression");
-
-        // NOTE: this value is only used to persist the enum, do not change it or migrate old settings very carefully
-        private final String value;
-
-        TestKind(@NonNls String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-
-        public static TestKind parse(String s) {
-            if (ALL_IN_PACKAGE.value.equals(s)) return ALL_IN_PACKAGE;
-            else if (CLAZZ.value.equals(s)) return CLAZZ;
-            else if (TEST_NAME.value.equals(s)) return TEST_NAME;
-            else if (REGEXP.value.equals(s)) return REGEXP;
-            else return null;
-        }
-    }
-
-    public TestRunConfigurationForm(final Project project, final AbstractTestRunConfiguration configuration) {
-        $$$setupUI$$$();
-
-        jreSelector.setDefaultJreSelector(DefaultJreSelector.fromModuleDependencies(moduleComboBox, false));
-        myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
-        myModuleSelector.reset(configuration);
-        moduleComboBox.setEnabled(true);
-        addClassChooser(ScalaBundle.message("test.run.config.choose.test.class"), testClassTextField, project);
-        addFileChooser(ScalaBundle.message("test.run.config.choose.working.directory"), workingDirectoryField, project);
-        final TestConfigurationData testConfigurationData = configuration.testConfigurationData();
-        workingDirectoryField.setText(testConfigurationData.getWorkingDirectory());
-
-        addPackageChooser(testPackageTextField, project);
-
-        searchForTestsComboBox.setModel(new EnumComboBoxModel<>(SearchForTest.class));
-        searchForTestsComboBox.setRenderer(SimpleMappingListCellRenderer.create(
-                Pair.create(SearchForTest.IN_WHOLE_PROJECT, ScalaBundle.message("test.run.config.search.scope.in.whole.project")),
-                Pair.create(SearchForTest.IN_SINGLE_MODULE, ScalaBundle.message("test.run.config.search.scope.in.single.module")),
-                Pair.create(SearchForTest.ACCROSS_MODULE_DEPENDENCIES, ScalaBundle.message("test.run.config.search.scope.across.module.dependencies"))
-        ));
-        searchForTestsComboBox.setSelectedItem(testConfigurationData.getSearchTest());
-        searchForTestsComboBox.addItemListener(e -> setupModuleComboBox());
-
-        myShowProgressMessagesCheckBox.setSelected(testConfigurationData.getShowProgressMessages());
-
-        kindComboBox.setModel(new EnumComboBoxModel<>(TestKind.class));
-        kindComboBox.setRenderer(SimpleMappingListCellRenderer.create(
+        JComboBox<TestKind> testKindComponent = myTestKind.getComponent();
+        testKindComponent.setModel(new EnumComboBoxModel<>(TestKind.class));
+        testKindComponent.setRenderer(SimpleMappingListCellRenderer.create(
                 Pair.create(TestKind.ALL_IN_PACKAGE, ScalaBundle.message("test.run.config.test.kind.all.in.package")),
                 Pair.create(TestKind.CLAZZ, ScalaBundle.message("test.run.config.test.kind.class")),
                 Pair.create(TestKind.TEST_NAME, ScalaBundle.message("test.run.config.test.kind.test.name")),
                 Pair.create(TestKind.REGEXP, ScalaBundle.message("test.run.config.test.kind.regular.expression"))
         ));
-        kindComboBox.addItemListener(e -> {
-            moduleComboBox.setEnabled(true);
-            switch ((TestKind) e.getItem()) {
-                case ALL_IN_PACKAGE:
-                    setPackageEnabled();
-                    setupModuleComboBox();
-                    break;
-                case CLAZZ:
-                    setClassEnabled();
-                    break;
-                case TEST_NAME:
-                    setTestNameEnabled();
-                    break;
-                case REGEXP:
-                    setRegexpEnabled();
-            }
-        });
-        switch (testConfigurationData.getKind()) {
+        testKindComponent.addItemListener(e -> onTestKindSelected((TestKind) e.getItem()));
+
+        JComboBox<SearchForTest> searchForTestsComponent = mySearchForTest.getComponent();
+        searchForTestsComponent.setModel(new EnumComboBoxModel<>(SearchForTest.class));
+        searchForTestsComponent.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(SearchForTest.IN_WHOLE_PROJECT, ScalaBundle.message("test.run.config.search.scope.in.whole.project")),
+                Pair.create(SearchForTest.IN_SINGLE_MODULE, ScalaBundle.message("test.run.config.search.scope.in.single.module")),
+                Pair.create(SearchForTest.ACCROSS_MODULE_DEPENDENCIES, ScalaBundle.message("test.run.config.search.scope.across.module.dependencies"))
+        ));
+        searchForTestsComponent.addItemListener(e -> setupModuleComboBox());
+
+        addClassChooser(ScalaBundle.message("test.run.config.choose.test.class"), myClass.getComponent(), project);
+        new PackageChooserActionListener(project).setField(myPackage.getComponent());
+
+        useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
+        useSbtCheckBox.addItemListener(e -> useUiWithSbt.setEnabled(useSbtCheckBox.isSelected()));
+
+        myJrePathEditor.setDefaultJreSelector(DefaultJreSelector.fromModuleDependencies(myModule.getComponent(), false));
+        myModuleSelector = new ConfigurationModuleSelector(project, myModule.getComponent());
+    }
+
+    public void resetFrom(AbstractTestRunConfiguration configuration) {
+        TestConfigurationData configurationData = configuration.testConfigurationData();
+
+        setTestClassPath(configuration.getTestClassPath());
+        setTestPackagePath(configuration.getTestPackagePath());
+        setSearchForTest(configurationData.getSearchTest());
+
+        initTestKindSpecificOptions(configuration);
+
+        resetSbtOptionsFrom(configuration);
+
+        setJavaOptions(configurationData.javaOptions());
+        myCommonScalaParameters.reset(configurationData);
+        myModuleSelector.reset(configuration);
+        myJrePathEditor.setPathOrName(configurationData.getJrePath(), true);
+        setShowProgressMessages(configurationData.getShowProgressMessages());
+
+        suitePaths = configuration.javaSuitePaths();
+    }
+
+    private void resetSbtOptionsFrom(AbstractTestRunConfiguration configuration) {
+        TestConfigurationData configurationData = configuration.testConfigurationData();
+        boolean projectHasSbt = hasSbt(configuration.getProject());
+        setSbtVisible(projectHasSbt); // TODO: hide if sbt support is null/None
+        setSbtUiVisible(projectHasSbt && configuration.sbtSupport().allowsSbtUiRun());
+
+        setUseSbt(configurationData.useSbt());
+        setUseUiWithSbt(configurationData.useUiWithSbt());
+    }
+
+    private void createUiComponents() {
+        myWholePanel = new JPanel();
+        myWholePanel.setLayout(new GridLayoutManager(99, COLUMNS, JBUI.emptyInsets(), -1, -1));
+
+        myTestKind = simpleLabeledComponent(ScalaBundle.message("test.run.config.test.kind"), new ComboBox<>());
+        useSbtCheckBox = new JCheckBox();
+        TextWithMnemonic.set(useSbtCheckBox, ScalaBundle.message("test.run.config.use.sbt"));
+        useUiWithSbt = new JCheckBox();
+        TextWithMnemonic.set(useUiWithSbt, ScalaBundle.message("test.run.config.use.ui.with.sbt"));
+
+        myWholePanel.add(myTestKind, simpleConstraint(rowIdx, 0, 1));
+        myWholePanel.add(useSbtCheckBox, simpleConstraint(rowIdx, 1, 1));
+        myWholePanel.add(useUiWithSbt, simpleConstraint(rowIdx, 2, 1));
+        rowIdx++;
+
+        myClass = simpleAdd(simpleLabeledComponent(ScalaBundle.message("test.run.config.test.class"), new EditorTextFieldWithBrowseButton(myProject, true)));
+        myTestName = simpleAdd(simpleLabeledComponent(ScalaBundle.message("test.run.config.test.name"), new MyMultilineEditorTextField(), true));
+        myPackage = simpleAdd(simpleLabeledComponent(ScalaBundle.message("test.run.config.test.package"), new EditorTextFieldWithBrowseButton(myProject, false)));
+        mySearchForTest = simpleAdd(simpleLabeledComponent(ScalaBundle.message("test.run.config.search.for.tests"), new ComboBox<>()));
+        myRegex = simpleAdd(simpleLabeledComponent(ScalaBundle.message("test.run.config.regular.expressions"), new RegexpPanel(), true));
+
+        addSeparatorBetweenTopAndBottomPanel();
+
+        myCommonScalaParameters = simpleAdd(new CommonScalaParametersPanel());
+        myModule = simpleAdd(simpleLabeledComponent(ExecutionBundle.message("application.configuration.use.classpath.and.jdk.of.module.label"), new ModuleDescriptionsComboBox()));
+        myJrePathEditor = simpleAdd(new JrePathEditor());
+
+        myShowProgressMessagesCheckBox = new JCheckBox();
+        TextWithMnemonic.set(myShowProgressMessagesCheckBox, ScalaBundle.message("test.run.config.print.information.messages.to.console"));
+        simpleAdd(myShowProgressMessagesCheckBox);
+
+        addBottomFiller();
+
+        JComponent anchor = myRegex.getLabel();
+        mySearchForTest.setAnchor(anchor);
+        myTestKind.setAnchor(anchor);
+        myClass.setAnchor(anchor);
+        myTestName.setAnchor(anchor);
+        myPackage.setAnchor(anchor);
+
+        myJrePathEditor.setAnchor(myModule.getLabel());
+        myCommonScalaParameters.setAnchor(myModule.getLabel());
+    }
+
+
+    private final int COLUMNS = 3;
+    private int rowIdx = 0;
+
+    private <T extends JComponent> T simpleAdd(T component) {
+        return simpleAdd(component, simpleConstraint(rowIdx));
+    }
+
+    private <T extends JComponent> T simpleAdd(T component, Object constraints) {
+        myWholePanel.add(component, constraints);
+        rowIdx++;
+        return component;
+    }
+
+    @NotNull
+    private GridConstraints simpleConstraint(int row) {
+        return simpleConstraint(row, 0, COLUMNS);
+    }
+
+    @NotNull
+    private GridConstraints simpleConstraint(int row, int col, int colSpan) {
+        return new GridConstraints(
+                row, col, 1, colSpan,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null, null, null, 0, false
+        );
+    }
+
+    private <T extends JComponent> LabeledComponent<T> simpleLabeledComponent(String labelText, T component) {
+        return simpleLabeledComponent(labelText, component, false);
+    }
+
+    private <T extends JComponent> LabeledComponent<T> simpleLabeledComponent(String labelText, T component, boolean isMultilineContent) {
+        LabeledComponent<T> result = new LabeledComponent<>();
+        result.setText(labelText);
+        result.setComponent(component);
+        result.setLabelLocation(BorderLayout.WEST);
+        if (isMultilineContent) {
+            // by default LabeledComponent's label is aligned in center, so if the inner component is multiline
+            // the label has a gab in the TOP and BOTTOM. Moreover, when the inner component grows in height
+            // the label "jumps" below it's previous position, which looks akward
+            // This is a workaround to make label position fixed in the TOP
+            int TOP_PADDING = 5;
+            JBLabel label = result.getLabel();
+            label.setVerticalAlignment(SwingConstants.TOP);
+            label.setBorder(IdeBorderFactory.createEmptyBorder(JBUI.insetsTop((int) TOP_PADDING)));
+        }
+        return result;
+    }
+
+    private void addSeparatorBetweenTopAndBottomPanel() {
+        Dimension dim = new Dimension(-1, 32);
+        simpleAdd(new Spacer(), new GridConstraints(rowIdx, 0, 1, COLUMNS,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                dim, dim, dim, 0, false
+        ));
+        simpleAdd(new JSeparator(SwingConstants.HORIZONTAL));
+    }
+
+    private void addBottomFiller() {
+        simpleAdd(new Spacer(), new GridConstraints(
+                rowIdx, 0, 1, COLUMNS, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW,
+                null, null, null, 0, false
+        ));
+    }
+
+    private void initTestKindSpecificOptions(AbstractTestRunConfiguration configuration) {
+        TestConfigurationData configurationData = configuration.testConfigurationData();
+        TestKind kind = configurationData.getKind();
+
+        switch (kind) {
             case ALL_IN_PACKAGE:
                 setPackageEnabled();
+                break;
+            case CLAZZ:
+                setClassEnabled();
+                break;
+            case TEST_NAME:
+                SingleTestData singleData = (SingleTestData) configurationData;
+                setTestName(singleData.getTestName());
+                setTestNameEnabled();
+                break;
+            case REGEXP:
+                RegexpTestData regexpData = (RegexpTestData) configurationData;
+                setRegexps(regexpData.getClassRegexps(), regexpData.getTestRegexps());
+                setRegexpEnabled();
+        }
+    }
+
+    private void onTestKindSelected(TestKind testKind) {
+        myModule.setEnabled(true);
+        switch (testKind) {
+            case ALL_IN_PACKAGE:
+                setPackageEnabled();
+                setupModuleComboBox();
                 break;
             case CLAZZ:
                 setClassEnabled();
@@ -224,32 +292,22 @@ public class TestRunConfigurationForm {
             case REGEXP:
                 setRegexpEnabled();
         }
-        useSbtCheckBox.addItemListener(e -> {
-            testConfigurationData.setUseSbt(useSbtCheckBox.isSelected());
-            useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
-        });
-        boolean hasSbt = hasSbt(configuration.getProject());
-        setSbtVisible(hasSbt);
-        setSbtUiVisible(hasSbt && configuration.sbtSupport().allowsSbtUiRun());
-        useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
-
-        suitePaths = configuration.javaSuitePaths();
-        environmentVariables.setEnvs(testConfigurationData.envs());
     }
 
     private void setupModuleComboBox() {
-        Object selectedItem = searchForTestsComboBox.getSelectedItem();
+        SearchForTest selectedItem = (SearchForTest) mySearchForTest.getComponent().getSelectedItem();
         if (selectedItem == null) return;
-        switch ((SearchForTest) selectedItem) {
+        switch (selectedItem) {
             case IN_WHOLE_PROJECT:
-                moduleComboBox.setEnabled(false);
+                myModule.setEnabled(false);
                 break;
             case IN_SINGLE_MODULE:
-                moduleComboBox.setEnabled(true);
+                myModule.setEnabled(true);
                 break;
             case ACCROSS_MODULE_DEPENDENCIES:
-                moduleComboBox.setEnabled(true);
+                myModule.setEnabled(true);
                 break;
+            default:
         }
     }
 
@@ -262,28 +320,21 @@ public class TestRunConfigurationForm {
     }
 
     private void setPackageVisible(boolean visible) {
-        testPackageLabel.setVisible(visible);
-        testPackageTextField.setVisible(visible);
-        searchForTestsPanel.setVisible(visible);
+        myPackage.setVisible(visible);
+        mySearchForTest.setVisible(visible);
     }
 
     private void setClassVisible(boolean visible) {
-        testClassLabel.setVisible(visible);
-        testClassTextField.setVisible(visible);
+        myClass.setVisible(visible);
     }
 
     private void setTestNameVisible(boolean visible) {
-        testNameLabel.setVisible(visible);
-        testNameTextField.setVisible(visible);
-        testClassLabel.setVisible(visible);
-        testClassTextField.setVisible(visible);
-        testNameScrollPane.setVisible(visible);
+        myTestName.setVisible(visible);
+        myClass.setVisible(visible);
     }
 
     private void setRegexpVisible(boolean visible) {
-        regexpLabel.setVisible(visible);
-        regexpTable.setVisible(visible);
-        regexpPanel.setVisible(visible);
+        myRegex.setVisible(visible);
     }
 
     private void disableAll() {
@@ -296,60 +347,25 @@ public class TestRunConfigurationForm {
     private void setPackageEnabled() {
         disableAll();
         setPackageVisible(true);
-        kindComboBox.setSelectedItem(TestKind.ALL_IN_PACKAGE);
+        myTestKind.getComponent().setSelectedItem(TestKind.ALL_IN_PACKAGE);
     }
 
     private void setClassEnabled() {
         disableAll();
         setClassVisible(true);
-        kindComboBox.setSelectedItem(TestKind.CLAZZ);
+        myTestKind.getComponent().setSelectedItem(TestKind.CLAZZ);
     }
 
     private void setTestNameEnabled() {
         disableAll();
         setTestNameVisible(true);
-        kindComboBox.setSelectedItem(TestKind.TEST_NAME);
+        myTestKind.getComponent().setSelectedItem(TestKind.TEST_NAME);
     }
 
     private void setRegexpEnabled() {
         disableAll();
         setRegexpVisible(true);
-        kindComboBox.setSelectedItem(TestKind.REGEXP);
-    }
-
-    public void apply(AbstractTestRunConfiguration configuration) {
-        setTestClassPath(configuration.getTestClassPath());
-        setJavaOptions(configuration.testConfigurationData().javaOptions());
-        setTestArgs(configuration.testConfigurationData().getTestArgs());
-        setTestPackagePath(configuration.getTestPackagePath());
-        switch (configuration.testConfigurationData().getKind()) {
-            case ALL_IN_PACKAGE:
-                setPackageEnabled();
-                break;
-            case CLAZZ:
-                setClassEnabled();
-                break;
-            case TEST_NAME:
-                SingleTestData singleData = (SingleTestData) configuration.testConfigurationData();
-                setTestName(singleData.getTestName());
-                setTestNameEnabled();
-                break;
-            case REGEXP:
-                RegexpTestData regexpData = (RegexpTestData) configuration.testConfigurationData();
-                setRegexps(regexpData.getClassRegexps(), regexpData.getTestRegexps());
-                setRegexpEnabled();
-        }
-        boolean hasSbt = hasSbt(configuration.getProject());
-        setSbtVisible(hasSbt);
-        setSbtUiVisible(hasSbt && configuration.sbtSupport().allowsSbtUiRun());
-        setUseSbt(configuration.testConfigurationData().useSbt());
-        setUseUiWithSbt(configuration.testConfigurationData().useUiWithSbt());
-        setWorkingDirectory(configuration.testConfigurationData().getWorkingDirectory());
-        myModuleSelector.applyTo(configuration);
-        searchForTestsComboBox.setSelectedItem(configuration.testConfigurationData().getSearchTest());
-        environmentVariables.setEnvs(configuration.testConfigurationData().envs());
-        setShowProgressMessages(configuration.testConfigurationData().getShowProgressMessages());
-        jreSelector.setPathOrName(configuration.testConfigurationData().getJrePath(), true);
+        myTestKind.getComponent().setSelectedItem(TestKind.REGEXP);
     }
 
     protected boolean hasSbt(Project project) {
@@ -358,81 +374,71 @@ public class TestRunConfigurationForm {
     }
 
     public TestKind getSelectedKind() {
-        return (TestKind) kindComboBox.getSelectedItem();
+        return (TestKind) myTestKind.getComponent().getSelectedItem();
     }
 
     public SearchForTest getSearchForTest() {
-        return (SearchForTest) searchForTestsComboBox.getSelectedItem();
+        return (SearchForTest) mySearchForTest.getComponent().getSelectedItem();
+    }
+
+    private void setSearchForTest(SearchForTest searchTest) {
+        mySearchForTest.getComponent().setSelectedItem(searchTest);
     }
 
     public String getTestClassPath() {
-        return testClassTextField.getText();
+        return myClass.getComponent().getText();
     }
 
     public String getTestArgs() {
-        return testOptionsTextField.getText();
+        return myCommonScalaParameters.getProgramParameters();
     }
 
     public String getJavaOptions() {
-        return VMParamsTextField.getText();
+        return myCommonScalaParameters.getVMParameters();
     }
 
     public String getTestPackagePath() {
-        return testPackageTextField.getText();
+        return myPackage.getComponent().getText();
     }
 
     public String getWorkingDirectory() {
-        return workingDirectoryField.getText();
+        return myCommonScalaParameters.getWorkingDirectoryAccessor().getText();
     }
 
     public Map<String, String> getEnvironmentVariables() {
-        return environmentVariables.getEnvs();
+        return myCommonScalaParameters.getEnvironmentVariables();
     }
 
-    public void setTestClassPath(String s) {
-        testClassTextField.setText(s);
+    private void setTestClassPath(String s) {
+        myClass.getComponent().setText(s);
     }
 
-    public void setTestArgs(String s) {
-        testOptionsTextField.setText(s);
+    private void setJavaOptions(String s) {
+        myCommonScalaParameters.setVMParameters(s);
     }
 
-    public void setJavaOptions(String s) {
-        VMParamsTextField.setText(s);
+    private void setTestPackagePath(String s) {
+        myPackage.getComponent().setText(s);
     }
 
-    public void setTestPackagePath(String s) {
-        testPackageTextField.setText(s);
+    private void setWorkingDirectory(String s) {
+        myCommonScalaParameters.setWorkingDirectory(s);
     }
 
-    public void setWorkingDirectory(String s) {
-        workingDirectoryField.setText(s);
-    }
-
-    public void setUseSbt(boolean b) {
+    private void setUseSbt(boolean b) {
         useSbtCheckBox.setSelected(b);
     }
 
-    public void setUseUiWithSbt(boolean b) {
+    private void setUseUiWithSbt(boolean b) {
         useUiWithSbt.setSelected(b);
     }
 
-    public void setRegexps(String[] classRegexps, String[] testRegexps) {
-        final DefaultTableModel model = (DefaultTableModel) regexpTable.getModel();
-        for (int i = 0; i < Math.max(classRegexps.length, testRegexps.length); i++) {
-            String classRegexp = (i < classRegexps.length) ? classRegexps[i] : "";
-            String testRegexp = (i < testRegexps.length) ? testRegexps[i] : "";
-            model.addRow(new Object[]{classRegexp, testRegexp});
-        }
+    private void setRegexps(String[] classRegexps, String[] testRegexps) {
+        myRegex.getComponent().setRegexps(classRegexps, testRegexps);
     }
 
     protected String[] getRegexpTableColumn(int column) {
-        final DefaultTableModel model = (DefaultTableModel) regexpTable.getModel();
-        String[] result = new String[model.getRowCount()];
-        for (int i = 0; i < model.getRowCount(); i++) {
-            result[i] = model.getValueAt(i, column).toString();
-        }
-        return result;
+        return myRegex.getComponent().getRegexpTableColumn(column);
     }
 
     public String[] getClassRegexps() {
@@ -452,27 +458,35 @@ public class TestRunConfigurationForm {
     }
 
     public String getTestName() {
-        return testNameTextField.getText();
+        return myTestName.getComponent().getText();
     }
 
-    public void setTestName(String s) {
-        testNameTextField.setText(s);
+    private void setTestName(String s) {
+        myTestName.getComponent().setText(s);
     }
 
     public boolean getShowProgressMessages() {
         return myShowProgressMessagesCheckBox.isSelected();
     }
 
-    public void setShowProgressMessages(boolean b) {
+    private void setShowProgressMessages(boolean b) {
         myShowProgressMessagesCheckBox.setSelected(b);
     }
 
     public JPanel getPanel() {
-        return myPanel;
+        return myWholePanel;
+    }
+
+    public Module getModule() {
+        return myModuleSelector.getModule();
+    }
+
+    public String getJrePath() {
+        return myJrePathEditor.getJrePathOrName();
     }
 
     private void addClassChooser(final String title,
-                                 final TextFieldWithBrowseButton textField,
+                                 final EditorTextFieldWithBrowseButton textField,
                                  final Project project) {
         ClassBrowser browser = new ClassBrowser(project, title) {
             protected ClassFilter.ClassFilterWithScope getFilter() {
@@ -509,26 +523,9 @@ public class TestRunConfigurationForm {
         browser.setField(textField);
     }
 
-    private FileChooserDescriptor addFileChooser(final String title,
-                                                 final TextFieldWithBrowseButton textField,
-                                                 final Project project) {
-        final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false) {
-            @Override
-            public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
-                return super.isFileVisible(file, showHiddenFiles) && file.isDirectory();
-            }
-        };
-        fileChooserDescriptor.setTitle(title);
-        textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
-        return fileChooserDescriptor;
-    }
-
-    private void addPackageChooser(final TextFieldWithBrowseButton textField, final Project project) {
-        PackageChooserActionListener browser = new PackageChooserActionListener(project);
-        browser.setField(textField);
-    }
-
-    //todo: copied from JUnitConfigurable
+    /**
+     * copied from {@link JUnitConfigurable}
+     */
     private static class PackageChooserActionListener extends BrowseModuleValueActionListener {
         public PackageChooserActionListener(final Project project) {
             super(project);
@@ -543,184 +540,54 @@ public class TestRunConfigurationForm {
         }
     }
 
-    public Module getModule() {
-        return myModuleSelector.getModule();
-    }
+    private static class MyMultilineEditorTextField extends EditorTextField {
+        public MyMultilineEditorTextField() {
+            this.setOneLineMode(false);
+        }
 
-    public String getJrePath() {
-        return jreSelector.getJrePathOrName();
+        @Override
+        protected void updateBorder(@NotNull EditorEx editor) {
+            setupBorder(editor); // in base class border isn't set in multiline mode
+        }
     }
-
 
     /**
-     * Method generated by IntelliJ IDEA GUI Designer
-     * >>> IMPORTANT!! <<<
-     * DO NOT edit this method OR call it in your code!
-     *
-     * @noinspection ALL
+     * based on {@link LabeledComponent.TextWithMnemonic}
      */
-    private void $$$setupUI$$$() {
-        createUIComponents();
-        myPanel = new JPanel();
-        myPanel.setLayout(new GridLayoutManager(14, 2, new Insets(0, 0, 0, 0), -1, -1));
-        final Spacer spacer1 = new Spacer();
-        myPanel.add(spacer1, new GridConstraints(13, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.sbt.runner.form.vmParameters"));
-        myPanel.add(label1, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        VMParamsTextField = new RawCommandLineEditor();
-        myPanel.add(VMParamsTextField, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.options"));
-        myPanel.add(label2, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        testOptionsTextField = new RawCommandLineEditor();
-        myPanel.add(testOptionsTextField, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(10, 1, new Insets(0, 0, 0, 0), -1, -1));
-        myPanel.add(panel1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        testPackageTextField = new TextFieldWithBrowseButton();
-        panel1.add(testPackageTextField, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        testPackageLabel = new JLabel();
-        this.$$$loadLabelText$$$(testPackageLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.package"));
-        panel1.add(testPackageLabel, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        testClassTextField = new TextFieldWithBrowseButton();
-        panel1.add(testClassTextField, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        testClassLabel = new JLabel();
-        this.$$$loadLabelText$$$(testClassLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.class"));
-        panel1.add(testClassLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label3 = new JLabel();
-        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.kind"));
-        panel2.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer2 = new Spacer();
-        panel2.add(spacer2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        kindComboBox = new JComboBox();
-        panel2.add(kindComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        searchForTestsPanel = new JPanel();
-        searchForTestsPanel.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.add(searchForTestsPanel, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label4 = new JLabel();
-        this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.search.for.tests"));
-        searchForTestsPanel.add(label4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer3 = new Spacer();
-        searchForTestsPanel.add(spacer3, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        searchForTestsComboBox = new JComboBox();
-        searchForTestsPanel.add(searchForTestsComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        testNameLabel = new JLabel();
-        this.$$$loadLabelText$$$(testNameLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.name"));
-        panel1.add(testNameLabel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        testNameScrollPane = new JScrollPane();
-        panel1.add(testNameScrollPane, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        testNameTextField = new JTextArea();
-        testNameTextField.setLineWrap(true);
-        testNameScrollPane.setViewportView(testNameTextField);
-        regexpLabel = new JLabel();
-        this.$$$loadLabelText$$$(regexpLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.regular.expressions"));
-        panel1.add(regexpLabel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        panel1.add(regexpPanel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label5 = new JLabel();
-        this.$$$loadLabelText$$$(label5, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.use.classpath.of.module"));
-        myPanel.add(label5, new GridConstraints(9, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        moduleComboBox = new ModulesComboBox();
-        myPanel.add(moduleComboBox, new GridConstraints(10, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label6 = new JLabel();
-        this.$$$loadLabelText$$$(label6, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.working.directory"));
-        myPanel.add(label6, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        workingDirectoryField = new TextFieldWithBrowseButton();
-        myPanel.add(workingDirectoryField, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        myShowProgressMessagesCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowProgressMessagesCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.print.information.messages.to.console"));
-        myPanel.add(myShowProgressMessagesCheckBox, new GridConstraints(12, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        environmentVariables = new EnvironmentVariablesComponent();
-        myPanel.add(environmentVariables, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        useSbtCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(useSbtCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.use.sbt"));
-        myPanel.add(useSbtCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        useUiWithSbt = new JCheckBox();
-        this.$$$loadButtonText$$$(useUiWithSbt, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.use.ui.with.sbt"));
-        myPanel.add(useUiWithSbt, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        jreSelector = new JrePathEditor();
-        myPanel.add(jreSelector, new GridConstraints(11, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    }
+    private static class TextWithMnemonic {
+        final String text;
+        final int mnemonicIndex;
 
-    private static Method $$$cachedGetBundleMethod$$$ = null;
+        public TextWithMnemonic(String text, int mnemonicIndex) {
+            this.text = text;
+            this.mnemonicIndex = mnemonicIndex;
+        }
 
-    private String $$$getMessageFromBundle$$$(String path, String key) {
-        ResourceBundle bundle;
-        try {
-            Class<?> thisClass = this.getClass();
-            if ($$$cachedGetBundleMethod$$$ == null) {
-                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
-                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+        public static TextWithMnemonic fromTextWithMnemonic(String text) {
+            int idx = UIUtil.getDisplayMnemonicIndex(text);
+            return idx != -1
+                   ? new TextWithMnemonic(text.substring(0, idx) + text.substring(idx + 1), idx)
+                   : new TextWithMnemonic(text, -1);
+        }
+
+        public static void set(AbstractButton button, String text) {
+            TextWithMnemonic.fromTextWithMnemonic(text).setTo(button);
+        }
+
+        public boolean hasMnemonic() {
+            return mnemonicIndex != -1;
+        }
+
+        public char getMnemonic() {
+            return text.charAt(mnemonicIndex);
+        }
+
+        public void setTo(AbstractButton button) {
+            button.setText(text);
+            if (hasMnemonic()) {
+                button.setMnemonic(getMnemonic());
+                button.setDisplayedMnemonicIndex(mnemonicIndex);
             }
-            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
-        } catch (Exception e) {
-            bundle = ResourceBundle.getBundle(path);
-        }
-        return bundle.getString(key);
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private void $$$loadLabelText$$$(JLabel component, String text) {
-        StringBuffer result = new StringBuffer();
-        boolean haveMnemonic = false;
-        char mnemonic = '\0';
-        int mnemonicIndex = -1;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '&') {
-                i++;
-                if (i == text.length()) break;
-                if (!haveMnemonic && text.charAt(i) != '&') {
-                    haveMnemonic = true;
-                    mnemonic = text.charAt(i);
-                    mnemonicIndex = result.length();
-                }
-            }
-            result.append(text.charAt(i));
-        }
-        component.setText(result.toString());
-        if (haveMnemonic) {
-            component.setDisplayedMnemonic(mnemonic);
-            component.setDisplayedMnemonicIndex(mnemonicIndex);
         }
     }
-
-    /**
-     * @noinspection ALL
-     */
-    private void $$$loadButtonText$$$(AbstractButton component, String text) {
-        StringBuffer result = new StringBuffer();
-        boolean haveMnemonic = false;
-        char mnemonic = '\0';
-        int mnemonicIndex = -1;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '&') {
-                i++;
-                if (i == text.length()) break;
-                if (!haveMnemonic && text.charAt(i) != '&') {
-                    haveMnemonic = true;
-                    mnemonic = text.charAt(i);
-                    mnemonicIndex = result.length();
-                }
-            }
-            result.append(text.charAt(i));
-        }
-        component.setText(result.toString());
-        if (haveMnemonic) {
-            component.setMnemonic(mnemonic);
-            component.setDisplayedMnemonicIndex(mnemonicIndex);
-        }
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return myPanel;
-    }
-
 }

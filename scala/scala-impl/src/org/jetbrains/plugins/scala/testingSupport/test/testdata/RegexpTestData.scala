@@ -11,9 +11,8 @@ import org.jdom.Element
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind, TestRunConfigurationForm}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.annotation.tailrec

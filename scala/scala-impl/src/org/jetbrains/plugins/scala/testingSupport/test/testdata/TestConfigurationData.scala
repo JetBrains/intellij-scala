@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import com.intellij.execution.configurations.{RuntimeConfigurationError, RuntimeConfigurationException}
-import com.intellij.execution.{ExecutionException, ExternalizablePath}
+import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExecutionException, ExternalizablePath}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
@@ -11,13 +11,13 @@ import org.jdom.Element
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest, TestKind, TestRunConfigurationForm}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
 
-abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
+abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
+  extends CommonProgramRunConfigurationParameters {
 
   type SelfType <: TestConfigurationData
 
@@ -115,6 +115,8 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
   @BeanProperty var javaOptions: String           = ""
   @BeanProperty var envs: java.util.Map[String, String] = new java.util.HashMap[String, String]()
 
+  private var _passParentEnvs: Boolean = false // TODO: use
+
   private var workingDirectory: String     = ""
   def setWorkingDirectory(s: String): Unit = workingDirectory = ExternalizablePath.urlValue(s)
   def getWorkingDirectory: String          = ExternalizablePath.localPathValue(workingDirectory)
@@ -133,6 +135,11 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
 
   private def projectWorkingDirectory: Option[String] =
     Option(getProject.baseDir).map(_.getPath)
+
+  override def setProgramParameters(value: String): Unit = testArgs = value
+  override def getProgramParameters: String = testArgs
+  override def setPassParentEnvs(passParentEnvs: Boolean): Unit = _passParentEnvs = passParentEnvs
+  override def isPassParentEnvs: Boolean = _passParentEnvs
 }
 
 object TestConfigurationData {
@@ -154,7 +161,7 @@ object TestConfigurationData {
     case TestKind.CLAZZ          => new ClassTestData(configuration)
     case TestKind.TEST_NAME      => new SingleTestData(configuration)
     case TestKind.REGEXP         => new RegexpTestData(configuration)
-     case null                    => new ClassTestData(configuration)
+    case null                    => new ClassTestData(configuration)
   }
 
   def copy(from: TestConfigurationData, to: TestConfigurationData): Unit = {

@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.TestFrameworkRunnerInfo
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.SbtTestRunningSupport
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
@@ -69,6 +68,7 @@ abstract class AbstractTestRunConfiguration(
   override def isGeneratedName: Boolean = getName == generatedName
   override def suggestedName: String = generatedName
 
+  // TODO: move to TestRunConfigurationForm.applyTo
   def apply(form: TestRunConfigurationForm): Unit = {
     setModule(form.getModule)
     setTestKind(form.getSelectedKind)

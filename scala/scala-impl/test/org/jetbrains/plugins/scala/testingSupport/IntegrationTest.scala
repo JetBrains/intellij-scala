@@ -9,8 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.SearchForTest
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
 import org.junit.Assert
