@@ -1,8 +1,14 @@
-package org.jetbrains.plugins.scala.codeInsight.implicits
+package org.jetbrains.plugins.scala
+package codeInsight
+package implicits
 
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, ToggleAction}
 
-class ExpandImplicitHintsAction extends ToggleAction {
+class ExpandImplicitHintsAction extends ToggleAction(
+  ScalaCodeInsightBundle.message("expand.implicit.hints.action.text"),
+  ScalaCodeInsightBundle.message("expand.implicit.hints.action.description"),
+  /* icon = */ null
+) {
   override def update(e: AnActionEvent): Unit = {
     super.update(e)
     e.getPresentation.setEnabled(ImplicitHints.enabled)
