@@ -27,23 +27,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 //todo: possibly join with AttachSourcesNotificationProvider
 //todo: differences only in JavaEditorFileSwapper -> ScalaEditorFileSwapper
-class ScalaAttachSourcesNotificationProvider(myProject: Project)
+class ScalaAttachSourcesNotificationProvider
   extends AttachSourcesNotificationProvider() {
   private val EXTENSION_POINT_NAME: ExtensionPointName[AttachSourcesProvider] =
     new ExtensionPointName[AttachSourcesProvider]("com.intellij.attachSourcesProvider")
 
-  override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor): EditorNotificationPanel = {
+  override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor, project: Project): EditorNotificationPanel = {
     if (file.getFileType ne JavaClassFileType.INSTANCE) return null
-    val libraries: util.List[LibraryOrderEntry] = findOrderEntriesContainingFile(file)
+    val libraries: util.List[LibraryOrderEntry] = findOrderEntriesContainingFile(file, project)
     if (libraries == null) return null
 
-    val scalaFile = PsiManager.getInstance(myProject).findFile(file) match {
+    val scalaFile = PsiManager.getInstance(project).findFile(file) match {
       case scalaFile: ScalaFile => scalaFile
-      case _ => return super.createNotificationPanel(file, fileEditor, myProject) //as Java has now different message
+      case _ => return super.createNotificationPanel(file, fileEditor, project) //as Java has now different message
     }
 
     val fqn = ScalaEditorFileSwapper.getFQN(scalaFile)
-    if (fqn == null || ScalaEditorFileSwapper.findSourceFile(myProject, file) != null) return null
+    if (fqn == null || ScalaEditorFileSwapper.findSourceFile(project, file) != null) return null
 
     val panel: EditorNotificationPanel = new EditorNotificationPanel
     val sourceFile: VirtualFile = findSourceFile(file)
@@ -53,7 +53,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project)
       defaultAction = new AttachSourcesUtil.AttachJarAsSourcesAction(file)
     } else {
       panel.setText(ScalaBundle.message("library.sources.not.found"))
-      defaultAction = new AttachSourcesUtil.ChooseAndAttachSourcesAction(myProject, panel)
+      defaultAction = new AttachSourcesUtil.ChooseAndAttachSourcesAction(project, panel)
     }
 
 
@@ -86,15 +86,15 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project)
       val each = iterator.next()
       panel.createActionLabel(GuiUtils.getTextWithoutMnemonicEscaping(each.getName), new Runnable {
         override def run(): Unit = {
-          if (!Comparing.equal(libraries, findOrderEntriesContainingFile(file))) {
-            Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.find.library.for", StringUtil.getShortName(fqn)), ScalaBundle.message("cannot.find.library.error.title"))
+          if (!Comparing.equal(libraries, findOrderEntriesContainingFile(file, project))) {
+            Messages.showErrorDialog(project, ScalaBundle.message("cannot.find.library.for", StringUtil.getShortName(fqn)), ScalaBundle.message("cannot.find.library.error.title"))
             return
           }
           panel.setText(each.getBusyText)
           val onFinish: Runnable = () => {
             invokeLater(panel.setText(ScalaBundle.message("library.sources.not.found")))
           }
-          val callback: ActionCallback = each.perform(findOrderEntriesContainingFile(file))
+          val callback: ActionCallback = each.perform(findOrderEntriesContainingFile(file, project))
           callback.doWhenRejected(onFinish)
           callback.doWhenDone(onFinish)
         }
@@ -103,9 +103,9 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project)
     panel
   }
 
-  private def findOrderEntriesContainingFile(file: VirtualFile): util.List[LibraryOrderEntry] = {
+  private def findOrderEntriesContainingFile(file: VirtualFile, project: Project): util.List[LibraryOrderEntry] = {
     val libs: util.List[LibraryOrderEntry] = new util.ArrayList[LibraryOrderEntry]
-    val entries: util.List[OrderEntry] = ProjectRootManager.getInstance(myProject).getFileIndex.getOrderEntriesForFile(file)
+    val entries: util.List[OrderEntry] = ProjectRootManager.getInstance(project).getFileIndex.getOrderEntriesForFile(file)
     entries.forEach {
       case entry: LibraryOrderEntry =>
         libs.add(entry)
