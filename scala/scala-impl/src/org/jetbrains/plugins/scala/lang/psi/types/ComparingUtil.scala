@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
+
 import scala.collection.JavaConverters._
 
 /**
@@ -53,11 +54,19 @@ object ComparingUtil {
   }
 
   def isNeverSubType(tp1: ScType, tp2: ScType, sameType: Boolean = false): Boolean = {
-    if (tp2.weakConforms(tp1) || tp1.weakConforms(tp2)) return false
+    if (tp2.weakConforms(tp1) || tp1.weakConforms(tp2))
+      return false
+
+    // we already know that tp2 is not assignable to tp1 and vice versa
+    // if tp2 is now also an anyval, tp1 cannot be a subtype of tp2
+    val anyVal = tp2.projectContext.stdTypes.AnyVal
+    if (tp2.weakConforms(anyVal))
+      return true
 
     val Seq(clazzOpt1, clazzOpt2) =
-      Seq(tp1, tp2).map(_.tryExtractDesignatorSingleton.extractClass)
-    if (clazzOpt1.isEmpty || clazzOpt2.isEmpty) return false
+      Seq(tp1, tp2).map(_.widen.extractClass)
+    if (clazzOpt1.isEmpty || clazzOpt2.isEmpty)
+      return false
     val (clazz1, clazz2) = (clazzOpt1.get, clazzOpt2.get)
 
     def isNeverSameType(tp1: ScType, tp2: ScType) = isNeverSubType(tp1, tp2, sameType = true)
