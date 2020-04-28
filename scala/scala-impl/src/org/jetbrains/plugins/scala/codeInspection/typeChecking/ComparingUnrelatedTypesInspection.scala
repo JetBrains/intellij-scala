@@ -66,7 +66,7 @@ object ComparingUnrelatedTypesInspection {
   @tailrec
   private def extractActualType(`type`: ScType): ScType = `type` match {
     case AliasType(_, Right(rhs), _) => extractActualType(rhs)
-    case _                           => `type`.tryExtractDesignatorSingleton
+    case _                           => `type`.widen
   }
 }
 
@@ -113,8 +113,8 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
   }
 
   private def generateComparingUnrelatedTypesMsg(firstType: ScType, secondType: ScType)(implicit tpc: TypePresentationContext): String = {
-    val nonSingleton1 = firstType.extractDesignatorSingleton.getOrElse(firstType)
-    val nonSingleton2 = secondType.extractDesignatorSingleton.getOrElse(secondType)
+    val nonSingleton1 = firstType.widen
+    val nonSingleton2 = secondType.widen
     val (firstTypeText, secondTypeText) = ScTypePresentation.different(nonSingleton1, nonSingleton2)
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", firstTypeText, secondTypeText)
   }
