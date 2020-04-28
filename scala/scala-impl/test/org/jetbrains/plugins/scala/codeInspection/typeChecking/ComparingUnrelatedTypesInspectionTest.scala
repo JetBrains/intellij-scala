@@ -426,10 +426,17 @@ class Test29 extends ComparingUnrelatedTypesInspectionTest {
   )
 }
 
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_10,
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13
+))
 class Test30 extends ComparingUnrelatedTypesInspectionTest {
 
-  override protected val description: String =
-    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Dummy", "Int")
+  override protected val description: String = ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Dummy", "Int")
+
+  override protected def descriptionMatches(s: String): Boolean =
+    s == description || s == ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Dummy", "Integer")
 
   def testOverriddenMethods(): Unit = checkTextHasNoErrors(
     """
