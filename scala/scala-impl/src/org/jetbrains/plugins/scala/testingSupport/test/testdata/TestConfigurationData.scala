@@ -121,12 +121,11 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   def setWorkingDirectory(s: String): Unit = workingDirectory = ExternalizablePath.urlValue(s)
   def getWorkingDirectory: String          = ExternalizablePath.localPathValue(workingDirectory)
 
-  def initWorkingDir(): Unit = {
+  def initWorkingDirIfEmpty(): Unit =
     if (StringUtils.isBlank(workingDirectory)) {
       val workingDir = Option(getModule).flatMap(moduleWorkingDirectory).orElse(projectWorkingDirectory)
       setWorkingDirectory(workingDir.getOrElse(""))
     }
-  }
 
   private def moduleWorkingDirectory(module: Module): Option[String] = {
     val providers = TestWorkingDirectoryProvider.implementations

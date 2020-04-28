@@ -68,14 +68,6 @@ abstract class AbstractTestRunConfiguration(
   override def isGeneratedName: Boolean = getName == generatedName
   override def suggestedName: String = generatedName
 
-  // TODO: move to TestRunConfigurationForm.applyTo
-  def apply(form: TestRunConfigurationForm): Unit = {
-    setModule(form.getModule)
-    setTestKind(form.getTestKind)
-    testConfigurationData = TestConfigurationData.createFromForm(form, this)
-    testConfigurationData.initWorkingDir()
-  }
-
   protected[test] def getClazz(path: String, withDependencies: Boolean): PsiClass = {
     val classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(withDependencies), path)
     val (objects, nonObjects) = classes.partition(_.isInstanceOf[ScObject])
@@ -157,8 +149,7 @@ abstract class AbstractTestRunConfiguration(
 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
     val group: SettingsEditorGroup[AbstractTestRunConfiguration] = new SettingsEditorGroup
-    group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"),
-      new AbstractTestRunConfigurationEditor(project, this))
+    group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new AbstractTestRunConfigurationEditor(project))
     JavaRunConfigurationExtensionManager.getInstance.appendEditors(thisConfiguration, group)
     group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel[AbstractTestRunConfiguration])
     group

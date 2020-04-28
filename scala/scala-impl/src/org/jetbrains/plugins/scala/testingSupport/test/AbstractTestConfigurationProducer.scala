@@ -142,7 +142,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
         ClassTestData(configuration, sanitize(testClass.qualifiedName), testName)
     }
     TestConfigurationData.copy(testDataOld, testDataNew)
-    testDataNew.initWorkingDir()
+    testDataNew.initWorkingDirIfEmpty()
     testDataNew
   }
 

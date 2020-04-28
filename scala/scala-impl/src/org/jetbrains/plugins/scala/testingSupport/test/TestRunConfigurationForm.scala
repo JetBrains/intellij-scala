@@ -25,11 +25,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TextWithMnemonic.Mnemonic
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm._
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{RegexpTestData, SingleTestData}
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{RegexpTestData, SingleTestData, TestConfigurationData}
 import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 
+// TODO: move to `ui` package
 //noinspection ConvertNullInitializerToUnderscore
 final class TestRunConfigurationForm(val myProject: Project) {
 
@@ -117,6 +118,13 @@ final class TestRunConfigurationForm(val myProject: Project) {
     mySuitePaths = configuration.javaSuitePaths.asScala
 
     UiComponentsVisibility.update(configuration)
+  }
+
+  def applyTo(configuration: AbstractTestRunConfiguration): Unit = {
+    configuration.setTestKind(this.getTestKind)
+    configuration.setModule(this.getModule)
+    configuration.testConfigurationData = TestConfigurationData.createFromForm(this, configuration)
+    configuration.testConfigurationData.initWorkingDirIfEmpty()
   }
 
   private def resetSbtOptionsFrom(configuration: AbstractTestRunConfiguration): Unit = {

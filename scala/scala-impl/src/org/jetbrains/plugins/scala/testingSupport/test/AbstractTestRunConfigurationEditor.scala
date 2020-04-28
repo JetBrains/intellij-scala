@@ -6,14 +6,14 @@ import javax.swing.JComponent
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 
-class AbstractTestRunConfigurationEditor(project: Project, configuration: AbstractTestRunConfiguration)
+class AbstractTestRunConfigurationEditor(project: Project)
   extends SettingsEditor[AbstractTestRunConfiguration] {
 
   private val form = new TestRunConfigurationForm(project)
 
-  override def resetEditorFrom(s: AbstractTestRunConfiguration): Unit = form.resetFrom(s)
-
-  override def applyEditorTo(s: AbstractTestRunConfiguration): Unit = s.apply(form)
-
   override def createEditor: JComponent = form.getPanel
+
+  override def resetEditorFrom(configuration: AbstractTestRunConfiguration): Unit = form.resetFrom(configuration)
+
+  override def applyEditorTo(configuration: AbstractTestRunConfiguration): Unit = form.applyTo(configuration)
 }
