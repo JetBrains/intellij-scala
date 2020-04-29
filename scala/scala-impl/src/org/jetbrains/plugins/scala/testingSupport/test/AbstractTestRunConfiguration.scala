@@ -67,10 +67,11 @@ abstract class AbstractTestRunConfiguration(project: Project,
     configurationFactory
   ) with ScalaTestingConfiguration {
 
+
+  // TODO: this field is bound to class of testConfigurationData, and should be not forgot to be reset when data is updated
+  //  think how we can statically bind these entities so that IDEA serialization/deserialization works
+  //  take into account changes in SCL-15044, review that it works properly
   @BeanProperty var testKind: TestKind = TestKind.CLAZZ
-
-  def testKind_(kind: TestKind): Unit = testKind = Option(testKind).getOrElse(TestKind.CLAZZ)
-
   var testConfigurationData: TestConfigurationData = new ClassTestData(this)
 
   final def javaSuitePaths: java.util.List[String] = suitePaths.asJava

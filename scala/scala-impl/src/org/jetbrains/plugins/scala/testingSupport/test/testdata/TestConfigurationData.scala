@@ -154,6 +154,6 @@ object TestConfigurationData {
     case TestKind.CLAZZ          => new ClassTestData(configuration)
     case TestKind.TEST_NAME      => new SingleTestData(configuration)
     case TestKind.REGEXP         => new RegexpTestData(configuration)
-     case null                    => new ClassTestData(configuration)
+    case null                    => new ClassTestData(configuration) // null can be set by IDEA internally during intermediate xml read/write
   }
 }
