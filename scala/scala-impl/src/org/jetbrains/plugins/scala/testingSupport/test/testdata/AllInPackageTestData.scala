@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import java.util
 
-import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiPackage}
 import org.jdom.Element
@@ -11,6 +12,7 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest, TestKind}
@@ -28,16 +30,6 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
   @BeanProperty var classBuf: java.util.List[String] = new util.ArrayList[String]()
 
   override def getKind: TestKind = TestKind.ALL_IN_PACKAGE
-
-  override def getScope(withDependencies: Boolean): GlobalSearchScope = {
-    searchTest match {
-      case SearchForTest.IN_WHOLE_PROJECT => unionScope(_ => true, withDependencies)
-      case SearchForTest.IN_SINGLE_MODULE if getModule != null => mScope(getModule, withDependencies)
-      case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
-        unionScope(ModuleManager.getInstance(getProject).isModuleDependent(getModule, _), withDependencies)
-      case _ => unionScope(_ => true, withDependencies)
-    }
-  }
 
   override def checkSuiteAndTestName: CheckResult =
     for {
@@ -63,7 +55,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     }
     var classes = ArrayBuffer[PsiClass]()
     val pack = ScPackageImpl(getPackage(getTestPackagePath))
-    val scope = getScope(withDependencies = false)
+    val scope = getScope
 
     if (pack == null) throw executionException(ScalaBundle.message("test.run.config.test.package.not.found", testPackagePath))
 
@@ -88,6 +80,26 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     val classFqns = classes.map(_.qualifiedName)
     classBuf = classFqns.asJava
     aMap(classFqns)
+  }
+
+  // TODO: this is shit
+  private def getScope: GlobalSearchScope =
+    getModule match {
+      case null   => projectScope(getProject)
+      case module =>
+        searchTest match {
+          case SearchForTest.IN_SINGLE_MODULE            => modulesScope(module)
+          case SearchForTest.ACCROSS_MODULE_DEPENDENCIES => modulesScope(module.withDependencyModules: _*)
+          case SearchForTest.IN_WHOLE_PROJECT            => projectScope(getProject)
+        }
+    }
+
+  private def projectScope(project: Project): GlobalSearchScope =
+    modulesScope(project.modules: _*)
+
+  private def modulesScope(modules: Module*): GlobalSearchScope = {
+    val moduleScopes = modules.map(GlobalSearchScope.moduleScope)
+    GlobalSearchScope.union(moduleScopes.asJavaCollection)
   }
 
   override def apply(form: TestRunConfigurationForm): Unit = {

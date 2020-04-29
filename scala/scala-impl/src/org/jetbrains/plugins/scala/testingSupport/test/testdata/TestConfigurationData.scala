@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExternalizablePath}
-import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.xmlb.XmlSerializer
 import org.apache.commons.lang3.StringUtils
 import org.jdom.Element
@@ -37,26 +36,6 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
 
   protected final def check(condition: Boolean, exception: => RuntimeConfigurationException): CheckResult =
     Either.cond(condition, (), exception)
-
-  protected final def mScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
-    if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
-    else GlobalSearchScope.moduleScope(module)
-  }
-
-  protected final def unionScope(moduleGuard: Module => Boolean, withDependencies: Boolean): GlobalSearchScope = {
-    var scope: GlobalSearchScope = if (getModule != null) mScope(getModule, withDependencies) else GlobalSearchScope.EMPTY_SCOPE
-    for (module <- ModuleManager.getInstance(getProject).getModules) {
-      if (moduleGuard(module)) {
-        scope = scope.union(mScope(module, withDependencies))
-      }
-    }
-    scope
-  }
-
-  protected def getScope(withDependencies: Boolean): GlobalSearchScope = {
-    if (getModule != null) mScope(getModule, withDependencies)
-    else unionScope(_ => true, withDependencies)
-  }
 
   def apply(form: TestRunConfigurationForm): Unit = {
     setSearchTest(form.getSearchForTest)

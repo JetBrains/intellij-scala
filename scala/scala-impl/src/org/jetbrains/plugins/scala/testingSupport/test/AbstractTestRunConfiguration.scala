@@ -56,7 +56,8 @@ abstract class AbstractTestRunConfiguration(
   override def suggestedName: String = generatedName
 
   protected[test] def getClazz(path: String, withDependencies: Boolean): PsiClass = {
-    val classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(withDependencies), path)
+    val scope = getScope(withDependencies)
+    val classes = ScalaPsiManager.instance(project).getCachedClasses(scope, path)
     val (objects, nonObjects) = classes.partition(_.isInstanceOf[ScObject])
     if (nonObjects.nonEmpty) nonObjects(0)
     else if (objects.nonEmpty) objects(0)
@@ -75,15 +76,20 @@ abstract class AbstractTestRunConfiguration(
   override def getValidModules: java.util.List[Module] =
     getProject.modulesWithScala.asJava
 
-  override def getModules: Array[Module] =
+  override final def getModules: Array[Module] =
+    compileModulesBeforeRun.toArray
+
+  def compileModulesBeforeRun: CompileBeforeRun =
     inReadAction {
-      import SearchForTest._
-      val module = getModule
-      testConfigurationData.searchTest match {
-        case ACCROSS_MODULE_DEPENDENCIES if module != null => module.withDependencyModules.toArray
-        case IN_SINGLE_MODULE if module != null            => Array(module)
-        case IN_WHOLE_PROJECT                              => getProject.modules.toArray
-        case _                                             => Array()
+      getModule match {
+        case null => CompileBeforeRun.FullProject
+        case module =>
+          // TODO shouldn't it be used only when testConfigurationData.getKind == TestKind.ALL_IN_PACKAGE ?
+          testConfigurationData.searchTest match {
+            case SearchForTest.IN_SINGLE_MODULE            => CompileBeforeRun.Modules(module)
+            case SearchForTest.ACCROSS_MODULE_DEPENDENCIES => CompileBeforeRun.Modules(module, module.dependencyModules: _*)
+            case SearchForTest.IN_WHOLE_PROJECT            => CompileBeforeRun.FullProject
+          }
       }
     }
 
@@ -158,7 +164,7 @@ abstract class AbstractTestRunConfiguration(
     JdomExternalizerMigrationHelper(element) { helper =>
       helper.migrateString("testKind")(x => testKind = TestKind.parse(x))
     }
- }
+}
 
 object AbstractTestRunConfiguration {
 
@@ -194,18 +200,22 @@ object AbstractTestRunConfiguration {
    */
   case class TestFrameworkRunnerInfo(runnerClass: String)
 
-  private def moduleScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
+  private def moduleScope(module: Module, withDependencies: Boolean): GlobalSearchScope =
     if (withDependencies)
       GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
     else {
-      val sharedSourceScope =
-        module.sharedSourceDependency
-          .map(GlobalSearchScope.moduleScope)
-          .getOrElse(GlobalSearchScope.EMPTY_SCOPE)
-      sharedSourceScope.union(GlobalSearchScope.moduleScope(module))
+      val sharedSourceScope= sharedSourcesModuleScope(module)
+      GlobalSearchScope.moduleScope(module).union(sharedSourceScope)
     }
-  }
 
+  private def sharedSourcesModuleScope(module: Module): GlobalSearchScope =
+    module.sharedSourceDependency
+      .map(GlobalSearchScope.moduleScope)
+      .getOrElse(GlobalSearchScope.EMPTY_SCOPE)
+
+  /**
+   * TODO: why not using just [[GlobalSearchScope.projectScope]]?
+   */
   private def projectScope(project: Project, withDependencies: Boolean): GlobalSearchScope = {
     val projectModules = ModuleManager.getInstance(project).getModules
     projectModules.iterator
@@ -214,4 +224,19 @@ object AbstractTestRunConfiguration {
       }
   }
 
+  /**
+   * Helper ADT is used to better express contract of
+   * [[com.intellij.execution.configurations.RunProfileWithCompileBeforeLaunchOption#getModules()]]
+   * which is originally expressed in doc comment
+   */
+  sealed trait CompileBeforeRun {
+    def toArray: Array[Module] = this match {
+      case CompileBeforeRun.Modules(first, other@_*) => (first +: other).toArray
+      case CompileBeforeRun.FullProject              => Array.empty
+    }
+  }
+  object CompileBeforeRun {
+    case class Modules(first: Module, other: Module*) extends CompileBeforeRun
+    object FullProject extends CompileBeforeRun
+  }
 }
