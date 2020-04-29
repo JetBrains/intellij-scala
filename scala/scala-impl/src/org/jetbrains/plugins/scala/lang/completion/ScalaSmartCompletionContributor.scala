@@ -601,33 +601,25 @@ object ScalaSmartCompletionContributor {
     override def renderElement(element: LookupElement,
                                presentation: LookupElementPresentation): Unit = {
       val itemText = builder(presentableParams)
-      presentation match {
-        case realPresentation: RealLookupElementPresentation =>
-          object isEnoughSpaceFor {
-            def unapply(text: String): Boolean =
-              realPresentation.hasEnoughSpaceFor(text, false)
-          }
 
-          val text = itemText match {
-            case isEnoughSpaceFor() => itemText
-            case _ =>
-              @tailrec
-              def innerItemText(index: Int): String = index - 1 match {
-                case 0 => s"... $functionArrow "
-                case newIndex =>
-                  builder(presentableParams.take(newIndex), separator = ", ...") match {
-                    case string@isEnoughSpaceFor() => string
-                    case _ => innerItemText(newIndex)
-                  }
-              }
+      def isEnoughSpaceFor(text: String): Boolean = text.length < 100
 
-              innerItemText(presentableParams.length)
-          }
+      @tailrec
+      def collapseLastParams(index: Int): String = index - 1 match {
+        case 0 => s"... $functionArrow "
+        case newIndex =>
+          val shortened = builder(presentableParams.take(newIndex), paramsSuffix = ", ...")
 
-          presentation.setItemText(text)
-          presentation.setIcon(Icons.LAMBDA)
-        case _ => presentation.setItemText(itemText)
+          if (isEnoughSpaceFor(shortened)) shortened
+          else collapseLastParams(index - 1)
       }
+
+      val text =
+        if (isEnoughSpaceFor(itemText)) itemText
+        else collapseLastParams(presentableParams.length)
+
+      presentation.setItemText(text)
+      presentation.setIcon(Icons.LAMBDA)
     }
   }
 
@@ -661,14 +653,7 @@ object ScalaSmartCompletionContributor {
       val file = documentManager.getPsiFile(document)
       val startOffset = context.getStartOffset
       val endOffset = startOffset + text.length()
-      val commonParent = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset),
-        file.findElementAt(endOffset - 1))
-      if (commonParent.getTextRange.getStartOffset != startOffset ||
-        commonParent.getTextRange.getEndOffset != endOffset) {
-        document.insertString(endOffset, " ")
-        editor.getCaretModel.moveToOffset(endOffset + 1)
-        return
-      }
+      val commonParent = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset - 1))
 
       ScalaPsiUtil.adjustTypes(commonParent)
 
@@ -706,6 +691,11 @@ object ScalaSmartCompletionContributor {
             parameter.typeElement.foreach(seekAbstracts(_))
             builder.replaceElement(parameter.nameId, parameter.name)
           }
+          f.result.foreach {
+            case qMarks: ScReferenceExpression if qMarks.refName == "???" =>
+              builder.replaceElement(qMarks.nameId, qMarks.refName)
+            case _ =>
+          }
         case c: ScCaseClause => c.pattern match {
           case Some(pattern) =>
             for (binding <- pattern.bindings) {
@@ -728,17 +718,7 @@ object ScalaSmartCompletionContributor {
       } template.addVariable(name, actualName, actualName, false)
 
       document.deleteString(commonParent.getTextRange.getStartOffset, commonParent.getTextRange.getEndOffset)
-      TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
-        override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
-          if (!brokenOff) {
-            val offset = editor.getCaretModel.getOffset
-            inWriteAction {
-              document.insertString(offset, " ")
-            }
-            editor.getCaretModel.moveToOffset(offset + 1)
-          }
-        }
-      })
+      TemplateManager.getInstance(project).startTemplate(editor, template)
     }
   }
 
@@ -746,13 +726,15 @@ object ScalaSmartCompletionContributor {
 
     type Parameter = (ScType, String)
 
-    def apply(types: Seq[Parameter], separator: String = "")
+    def apply(types: Seq[Parameter], paramsSuffix: String = "")
              (implicit project: Project): String =
       createBuffer
         .append(suggestedParameters(types))
-        .append(separator)
+        .append(paramsSuffix)
         .append(" ")
         .append(functionArrow)
+        .append(" ")
+        .append("???")
         .toString
 
     private def createBuffer = StringBuilder.newBuilder match {
