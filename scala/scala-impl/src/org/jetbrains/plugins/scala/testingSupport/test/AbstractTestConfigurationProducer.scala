@@ -52,6 +52,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
         if (isRunPossibleFor(configuration, testElement, config.getModule)) {
           sourceElement.set(testElement)
           copyConfiguration(config, configuration)
+          configuration.testKind = configuration.testConfigurationData.getKind
           true
         }
         else false

@@ -51,8 +51,6 @@ abstract class AbstractTestRunConfiguration(
 
   var testConfigurationData: TestConfigurationData = new ClassTestData(this)
 
-  def testKind_(kind: TestKind): Unit = testKind = Option(kind).getOrElse(TestKind.CLAZZ)
-
   override def getTestClassPath: String = testConfigurationData match {
     case data: ClassTestData => data.testClassPath
     case _ => null
