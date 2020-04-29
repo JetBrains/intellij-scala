@@ -36,18 +36,31 @@ public class WorksheetSettingsSetForm {
     WorksheetSettingsSetForm(PsiFile file, WorksheetSettingsData settingsData) {
         myFile = file;
         myProject = file.getProject();
-        $$$setupUI$$$();
         init(settingsData);
     }
 
     WorksheetSettingsSetForm(Project project, WorksheetSettingsData settingsData) {
         myFile = null;
         myProject = project;
-        $$$setupUI$$$();
         init(settingsData);
     }
 
     private void init(WorksheetSettingsData settingsData) {
+        $$$setupUI$$$();
+
+        moduleComboBox.fillModules(myProject);
+
+        WorksheetCommonSettings settings = myFile != null ?
+                WorksheetFileSettings.apply(myFile) :
+                WorksheetProjectSettings.apply(myProject);
+
+        Module defaultModule = settings.getModuleFor();
+        if (defaultModule != null) {
+            moduleComboBox.setSelectedModule(defaultModule);
+            boolean enabled = myFile == null || WorksheetFileSettings.isScratchWorksheet(myFile.getVirtualFile(), myFile.getProject());
+            moduleComboBox.setEnabled(enabled);
+        }
+
         runTypeComboBox.setModel(new DefaultComboBoxModel<>(WorksheetExternalRunType.getAllRunTypes()));
         runTypeComboBox.setSelectedItem(settingsData.runType);
 
@@ -75,7 +88,7 @@ public class WorksheetSettingsSetForm {
         compilerProfileComboBox.setSelectedItem(compilerProfile);
     }
 
-    public WorksheetSettingsData getSettings() {
+    public WorksheetSettingsData getFilledSettingsData() {
         return new WorksheetSettingsData(
                 interactiveModeCheckBox.isSelected(),
                 makeProjectBeforeRunCheckBox.isSelected(),
@@ -93,19 +106,7 @@ public class WorksheetSettingsSetForm {
 
     private void createUIComponents() {
         moduleComboBox = new ModulesComboBox();
-        moduleComboBox.fillModules(myProject);
         moduleComboBox.setToolTipText(ScalaBundle.message("worksheet.settings.panel.using.class.path.of.the.module"));
-
-        WorksheetCommonSettings settings = myFile != null ?
-                WorksheetFileSettings.apply(myFile) :
-                WorksheetProjectSettings.apply(myProject);
-
-        Module defaultModule = settings.getModuleFor();
-        if (defaultModule != null) {
-            moduleComboBox.setSelectedModule(defaultModule);
-            boolean enabled = myFile == null || WorksheetFileSettings.isScratchWorksheet(myFile.getVirtualFile(), myFile.getProject());
-            moduleComboBox.setEnabled(enabled);
-        }
 
         openCompilerProfileSettingsButton = new ShowCompilerProfileSettingsButton(this).getActionButton();
     }
