@@ -54,9 +54,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
     Seq(findChildrenByClassScala(classOf[ScArgumentExprList]): _*)
 
   override protected def updateImplicitArguments(): Unit =
-    if (explicitImplicitArgList.isEmpty) {
-      simpleTypeElement.foreach(_.getNonValueType(withUnnecessaryImplicitsUpdate = true))
-    }
+    simpleTypeElement.foreach(_.getNonValueType(withUnnecessaryImplicitsUpdate = true))
 
   override def toString: String = "ConstructorInvocation"
 

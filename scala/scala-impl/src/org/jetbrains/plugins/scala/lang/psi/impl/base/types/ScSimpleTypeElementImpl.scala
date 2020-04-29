@@ -9,7 +9,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
@@ -79,17 +78,23 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
 
     def updateImplicits(tp: ScType, withExpected: Boolean, params: Seq[Seq[Parameter]], lastImplicit: Boolean): ScType = {
-      if (lastImplicit) {
-        //Let's add implicit parameters
-        val newTp = tp match {
-          case ScTypePolymorphicType(i, p) =>
-            ScTypePolymorphicType(ScMethodType(i, params.last, isImplicit = true), p)
-          case _ => ScMethodType(tp, params.last, isImplicit = true)
+      val (innerRes, implicitParams) =
+        if (lastImplicit) {
+          //Let's add implicit parameters
+          val newTp = tp match {
+            case ScTypePolymorphicType(i, p) =>
+              ScTypePolymorphicType(ScMethodType(i, params.last, isImplicit = true), p)
+            case _ => ScMethodType(tp, params.last, isImplicit = true)
+          }
+          InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
+        } else {
+          (tp, None)
         }
-        val res = InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
-        findConstructorInvocation.foreach(_.setImplicitArguments(res._2))
-        res._1
-      } else tp
+      findConstructorInvocation foreach {
+        invoc =>
+          invoc.setImplicitArguments(if (invoc.arguments.length < params.length) implicitParams else None)
+      }
+      innerRes
     }
 
     def typeForConstructor(ref: ScStableCodeReference, constr: PsiMethod,
