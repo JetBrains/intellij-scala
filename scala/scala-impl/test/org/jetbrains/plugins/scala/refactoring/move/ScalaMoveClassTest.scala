@@ -93,6 +93,6 @@ class ScalaMoveClassTestIgnored extends ScalaMoveClassTestBase {
 
   // wait for fix Scl-6316
   def testWithoutCompanion() {
-    doTest("withoutCompanion", Array("source.A"), "target", Kinds.onlyObjects, moveCompanion = false)
+    doTest(Array("source.A"), "target", Kinds.onlyObjects, moveCompanion = false)
   }
 }
