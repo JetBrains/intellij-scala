@@ -185,6 +185,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
         configuration.setSaveOutputToFile(cfg.isSaveOutputToFile)
         configuration.setShowConsoleOnStdErr(cfg.isShowConsoleOnStdErr)
         configuration.setShowConsoleOnStdOut(cfg.isShowConsoleOnStdOut)
+        configuration.testKind = cfg.testConfigurationData.getKind
         configuration.testConfigurationData = cfg.testConfigurationData.copy(configuration)
       }
       runIsPossible
