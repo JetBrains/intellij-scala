@@ -4,13 +4,9 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement}
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
-
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
 
 class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
   //symbolic names are chosen to keep test data readable
@@ -22,18 +18,18 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override def loadScalaLibrary = false
 
-  protected def doTest(fileText: String, charToTypeAndRemove: Char = 'a'): Unit = {
+  protected def doTest(fileText: String, changeAtOffset: Int => Unit): Unit = {
     val fileName = getTestName(true) + ".scala"
     myFixture.configureByText(fileName, fileText.withNormalizedSeparator.trim)
 
     val document = myFixture.getDocument(getFile)
 
     val caretOffsets = extractMarkerOffsets(document, |)
-    val offsetsToChange = collectMarkerOffsets(^^)
-    val offsetsToStay = collectMarkerOffsets(~~)
+    def offsetsToChange = collectMarkerOffsets(^^)
+    def offsetsToStay = collectMarkerOffsets(~~)
 
     Assert.assertTrue("No caret markers found", caretOffsets.nonEmpty)
-    Assert.assertTrue("No modCount markers found", offsetsToChange.size + offsetsToStay.size > 0)
+    Assert.assertTrue("No modCount markers found", offsetsToChange.length + offsetsToStay.length > 0)
 
     for {
       caretOffset <- caretOffsets
@@ -42,7 +38,13 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
       val (countsToChangeBefore, countsToStayBefore) =
         (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
 
-      typeAndRemoveChar(caretOffset, charToTypeAndRemove)
+      val lengthBefore = document.getTextLength
+      changeAtOffset(caretOffset)
+
+      val lengthAfter = document.getTextLength
+      if (lengthAfter != lengthBefore) {
+        Assert.assertEquals("Only a single caret may be used if document length is changed", 1, caretOffsets.length)
+      }
 
       val (countsToChangeAfter, countsToStayAfter) =
         (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
@@ -59,6 +61,9 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
     }
   }
+
+  protected def doTest(fileText: String, charToTypeAndRemove: Char = 'a'): Unit =
+    doTest(fileText, typeAndRemoveChar(_, charToTypeAndRemove))
 
   private def assertError(fileText: String): Unit = {
     try {
@@ -264,5 +269,16 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |}""".stripMargin,
       charToTypeAndRemove = '_'
     )
+  }
+
+  def testCommentImport(): Unit = {
+    doTest(
+      s"""
+         |${|}import scala.math._
+         |
+         |${^^}class bla {
+         |  ${^^}val x = max (1,2)
+         |}""".stripMargin,
+      changeAtOffset = insertAtOffset(_, "//"))
   }
 }

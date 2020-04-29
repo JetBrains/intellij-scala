@@ -17,7 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 private sealed trait ScalaPsiEventFilter {
   def shouldSkip(event: PsiTreeChangeEvent): Boolean = false
 
-  def shouldSkip(changedElement: PsiElement, validElement: PsiElement): Boolean = false
+  def shouldSkip(changedElement: PsiElement): Boolean = false
+
+  def shouldSkip(newElement: Option[PsiElement], oldElement: Option[PsiElement]): Boolean =
+    newElement.forall(shouldSkip) && oldElement.forall(shouldSkip)
 }
 
 private object ScalaPsiEventFilter {
@@ -47,9 +50,9 @@ private object ScalaPsiEventFilter {
   }
 
   private object NonSignificantParentsFilter extends ScalaPsiEventFilter {
-    override def shouldSkip(changedElement: PsiElement, validElement: PsiElement): Boolean = {
+    override def shouldSkip(changedElement: PsiElement): Boolean = {
       // do not update on changes in dummy file or comments
-      PsiTreeUtil.getParentOfType(validElement, classOf[ScalaCodeFragment], classOf[PsiComment]) != null
+      PsiTreeUtil.getParentOfType(changedElement, classOf[ScalaCodeFragment], classOf[PsiComment]) != null
     }
   }
 
@@ -66,11 +69,9 @@ private object ScalaPsiEventFilter {
     private def isInImportExpression(validElement: PsiElement): Boolean =
       validElement.is[ScImportExpr] || validElement.getParent.is[ScImportExpr]
 
-    override def shouldSkip(changedElement: PsiElement, validElement: PsiElement): Boolean = {
-      if (isInImportExpression(validElement)) {
-        false
-      }
-      else changedElement match {
+    override def shouldSkip(changedElement: PsiElement): Boolean = {
+      changedElement match {
+        case leaf: LeafPsiElement if isInImportExpression(leaf) => false
         case leaf: LeafPsiElement =>
           leaf.getElementType match {
             case WHITE_SPACE | BAD_CHARACTER => true
