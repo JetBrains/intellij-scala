@@ -11,13 +11,13 @@ import com.intellij.ui.components.JBTabbedPane
 import org.jetbrains.plugins.scala.ScalaBundle
 
 class WorksheetAllSettingsPanel(
-  val myFile: PsiFile,
-  val currentSettings: WorksheetSettingsData,
-  val defaultSettings: WorksheetSettingsData
+  myFile: PsiFile,
+  initialCurrentSettings: WorksheetSettingsData,
+  initialDefaultSettings: WorksheetSettingsData
 ) extends JPanel {
 
-  private val currentFileSettingsForm = new WorksheetSettingsSetForm(myFile, currentSettings)
-  private val defaultSettingsForm     = new WorksheetSettingsSetForm(myFile.getProject, defaultSettings)
+  private val currentFileSettingsForm = new WorksheetSettingsSetForm(myFile, initialCurrentSettings)
+  private val defaultSettingsForm     = new WorksheetSettingsSetForm(myFile.getProject, initialDefaultSettings)
 
   init()
 
@@ -34,7 +34,6 @@ class WorksheetAllSettingsPanel(
     this.add(tabbedPane, constraints)
   }
 
-  def fileSettings: WorksheetSettingsData = currentFileSettingsForm.getSettings
-
-  def defaultFileSettigns: WorksheetSettingsData = defaultSettingsForm.getSettings
+  def fileSettings: WorksheetSettingsData = currentFileSettingsForm.getFilledSettingsData
+  def defaultFileSettings: WorksheetSettingsData = defaultSettingsForm.getFilledSettingsData
 }
