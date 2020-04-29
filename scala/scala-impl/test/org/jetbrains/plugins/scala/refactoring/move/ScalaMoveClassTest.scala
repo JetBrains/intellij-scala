@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package refactoring.move
 
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Ignore
 
 class ScalaMoveClassTest extends ScalaMoveClassTestBase {
 
@@ -35,6 +36,7 @@ class ScalaMoveClassTest extends ScalaMoveClassTestBase {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
+  @Ignore
   def testScl4613(): Unit = {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
@@ -51,6 +53,7 @@ class ScalaMoveClassTest extends ScalaMoveClassTestBase {
     doTest(Array("com.A"), "org")
   }
 
+  @Ignore
   def testScl4878(): Unit = {
     doTest(Array("org.B"), "com")
   }
@@ -67,11 +70,12 @@ class ScalaMoveClassTest extends ScalaMoveClassTestBase {
     doTest(Array("com.A"), "org", Kinds.onlyClasses)
   }
 
+  @Ignore
   def testWithCompanion(): Unit = {
     doTest(Array("source.A"), "target", Kinds.onlyClasses)
   }
 
-
+  @Ignore
   def testBothJavaAndScala(): Unit = {
     doTest(Array("org.A", "org.J"), "com")
   }

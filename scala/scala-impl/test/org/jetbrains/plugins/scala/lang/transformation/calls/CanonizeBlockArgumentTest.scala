@@ -3,6 +3,8 @@ package lang
 package transformation
 package calls
 
+import org.junit.Ignore
+
 /**
   * @author Pavel Fatin
   */
@@ -12,6 +14,7 @@ class CanonizeBlockArgumentTest extends TransformerTest(new CanonizeBlockArgumen
     after = "f(A)"
   )()
 
+  @Ignore
   def testInfixExpression(): Unit = check(
     before = "O f {A}",
     after = "O f (A)"
