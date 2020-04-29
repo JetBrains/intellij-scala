@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.project._
 /**
  * Checks whether all modules have different output directories for production files.
  * Shows a notification suggesting to fix it if output directories are the same.
- * Имя уже устарело, изначально он отвечал за запуск компайл сервера перед компиляцией.
  */
 final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends CompileTask {
 
