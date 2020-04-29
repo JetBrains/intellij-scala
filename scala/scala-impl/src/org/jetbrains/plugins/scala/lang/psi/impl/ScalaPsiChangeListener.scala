@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaLanguage
 
@@ -32,11 +31,12 @@ object ScalaPsiChangeListener {
       if (filters.exists(_.shouldSkip(event)))
         return
 
-      val element = extractChangedPsi(event, eventType)
-      val validElement = validElementFor(element)
+      val newElement = extractNewElement(event, eventType)
+      val oldElement = extractOldElement(event, eventType)
+      val validElement = extractValidElement(event, eventType)
 
       if (validElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
-        if (!filters.exists(_.shouldSkip(element, validElement))) {
+        if (!filters.exists(_.shouldSkip(newElement, oldElement))) {
           onScalaPsiChange(validElement)
         }
       }
@@ -56,20 +56,22 @@ object ScalaPsiChangeListener {
     override def propertyChanged(event: PsiTreeChangeEvent): Unit = onNonScalaChange()
   }
 
-  private def extractChangedPsi(event: PsiTreeChangeEvent, eventType: EventType): PsiElement = eventType match {
-    case EventType.ChildRemoved    =>
-      setValidElementFor(event.getChild, event.getParent)
-      event.getChild
-    case EventType.ChildAdded      => event.getChild
-    case EventType.ChildMoved      => event.getChild
-    case EventType.ChildReplaced   => event.getNewChild
-    case EventType.ChildrenChanged => event.getParent
+  private def extractNewElement(event: PsiTreeChangeEvent, eventType: EventType): Option[PsiElement] = eventType match {
+    case EventType.ChildRemoved    => None
+    case EventType.ChildAdded      => Some(event.getChild)
+    case EventType.ChildMoved      => Some(event.getChild)
+    case EventType.ChildReplaced   => Some(event.getNewChild)
+    case EventType.ChildrenChanged => Some(event.getParent)
   }
 
-  private val validElementKey: Key[PsiElement] = Key.create("scala.change.valid.element")
-  private def setValidElementFor(element: PsiElement, parent: PsiElement): Unit = {
-    element.putUserData(validElementKey, parent)
+  private def extractOldElement(event: PsiTreeChangeEvent, eventType: EventType): Option[PsiElement] = eventType match {
+    case EventType.ChildRemoved    => Some(event.getChild)
+    case EventType.ChildAdded      => None
+    case EventType.ChildMoved      => None
+    case EventType.ChildReplaced   => Some(event.getOldChild)
+    case EventType.ChildrenChanged => None
   }
-  private def validElementFor(element: PsiElement): PsiElement =
-    Option(element.getUserData(validElementKey)).getOrElse(element)
+
+  private def extractValidElement(event: PsiTreeChangeEvent, eventType: EventType): PsiElement =
+    extractNewElement(event, eventType).getOrElse(event.getParent)
 }

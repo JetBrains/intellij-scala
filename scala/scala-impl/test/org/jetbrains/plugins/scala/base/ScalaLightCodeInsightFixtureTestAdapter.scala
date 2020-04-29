@@ -16,7 +16,7 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.junit.Assert.{assertNotNull, fail}
 
@@ -141,6 +141,13 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     commitDocumentInEditor()
     myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
     commitDocumentInEditor()
+  }
+
+  protected def insertAtOffset(offset: Int, text: String): Unit = invokeAndWait {
+    inWriteCommandAction {
+      getEditor.getDocument.insertString(offset, text)
+      commitDocumentInEditor()
+    }(getProject)
   }
 
   protected final def commitDocumentInEditor(): Unit =
