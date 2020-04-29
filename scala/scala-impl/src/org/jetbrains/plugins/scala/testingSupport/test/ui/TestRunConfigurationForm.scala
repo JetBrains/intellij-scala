@@ -97,9 +97,8 @@ final class TestRunConfigurationForm(val myProject: Project) {
 
   def resetFrom(configuration: AbstractTestRunConfiguration): Unit = {
     val configurationData = configuration.testConfigurationData
-
     configurationData match {
-      case data: AllInPackageTestData =>  setTestPackagePath(data.testPackagePath)
+      case data: AllInPackageTestData => setTestPackagePath(data.testPackagePath)
       case data: RegexpTestData       => setRegexps(data.regexps)
       case data: ClassTestData        =>
         data match {
@@ -109,6 +108,9 @@ final class TestRunConfigurationForm(val myProject: Project) {
         setTestClassPath(data.testClassPath)
       case _ =>
     }
+
+    setTestKind(configurationData.getKind)
+    setSearchForTest(configurationData.getSearchTest)
 
     resetSbtOptionsFrom(configuration)
 
@@ -152,6 +154,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   def getTestArgs: String = myCommonScalaParameters.getProgramParameters
   def getShowProgressMessages: Boolean = myShowProgressMessagesCheckBox.isSelected
 
+  private def setTestKind(kind: TestKind): Unit = myTestKind.getComponent.setSelectedItem(kind)
   private def setTestClassPath(s: String): Unit = myClass.getComponent.setText(s)
   private def setTestName(s: String): Unit = myTestName.getComponent.setText(s)
   private def setTestPackagePath(s: String): Unit = myPackage.getComponent.setText(s)
