@@ -455,7 +455,8 @@ private[resolver] object BspResolverLogic {
 
     val bspProjectData = {
       val jdkReference = inferProjectJdk(modules)
-      new DataNode[BspProjectData](BspProjectData.Key, BspProjectData(jdkReference), projectNode)
+      val vcsRootsCandidates = projectModules.modules.flatMap(_.data.basePath).distinct
+      new DataNode[BspProjectData](BspProjectData.Key, BspProjectData(jdkReference, vcsRootsCandidates.asJava), projectNode)
     }
 
     // effects

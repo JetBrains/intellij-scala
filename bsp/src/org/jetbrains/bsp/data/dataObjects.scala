@@ -37,11 +37,15 @@ object BspEntityData {
 }
 
 @SerialVersionUID(1)
-case class BspProjectData @PropertyMapping(Array("jdk")) private (@Nullable jdk: SdkReference) extends BspEntityData
+case class BspProjectData @PropertyMapping(Array("jdk", "vcsRootsCandidates")) private (
+  @Nullable jdk: SdkReference,
+  @NotNull vcsRootsCandidates: util.List[File]
+) extends BspEntityData
 
 object BspProjectData {
   val Key: Key[BspProjectData] = datakey(classOf[BspProjectData], weight = ProjectKeys.PROJECT.getProcessingWeight +  1)
-  def apply(sdk: Option[SdkReference]): BspProjectData = BspProjectData(sdk.orNull)
+  def apply(sdk: Option[SdkReference], vcsRootsCandidates: util.List[File]): BspProjectData =
+    BspProjectData(sdk.orNull, vcsRootsCandidates)
 }
 
 
