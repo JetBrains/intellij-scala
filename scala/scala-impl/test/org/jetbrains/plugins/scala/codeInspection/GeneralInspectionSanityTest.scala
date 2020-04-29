@@ -12,7 +12,7 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
       .toSeq
 
   def acquireAllScalaInspectionEPs(): Seq[LocalInspectionEP] =
-    acquireAllInspectionEPs().filter(_.language == "Scala")
+    acquireAllInspectionEPs().filter(ep => ep.language == "Scala" || Option(ep.groupPath).exists(_.toLowerCase.contains("scala")))
 
   def test_no_lowercase_language_used(): Unit = {
     assert(!acquireAllInspectionEPs()
