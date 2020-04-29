@@ -12,7 +12,7 @@ import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
-import com.intellij.psi._
+import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testIntegration.TestFramework
 import com.intellij.util.xmlb.XmlSerializer
@@ -20,11 +20,10 @@ import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration._
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.SbtTestRunningSupport
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, TestConfigurationData}
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
@@ -38,7 +37,7 @@ abstract class AbstractTestRunConfiguration(
   name,
   new RunConfigurationModule(project),
   configurationFactory
-) with ScalaTestingConfiguration {
+) {
 
   def configurationProducer: AbstractTestConfigurationProducer[_]
   def testFramework: TestFramework
@@ -50,16 +49,6 @@ abstract class AbstractTestRunConfiguration(
   var testKind: TestKind = TestKind.CLAZZ
 
   var testConfigurationData: TestConfigurationData = new ClassTestData(this)
-
-  override def getTestClassPath: String = testConfigurationData match {
-    case data: ClassTestData => data.testClassPath
-    case _ => null
-  }
-
-  override def getTestPackagePath: String = testConfigurationData match {
-    case data: AllInPackageTestData => data.testPackagePath
-    case _ => null
-  }
 
   private var generatedName: String = ""
   def setGeneratedName(name: String): Unit = generatedName = name
@@ -160,7 +149,7 @@ abstract class AbstractTestRunConfiguration(
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
     JavaRunConfigurationExtensionManager.getInstance.writeExternal(thisConfiguration, element)
-    XmlSerializer.serializeInto(this, element)
+    XmlSerializer.serializeInto(this, element) // TODO: review whether this should be serialized? shich fields?
     XmlSerializer.serializeInto(testConfigurationData, element)
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }

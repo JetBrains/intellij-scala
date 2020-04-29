@@ -64,7 +64,7 @@ class Specs2RunConfiguration(
             val pattern = regexpData.zippedRegexps.head
             Seq(s"$classKey${pattern._1}$testNameKey${pattern._2}")
           case packageData: AllInPackageTestData =>
-            Seq(s"$classKey${"\\A" + ScPackageImpl(packageData.getPackage(getTestPackagePath)).getQualifiedName + ".*"}")
+            Seq(s"$classKey${"\\A" + ScPackageImpl(packageData.getPackage(packageData.testPackagePath)).getQualifiedName + ".*"}")
           case _ =>
             super.buildTestOnly(classToTests)
         }

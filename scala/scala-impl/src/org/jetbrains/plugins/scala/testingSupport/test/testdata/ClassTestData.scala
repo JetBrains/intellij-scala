@@ -44,7 +44,7 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
   override def getTestMap: Map[String, Set[String]] = {
     if (isDumb) return Map(testClassPath -> Set[String]())
     val clazz = getClassPathClazz
-    if (clazz == null) throw config.classNotFoundError
+    if (clazz == null) throw executionException(ScalaBundle.message("test.run.config.test.class.not.found", testClassPath))
     if (config.isInvalidSuite(clazz)) throw executionException(ScalaBundle.message("test.config.clazz.is.not.a.valid.test.suite", clazz))
     Map(clazz.qualifiedName -> Set[String]())
   }

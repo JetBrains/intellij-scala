@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import java.util
 
-import com.intellij.execution.ExecutionException
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiPackage}
@@ -66,7 +65,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     val pack = ScPackageImpl(getPackage(getTestPackagePath))
     val scope = getScope(withDependencies = false)
 
-    if (pack == null) throw config.classNotFoundError
+    if (pack == null) throw executionException(ScalaBundle.message("test.run.config.test.package.not.found", testPackagePath))
 
     def getClasses(pack: ScPackage): Seq[PsiClass] = {
       val buffer = new ArrayBuffer[PsiClass]

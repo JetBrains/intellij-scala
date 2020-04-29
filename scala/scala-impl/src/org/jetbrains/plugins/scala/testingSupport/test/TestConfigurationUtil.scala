@@ -33,8 +33,10 @@ object TestConfigurationUtil {
   }
 
   private def isPackageConfiguration(pack: PsiPackage, configuration: AbstractTestRunConfiguration): Boolean =
-    configuration.testConfigurationData.isInstanceOf[AllInPackageTestData] &&
-      configuration.getTestPackagePath == pack.getQualifiedName
+    configuration.testConfigurationData match {
+      case data: AllInPackageTestData => data.getTestPackagePath == pack.getQualifiedName
+      case _                          => false
+    }
 
   def isInheritor(clazz: ScTemplateDefinition, fqn: String): Boolean = {
     val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.resolveScope, fqn)

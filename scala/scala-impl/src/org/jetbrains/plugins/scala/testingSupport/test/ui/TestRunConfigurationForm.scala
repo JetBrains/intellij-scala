@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer
 import org.jetbrains.plugins.scala.testingSupport.test._
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{RegexpTestData, SingleTestData, TestConfigurationData}
+import org.jetbrains.plugins.scala.testingSupport.test.testdata._
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm.TextWithMnemonic.Mnemonic
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm.{PackageChooserActionListener, _}
 import org.jetbrains.sbt.settings.SbtSettings
@@ -98,14 +98,16 @@ final class TestRunConfigurationForm(val myProject: Project) {
   def resetFrom(configuration: AbstractTestRunConfiguration): Unit = {
     val configurationData = configuration.testConfigurationData
 
-    setTestClassPath(configuration.getTestClassPath)
-    setTestPackagePath(configuration.getTestPackagePath)
-    setSearchForTest(configurationData.getSearchTest)
-
-    configurationData.getKind match {
-      case TestKind.TEST_NAME => setTestName(configurationData.asInstanceOf[SingleTestData].getTestName)
-      case TestKind.REGEXP    => setRegexps(configurationData.asInstanceOf[RegexpTestData].regexps)
-      case _                  =>
+    configurationData match {
+      case data: AllInPackageTestData =>  setTestPackagePath(data.testPackagePath)
+      case data: RegexpTestData       => setRegexps(data.regexps)
+      case data: ClassTestData        =>
+        data match {
+          case singleTest: SingleTestData =>  setTestName(singleTest.getTestName)
+          case _=>
+        }
+        setTestClassPath(data.testClassPath)
+      case _ =>
     }
 
     resetSbtOptionsFrom(configuration)
