@@ -36,18 +36,18 @@ public class WorksheetSettingsSetForm {
     WorksheetSettingsSetForm(PsiFile file, WorksheetSettingsData settingsData) {
         myFile = file;
         myProject = file.getProject();
+        $$$setupUI$$$();
         init(settingsData);
     }
 
     WorksheetSettingsSetForm(Project project, WorksheetSettingsData settingsData) {
         myFile = null;
         myProject = project;
+        $$$setupUI$$$();
         init(settingsData);
     }
 
     private void init(WorksheetSettingsData settingsData) {
-        $$$setupUI$$$();
-
         moduleComboBox.fillModules(myProject);
 
         WorksheetCommonSettings settings = myFile != null ?
