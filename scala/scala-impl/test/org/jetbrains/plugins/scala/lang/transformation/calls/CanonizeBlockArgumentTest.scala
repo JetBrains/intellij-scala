@@ -5,6 +5,7 @@ package calls
 
 import org.junit.Ignore
 
+
 /**
   * @author Pavel Fatin
   */
@@ -12,12 +13,6 @@ class CanonizeBlockArgumentTest extends TransformerTest(new CanonizeBlockArgumen
   def testMethodCall(): Unit = check(
     before = "f {A}",
     after = "f(A)"
-  )()
-
-  @Ignore
-  def testInfixExpression(): Unit = check(
-    before = "O f {A}",
-    after = "O f (A)"
   )()
 
   def testComplexExpression(): Unit = check(
@@ -36,4 +31,12 @@ class CanonizeBlockArgumentTest extends TransformerTest(new CanonizeBlockArgumen
   )()
 
   // TODO test synthetic method
+}
+
+@Ignore("flaky tests")
+class CanonizeBlockArgumentTestIgnored extends TransformerTest(new CanonizeBlockArgument()) {
+  def testInfixExpression(): Unit = check(
+    before = "O f {A}",
+    after = "O f (A)"
+  )()
 }
