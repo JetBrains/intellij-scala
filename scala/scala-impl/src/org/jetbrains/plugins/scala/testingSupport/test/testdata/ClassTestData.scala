@@ -25,9 +25,9 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
   override def checkSuiteAndTestName: CheckResult =
     for {
       _ <- checkModule
-      _ <- check(StringUtils.isNotBlank(getTestClassPath), exception(ScalaBundle.message("test.config.test.class.is.not.specified")))
+      _ <- check(StringUtils.isNotBlank(getTestClassPath), configurationException(ScalaBundle.message("test.config.test.class.is.not.specified")))
       testClass = getClassPathClazz
-      _ <- check(testClass != null, exception(ScalaBundle.message("test.config.test.class.not.found.in.module", getTestClassPath, getModule.getName)))
+      _ <- check(testClass != null, configurationException(ScalaBundle.message("test.config.test.class.not.found.in.module", getTestClassPath, getModule.getName)))
       //TODO: config.isInvalidSuite calls config.getSuiteClass and we call config.getSuiteClass again on the next line
       //  we should refactor how isInvalidSuite is currently implemented to avoid this
       _ <- check(config.isValidSuite(testClass), {
@@ -37,7 +37,7 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
         } else {
           ScalaBundle.message("test.config.class.is.not.inheritor.of.suite.trait", getTestClassPath)
         }
-        exception(message)
+        configurationException(message)
       })
     } yield ()
 

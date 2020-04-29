@@ -88,8 +88,8 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     for {
       _ <- checkModule
       _ <- checkRegexps(
-        (_, p) => exception(ScalaBundle.message("test.config.failed.to.compile.pattern", p)),
-        exception(ScalaBundle.message("test.config.no.patterns.detected"))
+        (_, p) => configurationException(ScalaBundle.message("test.config.failed.to.compile.pattern", p)),
+        configurationException(ScalaBundle.message("test.config.no.patterns.detected"))
       )
     } yield ()
 

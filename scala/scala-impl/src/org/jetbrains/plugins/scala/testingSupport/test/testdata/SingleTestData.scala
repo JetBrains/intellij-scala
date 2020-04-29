@@ -19,7 +19,7 @@ class SingleTestData(config: AbstractTestRunConfiguration) extends ClassTestData
   override def checkSuiteAndTestName: CheckResult =
     for {
       _ <- super.checkSuiteAndTestName
-      _ <- check(testName != null, exception(ScalaBundle.message("test.config.test.name.is.not.specified")))
+      _ <- check(testName != null, configurationException(ScalaBundle.message("test.config.test.name.is.not.specified")))
     } yield ()
 
   override def getTestMap: Map[String, Set[String]] = {

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
-import com.intellij.execution.configurations.{RuntimeConfigurationError, RuntimeConfigurationException}
-import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExecutionException, ExternalizablePath}
+import com.intellij.execution.configurations.RuntimeConfigurationException
+import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExternalizablePath}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
@@ -12,13 +12,14 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest, TestKind}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest, TestKind, exceptions}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
 
 abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
-  extends CommonProgramRunConfigurationParameters {
+  extends CommonProgramRunConfigurationParameters
+    with exceptions {
 
   type SelfType <: TestConfigurationData
 
@@ -32,13 +33,10 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   protected final def getProject: Project = config.getProject
   protected final def checkModule: CheckResult =
     if (getModule != null) Right(())
-    else Left(exception(ScalaBundle.message("test.run.config.module.is.not.specified")))
+    else Left(configurationException(ScalaBundle.message("test.run.config.module.is.not.specified")))
 
-  protected final def check(condition: Boolean, exception: => RuntimeConfigurationException): CheckResult = Either.cond(condition, (), exception)
-  protected final def exception(message: String) = new RuntimeConfigurationException(message)
-  protected final def error(message: String) = new RuntimeConfigurationError(message)
-  protected final def executionException(message: String) = new ExecutionException(message)
-  protected final def executionException(message: String, cause: Throwable) = new ExecutionException(message, cause)
+  protected final def check(condition: Boolean, exception: => RuntimeConfigurationException): CheckResult =
+    Either.cond(condition, (), exception)
 
   protected final def mScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
     if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
@@ -174,5 +172,4 @@ object TestConfigurationData {
     to.showProgressMessages = from.showProgressMessages
     to.setWorkingDirectory(from.getWorkingDirectory)
   }
-
 }

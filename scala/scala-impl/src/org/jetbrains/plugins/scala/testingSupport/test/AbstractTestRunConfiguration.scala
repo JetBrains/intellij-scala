@@ -37,7 +37,7 @@ abstract class AbstractTestRunConfiguration(
   name,
   new RunConfigurationModule(project),
   configurationFactory
-) {
+) with exceptions {
 
   def configurationProducer: AbstractTestConfigurationProducer[_]
   def testFramework: TestFramework
@@ -91,14 +91,12 @@ abstract class AbstractTestRunConfiguration(
   protected[test] def getSuiteClass: Either[RuntimeConfigurationException, PsiClass] = {
     val suiteClasses = suitePaths.map(getClazz(_, withDependencies = true)).filter(_ != null)
 
-    if (suiteClasses.isEmpty) {
-      val errorMessage = ScalaBundle.message("test.framework.is.not.specified", testFramework.getName)
-      Left(exception(errorMessage))
-    } else if (suiteClasses.size > 1) {
-      Left(exception(ScalaBundle.message("test.run.config.multiple.suite.traits.detected.suiteclasses", suiteClasses)))
-    } else {
+    if (suiteClasses.isEmpty)
+      Left(configurationException(ScalaBundle.message("test.framework.is.not.specified", testFramework.getName)))
+    else if (suiteClasses.size > 1)
+      Left(configurationException(ScalaBundle.message("test.run.config.multiple.suite.traits.detected", suiteClasses)))
+    else
       Right(suiteClasses.head)
-    }
   }
 
   override def checkConfiguration(): Unit = {
@@ -118,14 +116,6 @@ abstract class AbstractTestRunConfiguration(
   }
 
   private def thisConfiguration: RunConfigurationBase[_] = this
-
-  // These special exceptions are used by the IntelliJ platform for exceptional control flow
-  protected final def exception(message: String) = new RuntimeConfigurationException(message)
-  protected final def error(message: String) = new RuntimeConfigurationError(message)
-  protected final def executionException(message: String) = new ExecutionException(message)
-  protected final def executionException(message: String, cause: Throwable) = new ExecutionException(message, cause)
-  protected[test] def classNotFoundError: ExecutionException =
-    executionException(ScalaBundle.message("test.run.config.test.class.not.found.gettestclasspath", getTestClassPath))
 
   protected[test] final def isValidSuite(clazz: PsiClass): Boolean =
     getSuiteClass.fold(_ => false, validityChecker.isValidSuite(clazz, _))

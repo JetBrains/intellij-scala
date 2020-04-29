@@ -43,7 +43,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     for {
       _ <- myCheckModule
       pack = JavaPsiFacade.getInstance(getProject).findPackage(getTestPackagePath)
-      _ <- check(pack != null, exception(ScalaBundle.message("test.config.package.does.not.exist")))
+      _ <- check(pack != null, configurationException(ScalaBundle.message("test.config.package.does.not.exist")))
     } yield ()
 
   private def myCheckModule: CheckResult = searchTest match {
