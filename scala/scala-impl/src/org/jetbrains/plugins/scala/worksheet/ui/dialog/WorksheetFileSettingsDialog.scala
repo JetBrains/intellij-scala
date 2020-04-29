@@ -22,7 +22,7 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
 
   override def doOKAction(): Unit = {
     applyFileSettings(myPanel.fileSettings)
-    applyDefaultSettings(myPanel.defaultSettings)
+    applyDefaultSettings(myPanel.defaultFileSettings)
     DaemonCodeAnalyzer.getInstance(worksheetFile.getProject).restart(worksheetFile)
     super.doOKAction()
   }
