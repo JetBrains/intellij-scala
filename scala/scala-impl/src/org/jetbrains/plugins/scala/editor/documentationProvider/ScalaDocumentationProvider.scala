@@ -744,7 +744,13 @@ object ScalaDocumentationProvider {
 
   private def generateJavadocContent(element: PsiElement): String = {
     val javadoc = generateJavadoc(element)
-    val javadocFixed = javadoc.substring(javadoc.indexOf("<div class='content'>"))
+    // TODO: this is far fro perfect to rely on text... =(
+    //  dive deep into Javadoc generation and implement in a more safe and structural way
+    val contentStartIdx = javadoc.indexOf("<div class='content'>") match {
+      case -1 => javadoc.indexOf("<table class='sections'>")
+      case idx => idx
+    }
+    val javadocFixed = if (contentStartIdx > 0) javadoc.substring(contentStartIdx) else javadoc
     javadocFixed
   }
 

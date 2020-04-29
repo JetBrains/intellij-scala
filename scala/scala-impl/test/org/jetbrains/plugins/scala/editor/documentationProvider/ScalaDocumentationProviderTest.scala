@@ -141,4 +141,32 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |<table class='sections'><p></table>""".stripMargin
     )
   }
+
+  def testMethodWithEmptyDocOverridingJavaMethod_TagsInJavadoc(): Unit = {
+    getFixture.addFileToProject("BaseJavaClass.java",
+      s"""public class BaseJavaClass {
+         |  /** @return modules to compile before run. Empty list to build project */
+         |  String[] getModules() {  return null;  }
+         |}""".stripMargin
+    )
+    doShortTest(
+      s"""class A extends BaseJavaClass {
+         |  override def ${|}getModules: String = ???
+         |}
+         |""".stripMargin,
+      """<div class="definition">
+        |<a href="psi_element://A"><code>A</code></a>
+        |<pre>override def <b>getModules</b>: String</pre>
+        |</div>
+        |<div class='content'>
+        |<b>Description copied from class: </b>
+        |<a href="psi_element://BaseJavaClass"><code>BaseJavaClass</code></a>
+        |</div>
+        |<table class='sections'>
+        |<p><tr>
+        |<td valign='top' class='section'><p>Returns:</td>
+        |<td valign='top'><p>modules to compile before run. Empty list to build project </td>
+        |</table>""".stripMargin
+    )
+  }
 }
