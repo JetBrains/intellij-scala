@@ -18,13 +18,13 @@ import com.intellij.execution.{DefaultExecutionResult, ExecutionException, Execu
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JdkUtil, ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, using}
-import org.jetbrains.plugins.scala.project.{PathsListExt, ProjectExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, PathsListExt, ProjectExt}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, TestFrameworkRunnerInfo}
@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommand
 import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{ReportingSbtTestEventHandler, SbtProcessHandlerWrapper, SbtShellTestsRunner, SbtTestRunningSupport}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
+import org.jetbrains.plugins.scala.testingSupport.test.utils.JavaParametersModified
 import org.jetbrains.sbt.shell.SbtProcessManager
 
 import scala.collection.JavaConverters._
@@ -64,7 +65,7 @@ class ScalaTestFrameworkCommandLineState(
   }
 
   override def createJavaParameters(): JavaParameters = {
-    val params = new JavaParameters()
+    val params = new JavaParametersModified()
 
     params.setCharset(null)
 
@@ -103,17 +104,17 @@ class ScalaTestFrameworkCommandLineState(
       jdk  <- ProjectJdkTable.getInstance().findJdk(path).toOption
     } yield jdk
 
-    testConfigurationData.searchTest match {
-      case SearchForTest.IN_WHOLE_PROJECT => // TODO: not the best to match against this
-        def anyJdk: Option[Sdk] = {
-          val modules = project.modules.iterator
-          modules.map(JavaParameters.getValidJdkToRunModule(_, false)).headOption
-        }
-        val sdk = maybeCustomSdk.orElse(anyJdk)
-        params.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, sdk.orNull)
-      case _ =>
-        val sdk = maybeCustomSdk.getOrElse(JavaParameters.getValidJdkToRunModule(module, false))
-        params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS, sdk)
+    if (testConfigurationData.searchTestsInWholeProject) {
+      def anyJdk: Option[Sdk] = {
+        val modules = project.modules.iterator.filterNot(_.isBuildModule)
+        modules.map(JavaParameters.getValidJdkToRunModule(_, false)).headOption
+      }
+      val sdk = maybeCustomSdk.orElse(anyJdk)
+      // TODO: handle case if  project contains multiple scala versions, runtime contains garbage with multiple versions
+      params.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, sdk.orNull)
+    } else {
+      val sdk = maybeCustomSdk.getOrElse(JavaParameters.getValidJdkToRunModule(module, false))
+      params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS, sdk)
     }
 
     val programParameters = buildProgramParameters(suitesToTestsMap)
@@ -123,7 +124,7 @@ class ScalaTestFrameworkCommandLineState(
     params
   }
 
-  private def buildProgramParameters(suitesToTests: Map[String, Set[String]]): Seq[String] = {
+  private def buildProgramParameters(suitesToTests: Map[String, Set[String]]) = {
     val classesAndTests = buildClassesAndTestsParameters(suitesToTests)
     val progress = Seq("-showProgressMessages", testConfigurationData.showProgressMessages.toString)
     val other = ParametersList.parse(testConfigurationData.getTestArgs)

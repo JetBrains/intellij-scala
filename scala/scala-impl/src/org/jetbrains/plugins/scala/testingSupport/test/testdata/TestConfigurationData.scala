@@ -45,6 +45,9 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   protected final def check(condition: Boolean, exception: => RuntimeConfigurationException): CheckResult =
     Either.cond(condition, (), exception)
 
+  final def searchTestsInWholeProject: Boolean =
+    getKind == TestKind.ALL_IN_PACKAGE && searchTest == SearchForTest.IN_WHOLE_PROJECT
+
   def apply(form: TestRunConfigurationForm): Unit = {
     setSearchTest(form.getSearchForTest)
     setJavaOptions(form.getJavaOptions)

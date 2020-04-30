@@ -13,12 +13,11 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopes}
 import com.intellij.testIntegration.TestFramework
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
@@ -62,13 +61,38 @@ abstract class AbstractTestRunConfiguration(
   override def getShortenCommandLine: ShortenCommandLine = testConfigurationData.shortenClasspath
   override def setShortenCommandLine(mode: ShortenCommandLine): Unit = testConfigurationData.shortenClasspath = mode
 
-  protected[test] def getClazz(path: String, withDependencies: Boolean): PsiClass = {
-    val scope = getScope(withDependencies)
-    val classes = ScalaPsiManager.instance(project).getCachedClasses(scope, path)
-    val (objects, nonObjects) = classes.partition(_.isInstanceOf[ScObject])
-    if (nonObjects.nonEmpty) nonObjects(0)
-    else if (objects.nonEmpty) objects(0)
-    else null
+  final def getModule: Module =
+    getConfigurationModule.getModule
+
+  override def getValidModules: java.util.List[Module] =
+    getProject.modulesWithScala.asJava
+
+  override final def getModules: Array[Module] =
+    modulesToBuildBeforeRun
+
+  /**
+   * dependencies are added to scope automatically via [[GlobalSearchScopes.executionScope]]
+   * @see [[com.intellij.execution.configurations.CommandLineState]]
+   * @see [[getSearchScope]]
+   */
+  private def modulesToBuildBeforeRun: Array[Module] =
+    if (testConfigurationData.searchTestsInWholeProject)
+      Array.empty // empty array means for full project
+    else
+      super.getModules
+
+  override def getSearchScope: GlobalSearchScope = {
+    val superScope = Option(super.getSearchScope)
+    val notBuildModulesScope = GlobalSearchScope.notScope(buildModulesScope(getProject))
+    superScope.foldLeft(notBuildModulesScope)(_.union(_))
+  }
+
+  private def buildModulesScope(project: Project): GlobalSearchScope = {
+    val buildModules = project.modules.filter(_.isBuildModule)
+    if (buildModules.nonEmpty)
+      GlobalSearchScope.union(buildModules.map(GlobalSearchScope.moduleScope).asJavaCollection)
+    else
+      GlobalSearchScope.EMPTY_SCOPE
   }
 
   private def getScope(withDependencies: Boolean): GlobalSearchScope =
@@ -77,28 +101,14 @@ abstract class AbstractTestRunConfiguration(
       case module => moduleScope(module, withDependencies)
     }
 
-  final def getModule: Module =
-    getConfigurationModule.getModule
-
-  override def getValidModules: java.util.List[Module] =
-    getProject.modulesWithScala.asJava
-
-  override final def getModules: Array[Module] =
-    compileModulesBeforeRun.toArray
-
-  def compileModulesBeforeRun: CompileBeforeRun =
-    inReadAction {
-      getModule match {
-        case null => CompileBeforeRun.FullProject
-        case module =>
-          // TODO shouldn't it be used only when testConfigurationData.getKind == TestKind.ALL_IN_PACKAGE ?
-          testConfigurationData.searchTest match {
-            case SearchForTest.IN_SINGLE_MODULE            => CompileBeforeRun.Modules(module)
-            case SearchForTest.ACCROSS_MODULE_DEPENDENCIES => CompileBeforeRun.Modules(module, module.dependencyModules: _*)
-            case SearchForTest.IN_WHOLE_PROJECT            => CompileBeforeRun.FullProject
-          }
-      }
-    }
+  protected[test] def getClazz(path: String, withDependencies: Boolean): PsiClass = {
+    val scope = getScope(withDependencies)
+    val classes = ScalaPsiManager.instance(project).getCachedClasses(scope, path)
+    val (objects, nonObjects) = classes.partition(_.isInstanceOf[ScObject])
+    if (nonObjects.nonEmpty) nonObjects(0)
+    else if (objects.nonEmpty) objects(0)
+    else null
+  }
 
   // TODO: when checking suite on validity we search inheritors here and in validation, extra work
   protected[test] def getSuiteClass: Either[RuntimeConfigurationException, PsiClass] = {
@@ -229,21 +239,5 @@ object AbstractTestRunConfiguration {
       .foldLeft(GlobalSearchScope.EMPTY_SCOPE) { case (res, module) =>
         res.union(moduleScope(module, withDependencies))
       }
-  }
-
-  /**
-   * Helper ADT is used to better express contract of
-   * [[com.intellij.execution.configurations.RunProfileWithCompileBeforeLaunchOption#getModules()]]
-   * which is originally expressed in doc comment
-   */
-  sealed trait CompileBeforeRun {
-    def toArray: Array[Module] = this match {
-      case CompileBeforeRun.Modules(first, other@_*) => (first +: other).toArray
-      case CompileBeforeRun.FullProject              => Array.empty
-    }
-  }
-  object CompileBeforeRun {
-    case class Modules(first: Module, other: Module*) extends CompileBeforeRun
-    object FullProject extends CompileBeforeRun
   }
 }
