@@ -16,7 +16,7 @@ abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
   override def createLexer(project: Project) =
     new lexer.ScalaLexer(false, project)
 
-  override def createParser(project: Project) = new ScalaParser
+  override def createParser(project: Project) = new ScalaParser(false)
 
   override def createElement(node: ASTNode): PsiElement = node.getElementType match {
     case creator: SelfPsiCreator => creator.createElement(node)
