@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
-import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.scalatest.*;
 import org.scalatest.tools.Runner;
 import scala.None$;
@@ -20,8 +19,7 @@ public class ScalaTestRunner {
 
   public static void main(String[] argsRaw) {
     try {
-      String[] argsRawFixed = TestRunnerUtil.getNewArgs(argsRaw);
-      ScalaTestRunnerArgs args = ScalaTestRunnerArgs.parse(argsRawFixed);
+      ScalaTestRunnerArgs args = ScalaTestRunnerArgs.parse(argsRaw);
 
       ScalaTestReporter.myShowProgressMessages = args.showProgressMessages;
 

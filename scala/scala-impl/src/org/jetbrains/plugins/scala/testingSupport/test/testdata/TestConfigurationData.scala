@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import com.intellij.execution.configurations.RuntimeConfigurationException
-import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExternalizablePath}
+import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExternalizablePath, ShortenCommandLine}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.util.xmlb.XmlSerializer
@@ -16,6 +16,11 @@ import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
 
+/**
+ * NOTE: when changing constructor params do not forget to edit TestConfigurationData.serializeIntoSkippingDefaults
+ * TODO: make this class dummy, with default constructor, just containing serialized values
+ */
+//noinspection ConvertNullInitializerToUnderscore
 abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   extends CommonProgramRunConfigurationParameters
     with exceptions {
@@ -84,14 +89,15 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   protected final def isDumb: Boolean = DumbService.isDumb(config.getProject)
 
   // Bean settings:
-  @BeanProperty var searchTest: SearchForTest     = SearchForTest.ACCROSS_MODULE_DEPENDENCIES
-  @BeanProperty var showProgressMessages: Boolean = true // TODO: there already exists a parameter in Logs tab, do we need this parameter?
-  @BeanProperty var useSbt: Boolean               = false
-  @BeanProperty var useUiWithSbt: Boolean         = false
-  @BeanProperty var jrePath: String               = _
-  @BeanProperty var testArgs: String              = ""
-  @BeanProperty var javaOptions: String           = ""
-  @BeanProperty var envs: java.util.Map[String, String] = new java.util.HashMap[String, String]()
+  @BeanProperty var searchTest          : SearchForTest                 = SearchForTest.ACCROSS_MODULE_DEPENDENCIES
+  @BeanProperty var showProgressMessages: Boolean                       = true // TODO: there already exists a parameter in Logs tab, do we need this parameter?
+  @BeanProperty var useSbt              : Boolean                       = false
+  @BeanProperty var useUiWithSbt        : Boolean                       = false
+  @BeanProperty var jrePath             : String                        = _
+  @BeanProperty var testArgs            : String                        = ""
+  @BeanProperty var javaOptions         : String                        = ""
+  @BeanProperty var envs                : java.util.Map[String, String] = new java.util.HashMap[String, String]()
+  @BeanProperty var shortenClasspath    : ShortenCommandLine            = null // null is valid value, see ConfigurationWithCommandLineShortener doc
 
   private var _passParentEnvs: Boolean = false // TODO: use
 

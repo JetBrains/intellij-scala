@@ -16,6 +16,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testIntegration.TestFramework
 import com.intellij.util.xmlb.XmlSerializer
+import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -29,6 +30,7 @@ import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
+//noinspection ConvertNullInitializerToUnderscore
 abstract class AbstractTestRunConfiguration(
   project: Project,
   val configurationFactory: ConfigurationFactory,
@@ -37,7 +39,8 @@ abstract class AbstractTestRunConfiguration(
   name,
   new RunConfigurationModule(project),
   configurationFactory
-) with exceptions {
+) with ConfigurationWithCommandLineShortener
+  with exceptions {
 
   def configurationProducer: AbstractTestConfigurationProducer[_]
   def testFramework: TestFramework
@@ -54,6 +57,10 @@ abstract class AbstractTestRunConfiguration(
   def setGeneratedName(name: String): Unit = generatedName = name
   override def isGeneratedName: Boolean = getName == generatedName
   override def suggestedName: String = generatedName
+
+  @Transient
+  override def getShortenCommandLine: ShortenCommandLine = testConfigurationData.shortenClasspath
+  override def setShortenCommandLine(mode: ShortenCommandLine): Unit = testConfigurationData.shortenClasspath = mode
 
   protected[test] def getClazz(path: String, withDependencies: Boolean): PsiClass = {
     val scope = getScope(withDependencies)

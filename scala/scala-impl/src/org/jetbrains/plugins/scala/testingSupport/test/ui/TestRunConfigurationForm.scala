@@ -4,9 +4,9 @@ import java.awt._
 import java.util
 
 import com.intellij.application.options.ModuleDescriptionsComboBox
-import com.intellij.execution.ExecutionBundle
+import com.intellij.execution.{ExecutionBundle, ShortenCommandLine}
 import com.intellij.execution.configuration.BrowseModuleValueActionListener
-import com.intellij.execution.ui.{ClassBrowser, ConfigurationModuleSelector, DefaultJreSelector, JrePathEditor}
+import com.intellij.execution.ui.{ClassBrowser, ConfigurationModuleSelector, DefaultJreSelector, JrePathEditor, ShortenCommandLineModeCombo}
 import com.intellij.ide.util.{ClassFilter, PackageChooserDialog}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.module.Module
@@ -51,10 +51,11 @@ final class TestRunConfigurationForm(val myProject: Project) {
   private var myUseUiWithSbt  : JCheckBox                                                             = null
 
   // BOTTOM PANEL: common options
-  private var myCommonScalaParameters       : CommonScalaParametersPanel                   = null
-  private var myModule                      : LabeledComponent[ModuleDescriptionsComboBox] = null
-  private var myJrePathEditor               : JrePathEditor                                = null
-  private var myShowProgressMessagesCheckBox: JCheckBox                                    = null
+  private var myCommonScalaParameters       : CommonScalaParametersPanel                    = null
+  private var myModule                      : LabeledComponent[ModuleDescriptionsComboBox]  = null
+  private var myJrePathEditor               : JrePathEditor                                 = null
+  private var myShortenClasspathMode        : LabeledComponent[ShortenCommandLineModeCombo] = null
+  private var myShowProgressMessagesCheckBox: JCheckBox                                     = null
 
   init()
 
@@ -117,6 +118,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
     myCommonScalaParameters.reset(configurationData)
     myModuleSelector.reset(configuration)
     myJrePathEditor.setPathOrName(configurationData.getJrePath, true)
+    setShortenCommandLine(configuration.getShortenCommandLine)
     setShowProgressMessages(configurationData.getShowProgressMessages)
 
     mySuitePaths = configuration.javaSuitePaths.asScala
@@ -129,6 +131,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
     configuration.setModule(this.getModule)
     configuration.testConfigurationData = TestConfigurationData.createFromForm(this, configuration)
     configuration.testConfigurationData.initWorkingDirIfEmpty()
+    configuration.setShortenCommandLine(getShortenCommandLine)
   }
 
   private def resetSbtOptionsFrom(configuration: AbstractTestRunConfiguration): Unit = {
@@ -153,6 +156,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   def getWorkingDirectory: String = myCommonScalaParameters.getWorkingDirectoryAccessor.getText
   def getTestArgs: String = myCommonScalaParameters.getProgramParameters
   def getShowProgressMessages: Boolean = myShowProgressMessagesCheckBox.isSelected
+  def getShortenCommandLine: ShortenCommandLine = myShortenClasspathMode.getComponent.getSelectedItem
 
   private def setTestKind(kind: TestKind): Unit = myTestKind.getComponent.setSelectedItem(kind)
   private def setTestClassPath(s: String): Unit = myClass.getComponent.setText(s)
@@ -164,6 +168,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   private def setUseSbt(b: Boolean): Unit = myUseSbtCheckBox.setSelected(b)
   private def setUseUiWithSbt(b: Boolean): Unit = myUseUiWithSbt.setSelected(b)
   private def setShowProgressMessages(b: Boolean): Unit = myShowProgressMessagesCheckBox.setSelected(b)
+  private def setShortenCommandLine(mode: ShortenCommandLine): Unit = myShortenClasspathMode.getComponent.setSelectedItem(mode)
 
   private object UiComponentsVisibility {
 
@@ -257,6 +262,10 @@ final class TestRunConfigurationForm(val myProject: Project) {
       new ModuleDescriptionsComboBox
     ))
     myJrePathEditor = append(new JrePathEditor)
+    myShortenClasspathMode = append(labeledComponent(
+      ExecutionBundle.message("application.configuration.shorten.command.line.label"),
+      new ShortenCommandLineModeCombo(myProject, myJrePathEditor, myModule.getComponent())
+    ));
     myShowProgressMessagesCheckBox = (new JCheckBox)
       .setTextWithMnemonic(ScalaBundle.message("test.run.config.print.information.messages.to.console"))
     append(myShowProgressMessagesCheckBox)
@@ -272,6 +281,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
 
     myJrePathEditor.setAnchor(myModule.getLabel)
     myCommonScalaParameters.setAnchor(myModule.getLabel)
+    myShortenClasspathMode.setAnchor(myModule.getLabel)
   }
 
   private def labeledComponent[T <: JComponent](labelText: String, component: T): LabeledComponent[T] =

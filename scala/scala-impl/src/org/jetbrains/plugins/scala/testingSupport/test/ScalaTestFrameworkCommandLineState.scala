@@ -36,6 +36,7 @@ import org.jetbrains.sbt.shell.SbtProcessManager
 
 import scala.collection.JavaConverters._
 
+ /** for ScalaTest, Spec2, uTest */
 class ScalaTestFrameworkCommandLineState(
   configuration: AbstractTestRunConfiguration,
   env: ExecutionEnvironment,
@@ -77,6 +78,9 @@ class ScalaTestFrameworkCommandLineState(
     }
     params.getVMParametersList.addParametersString(vmParams)
 
+    for (ext <- RunConfigurationExtension.EP_NAME.getExtensionList.asScala)
+      ext.updateJavaParameters(configuration, params, getRunnerSettings)
+
     if (attachDebugAgent) {
       val suspend = if(waitUntilDebuggerAttached) "y" else "n"
       params.getVMParametersList.addParametersString(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5009")
@@ -113,15 +117,8 @@ class ScalaTestFrameworkCommandLineState(
     }
 
     val programParameters = buildProgramParameters(suitesToTestsMap)
-    if (JdkUtil.useDynamicClasspath(project)) {
-      val fileWithParams = prepareDynamicClasspathFile(programParameters)
-      params.getProgramParametersList.add("@" + fileWithParams.getPath)
-    } else {
-      programParameters.foreach(params.getProgramParametersList.add)
-    }
-
-    for (ext <- RunConfigurationExtension.EP_NAME.getExtensionList.asScala)
-      ext.updateJavaParameters(configuration, params, getRunnerSettings)
+    params.getProgramParametersList.addAll(programParameters: _*)
+    params.setShortenCommandLine(configuration.getShortenCommandLine, project)
 
     params
   }

@@ -140,9 +140,10 @@ public class TestRunnerUtil {
    * @return
    * 1. new arguments read from file with name `args[0]` if it starts with `@` char <br>
    * 2. original arguments otherwise
-   * TODO: rename
+   * @deprecated no need in this custom logic args pargins, test configurations now have explicit "shorten command line" option
    */
-  public static String[] getNewArgs(String[] args) throws IOException {
+  @Deprecated
+  static String[] getNewArgs(String[] args) throws IOException {
     String[] newArgs;
     boolean readArgsFromfile = args.length == 1 && args[0].startsWith("@");
     if (readArgsFromfile) {

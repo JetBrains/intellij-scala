@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2;
 
-import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs2.runner.ClassRunner$;
 import org.specs2.runner.NotifierRunner;
 
@@ -19,7 +18,7 @@ public class Specs2Runner {
 
   private static final String REPORTER_FQN = Specs2Notifier.class.getName();
 
-  public static void main(String[] argsRaw) throws NoSuchMethodException, IllegalAccessException, IOException {
+  public static void main(String[] argsRaw) throws NoSuchMethodException, IllegalAccessException {
     final boolean isSpecs2_3;
     try {
       isSpecs2_3 = Spec2VersionUtils.isSpecs2_3();
@@ -28,8 +27,7 @@ public class Specs2Runner {
       return;
     }
 
-    String[] argRawFixed  = TestRunnerUtil.getNewArgs(argsRaw);
-    Spec2RunnerArgs args = Spec2RunnerArgs.parse(argRawFixed);
+    Spec2RunnerArgs args = Spec2RunnerArgs.parse(argsRaw);
     List<List<String>> runnerArgsList = toSpec2LibArgsList(args);
 
     Specs2Notifier.myShowProgressMessages = args.showProgressMessages;
