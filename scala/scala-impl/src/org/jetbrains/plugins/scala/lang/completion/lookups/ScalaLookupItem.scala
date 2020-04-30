@@ -8,14 +8,12 @@ import com.intellij.codeInsight.lookup._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.annotator.intention._
-import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -224,9 +222,8 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
     withTypeParamsText + paramsText + containingClassText
   }
 
-  private def simpleInsert(context: InsertionContext): Unit = {
+  private def simpleInsert(context: InsertionContext): Unit =
     new ScalaInsertHandler().handleInsert(context, this)
-  }
 
   override def handleInsert(context: InsertionContext): Unit = {
     if (getInsertHandler != null) super.handleInsert(context)
@@ -240,26 +237,13 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
           if (isRenamed.isDefined) return
 
           if (isInSimpleString) {
-            val startOffset = context.getStartOffset
-            val literal = context.getFile.findElementAt(startOffset).getParent
-            val literalOffset = literal.getTextRange.getStartOffset
-            val document = context.getDocument
-            document.insertString(context.getTailOffset, "}")
-            document.insertString(startOffset, "{")
-            document.insertString(literalOffset, "s")
-            context.commitDocument()
+            new ScalaInsertHandler
+            .StringInsertPreHandler()
+              .handleInsert(context, this)
 
-            val elem = context.getFile.findElementAt(startOffset + 2)
-            elem.getNode.getElementType match {
-              case ScalaTokenTypes.tIDENTIFIER =>
-                val reference = elem.getParent
-                reference.getParent match {
-                  case block: ScBlock if RedundantBlockInspection.isRedundantBlock(block) =>
-                    block.replace(reference)
-                    isInSimpleStringNoBraces = true
-                  case _ =>
-                }
-            }
+            new ScalaInsertHandler
+            .StringInsertPostHandler()
+              .handleInsert(context, this)
           }
 
           var ref = findReferenceAtOffset(context)
