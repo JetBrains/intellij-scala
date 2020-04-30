@@ -49,6 +49,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                                   context: ProcessingContext,
                                   result: CompletionResultSet): Unit = {
         val dummyPosition = positionFromParameters(parameters)
+        val dummyOffset = parameters.getOffset - parameters.getPosition.startOffset + dummyPosition.startOffset
 
         val (isInSimpleString, isInInterpolatedString) = isInString(dummyPosition)
         val maybePosition = (isInSimpleString, isInInterpolatedString) match {
@@ -57,7 +58,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             Some(("s" + dummyPosition.getText, dummyPosition))
           case (_, true) =>
             val context = dummyPosition.getContext
-            splitInterpolatedString(context, parameters.getOffset) match {
+            splitInterpolatedString(context, dummyOffset) match {
               case Some(text) => Some((text, context))
               case _ => return
             }
@@ -66,8 +67,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
         val position = maybePosition.fold(dummyPosition) {
           case (text, offsetContext) =>
-            createExpressionFromText(text, offsetContext.getContext)
-              .findElementAt(parameters.getOffset - offsetContext.getTextRange.getStartOffset + 1)
+            val copy = createExpressionFromText(text, offsetContext.getContext)
+            copy.findElementAt(dummyOffset - offsetContext.getTextRange.getStartOffset + 1)
         }
 
         result.restartCompletionWhenNothingMatches()
