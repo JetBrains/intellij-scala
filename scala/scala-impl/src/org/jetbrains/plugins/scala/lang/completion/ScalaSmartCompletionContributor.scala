@@ -379,8 +379,10 @@ object ScalaSmartCompletionContributor {
 
                 override protected def postProcess(result: ScalaResolveResult): Unit = {
                   if (!result.isNamedParameter) {
-                    val newElem = result.getLookupElement().head
-                    applyVariant(new ScalaChainLookupElement(scalaLookupItem, newElem))
+                    for {
+                      delegate <- result.getLookupElement()
+                      variant = new ScalaChainLookupElement(delegate, scalaLookupItem)
+                    } applyVariant(variant)
                   }
                 }
               }
@@ -432,7 +434,7 @@ object ScalaSmartCompletionContributor {
 
       variant match {
         case el: ScalaLookupItem => handleVariant(el)
-        case ch: ScalaChainLookupElement => handleVariant(ch.element, chainVariant = true)
+        case ch: ScalaChainLookupElement => handleVariant(ch.getDelegate, chainVariant = true)
         case _ =>
       }
     }

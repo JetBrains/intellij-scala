@@ -93,6 +93,7 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
   override def hashCode(): Int =
     super.hashCode() #+ isNamedParameter #+ containingClass
 
+  // todo define private
   val containingClassName: String = containingClass match {
     case null => null
     case clazz => clazz.name
@@ -119,8 +120,8 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
         s"$containingClassName.$getLookupString"
       else getLookupString
 
-    if (someSmartCompletion) itemText = "Some(" + itemText + ")"
     presentation.setItemText(itemText)
+    wrapOptionIfNeeded(presentation)
 
     presentation.setStrikeout(element)
 
@@ -129,6 +130,14 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
       presentation.setItemTextUnderlined(isUnderlined)
     }
   }
+
+  private[lookups] def wrapOptionIfNeeded(presentation: LookupElementPresentation): Unit =
+    if (someSmartCompletion) {
+      presentation.setItemText("Some(" + presentation.getItemText + ")")
+    }
+
+  private[lookups] def shiftOptionIfNeeded: Int =
+    if (someSmartCompletion) 5 else 0
 
   private lazy val typeText: String = {
     UIFreezingGuard.withDefaultValue("") {
@@ -350,16 +359,13 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
   )
 
   private def realStartOffset(context: InsertionContext): Int = {
-    val smartAdd =
-      if (someSmartCompletion) 5 else 0
-
     val simpleStringAdd =
       if (isInSimpleString && isInSimpleStringNoBraces) 1
       else if (isInSimpleString) 2
       else if (isInInterpolatedString) 1
       else 0
 
-    context.getStartOffset + smartAdd + simpleStringAdd
+    context.getStartOffset + shiftOptionIfNeeded + simpleStringAdd
   }
 }
 

@@ -113,7 +113,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
         }
         val variant = variantObj match {
           case el: ScalaLookupItem => el
-          case ch: ScalaChainLookupElement => ch.element
+          case ch: ScalaChainLookupElement => ch.getDelegate
           case _ => return
         }
 

@@ -1,50 +1,54 @@
-package org.jetbrains.plugins.scala.lang.completion.lookups
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package lookups
 
 import java.util
 
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.{LookupElementDecorator, LookupElementPresentation}
 import gnu.trove.THashSet
-import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
 
 /**
-  * @author Alefas
-  * @since 31.03.12
-  */
+ * @author Alefas
+ * @since 31.03.12
+ */
+final class ScalaChainLookupElement(override val getDelegate: ScalaLookupItem,
+                                    private val prefix: ScalaLookupItem)
+  extends LookupElementDecorator[ScalaLookupItem](getDelegate) {
 
-class ScalaChainLookupElement(val prefix: ScalaLookupItem, val element: ScalaLookupItem) extends LookupElementDecorator[ScalaLookupItem](element) {
   override def getAllLookupStrings: util.Set[String] = {
-    val strings: util.Set[String] = getDelegate.getAllLookupStrings
-    val result: THashSet[String] = new THashSet[String]
-    result.addAll(strings)
+    val result = new THashSet[String](getDelegate.getAllLookupStrings)
     result.add(getLookupString)
     result
   }
 
-  override def getLookupString: String = prefix.getLookupString + "." + element.getLookupString
+  override def getLookupString: String = prefix.getLookupString + "." + getDelegate.getLookupString
 
   override def toString: String = getLookupString
 
   override def renderElement(presentation: LookupElementPresentation): Unit = {
-    val prefixPresentation: LookupElementPresentation = new LookupElementPresentation
+    val prefixPresentation = new LookupElementPresentation
     prefix.renderElement(prefixPresentation)
+
+    val element = getDelegate
     val old = element.someSmartCompletion
     element.someSmartCompletion = false
     element.renderElement(presentation)
     element.someSmartCompletion = old
+
     presentation.setItemText(prefixPresentation.getItemText + "." + presentation.getItemText)
-    if (element.someSmartCompletion) {
-      presentation.setItemText("Some(" + presentation.getItemText + ")")
-    }
+    element.wrapOptionIfNeeded(prefixPresentation)
   }
 
   override def handleInsert(context: InsertionContext): Unit = {
+    val element = getDelegate
     val editor = context.getEditor
-    val caretModel = editor.getCaretModel
-    val offsetForPrefix = caretModel.getOffset + (if (element.someSmartCompletion) 5 else 0) - element.getLookupString.length - 1
+    val offsetForPrefix = editor.getCaretModel.getOffset + element.shiftOptionIfNeeded - element.getLookupString.length - 1
     element.handleInsert(context)
+
     val document = context.getDocument
-    val (count, isAccessor) = ScalaInsertHandler.getItemParametersAndAccessorStatus(prefix.element)
+    val (count, isAccessor) = handlers.ScalaInsertHandler.getItemParametersAndAccessorStatus(prefix.element)
     val addParams = count >= 0 && !(count == 0 && isAccessor)
     if (addParams) {
       document.insertString(offsetForPrefix, "()")
