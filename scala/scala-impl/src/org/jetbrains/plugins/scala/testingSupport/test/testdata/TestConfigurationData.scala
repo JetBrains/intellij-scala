@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
+import java.{util => ju}
+
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExternalizablePath, ShortenCommandLine}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.util.xmlb.XmlSerializer
+import com.intellij.util.xmlb.{Accessor, XmlSerializer}
 import org.apache.commons.lang3.StringUtils
 import org.jdom.Element
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -15,6 +17,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfigura
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
+import scala.collection.JavaConverters.{collectionAsScalaIterableConverter, mapAsScalaMapConverter}
 
 /**
  * NOTE: when changing constructor params do not forget to edit TestConfigurationData.serializeIntoSkippingDefaults
@@ -68,8 +71,10 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
 
   def copy(config: AbstractTestRunConfiguration): TestConfigurationData
 
-  def writeExternal(element: Element): Unit =
-    XmlSerializer.serializeInto(this, element)
+  def writeExternal(element: Element): Unit = {
+//    XmlSerializer.serializeInto(this, element)
+    TestConfigurationData.serializeIntoSkippingDefaults(this, element)
+  }
 
   def readExternal(element: Element): Unit  = {
     XmlSerializer.deserializeInto(this, element)
@@ -156,5 +161,23 @@ object TestConfigurationData {
     to.jrePath = from.jrePath
     to.showProgressMessages = from.showProgressMessages
     to.setWorkingDirectory(from.getWorkingDirectory)
+  }
+
+  private def serializeIntoSkippingDefaults(data: TestConfigurationData, element: Element): Unit = {
+    // ATTENTION: assuming that config isn't used during construction! ideally should remove config constructor parameter
+    val constructor = data.getClass.getConstructor(classOf[AbstractTestRunConfiguration])
+    val defaultData = constructor.newInstance(null)
+
+    XmlSerializer.serializeInto(data, element, (accessor: Accessor, bean: Any) => {
+      val value        = accessor.read(bean)
+      val defaultValue = accessor.read(defaultData)
+
+      val skip = (value, defaultValue) match {
+        case (list1: ju.List[_], list2: ju.List[_])   => list1.asScala == list2.asScala
+        case (map1: ju.Map[_, _], map2: ju.Map[_, _]) => map1.asScala == map2.asScala
+        case _                                        => value == defaultValue
+      }
+      !skip
+    })
   }
 }

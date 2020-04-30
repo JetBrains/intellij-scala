@@ -152,8 +152,8 @@ abstract class AbstractTestRunConfiguration(
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
     JavaRunConfigurationExtensionManager.getInstance.writeExternal(thisConfiguration, element)
-    XmlSerializer.serializeInto(this, element) // TODO: review whether this should be serialized? shich fields?
-    XmlSerializer.serializeInto(testConfigurationData, element)
+    XmlSerializer.serializeInto(this, element)
+    testConfigurationData.writeExternal(element)
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
 
