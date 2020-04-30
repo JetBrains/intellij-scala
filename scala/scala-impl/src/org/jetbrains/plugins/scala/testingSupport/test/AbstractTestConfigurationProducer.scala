@@ -168,28 +168,25 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     }
 
   override def onFirstRun(configuration: ConfigurationFromContext, context: ConfigurationContext, startRunnable: Runnable): Unit = {
-    val success = configuration.getConfiguration match {
+    // if some class is invalid (e.g. it's abstract class BaseTest) we offer user to choosing some inheritor test to run
+    val handled = configuration.getConfiguration match {
       case config: AbstractTestRunConfiguration =>
         config.testConfigurationData match {
-          case testData: ClassTestData if config.isValidSuite(testData.getClassPathClazz)=>
-            onFirstRun(config, testData, context, startRunnable)
+          case testData: ClassTestData =>
+            val testClass = testData.getClassPathClazz
+            if (config.isValidSuite(testClass))
+              false
+            else {
+              val inheritorsChooser = new MyInheritorChooser(config, testData)
+              inheritorsChooser.runMethodInAbstractClass(context, startRunnable, null, testClass)
+            }
           case _ => false
         }
       case _ => false
     }
-    if (!success)
-      startRunnable.run()
-  }
 
-  private def onFirstRun(
-    config: AbstractTestRunConfiguration,
-    testData: ClassTestData,
-    context: ConfigurationContext,
-    startRunnable: Runnable,
-  ): Boolean = {
-    val testClass = testData.getClassPathClazz
-    val inheritorsChooser = new MyInheritorChooser(config, testData)
-    inheritorsChooser.runMethodInAbstractClass(context, startRunnable, null, testClass)
+    if (!handled)
+      startRunnable.run()
   }
 
   override final def isConfigurationFromContext(configuration: T, context: ConfigurationContext): Boolean = {
