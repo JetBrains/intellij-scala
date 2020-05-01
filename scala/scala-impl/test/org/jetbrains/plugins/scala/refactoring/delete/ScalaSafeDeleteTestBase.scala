@@ -5,6 +5,7 @@ import com.intellij.refactoring.listeners.{RefactoringEventData, RefactoringEven
 import com.intellij.refactoring.safeDelete.SafeDeleteHandler
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.util.Markers
 
 import scala.collection.JavaConverters._
@@ -12,16 +13,16 @@ import scala.util.Try
 
 abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestAdapter with Markers with AssertionMatchers {
   private def wrapText(content: String): String = {
-    val normalized = content.trim
+    val normalized = normalize(content)
       .replace("\n", "\n  ")
       .replace("  \n", "\n")
       .trim
 
-    s"""
+    normalize(
+      s"""
        |class Test {
        |  $normalized
-       |}
-       |""".stripMargin.trim
+       |}""")
   }
 
   def doSafeDeleteTest(text: String, expectedResult: String, lang: String = "scala", expectedUnsafeDeletions: Int = 0): Unit = {
