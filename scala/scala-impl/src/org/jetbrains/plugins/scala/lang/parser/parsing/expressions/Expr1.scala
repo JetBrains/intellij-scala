@@ -210,7 +210,7 @@ object Expr1 extends ParsingRule {
             builder.advanceLexer() //Ate {
             builder.enableNewlines()
             def foo(): Unit = {
-              if (!Enumerators.parse(builder)) {
+              if (!Enumerators()) {
                 builder error ErrMsg("enumerators.expected")
               }
             }
@@ -219,7 +219,7 @@ object Expr1 extends ParsingRule {
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
             builder.disableNewlines()
-            if (!Enumerators.parse(builder)) {
+            if (!Enumerators()) {
               builder error ErrMsg("enumerators.expected")
             }
             builder.getTokenType match {
@@ -227,6 +227,18 @@ object Expr1 extends ParsingRule {
               case _ => builder error ErrMsg("rparenthesis.expected")
             }
             builder.restoreNewlinesState()
+          case _ if builder.isScala3 =>
+            builder.enableNewlines()
+            if (!EnumeratorsInIndentationRegion()) {
+              builder error ErrMsg("enumerators.expected")
+            }
+            builder.restoreNewlinesState()
+
+            builder.getTokenType match {
+              case ScalaTokenTypes.kYIELD | ScalaTokenTypes.kDO =>
+              case _ =>
+                builder error ErrMsg("expected.do.or.yield")
+            }
           case _ =>
             builder error ErrMsg("enumerators.expected")
         }
@@ -235,13 +247,18 @@ object Expr1 extends ParsingRule {
           exprMarker.done(ScalaElementType.FOR_STMT)
           return true
         }
-        builder.getTokenType match {
-          case ScalaTokenTypes.kYIELD =>
-            builder.advanceLexer() //Ate yield
-            if (!ExprInIndentationRegion.parse(builder)) builder error ErrMsg("wrong.expression")
-          case _ =>
-            if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+        if (builder.getTokenType == ScalaTokenTypes.kYIELD ||
+            (builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kDO)) {
+          builder.advanceLexer() //Ate yield or do
+          if (!ExprInIndentationRegion.parse(builder)) {
+            builder error ErrMsg("wrong.expression")
+          }
+        } else {
+          if (!Expr.parse(builder)) {
+            builder error ErrMsg("wrong.expression")
+          }
         }
+
         exprMarker.done(ScalaElementType.FOR_STMT)
         return true
       //----------------throw statment--------------//
