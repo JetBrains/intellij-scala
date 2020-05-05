@@ -41,31 +41,6 @@ trait IntegrationTest {
 
   protected def createLocation(lineNumber: Int, offset: Int, fileName: String): PsiLocation[PsiElement]
 
-  protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit
-
-  protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String] = None, testStatus: Int = Test.NormalStatusId): Unit
-
-  protected def checkTestNodeInFileStructure(root: TreeElementWrapper, nodeName: String, parentName: Option[String], status: Int): Boolean = {
-
-    def helper(root: AbstractTreeNode[_], currentParentName: String): Boolean = {
-      root.getValue.isInstanceOf[Test] && {
-        val presentation = root.getValue.asInstanceOf[TreeElement].getPresentation
-        presentation.isInstanceOf[Test] &&
-          presentation.getPresentableText == nodeName &&
-          presentation.asInstanceOf[Test].testStatus == status &&
-          parentName.forall(currentParentName == _)
-      } ||
-        root.getChildren.asScala.exists(helper(_, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText))
-    }
-
-    var res = false
-
-    EdtTestUtil.runInEdtAndWait(() => res = helper(root, ""))
-    res
-  }
-
-  protected def buildFileStructure(fileName: String): TreeElementWrapper
-
   def getProject: Project
 
   protected def assertConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testNames: String*): Unit = {
@@ -78,10 +53,6 @@ trait IntegrationTest {
     val testConfig = config.asInstanceOf[AbstractTestRunConfiguration]
     val packageData = assertIsA[AllInPackageTestData](testConfig.testConfigurationData)
     assertEquals("package name are not equal", packageName, packageData.getTestPackagePath)
-  }
-
-  private def checkConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Boolean = checkFromAssert {
-    assertConfig(testClass, testNames, config)
   }
 
   private def assertModule(config: AbstractTestRunConfiguration): Unit =

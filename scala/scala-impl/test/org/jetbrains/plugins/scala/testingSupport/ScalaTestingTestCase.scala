@@ -27,12 +27,11 @@ import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.debugger._
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestAstTransformer, ScalaTestRunConfiguration}
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
@@ -47,7 +46,11 @@ import scala.collection.JavaConverters._
   *         Date: 03.03.14
   */
 @Category(Array(classOf[TestingSupportTests]))
-abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with IntegrationTest with ScalaSdkOwner {
+abstract class ScalaTestingTestCase
+  extends ScalaDebuggerTestBase
+    with IntegrationTest
+    with FileStructureTest
+    with ScalaSdkOwner {
 
   protected val configurationProducer: AbstractTestConfigurationProducer[_]
 
@@ -62,25 +65,17 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   protected val useDynamicClassPath = false
 
+  override def invokeTestRunnable(runnable: Runnable): Unit = runnable.run()
+
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
-    for (test <- tests) {
-      assertTrue(
-        s"test node for test '$test' was not in file structure for root '$structureViewRoot'",
-        checkTestNodeInFileStructure(structureViewRoot, test, None, status)
-      )
-    }
+    tests.foreach(assertTestNodeInFileStructure(structureViewRoot, _, None, status))
   }
-
-  override def invokeTestRunnable(runnable: Runnable): Unit = runnable.run()
 
   override protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String],
                                                   testStatus: Int = Test.NormalStatusId): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
-    assertTrue(
-      s"test node for test '$testName' with parent '$parentTestName' was not in file structure for root '$structureViewRoot'",
-      checkTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus),
-    )
+    assertTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus)
   }
 
   override protected def buildFileStructure(fileName: String): TreeElementWrapper = {
