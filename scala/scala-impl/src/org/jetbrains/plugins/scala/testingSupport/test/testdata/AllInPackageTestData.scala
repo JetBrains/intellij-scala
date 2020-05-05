@@ -10,11 +10,9 @@ import org.jdom.Element
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm
-import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
@@ -27,6 +25,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
   override type SelfType = AllInPackageTestData
 
   @BeanProperty var testPackagePath: String = ""
+  // cache to be able to run configuration when in dumb mode
   @BeanProperty var classBuf: java.util.List[String] = new util.ArrayList[String]()
 
   override def getKind: TestKind = TestKind.ALL_IN_PACKAGE
@@ -48,41 +47,36 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
   }
 
   override def getTestMap: Map[String, Set[String]] = {
-    def aMap(seq: Seq[String]) = Map(seq.map(_ -> Set[String]()):_*)
-    if (isDumb) {
+    val classFqns = if (isDumb) {
       if (classBuf.isEmpty) throw executionException(ScalaBundle.message("test.config.can.nott.run.while.indexing.no.class.names.memorized.from.previous.iterations"))
-      return aMap(classBuf.asScala)
+      classBuf.asScala
+    } else {
+      findTestSuites(getScope)
     }
-    var classes = ArrayBuffer[PsiClass]()
+    classBuf = classFqns.asJava
+    classFqns.map(_ -> Set[String]()).toMap
+  }
+
+  private def findTestSuites(scope: GlobalSearchScope): Seq[String] = {
     val pack = ScPackageImpl(getPackage(getTestPackagePath))
-    val scope = getScope
 
     if (pack == null) throw executionException(ScalaBundle.message("test.run.config.test.package.not.found", testPackagePath))
 
-    def getClasses(pack: ScPackage): Seq[PsiClass] = {
-      val buffer = new ArrayBuffer[PsiClass]
-      buffer ++= pack.getClasses(scope)
-      for (p <- pack.getSubPackages)
-        buffer ++= getClasses(ScPackageImpl(p))
-
-      if (config.configurationFactory.getType.isInstanceOf[UTestConfigurationType])
-        buffer.filter(_.isInstanceOf[ScObject])
-      else
-        buffer
+    def collectClasses(pack: ScPackage, acc: ArrayBuffer[PsiClass] = ArrayBuffer.empty): Seq[PsiClass] = {
+      acc ++= pack.getClasses(scope)
+      for (p <- pack.getSubPackages(scope))
+        collectClasses(ScPackageImpl(p), acc)
+      acc
     }
 
-    for (cl <- getClasses(pack)) {
-      if (config.isValidSuite(cl))
-        classes += cl
-    }
+    val classesAll = collectClasses(pack)
+    val classesUnique = classesAll.distinct
+    val classes = classesUnique.filter(c => config.isValidSuite(c) && config.canBeDiscovered(c))
     if (classes.isEmpty)
       throw executionException(ScalaBundle.message("test.config.did.not.find.suite.classes.in.package", pack.getQualifiedName))
-    val classFqns = classes.map(_.qualifiedName)
-    classBuf = classFqns.asJava
-    aMap(classFqns)
+    classes.map(_.qualifiedName)
   }
 
-  // TODO: this is shit
   private def getScope: GlobalSearchScope =
     getModule match {
       case null   => projectScope(getProject)

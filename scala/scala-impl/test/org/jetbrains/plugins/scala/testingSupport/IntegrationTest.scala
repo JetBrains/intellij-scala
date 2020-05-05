@@ -73,10 +73,6 @@ trait IntegrationTest {
     assertConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
   }
 
-  protected def checkPackageConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, packageName: String = "", generatedName: String = ""): Boolean = checkFromAssert {
-    assertPackageConfigAndSettings(configAndSettings, packageName, generatedName)
-  }
-
   protected def assertPackageConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, packageName: String = "", generatedName: String = ""): Unit = {
     val config = configAndSettings.getConfiguration
     val testConfig = config.asInstanceOf[AbstractTestRunConfiguration]
@@ -110,13 +106,18 @@ trait IntegrationTest {
   protected def checkResultTreeHasExactNamedPath(root: AbstractTestProxy, names: String*): Boolean =
     checkResultTreeHasExactNamedPath(root, names)
 
-  protected def checkResultTreeDoesNotHaveNodes(root: AbstractTestProxy, names: String*): Boolean =
-    checkResultTreeDoesNotHaveNodes(root, names.toVector)
-
-  protected def checkResultTreeDoesNotHaveNodes(root: AbstractTestProxy, names: Vector[String]): Boolean = {
-    if (root.isLeaf && !names.contains(root.getName)) true
-    else !names.contains(root.getName) && root.getChildren.asScala.forall(checkResultTreeDoesNotHaveNodes(_, names))
+  protected def checkResultTreeDoesNotHaveNodes(root: AbstractTestProxy, names: String*): Boolean = checkFromAssert {
+    checkResultTreeDoesNotHaveNodes(root, names: _*)
   }
+
+  protected def assertResultTreeDoesNotHaveNodes(root: AbstractTestProxy, names: String*): Unit =
+    if (names.contains(root.getName))
+      fail(s"Test tree contains unexpected node '${root.getName}'")
+    else if (!root.isLeaf)
+      root.getChildren.asScala.foreach(assertResultTreeDoesNotHaveNodes(_, names: _*))
+
+  private def pathString(names: Iterable[String]) =
+    names.mkString("(", " / ", ")")
 
   protected def getExactNamePathFromResultTree(root: AbstractTestProxy, names: Iterable[String], allowTail: Boolean = false): Option[List[AbstractTestProxy]] = {
     @tailrec
@@ -163,6 +164,26 @@ trait IntegrationTest {
   protected def checkResultTreeHasExactNamedPath(root: AbstractTestProxy, names: Iterable[String], allowTail: Boolean = false): Boolean =
     getExactNamePathFromResultTree(root, names, allowTail).isDefined
 
+  protected def assertResultTreeHasExactNamedPath(root: AbstractTestProxy, names: Iterable[String], allowTail: Boolean = false): Unit =
+    getExactNamePathFromResultTree(root, names, allowTail) match {
+      case None =>
+        fail(s"Test tree doesn't contain expected path '${pathString(names)}'")
+      case _ =>
+    }
+
+  protected def assertResultTreeHasNotGotExactNamedPath(root: AbstractTestProxy, names: Iterable[String], allowTail: Boolean = false): Unit =
+    getExactNamePathFromResultTree(root, names, allowTail) match {
+      case Some(_) =>
+        fail(s"Test tree contains unexpected path '${pathString(names)}'")
+      case _ =>
+    }
+  
+  protected def assertResultTreeHasExactNamedPaths(root: AbstractTestProxy, allowTail: Boolean = false)(names: Iterable[Iterable[String]]): Unit =
+    names.foreach(assertResultTreeHasExactNamedPath(root, _, allowTail))
+
+  protected def assertResultTreeHasNotGotExactNamedPaths(root: AbstractTestProxy, allowTail: Boolean = false)(names: Iterable[Iterable[String]]): Unit =
+    names.foreach(assertResultTreeHasNotGotExactNamedPath(root, _, allowTail))
+  
   protected def checkResultTreeHasPath(root: AbstractTestProxy, conditions: Iterable[AbstractTestProxy => Boolean],
                                        allowTail: Boolean = false): Boolean =
     getPathFromResultTree(root, conditions, allowTail).isDefined

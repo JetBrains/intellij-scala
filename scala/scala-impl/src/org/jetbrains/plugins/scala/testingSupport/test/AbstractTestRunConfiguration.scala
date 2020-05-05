@@ -143,6 +143,9 @@ abstract class AbstractTestRunConfiguration(
   protected[test] final def isValidSuite(clazz: PsiClass): Boolean =
     getSuiteClass.fold(_ => false, validityChecker.isValidSuite(clazz, _))
 
+  /** @return whether `clazz` can be discovered when run indirectly, e.g. using "All in package" test kind */
+  protected[test] def canBeDiscovered(clazz: PsiClass): Boolean = true
+
   protected[test] final def isInvalidSuite(clazz: PsiClass): Boolean =
     !isValidSuite(clazz)
 

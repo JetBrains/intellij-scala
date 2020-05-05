@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{SettingMap, TestFrameworkRunnerInfo}
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtCommandsBuilder, SbtCommandsBuilderBase, SbtTestRunningSupport, SbtTestRunningSupportBase}
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration.DoNotDiscoverAnnotationFqn
 import org.jetbrains.sbt.shell.SbtShellCommunication
 
 import scala.concurrent.Future
@@ -36,6 +37,8 @@ class ScalaTestRunConfiguration(
   override val configurationProducer: ScalaTestConfigurationProducer = TestConfigurationUtil.scalaTestConfigurationProducer
 
   override protected def validityChecker: SuiteValidityChecker = ScalaTestRunConfiguration.validityChecker
+
+  override protected[test] def canBeDiscovered(clazz: PsiClass): Boolean = !clazz.hasAnnotation(DoNotDiscoverAnnotationFqn)
 
   override protected val runnerInfo: TestFrameworkRunnerInfo = TestFrameworkRunnerInfo(
     classOf[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner].getName
@@ -61,12 +64,13 @@ class ScalaTestRunConfiguration(
 
 object ScalaTestRunConfiguration {
 
-  protected def wrapWithAnnotationFqn = "org.scalatest.WrapWith"
+  private def WrapWithAnnotationFqn = "org.scalatest.WrapWith"
+  private val DoNotDiscoverAnnotationFqn = "org.scalatest.DoNotDiscover"
 
   private val validityChecker = new SuiteValidityCheckerBase {
     override def hasSuitableConstructor(clazz: PsiClass): Boolean = {
       val hasConfigMapAnnotation = clazz match {
-        case classDef: ScTypeDefinition => classDef.hasAnnotation(wrapWithAnnotationFqn)
+        case classDef: ScTypeDefinition => classDef.hasAnnotation(WrapWithAnnotationFqn)
         case _                          => false
       }
       if (hasConfigMapAnnotation) {
