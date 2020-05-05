@@ -1,22 +1,25 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="true" type="JUnit" factoryName="JUnit">
+    <useClassPathOnly />
+    <option name="ALTERNATIVE_JRE_PATH" value="$USER_HOME$/.ScalaPluginIU/sdk/202.3180/jbr" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <shortenClasspath name="ARGS_FILE" />
     <module name="scalaCommunity" />
-    <shortenClasspath name="CLASSPATH_FILE" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
-    <option name="VM_PARAMETERS" value="-Xms128m -Xmx1024m -ea -Didea.system.path=$USER_HOME$/.ScalaPluginIC/test-system -Didea.config.path=$USER_HOME$/.ScalaPluginIC/test-config -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala" />
-    <option name="PARAMETERS" value="" />
+    <option name="VM_PARAMETERS" value="-Dsun.io.useCanonPrefixCache=false -ea -Djava.net.preferIPv4Stack=true -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -Dawt.useSystemAAFontSettings=lcd -Dsun.java2d.renderer=sun.java2d.marlin.MarlinRenderingEngine -Dsun.tools.attach.tmp.only=true -Dide.no.platform.update=true -Dkotlinx.coroutines.debug=off -Djdk.attach.allowAttachSelf=true -Djdk.module.illegalAccess.silent=true -XX:MaxJavaStackTraceDepth=10000 -Xms128m -Xmx1536m -XX:ReservedCodeCacheSize=240m -XX:SoftRefLRUPolicyMSPerMB=50 -XX:+UseConcMarkSweepGC -XX:CICompilerCount=2 -Didea.system.path=$USER_HOME$/.ScalaPluginIC/test-system -Didea.config.path=$USER_HOME$/.ScalaPluginIC/test-config -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala -Didea.platform.prefix=Idea" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/" />
     <option name="TEST_SEARCH_SCOPE">
       <value defaultName="moduleWithDependencies" />
     </option>
-    <envs>
-      <env name="NO_FS_ROOTS_ACCESS_CHECK" value="gg" />
-    </envs>
     <RunnerSettings RunnerId="Profile " />
     <RunnerSettings RunnerId="Run" />
     <ConfigurationWrapper RunnerId="Run" />
+    <envs>
+     <env name="NO_FS_ROOTS_ACCESS_CHECK" value="yes" />
+    </envs>
+
     <method v="2">
       <option name="Make" enabled="true" />
       <option name="BuildArtifacts" enabled="true">
