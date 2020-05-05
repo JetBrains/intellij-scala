@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.plugins.scala.testDiscovery.actions;
 
-import com.intellij.codeInsight.actions.FormatChangedTextUtil;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.JavaTestConfigurationWithDiscoverySupport;
@@ -218,12 +217,11 @@ public class ScalaShowAffectedTestsAction extends AnAction {
     // NOTE: changes in primary constructor non-member elements can't be detected because
     // ScPrimaryConstructor text range only includes its parameters, not body elements
     return PsiDocumentManager.getInstance(project).commitAndRunReadAction(() -> {
-      FormatChangedTextUtil instance = FormatChangedTextUtil.getInstance();
       Class<ScMember> memberClass = ScMember.class;
-      List<PsiElement> changedElements =
-          instance.getChangedElements(project, changes, file -> getElementsOfType(project, file, memberClass));
-      return changedElements
-          .stream()
+      return Arrays.stream(changes)
+          .map(Change::getVirtualFile)
+          .filter(Objects::nonNull)
+          .flatMap(file -> getElementsOfType(project, file, memberClass).stream())
           .filter(Objects::nonNull)
           .map(m -> ObjectUtils.tryCast(m, memberClass))
           .filter(Objects::nonNull)
