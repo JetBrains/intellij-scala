@@ -41,7 +41,6 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
     pane.setMaximumHeapSize(settings.maximumHeapSize)
     pane.setMyVmParameters(settings.vmParameters)
     pane.setCustomVMPath(settings.customVMPath, settings.customVMEnabled)
-    pane.setPathListeners()
   }
 
   override def validate(settings: SbtSettings) = true

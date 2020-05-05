@@ -44,27 +44,21 @@ public class SbtSettingsPane {
         $$$setupUI$$$();
 
         myBundledButton.addItemListener(itemEvent -> setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.DESELECTED));
+        myBundledButton.setSelected(true);
 
         myCustomButton.addItemListener(itemEvent -> setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.SELECTED));
 
-        myBundledButton.setSelected(true);
+        myLauncherPath.addBrowseFolderListener(
+                SbtBundle.message("sbt.settings.choose.custom.launcher"),
+                SbtBundle.message("sbt.settings.choose.sbt.launch.jar"),
+                project,
+                FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
     }
 
     public void createUIComponents() {
 
         myJrePathEditor = new JrePathEditor(DefaultJreSelector.projectSdk(myProject));
     }
-
-    // TODO: this is a workaround to fix SCL-8059 non-working "..." buttons
-    // Investigation needed to find out why path listeners are being removed.
-    public void setPathListeners() {
-        myLauncherPath.addBrowseFolderListener(
-                SbtBundle.message("sbt.settings.choose.custom.launcher"),
-                SbtBundle.message("sbt.settings.choose.sbt.launch.jar"),
-                null,
-                FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
-    }
-
 
     public JPanel getContentPanel() {
         return myContentPanel;
