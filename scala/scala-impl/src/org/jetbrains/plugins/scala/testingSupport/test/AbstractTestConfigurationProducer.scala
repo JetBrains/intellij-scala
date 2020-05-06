@@ -10,13 +10,14 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.{AllInPackage, ClassWithTestName}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer._
-import org.jetbrains.plugins.scala.testingSupport.test.testdata._
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{SingleTestData, _}
 
 import scala.collection.JavaConverters._
 
@@ -51,8 +52,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
         // TODO: should we really check it for configuration (the one we should setup) and not for config (just created)?
         if (isRunPossibleFor(configuration, testElement, config.getModule)) {
           sourceElement.set(testElement)
-          copyConfiguration(config, configuration)
-          configuration.testKind = configuration.testConfigurationData.getKind
+          configuration.initFrom(config)
           true
         }
         else false
@@ -63,18 +63,6 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   private def extendCreatedConfiguration(configuration: RunConfigurationBase[_], location: PsiElementLocation): Unit = {
     val instance = JavaRunConfigurationExtensionManager.getInstance
     instance.extendCreatedConfiguration(configuration, location)
-  }
-
-  private def copyConfiguration(from: T, to: T): Unit = {
-    to.setGeneratedName(from.suggestedName)
-    to.setFileOutputPath(from.getOutputFilePath)
-    to.setModule(from.getModule)
-    to.setName(from.getName)
-    to.setNameChangedByUser(!from.isGeneratedName)
-    to.setSaveOutputToFile(from.isSaveOutputToFile)
-    to.setShowConsoleOnStdErr(from.isShowConsoleOnStdErr)
-    to.setShowConsoleOnStdOut(from.isShowConsoleOnStdOut)
-    to.testConfigurationData = from.testConfigurationData.copy(to)
   }
 
   /**
@@ -92,6 +80,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
       val configuration = settings.getConfiguration.asInstanceOf[T]
 
       configuration.testConfigurationData = getUpdatedTestData(configuration, contextInfo)
+      configuration.testKind = configuration.testConfigurationData.getKind
 
       configuration.setGeneratedName(configuration.getName)
 
@@ -136,13 +125,15 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   ): TestConfigurationData = {
     val testDataOld = configuration.testConfigurationData
     val testDataNew = contextInfo match {
-      case AllInPackage(testPackage, _) =>
-        // TODO: take name from context info maybe?
+      case AllInPackage(testPackage, _)                                =>
+        // TODO: take name from context info 2nd parameter maybe?
         AllInPackageTestData(configuration, sanitize(testPackage.getQualifiedName))
-      case ClassWithTestName(testClass, testName) =>
-        ClassTestData(configuration, sanitize(testClass.qualifiedName), testName)
+      case ClassWithTestName(testClass, Some(testName)) if StringUtils.isNotBlank(testName) =>
+        SingleTestData(configuration, sanitize(testClass.qualifiedName), testName)
+      case ClassWithTestName(testClass, _)                             =>
+        ClassTestData(configuration, sanitize(testClass.qualifiedName))
     }
-    TestConfigurationData.copy(testDataOld, testDataNew)
+    testDataNew.copyCommonFieldsFrom(testDataOld)
     testDataNew.initWorkingDirIfEmpty()
     testDataNew
   }

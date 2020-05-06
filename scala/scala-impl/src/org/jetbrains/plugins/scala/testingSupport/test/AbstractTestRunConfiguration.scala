@@ -47,6 +47,7 @@ abstract class AbstractTestRunConfiguration(
   def suitePaths: Seq[String]
   final def javaSuitePaths: ju.List[String] = suitePaths.asJava
 
+  // TODO: move to test data itself to avoid information duplication (currently same info is expressed via testKind and testConfigurationData.class
   @BeanProperty
   var testKind: TestKind = TestKind.CLAZZ
 
@@ -69,6 +70,19 @@ abstract class AbstractTestRunConfiguration(
 
   override final def getModules: Array[Module] =
     modulesToBuildBeforeRun
+
+  def initFrom(from: AbstractTestRunConfiguration): Unit = {
+    this.setGeneratedName(from.suggestedName)
+    this.setFileOutputPath(from.getOutputFilePath)
+    this.setModule(from.getModule)
+    this.setName(from.getName)
+    this.setNameChangedByUser(!from.isGeneratedName)
+    this.setSaveOutputToFile(from.isSaveOutputToFile)
+    this.setShowConsoleOnStdErr(from.isShowConsoleOnStdErr)
+    this.setShowConsoleOnStdOut(from.isShowConsoleOnStdOut)
+    this.testConfigurationData = from.testConfigurationData.copy(this)
+    this.testKind = from.testKind
+  }
 
   /**
    * dependencies are added to scope automatically via [[GlobalSearchScopes.executionScope]]

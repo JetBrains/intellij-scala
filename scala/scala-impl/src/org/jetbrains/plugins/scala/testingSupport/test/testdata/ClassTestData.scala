@@ -80,17 +80,4 @@ object ClassTestData {
     res.setTestClassPath(className)
     res
   }
-
-  def apply(config: AbstractTestRunConfiguration, className: String, testName: String): ClassTestData =
-    if (StringUtils.isNotBlank(testName)) {
-      val res = new SingleTestData(config)
-      res.setTestClassPath(className)
-      res.setTestName(testName)
-      res
-    } else {
-      apply(config, className)
-    }
-
-  def apply(config: AbstractTestRunConfiguration, className: String, testName: Option[String]): ClassTestData =
-    apply(config, className, testName.orNull)
 }
