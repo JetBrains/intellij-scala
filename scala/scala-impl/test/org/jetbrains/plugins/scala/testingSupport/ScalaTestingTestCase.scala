@@ -56,6 +56,8 @@ abstract class ScalaTestingTestCase
 
   override def runInDispatchThread(): Boolean = false
 
+  def debugProcessOutput = false
+
   override protected def addFileToProjectSources(fileName: String, fileText: String): VirtualFile =
     EdtTestUtil.runInEdtAndGet { () =>
       ScalaTestingTestCase.super.addFileToProjectSources(fileName, fileText)
@@ -158,15 +160,14 @@ abstract class ScalaTestingTestCase
   override protected def runTestFromConfig(configurationAssert: RunnerAndConfigurationSettings => Unit,
                                            runConfig: RunnerAndConfigurationSettings,
                                            checkOutputs: Boolean = false,
-                                           duration: Int = 3000,
-                                           debug: Boolean = false
+                                           duration: Int = 3000
                                           ): (String, Option[AbstractTestProxy]) = {
     configurationAssert(runConfig)
     assertTrue("runConfig not instance of AbstractRunConfiguration", runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
     val testResultListener = new TestResultListener(runConfig.getName)
     var testTreeRoot: Option[AbstractTestProxy] = None
 
-    EdtTestUtil.runInEdtAndWait(() => {
+    EdtTestUtil.runInEdtAndGet(() => {
       if (needMake) {
         compiler.rebuild().assertNoProblems(allowWarnings = true)
         saveChecksums()
@@ -175,7 +176,8 @@ abstract class ScalaTestingTestCase
       val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], runner, new ProcessAdapter {
         override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
           val text = event.getText
-          if (debug) print(text)
+          if (debugProcessOutput)
+            print(text.replace("##teamcity", "@@teamcity")) // not to display debug test in test console tree
         }
       })
 
@@ -185,42 +187,55 @@ abstract class ScalaTestingTestCase
         case _ =>
       }
       handler.addProcessListener(testResultListener)
+      (handler, runContentDescriptor)
     })
 
-    (testResultListener.waitForTestEnd(duration), testTreeRoot)
+    val outputText = testResultListener.waitForTestEnd(duration)
+    (outputText, testTreeRoot)
   }
 
-  private def runProcess(runConfiguration: RunnerAndConfigurationSettings,
-                         executorClass: Class[_ <: Executor],
-                         runner: ProgramRunner[_ <: RunnerSettings],
-                         listener: ProcessListener): (ProcessHandler, RunContentDescriptor) = {
-    val configuration = runConfiguration.getConfiguration
-    val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(executorClass)
-    val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
-      new ExecutionEnvironmentBuilder(configuration.getProject, executor)
-    executionEnvironmentBuilder.runProfile(configuration)
-    val semaphore: Semaphore = new Semaphore
-    semaphore.down()
+  private def runProcess(
+    runConfiguration: RunnerAndConfigurationSettings,
+    executorClass: Class[_ <: Executor],
+    runner: ProgramRunner[_ <: RunnerSettings],
+    listener: ProcessListener
+  ): (ProcessHandler, RunContentDescriptor) = {
+    val executionEnvironment = {
+      val configuration = runConfiguration.getConfiguration
+      val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(executorClass)
+      val builder = new ExecutionEnvironmentBuilder(configuration.getProject, executor)
+      builder.runProfile(configuration)
+      builder.build()
+    }
+
     val processHandler: AtomicReference[ProcessHandler] = new AtomicReference[ProcessHandler]
     val contentDescriptor: AtomicReference[RunContentDescriptor] = new AtomicReference[RunContentDescriptor]
-    runner.execute(executionEnvironmentBuilder.build, (descriptor: RunContentDescriptor) => {
+
+    val semaphore = new Semaphore(1)
+
+    executionEnvironment.setCallback { (descriptor: RunContentDescriptor) =>
       System.setProperty("idea.dynamic.classpath", useDynamicClassPath.toString)
       val handler: ProcessHandler = descriptor.getProcessHandler
       assertNotNull(handler)
       disposeOnTearDown(new Disposable {
         override def dispose(): Unit = {
-          if (!handler.isProcessTerminated) {
+          if (!handler.isProcessTerminated)
             handler.destroyProcess()
-          }
           descriptor.dispose()
         }
       })
       handler.addProcessListener(listener)
+
       processHandler.set(handler)
       contentDescriptor.set(descriptor)
+
       semaphore.up()
-    })
+    }
+
+    runner.execute(executionEnvironment)
+
     semaphore.waitFor()
+
     (processHandler.get, contentDescriptor.get)
   }
 }

@@ -9,8 +9,10 @@ trait FreeSpecPathSingleTestTest extends FreeSpecPathGenerator {
   def testFreeSpecPath(): Unit = {
     runTestByLocation2(5, 15, freeSpecPathFileName,
       assertConfigAndSettings(_, freeSpecPathClassName, "A FreeSpecTest should be able to run single test"),
-      root => checkResultTreeHasExactNamedPath(root, freeSpecPathTestPath:_*) &&
-          checkResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
+      root => {
+        assertResultTreeHasExactNamedPath(root, freeSpecPathTestPath)
+        assertResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
+      }
     )
   }
 }

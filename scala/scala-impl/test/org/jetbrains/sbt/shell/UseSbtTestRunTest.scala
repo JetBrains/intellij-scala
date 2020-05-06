@@ -11,7 +11,7 @@ import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, RegexpTestData}
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, RegexpTestData, SingleTestData}
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration._
@@ -131,8 +131,8 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   }
 
   protected def runSingleTest(config: AbstractTestRunConfiguration, classFqn: String, testName: String, moduleName: String,
-                    expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
-    config.testConfigurationData = ClassTestData(config, classFqn, testName)
+                              expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
+    config.testConfigurationData = SingleTestData(config, classFqn, testName)
     val module = ModuleManager.getInstance(getProject).findModuleByName(moduleName)
     assert(module != null, s"Could not find module '$moduleName' in project '$getProject'")
     config.setModule(module)

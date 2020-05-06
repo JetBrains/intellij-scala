@@ -13,16 +13,20 @@ trait FeatureSpecSingleTestNewTest extends FeatureSpecNewGenerator {
   def testFeatureSpecSingleTest(): Unit = {
     runTestByLocation2(5, 7, featureSpecNewFileName,
       assertConfigAndSettings(_, featureSpecNewClassName, featureSpecConfigTestName),
-      root => checkResultTreeHasExactNamedPath(root, featureSpecTestPath:_*) &&
-          checkResultTreeDoesNotHaveNodes(root, "Scenario: Scenario B")
+      root => {
+        assertResultTreeHasExactNamedPaths(root)(Seq(featureSpecTestPath))
+        assertResultTreeDoesNotHaveNodes(root, "Scenario: Scenario B")
+      }
     )
   }
 
   def testTaggedFeatureSpecTest(): Unit = {
     runTestByLocation2(24, 7, featureSpecNewFileName,
       assertConfigAndSettings(_, featureSpecNewClassName, featureSpecTaggedConfigTestName),
-      root => checkResultTreeHasExactNamedPath(root, featureSpecTaggedTestPath:_*) &&
-        checkResultTreeDoesNotHaveNodes(root, "Scenario: Scenario A")
+      root => {
+        assertResultTreeHasExactNamedPaths(root)(Seq(featureSpecTaggedTestPath))
+        assertResultTreeDoesNotHaveNodes(root, "Scenario: Scenario A")
+      }
      )
   }
 }

@@ -9,6 +9,7 @@ class Scalatest2_10_1_9_2_SelectedTestsTest extends {
   override val featureSpecTaggedTestPath = List("[root]", "Feature 3 Scenario: Tagged")
   override val freeSpecPathTestPath = List("[root]", "A FreeSpecTest should be able to run single test")
   override val freeSpecTestPath = List("[root]", "A FreeSpecTest should be able to run single tests")
+  override val freeSpecNonNestedTestPath = List("[root]", "Not nested scope")
   override val funSpecTestPath = List("[root]", "FunSpecTest should launch single test")
   override val funSpecTaggedTestPath = List("[root]", "taggedScope is tagged")
   override val propSpecTestPath = List("[root]", "Single tests should run")

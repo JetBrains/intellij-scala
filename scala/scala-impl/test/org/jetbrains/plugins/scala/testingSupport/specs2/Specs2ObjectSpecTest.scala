@@ -6,6 +6,9 @@ package testingSupport.specs2
  * @since 16.10.2014.
  */
 abstract class Specs2ObjectSpecTest extends Specs2TestCase {
+
+  override def debugProcessOutput: Boolean = true
+
   addSourceFile("SpecObject.scala",
     """
       |import org.specs2.mutable.Specification
@@ -27,9 +30,10 @@ abstract class Specs2ObjectSpecTest extends Specs2TestCase {
   def testSpecObject(): Unit = {
     runTestByLocation2(5, 8, "SpecObject.scala",
       assertConfigAndSettings(_, "SpecObject", "run alone"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecObject", "single test in SpecObject should", "run alone") &&
-          checkResultTreeDoesNotHaveNodes(root, "ignore other test"),
-      debug = true
+      root => {
+        assertResultTreeHasExactNamedPath(root, Seq("[root]", "SpecObject", "single test in SpecObject should", "run alone"))
+        assertResultTreeDoesNotHaveNodes(root, "ignore other test")
+      }
     )
 
   }

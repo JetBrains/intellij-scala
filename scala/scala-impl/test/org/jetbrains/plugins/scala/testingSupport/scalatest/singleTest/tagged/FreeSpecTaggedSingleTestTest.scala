@@ -8,8 +8,10 @@ trait FreeSpecTaggedSingleTestTest extends FreeSpecGenerator {
   def testTaggedFreeSpec(): Unit = {
     runTestByLocation2(12, 7, freeSpecFileName,
       assertConfigAndSettings(_, freeSpecClassName, "A FreeSpecTest can be tagged"),
-      root => checkResultTreeHasExactNamedPath(root, freeSpecTaggedTestPath:_*) &&
-        checkResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
+      root => {
+        assertResultTreeHasExactNamedPath(root, freeSpecTaggedTestPath)
+        assertResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
+      }
     )
   }
 }

@@ -10,14 +10,18 @@ trait FreeSpecSingleTestTest extends FreeSpecGenerator {
   def testFreeSpec(): Unit =
     runTestByLocation2(6, 3, freeSpecFileName,
       assertConfigAndSettings(_, freeSpecClassName, "A FreeSpecTest should be able to run single tests"),
-      root => checkResultTreeHasExactNamedPath(root, freeSpecTestPath:_*) &&
-          checkResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
+      root => {
+        assertResultTreeHasExactNamedPath(root, freeSpecTestPath)
+        assertResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
+      }
     )
 
   def testFreeSpecNonNested(): Unit =
     runTestByLocation2(33, 15, complexFreeSpecFileName,
       assertConfigAndSettings(_, complexFreeSpecClassName, "Not nested scope"),
-      root => checkResultTreeHasExactNamedPath(root, freeSpecNonNestedTestPath:_*) &&
-        checkResultTreeDoesNotHaveNodes(root, "A ComplexFreeSpec Outer scope 2 Inner test")
+      root => {
+        assertResultTreeHasExactNamedPath(root, freeSpecNonNestedTestPath)
+        assertResultTreeDoesNotHaveNodes(root, "A ComplexFreeSpec Outer scope 2 Inner test")
+      }
     )
 }

@@ -28,11 +28,9 @@ trait IgnoredSpecTest extends ScalaTestTestCase {
     """.stripMargin.trim()
   )
 
-  def testIgnoredTest(): Unit = {
+  def testIgnoredTest(): Unit =
     runTestByLocation2(2, 7, "IgnoredTest.scala",
       assertConfigAndSettings(_, "IgnoredTestSpec"),
-      root => checkResultTreeHasExactNamedPath(root, succeededTestPath: _*) &&
-        checkResultTreeHasExactNamedPath(root, ignoredTestPath: _*)
+      root => assertResultTreeHasExactNamedPaths(root)(Seq(succeededTestPath, ignoredTestPath))
     )
-  }
 }

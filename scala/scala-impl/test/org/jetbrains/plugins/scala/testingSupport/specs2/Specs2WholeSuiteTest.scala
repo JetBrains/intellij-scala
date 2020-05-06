@@ -37,11 +37,12 @@ abstract class Specs2WholeSuiteTest extends Specs2TestCase {
     assertConfigAndSettings(createTestFromLocation(2, 10, "paramConstructorTest.scala"), "paramConstructorTest")
   }
 
-  def testSpecification(): Unit = {
+  def testSpecification(): Unit =
     runTestByLocation2(3, 14, "SpecificationTest.scala",
       assertConfigAndSettings(_, "SpecificationTest"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "run single test") &&
-        checkResultTreeHasExactNamedPath(root, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "ignore other test")
+      root => assertResultTreeHasExactNamedPaths(root)(Seq(
+        Seq("[root]", "SpecificationTest", "The 'SpecificationTest' should", "run single test"),
+        Seq("[root]", "SpecificationTest", "The 'SpecificationTest' should", "ignore other test")
+      ))
     )
-  }
 }

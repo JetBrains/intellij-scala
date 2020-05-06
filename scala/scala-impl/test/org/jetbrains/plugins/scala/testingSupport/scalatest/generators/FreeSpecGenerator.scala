@@ -5,9 +5,9 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 trait FreeSpecGenerator extends ScalaTestTestCase {
 
   val freeSpecClassName = "FreeSpecTest"
-  val complexFreeSpecClassName = "ComplexFreeSpec"
-
   val freeSpecFileName = freeSpecClassName + ".scala"
+
+  val complexFreeSpecClassName = "ComplexFreeSpec"
   val complexFreeSpecFileName = complexFreeSpecClassName + ".scala"
 
   addSourceFile(freeSpecFileName,

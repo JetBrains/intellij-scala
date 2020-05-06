@@ -19,8 +19,8 @@ trait FileStructureTest {
 
   protected def assertTestNodeInFileStructure(root: TreeElementWrapper, nodeName: String, parentName: Option[String], status: Int): Unit = {
 
-    def doAssert(root: AbstractTreeNode[_], currentParentName: String): Unit = {
-      root.getValue match {
+    def doAssert(node: AbstractTreeNode[_], currentParentName: String): Unit = {
+      node.getValue match {
         case testElement: Test =>
           val presentation = testElement.getPresentation
           assertIsA[Test](presentation)
@@ -28,8 +28,8 @@ trait FileStructureTest {
           assertEquals("node status", status, presentation.asInstanceOf[Test].testStatus)
           parentName.foreach(pn => assertEquals("parent name", pn, currentParentName))
         case _ =>
-          root.getChildren.asScala.foreach { child =>
-            doAssert(child, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText)
+          node.getChildren.asScala.foreach { child =>
+            doAssert(child, node.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText)
           }
       }
     }

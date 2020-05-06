@@ -10,16 +10,20 @@ trait PropSpecSingleTestTest extends PropSpecGenerator {
   def testPropSpec(): Unit = {
     runTestByLocation2(5, 5, propSpecFileName,
       assertConfigAndSettings(_, propSpecClassName, "Single tests should run"),
-      root => checkResultTreeHasExactNamedPath(root, propSpecTestPath:_*) &&
-          checkResultTreeDoesNotHaveNodes(root, "other tests should not run")
+      root => {
+        assertResultTreeHasExactNamedPath(root, propSpecTestPath)
+        assertResultTreeDoesNotHaveNodes(root, "other tests should not run")
+      }
     )
   }
 
   def testTaggedPropSpec(): Unit = {
     runTestByLocation2(12, 5, propSpecFileName,
       assertConfigAndSettings(_, propSpecClassName, "tagged"),
-      root => checkResultTreeHasExactNamedPath(root, propSpecTestTaggedPath:_*) &&
-        checkResultTreeDoesNotHaveNodes(root, "other tests should not run")
+      root => {
+        assertResultTreeHasExactNamedPath(root, propSpecTestTaggedPath)
+        assertResultTreeDoesNotHaveNodes(root, "other tests should not run")
+      }
     )
   }
 }

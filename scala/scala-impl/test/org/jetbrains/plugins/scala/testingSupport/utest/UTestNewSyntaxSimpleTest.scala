@@ -38,30 +38,35 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
   protected val inner1_1Path = List("[root]", uTestTestName, "otherTests", "outer1", "inner1_1")
   protected val failedPath = List("[root]", uTestTestName, "tests", "failed")
 
-  def testClassSuite(): Unit = {
+  def testClassSuite(): Unit =
     runTestByLocation2(2, 3, uTestFileName,
       assertConfigAndSettings(_, uTestTestName),
-      root => checkResultTreeHasExactNamedPath(root, inner2_1Path) &&
-        checkResultTreeHasExactNamedPath(root, sameNamePath) &&
-        checkResultTreeHasExactNamedPath(root, outer1_Path) &&
-        checkResultTreeHasExactNamedPath(root, inner1_1Path) &&
-        checkResultTreeHasExactNamedPath(root, failedPath))
-  }
+      root => assertResultTreeHasExactNamedPaths(root)(Seq(
+        inner2_1Path,
+        sameNamePath,
+        outer1_Path,
+        inner1_1Path,
+        failedPath,
+      ))
+    )
 
 
-  def testMethod(): Unit = {
+  def testMethod(): Unit =
     runTestByLocation2(3, 3, uTestFileName,
       assertConfigAndSettings(_, uTestTestName, "tests"),
-      root => checkResultTreeHasExactNamedPath(root, outer1_Path) &&
-        checkResultTreeHasExactNamedPath(root, inner2_1Path) &&
-        checkResultTreeDoesNotHaveNodes(root, "inner1_1", "sameName"))
-  }
+      root => {
+        assertResultTreeHasExactNamedPaths(root)(Seq(outer1_Path, inner2_1Path))
+        assertResultTreeDoesNotHaveNodes(root, "inner1_1", "sameName")
+      }
+    )
 
   def testSingleTest(): Unit = {
     runTestByLocation2(8, 15, uTestFileName,
       assertConfigAndSettings(_, uTestTestName, "tests\\outer2\\inner2_1"),
-      root => checkResultTreeHasExactNamedPath(root, inner2_1Path) &&
-        checkResultTreeDoesNotHaveNodes(root, "outer1", "inner1_1"))
+      root => {
+        assertResultTreeHasExactNamedPaths(root)(Seq(inner2_1Path))
+        assertResultTreeDoesNotHaveNodes(root, "outer1", "inner1_1")
+      })
   }
 
   def testDuplicateConfig(): Unit = {
@@ -71,7 +76,7 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
   def testSameName(): Unit = {
     runTestByLocation2(14, 15, uTestFileName,
       assertConfigAndSettings(_, uTestTestName, "tests\\sameName\\sameName"),
-      root => checkResultTreeHasExactNamedPath(root, sameNamePath))
+      root => assertResultTreeHasExactNamedPath(root, sameNamePath))
   }
 
   def testGoToSourceSuccessful(): Unit = {
@@ -124,21 +129,15 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
        |}
        |""".stripMargin.trim())
 
-  def testFailing(): Unit = {
+  def testFailing(): Unit =
     runTestByLocation2(4, 10, uTestFileName1,
       assertConfigAndSettings(_, uTestTestName1, "tests\\test1"),
-      assertFromCheck { root =>
-        checkResultTreeHasExactNamedPath(root, List("[root]", uTestTestName1, "tests", "test1"))
-      }
+      root => assertResultTreeHasExactNamedPath(root, List("[root]", uTestTestName1, "tests", "test1"))
     )
-  }
 
-  def testFailingWithNullMessage(): Unit = {
+  def testFailingWithNullMessage(): Unit =
     runTestByLocation2(7, 10, uTestFileName1,
       assertConfigAndSettings(_, uTestTestName1, "tests\\test2"),
-      assertFromCheck { root =>
-        checkResultTreeHasExactNamedPath(root, List("[root]", uTestTestName1, "tests", "test2"))
-      }
+      root => assertResultTreeHasExactNamedPath(root, List("[root]", uTestTestName1, "tests", "test2"))
     )
-  }
 }

@@ -14,8 +14,9 @@ trait FunSpecScopeTest extends FunSpecGenerator {
     val path1 = List("[root]", funSpecClassName, "FunSpecTest", "should launch single test")
     val path2 = List("[root]", funSpecClassName, "FunSpecTest", "should not launch other tests")
     runTestByLocation2(3, 15, funSpecFileName, assertConfigAndSettings(_, funSpecClassName, testNames:_*),
-      root => checkResultTreeHasExactNamedPath(root, path1:_*) &&
-        checkResultTreeHasExactNamedPath(root, path2:_*) &&
-        checkResultTreeDoesNotHaveNodes(root, "OtherScope"))
+      root => {
+        assertResultTreeHasExactNamedPaths(root)(Seq(path1, path2))
+        assertResultTreeDoesNotHaveNodes(root, "OtherScope")
+      })
   }
 }

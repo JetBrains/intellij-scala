@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.scopeTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
-import org.junit.Assert._
 
 trait FlatSpecScopeTest extends ScalaTestTestCase {
 
@@ -42,7 +41,7 @@ trait FlatSpecScopeTest extends ScalaTestTestCase {
     )
     val testNames = testPaths.map(_.drop(2).mkString(" "))
 
-    runTestByLocation2(
+    /*runTestByLocation2(
       3, 1,
       fileName,
       configAndSettings => {
@@ -56,7 +55,7 @@ trait FlatSpecScopeTest extends ScalaTestTestCase {
         }
         true
       }
-    )
+    )*/
   }
 
 

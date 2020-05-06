@@ -8,6 +8,8 @@ package specs2
  */
 abstract class SCL7228Test extends Specs2TestCase {
 
+  override def debugProcessOutput: Boolean = true
+
   addSourceFile("SCL7228Test.scala",
     """
       |import org.specs2.mutable.Specification
@@ -18,12 +20,9 @@ abstract class SCL7228Test extends Specs2TestCase {
     """.stripMargin
   )
 
-  def testScl7228(): Unit = {
+  def testScl7228(): Unit =
     runTestByLocation2(3, 1, "SCL7228Test.scala",
       assertConfigAndSettings(_, "SCL7228Test"),
-      checkResultTreeHasExactNamedPath(_, "[root]", "SCL7228Test", "foo (bar)"),
-      debug = true
+      assertResultTreeHasExactNamedPath(_, Seq("[root]", "SCL7228Test", "foo (bar)"))
     )
-
-  }
 }

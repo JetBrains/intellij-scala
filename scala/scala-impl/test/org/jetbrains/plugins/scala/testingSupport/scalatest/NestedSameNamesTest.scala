@@ -22,7 +22,7 @@ trait NestedSameNamesTest extends ScalaTestTestCase {
   def testNestedSameNames(): Unit = {
     runTestByLocation2(6, 12, "FunSpecTest.scala",
       assertConfigAndSettings(_, "FunSpecTest", "FunSpecTest FunSpecTest FunSpecTest"),
-      root => checkResultTreeHasExactNamedPath(root, testPath: _*)
+      root => assertResultTreeHasExactNamedPath(root, testPath)
     )
   }
 }
