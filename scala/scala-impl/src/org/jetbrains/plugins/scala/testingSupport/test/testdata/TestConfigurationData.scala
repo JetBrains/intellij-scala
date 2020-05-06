@@ -60,16 +60,19 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
     envs = form.getEnvironmentVariables
   }
 
-  protected def apply(data: SelfType): Unit = {
-    setSearchTest(data.getSearchTest)
-    setJavaOptions(data.getJavaOptions)
-    setTestArgs(data.getTestArgs)
-    setJrePath(data.getJrePath)
-    setShowProgressMessages(data.getShowProgressMessages)
-    setUseSbt(data.getUseSbt)
-    setUseUiWithSbt(data.getUseUiWithSbt)
-    setWorkingDirectory(data.getWorkingDirectory)
-    envs = new java.util.HashMap(data.envs)
+  protected def apply(data: SelfType): Unit =
+    copyCommonFieldsFrom(data)
+
+  final def copyCommonFieldsFrom(from: TestConfigurationData): Unit = {
+    setSearchTest(from.getSearchTest)
+    setJavaOptions(from.getJavaOptions)
+    setTestArgs(from.getTestArgs)
+    setJrePath(from.getJrePath)
+    setShowProgressMessages(from.getShowProgressMessages)
+    setUseSbt(from.getUseSbt)
+    setUseUiWithSbt(from.getUseUiWithSbt)
+    setWorkingDirectory(from.getWorkingDirectory)
+    envs = new java.util.HashMap(from.envs)
   }
 
   def copy(config: AbstractTestRunConfiguration): TestConfigurationData
@@ -153,17 +156,6 @@ object TestConfigurationData {
     case TestKind.TEST_NAME      => new SingleTestData(configuration)
     case TestKind.REGEXP         => new RegexpTestData(configuration)
     case null                    => new ClassTestData(configuration) // null can be set by IDEA internally during intermediate xml read/write
-  }
-
-  def copy(from: TestConfigurationData, to: TestConfigurationData): Unit = {
-    to.javaOptions = from.javaOptions
-    to.envs = from.envs
-    to.testArgs = from.testArgs
-    to.useSbt = from.useSbt
-    to.useUiWithSbt = from.useUiWithSbt
-    to.jrePath = from.jrePath
-    to.showProgressMessages = from.showProgressMessages
-    to.setWorkingDirectory(from.getWorkingDirectory)
   }
 
   private def serializeIntoSkippingDefaults(data: TestConfigurationData, element: Element): Unit = {
