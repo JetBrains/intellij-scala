@@ -34,10 +34,8 @@ trait FreeSpecFileStructureViewTest extends ScalaTestTestCase {
       |}
     """.stripMargin)
 
-  def testFreeSpecNormal(): Unit = {
-    runFileStructureViewTest(className, NormalStatusId, "\"level1\"", "\"level1_1\"",
-      "\"level1_2\"", "\"level1_2_1\"")
-  }
+  def testFreeSpecNormal(): Unit =
+    runFileStructureViewTest(className, NormalStatusId, "\"level1\"", "\"level1_1\"", "\"level1_2\"", "\"level1_2_1\"")
 
   def testFreeSpecHierarchy(): Unit = {
     runFileStructureViewTest(className, "\"level1_1\"", Some("\"level1\""))
@@ -49,15 +47,12 @@ trait FreeSpecFileStructureViewTest extends ScalaTestTestCase {
     runFileStructureViewTest(className, "\"level2_2\"" + TestNodeProvider.IgnoredSuffix, Some("\"level2\"" + TestNodeProvider.IgnoredSuffix), IgnoredStatusId)
   }
 
-  def testFreeSpecIgnored(): Unit = {
+  def testFreeSpecIgnored(): Unit =
     runFileStructureViewTest(className, IgnoredStatusId, "\"level2\"", "\"level2_2\"")
-  }
 
-  def testFreeSpecIgnoredAndPending(): Unit = {
+  def testFreeSpecIgnoredAndPending(): Unit =
     runFileStructureViewTest(className, IgnoredStatusId, "\"level3\"")
-  }
 
-  def testFreeSpecPending(): Unit = {
+  def testFreeSpecPending(): Unit =
     runFileStructureViewTest(className, PendingStatusId, "\"level1_2\"", "\"level1_3\"")
-  }
 }

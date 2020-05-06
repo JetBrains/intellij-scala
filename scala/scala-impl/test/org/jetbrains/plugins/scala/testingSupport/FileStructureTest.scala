@@ -17,29 +17,63 @@ trait FileStructureTest {
 
   protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String] = None, testStatus: Int = Test.NormalStatusId): Unit
 
-  protected def assertTestNodeInFileStructure(root: TreeElementWrapper, nodeName: String, parentName: Option[String], status: Int): Unit = {
-
-    def doAssert(node: AbstractTreeNode[_], currentParentName: String): Unit = {
-      node.getValue match {
-        case testElement: Test =>
-          val presentation = testElement.getPresentation
-          assertIsA[Test](presentation)
-          assertEquals("node text", nodeName, presentation.getPresentableText)
-          assertEquals("node status", status, presentation.asInstanceOf[Test].testStatus)
-          parentName.foreach(pn => assertEquals("parent name", pn, currentParentName))
+  protected def assertTestNodeInFileStructure(
+    root: TreeElementWrapper,
+    expectedNodeName: String,
+    expectedParentName: Option[String],
+    expectedStatus: Int
+  ): Unit = {
+    def containsNodeWithName(currentNode: AbstractTreeNode[_], currentParentName: String): Boolean = {
+      val treeElement = currentNode.getValue.asInstanceOf[TreeElement]
+      val nodeName = treeElement.getPresentation.getPresentableText
+      val matches = treeElement match {
+        case test: Test =>
+          expectedNodeName == nodeName &&
+            expectedStatus == test.testStatus &&
+            expectedParentName.forall(_ == currentParentName)
         case _ =>
-          node.getChildren.asScala.foreach { child =>
-            doAssert(child, node.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText)
-          }
+          false
+      }
+      matches ||
+        currentNode.getChildren.asScala.exists(containsNodeWithName(_, nodeName))
+    }
+
+    EdtTestUtil.runInEdtAndWait { () =>
+      val containsNode = containsNodeWithName(root, "")
+      if (!containsNode) {
+        val parentStr = expectedParentName.fold("")(p => s" with parent '$p'")
+        val allPaths = allAvailablePaths(root)
+        val allPathsText = allPaths.map(pathString).mkString("\n")
+        fail(s"test node for test '$expectedNodeName'$parentStr was not found in file structure\navailable paths:\n$allPathsText")
       }
     }
+  }
 
-    try {
-      EdtTestUtil.runInEdtAndWait(() => doAssert(root, ""))
-    } catch {
-      case ae: AssertionError =>
-        val parentStr = parentName.fold("")(p => s"with parent 'p'")
-        throw new AssertionError(s"test node for test '$nodeName'$parentStr was not in file structure for root '$root'", ae)
+  private def allAvailablePaths(root: AbstractTreeNode[_]): Seq[Seq[String]] = {
+    def inner(node: AbstractTreeNode[_], curPath: List[String]): Seq[Seq[String]] = {
+      val children = node.getChildren
+      val path = nodeString(node.getValue.asInstanceOf[TreeElement]) :: curPath
+      if (children.isEmpty)
+        path :: Nil
+      else
+        children.asScala.toSeq.flatMap(inner(_, path))
+    }
+    val result = inner(root, Nil)
+    result.map(_.reverse).sortBy(_.mkString)
+  }
+
+  private def nodeString(node: TreeElement): String = {
+    node match {
+      case test: Test =>
+        val presentation = test.getPresentation
+        val text = presentation.getPresentableText
+        val status = presentation.asInstanceOf[Test].testStatus
+        s"[$status] $text"
+      case _ =>
+        node.getPresentation.getPresentableText
     }
   }
+
+  private def pathString(names: Iterable[String]) =
+    names.mkString(" / ")
 }
