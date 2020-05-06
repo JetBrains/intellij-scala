@@ -11,17 +11,17 @@ import org.junit.experimental.categories.Category
 //  and "run with" can run with various minor versions
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_11
+  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_12 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_13 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))

@@ -11,7 +11,7 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_until_2_11 extends StepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
 
   override def testPrivateMethodUsedInLambda(): Unit = {
     runDebugger() {
@@ -22,7 +22,7 @@ class StepIntoTest_until_2_11 extends StepIntoTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_since_2_12 extends StepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
   addFileWithBreakpoints("SamAbstractClass.scala",
     s"""object SamAbstractClass {

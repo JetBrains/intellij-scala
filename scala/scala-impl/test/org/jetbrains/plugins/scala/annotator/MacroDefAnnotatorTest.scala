@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 class MacroDefAnnotatorTest extends ScalaHighlightingTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
   override protected val includeReflectLibrary: Boolean = true
 

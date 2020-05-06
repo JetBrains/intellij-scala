@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.compilation
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.testFramework.VfsTestUtil
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_3_0, ScalacTests}
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.project.IncrementalityType
-import org.junit.Assert.assertThat
 import org.hamcrest.CoreMatchers.equalTo
+import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.project.{IncrementalityType, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.everyValueGreaterThanIn
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.{ScalaVersion, ScalacTests}
+import org.junit.Assert.assertThat
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -175,9 +175,9 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
 
   protected def classFileNames(className: String)
                             (implicit version: ScalaVersion): Set[String] = {
-    val suffixes = version match {
-      case Scala_3_0 => Set("class", "tasty")
-      case _ => Set("class")
+    val suffixes = version.languageLevel match {
+      case ScalaLanguageLevel.Scala_3_0 => Set("class", "tasty")
+      case _                            => Set("class")
     }
     suffixes.map(suffix => s"$className.$suffix")
   }

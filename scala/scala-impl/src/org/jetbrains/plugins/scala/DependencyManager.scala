@@ -10,6 +10,7 @@ import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
 import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.template._
 
 import scala.collection.JavaConverters
@@ -189,9 +190,9 @@ object DependencyManagerBase {
 
   private def scalaDependency(kind: String)
                              (implicit scalaVersion: ScalaVersion) = {
-    val (org, idPrefix, idSuffix) = scalaVersion match {
-      case Scala_3_0 => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
-      case _ => ("org.scala-lang", "scala", "")
+    val (org, idPrefix, idSuffix) = scalaVersion.languageLevel match {
+      case ScalaLanguageLevel.Scala_3_0 => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
+      case _                            => ("org.scala-lang", "scala", "")
     }
 
     DependencyDescription(org, idPrefix + "-" + kind + idSuffix, scalaVersion.minor)

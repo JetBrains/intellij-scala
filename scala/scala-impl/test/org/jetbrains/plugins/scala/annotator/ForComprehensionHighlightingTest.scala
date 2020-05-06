@@ -276,7 +276,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
 
 class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+
@@ -301,7 +301,7 @@ class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHi
 
 class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version > Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_11
 
   def test_filterOnly(): Unit = {
     val code =
@@ -327,7 +327,7 @@ class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHi
 
 class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_11
 
   def testSCL17260(): Unit = assertNothing(errorsFromScalaCode(
     """
@@ -447,7 +447,7 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 
 class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehensionHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
   override protected def setUp(): Unit = {
     super.setUp()

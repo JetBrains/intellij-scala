@@ -29,7 +29,7 @@ class ImportElementTest extends ImportElementTestBase {
 }
 
 class ImportElementTest_without_AbstractMap extends ImportElementTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_10
 
   def testTrait(): Unit = doTest()
 }

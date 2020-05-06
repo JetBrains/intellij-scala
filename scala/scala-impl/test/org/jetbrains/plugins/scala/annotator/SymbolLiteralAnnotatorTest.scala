@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 
 class SymbolLiteralAnnotatorTest extends ScalaAnnotatorQuickFixTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
   val symbolName = "symb"
 

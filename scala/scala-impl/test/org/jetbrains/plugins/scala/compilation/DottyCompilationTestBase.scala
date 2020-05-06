@@ -6,16 +6,16 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.testFramework.CompilerTester
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_3_0, ScalacTests}
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.{NoOpRevertableChange, RevertableChange}
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, LibraryExt, ModuleExt}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, ScalacTests}
 import org.junit.experimental.categories.Category
 
 /**
@@ -30,7 +30,7 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
   extends DownloadingAndImportingTestCase
     with ScalaSdkOwner {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def githubUsername: String = "lampepfl"
 

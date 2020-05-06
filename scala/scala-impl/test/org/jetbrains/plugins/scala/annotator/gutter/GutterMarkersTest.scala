@@ -4,7 +4,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => caret}
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, TypecheckerTests}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TypecheckerTests}
 import org.junit.Assert._
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -12,7 +12,7 @@ import org.junit.experimental.categories.Category
 // TODO: split by functionality
 @Category(Array(classOf[TypecheckerTests]))
 class GutterMarkersTest extends ScalaFixtureTestCase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
   protected def testLineMarker(expectedTooltip: String): Unit = {
     myFixture.doHighlighting()

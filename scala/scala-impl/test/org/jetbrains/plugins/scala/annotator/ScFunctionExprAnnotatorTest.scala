@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.ScalaVersion.Scala_2_12
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 // Technically, it's "type mismatch", but we can do better than the scalac, SCL-16904
 // See also: TypeMismatchHighlightingTest
 class ScFunctionExprAnnotatorTest extends ScalaHighlightingTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12 // SAMs
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12 // SAMs
 
   override protected def withHints = true
 

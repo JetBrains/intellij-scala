@@ -1351,7 +1351,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
 }
 
 class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_13
 
   def test2_13_extensionMethod1(): Unit = doCompletionTest(
     fileText = s""""".toInt$CARET""",

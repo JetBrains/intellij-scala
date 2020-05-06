@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.annotator.Error
   */
 class JavaHighlightingScalaTest_since_2_12 extends JavaHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
   def testSCL11016(): Unit = {
     val java =

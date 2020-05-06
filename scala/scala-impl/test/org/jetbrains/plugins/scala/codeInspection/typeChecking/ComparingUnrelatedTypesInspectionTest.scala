@@ -656,7 +656,7 @@ class TestInstanceOfAutoBoxing3 extends ComparingUnrelatedTypesInspectionTest {
 ))
 class TestLiteralTypes extends ComparingUnrelatedTypesInspectionTest {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "3", "4")

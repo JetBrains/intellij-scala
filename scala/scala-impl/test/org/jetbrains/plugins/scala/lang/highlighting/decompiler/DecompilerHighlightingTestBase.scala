@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
   * @since 31.05.2016.
   */
 abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with DecompilerTestBase with MatcherAssertions {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11
 
   override protected val includeReflectLibrary: Boolean = true
 

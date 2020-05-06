@@ -1,8 +1,8 @@
 package scala.meta
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11}
 
 import scala.meta.intellij.IDEAContext
 
@@ -21,5 +21,5 @@ abstract class TreeConverterTestBaseNoLibrary extends TreeConverterTestBase {
 }
 
 abstract class TreeConverterTestBaseWithLibrary extends TreeConverterTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
 }

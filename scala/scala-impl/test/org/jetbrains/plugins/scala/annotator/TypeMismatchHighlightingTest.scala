@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_13}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /*
  Complex interactions between different type mismatch highlighting features, including:
@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_13}
 
 // See also: ScFunctionExprAnnotatorTest
 class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13 // Literal types
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13 // Literal types
 
   override protected def withHints = true
 

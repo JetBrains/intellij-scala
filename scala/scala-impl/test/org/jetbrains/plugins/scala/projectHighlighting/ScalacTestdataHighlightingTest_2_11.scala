@@ -34,7 +34,7 @@ class ScalacTestdataHighlightingTest_2_12 extends ScalacTestdataHighlightingTest
 abstract class ScalacTestdataHighlightingTestBase_2_12
   extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest  {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 
   override def getProject = super.getProject
 

@@ -4,7 +4,7 @@ package project
 import java.io.File
 import java.net.URI
 
-import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, Scala_2_11, SlowTests}
+import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, LatestScalaVersions, ScalaVersion, SlowTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests]))
@@ -14,7 +14,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
   import ProjectImportingTest._
   import ProjectStructureDsl._
 
-  implicit private val scalaVersion: Scala_2_11.type = Scala_2_11
+  implicit private val scalaVersion: ScalaVersion = LatestScalaVersions.Scala_2_11
 
   def testSimple(): Unit = runTest(
     new project("simple") {

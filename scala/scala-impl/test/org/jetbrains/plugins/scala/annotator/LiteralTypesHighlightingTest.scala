@@ -3,7 +3,7 @@ package annotator
 
 class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
 
   def testSip23Null(): Unit = doTest (

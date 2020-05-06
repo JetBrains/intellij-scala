@@ -10,7 +10,7 @@ import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibrary
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, template}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType, template}
 import org.junit.Assert._
 
 case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryLoader {
@@ -24,8 +24,8 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
   import template.Artifact
 
   protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
-    version match { // TODO maybe refactoring?
-      case Scala_3_0 =>
+    version.languageLevel match { // TODO maybe refactoring?
+      case ScalaLanguageLevel.Scala_3_0 =>
         List(
           scalaCompilerDescription.transitive(),
           scalaLibraryDescription.transitive(),
@@ -34,7 +34,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
           DependencyDescription("ch.epfl.lamp", "dotty-interfaces", version.minor),
           //DependencyDescription("org.scala-lang.modules", "scala-asm", "7.0.0-scala-1")
         )
-      case _ =>
+      case _                  =>
         val maybeScalaReflect = if (includeScalaReflect) Some(scalaReflectDescription) else None
         List(
           scalaCompilerDescription,
@@ -54,18 +54,17 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
     val dependencies = binaryDependencies
     val resolved = DependencyManager.resolve(dependencies: _*)
 
-    if (version == Scala_3_0) {
+    if (version.languageLevel == ScalaLanguageLevel.Scala_3_0)
       assertTrue(
         s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
         resolved.size >= dependencies.size
       )
-    } else {
+    else
       assertEquals(
         s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
         dependencies.size,
         resolved.size
       )
-    }
 
     val (resolvedOk, resolvedMissing) = resolved.partition(_.file.exists())
     val compilerClasspath = resolvedOk.map(_.file)

@@ -9,7 +9,7 @@ class FunctionParameterInfoSimpleTest_since_2_12 extends FunctionParameterInfoTe
   override def getTestDataPath: String =
     s"${super.getTestDataPath}simple/"
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
   def testJavaLibrary(): Unit = doTest()
 }

@@ -58,14 +58,14 @@ trait ScalaSdkOwner extends Test
 object ScalaSdkOwner {
   // todo: eventually move to version Scala_2_13
   //       (or better, move ScalaLanguageLevel.getDefault to Scala_2_13 and use ScalaVersion.default again)
-  val defaultSdkVersion: ScalaVersion = Scala_2_10 // ScalaVersion.default
+  val defaultSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_10 // ScalaVersion.default
   val allTestVersions: SortedSet[ScalaVersion] = {
     val allScalaMinorVersions = for {
-      latestVersion <- ScalaVersion.allScalaVersions.filterNot(_ == Scala_3_0)
+      latestVersion <- LatestScalaVersions.all.filterNot(_ == LatestScalaVersions.Scala_3_0)
       minor <- 0 to latestVersion.minorSuffix.toInt
     } yield latestVersion.withMinor(minor)
 
-    SortedSet(allScalaMinorVersions :+ Scala_3_0: _*)
+    SortedSet(allScalaMinorVersions :+ LatestScalaVersions.Scala_3_0: _*)
   }
 
   private def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =

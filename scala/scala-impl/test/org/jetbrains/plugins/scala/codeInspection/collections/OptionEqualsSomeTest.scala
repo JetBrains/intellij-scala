@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
 /**
  * @author Nikolay.Tropin
  */
@@ -15,7 +13,7 @@ abstract class OptionEqualsSomeToContainsInspectionTest extends OperationsOnColl
 
 class OptionEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11
 
   override protected val hint: String =
     OptionEqualsSomeToContains.hint
@@ -55,7 +53,7 @@ class OptionEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
 
 class OptionNotEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11
 
   override protected val hint: String =
     OptionNotEqualsSomeToNotContains.hint
@@ -82,7 +80,7 @@ class OptionEqualsSomeTest_without_OptionContains extends OptionEqualsSomeToCont
   override protected val hint: String =
     OptionEqualsSomeToContains.hint
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_10
 
   def testNoErrors(): Unit = {
     checkTextHasNoErrors("Option(1) == Some(2)")
@@ -94,7 +92,7 @@ class OptionNotEqualsSome_without_OptionContains extends OptionEqualsSomeToConta
   override protected val hint: String =
     OptionNotEqualsSomeToNotContains.hint
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_10
 
   def testNoErrors(): Unit = {
     checkTextHasNoErrors("Option(1) == Some(2)")

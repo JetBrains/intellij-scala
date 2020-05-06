@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 class ParenlessMethodCallOverloadingResolutionTest
@@ -8,7 +8,7 @@ class ParenlessMethodCallOverloadingResolutionTest
   import SimpleResolveTestBase._
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= Scala_2_12
+    version  >= LatestScalaVersions.Scala_2_12
 
   def testSCL16802(): Unit = doResolveTest(
     s"""

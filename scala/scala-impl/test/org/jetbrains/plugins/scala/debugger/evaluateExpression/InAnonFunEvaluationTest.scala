@@ -7,7 +7,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
 
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
 
   //todo SCL-9139
   override def testPartialFunction(): Unit = {
@@ -25,7 +25,7 @@ class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_211 extends InAnonFunEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_11
+  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))

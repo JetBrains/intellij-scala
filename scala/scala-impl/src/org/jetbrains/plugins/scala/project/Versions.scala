@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package project
 
 import com.intellij.util.net.HttpConfigurable
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.LatestScalaVersions._
 
 import scala.io.Source
 import scala.util.Try
@@ -115,5 +115,4 @@ object Versions {
       versionPattern = DottyEntity.versionPattern
     )
   }
-
 }

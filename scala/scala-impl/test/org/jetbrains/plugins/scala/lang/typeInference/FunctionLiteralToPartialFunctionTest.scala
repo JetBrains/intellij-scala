@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13}
 
 class FunctionLiteralToPartialFunctionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_13
 
   def testPartialFunctionSynthesis(): Unit = checkTextHasNoErrors(
     """
@@ -34,7 +34,7 @@ class FunctionLiteralToPartialFunctionTest extends ScalaLightCodeInsightFixtureT
 
 class FunctionLiteralToPartialFunctionTest2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 
   def testCollect(): Unit = checkHasErrorAroundCaret(
     s"""

@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -13,7 +12,7 @@ import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11}
   */
 class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
 
   override protected def setUp(): Unit = {
     super.setUp()

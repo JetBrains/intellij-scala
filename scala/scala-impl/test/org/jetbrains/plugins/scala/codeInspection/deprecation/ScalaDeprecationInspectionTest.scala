@@ -286,7 +286,7 @@ class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase 
 
 class ScalaDeprecationInspectionTest_where_duprecatedName_is_deprecated extends ScalaDeprecationInspectionTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_12
 
   def testDeprecatedParamName(): Unit = {
     val code =

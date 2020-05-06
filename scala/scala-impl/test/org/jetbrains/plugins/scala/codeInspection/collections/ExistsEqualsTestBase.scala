@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
 abstract class ExistsEqualsTestBase extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
@@ -62,7 +60,7 @@ class ReplaceWithContainsTest extends ReplaceWithContainsTestBase {
 
 class ReplaceWithContainsTest_with_OptionContains extends ReplaceWithContainsTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
 
   def test_6(): Unit = {
     val selected = s"Some(0).${START}exists(_ == 1)$END"
@@ -75,7 +73,7 @@ class ReplaceWithContainsTest_with_OptionContains extends ReplaceWithContainsTes
 
 class ReplaceWithContainsTest_without_OptionContains extends ReplaceWithContainsTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_10
 
   def test_6(): Unit = {
     val text = "Some(1).exists(_ == 1)"

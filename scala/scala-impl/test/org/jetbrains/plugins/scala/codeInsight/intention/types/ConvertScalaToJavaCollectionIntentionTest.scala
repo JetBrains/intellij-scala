@@ -155,11 +155,11 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
 class ConvertScalaToJavaCollectionIntentionTest
   extends ConvertScalaToJavaCollectionIntentionBaseTest("scala.collection.JavaConverters._") {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version < Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_2_13
 }
 
 class ConvertScalaToJavaCollectionIntention_2_13Test
   extends ConvertScalaToJavaCollectionIntentionBaseTest("scala.jdk.CollectionConverters._") {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 }

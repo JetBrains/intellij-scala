@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[DebuggerTests]))
 class StepOverTest_2_11 extends StepOverTest {
-  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_11
+  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
 }
 
 abstract class StepOverTest extends StepOverTestBase {

@@ -17,7 +17,7 @@ import org.junit.Assert._
 class TypeDiffTest extends ScalaFixtureTestCase {
   // TODO test separation of matched elements, such as [ or ]
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
   /* TODO:
       compound types (comparison)

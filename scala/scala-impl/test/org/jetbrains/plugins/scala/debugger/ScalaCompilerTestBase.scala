@@ -102,7 +102,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   ) ++ additionalLibraries
 
   override def defaultJdkVersion: LanguageLevel =
-    if (version < ScalaVersion.Scala_2_11) LanguageLevel.JDK_1_8
+    if (version < LatestScalaVersions.Scala_2_11) LanguageLevel.JDK_1_8
     else super.defaultJdkVersion
 
   override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK(testProjectJdkVersion)

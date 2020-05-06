@@ -97,7 +97,7 @@ class ParametersAnnotatorTest extends ParametersAnnotatorTestBase {
 }
 
 class ParametersAnnotatorTest_without_callByName_implicit_parameter extends ParametersAnnotatorTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version < Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_2_13
 
   def testByName_ImplicitParam(): Unit = {
     assertMatches(messages("def f(a: A)(implicit b: => B) {}")) {
@@ -108,7 +108,7 @@ class ParametersAnnotatorTest_without_callByName_implicit_parameter extends Para
 
 
 class ParametersAnnotatorTest_with_callByName_implicit_parameter extends ParametersAnnotatorTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
   def testByName_ImplicitParam(): Unit = {
     assertNothing(messages("def f(a: A)(implicit b: => B) {}"))

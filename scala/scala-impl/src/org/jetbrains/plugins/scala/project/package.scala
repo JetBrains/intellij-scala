@@ -182,6 +182,9 @@ package object project {
     def scalaLanguageLevel: Option[ScalaLanguageLevel] =
       scalaModuleSettings.map(_.scalaLanguageLevel)
 
+    def scalaMinorVersion: Option[ScalaVersion] =
+      scalaSdk.flatMap(_.compilerVersion).flatMap(ScalaVersion.fromString)
+
     def isCompilerStrictMode: Boolean =
       scalaModuleSettings.exists(_.isCompilerStrictMode)
 

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.util.runners;
 
-import org.jetbrains.plugins.scala.*;
+import org.jetbrains.plugins.scala.LatestScalaVersions$;
 
 // required at compile time to use in annotations
 public enum TestScalaVersion {
@@ -28,15 +28,15 @@ public enum TestScalaVersion {
 
     public org.jetbrains.plugins.scala.ScalaVersion toProductionVersion() {
         switch (this) {
-            case Scala_2_10: return Scala_2_10$.MODULE$;
-            case Scala_2_11: return Scala_2_11$.MODULE$;
-            case Scala_2_12: return Scala_2_12$.MODULE$;
-            case Scala_2_13: return Scala_2_13$.MODULE$;
-            case Scala_2_10_0: return Scala_2_10$.MODULE$.withMinor(0);
-            case Scala_2_11_0: return Scala_2_11$.MODULE$.withMinor(0);
-            case Scala_2_12_0: return Scala_2_12$.MODULE$.withMinor(0);
-            case Scala_2_13_0: return Scala_2_13$.MODULE$.withMinor(0);
-            case Scala_3_0: return Scala_3_0$.MODULE$;
+            case Scala_2_10: return LatestScalaVersions$.MODULE$.Scala_2_10();
+            case Scala_2_11: return LatestScalaVersions$.MODULE$.Scala_2_11();
+            case Scala_2_12: return LatestScalaVersions$.MODULE$.Scala_2_12();
+            case Scala_2_13: return LatestScalaVersions$.MODULE$.Scala_2_13();
+            case Scala_2_10_0: return LatestScalaVersions$.MODULE$.Scala_2_10().withMinor(0);
+            case Scala_2_11_0: return LatestScalaVersions$.MODULE$.Scala_2_11().withMinor(0);
+            case Scala_2_12_0: return LatestScalaVersions$.MODULE$.Scala_2_12().withMinor(0);
+            case Scala_2_13_0: return LatestScalaVersions$.MODULE$.Scala_2_13().withMinor(0);
+            case Scala_3_0: return LatestScalaVersions$.MODULE$.Scala_3_0();
             default: return null; // unreachable code
         }
     };

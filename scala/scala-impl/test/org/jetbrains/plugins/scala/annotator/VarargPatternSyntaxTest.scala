@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 abstract class VarargPatternSyntaxTestBase extends ScalaAnnotatorQuickFixTestBase
 
@@ -59,7 +59,7 @@ class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
 
   private val replaceWithColonFix = "Replace with ':'"
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   def testVarargPatternWithColonWithBindName(): Unit = {
     val code =
@@ -103,7 +103,7 @@ class VarargShortPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBa
 
   override protected val description = "Short _* pattern syntax has been deprecated since Scala 3.0"
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   def testShortVarargPattern(): Unit = {
     val code =

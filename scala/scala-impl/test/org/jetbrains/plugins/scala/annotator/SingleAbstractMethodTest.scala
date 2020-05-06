@@ -599,7 +599,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
 
 class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
   def testFunctionSAM(): Unit = {
     val code =
@@ -835,7 +835,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
 
 class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 
   protected override def setUp(): Unit = {
     super.setUp()
