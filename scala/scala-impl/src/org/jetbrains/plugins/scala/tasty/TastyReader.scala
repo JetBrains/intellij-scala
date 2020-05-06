@@ -35,7 +35,7 @@ object TastyReader {
         // TODO TASTy inspect: an ability to detect .tasty file version, https://github.com/lampepfl/dotty-feature-requests/issues/99
         // TODO TASTy inspect: make dotty-compiler depend on tasty-inspector https://github.com/lampepfl/dotty-feature-requests/issues/100
         // TODO Introduce the version variable
-        val tastyInspectorDependency = DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.23", "0.23.0-RC1", isTransitive = true)
+        val tastyInspectorDependency = DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.24", "0.24.0-RC1", isTransitive = true)
         Resolver.resolve(tastyInspectorDependency).map(_.file)
       }
 
@@ -97,7 +97,7 @@ object TastyReader {
 
     exampleClasses.foreach { fqn =>
       println(fqn)
-      val file = read(home + "/IdeaProjects/dotty-example-project/target/scala-0.23/classes", fqn).get
+      val file = read(home + "/IdeaProjects/dotty-example-project/target/scala-0.24/classes", fqn).get
       println(file.text)
 
       (file.references ++ file.types).sortBy {
