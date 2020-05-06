@@ -27,6 +27,7 @@ import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.debugger._
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
@@ -145,10 +146,13 @@ abstract class ScalaTestingTestCase
     )
 
   override protected def createTestFromModule(moduleName: String): RunnerAndConfigurationSettings = {
-    var module: Module = null
-    EdtTestUtil.runInEdtAndWait(() => module = ModuleManager.getInstance(ScalaTestingTestCase.this.getProject).findModuleByName(moduleName))
-    createTestFromDirectory(PsiDirectoryFactory.getInstance(getProject).
-      createDirectory(ModuleRootManager.getInstance(module).getContentRoots.head))
+    val module    = invokeAndWait {
+      val manager = ModuleManager.getInstance(ScalaTestingTestCase.this.getProject)
+      manager.findModuleByName(moduleName)
+    }
+    val moduleRoot = ModuleRootManager.getInstance(module).getContentRoots.head
+    val directory = PsiDirectoryFactory.getInstance(getProject).createDirectory(moduleRoot)
+    createTestFromDirectory(directory)
   }
 
   private def createTestFromDirectory(directory: PsiDirectory) =

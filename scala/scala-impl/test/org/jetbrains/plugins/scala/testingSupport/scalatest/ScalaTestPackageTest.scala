@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
+import com.intellij.compiler.server.BuildManager
+import com.intellij.openapi.util.registry.Registry
+
 trait ScalaTestPackageTest extends ScalaTestTestCase {
 
   protected val packageName = "myPackage"
@@ -78,7 +81,7 @@ trait ScalaTestPackageTest extends ScalaTestTestCase {
     )
 
   def testModuleTestRun(): Unit =
-    runTestByConfig2(createTestFromModule(testClassName),
+    runTestByConfig2(createTestFromModule(getModule.getName),
       assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
       root => assertResultTreeHasExactNamedPaths(root)(Seq(
         Seq("[root]", "Test1", "Test1"),
