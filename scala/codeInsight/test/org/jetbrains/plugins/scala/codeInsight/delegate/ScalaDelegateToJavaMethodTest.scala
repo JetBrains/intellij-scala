@@ -22,7 +22,10 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
 
   protected override def tuneFixture(moduleBuilder: JavaModuleFixtureBuilder[_ <: fixtures.ModuleFixture]): Unit = {
     moduleBuilder.setMockJdkLevel(JavaModuleFixtureBuilder.MockJdkLevel.jdk15)
-    moduleBuilder.addJdk(IdeaTestUtil.getMockJdk14Path.getPath)
+    // TODO: the path returned from IdeaTestUtil.getMockJdk14Path is invalid in the scala plugin
+    //       because the mock-jdk14 does only exists in the intellij-community source
+    //       we either have to copy the mock directory into our repo as well or just not add it at all
+    //moduleBuilder.addJdk(IdeaTestUtil.getMockJdk14Path.getPath)
   }
 
   private def doTest(javaText: String, scalaText: String, expectedText: String,
