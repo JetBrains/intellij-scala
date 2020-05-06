@@ -161,7 +161,6 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     }
 
     val goToSdkSettingsAction = new NotificationAction(ScalaBundle.message("scala.console.configure.scala.sdk.classpath")) {
-      override def startInTransaction: Boolean = true
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
         notification.expire()
         val configurable = ProjectStructureConfigurable.getInstance(project)
@@ -184,6 +183,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
 }
 
 private object ScalaConsoleRunConfiguration {
+
   sealed trait JlineResolveResult
   object JlineResolveResult {
     case object NotRequired extends JlineResolveResult
