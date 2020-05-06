@@ -22,7 +22,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val home = System.getProperty("user.home")
 
-    val Version = "0.23"
+    val Version = "0.24"
 
     val files = Seq(
       home + "/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.13.1.jar",
