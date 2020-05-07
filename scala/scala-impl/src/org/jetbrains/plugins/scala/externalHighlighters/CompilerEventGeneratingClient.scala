@@ -36,6 +36,9 @@ private class CompilerEventGeneratingClient(project: Project,
 
   override def isCanceled: Boolean = indicator.isCanceled
 
+  override def trace(exception: Throwable): Unit =
+    exception.printStackTrace()
+
   private def sendEvent(event: CompilerEvent): Unit =
     project.getMessageBus
       .syncPublisher(CompilerEventListener.topic)

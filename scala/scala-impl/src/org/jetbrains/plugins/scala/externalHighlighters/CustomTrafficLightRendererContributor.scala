@@ -29,13 +29,13 @@ class CustomTrafficLightRendererContributor
         val status = super.getDaemonCodeAnalyzerStatus(severityRegistrar)
         status.errorAnalyzingFinished = status.errorAnalyzingFinished && !compilerHighlightingInProgress
         if (compilerHighlightingInProgress) {
-          val passStatiField = classOf[DaemonCodeAnalyzerStatus].getDeclaredField("passStati")
-          passStatiField.setAccessible(true)
-          val oldPassStati = passStatiField.get(status).asInstanceOf[JList[ProgressableTextEditorHighlightingPass]]
-          val newPassStati = new JArrayList[ProgressableTextEditorHighlightingPass](oldPassStati)
+          val passesField = classOf[DaemonCodeAnalyzerStatus].getDeclaredField("passes")
+          passesField.setAccessible(true)
+          val oldPasses = passesField.get(status).asInstanceOf[JList[ProgressableTextEditorHighlightingPass]]
+          val newPasses = new JArrayList[ProgressableTextEditorHighlightingPass](oldPasses)
           val progress = CompilerGeneratedStateManager.get(project).progress
-          newPassStati.add(new FakeHighlightingPass(editor, file, progress))
-          passStatiField.set(status, newPassStati)
+          newPasses.add(new FakeHighlightingPass(editor, file, progress))
+          passesField.set(status, newPasses)
         }
         status
       }
