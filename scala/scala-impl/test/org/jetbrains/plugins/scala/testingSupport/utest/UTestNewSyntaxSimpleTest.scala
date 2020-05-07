@@ -50,16 +50,6 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
       ))
     )
 
-
-  def testMethod(): Unit =
-    runTestByLocation2(3, 3, uTestFileName,
-      assertConfigAndSettings(_, uTestTestName, "tests"),
-      root => {
-        assertResultTreeHasExactNamedPaths(root)(Seq(outer1_Path, inner2_1Path))
-        assertResultTreeDoesNotHaveNodes(root, "inner1_1", "sameName")
-      }
-    )
-
   def testSingleTest(): Unit = {
     runTestByLocation2(8, 15, uTestFileName,
       assertConfigAndSettings(_, uTestTestName, "tests\\outer2\\inner2_1"),

@@ -57,17 +57,6 @@ trait UTestSimpleTest extends UTestTestCase {
       root => assertResultTreeHasExactNamedPath(root, sameNamePath))
   }
 
-  //TODO for some reason, tests are launched, but never reported (also, jvm running the test hangs and never terminates, even after root idea process is terminated)
-  def testMethod(): Unit = {
-    runTestByLocation2(4, 3, uTestFileName,
-      assertConfigAndSettings(_, uTestTestName, "tests"),
-      root => {
-        assertResultTreeHasExactNamedPath(root, outer1_Path)
-        assertResultTreeHasExactNamedPath(root, inner2_1Path)
-        assertResultTreeDoesNotHaveNodes(root, "inner1_1", "sameName")
-      })
-  }
-
   def testClassSuite(): Unit = {
     runTestByLocation2(3, 3, uTestFileName,
       assertConfigAndSettings(_, uTestTestName),
