@@ -30,8 +30,15 @@ import org.jetbrains.sbt.{RichFile, RichOption}
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
-class ScalaConsoleRunConfiguration(project: Project, configurationFactory: ConfigurationFactory, name: String)
-  extends ModuleBasedConfiguration[RunConfigurationModule, Element](name, new RunConfigurationModule(project), configurationFactory) {
+final class ScalaConsoleRunConfiguration(
+  project: Project,
+  configurationFactory: ConfigurationFactory,
+  name: String
+) extends ModuleBasedConfiguration[RunConfigurationModule, Element](
+  name,
+  new RunConfigurationModule(project),
+  configurationFactory
+) {
 
   private val MainClass = "scala.tools.nsc.MainGenericRunner"
   private val DefaultJavaOptions = "-Djline.terminal=NONE"
@@ -44,8 +51,14 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
   def consoleArgs: String = ensureUsesJavaCpByDefault(this.myConsoleArgs)
   def consoleArgs_=(s: String): Unit = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)
 
-  private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
+  // always added, not displayed anywhere
+  private def extraConsoleArgs: Seq[String] = Seq(
+    // NOTE: after 2.13.2 "-Xjline:off" is a preferable, but old flag also should work
+    // https://github.com/scala/scala/pull/8906
+    "-Xnojline"
+  )
 
+  private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
 
   private def getModule: Option[Module] = Option(getConfigurationModule.getModule)
 
@@ -95,7 +108,8 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
 
     override protected def createJavaParameters: JavaParameters = {
       val params = createParams
-      params.getProgramParametersList.addParametersString(consoleArgs)
+      val args = (consoleArgs +: extraConsoleArgs).mkString(" ")
+      params.getProgramParametersList.addParametersString(args)
       params
     }
 
@@ -193,7 +207,7 @@ private object ScalaConsoleRunConfiguration {
 
   //TODO: Fix Scala SDK setup in order that it includes jline jar as a dependency of scala-compiler
   /**
-   * This is a temporary workaround to make Scala Console run in Scala 2.13 version.
+   * This is a workaround to make Scala Console run in Scala 2.13.0 & 2.13.1 versions
    * It will fail to run if jline jar is not present in classpath.
    * For the details, please see the discussion: [[https://youtrack.jetbrains.com/issue/SCL-15818]]
    *
@@ -209,7 +223,12 @@ private object ScalaConsoleRunConfiguration {
     } else NotRequired
 
   private def isJLineNeeded(module: Module): Boolean =
-    module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13)
+    module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13) && {
+      val minorVersion = module.scalaSdk.flatMap(_.compilerVersion)
+      // 2.13.2 was fixed and does not require jline jar if jline is disabled
+      // see https://github.com/scala/bug/issues/11654
+      minorVersion.exists(v => v == "2.13.0" || v == "2.13.1")
+    }
 
   private def isJLinePresentIn(classPath: PathsList): Boolean =
     classPath.getPathList.asScala.exists(new File(_).getName == JLineFinder.JLineJarName)
@@ -221,7 +240,7 @@ private object ScalaConsoleRunConfiguration {
   }
 
   private object JLineFinder {
-    //this is a dependency of scala-compiler-2.13.0, it is the last jline 2.x version
+    //this is a dependency of scala-compiler-2.13.0 & 2.13.1, it is the last jline 2.x version
     //so we can use exact value instead of some regexp with versions
     //see: https://mvnrepository.com/artifact/org.scala-lang/scala-compiler/2.13.0
     //see: https://mvnrepository.com/artifact/jline/jline
