@@ -29,6 +29,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.GlobalSearchScope.{EMPTY_SCOPE, moduleScope}
 import com.intellij.util.xmlb.XmlSerializer
+import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -65,7 +66,8 @@ abstract class AbstractTestRunConfiguration(project: Project,
     name,
     new RunConfigurationModule(project),
     configurationFactory
-  ) with ScalaTestingConfiguration {
+  ) with ScalaTestingConfiguration
+    with ConfigurationWithCommandLineShortener {
 
 
   // TODO: this field is bound to class of testConfigurationData, and should be not forgot to be reset when data is updated
@@ -73,6 +75,10 @@ abstract class AbstractTestRunConfiguration(project: Project,
   //  take into account changes in SCL-15044, review that it works properly
   @BeanProperty var testKind: TestKind = TestKind.CLAZZ
   var testConfigurationData: TestConfigurationData = new ClassTestData(this)
+
+  @Transient
+  override def getShortenCommandLine: ShortenCommandLine = testConfigurationData.shortenClasspath
+  override def setShortenCommandLine(mode: ShortenCommandLine): Unit = testConfigurationData.shortenClasspath = mode
 
   final def javaSuitePaths: java.util.List[String] = suitePaths.asJava
 
@@ -115,6 +121,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
     setTestKind(form.getSelectedKind)
     testConfigurationData = TestConfigurationData.createFromForm(form, this)
     testConfigurationData.initWorkingDir()
+    setShortenCommandLine(form.getShortenCommandLine)
   }
 
   protected[test] def getClazz(path: String, withDependencies: Boolean): PsiClass = {
@@ -406,29 +413,18 @@ abstract class AbstractTestRunConfiguration(project: Project,
           after()
         }
 
-        val (myAdd, myAfter): (String => Unit, () => Unit) =
-          if (JdkUtil.useDynamicClasspath(getProject)) {
-            try {
-              val fileWithParams: File = File.createTempFile("abstracttest", ".tmp")
-              val outputStream = new FileOutputStream(fileWithParams)
-              val printer: PrintStream = new PrintStream(outputStream)
-              params.getProgramParametersList.add("@" + fileWithParams.getPath)
-
-              (printer.println(_:String), () => printer.close())
-            }
-            catch {
-              case ioException: IOException => throw new ExecutionException("Failed to create dynamic classpath file with command-line args.", ioException)
-            }
-          } else {
-            (params.getProgramParametersList.add(_), () => ())
-          }
+        // NOTE: do not worry, this sh*t is already cleaned up in idea202.x branch
+        val (myAdd, myAfter): (String => Unit, () => Unit) = {
+          (params.getProgramParametersList.add(_), () => ())
+        }
 
         addParametersString(testConfigurationData.getTestArgs, myAdd)
         addParameters(myAdd, myAfter)
 
-        for (ext <- RunConfigurationExtension.EP_NAME.getExtensionList.asScala) {
+        params.setShortenCommandLine(getShortenCommandLine, project)
+
+        for (ext <- RunConfigurationExtension.EP_NAME.getExtensionList.asScala)
           ext.updateJavaParameters(currentConfiguration, params, getRunnerSettings)
-        }
 
         params
       }
