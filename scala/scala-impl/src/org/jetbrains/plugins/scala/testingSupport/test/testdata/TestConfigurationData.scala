@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
-import com.intellij.execution.{ExecutionException, ExternalizablePath}
+import com.intellij.execution.{ExecutionException, ExternalizablePath, ShortenCommandLine}
 import com.intellij.execution.configurations.{RuntimeConfigurationError, RuntimeConfigurationException}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{DumbService, Project}
@@ -68,6 +68,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
     setUseSbt(form.getUseSbt)
     setUseUiWithSbt(form.getUseUiWithSbt)
     setWorkingDirectory(form.getWorkingDirectory)
+    setShortenClasspath(form.getShortenCommandLine)
     envs = form.getEnvironmentVariables
   }
 
@@ -80,6 +81,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
     setUseSbt(data.getUseSbt)
     setUseUiWithSbt(data.getUseUiWithSbt)
     setWorkingDirectory(data.getWorkingDirectory)
+    setShortenClasspath(data.getShortenClasspath)
     envs = new java.util.HashMap(data.envs)
   }
 
@@ -114,6 +116,8 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
   @BeanProperty var testArgs: String              = ""
   @BeanProperty var javaOptions: String           = ""
   @BeanProperty var envs: java.util.Map[String, String] = new java.util.HashMap[String, String]()
+  //noinspection ConvertNullInitializerToUnderscore
+  @BeanProperty var shortenClasspath: ShortenCommandLine = null // null is valid value, see ConfigurationWithCommandLineShortener doc
 
   private var workingDirectory: String     = ""
   def setWorkingDirectory(s: String): Unit = workingDirectory = ExternalizablePath.urlValue(s)
