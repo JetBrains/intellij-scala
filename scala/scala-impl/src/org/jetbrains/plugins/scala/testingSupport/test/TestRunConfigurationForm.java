@@ -8,6 +8,7 @@ import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.execution.ui.*;
 import com.intellij.ide.util.ClassFilter;
 import com.intellij.ide.util.PackageChooserDialog;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -17,15 +18,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.ui.AnActionButtonRunnable;
-import com.intellij.ui.EnumComboBoxModel;
-import com.intellij.ui.RawCommandLineEditor;
-import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.*;
 import com.intellij.ui.table.JBTable;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
@@ -40,8 +40,10 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.lang.reflect.Method;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 @SuppressWarnings(value = "unchecked")
 public class TestRunConfigurationForm {
@@ -52,33 +54,35 @@ public class TestRunConfigurationForm {
     private RawCommandLineEditor VMParamsTextField;
     private RawCommandLineEditor testOptionsTextField;
     private TextFieldWithBrowseButton testPackageTextField;
-    private JLabel testClassLabel;
-    private JLabel testPackageLabel;
     private ModuleDescriptionsComboBox moduleComboBox;
     private TextFieldWithBrowseButton workingDirectoryField;
-    private JPanel searchForTestsPanel;
     private final ConfigurationModuleSelector myModuleSelector;
     private final java.util.List<String> suitePaths;
 
     private JComboBox<SearchForTest> searchForTestsComboBox;
-
     private JComboBox<TestKind> kindComboBox;
 
-    private JTextArea testNameTextField;
+    private JLabel testClassLabel;
+    private JLabel testPackageLabel;
+    private JLabel shortenCommandLineLabel;
+    private JLabel useModuleClasspathLabel;
+    private JLabel searchForTestLabel;
+
+    private MyMultilineEditorTextField testNameTextField;
     private JLabel testNameLabel;
     private JCheckBox myShowProgressMessagesCheckBox;
     private EnvironmentVariablesComponent environmentVariables;
     private JBTable regexpTable;
     private JLabel regexpLabel;
-    private JScrollPane testNameScrollPane;
     private JPanel regexpPanel;
     private JCheckBox useSbtCheckBox;
     private JCheckBox useUiWithSbt;
     private JrePathEditor jreSelector;
     private ShortenCommandLineModeCombo shortenCommandLineModeCombo;
-    private JLabel shortenCommandLineLabel;
 
     private void createUIComponents() {
+        testNameTextField = new MyMultilineEditorTextField();
+
         regexpTable = new JBTable();
         final DefaultTableModel model = (DefaultTableModel) regexpTable.getModel();
         model.addColumn(ScalaBundle.message("test.run.config.for.class.pattern"));
@@ -247,6 +251,47 @@ public class TestRunConfigurationForm {
         environmentVariables.setEnvs(testConfigurationData.envs());
 
         setShortenCommandLine(configuration.getShortenCommandLine());
+
+        // by default LabeledComponent's label is aligned in center, so if the inner component is multiline
+        // the label has a gab in the TOP and BOTTOM. Moreover, when the inner component grows in height
+        // the label "jumps" below it's previous position, which looks awkward
+        // This is a workaround to make label position fixed in the TOP
+        int TOP_PADDING = 5;
+        testNameLabel.setVerticalAlignment(SwingConstants.TOP);
+        testNameLabel.setBorder(IdeBorderFactory.createEmptyBorder(JBUI.insetsTop(TOP_PADDING)));
+
+        // align labels in top panel
+        Dimension maxWidthPreferableSize = topPanelLabels()
+                .map(Container::getPreferredSize)
+                .max(Comparator.comparingDouble(Dimension::getWidth))
+                .orElseGet(() -> new Dimension(-1, -1));
+        topPanelLabels().forEach(x -> x.setPreferredSize(maxWidthPreferableSize));
+
+        // align labels in bottom panel (common settings)
+        JComponent anchorBottom = useModuleClasspathLabel;
+        jreSelector.setAnchor(anchorBottom);
+        environmentVariables.setAnchor(anchorBottom);
+    }
+
+    @NotNull
+    private Stream<JLabel> topPanelLabels() {
+        return Stream.of(
+                testClassLabel,
+                testNameLabel,
+                regexpLabel,
+                testPackageLabel,
+                searchForTestLabel
+        );
+    }
+
+    public static class MyMultilineEditorTextField extends EditorTextField {
+        {
+            this.setOneLineMode(false);
+        }
+
+        protected void updateBorder(@NotNull EditorEx editor) {
+            setupBorder(editor); // in base class border isn't set in multiline mode
+        }
     }
 
     private void setupModuleComboBox() {
@@ -276,7 +321,8 @@ public class TestRunConfigurationForm {
     private void setPackageVisible(boolean visible) {
         testPackageLabel.setVisible(visible);
         testPackageTextField.setVisible(visible);
-        searchForTestsPanel.setVisible(visible);
+        searchForTestLabel.setVisible(visible);
+        searchForTestsComboBox.setVisible(visible);
     }
 
     private void setClassVisible(boolean visible) {
@@ -287,9 +333,9 @@ public class TestRunConfigurationForm {
     private void setTestNameVisible(boolean visible) {
         testNameLabel.setVisible(visible);
         testNameTextField.setVisible(visible);
+
         testClassLabel.setVisible(visible);
         testClassTextField.setVisible(visible);
-        testNameScrollPane.setVisible(visible);
     }
 
     private void setRegexpVisible(boolean visible) {
@@ -583,87 +629,80 @@ public class TestRunConfigurationForm {
     private void $$$setupUI$$$() {
         createUIComponents();
         myPanel = new JPanel();
-        myPanel.setLayout(new GridLayoutManager(15, 3, new Insets(0, 0, 0, 0), -1, -1));
+        myPanel.setLayout(new GridLayoutManager(12, 3, new Insets(0, 0, 0, 0), -1, -1));
         final Spacer spacer1 = new Spacer();
-        myPanel.add(spacer1, new GridConstraints(14, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        myPanel.add(spacer1, new GridConstraints(11, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.sbt.runner.form.vmParameters"));
-        myPanel.add(label1, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        VMParamsTextField = new RawCommandLineEditor();
-        myPanel.add(VMParamsTextField, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myPanel.add(label1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.options"));
-        myPanel.add(label2, new GridConstraints(5, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        testOptionsTextField = new RawCommandLineEditor();
-        myPanel.add(testOptionsTextField, new GridConstraints(6, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myPanel.add(label2, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(10, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(7, 5, new Insets(0, 0, 0, 0), -1, -1));
         myPanel.add(panel1, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        testPackageTextField = new TextFieldWithBrowseButton();
-        panel1.add(testPackageTextField, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         testPackageLabel = new JLabel();
         this.$$$loadLabelText$$$(testPackageLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.package"));
-        panel1.add(testPackageLabel, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        testClassTextField = new TextFieldWithBrowseButton();
-        panel1.add(testClassTextField, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(testPackageLabel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         testClassLabel = new JLabel();
         this.$$$loadLabelText$$$(testClassLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.class"));
         panel1.add(testClassLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label3 = new JLabel();
-        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.kind"));
-        panel2.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer2 = new Spacer();
-        panel2.add(spacer2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        kindComboBox = new JComboBox();
-        panel2.add(kindComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        searchForTestsPanel = new JPanel();
-        searchForTestsPanel.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.add(searchForTestsPanel, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label4 = new JLabel();
-        this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.search.for.tests"));
-        searchForTestsPanel.add(label4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer3 = new Spacer();
-        searchForTestsPanel.add(spacer3, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        searchForTestsComboBox = new JComboBox();
-        searchForTestsPanel.add(searchForTestsComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         testNameLabel = new JLabel();
         this.$$$loadLabelText$$$(testNameLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.name"));
-        panel1.add(testNameLabel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        testNameScrollPane = new JScrollPane();
-        panel1.add(testNameScrollPane, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        testNameTextField = new JTextArea();
-        testNameTextField.setLineWrap(true);
-        testNameScrollPane.setViewportView(testNameTextField);
+        panel1.add(testNameLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         regexpLabel = new JLabel();
         this.$$$loadLabelText$$$(regexpLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.regular.expressions"));
-        panel1.add(regexpLabel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        panel1.add(regexpPanel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label5 = new JLabel();
-        this.$$$loadLabelText$$$(label5, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.use.classpath.of.module"));
-        myPanel.add(label5, new GridConstraints(9, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myPanel.add(moduleComboBox, new GridConstraints(10, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label6 = new JLabel();
-        this.$$$loadLabelText$$$(label6, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.working.directory"));
-        myPanel.add(label6, new GridConstraints(7, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        workingDirectoryField = new TextFieldWithBrowseButton();
-        myPanel.add(workingDirectoryField, new GridConstraints(8, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        myShowProgressMessagesCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowProgressMessagesCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.print.information.messages.to.console"));
-        myPanel.add(myShowProgressMessagesCheckBox, new GridConstraints(13, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        environmentVariables = new EnvironmentVariablesComponent();
-        myPanel.add(environmentVariables, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(regexpLabel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(regexpPanel, new GridConstraints(4, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        testPackageTextField = new TextFieldWithBrowseButton();
+        panel1.add(testPackageTextField, new GridConstraints(5, 1, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        testClassTextField = new TextFieldWithBrowseButton();
+        panel1.add(testClassTextField, new GridConstraints(1, 1, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        searchForTestLabel = new JLabel();
+        this.$$$loadLabelText$$$(searchForTestLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.search.for.tests"));
+        panel1.add(searchForTestLabel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        searchForTestsComboBox = new JComboBox();
+        panel1.add(searchForTestsComboBox, new GridConstraints(6, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label3 = new JLabel();
+        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.test.kind"));
+        panel1.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        kindComboBox = new JComboBox();
+        panel1.add(kindComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         useSbtCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(useSbtCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.use.sbt"));
-        myPanel.add(useSbtCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        panel1.add(useSbtCheckBox, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         useUiWithSbt = new JCheckBox();
         this.$$$loadButtonText$$$(useUiWithSbt, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.use.ui.with.sbt"));
-        myPanel.add(useUiWithSbt, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myPanel.add(shortenCommandLineModeCombo, new GridConstraints(12, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myPanel.add(shortenCommandLineLabel, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myPanel.add(jreSelector, new GridConstraints(11, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(useUiWithSbt, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer2 = new Spacer();
+        panel1.add(spacer2, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel1.add(testNameTextField, new GridConstraints(2, 1, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        useModuleClasspathLabel = new JLabel();
+        this.$$$loadLabelText$$$(useModuleClasspathLabel, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.use.classpath.of.module"));
+        myPanel.add(useModuleClasspathLabel, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label4 = new JLabel();
+        this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.working.directory"));
+        myPanel.add(label4, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myShowProgressMessagesCheckBox = new JCheckBox();
+        this.$$$loadButtonText$$$(myShowProgressMessagesCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "test.run.config.print.information.messages.to.console"));
+        myPanel.add(myShowProgressMessagesCheckBox, new GridConstraints(10, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        environmentVariables = new EnvironmentVariablesComponent();
+        environmentVariables.setLabelLocation("West");
+        myPanel.add(environmentVariables, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myPanel.add(shortenCommandLineModeCombo, new GridConstraints(9, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myPanel.add(shortenCommandLineLabel, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myPanel.add(jreSelector, new GridConstraints(8, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        testOptionsTextField = new RawCommandLineEditor();
+        myPanel.add(testOptionsTextField, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        workingDirectoryField = new TextFieldWithBrowseButton();
+        myPanel.add(workingDirectoryField, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myPanel.add(moduleComboBox, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        VMParamsTextField = new RawCommandLineEditor();
+        myPanel.add(VMParamsTextField, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JSeparator separator1 = new JSeparator();
+        myPanel.add(separator1, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer3 = new Spacer();
+        myPanel.add(spacer3, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, 1, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 24), new Dimension(-1, 24), new Dimension(-1, 24), 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
