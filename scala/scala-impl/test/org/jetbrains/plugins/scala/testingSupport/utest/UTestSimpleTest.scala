@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.utest
 
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
 
-/**
- * @author Roman.Shein
- * @since 13.05.2015.
- */
 trait UTestSimpleTest extends UTestTestCase {
 
   protected val uTestTestName = "UTestTest"
@@ -36,10 +32,9 @@ trait UTestSimpleTest extends UTestTestCase {
        |}
       """.stripMargin.trim())
 
-  protected val inner2_1Path = List("[root]", uTestTestName, "tests", "outer2", "inner2_1")
   protected val outer1_Path  = List("[root]", uTestTestName, "tests", "outer1")
+  protected val inner2_1Path = List("[root]", uTestTestName, "tests", "outer2", "inner2_1")
   protected val sameNamePath = List("[root]", uTestTestName, "tests", "sameName", "sameName")
-  protected val inner1_1Path = List("[root]", uTestTestName, "otherTests", "outer1", "inner1_1")
   protected val failedPath   = List("[root]", uTestTestName, "tests", "failed")
 
   def testSingleTest(): Unit = {
@@ -60,14 +55,12 @@ trait UTestSimpleTest extends UTestTestCase {
   def testClassSuite(): Unit = {
     runTestByLocation2(3, 3, uTestFileName,
       assertConfigAndSettings(_, uTestTestName),
-      root => {
-        assertResultTreeHasExactNamedPath(root, inner2_1Path)
-        assertResultTreeHasExactNamedPath(root, sameNamePath)
-        assertResultTreeHasExactNamedPath(root, outer1_Path)
-
-        assertResultTreeHasNotGotExactNamedPath(root, inner1_1Path)
-        assertResultTreeHasNotGotExactNamedPath(root, failedPath)
-      })
+      root => assertResultTreeHasExactNamedPaths(root)(Seq(
+        outer1_Path,
+        inner2_1Path,
+        sameNamePath,
+        failedPath,
+      )))
   }
 
   def testFileStructureView(): Unit = {

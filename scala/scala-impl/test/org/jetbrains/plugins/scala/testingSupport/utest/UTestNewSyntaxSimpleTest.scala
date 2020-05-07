@@ -42,10 +42,9 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
     runTestByLocation2(2, 3, uTestFileName,
       assertConfigAndSettings(_, uTestTestName),
       root => assertResultTreeHasExactNamedPaths(root)(Seq(
+        outer1_Path,
         inner2_1Path,
         sameNamePath,
-        outer1_Path,
-        inner1_1Path,
         failedPath,
       ))
     )
