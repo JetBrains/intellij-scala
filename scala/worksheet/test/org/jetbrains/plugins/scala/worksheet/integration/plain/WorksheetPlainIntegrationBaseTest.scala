@@ -446,6 +446,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     // be from the below set in the same order. (so, some states can be missing)
     //noinspection RedundantBlock
     val rightTimerFlushedStates = Array(
+      "",
       s"Hello 1",
       s"${foldStart}Hello 1\nHello 2${foldEnd}",
       s"${foldStart}Hello 1\nHello 2\nHello 3${foldEnd}",
