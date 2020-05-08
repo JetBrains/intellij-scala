@@ -12,9 +12,11 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.BuildI
 
 import scala.util.control.NonFatal
 
-class ScalafmtDynamicDownloader(progressListener: DownloadProgressListener) {
+class ScalafmtDynamicDownloader(
+  progressListener: DownloadProgressListener
+) {
 
-  def download(version: String): Either[DownloadFailure, DownloadSuccess] = {
+  def download(version: String): Either[DownloadFailure, DownloadSuccess] =
     try {
       val resolver = new ScalafmtDependencyResolver(progressListener)
       val resolvedDependencies = resolver.resolve(dependencies(version): _*)
@@ -25,14 +27,12 @@ class ScalafmtDynamicDownloader(progressListener: DownloadProgressListener) {
       case e: ProcessCanceledException => throw e
       case NonFatal(e) => Left(DownloadFailure(version, e))
     }
-  }
 
-  private def dependencies(version: String): Seq[DependencyDescription] = {
+  private def dependencies(version: String): Seq[DependencyDescription] =
     List(
       organization(version) % s"scalafmt-cli_${scalaBinaryVersion(version)}" % version,
       "org.scala-lang" % "scala-reflect" % scalaVersion(version)
     ).map(_.copy(isTransitive = true))
-  }
 
   private def scalaBinaryVersion(version: String): String =
     if (version.startsWith("0.")) "2.11"
@@ -48,7 +48,6 @@ class ScalafmtDynamicDownloader(progressListener: DownloadProgressListener) {
     } else {
       "org.scalameta"
     }
-
 }
 
 object ScalafmtDynamicDownloader {

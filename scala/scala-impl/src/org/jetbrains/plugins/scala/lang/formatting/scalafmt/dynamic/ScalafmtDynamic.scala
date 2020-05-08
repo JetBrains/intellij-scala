@@ -19,13 +19,15 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 // TODO: Naumenko: after freezing implementation move this to scalafmt-dynamic project, cover with tests and make pull request
-final case class ScalafmtDynamic(reporter: ScalafmtReporter,
-                                 respectVersion: Boolean,
-                                 respectExcludeFilters: Boolean,
-                                 defaultVersion: String,
-                                 fmtsCache: mutable.Map[ScalafmtVersion, ScalafmtReflect],
-                                 cacheConfigs: Boolean,
-                                 configsCache: mutable.Map[Path, (ScalafmtDynamicConfig, FileTime)]) extends Scalafmt {
+final case class ScalafmtDynamic(
+  reporter: ScalafmtReporter,
+  respectVersion: Boolean,
+  respectExcludeFilters: Boolean,
+  defaultVersion: String,
+  fmtsCache: mutable.Map[ScalafmtVersion, ScalafmtReflect],
+  cacheConfigs: Boolean,
+  configsCache: mutable.Map[Path, (ScalafmtDynamicConfig, FileTime)]
+) extends Scalafmt {
 
   def this() = this(
     ConsoleScalafmtReporter,

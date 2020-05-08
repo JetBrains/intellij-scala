@@ -8,9 +8,11 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.Reflec
 import scala.util.Try
 
 //noinspection TypeAnnotation,HardCodedStringLiteral
-class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
-                                             private[dynamic] val target: Object, // real config object
-                                             private val classLoader: ClassLoader) {
+class ScalafmtDynamicConfig private[dynamic](
+  val fmtReflect: ScalafmtReflect,
+  private[dynamic] val target: Object, // real config object
+  private val classLoader: ClassLoader
+) {
 
   private val targetCls = target.getClass
   private val constructor: Constructor[_] = targetCls.getConstructors()(0)
@@ -18,27 +20,26 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
   private val rewriteParamIdx = constructorParams.indexOf("rewrite").ensuring(_ >= 0)
   private val emptyRewrites = target.invoke("apply$default$" + (rewriteParamIdx + 1))
 
-  private val dialectCls = classLoader.loadClass("scala.meta.Dialect")
+  private val dialectCls  = classLoader.loadClass("scala.meta.Dialect")
   private val dialectsCls = classLoader.loadClass("scala.meta.dialects.package")
 
   private val rewriteRulesMethod = Try(targetCls.getMethod("rewrite")).toOption
 
-  private val continuationIndentMethod = Try(targetCls.getMethod("continuationIndent")).toOption
+  private val continuationIndentMethod         = Try(targetCls.getMethod("continuationIndent")).toOption
   private val continuationIndentCallSiteMethod = Try(targetCls.getMethod("continuationIndentCallSite")).toOption
   private val continuationIndentDefnSiteMethod = Try(targetCls.getMethod("continuationIndentDefnSite")).toOption
+
   private val DefaultIndentCallSite = 2
   private val DefaultIndentDefnSite = 4
 
-  private val sbtDialect: Object = {
+  private val sbtDialect: Object =
     try dialectsCls.invokeStatic("Sbt") catch {
       case ReflectionException(_: NoSuchMethodException) =>
         dialectsCls.invokeStatic("Sbt0137")
     }
-  }
 
-  val version: String = {
+  val version: String =
     target.invokeAs[String]("version").trim
-  }
 
   def isIncludedInProject(filename: String): Boolean = {
     val matcher = target.invoke("project").invoke("matcher")
@@ -52,7 +53,7 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
   }
 
   // TODO: what about rewrite tokens?
-  def hasRewriteRules: Boolean = {
+  def hasRewriteRules: Boolean =
     rewriteRulesMethod match {
       case Some(method) =>
         // > v0.4.1
@@ -61,9 +62,8 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
       case None =>
         false
     }
-  }
 
-  def withoutRewriteRules: ScalafmtDynamicConfig = {
+  def withoutRewriteRules: ScalafmtDynamicConfig =
     if (hasRewriteRules) {
       val fieldsValues = constructorParams.map(param => target.invoke(param))
       fieldsValues(rewriteParamIdx) = emptyRewrites
@@ -72,9 +72,8 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
     } else {
       this
     }
-  }
 
-  val continuationIndentCallSite: Int = {
+  val continuationIndentCallSite: Int =
     continuationIndentMethod match {
       case Some(method) => // >v0.4
         val indentsObj = method.invoke(target)
@@ -87,9 +86,8 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
             DefaultIndentCallSite
         }
     }
-  }
 
-  val continuationIndentDefnSite: Int = {
+  val continuationIndentDefnSite: Int =
     continuationIndentMethod match {
       case Some(method) =>
         val indentsObj = method.invoke(target)
@@ -102,7 +100,6 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
             DefaultIndentDefnSite
         }
     }
-  }
 
   override def equals(obj: Any): Boolean = target.equals(obj)
 
