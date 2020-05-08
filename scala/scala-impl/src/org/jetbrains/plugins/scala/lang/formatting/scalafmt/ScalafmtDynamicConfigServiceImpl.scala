@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.ScalafmtConfigException
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflectConfig, ScalafmtReflect}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
@@ -62,7 +62,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
     psiFile: PsiFile,
     verbosity: FmtVerbosity,
     resolveFast: Boolean
-  ): Option[(ScalafmtDynamicConfig, Option[Long])] = {
+  ): Option[(ScalafmtReflectConfig, Option[Long])] = {
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
@@ -82,7 +82,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
     configWithDialect.map((_, timestamp))
   }
 
-  private def intellijDefaultConfig: Option[ScalafmtDynamicConfig] = {
+  private def intellijDefaultConfig: Option[ScalafmtReflectConfig] = {
     ScalafmtDynamicService.instance
       .resolve(DefaultVersion, downloadIfMissing = false, FmtVerbosity.FailSilent)
       .toOption.map(_.intellijScalaFmtConfig)
@@ -154,7 +154,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
     }
   }
 
-  private def notifyConfigChanges(config: ScalafmtDynamicConfig, cachedConfig: Option[CachedConfig]): Unit = {
+  private def notifyConfigChanges(config: ScalafmtReflectConfig, cachedConfig: Option[CachedConfig]): Unit = {
     val contentChanged = !cachedConfig.map(_.config).contains(config)
     if (contentChanged) {
       ScalafmtNotifications.displayInfo(ScalaBundle.message("scalafmt.picked.new.config", config.version))
@@ -176,7 +176,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
     ScalafmtNotifications.displayWarning(errorMessage, Seq(openFileAction))
   }
 
-  override def isFileIncludedInProject(file: PsiFile, config: ScalafmtDynamicConfig): Boolean =
+  override def isFileIncludedInProject(file: PsiFile, config: ScalafmtReflectConfig): Boolean =
     file.getVirtualFile.toOption match {
       case Some(vFile) => config.isIncludedInProject(vFile.getPath)
       case None => true // in-memory files can't be in scalafmt config exclude rules, they should always be formatted
@@ -190,7 +190,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
 
 object ScalafmtDynamicConfigServiceImpl {
 
-  private case class CachedConfig(config: ScalafmtDynamicConfig,
+  private case class CachedConfig(config: ScalafmtReflectConfig,
                                   vFileModificationTimestamp: Long,
                                   docModificationTimestamp: Long)
 }

@@ -26,7 +26,7 @@ final case class ScalafmtDynamic(
   defaultVersion: String,
   fmtsCache: mutable.Map[ScalafmtVersion, ScalafmtReflect],
   cacheConfigs: Boolean,
-  configsCache: mutable.Map[Path, (ScalafmtDynamicConfig, FileTime)]
+  configsCache: mutable.Map[Path, (ScalafmtReflectConfig, FileTime)]
 ) extends Scalafmt {
 
   def this() = this(
@@ -91,10 +91,10 @@ final case class ScalafmtDynamic(
   }
 
   def formatDetailed(configPath: Path, file: Path, code: String): FormatResult = {
-    def tryFormat(reflect: ScalafmtReflect, config: ScalafmtDynamicConfig): FormatResult = {
+    def tryFormat(reflect: ScalafmtReflect, config: ScalafmtReflectConfig): FormatResult = {
       Try {
-        val filename = file.toString
-        val configWithDialect: ScalafmtDynamicConfig =
+        val filename                                 = file.toString
+        val configWithDialect: ScalafmtReflectConfig =
           if (filename.endsWith(Sbt.Extension) || filename.endsWith(".sc")) {
             config.withSbtDialect
           } else {
@@ -118,11 +118,11 @@ final case class ScalafmtDynamic(
     } yield codeFormatted
   }
 
-  private def isIgnoredFile(filename: String, config: ScalafmtDynamicConfig): Boolean = {
+  private def isIgnoredFile(filename: String, config: ScalafmtReflectConfig): Boolean = {
     respectExcludeFilters && !config.isIncludedInProject(filename)
   }
 
-  private def resolveConfig(configPath: Path): Either[ScalafmtDynamicError, ScalafmtDynamicConfig] = {
+  private def resolveConfig(configPath: Path): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
     if (cacheConfigs) {
       val currentTimestamp: FileTime = Files.getLastModifiedTime(configPath)
       configsCache.get(configPath) match {
@@ -141,7 +141,7 @@ final case class ScalafmtDynamic(
       resolvingConfigDownloading(configPath)
     }
   }
-  private def resolvingConfigDownloading(configPath: Path): Either[ScalafmtDynamicError, ScalafmtDynamicConfig] = {
+  private def resolvingConfigDownloading(configPath: Path): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
     for {
       _ <- Option(configPath).filter(conf => Files.exists(conf)).toRight {
         ScalafmtDynamicError.ConfigDoesNotExist(configPath)
@@ -154,7 +154,7 @@ final case class ScalafmtDynamic(
     } yield config
   }
 
-  private def parseConfig(configPath: Path, fmtReflect: ScalafmtReflect): Either[ScalafmtDynamicError, ScalafmtDynamicConfig] = {
+  private def parseConfig(configPath: Path, fmtReflect: ScalafmtReflect): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
     Try(fmtReflect.parseConfig(configPath)).toEither.left.map {
       case ex: ScalafmtConfigException => ScalafmtDynamicError.ConfigParseError(configPath, ex)
       case ex => ScalafmtDynamicError.UnknownError(ex)
