@@ -69,9 +69,7 @@ object BSPCli extends App {
 
       override def getComponent[T](interfaceClass: Class[T]): T = {
         if (interfaceClass == classOf[VirtualFileManager])
-          new VirtualFileManagerImpl(Collections.singletonList(new MockLocalFileSystem())){
-            override def findFileByUrl(url: String): VirtualFile = null
-          }.asInstanceOf[T]
+          new VirtualFileManagerImpl(Collections.singletonList(new MockLocalFileSystem())).asInstanceOf[T]
         else if (interfaceClass == classOf[BspCommunicationService])
           (new BspCommunicationService).asInstanceOf[T]
         else if (interfaceClass == classOf[BspSystemSettings]) {
