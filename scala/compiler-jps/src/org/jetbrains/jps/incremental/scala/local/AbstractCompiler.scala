@@ -117,12 +117,32 @@ abstract class AbstractCompiler extends Compiler {
 
     private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {
       val source = pos.sourceFile.toOption
+      val fromLine = {
+        val startLine = pos.startLine.toOption
+        val line = pos.line.toOption
+        startLine.orElse(line).map(_.toLong)
+      }
+      val fromColumn = {
+        val startColumn = pos.startColumn.toOption.map(_.toLong)
+        val pointer = pos.pointer.toOption.map(_.toLong + 1)
+        startColumn.orElse(pointer)
+      }
+      val fromOffset = {
+        val startOffset = pos.startOffset.toOption
+        val offset = pos.offset.toOption
+        startOffset.orElse(offset).map(_.toLong)
+      }
       val fromPosInfo = PosInfo(
-        line = pos.line.toOption.map(_.toLong),
-        column = pos.pointer.toOption.map(_.toLong + 1L),
-        offset = pos.offset.toOption.map(_.toLong)
+        line = fromLine,
+        column = fromColumn,
+        offset = fromOffset
       )
-      client.message(kind, msg, source, fromPosInfo)
+      val toPosInfo = PosInfo(
+        line = pos.endLine.toOption.map(_.toLong),
+        column = pos.endColumn.toOption.map(_.toLong),
+        offset = pos.endOffset.toOption.map(_.toLong)
+      )
+      client.message(kind, msg, source, fromPosInfo, toPosInfo)
     }
   }
 

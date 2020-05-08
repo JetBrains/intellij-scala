@@ -93,6 +93,8 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
   override def enabled(): Boolean = false
 
   override def mainClass(sourceFile: File, className: String): Unit = {}
+
+  override def classesInOutputJar(): util.Set[String] = util.Collections.emptySet()
 }
 
 private object emptyChanges extends DependencyChanges {

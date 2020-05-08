@@ -77,7 +77,9 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       order,
       cs,
       setup,
-      previousResult)
+      previousResult,
+      Optional.empty()
+    )
 
     val compilationResult = Try {
       client.progress("Collecting incremental compiler data...")
