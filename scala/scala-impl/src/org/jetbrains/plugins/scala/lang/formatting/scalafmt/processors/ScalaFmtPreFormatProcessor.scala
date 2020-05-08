@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt
+package org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
@@ -20,10 +20,10 @@ import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.PsiChange._
-import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.PsiChange._
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtNotifications}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -63,9 +63,9 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
       case _ if range.isEmpty => TextRange.EMPTY_RANGE
       case Some(file: ScalaFile) =>
         val isSubrangeFormatting = range != file.getTextRange
-        if (isSubrangeFormatting && getScalaSettings(file).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT) {
+        if (isSubrangeFormatting && getScalaSettings(file).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
           range
-        } else {
+        else {
           try formatIfRequired(file, shiftRange(file, range)) catch {
             case NonFatal(ex) =>
               reportUnknownError(ex)

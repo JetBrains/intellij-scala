@@ -10,6 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.formatter.{FormattingDocumentModelImpl, PsiBasedFormattingModel, FormatterUtil => PsiFormatterUtil}
 import com.intellij.psi.impl.source.tree.TreeUtil
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
 
 final class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
@@ -21,7 +22,7 @@ final class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
     if (styleSettings.getCustomSettings(classOf[settings.ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER) {
       //preprocessing is done by this point, use this little side-effect to clean-up ranges synchronization
-      processors.scalafmt.ScalaFmtPreFormatProcessor.clearRangesCache()
+      ScalaFmtPreFormatProcessor.clearRangesCache()
     }
 
     val file = element.getContainingFile
