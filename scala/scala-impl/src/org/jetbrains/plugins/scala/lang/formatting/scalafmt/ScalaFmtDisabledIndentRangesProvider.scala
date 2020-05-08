@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.formatting
+package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import java.util
 
