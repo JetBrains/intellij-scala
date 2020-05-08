@@ -1668,7 +1668,7 @@
         <!-- end of inspections -->
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType"/>
-        <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider"/>
+        <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtDisabledIndentRangesProvider"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService$Startup"/>
