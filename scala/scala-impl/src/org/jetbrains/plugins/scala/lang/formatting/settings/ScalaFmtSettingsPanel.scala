@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicService}
 
 final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
@@ -344,7 +345,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       }
       override def getText(textField: JTextField): String = {
         val path = textField.getText.toOption.filter(StringUtils.isNotBlank).getOrElse(DefaultConfigFilePath)
-        val absolutePath = projectOpt.flatMap(ScalafmtDynamicConfigService.absolutePathFromConfigPath(_, path))
+        val absolutePath = projectOpt.flatMap(ScalafmtConfigUtils.projectConfigFileAbsolutePath(_, path))
         absolutePath.getOrElse(DefaultConfigFilePath)
       }
     }
@@ -388,7 +389,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   }
 
   private def projectConfigFile(configPath: String): Option[VirtualFile] =
-    projectOpt.flatMap(ScalafmtDynamicConfigService.scalafmtProjectConfigFile(_, configPath))
+    projectOpt.flatMap(ScalafmtConfigUtils.projectConfigFile(_, configPath))
 
   private var isPanelEnabled: Boolean = false
   private var projectOpt: Option[Project] = None
