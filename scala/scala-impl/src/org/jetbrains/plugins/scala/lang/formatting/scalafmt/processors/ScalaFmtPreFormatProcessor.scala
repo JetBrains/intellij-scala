@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflectConfig, ScalafmtReflect}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.PsiChange._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtNotifications}
@@ -179,7 +179,7 @@ object ScalaFmtPreFormatProcessor {
 
   private def formatInSingleFile(
     elements: Seq[PsiElement],
-    config: ScalafmtDynamicConfig,
+    config: ScalafmtReflectConfig,
     shouldWrap: Boolean
   )(implicit project: Project): Option[WrappedCode] = {
     val wrappedCode: WrappedCode =
@@ -326,7 +326,7 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def attachFormattedCode(elements: Seq[PsiElement], config: ScalafmtDynamicConfig)(implicit project: Project): Seq[(PsiElement, WrappedCode)] = {
+  private def attachFormattedCode(elements: Seq[PsiElement], config: ScalafmtReflectConfig)(implicit project: Project): Seq[(PsiElement, WrappedCode)] = {
     val elementsNonBlank = elements.filterNot(el => el.isInstanceOf[PsiWhiteSpace] || el.getTextLength == 0)
     val elementsFormatted = elementsNonBlank.map(el => (el, formatInSingleFile(Seq(el), config, shouldWrap = true)))
     elementsFormatted.collect { case (el, Some(code)) => (el, code) }
@@ -345,7 +345,7 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def formatWithoutCommit(document: Document, config: ScalafmtDynamicConfig): Either[FormattingError, Unit] = {
+  private def formatWithoutCommit(document: Document, config: ScalafmtReflectConfig): Either[FormattingError, Unit] = {
     val scalaFmt: ScalafmtReflect = config.fmtReflect
     for {
       formattedText <- scalaFmt.tryFormat(document.getText, config)
@@ -354,7 +354,7 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def formatRange(file: PsiFile, config: ScalafmtDynamicConfig, range: TextRange): Either[Unit, Option[Int]] = {
+  private def formatRange(file: PsiFile, config: ScalafmtReflectConfig, range: TextRange): Either[Unit, Option[Int]] = {
     implicit val project: Project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
     val document = manager.getDocument(file)
@@ -931,7 +931,7 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private implicit class ScalafmtReflectExt(private val scalafmt: ScalafmtReflect) extends AnyVal {
-    def tryFormat(code: String, config: ScalafmtDynamicConfig): Either[ScalafmtFormatError, String] = {
+    def tryFormat(code: String, config: ScalafmtReflectConfig): Either[ScalafmtFormatError, String] = {
       Try(scalafmt.format(code, config)).toEither.left.map {
         case ReflectionException(e) => ScalafmtFormatError(e)
         case e                      => ScalafmtFormatError(e)

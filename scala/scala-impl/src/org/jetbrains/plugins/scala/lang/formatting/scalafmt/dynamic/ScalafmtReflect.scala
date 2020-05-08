@@ -40,21 +40,21 @@ case class ScalafmtReflect(
     scalafmtCls.getMethod("format", classOf[String], defaultScalaFmtConfig.getClass, scalaSetCls, classOf[String])
   ).toOption
 
-  lazy val intellijScalaFmtConfig: ScalafmtDynamicConfig = {
+  lazy val intellijScalaFmtConfig: ScalafmtReflectConfig = {
     // TODO: see implementation details for other versions of scalafmt, find where intellij config is kept
     assert(version == "1.5.1", "intellij scalafmt config is only supported fot version 1.5.1 for now")
 
     val scalaFmtConfigCls = classLoader.loadClass("org.scalafmt.config.ScalafmtConfig")
     val configTarget = scalaFmtConfigCls.invokeStatic("intellij")
-    new ScalafmtDynamicConfig(this, configTarget, classLoader)
+    new ScalafmtReflectConfig(this, configTarget, classLoader)
   }
 
-  def parseConfig(configPath: Path): ScalafmtDynamicConfig = {
+  def parseConfig(configPath: Path): ScalafmtReflectConfig = {
     val configText = new String(Files.readAllBytes(configPath), StandardCharsets.UTF_8)
     parseConfigFromString(configText)
   }
 
-  def parseConfigFromString(configText: String): ScalafmtDynamicConfig = {
+  def parseConfigFromString(configText: String): ScalafmtReflectConfig = {
     try {
       val configured: Object = try { // scalafmt >= 1.6.0
         scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
@@ -64,14 +64,14 @@ case class ScalafmtReflect(
           val fromHoconEmptyPath = configCls.invokeStatic("fromHoconString$default$2")
           configCls.invokeStatic("fromHoconString", configText.asParam, (optionCls, fromHoconEmptyPath))
       }
-      new ScalafmtDynamicConfig(this, configured.invoke("get"), classLoader)
+      new ScalafmtReflectConfig(this, configured.invoke("get"), classLoader)
     } catch {
       case ReflectionException(e) =>
         throw ScalafmtConfigException(e.getMessage)
     }
   }
 
-  def format(code: String, config: ScalafmtDynamicConfig, fileOpt: Option[Path] = None): String = {
+  def format(code: String, config: ScalafmtReflectConfig, fileOpt: Option[Path] = None): String = {
     checkVersionMismatch(config)
     val formatted = (formatMethodWithFilename, fileOpt) match {
       case (Some(method), Some(file)) =>
@@ -125,7 +125,7 @@ case class ScalafmtReflect(
     cache.invoke("megaCache").invoke("clear")
   }
 
-  private def checkVersionMismatch(config: ScalafmtDynamicConfig): Unit =
+  private def checkVersionMismatch(config: ScalafmtReflectConfig): Unit =
     if (respectVersion) {
       val obtained = config.version
       if (obtained != version) {

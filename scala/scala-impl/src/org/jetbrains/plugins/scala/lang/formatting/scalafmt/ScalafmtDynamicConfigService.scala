@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveResult
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicConfig
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtReflectConfig
 
 import scala.util.Try
 
@@ -24,13 +24,13 @@ trait ScalafmtDynamicConfigService {
     psiFile: PsiFile,
     verbosity: FmtVerbosity = FmtVerbosity.Verbose,
     resolveFast: Boolean = false
-  ): Option[(ScalafmtDynamicConfig, Option[Long])]
+  ): Option[(ScalafmtReflectConfig, Option[Long])]
 
   final def configForFile(
     psiFile: PsiFile,
     verbosity: FmtVerbosity = FmtVerbosity.Verbose,
     resolveFast: Boolean = false
-  ): Option[ScalafmtDynamicConfig] =
+  ): Option[ScalafmtReflectConfig] =
     configForFileWithTimestamp(psiFile, verbosity, resolveFast).map(_._1)
 
   def resolveConfigAsync(
@@ -41,7 +41,7 @@ trait ScalafmtDynamicConfigService {
     onResolveFinished: ConfigResolveResult => Unit
   ): Unit
 
-  def isFileIncludedInProject(file: PsiFile, config: ScalafmtDynamicConfig): Boolean
+  def isFileIncludedInProject(file: PsiFile, config: ScalafmtReflectConfig): Boolean
 
   def isFileIncludedInProject(file: PsiFile): Boolean
 }
@@ -57,13 +57,13 @@ object ScalafmtDynamicConfigService {
   def instanceIn(file: PsiElement): ScalafmtDynamicConfigService =
     file.getProject.getService(classOf[ScalafmtDynamicConfigService])
 
-  def isIncludedInProject(file: PsiFile, config: ScalafmtDynamicConfig): Boolean =
+  def isIncludedInProject(file: PsiFile, config: ScalafmtReflectConfig): Boolean =
     instanceIn(file.getProject).isFileIncludedInProject(file, config)
 
   def isIncludedInProject(file: PsiFile): Boolean =
     instanceIn(file.getProject).isFileIncludedInProject(file)
 
-  type ConfigResolveResult = Either[ConfigResolveError, ScalafmtDynamicConfig]
+  type ConfigResolveResult = Either[ConfigResolveError, ScalafmtReflectConfig]
 
   sealed trait ConfigResolveError
 

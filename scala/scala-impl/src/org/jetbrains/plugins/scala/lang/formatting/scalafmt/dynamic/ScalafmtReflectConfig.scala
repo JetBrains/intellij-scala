@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.Reflec
 import scala.util.Try
 
 //noinspection TypeAnnotation,HardCodedStringLiteral
-class ScalafmtDynamicConfig private[dynamic](
+class ScalafmtReflectConfig private[dynamic](
   val fmtReflect: ScalafmtReflect,
   private[dynamic] val target: Object, // real config object
   private val classLoader: ClassLoader
@@ -46,10 +46,10 @@ class ScalafmtDynamicConfig private[dynamic](
     matcher.invokeAs[java.lang.Boolean]("matches", filename.asParam)
   }
 
-  def withSbtDialect: ScalafmtDynamicConfig = {
+  def withSbtDialect: ScalafmtReflectConfig = {
     // TODO: maybe hold loaded classes in some helper class not to reload them each time?
     val newTarget = target.invoke("withDialect", (dialectCls, sbtDialect))
-    new ScalafmtDynamicConfig(fmtReflect, newTarget, classLoader)
+    new ScalafmtReflectConfig(fmtReflect, newTarget, classLoader)
   }
 
   // TODO: what about rewrite tokens?
@@ -63,12 +63,12 @@ class ScalafmtDynamicConfig private[dynamic](
         false
     }
 
-  def withoutRewriteRules: ScalafmtDynamicConfig =
+  def withoutRewriteRules: ScalafmtReflectConfig =
     if (hasRewriteRules) {
       val fieldsValues = constructorParams.map(param => target.invoke(param))
       fieldsValues(rewriteParamIdx) = emptyRewrites
       val targetNew = constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
-      new ScalafmtDynamicConfig(fmtReflect, targetNew, classLoader)
+      new ScalafmtReflectConfig(fmtReflect, targetNew, classLoader)
     } else {
       this
     }
