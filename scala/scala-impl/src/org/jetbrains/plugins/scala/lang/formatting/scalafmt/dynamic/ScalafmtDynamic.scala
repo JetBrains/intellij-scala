@@ -104,7 +104,7 @@ final case class ScalafmtDynamic(
           reporter.excluded(file)
           code
         } else {
-          reflect.format(code, configWithDialect, Some(file))
+          reflect.format(code, configWithDialect, Some(filename))
         }
       }.toEither.left.map {
         case ReflectionException(e) => ScalafmtDynamicError.UnknownError(e)

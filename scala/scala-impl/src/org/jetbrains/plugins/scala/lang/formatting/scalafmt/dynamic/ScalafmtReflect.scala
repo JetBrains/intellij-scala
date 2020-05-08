@@ -71,11 +71,10 @@ case class ScalafmtReflect(
     }
   }
 
-  def format(code: String, config: ScalafmtReflectConfig, fileOpt: Option[Path] = None): String = {
+  def format(code: String, config: ScalafmtReflectConfig, filenameOpt: Option[String]): String = {
     checkVersionMismatch(config)
-    val formatted = (formatMethodWithFilename, fileOpt) match {
-      case (Some(method), Some(file)) =>
-        val filename = file.toString
+    val formatted = (formatMethodWithFilename, filenameOpt) match {
+      case (Some(method), Some(filename)) =>
         method.invoke(null, code, config.target, emptyRange, filename)
       case _ =>
         formatMethod.invoke(null, code, config.target, emptyRange)
@@ -90,7 +89,7 @@ case class ScalafmtReflect(
         val pos = e.invoke("pos")
         val range = positionRange(pos)
         val shortMessage = e.invokeAs[String]("shortMessage")
-        throw PositionExceptionImpl(fileOpt, code, shortMessage, e.getMessage, range, e)
+        throw PositionExceptionImpl(filenameOpt, code, shortMessage, e.getMessage, range, e)
     }
   }
 

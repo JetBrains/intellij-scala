@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions
 
-import java.nio.file.Path
-
 case class PositionExceptionImpl(
-  file: Option[Path],
+  file: Option[String],
   code: String,
   shortMessage: String,
   longMessage: String,

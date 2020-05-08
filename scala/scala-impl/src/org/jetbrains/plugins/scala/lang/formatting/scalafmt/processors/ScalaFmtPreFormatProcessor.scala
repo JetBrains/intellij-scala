@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflectConfig, ScalafmtReflect}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.PsiChange._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtNotifications}
@@ -53,28 +53,37 @@ import scala.util.control.NonFatal
 class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
 
   override def process(element: ASTNode, range: TextRange): TextRange = {
-
-    val psiFile = Option(element.getPsi).flatMap(_.getContainingFile.toOption)
-    val useScalaFmt = psiFile.exists(CodeStyle.getCustomSettings(_, classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER)
-    if (!useScalaFmt) return range
-
-    psiFile match {
-      case None => TextRange.EMPTY_RANGE
-      case _ if range.isEmpty => TextRange.EMPTY_RANGE
-      case Some(file: ScalaFile) =>
-        val isSubrangeFormatting = range != file.getTextRange
-        if (isSubrangeFormatting && getScalaSettings(file).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
-          range
-        else {
-          try formatIfRequired(file, shiftRange(file, range)) catch {
-            case NonFatal(ex) =>
-              reportUnknownError(ex)
-              throw ex
-          }
-          TextRange.EMPTY_RANGE
-        }
-      case _ => range
+    val psiFile = containingFile(element) match {
+      case file: ScalaFile => file
+      case null            => return TextRange.EMPTY_RANGE // we could probably return original range here as well
+      case _               => return range
     }
+
+    if (range.isEmpty)
+      return TextRange.EMPTY_RANGE
+
+    val useScalafmt = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER
+    if (!useScalafmt)
+      return range
+
+    val isSubrangeFormatting = range != psiFile.getTextRange
+    val skip = isSubrangeFormatting && getScalaSettings(psiFile).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT
+    if (skip)
+      range
+    else {
+      try formatIfRequired(psiFile, shiftRange(psiFile, range)) catch {
+        case NonFatal(ex) =>
+          reportUnknownError(ex)
+          throw ex
+      }
+      TextRange.EMPTY_RANGE
+    }
+  }
+
+  private def containingFile(element: ASTNode): PsiFile = {
+    val psi = element.getPsi
+    if (psi == null) return null
+    psi.getContainingFile
   }
 
   override def changesWhitespacesOnly(): Boolean = false
@@ -122,6 +131,7 @@ object ScalaFmtPreFormatProcessor {
       case None =>
         return
     }
+
     val nothingChanged = cachedFileTimeStamp == file.getModificationStamp &&
       cachedRange.contains(range) &&
       cachedConfigTimestamp == configTimestamp
@@ -130,7 +140,9 @@ object ScalaFmtPreFormatProcessor {
 
     val rangeUpdated = fixRangeStartingOnPsiElement(file, range)
 
-    val result = formatRange(file, config, rangeUpdated)
+    implicit val context: ConfigContext = ConfigContext(config, Option(file.getVirtualFile).safeMap(_.getCanonicalPath))
+
+    val result = formatRange(file, rangeUpdated)
     for {
       res <- result
       _ = if (ApplicationManager.getApplication.isUnitTestMode) {
@@ -179,9 +191,8 @@ object ScalaFmtPreFormatProcessor {
 
   private def formatInSingleFile(
     elements: Seq[PsiElement],
-    config: ScalafmtReflectConfig,
     shouldWrap: Boolean
-  )(implicit project: Project): Option[WrappedCode] = {
+  )(implicit project: Project, context: ConfigContext): Option[WrappedCode] = {
     val wrappedCode: WrappedCode =
       if (shouldWrap) {
         wrap(elements)
@@ -190,8 +201,8 @@ object ScalaFmtPreFormatProcessor {
         new WrappedCode(elementsText, wrapped = false, wrappedInHelperClass = false)
       }
 
-    val scalaFmt: ScalafmtReflect = config.fmtReflect
-    scalaFmt.tryFormat(wrappedCode.text, config) match {
+    val scalaFmt: ScalafmtReflect = context.config.fmtReflect
+    scalaFmt.tryFormat(wrappedCode.text) match {
       case Left(value) =>
         if (ApplicationManager.getApplication.isUnitTestMode)
           throw value.cause
@@ -326,9 +337,13 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def attachFormattedCode(elements: Seq[PsiElement], config: ScalafmtReflectConfig)(implicit project: Project): Seq[(PsiElement, WrappedCode)] = {
+  private def attachFormattedCode(elements: Seq[PsiElement])
+                                 (implicit project: Project, context: ConfigContext): Seq[(PsiElement, WrappedCode)] = {
     val elementsNonBlank = elements.filterNot(el => el.isInstanceOf[PsiWhiteSpace] || el.getTextLength == 0)
-    val elementsFormatted = elementsNonBlank.map(el => (el, formatInSingleFile(Seq(el), config, shouldWrap = true)))
+    val elementsFormatted = elementsNonBlank.map { el =>
+      val formatted = formatInSingleFile(Seq(el), shouldWrap = true)
+      (el, formatted)
+    }
     elementsFormatted.collect { case (el, Some(code)) => (el, code) }
   }
 
@@ -338,23 +353,26 @@ object ScalaFmtPreFormatProcessor {
     if (config == null || respectProjectMatcher && !configManager.isFileIncludedInProject(file, config))
       return
 
-    formatWithoutCommit(document, config) match {
+    implicit val context: ConfigContext = ConfigContext(config, Option(file.getVirtualFile).safeMap(_.getCanonicalPath))
+    formatWithoutCommit(document) match {
       case Left(error: ScalafmtFormatError) =>
         reportInvalidCodeFailure(file, Some(error))(file.getProject)
       case _ =>
     }
   }
 
-  private def formatWithoutCommit(document: Document, config: ScalafmtReflectConfig): Either[FormattingError, Unit] = {
-    val scalaFmt: ScalafmtReflect = config.fmtReflect
+  private def formatWithoutCommit(document: Document)
+                                 (implicit context: ConfigContext): Either[FormattingError, Unit] = {
+    val scalaFmt: ScalafmtReflect = context.config.fmtReflect
     for {
-      formattedText <- scalaFmt.tryFormat(document.getText, config)
-    } yield {
-      inWriteAction(document.setText(formattedText))
+      formattedText <- scalaFmt.tryFormat(document.getText)
+    } yield inWriteAction {
+      document.setText(formattedText)
     }
   }
 
-  private def formatRange(file: PsiFile, config: ScalafmtReflectConfig, range: TextRange): Either[Unit, Option[Int]] = {
+  private def formatRange(file: PsiFile, range: TextRange)
+                         (implicit context: ConfigContext): Either[Unit, Option[Int]] = {
     implicit val project: Project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
     val document = manager.getDocument(file)
@@ -362,10 +380,9 @@ object ScalaFmtPreFormatProcessor {
     implicit val fileText: String = file.getText
 
     val rangeIncludesWholeFile = range.contains(file.getTextRange)
-
     var wholeFileFormatError: Option[ScalafmtFormatError] = None
-    if (rangeIncludesWholeFile) {
-      formatWithoutCommit(document, config) match {
+    if (rangeIncludesWholeFile)
+      formatWithoutCommit(document) match {
         case Right(_) =>
           manager.commitDocument(document)
           return Right(None)
@@ -373,15 +390,15 @@ object ScalaFmtPreFormatProcessor {
           wholeFileFormatError = Some(error)
         case _ =>
       }
-    }
 
     def processRange(elements: Seq[PsiElement], wrap: Boolean): Either[Unit, Option[Int]] = {
-      val hasRewriteRules = config.hasRewriteRules
+      val hasRewriteRules = context.config.hasRewriteRules
       val rewriteElements: Seq[PsiElement] = if (hasRewriteRules) elements.flatMap(maybeRewriteElements(_, range)) else Seq.empty
-      val rewriteElementsToFormatted: Seq[(PsiElement, WrappedCode)] = attachFormattedCode(rewriteElements, config)
-      val noRewriteConfig = if (hasRewriteRules) config.withoutRewriteRules else config
+      val rewriteElementsToFormatted: Seq[(PsiElement, WrappedCode)] = attachFormattedCode(rewriteElements)
+      val noRewriteConfig = if (hasRewriteRules) context.config.withoutRewriteRules else context.config
 
-      val result = formatInSingleFile(elements, noRewriteConfig, wrap).map { formatted =>
+      val newContext = context.withConfig(noRewriteConfig)
+      val result = formatInSingleFile(elements, wrap)(project, newContext).map { formatted =>
         val textRangeDelta = replaceWithFormatted(elements, formatted, rewriteElementsToFormatted, range)
         manager.commitDocument(document)
         textRangeDelta
@@ -930,12 +947,19 @@ object ScalaFmtPreFormatProcessor {
     def withText(newText: String): WrappedCode = new WrappedCode(newText, wrapped, wrappedInHelperClass)
   }
 
+  /**
+   * @param filePath used internally by scalafmt to detect overriden config via `fileOverride` option (from v2.5.0)
+   */
+  private case class ConfigContext(config: ScalafmtReflectConfig, filePath: Option[String]) {
+    def withConfig(newConfig: ScalafmtReflectConfig): ConfigContext = this.copy(config = newConfig)
+  }
+
   private implicit class ScalafmtReflectExt(private val scalafmt: ScalafmtReflect) extends AnyVal {
-    def tryFormat(code: String, config: ScalafmtReflectConfig): Either[ScalafmtFormatError, String] = {
-      Try(scalafmt.format(code, config)).toEither.left.map {
+
+    def tryFormat(code: String)(implicit context: ConfigContext): Either[ScalafmtFormatError, String] =
+      Try(scalafmt.format(code, context.config, context.filePath)).toEither.left.map {
         case ReflectionException(e) => ScalafmtFormatError(e)
         case e                      => ScalafmtFormatError(e)
       }
-    }
   }
 }
