@@ -51,13 +51,6 @@ final class ScalaConsoleRunConfiguration(
   def consoleArgs: String = ensureUsesJavaCpByDefault(this.myConsoleArgs)
   def consoleArgs_=(s: String): Unit = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)
 
-  // always added, not displayed anywhere
-  private def extraConsoleArgs: Seq[String] = Seq(
-    // NOTE: after 2.13.2 "-Xjline:off" is a preferable, but old flag also should work
-    // https://github.com/scala/scala/pull/8906
-    "-Xnojline"
-  )
-
   private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
 
   private def getModule: Option[Module] = Option(getConfigurationModule.getModule)
@@ -108,7 +101,7 @@ final class ScalaConsoleRunConfiguration(
 
     override protected def createJavaParameters: JavaParameters = {
       val params = createParams
-      val args = (consoleArgs +: extraConsoleArgs).mkString(" ")
+      val args = consoleArgs + " " + disableJLineOption
       params.getProgramParametersList.addParametersString(args)
       params
     }
@@ -130,6 +123,14 @@ final class ScalaConsoleRunConfiguration(
       }
     }
   }
+
+  private def disableJLineOption: String =
+    getModule.flatMap(minorScalaVersion) match {
+      //NOTE: comparing strings isn't ideal, for dotty version (e.g. 0.24.x) it will be `false`
+      //but this will do for now, taking into account that REPL for Dotty doesn't work now
+      case Some(version) if version >= "2.13.2" => "-Xjline:off" // https://github.com/scala/scala/pull/8906
+      case _                                    => "-Xnojline"
+    }
 
   private def createParams: JavaParameters = {
     val module = requireModule
@@ -224,11 +225,13 @@ private object ScalaConsoleRunConfiguration {
 
   private def isJLineNeeded(module: Module): Boolean =
     module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13) && {
-      val minorVersion = module.scalaSdk.flatMap(_.compilerVersion)
       // 2.13.2 was fixed and does not require jline jar if jline is disabled
       // see https://github.com/scala/bug/issues/11654
-      minorVersion.exists(v => v == "2.13.0" || v == "2.13.1")
+      minorScalaVersion(module).exists(v => v == "2.13.0" || v == "2.13.1")
     }
+
+  private def minorScalaVersion(module: Module): Option[String] =
+    module.scalaSdk.flatMap(_.compilerVersion)
 
   private def isJLinePresentIn(classPath: PathsList): Boolean =
     classPath.getPathList.asScala.exists(new File(_).getName == JLineFinder.JLineJarName)
