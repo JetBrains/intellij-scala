@@ -1,15 +1,11 @@
-package org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt
+package org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import com.intellij.psi.{PsiElement, PsiRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.PsiChange._
-import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor.addDelta
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
 private sealed trait PsiChange {
   private var myIsValid = true
@@ -65,7 +61,7 @@ private object PsiChange {
       if (originalMarkedForAdjustment)
         inserted.foreach(TypeAdjuster.markToAdjust)
 
-      addDelta(formatted, formatted.getTextLength)
+      ScalaFmtPreFormatProcessor.addDelta(formatted, formatted.getTextLength)
     }
     override def isInRange(range: TextRange): Boolean = range.contains(before.getTextRange.getStartOffset)
     override def getStartOffset: Int = before.getTextRange.getStartOffset
@@ -79,7 +75,7 @@ private object PsiChange {
         return 0
       }
       val commonPrefixLength = StringUtil.commonPrefix(original.getText, formatted.getText).length
-      val delta = addDelta(
+      val delta = ScalaFmtPreFormatProcessor.addDelta(
         original.getTextRange.getStartOffset + commonPrefixLength,
         original.getContainingFile,
         formatted.getTextLength - original.getTextLength
@@ -135,7 +131,7 @@ private object PsiChange {
       if (!remove.isValid) {
         return 0
       }
-      val res = addDelta(remove, -remove.getTextLength)
+      val res = ScalaFmtPreFormatProcessor.addDelta(remove, -remove.getTextLength)
       inWriteAction(remove.delete())
       res
     }

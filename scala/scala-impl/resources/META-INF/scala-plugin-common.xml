@@ -156,7 +156,7 @@
         <postFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.ScalaBracePostFormatProcessor"/>
         <postFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.ScalaTrailingCommaProcessor"/>
         <preFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.ScalaDocNewlinedPreFormatProcessor"/>
-        <preFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor"/>
+        <preFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService"
                             serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServiceImpl"/>
         <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider"/>
