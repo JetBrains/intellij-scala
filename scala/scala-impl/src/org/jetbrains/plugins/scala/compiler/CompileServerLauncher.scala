@@ -41,8 +41,11 @@ object CompileServerLauncher {
   /* @see [[org.jetbrains.plugins.scala.compiler.ServerMediatorTask]] */
   private class Listener extends BuildManagerListener {
 
-    override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit =
+    override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
       ensureCompileServerRunning(project)
+      if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED)
+        CompileServerNotifications.warnIfCompileServerJdkVersionTooOld(project)
+    }
 
     override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
       ensureCompileServerRunning(project)
@@ -226,14 +229,14 @@ object CompileServerLauncher {
   def errors(): Seq[String] = serverInstance.map(_.errors()).getOrElse(Seq.empty)
 
   def port: Option[Int] = serverInstance.map(_.port)
+  
+  def defaultSdk(project: Project): Sdk = BuildManager.getBuildProcessRuntimeSdk(project).first
 
-  private def compileServerSdk(project: Project): Either[String, Sdk] = {
-    def defaultSdk = BuildManager.getBuildProcessRuntimeSdk(project).first
-
+  def compileServerSdk(project: Project): Either[String, Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance()
 
     val sdk =
-      if (settings.USE_DEFAULT_SDK) Option(defaultSdk).toRight("can't find default jdk")
+      if (settings.USE_DEFAULT_SDK) Option(defaultSdk(project)).toRight("can't find default jdk")
       else Option(ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)).toRight(s"can't find jdk: ${settings.COMPILE_SERVER_SDK}")
 
     sdk
