@@ -438,7 +438,6 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |
          |
          |
-         |
          |""".stripMargin
 
     // NOTE: this test operates with race condition (worksheet prints with timeout, printer timer flushes with timout)
@@ -447,14 +446,14 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     //noinspection RedundantBlock
     val rightTimerFlushedStates = Array(
       "",
-      s"Hello 1",
-      s"${foldStart}Hello 1\nHello 2${foldEnd}",
-      s"${foldStart}Hello 1\nHello 2\nHello 3${foldEnd}",
-      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}",
-      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\nHello 1",
-      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2$foldEnd",
-      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3$foldEnd",
-      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3\nres2: Unit = ()$foldEnd",
+      s"\nHello 1",
+      s"\n${foldStart}Hello 1\nHello 2${foldEnd}",
+      s"\n${foldStart}Hello 1\nHello 2\nHello 3${foldEnd}",
+      s"\n${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}",
+      s"\n${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\nHello 1",
+      s"\n${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2$foldEnd",
+      s"\n${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3$foldEnd",
+      s"\n${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3\nres2: Unit = ()$foldEnd",
     )
 
     val rightTextStates: Array[String] = rightTimerFlushedStates.map(rightCommonText + _).map(_.withNormalizedSeparator)
