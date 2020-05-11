@@ -1,6 +1,5 @@
 [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-[![TC Build Status](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Scala_Tests)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Scala_Tests&guest=1)
-[![Travis Build Status](https://travis-ci.org/JetBrains/intellij-scala.svg)](https://travis-ci.org/JetBrains/intellij-scala) 
+![Scala Plugin Build & Test](https://github.com/JetBrains/intellij-scala/workflows/Scala%20Plugin%20Build%20&%20Test/badge.svg)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
 
 
@@ -40,7 +39,7 @@ In order to take part in Scala plugin development, you need:
   ```
 
 2. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
-the directory where Scala plugin repository is and then import it as sbt project.
+the directory where the Scala plugin repository is and then import it as sbt project.
 
 3. In the next step, select JDK 8 as project JDK (create it from an installed JDK if necessary).
 
@@ -64,14 +63,13 @@ On the sbt shell:
 1. `packageArtifact`
 2. `runFastTests`
 
-The "fast tests" can take over an hour. To get a quick feedback on project health, run only the type inference tests
+The "fast tests" can take over an hour. To get a quick feedback on project health, run only the type inference tests:
 
     > runTypeInferenceTests
     
-## Travis CI
+## GitHub Actions build
 
-The project is configured to build and run the typeInference tests with Travis CI, which you can enable in your forks.
-The full test suite can't currently be run because Travis doesn't allow builds to take that long.
+The project is configured to build and run the typeInference tests and fast tests with Github Actions. The full test suite isn't run to avoid really long build times.
 
 ## Running the plugin
 
