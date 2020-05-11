@@ -364,12 +364,8 @@ object ScalaDocGenerator {
     elem: PsiDocCommentOwner,
     docComment: ScDocComment
   ): String = {
-    // TODO: do we need to create a new tag inside replaceWikiWithTags just to .getText on it?
-    val withReplacedText = ScaladocWikiProcessor.replaceWikiWithTags(docComment)
-    val docTextNormalized =
-      if (withReplacedText == null) EmptyDoc // TODO: maybe shouldn't proceed if result is null
-      else withReplacedText.getText
-    val javaElement = createFakeJavaElement(elem, docTextNormalized)
+    val withReplacedWikiTags = ScaladocWikiProcessor.replaceWikiWithTags(docComment)
+    val javaElement = createFakeJavaElement(elem, withReplacedWikiTags)
     generateJavadocContent(javaElement)
   }
 

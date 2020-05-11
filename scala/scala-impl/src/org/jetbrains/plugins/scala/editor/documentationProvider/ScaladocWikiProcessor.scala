@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider.replaceWikiScheme
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
@@ -15,18 +13,15 @@ import scala.collection.mutable
 
 private object ScaladocWikiProcessor {
 
-  def replaceWikiWithTags(comment: PsiDocComment): PsiDocComment = {
-    if (!comment.isInstanceOf[ScDocComment]) return comment
+  def replaceWikiWithTags(comment: ScDocComment): String = {
     val macroFinder = new MacroFinderImpl(comment.asInstanceOf[ScDocComment], { element =>
       val a = getWikiTextRepresentation(new MacroFinderDummy)(element)
       a._1.result()
     })
 
     val (commentBody, tagsPart) = getWikiTextRepresentation(macroFinder)(comment)
-    val text = commentBody.append("<br/>\n").append(tagsPart).append(" class a {}").toString()
-    val scalaComment = createScalaFileFromText(text)(comment.getManager).typeDefinitions.head.getDocComment
-
-    scalaComment
+    commentBody.append("<br/>\n").append(tagsPart).toString()
+    commentBody.toString()
   }
 
   private def getWikiTextRepresentation(macroFinder: MacroFinder)(comment: PsiElement): (mutable.StringBuilder, mutable.StringBuilder) = {
