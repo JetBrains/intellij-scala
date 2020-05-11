@@ -20,7 +20,7 @@ private object ScaladocWikiProcessor {
     })
 
     val (commentBody, tagsPart) = getWikiTextRepresentation(macroFinder)(comment)
-    commentBody.append("<br/>\n").append(tagsPart).toString()
+    commentBody.append(tagsPart).toString()
     commentBody.toString()
   }
 

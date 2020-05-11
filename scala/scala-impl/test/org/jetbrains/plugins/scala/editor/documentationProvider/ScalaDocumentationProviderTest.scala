@@ -9,7 +9,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""/** description of A */
          |class ${|}A {}""".stripMargin,
       """<div class="definition"><pre>class <b>A</b></pre></div>
-        |<div class='content'> description of A <br/><p></div>
+        |<div class='content'> description of A <p></div>
         |<table class='sections'><p></table>
         |""".stripMargin
     )
@@ -20,7 +20,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |/** description of A */
          |class ${|}A""".stripMargin,
       """<div class="definition"><font size="-1"><b>a.b.c</b></font><pre>class <b>A</b></pre></div>
-        |<div class='content'> description of A <br/><p></div>
+        |<div class='content'> description of A <p></div>
         |<table class='sections'><p></table>
         |""".stripMargin
     )
@@ -60,7 +60,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  def ${|}foo: String = ???
          |}""".stripMargin,
       """<div class="definition"><a href="psi_element://A"><code>A</code></a><pre>def <b>foo</b>: String</pre></div>
-        |<div class='content'> description of foo <br/><p></div>
+        |<div class='content'> description of foo <p></div>
         |<table class='sections'><p></table>
         |""".stripMargin
     )
@@ -83,7 +83,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |<a href="psi_element://A"><code>A</code></a>
         |<pre>def <b>baseMethod</b>: String</pre>
         |</div>
-        |<div class='content'> description of base method from A <br/><p></div>
+        |<div class='content'> description of base method from A <p></div>
         |<table class='sections'><p></table>
         |""".stripMargin
     )
@@ -111,7 +111,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |<b>Description copied from class: </b>
         |<a href="psi_element://BaseScalaClass"><code>BaseScalaClass</code></a>
         |</div>
-        |<div class='content'> description of base method from BaseScalaClass <br/><p></div>
+        |<div class='content'> description of base method from BaseScalaClass <p></div>
         |<table class='sections'><p></table>""".stripMargin
     )
   }
