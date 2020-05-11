@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{ElementText, PsiNamedElementExt, ObjectExt}
+import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
-private object ScalaDocumentationQuickInfoGenerator {
+object ScalaDocQuickInfoGenerator {
 
   def getQuickNavigateInfo(resolveResult: ScalaResolveResult): String =
     getQuickNavigateInfo(resolveResult.element, resolveResult.substitutor)

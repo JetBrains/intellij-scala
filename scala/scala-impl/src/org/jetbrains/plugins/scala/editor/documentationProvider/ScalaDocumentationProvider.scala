@@ -6,7 +6,6 @@ import com.intellij.lang.documentation.CodeDocumentationProvider
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Pair
 import com.intellij.psi._
-import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
@@ -22,15 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
@@ -58,7 +54,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       case _ => ScSubstitutor.empty
     }
 
-    ScalaDocumentationProvider.getQuickNavigateInfo(element, substitutor)
+    ScalaDocQuickInfoGenerator.getQuickNavigateInfo(element, substitutor)
   }
 
 
@@ -113,9 +109,6 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
 object ScalaDocumentationProvider {
 
-  def getQuickNavigateInfo(element: PsiElement, substitutor: ScSubstitutor): String =
-    ScalaDocumentationQuickInfoGenerator.getQuickNavigateInfo(element, substitutor)
-
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider")
 
   private def debugMessage(msg: String, elem: PsiElement): Unit = {
@@ -127,7 +120,7 @@ object ScalaDocumentationProvider {
       s"[Element: ${elem.getNode} ${elem.getClass.getName}] [File: ${elem.getContainingFile.getName}] [Language: ${elem.getContainingFile.getLanguage}]"
     }
 
-    LOG debug s"[ScalaDocProvider] [ $msg ] $footer"
+    LOG.debug(s"[ScalaDocProvider] [ $msg ] $footer")
   }
 
   val replaceWikiScheme = Map(

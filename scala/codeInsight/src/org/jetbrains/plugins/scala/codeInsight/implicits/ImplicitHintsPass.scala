@@ -12,17 +12,17 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
-import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.annotator.hints._
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsPass}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -204,7 +204,7 @@ private object ImplicitHintsPass {
       case element => element
     }
 
-    val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(delegate, result.substitutor)
+    val tooltip = ScalaDocQuickInfoGenerator.getQuickNavigateInfo(delegate, result.substitutor)
     Seq(
       Text(result.name, navigatable = delegate.asOptionOf[Navigatable], tooltip = Some(tooltip))
     )
