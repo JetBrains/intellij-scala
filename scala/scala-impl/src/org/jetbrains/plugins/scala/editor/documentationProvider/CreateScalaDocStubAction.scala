@@ -55,7 +55,8 @@ class CreateScalaDocStubAction extends AnAction(
   }
   
   private def createStub(docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
-    val newComment = createDocCommentFromText(ScalaDocumentationProvider.createScalaDocStub(docOwner).trim())(docOwner.getManager)
+    val stubText = ScalaDocStubGenerator.createScalaDocStub(docOwner).trim()
+    val newComment = createDocCommentFromText(stubText)(docOwner.getManager)
     val project = docOwner.getProject
     val docCommentEnd = docOwner.getTextRange.getStartOffset - 1
     
