@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.codeInsight.javadoc.JavaDocInfoGenerator
+import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -34,10 +35,14 @@ object ScalaDocGenerator {
     val builder = new HtmlBuilderWrapper
     import builder._
 
-    def appendDef(mainPart: => Unit): Unit =
+    def appendDef(mainPart: => Unit): Unit = {
+//      append(DocumentationMarkup.DEFINITION_START)
+//      mainPart
+//      append(DocumentationMarkup.DEFINITION_END)
       withTag("div", Seq(("class", "definition"))) {
         mainPart
       }
+    }
 
     def appendMainSection(element: PsiElement, epilogue: => Unit = {}, needsTpe: Boolean = false): Unit = {
       pre {
@@ -428,8 +433,8 @@ object ScalaDocGenerator {
     val javadoc = generateJavadoc(element)
     // TODO: this is far fro perfect to rely on text... =(
     //  dive deep into Javadoc generation and implement in a more safe and structural way
-    val contentStartIdx = javadoc.indexOf("<div class='content'>") match {
-      case -1 => javadoc.indexOf("<table class='sections'>")
+    val contentStartIdx = javadoc.indexOf(DocumentationMarkup.CONTENT_START) match {
+      case -1 => javadoc.indexOf(DocumentationMarkup.SECTIONS_START)
       case idx => idx
     }
     val javadocFixed = if (contentStartIdx > 0) javadoc.substring(contentStartIdx) else javadoc
@@ -438,12 +443,12 @@ object ScalaDocGenerator {
 
   private def wrapWithInheritedDescription(clazz: PsiClass)(text: String): String = {
     val prefix =
-      s"""<div class='content'>
+      s"""${DocumentationMarkup.CONTENT_START}
          |<b>Description copied from class: </b>
          |<a href="psi_element://${escapeHtml(clazz.qualifiedName)}">
          |<code>${escapeHtml(clazz.name)}</code>
          |</a>
-         |</div>""".stripMargin
+         |${DocumentationMarkup.CONTENT_END}""".stripMargin
     prefix + text
   }
 }
