@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang
 package psi
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocGenerator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -39,7 +39,7 @@ object PresentationUtil {
         buffer.append(clause.parameters.map(presentationString(_, substitutor)).mkString(", "))
         buffer.append(")")
         buffer.toString()
-      case param: ScParameter => ScalaDocumentationProvider.parseParameter(param)(presentationString(_, substitutor))
+      case param: ScParameter => ScalaDocGenerator.parseParameter(param)(presentationString(_, substitutor))
       case param: Parameter =>
         val builder = new StringBuilder
         builder.append(param.name)

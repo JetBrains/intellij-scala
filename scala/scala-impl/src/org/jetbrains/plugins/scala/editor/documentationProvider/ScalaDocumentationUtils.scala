@@ -7,6 +7,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 
 private object ScalaDocumentationUtils {
 
+  // TODO: review usages, maybe propper way will be to use null / None?
+  val EmptyDoc = ""
+
   def getKeyword(element: PsiElement): String = element match {
     case _: ScClass                     => "class "
     case _: ScObject                    => "object "
