@@ -29,15 +29,6 @@ import scala.util.control.ControlThrowable
  * Date: 08.06.2009
  */
 object CachesUtil {
-
-  /** This value is used by cache analyzer
-   *
-   * @see [[org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.transformRhsToAnalyzeCaches]]
-   */
-  lazy val timeToCalculateForAnalyzingCaches: ThreadLocal[Stack[Long]] = new ThreadLocal[Stack[Long]] {
-    override def initialValue: Stack[Long] = new Stack[Long]()
-  }
-
   /**
    * Do not delete this type alias, it is used by [[org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard]]
     *

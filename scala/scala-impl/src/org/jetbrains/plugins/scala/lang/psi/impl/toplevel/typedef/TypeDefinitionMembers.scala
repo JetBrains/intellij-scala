@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 /**
  * @author ven
@@ -125,20 +126,17 @@ object TypeDefinitionMembers {
   }
 
   /** Take extra care to avoid reentrancy issues when processing package objects */
-  private[this] val processing = new ThreadLocal[ju.Map[String, java.lang.Long]] {
-    override def initialValue(): ju.Map[String, java.lang.Long] =
-      new ju.HashMap[String, java.lang.Long]()
-  }
+  private[this] val processing: UnloadableThreadLocal[ju.Map[String, java.lang.Long]] = UnloadableThreadLocal(new ju.HashMap)
 
   private[this] def checkPackageObjectReentrancy(fqn: String): Boolean =
-    processing.get().getOrDefault(fqn, 0L) != 0L
+    processing.value.getOrDefault(fqn, 0L) != 0L
 
   private[this] def withReentrancyGuard(fqn: String)(action: => Boolean): Boolean =
     try {
-      processing.get.merge(fqn, 1L, (old, _) => old + 1)
+      processing.value.merge(fqn, 1L, (old, _) => old + 1)
       action
     } finally {
-      processing.get.merge(fqn, 0L, (old, _) => if (old == 1L) null else old - 1)
+      processing.value.merge(fqn, 0L, (old, _) => if (old == 1L) null else old - 1)
     }
 
   def processClassDeclarations(
