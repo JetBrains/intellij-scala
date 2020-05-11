@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider.replaceWikiScheme
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -31,7 +31,7 @@ private object ScaladocWikiProcessor {
 
     def visitTags(element: ScDocTag): Unit = {
       def visitChildren(output: mutable.StringBuilder): Unit =
-        element.getNode.getChildren(null).map(_.getPsi).foreach(visitElementInner(_, output))
+        element.children.foreach(visitElementInner(_, output))
 
       element.name match {
         case MyScaladocParsing.TODO_TAG | MyScaladocParsing.NOTE_TAG |
@@ -52,11 +52,10 @@ private object ScaladocWikiProcessor {
       if (element.getFirstChild == null)
         visitElementInnerImpl(element, macroFinder, tagsPart, result)
       else
-        for (child <- element.getNode.getChildren(null))
-          child.getPsi match {
-            case tag: ScDocTag => visitTags(tag)
-            case _             => visitElementInner(child.getPsi, result)
-          }
+        element.children.foreach {
+          case tag: ScDocTag => visitTags(tag)
+          case child         => visitElementInner(child, result)
+        }
 
     visitElementInner(comment, commentBody)
     (commentBody, tagsPart)
