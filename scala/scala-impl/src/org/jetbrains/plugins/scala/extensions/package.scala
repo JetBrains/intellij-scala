@@ -11,6 +11,7 @@ import java.util.{Arrays, Set => JSet}
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
+import com.intellij.ide.plugins.{DynamicPluginListener, IdeaPluginDescriptor}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
@@ -36,6 +37,7 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
 import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -1243,6 +1245,29 @@ package object extensions {
 
   def invokeAndWaitInTransaction(body: => Unit): Unit =
     TransactionGuard.getInstance().submitTransactionAndWait(() => body)
+
+  def registerDynamicPluginListener(listener: DynamicPluginListener): Unit = {
+    val connection = ApplicationManager.getApplication.getMessageBus.connect()
+    connection.subscribe(DynamicPluginListener.TOPIC, listener)
+  }
+
+  def invokeOnAnyPluginUnload(body: => Unit): Unit = {
+    registerDynamicPluginListener(new DynamicPluginListener {
+      override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
+        body
+      }
+    })
+  }
+
+  def invokeOnScalaPluginUnload(body: => Unit): Unit = {
+    registerDynamicPluginListener(new DynamicPluginListener {
+      override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
+        if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
+          body
+        }
+      }
+    })
+  }
 
   private def preservingControlFlow(body: => Unit): Unit =
     try {
