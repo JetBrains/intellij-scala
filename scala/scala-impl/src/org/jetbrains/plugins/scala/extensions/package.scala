@@ -1246,27 +1246,34 @@ package object extensions {
   def invokeAndWaitInTransaction(body: => Unit): Unit =
     TransactionGuard.getInstance().submitTransactionAndWait(() => body)
 
-  def registerDynamicPluginListener(listener: DynamicPluginListener): Unit = {
-    val connection = ApplicationManager.getApplication.getMessageBus.connect()
+  def registerDynamicPluginListener(listener: DynamicPluginListener, parentDisposable: Disposable): Unit = {
+    val connection = ApplicationManager.getApplication.getMessageBus.connect(parentDisposable)
     connection.subscribe(DynamicPluginListener.TOPIC, listener)
   }
 
   def invokeOnAnyPluginUnload(body: => Unit): Unit = {
+    val disposable = Disposer.newDisposable()
     registerDynamicPluginListener(new DynamicPluginListener {
       override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
         body
+        if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
+          // last time we are called before unload
+          Disposer.dispose(disposable)
+        }
       }
-    })
+    }, disposable)
   }
 
   def invokeOnScalaPluginUnload(body: => Unit): Unit = {
+    val disposable = Disposer.newDisposable()
     registerDynamicPluginListener(new DynamicPluginListener {
       override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
         if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
           body
+          Disposer.dispose(disposable)
         }
       }
-    })
+    }, disposable)
   }
 
   private def preservingControlFlow(body: => Unit): Unit =
