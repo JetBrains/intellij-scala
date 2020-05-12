@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
@@ -111,7 +111,7 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
 
     presentation.setIcon(element)
 
-    var itemText: String =
+    val itemText =
       if (isRenamed.nonEmpty)
         s"$getLookupString <= ${element.name}"
       else if (isClassName && shouldImport && containingClassName != null)
@@ -174,16 +174,20 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
         //scala
         case fun: ScFunction =>
           if (etaExpanded) " _"
-          else if (isAssignment) " = " + presentationString(fun.paramClauses, substitutor)
-          else textForMethod(fun)
+          else if (isAssignment) " = " + presentationString(fun.parameterList, substitutor)
+          else typeParametersText(fun) + parametersText(fun.parameterList) + containingClassText
         case fun: ScFun =>
-          val paramClausesText = fun.paramClauses.map(_.map(presentationString(_, substitutor)).mkString("(", ", ", ")")).mkString
-          withTypeParamsText + paramClausesText
+          val paramClausesText = fun.paramClauses.map { clause =>
+            clause.map {
+              presentationString(_, substitutor)
+            }.commaSeparated(Model.Parentheses)
+          }.mkString
+
+          typeParametersText(fun.typeParameters) + paramClausesText
         case clazz: PsiClass =>
-          val location: String = clazz.getPresentation.getLocationString
-          s"$withTypeParamsText $location"
+          typeParametersText(clazz) + " " + clazz.getPresentation.getLocationString
         case method: PsiMethod =>
-          textForMethod(method)
+          typeParametersText(method) + parametersText(method.getParameterList) + containingClassText
         case p: PsiPackage =>
           s"    (${p.getQualifiedName})"
         case _ => ""
@@ -191,36 +195,41 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
     }
   }
 
-  private def withTypeParamsText(implicit tpc: TypePresentationContext): String = element match {
-    case t: ScFun =>
-      if (t.typeParameters.nonEmpty) t.typeParameters.map(param => presentationString(param, substitutor)).
-        mkString("[", ", ", "]")
-      else ""
-    case t: ScTypeParametersOwner =>
-      t.typeParametersClause match {
-        case Some(tp) => presentationString(tp, substitutor)
-        case None => ""
+  private def typeParametersText(typeParameters: Seq[_ <: PsiTypeParameter])
+                                (implicit context: TypePresentationContext): String =
+    if (typeParameters.isEmpty)
+      ""
+    else
+      typeParameters.map { typeParameter =>
+        val substitutor = typeParameter match {
+          case _: ScTypeParam => this.substitutor
+          case _ => ScSubstitutor.empty
+        }
+        presentationString(typeParameter, substitutor)
+      }.commaSeparated(Model.SquareBrackets)
+
+  private def typeParametersText(owner: PsiTypeParameterListOwner)
+                                (implicit context: TypePresentationContext): String = owner match {
+    case owner: ScTypeParametersOwner =>
+      owner.typeParametersClause.fold("") {
+        presentationString(_, substitutor)
       }
-    case p: PsiTypeParameterListOwner if p.getTypeParameters.nonEmpty =>
-      p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
-    case _ => ""
+    case owner =>
+      typeParametersText(owner.getTypeParameters)
   }
 
-  private def textForMethod(m: PsiMethod)(implicit tpc: TypePresentationContext): String = {
-    val params = m match {
-      case fun: ScFunction => fun.paramClauses
-      case _ => m.getParameterList
-    }
-    val paramsText =
-      if (!isOverloadedForClassName) presentationString(params, substitutor)
-      else "(...)"
-    val containingClassText: String = {
-      if (isClassName && containingClassName != null) {
-        s"${if (shouldImport) "" else " in " + containingClassName} ${containingClass.getPresentation.getLocationString}"
-      } else ""
-    }
-    withTypeParamsText + paramsText + containingClassText
-  }
+  private def parametersText(parametersList: PsiParameterList)
+                            (implicit tpc: TypePresentationContext) =
+    if (isOverloadedForClassName)
+      "(...)"
+    else
+      presentationString(parametersList, substitutor)
+
+  private def containingClassText =
+    if (isClassName && containingClassName != null)
+      s"${if (shouldImport) "" else " in " + containingClassName} ${containingClass.getPresentation.getLocationString}"
+    else
+      ""
 
   private def simpleInsert(context: InsertionContext): Unit =
     new ScalaInsertHandler().handleInsert(context, this)
