@@ -5,20 +5,21 @@ import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.search.searches.SuperMethodsSearch
+import com.intellij.psi.javadoc.PsiDocComment
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScNamingPattern, ScReferencePattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationsHolder, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDocCommentOwner, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -42,6 +43,11 @@ object ScalaDocGenerator {
       withTag("div", Seq(("class", "definition"))) {
         mainPart
       }
+    }
+
+    def appendDefWithContent(docOwner: PsiDocCommentOwner)(mainPart: => Unit): Unit = {
+      appendDef(mainPart)
+      append(parseDocComment(docOwner))
     }
 
     def appendMainSection(element: PsiElement, epilogue: => Unit = {}, needsTpe: Boolean = false): Unit = {
@@ -90,8 +96,8 @@ object ScalaDocGenerator {
     }
 
 
-    def appendTypeDef(typedef: ScTypeDefinition): HtmlBuilderWrapper = {
-      appendDef {
+    def appendTypeDef(typedef: ScTypeDefinition): Unit =
+      appendDefWithContent(typedef) {
         typedef.qualifiedName.lastIndexOf(".") match {
           case -1 =>
           case a =>
@@ -108,34 +114,23 @@ object ScalaDocGenerator {
         })
       }
 
-      append(parseDocComment(typedef))
-    }
-
-    def appendFunction(fun: ScFunction): Unit = {
-      appendDef {
+    def appendFunction(fun: ScFunction): Unit =
+      appendDefWithContent(fun) {
         append(parseClassUrl(fun))
         appendMainSection(fun)
       }
 
-      append(parseDocComment(fun))
-    }
-
-    def appendValOrVar(decl: ScValueOrVariable): Unit = {
-      appendDef {
+    def appendValOrVar(decl: ScValueOrVariable): Unit =
+      appendDefWithContent(decl) {
         decl match {
           case decl: ScMember => append(parseClassUrl(decl))
           case _ =>
         }
         appendMainSection(decl, needsTpe = true)
       }
-      decl match {
-        case doc: ScDocCommentOwner => append(parseDocComment(doc))
-        case _ =>
-      }
-    }
 
-    def appendTypeAlias(tpe: ScTypeAlias): Unit ={
-      appendDef {
+    def appendTypeAlias(tpe: ScTypeAlias): Unit =
+      appendDefWithContent(tpe) {
         append(parseClassUrl(tpe))
         appendMainSection(tpe, {
           tpe match {
@@ -147,33 +142,31 @@ object ScalaDocGenerator {
         })
       }
 
-      append(parseDocComment(tpe))
-    }
-
-    def appendBindingPattern(pattern: ScBindingPattern): Unit = {
+    def appendBindingPattern(pattern: ScBindingPattern): Unit =
       pre {
         append("Pattern: ")
         b {
           append(escapeHtml(pattern.name))
         }
         append(typeAnnotation(pattern))
-        if (pattern.getContext != null) {
-          pattern.getContext.getContext match {
-            case co: PsiDocCommentOwner => append(parseDocComment(co))
+        val context = pattern.getContext
+        if (context != null) {
+          context.getContext match {
+            case co: PsiDocCommentOwner =>
+              append(parseDocComment(co))
             case _ =>
           }
         }
       }
-    }
 
     withHtmlMarkup {
       e match {
         case typeDef: ScTypeDefinition => appendTypeDef(typeDef)
         case fun: ScFunction           => appendFunction(fun)
         case decl: ScValueOrVariable   => appendValOrVar(decl)
-        case param: ScParameter        => appendMainSection(param)
         case tpe: ScTypeAlias          => appendTypeAlias(tpe)
         case pattern: ScBindingPattern => appendBindingPattern(pattern)
+        case param: ScParameter        => appendMainSection(param) // TODO: it should contain description of the parameter from the scaladoc
         case _                         =>
       }
     }
@@ -185,7 +178,10 @@ object ScalaDocGenerator {
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.containingClass
     if (clazz == null) EmptyDoc
-    else s"""<a href="psi_element://${escapeHtml(clazz.qualifiedName)}"><code>${escapeHtml(clazz.qualifiedName)}</code></a>"""
+    else "" +
+      s"""<a href="psi_element://${escapeHtml(clazz.qualifiedName)}">""" +
+      s"""<code>${escapeHtml(clazz.qualifiedName)}</code>""" +
+      s"""</a>"""
   }
 
   // TODO Either use this method only in the DocumentationProvider, or place it somewhere else
@@ -324,22 +320,14 @@ object ScalaDocGenerator {
 
 
   // TODO: strange naming.. not "parse", it not only parses but also resolves base
-  private def parseDocComment(elem: PsiDocCommentOwner, isInherited: Boolean = false): String = {
-    val docHtml = Option(elem.getDocComment) match {
+  private def parseDocComment(docOwner: PsiDocCommentOwner): String = {
+    val docHtml = Option(docOwner.getDocComment) match {
       case Some(docComment) =>
-        val commentParsed = docComment match {
-          case scalaDoc: ScDocComment => parseScalaDocComment(elem, scalaDoc)
-          case _                      => generateJavadocContent(elem)
-        }
-        if (isInherited) {
-          wrapWithInheritedDescription(elem.containingClass)(commentParsed)
-        } else {
-          commentParsed
-        }
+        parseDocComment(docOwner, docComment, isInherited = false)
       case None =>
-        elem match {
-          case method: PsiMethod =>
-            parseDocCommentForBaseMethod(method).getOrElse(EmptyDoc)
+        superElementWithDocComment(docOwner)  match {
+          case Some((base, baseComment)) =>
+            parseDocComment(base, baseComment, isInherited = true)
           case _ =>
             EmptyDoc
         }
@@ -347,30 +335,36 @@ object ScalaDocGenerator {
     docHtml
   }
 
-  // TODO: should we show inherited doc by default?
-  //  what about @inheritdoc scaladoc tag then?
-  private def parseDocCommentForBaseMethod(method: PsiMethod): Option[String] = {
-    def selectActualMethod(base: PsiMethod): PsiMethod =
-      base.getNavigationElement match {
-        case m: PsiMethod => m
-        case _            => base
-      }
-
-    val baseMethod = method match {
-      case scalaMethod: ScFunction => scalaMethod.superMethod
-      case javaMethod              => Option(SuperMethodsSearch.search(javaMethod, null, true, false).findFirst).map(_.getMethod)
+  private def parseDocComment(
+    docOwner: PsiDocCommentOwner,
+    docComment: PsiDocComment,
+    isInherited: Boolean
+  ): String = {
+    val commentParsed = docComment match {
+      case scalaDoc: ScDocComment => parseScalaDocComment(docOwner, scalaDoc)
+      case _                      => generateJavadocContent(docOwner)
     }
-    baseMethod
-      .map(selectActualMethod)
-      .map(parseDocComment(_, isInherited = true))
+    if (isInherited)
+      wrapWithInheritedDescription(docOwner.containingClass)(commentParsed)
+    else
+      commentParsed
   }
 
-  private def parseScalaDocComment(
-    elem: PsiDocCommentOwner,
+  private def superElementWithDocComment(docOwner: PsiDocCommentOwner) =
+    docOwner match {
+      case method: PsiMethod => superMethodWithDocComment(method)
+      case _                 => None
+    }
+
+  private def superMethodWithDocComment(method: PsiMethod): Option[(PsiMethod, PsiDocComment)] =
+    method.superMethods.map(base => (base, base.getDocComment)).find(_._2 != null)
+
+  def parseScalaDocComment(
+    docCommentOwner: PsiDocCommentOwner,
     docComment: ScDocComment
   ): String = {
     val withReplacedWikiTags = ScaladocWikiProcessor.replaceWikiWithTags(docComment)
-    val javaElement = createFakeJavaElement(elem, withReplacedWikiTags)
+    val javaElement = createFakeJavaElement(docCommentOwner, withReplacedWikiTags)
     generateJavadocContent(javaElement)
   }
 
@@ -431,14 +425,19 @@ object ScalaDocGenerator {
 
   private def generateJavadocContent(element: PsiElement): String = {
     val javadoc = generateJavadoc(element)
-    // TODO: this is far fro perfect to rely on text... =(
-    //  dive deep into Javadoc generation and implement in a more safe and structural way
+    val javadocContent = extractJavadocContent(javadoc)
+    javadocContent
+  }
+
+  // TODO: this is far from perfect to rely on text... =(
+  //  dive deep into Javadoc generation and implement in a more safe and structural way
+  private def extractJavadocContent(javadoc: String): String = {
     val contentStartIdx = javadoc.indexOf(DocumentationMarkup.CONTENT_START) match {
       case -1 => javadoc.indexOf(DocumentationMarkup.SECTIONS_START)
       case idx => idx
     }
-    val javadocFixed = if (contentStartIdx > 0) javadoc.substring(contentStartIdx) else javadoc
-    javadocFixed
+    if (contentStartIdx > 0) javadoc.substring(contentStartIdx)
+    else javadoc
   }
 
   private def wrapWithInheritedDescription(clazz: PsiClass)(text: String): String = {
