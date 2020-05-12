@@ -1,44 +1,50 @@
 package org.jetbrains.plugins.scala
 package util
 
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions._
 
-import scala.annotation.tailrec
-
 final class UnloadableThreadLocal[T >: Null](init: => T) {
-  val references = new ConcurrentLinkedQueue[AtomicReference[T]]
+  private val unloaded = new AtomicBoolean(false)
+  private val references = ContainerUtil.createConcurrentList[AtomicReference[T]]
+
   private val inner = new ThreadLocal[AtomicReference[T]] {
     override def initialValue(): AtomicReference[T] = {
-      val ref = new AtomicReference(init)
+      val initial = init
+      assert(initial != null)
+      val ref = new AtomicReference(initial)
       references.add(ref)
+      if (unloaded.get()) {
+        // plugin is in unloading process?
+        ref.set(null)
+        throw new AssertionError("Threadlocal should not be used when unloding is in progress")
+      }
       ref
     }
   }
 
-  @tailrec
-  def value: T = {
-    val ref = inner.get()
-    ref.get match {
-      case null =>
-        val value = init
-        if (ref.compareAndSet(null, value)) {
-          // we set the new value so return it
-          value
-        } else {
-          // someone else got in between getting null
-          // and trying to set the value created by us, so fetch the other value
-          this.value
-        }
-      case value => value
+  invokeOnScalaPluginUnload {
+    val alreadyUnloaded = unloaded.getAndSet(true)
+    if (alreadyUnloaded) {
+      throw new AssertionError("Thread local should not be cleared twice")
     }
+    references.forEach(ref => {
+      ref.set(null)
+    })
+  }
+
+  def value: T = {
+    val value = inner.get.get
+    assert(value != null, "Thread local is already unloaded and cannot be used anymore!")
+    value
   }
 
   def value_=(newValue: T): Unit = {
-    assert(newValue != null)
-    inner.get().set(newValue)
+    require(newValue != null, "Cannot set null to thread local")
+    val old = inner.get.getAndSet(newValue)
+    assert(old != null, "Thread local is already unloaded and cannot be set anymore!")
   }
 
   def withValue[R](newValue: T)(body: => R): R = {
@@ -48,17 +54,8 @@ final class UnloadableThreadLocal[T >: Null](init: => T) {
     value = save
     result
   }
-
-  def clearAll(): Unit = {
-    Iterator.continually(references.poll())
-      .takeWhile(_ != null)
-      .foreach(_.set(null))
-  }
-
-  invokeOnAnyPluginUnload {
-    clearAll()
-  }
 }
+
 object UnloadableThreadLocal {
   def apply[T >: Null](init: => T): UnloadableThreadLocal[T] = new UnloadableThreadLocal(init)
 }
