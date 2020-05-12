@@ -31,13 +31,14 @@ object ScalaDocQuickInfoGenerator {
   }
 
   def getQuickNavigateInfo(element: PsiElement, substitutor: ScSubstitutor): String = {
+    implicit val s: ScSubstitutor = substitutor
     val text = element match {
-      case clazz: ScTypeDefinition                         => generateClassInfo(clazz, substitutor)
-      case function: ScFunction                            => generateFunctionInfo(function, substitutor)
-      case value@inNameContext(_: ScValue | _: ScVariable) => generateValueInfo(value, substitutor)
-      case alias: ScTypeAlias                              => generateTypeAliasInfo(alias, substitutor)
-      case parameter: ScParameter                          => generateParameterInfo(parameter, substitutor)
-      case b: ScBindingPattern                             => generateBindingPatternInfo(b, substitutor)
+      case clazz: ScTypeDefinition                         => generateClassInfo(clazz)
+      case function: ScFunction                            => generateFunctionInfo(function)
+      case value@inNameContext(_: ScValue | _: ScVariable) => generateValueInfo(value)
+      case alias: ScTypeAlias                              => generateTypeAliasInfo(alias)
+      case parameter: ScParameter                          => generateParameterInfo(parameter)
+      case b: ScBindingPattern                             => generateBindingPatternInfo(b)
       case _                                               => null
     }
 
@@ -50,7 +51,8 @@ object ScalaDocQuickInfoGenerator {
       case None => ""
     })
 
-  private def generateClassInfo(clazz: ScTypeDefinition, subst: ScSubstitutor): String = {
+  private def generateClassInfo(clazz: ScTypeDefinition)
+                               (implicit subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
     val module = ModuleUtilCore.findModuleForPsiElement(clazz)
     if (module != null) {
@@ -85,7 +87,9 @@ object ScalaDocQuickInfoGenerator {
     buffer.toString()
   }
 
-  private def generateFunctionInfo(function: ScFunction, subst: ScSubstitutor): String = {
+
+  private def generateFunctionInfo(function: ScFunction)
+                                  (implicit subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(function))
     val list = function.getModifierList
@@ -103,7 +107,8 @@ object ScalaDocQuickInfoGenerator {
     member.containingClass.name + " " + member.containingClass.getPresentation.getLocationString + "\n"
   }
 
-  private def generateValueInfo(field: PsiNamedElement, subst: ScSubstitutor): String = {
+  private def generateValueInfo(field: PsiNamedElement)
+                               (implicit subst: ScSubstitutor): String = {
     val member = ScalaPsiUtil.nameContext(field) match {
       case x: ScMember => x
       case _ => return null
@@ -152,7 +157,8 @@ object ScalaDocQuickInfoGenerator {
     if (i == -1) trimed else trimed.substring(0, i) + " ..."
   }
 
-  private def generateBindingPatternInfo(binding: ScBindingPattern, subst: ScSubstitutor): String = {
+  private def generateBindingPatternInfo(binding: ScBindingPattern)
+                                        (implicit subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
     buffer.append("Pattern: ")
     buffer.append(binding.name)
@@ -162,8 +168,8 @@ object ScalaDocQuickInfoGenerator {
     buffer.toString()
   }
 
-  private def generateTypeAliasInfo(alias: ScTypeAlias, subst: ScSubstitutor): String = {
-
+  private def generateTypeAliasInfo(alias: ScTypeAlias)
+                                   (implicit subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(alias))
     buffer.append("type ")
@@ -179,14 +185,15 @@ object ScalaDocQuickInfoGenerator {
     buffer.toString()
   }
 
-  private def generateParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String =
-    ScalaPsiUtil.withOriginalContextBound(parameter)(simpleParameterInfo(parameter, subst)) {
+  private def generateParameterInfo(parameter: ScParameter)(implicit subst: ScSubstitutor): String =
+    ScalaPsiUtil.withOriginalContextBound(parameter)(simpleParameterInfo(parameter)) {
       case (typeParam, ElementText(boundText), _) =>
         val clause = typeParam.typeParametersClause.fold("")(_.getText)
         s"context bound ${typeParam.name}$clause : $boundText"
     }
 
-  private def simpleParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
+  private def simpleParameterInfo(parameter: ScParameter)
+                                 (implicit subst: ScSubstitutor): String = {
     val name = parameter.name
     val typeAnnot = ScalaDocumentationProvider.typeAnnotation(parameter)(subst.andThen(_.presentableText(parameter)))
 
