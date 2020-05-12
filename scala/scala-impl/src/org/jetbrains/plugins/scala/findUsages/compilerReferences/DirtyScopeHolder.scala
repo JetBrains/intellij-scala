@@ -8,8 +8,8 @@ import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.util.{ModificationTracker, UserDataHolderBase}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{ModificationTracker, UserDataHolderBase}
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events._
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
@@ -20,6 +20,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import scala.collection.JavaConverters._
 
@@ -114,7 +115,7 @@ abstract class DirtyScopeHolder[Scope](
   }
 
   private[compilerReferences] def installVFSListener(): Unit =
-    project.getMessageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, this)
+    project.getMessageBus.connect(UnloadAwareDisposable(project)).subscribe(VirtualFileManager.VFS_CHANGES, this)
 
   def dirtyScope: GlobalSearchScope = inReadAction {
     lock.locked {

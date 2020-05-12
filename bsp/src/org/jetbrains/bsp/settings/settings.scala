@@ -14,6 +14,7 @@ import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.annotations.XCollection
 import javax.swing.JCheckBox
 import org.jetbrains.bsp.{BspBundle, _}
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import scala.beans.BeanProperty
 
@@ -106,7 +107,7 @@ class BspSettings(project: Project)
 
   override def subscribe(listener: ExternalSystemSettingsListener[BspProjectSettings]): Unit = {
     val adapter = new BspProjectSettingsListenerAdapter(listener)
-    getProject.getMessageBus.connect(getProject).subscribe(BspTopic, adapter)
+    getProject.getMessageBus.connect(UnloadAwareDisposable(getProject)).subscribe(BspTopic, adapter)
   }
 
   override def copyExtraSettingsFrom(settings: BspSettings): Unit = {}

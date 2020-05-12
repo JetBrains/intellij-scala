@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.compilerReferences.{Builder, Messages}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 private[compilerReferences] class JpsCompilationWatcher(
   override val project:          Project,
@@ -54,7 +55,7 @@ private[compilerReferences] class JpsCompilationWatcher(
     }
 
   override def start(): Unit = {
-    val connection = project.getMessageBus.connect(project)
+    val connection = project.getMessageBus.connect(UnloadAwareDisposable(project))
 
     connection.subscribe(
       CustomBuilderMessageHandler.TOPIC,

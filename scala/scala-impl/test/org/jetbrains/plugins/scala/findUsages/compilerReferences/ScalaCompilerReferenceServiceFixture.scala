@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.junit.Assert.{assertNotSame, fail}
 import org.junit.experimental.categories.Category
 
@@ -78,7 +79,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
 
   protected def buildProject(): Unit = {
     getProject.getMessageBus
-      .connect(getProject)
+      .connect(UnloadAwareDisposable(getProject))
       .subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
         override def onIndexingPhaseFinished(success: Boolean): Unit = compilerIndexLock.locked {
           indexReadyPredicate = true

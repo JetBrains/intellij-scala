@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import scala.collection.JavaConverters._
 
@@ -112,8 +113,8 @@ class MouseHandler extends ProjectManagerListener {
 
   override def projectOpened(project: Project): Unit = {
     val multicaster = EditorFactory.getInstance().getEventMulticaster
-    multicaster.addEditorMouseListener(mousePressListener, project)
-    multicaster.addEditorMouseMotionListener(mouseMovedListener, project)
+    multicaster.addEditorMouseListener(mousePressListener, UnloadAwareDisposable(project))
+    multicaster.addEditorMouseMotionListener(mouseMovedListener, UnloadAwareDisposable(project))
   }
 
   override def projectClosed(project: Project): Unit = {

@@ -3,7 +3,6 @@ package org.jetbrains.bsp
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -14,6 +13,7 @@ import com.intellij.task.ProjectTaskManager
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 /**
   * Builds bsp modules on file save. We should change this to support the bsp file change notifications.
@@ -28,7 +28,7 @@ final class BspBuildLoopService(project: Project) {
         .getLinkedProjectSettings(project.getBasePath)
     )
 
-  private val busConnection: MessageBusConnection = project.getMessageBus.connect(project)
+  private val busConnection: MessageBusConnection = project.getMessageBus.connect(UnloadAwareDisposable(project))
   private val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
   private val taskManager = ProjectTaskManager.getInstance(project)
 
