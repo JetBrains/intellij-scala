@@ -46,19 +46,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
   override def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = null
 
-  override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
-    val substitutor = originalElement match {
-      case ref: ScReference =>
-        ref.bind() match {
-          case Some(ScalaResolveResult(_, subst)) => subst
-          case _ => ScSubstitutor.empty
-        }
-      case _ => ScSubstitutor.empty
-    }
-
-    ScalaDocQuickInfoGenerator.getQuickNavigateInfo(element, substitutor)
-  }
-
+  override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String =
+    ScalaDocQuickInfoGenerator.getQuickNavigateInfo(element, originalElement)
 
   override def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement =
     JavaDocUtil.findReferenceTarget(psiManager, link, context)

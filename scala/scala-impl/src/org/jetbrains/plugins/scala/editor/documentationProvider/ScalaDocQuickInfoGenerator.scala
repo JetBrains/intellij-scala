@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt, PsiNamedE
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -18,8 +18,17 @@ import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
 object ScalaDocQuickInfoGenerator {
 
-  def getQuickNavigateInfo(resolveResult: ScalaResolveResult): String =
-    getQuickNavigateInfo(resolveResult.element, resolveResult.substitutor)
+  def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
+    val substitutor = originalElement match {
+      case ref: ScReference =>
+        ref.bind() match {
+          case Some(ScalaResolveResult(_, subst)) => subst
+          case _ => ScSubstitutor.empty
+        }
+      case _ => ScSubstitutor.empty
+    }
+    getQuickNavigateInfo(element, substitutor)
+  }
 
   def getQuickNavigateInfo(element: PsiElement, substitutor: ScSubstitutor): String = {
     val text = element match {
