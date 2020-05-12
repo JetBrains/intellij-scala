@@ -2,21 +2,16 @@ package org.jetbrains.plugins.scala
 package caches
 
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicReference
-
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
-import com.intellij.util.containers.ContainerUtil
-import com.intellij.util.containers.Stack
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
-import org.jetbrains.plugins.scala.caches.stats.CacheCapabilities
-import org.jetbrains.plugins.scala.caches.stats.CacheTracker
+import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
