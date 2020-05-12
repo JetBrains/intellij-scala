@@ -13,19 +13,12 @@ package editor.documentationProvider
  import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
  import org.jetbrains.plugins.scala.extensions._
  import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
- import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
- import org.jetbrains.plugins.scala.lang.psi.api.base._
  import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
  import org.jetbrains.plugins.scala.lang.psi.api.statements._
  import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
- import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
  import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
  import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
  import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
- import org.jetbrains.plugins.scala.lang.psi.types._
- import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
- import org.jetbrains.plugins.scala.lang.psi.types.result._
- import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
  import scala.annotation.tailrec
@@ -147,49 +140,6 @@ object ScalaDocumentationProvider {
     ",," -> "sub>",
     "^" -> "sup>"
   )
-
-  private[documentationProvider]
-  def typeAnnotation(elem: ScTypedDefinition)
-                    (implicit typeToString: ScType => String): String = {
-    val buffer: StringBuilder = new StringBuilder(": ")
-    val typez = elem match {
-      case fun: ScFunction => fun.returnType.getOrAny
-      case _ => elem.`type`().getOrAny
-    }
-    val typeText = elem match {
-      case param: ScParameter => decoratedParameterType(param, typeToString(typez))
-      case _                  => typeToString(typez)
-    }
-    buffer.append(typeText)
-    buffer.toString()
-  }
-
-  private def decoratedParameterType(param: ScParameter, typeText: String): String = {
-    val buffer = StringBuilder.newBuilder
-
-    if (param.isCallByNameParameter) {
-      val arrow = ScalaPsiUtil.functionArrow(param.getProject)
-      buffer.append(s"$arrow ")
-    }
-
-    buffer.append(typeText)
-
-    if (param.isRepeatedParameter) buffer.append("*")
-
-    if (param.isDefaultParam) {
-      buffer.append(" = ")
-      param.getDefaultExpressionInSource match {
-        case Some(expr) =>
-          val text: String = expr.getText.replace(" /* compiled code */ ", "")
-          val cutTo = 20
-          buffer.append(text.substring(0, text.length.min(cutTo)))
-          if (text.length > cutTo) buffer.append("...")
-        case None => buffer.append("...")
-      }
-    }
-    buffer.toString()
-  }
-
 
   @tailrec
   private def getElementWithDoc(originalElement: PsiElement): PsiElement =

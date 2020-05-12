@@ -195,9 +195,9 @@ object ScalaDocQuickInfoGenerator {
   private def simpleParameterInfo(parameter: ScParameter)
                                  (implicit subst: ScSubstitutor): String = {
     val name = parameter.name
-    val typeAnnot = ScalaDocumentationProvider.typeAnnotation(parameter)(subst.andThen(_.presentableText(parameter)))
+    val typeAnnotation = ScalaDocumentationUtils.typeAnnotationText(parameter)(subst.andThen(_.presentableText(parameter)))
 
-    val defaultText = s"$name$typeAnnot"
+    val defaultText = s"$name$typeAnnotation"
 
     val prefix = parameter match {
       case clParameter: ScClassParameter =>

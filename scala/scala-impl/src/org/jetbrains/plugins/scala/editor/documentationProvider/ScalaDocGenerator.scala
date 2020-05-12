@@ -7,13 +7,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.javadoc.PsiDocComment
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
-import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
+import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScNamingPattern, ScReferencePattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationsHolder, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
@@ -86,7 +85,7 @@ object ScalaDocGenerator {
         }
 
         append(element match {
-          case typed: ScTypedDefinition => typeAnnotation(typed)
+          case typed: ScTypedDefinition => ScalaDocumentationUtils.typeAnnotationText(typed)
           case _ if needsTpe            => ": Nothing"
           case _                        => ""
         })
@@ -148,7 +147,7 @@ object ScalaDocGenerator {
         b {
           append(escapeHtml(pattern.name))
         }
-        append(typeAnnotation(pattern))
+        append(ScalaDocumentationUtils.typeAnnotationText(pattern))
         val context = pattern.getContext
         if (context != null) {
           context.getContext match {
@@ -227,7 +226,7 @@ object ScalaDocGenerator {
     }
     buffer.append(if (escape) escapeHtml(param.name) else param.name)
 
-    buffer.append(typeAnnotation(param))
+    buffer.append(ScalaDocumentationUtils.typeAnnotationText(param))
 
     buffer.toString()
   }
