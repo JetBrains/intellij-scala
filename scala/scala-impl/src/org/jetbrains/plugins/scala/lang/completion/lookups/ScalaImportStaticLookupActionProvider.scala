@@ -13,24 +13,28 @@ import com.intellij.util.{Consumer, PlatformIcons}
  */
 final class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
 
-  override def fillActions(element: LookupElement, lookup: Lookup, consumer: Consumer[LookupElementAction]): Unit = {
-    element match {
-      case elem: ScalaLookupItem if elem.element.isInstanceOf[PsiClass] =>
-      case elem: ScalaLookupItem =>
-        if (!elem.isClassName) return
-        if (elem.usedImportStaticQuickfix) return
+  override def fillActions(element: LookupElement,
+                           lookup: Lookup,
+                           consumer: Consumer[LookupElementAction]): Unit = element match {
+    case element: ScalaLookupItem if element.isClassName &&
+      !element.usedImportStaticQuickfix &&
+      !element.element.isInstanceOf[PsiClass] =>
 
-        val checkIcon = PlatformIcons.CHECK_ICON
-        val icon =
-          if (!elem.shouldImport) checkIcon
-          else EmptyIcon.create(checkIcon.getIconWidth, checkIcon.getIconHeight)
-        consumer.consume(new LookupElementAction(icon, ScalaBundle.message("action.import.method")) {
-          override def performLookupAction: LookupElementAction.Result = {
-            elem.usedImportStaticQuickfix = true
-            new LookupElementAction.Result.ChooseItem(elem)
-          }
-        })
-      case _ =>
-    }
+      import PlatformIcons.{CHECK_ICON => checkIcon}
+      val icon = if (element.shouldImport)
+        EmptyIcon.create(checkIcon.getIconWidth, checkIcon.getIconHeight)
+      else
+        checkIcon
+
+      consumer.consume(new LookupElementAction(icon, ScalaBundle.message("action.import.method")) {
+
+        import LookupElementAction.Result.ChooseItem
+
+        override def performLookupAction: ChooseItem = {
+          element.usedImportStaticQuickfix = true
+          new ChooseItem(element)
+        }
+      })
+    case _ =>
   }
 }
