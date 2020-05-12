@@ -37,6 +37,7 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
 import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -1031,6 +1032,11 @@ package object extensions {
 
   implicit class PipedObject[T](private val value: T) extends AnyVal {
     def |>[R](f: T => R): R = f(value)
+  }
+
+  implicit class AnyRefExt[T <: AnyRef](private val anyRef: T) extends AnyVal {
+    def delegateUserDataHolder: UserDataHolderEx =
+      UserDataHolderDelegator.userDataHolderFor(anyRef)
   }
 
   implicit class IteratorExt[A](private val delegate: Iterator[A]) extends AnyVal {
