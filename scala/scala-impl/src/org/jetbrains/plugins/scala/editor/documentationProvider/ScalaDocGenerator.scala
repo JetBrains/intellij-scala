@@ -341,8 +341,8 @@ object ScalaDocGenerator {
     isInherited: Boolean
   ): String = {
     val commentParsed = docComment match {
-      case scalaDoc: ScDocComment => parseScalaDocComment(docOwner, scalaDoc)
-      case _                      => generateJavadocContent(docOwner)
+      case scalaDoc: ScDocComment => generateScalaDocInfoContent(docOwner, scalaDoc)
+      case _                      => generateJavaDocInfoContent(docOwner)
     }
     if (isInherited)
       wrapWithInheritedDescription(docOwner.containingClass)(commentParsed)
@@ -359,13 +359,25 @@ object ScalaDocGenerator {
   private def superMethodWithDocComment(method: PsiMethod): Option[(PsiMethod, PsiDocComment)] =
     method.superMethods.map(base => (base, base.getDocComment)).find(_._2 != null)
 
-  def parseScalaDocComment(
+  def generateScalaDocInfoContent(
     docCommentOwner: PsiDocCommentOwner,
     docComment: ScDocComment
   ): String = {
+    val javaElement = prepareFakeJavaElementWithComment(docCommentOwner, docComment)
+    generateJavaDocInfoContent(javaElement)
+  }
+
+  def generateRenderedScalaDocContent(
+    docCommentOwner: PsiDocCommentOwner,
+    docComment: ScDocComment
+  ): String = {
+    val javaElement = prepareFakeJavaElementWithComment(docCommentOwner, docComment)
+    generateRenderedJavaDocInfo(javaElement)
+  }
+
+  private def prepareFakeJavaElementWithComment(docCommentOwner: PsiDocCommentOwner, docComment: ScDocComment) = {
     val withReplacedWikiTags = ScaladocWikiProcessor.replaceWikiWithTags(docComment)
-    val javaElement = createFakeJavaElement(docCommentOwner, withReplacedWikiTags)
-    generateJavadocContent(javaElement)
+    createFakeJavaElement(docCommentOwner, withReplacedWikiTags)
   }
 
   private def createFakeJavaElement(elem: PsiDocCommentOwner, docText: String) = {
@@ -416,22 +428,27 @@ object ScalaDocGenerator {
   private def createDummyJavaFile(text: String, project: Project): PsiJavaFile =
     PsiFileFactory.getInstance(project).createFileFromText("dummy", StdFileTypes.JAVA, text).asInstanceOf[PsiJavaFile]
 
-  private def generateJavadoc(element: PsiElement): String = {
+  private def generateJavaDocInfoContent(element: PsiElement): String = {
+    val javadoc = generateJavaDocInfo(element)
+    val javadocContent = extractJavaDocContent(javadoc)
+    javadocContent
+  }
+
+  private def generateJavaDocInfo(element: PsiElement): String = {
     val builder = new java.lang.StringBuilder()
     val generator = new JavaDocInfoGenerator(element.getProject, element)
     generator.generateDocInfoCore(builder, false)
     builder.toString
   }
 
-  private def generateJavadocContent(element: PsiElement): String = {
-    val javadoc = generateJavadoc(element)
-    val javadocContent = extractJavadocContent(javadoc)
-    javadocContent
+  private def generateRenderedJavaDocInfo(element: PsiElement): String = {
+    val generator = new JavaDocInfoGenerator(element.getProject, element)
+    generator.generateRenderedDocInfo
   }
 
   // TODO: this is far from perfect to rely on text... =(
   //  dive deep into Javadoc generation and implement in a more safe and structural way
-  private def extractJavadocContent(javadoc: String): String = {
+  private def extractJavaDocContent(javadoc: String): String = {
     val contentStartIdx = javadoc.indexOf(DocumentationMarkup.CONTENT_START) match {
       case -1 => javadoc.indexOf(DocumentationMarkup.SECTIONS_START)
       case idx => idx

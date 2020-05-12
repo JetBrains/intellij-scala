@@ -1,32 +1,34 @@
 package org.jetbrains.plugins.scala
 package editor.documentationProvider
 
-import com.intellij.codeInsight.javadoc.JavaDocUtil
-import com.intellij.lang.documentation.CodeDocumentationProvider
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.Pair
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+ import java.util.function.Consumer
 
-import scala.annotation.tailrec
+ import com.intellij.codeInsight.javadoc.JavaDocUtil
+ import com.intellij.lang.documentation.CodeDocumentationProvider
+ import com.intellij.openapi.diagnostic.Logger
+ import com.intellij.openapi.util.Pair
+ import com.intellij.psi._
+ import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
+ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
+ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
+ import org.jetbrains.plugins.scala.extensions._
+ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+ import org.jetbrains.plugins.scala.lang.psi.api.base._
+ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+ import org.jetbrains.plugins.scala.lang.psi.api.statements._
+ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+ import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
+ import org.jetbrains.plugins.scala.lang.psi.types._
+ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+ import org.jetbrains.plugins.scala.lang.psi.types.result._
+ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+
+ import scala.annotation.tailrec
 
 class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
@@ -104,6 +106,31 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
     val docOwner = Option(startPoint).flatMap(findDocCommentOwner)
     docOwner.map(d => Pair.create(d, d.getDocComment).asInstanceOf[Pair[PsiElement, PsiComment]]).orNull
+  }
+
+  override final def generateRenderedDoc(comment: PsiDocCommentBase): String =
+    comment match {
+      case scalaComment: ScDocComment  =>
+        ScalaDocGenerator.generateRenderedScalaDocContent(scalaComment.getOwner, scalaComment)
+      case _ =>
+        super.generateRenderedDoc(comment)
+    }
+
+  override final def collectDocComments(file: PsiFile, sink: Consumer[PsiDocCommentBase]): Unit = {
+    val scalaFile: ScalaFile = file match {
+      case sf: ScalaFile => sf
+      case _             => return
+    }
+    scalaFile
+      .breadthFirst {
+        case _: PsiComment => false // early break, do not go inside comments itself
+        case _             => true
+      }
+      .foreach {
+        case docOwner: ScDocCommentOwner =>
+          docOwner.docComment.foreach(sink.accept)
+        case _ =>
+      }
   }
 }
 
