@@ -22,7 +22,8 @@ trait TypePresentation {
   protected def typeText(
     `type`: ScType,
     nameRenderer: NameRenderer,
-    textEscaper: TextEscaper
+    textEscaper: TextEscaper,
+    options: PresentationOptions
   )(implicit context: TypePresentationContext): String
 
   final def presentableText(`type`: ScType, withPrefix: Boolean = true)
@@ -39,12 +40,13 @@ trait TypePresentation {
         case e                              => e.name + "."
       }
     }
-    typeText(`type`, renderer, TextEscaper.Noop)
+    typeText(`type`, renderer, TextEscaper.Noop, PresentationOptions.Default)
   }
 
+  // For now only used in `documentationProvider` package
   final def urlText(`type`: ScType): String = {
-    import StringEscapeUtils.escapeHtml
     import HtmlUtils._
+    import StringEscapeUtils.escapeHtml
 
     val renderer: NameRenderer = new NameRenderer {
       override def escapeName(e: String): String = escapeHtml(e)
@@ -59,7 +61,8 @@ trait TypePresentation {
           case _                                           => escapeHtml(e.name) + pointStr(withPoint)
         }
     }
-    typeText(`type`, renderer, TextEscaper.Html)(TypePresentationContext.emptyContext)
+    val options = PresentationOptions(expandTypeParameterBounds = true)
+    typeText(`type`, renderer, TextEscaper.Html, options)(TypePresentationContext.emptyContext)
   }
 
   final def canonicalText(`type`: ScType): String = {
@@ -88,7 +91,7 @@ trait TypePresentation {
         removeKeywords(str) + pointStr(withPoint)
       }
     }
-    typeText(`type`, renderer, TextEscaper.Noop)(TypePresentationContext.emptyContext)
+    typeText(`type`, renderer, TextEscaper.Noop, PresentationOptions.Default)(TypePresentationContext.emptyContext)
   }
 }
 
@@ -128,6 +131,11 @@ object TypePresentation {
     final object Html extends TextEscaper {
       override def escape(text: String): String = StringEscapeUtils.escapeHtml(text)
     }
+  }
+
+  case class PresentationOptions(expandTypeParameterBounds: Boolean)
+  object PresentationOptions {
+    val Default: PresentationOptions = PresentationOptions(false)
   }
 }
 
@@ -172,18 +180,17 @@ class TypeBoundsRenderer(textEscaper: TextEscaper) {
 
   def upperBoundText(typ: ScType)
                     (toString: ScType => String): String =
-    boundText(typ, tUPPER_BOUND)(toString, _.isAny)
+    if (typ.isAny) ""
+    else boundText(typ, tUPPER_BOUND)(toString)
 
   def lowerBoundText(typ: ScType)
                     (toString: ScType => String): String =
-    boundText(typ, tLOWER_BOUND)(toString, _.isNothing)
+    if (typ.isNothing) ""
+    else boundText(typ, tLOWER_BOUND)(toString)
 
-  private def boundText(typ: ScType, bound: IElementType)
-                       (toString: ScType => String,
-                        ignore: ScType => Boolean): String =
-    if (ignore(typ)) ""
-    else {
-      val boundEscaped = textEscaper.escape(bound.toString)
-      " " + boundEscaped + " " + toString(typ)
-    }
+  def boundText(typ: ScType, bound: IElementType)
+               (toString: ScType => String): String = {
+    val boundEscaped = textEscaper.escape(bound.toString)
+    " " + boundEscaped + " " + toString(typ)
+  }
 }

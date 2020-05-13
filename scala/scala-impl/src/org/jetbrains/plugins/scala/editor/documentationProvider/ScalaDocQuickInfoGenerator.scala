@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -17,6 +19,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
+// TODO: analyze whether rendered info is cached?
+// TODO:  (!) quick info on the element itself should lead to "Show find usages" tooltip, no to quick info tooltip
+// TODO: some methods use functional style, returning string, some use imperative, passing builders
+//  unify those methods to use one style (probably using builder to improve performance (quick info is called frequently on mouse hover))
 object ScalaDocQuickInfoGenerator {
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
@@ -42,23 +48,16 @@ object ScalaDocQuickInfoGenerator {
       case b: ScBindingPattern                             => generateBindingPatternInfo(b)
       case _                                               => null
     }
-
-    if (text != null) text.replace("<", "&lt;") else null
+    text
   }
-
-  private def appendTypeParams(owner: ScTypeParametersOwner, buffer: StringBuilder): Unit =
-    buffer.append(owner.typeParametersClause match {
-      case Some(x) => x.getText
-      case None => ""
-    })
 
   private def generateClassInfo(clazz: ScTypeDefinition)
                                (implicit subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
     val module = ModuleUtilCore.findModuleForPsiElement(clazz)
-    if (module != null) {
+    if (module != null)
       buffer.append('[').append(module.getName).append("] ")
-    }
+
     val locationString = clazz.getPresentation.getLocationString
     val length = locationString.length
     if (length > 1)
@@ -68,7 +67,8 @@ object ScalaDocQuickInfoGenerator {
     renderModifiersPresentableText(buffer, clazz.getModifierList)
     buffer.append(ScalaDocumentationUtils.getKeyword(clazz))
     buffer.append(clazz.name)
-    appendTypeParams(clazz, buffer)
+    renderTypeParams(buffer, clazz)
+
     renderConstructorText(buffer, clazz)
     renderSuperTypes(buffer, clazz)
     buffer.toString()
@@ -111,6 +111,55 @@ object ScalaDocQuickInfoGenerator {
   private def renderType(typ: ScType, context: TypePresentationContext)
                         (implicit subst: ScSubstitutor): String =
     subst(typ).presentableText(context)
+
+  private def renderTypeWithUrl(typ: ScType)
+                               (implicit subst: ScSubstitutor): String =
+    subst(typ).urlText
+
+  private def renderTypeParams(buffer: StringBuilder, paramsOwner: ScTypeParametersOwner)
+                              (implicit subst: ScSubstitutor): Unit = {
+    val parameters = paramsOwner.typeParameters
+    if (parameters.nonEmpty) {
+      buffer.append("[")
+      var isFirst = true
+      parameters.foreach { p =>
+        if (isFirst)
+          isFirst = false
+        else
+          buffer.append(", ")
+        val paramRendered = renderTypeParam(p)
+        buffer.append(paramRendered)
+      }
+      buffer.append("]")
+    }
+  }
+
+  private def renderTypeParam(buffer: StringBuilder, param: ScTypeParam)
+                             (implicit subst: ScSubstitutor): Unit = {
+    buffer.append(param.name)
+    renderTypeParamBounds(buffer, param)
+  }
+
+  private def renderTypeParamBounds(buffer: StringBuilder, param: ScTypeParam)
+                                   (implicit subst: ScSubstitutor): Unit = {
+    def append(boundElement: ScTypeElement, boundType: IElementType): Unit = {
+      if (buffer.nonEmpty) buffer.append(" ")
+      val boundTypeEscaped = boundType.toString.replace("<", "&lt;")
+      val boundElementRendered = renderTypeElement(boundElement)
+      buffer.append(boundTypeEscaped).append(" ").append(boundElementRendered)
+    }
+    val bounds = param.bounds
+    bounds.foreach { case (bound, boundType) => append(bound, boundType) }
+  }
+
+  private def renderTypeElement(boundElement: ScTypeElement)
+                               (implicit subst: ScSubstitutor): String =
+    boundElement.`type`() match {
+      case Right(typ) =>
+        renderTypeWithUrl(typ)
+      case Left(_)  =>
+        boundElement.getText // TODO: is this case possible?
+    }
 
   private def generateFunctionInfo(function: ScFunction)
                                   (implicit subst: ScSubstitutor): String = {
@@ -197,7 +246,8 @@ object ScalaDocQuickInfoGenerator {
     buffer.append(getMemberHeader(alias))
     buffer.append("type ")
     buffer.append(alias.name)
-    appendTypeParams(alias, buffer)
+    renderTypeParams(buffer, alias)
+
     alias match {
       case d: ScTypeAliasDefinition =>
         buffer.append(" = ")
