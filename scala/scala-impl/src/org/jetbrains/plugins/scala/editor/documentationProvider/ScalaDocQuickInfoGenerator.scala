@@ -15,14 +15,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
-// TODO: analyze whether rendered info is cached?
-// TODO:  (!) quick info on the element itself should lead to "Show find usages" tooltip, no to quick info tooltip
-// TODO: some methods use functional style, returning string, some use imperative, passing builders
+// TODO 1: analyze whether rendered info is cached?
+// TODO 2:  (!) quick info on the element itself should lead to "Show find usages" tooltip, no to quick info tooltip
+//  (unify with Java behaviour)
+// TODO 3: some methods use functional style, returning string, some use imperative, passing builders
 //  unify those methods to use one style (probably using builder to improve performance (quick info is called frequently on mouse hover))
+// TODO 4: add minimum required module/location, if class/method is in same scope, do not render module/location at all
 object ScalaDocQuickInfoGenerator {
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
@@ -68,7 +70,7 @@ object ScalaDocQuickInfoGenerator {
     buffer.append(ScalaDocumentationUtils.getKeyword(clazz))
     clazz.`type`() match {
       case Right(typ) =>
-        buffer.append(renderTypeWithUrl(typ))
+        buffer.append(renderType(typ))
       case Left(_) =>
         // TODO: is this case possible? check when indicies are unavailable
         buffer.append(clazz.name)
@@ -94,12 +96,12 @@ object ScalaDocQuickInfoGenerator {
 
   private def renderSuperTypes(buffer: StringBuilder, clazz: ScTypeDefinition)
                               (implicit subst: ScSubstitutor): Unit = {
-    val printEachOnNewLine = true // TODO: temp variable, extract to settings?
+    val printEachOnNewLine = false // TODO: temp variable, extract to settings?
     val superTypes = clazz.superTypes
     superTypes match {
       case head :: tail =>
         buffer.append(" extends ")
-        buffer.append(renderType(head, clazz))
+        buffer.append(renderType(head))
 
         if (tail.nonEmpty && !printEachOnNewLine)
           buffer.append("\n")
@@ -108,18 +110,14 @@ object ScalaDocQuickInfoGenerator {
           if (printEachOnNewLine)
             buffer.append("\n")
           buffer.append(" with ")
-          buffer.append(renderType(superType, clazz))
+          buffer.append(renderType(superType))
         }
       case _ =>
     }
   }
 
-  private def renderType(typ: ScType, context: TypePresentationContext)
+  private def renderType(typ: ScType)
                         (implicit subst: ScSubstitutor): String =
-    subst(typ).presentableText(context)
-
-  private def renderTypeWithUrl(typ: ScType)
-                               (implicit subst: ScSubstitutor): String =
     subst(typ).urlText
 
   private def renderTypeParams(buffer: StringBuilder, paramsOwner: ScTypeParametersOwner)
@@ -162,7 +160,7 @@ object ScalaDocQuickInfoGenerator {
                                (implicit subst: ScSubstitutor): String =
     boundElement.`type`() match {
       case Right(typ) =>
-        renderTypeWithUrl(typ)
+        renderType(typ)
       case Left(_)  =>
         boundElement.getText // TODO: is this case possible?
     }
