@@ -6,39 +6,45 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 07.06.2008
-*/
-
 object StructureViewUtil {
-  def getParametersAsString(x: ScParameters, short: Boolean = true,
-                            subst: ScSubstitutor = ScSubstitutor.empty): String = {
-    val res: StringBuffer = new StringBuffer("")
-    for (child <- x.clauses) {
-      res.append("(")
-      res.append(getParametersAsString(child, short, subst))
-      res.append(")")
-    }
+
+  def getParametersAsString(x: ScParameters, short: Boolean = true, subst: ScSubstitutor = ScSubstitutor.empty): String = {
+    val res = new StringBuilder
+    renderParametersAsString(x, short, subst)(res)
     res.toString
   }
+
   def getParametersAsString(x: ScParameterClause, short: Boolean, subst: ScSubstitutor): String = {
-    val res = new StringBuffer("")
+    val res = new StringBuilder
+    renderParametersAsString(x, short, subst)(res)
+    res.toString
+  }
+
+  def renderParametersAsString(x: ScParameters, short: Boolean, subst: ScSubstitutor)(buffer: StringBuilder): Unit =
+    for (child <- x.clauses) {
+      buffer.append("(")
+      buffer.append(getParametersAsString(child, short, subst))
+      buffer.append(")")
+    }
+
+  def renderParametersAsString(x: ScParameterClause, short: Boolean, subst: ScSubstitutor)(buffer: StringBuilder): Unit = {
+    var isFirst = true
     for (param <- x.parameters) {
+      if (isFirst)
+        isFirst = false
+      else
+        buffer.append(", ")
       if (short) {
         param.paramType match {
-          case Some(pt) => res.append(pt.getText).append(", ")
-          case None => res.append("AnyRef").append(", ")
+          case Some(pt) => buffer.append(pt.getText).append(", ")
+          case None => buffer.append("AnyRef")
         }
-      } else {
-        res.append(param.name + ": ")
+      }
+      else {
+        buffer.append(param.name + ": ")
         val typez = subst(param.`type`().getOrNothing)
-        res.append(typez.presentableText(x) + (if (param.isRepeatedParameter) "*" else ""))
-        res.append(", ")
+        buffer.append(typez.presentableText(x) + (if (param.isRepeatedParameter) "*" else ""))
       }
     }
-    if (res.length >= 2)
-      res.delete(res.length - 2, res.length)
-    res.toString
   }
 }

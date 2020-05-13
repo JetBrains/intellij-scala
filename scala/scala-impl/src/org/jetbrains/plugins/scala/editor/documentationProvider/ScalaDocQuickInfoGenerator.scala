@@ -6,14 +6,14 @@ import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt, PsiNamedE
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentationUtils
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
@@ -67,15 +67,7 @@ object ScalaDocQuickInfoGenerator {
     buffer.append(ScalaDocumentationUtils.getKeyword(clazz))
     buffer.append(clazz.name)
     appendTypeParams(clazz, buffer)
-    clazz match {
-      case clazz: ScClass =>
-        clazz.constructor match {
-          case Some(x: ScPrimaryConstructor) =>
-            buffer.append(StructureViewUtil.getParametersAsString(x.parameterList, short = false, subst))
-          case None =>
-        }
-      case _ =>
-    }
+    renderConstructorText(buffer, clazz)
     buffer.append(" extends")
     val types = clazz.superTypes
     if (types.nonEmpty) {
@@ -88,6 +80,17 @@ object ScalaDocQuickInfoGenerator {
     buffer.toString()
   }
 
+  private def renderConstructorText(buffer: StringBuilder, clazz: ScTypeDefinition)
+                                   (implicit subst: ScSubstitutor): Unit =
+    clazz match {
+      case clazz: ScClass =>
+        clazz.constructor match {
+          case Some(primaryConstructor) =>
+            StructureViewUtil.renderParametersAsString(primaryConstructor.parameterList, short = false, subst)(buffer)
+          case _ =>
+        }
+      case _ =>
+    }
 
   private def generateFunctionInfo(function: ScFunction)
                                   (implicit subst: ScSubstitutor): String = {
