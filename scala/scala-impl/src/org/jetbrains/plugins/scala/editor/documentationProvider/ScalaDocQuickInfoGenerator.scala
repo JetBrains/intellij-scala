@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentationUtils
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
@@ -68,15 +68,7 @@ object ScalaDocQuickInfoGenerator {
     buffer.append(clazz.name)
     appendTypeParams(clazz, buffer)
     renderConstructorText(buffer, clazz)
-    buffer.append(" extends")
-    val types = clazz.superTypes
-    if (types.nonEmpty) {
-      for (i <- types.indices) {
-        buffer.append(if (i == 1) "\n  " else " ")
-        if (i != 0) buffer.append("with ")
-        buffer.append(subst(types(i)).presentableText(clazz))
-      }
-    }
+    renderSuperTypes(buffer, clazz)
     buffer.toString()
   }
 
@@ -91,6 +83,32 @@ object ScalaDocQuickInfoGenerator {
         }
       case _ =>
     }
+
+  private def renderSuperTypes(buffer: StringBuilder, clazz: ScTypeDefinition)
+                              (implicit subst: ScSubstitutor): Unit = {
+    val printEachOnNewLine = true // TODO: temp variable, extract to settings?
+    val superTypes = clazz.superTypes
+    superTypes match {
+      case head :: tail =>
+        buffer.append(" extends ")
+        buffer.append(renderType(head, clazz))
+
+        if (tail.nonEmpty && !printEachOnNewLine)
+          buffer.append("\n")
+
+        tail.foreach { superType =>
+          if (printEachOnNewLine)
+            buffer.append("\n")
+          buffer.append(" with ")
+          buffer.append(renderType(superType, clazz))
+        }
+      case _ =>
+    }
+  }
+
+  private def renderType(typ: ScType, context: TypePresentationContext)
+                        (implicit subst: ScSubstitutor): String =
+    subst(typ).presentableText(context)
 
   private def generateFunctionInfo(function: ScFunction)
                                   (implicit subst: ScSubstitutor): String = {
