@@ -12,14 +12,14 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMe
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationsHolder, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -52,14 +52,14 @@ object ScalaDocGenerator {
     def appendMainSection(element: PsiElement, epilogue: => Unit = {}, needsTpe: Boolean = false): Unit = {
       pre {
         element match {
-          case an: ScAnnotationsHolder => append(parseAnnotations(an))
+          case an: ScAnnotationsHolder => append(ScalaTypePresentationUtils.parseAnnotations(an))
           case _ =>
         }
 
         val start = length
 
         element match {
-          case m: ScModifierListOwner => append(parseModifiers(m))
+          case m: ScModifierListOwner => append(ScalaTypePresentationUtils.parseModifiers(m))
           case _ =>
         }
 
@@ -80,12 +80,12 @@ object ScalaDocGenerator {
 
         element match {
           case par: ScParameterOwner =>
-            append(parseParameters(par, length - start - 7).replaceAll("\n\\s*", ""))
+            append(ScalaTypePresentationUtils.parseParameters(par, length - start - 7).replaceAll("\n\\s*", ""))
           case _ =>
         }
 
         append(element match {
-          case typed: ScTypedDefinition => ScalaDocumentationUtils.typeAnnotationText(typed)
+          case typed: ScTypedDefinition => ScalaTypePresentationUtils.typeAnnotationText(typed)
           case _ if needsTpe            => ": Nothing"
           case _                        => ""
         })
@@ -93,7 +93,6 @@ object ScalaDocGenerator {
         epilogue
       }
     }
-
 
     def appendTypeDef(typedef: ScTypeDefinition): Unit =
       appendDefWithContent(typedef) {
@@ -147,7 +146,7 @@ object ScalaDocGenerator {
         b {
           append(escapeHtml(pattern.name))
         }
-        append(ScalaDocumentationUtils.typeAnnotationText(pattern))
+        append(ScalaTypePresentationUtils.typeAnnotationText(pattern))
         val context = pattern.getContext
         if (context != null) {
           context.getContext match {
@@ -183,54 +182,6 @@ object ScalaDocGenerator {
       s"""</a>"""
   }
 
-  // TODO Either use this method only in the DocumentationProvider, or place it somewhere else
-  // It supposed to be implementation details of the provider, but it's not (yet it does some strange things, adds \n).
-  // When one needs to update the provider, it's hard to predict what any change might affect outside, and how.
-  def parseParameters(elem: ScParameterOwner, spaces: Int)
-                     (implicit typeToString: ScType => String): String = {
-    elem.allClauses.map(parseParameterClause(_, spaces)).mkString("\n")
-  }
-
-  private def parseParameterClause(elem: ScParameterClause, spaces: Int)
-                                  (implicit typeToString: ScType => String): String = {
-    val buffer: StringBuilder = new StringBuilder(" ")
-    buffer.append(" " * spaces)
-    val separator = if (spaces < 0) ", " else ",\n" + buffer
-    val strings = elem.parameters.map(parseParameter(_, memberModifiers = false))
-    strings.mkString(if (elem.isImplicit) "(implicit " else "(", separator, ")")
-  }
-
-  // TODO "format", not "parse"?
-  // TODO The method in DocumentationProvider should not be used from... everywhere.
-  def parseParameter(param: ScParameter, escape: Boolean = true, memberModifiers: Boolean = true)
-                    (implicit typeToString: ScType => String): String = {
-    val member = param match {
-      case c: ScClassParameter => c.isClassMember
-      case _ => false
-    }
-    val buffer: StringBuilder = new StringBuilder
-    // When parameter is val, var, or case class val, annotations are related to member, not to parameter
-    if (!member || memberModifiers) {
-      buffer.append(parseAnnotations(param, ' ', escape))
-    }
-    if (memberModifiers) {
-      param match {
-        case cl: ScClassParameter => buffer.append(parseModifiers(cl))
-        case _ =>
-      }
-      buffer.append(param match {
-        case c: ScClassParameter if c.isVal => "val "
-        case c: ScClassParameter if c.isVar => "var "
-        case _ => ""
-      })
-    }
-    buffer.append(if (escape) escapeHtml(param.name) else param.name)
-
-    buffer.append(ScalaDocumentationUtils.typeAnnotationText(param))
-
-    buffer.toString()
-  }
-
   private def parseTypeParameters(elems: ScTypeParametersOwner): String = {
     val typeParameters = elems.typeParameters
     // todo hyperlink identifiers in type bounds
@@ -257,66 +208,6 @@ object ScalaDocGenerator {
     if (buffer.isEmpty) EmptyDoc
     else " extends " + buffer
   }
-
-  private def parseModifiers(elem: ScModifierListOwner): String = {
-    val buffer: StringBuilder = new StringBuilder
-
-    def accessQualifier(x: ScAccessModifier): String = x.getReference match {
-      case null => ""
-      case ref => ref.resolve match {
-        case clazz: PsiClass => "[<a href=\"psi_element://" +
-          escapeHtml(clazz.qualifiedName) + "\"><code>" +
-          (x.idText match {
-            case Some(text) => text
-            case None => ""
-          }) + "</code></a>]"
-        case pack: PsiPackage => "[" + escapeHtml(pack.getQualifiedName) + "]"
-        case _ => x.idText match {
-          case Some(text) => "[" + text + "]"
-          case None => ""
-        }
-      }
-    }
-
-    for {
-      modifier <- elem.getModifierList.accessModifier
-
-      prefix = if (modifier.isPrivate) PsiModifier.PRIVATE
-      else PsiModifier.PROTECTED
-
-      suffix = if (modifier.isThis) "[this]"
-      else accessQualifier(modifier)
-    } buffer.append(prefix)
-      .append(" ")
-      .append(suffix)
-
-    val modifiers = Array("abstract", "final", "sealed", "implicit", "lazy", "override")
-    for (modifier <- modifiers if elem.hasModifierPropertyScala(modifier)) buffer.append(modifier + " ")
-    buffer.toString()
-  }
-
-  private def parseAnnotations(elem: ScAnnotationsHolder,
-                               sep: Char = '\n', escape: Boolean = true)
-                              (implicit typeToString: ScType => String): String = {
-    val buffer: StringBuilder = new StringBuilder
-
-    def parseAnnotation(elem: ScAnnotation): String = {
-      val res = new StringBuilder("@")
-      val constrInvocation: ScConstructorInvocation = elem.constructorInvocation
-      res.append(typeToString(constrInvocation.typeElement.`type`().getOrAny))
-
-      val attrs = elem.annotationExpr.getAnnotationParameters
-      if (attrs.nonEmpty) res append attrs.map(_.getText).mkString("(", ", ", ")")
-
-      res.toString()
-    }
-
-    for (ann <- elem.annotations) {
-      buffer.append(parseAnnotation(ann) + sep)
-    }
-    buffer.toString()
-  }
-
 
   // TODO: strange naming.. not "parse", it not only parses but also resolves base
   private def parseDocComment(docOwner: PsiDocCommentOwner): String = {

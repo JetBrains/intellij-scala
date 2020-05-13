@@ -24,44 +24,4 @@ private object ScalaDocumentationUtils {
     case _: ScVariable                  => "var "
     case _                              => ""
   }
-
-  def typeAnnotationText(elem: ScTypedDefinition)
-                        (implicit typeToString: ScType => String): String = {
-    val typ = elem match {
-      case fun: ScFunction => fun.returnType.getOrAny
-      case _               => elem.`type`().getOrAny
-    }
-    val typeText = typeToString(typ)
-    val typeTextFixed = elem match {
-      case param: ScParameter => decoratedParameterType(param, typeText)
-      case _                  => typeText
-    }
-    s": $typeTextFixed"
-  }
-
-  private def decoratedParameterType(param: ScParameter, typeText: String): String = {
-    val buffer = StringBuilder.newBuilder
-
-    if (param.isCallByNameParameter) {
-      val arrow = ScalaPsiUtil.functionArrow(param.getProject)
-      buffer.append(s"$arrow ")
-    }
-
-    buffer.append(typeText)
-
-    if (param.isRepeatedParameter) buffer.append("*")
-
-    if (param.isDefaultParam) {
-      buffer.append(" = ")
-      param.getDefaultExpressionInSource match {
-        case Some(expr) =>
-          val text: String = expr.getText.replace(" /* compiled code */ ", "")
-          val cutTo = 20
-          buffer.append(text.substring(0, text.length.min(cutTo)))
-          if (text.length > cutTo) buffer.append("...")
-        case None => buffer.append("...")
-      }
-    }
-    buffer.toString()
-  }
 }

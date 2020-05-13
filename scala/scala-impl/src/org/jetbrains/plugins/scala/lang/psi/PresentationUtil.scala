@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang
 package psi
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocGenerator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -12,16 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticCla
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 12.08.2009
- */
-
 object PresentationUtil {
+
   def presentationString(owner: ProjectContextOwner): String =
     presentationString(owner.asInstanceOf[Any])(owner.projectContext, TypePresentationContext.emptyContext)
 
@@ -39,7 +34,8 @@ object PresentationUtil {
         buffer.append(clause.parameters.map(presentationString(_, substitutor)).mkString(", "))
         buffer.append(")")
         buffer.toString()
-      case param: ScParameter => ScalaDocGenerator.parseParameter(param)(presentationString(_, substitutor))
+      case param: ScParameter =>
+        ScalaTypePresentationUtils.parseParameter(param)(presentationString(_, substitutor))
       case param: Parameter =>
         val builder = new StringBuilder
         builder.append(param.name)
@@ -135,4 +131,5 @@ object PresentationUtil {
     }
     builder.toString()
   }
+
 }

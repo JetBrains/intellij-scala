@@ -5,7 +5,6 @@ package types
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorSimplifyTypeProjectionInspection
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocGenerator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -129,7 +128,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
           val function = s.namedElement.asInstanceOf[ScFunction]
           val substitutor = s.substitutor
-          val paramClauses = ScalaDocGenerator.parseParameters(function, -1)(scType => typeText0(substitutor(scType)))
+          val paramClauses = ScalaTypePresentationUtils.parseParameters(function, -1)(scType => typeText0(substitutor(scType)))
           val retType = if (!compType.equiv(returnType)) typeText0(substitutor(returnType)) else s"this$ObjectTypeSuffix"
 
           val typeParameters = typeParametersText(function.typeParameters, substitutor)

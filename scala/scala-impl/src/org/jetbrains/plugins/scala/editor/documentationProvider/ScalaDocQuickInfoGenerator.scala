@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
@@ -195,7 +196,7 @@ object ScalaDocQuickInfoGenerator {
   private def simpleParameterInfo(parameter: ScParameter)
                                  (implicit subst: ScSubstitutor): String = {
     val name = parameter.name
-    val typeAnnotation = ScalaDocumentationUtils.typeAnnotationText(parameter)(subst.andThen(_.presentableText(parameter)))
+    val typeAnnotation = ScalaTypePresentationUtils.typeAnnotationText(parameter)(subst.andThen(_.presentableText(parameter)))
 
     val defaultText = s"$name$typeAnnotation"
 
