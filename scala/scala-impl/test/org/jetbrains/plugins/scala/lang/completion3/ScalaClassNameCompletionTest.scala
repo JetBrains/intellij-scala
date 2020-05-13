@@ -18,7 +18,7 @@ abstract class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
                           companionObject: Boolean = false): Boolean =
     Option(lookup).collect {
       case lookup: ScalaLookupItem => lookup
-    }.map(_.element).collect {
+    }.map(_.getPsiElement).collect {
       case o: ScObject if companionObject => o
       case c: ScClass => c
     }.exists(_.qualifiedName == qualifiedName)

@@ -5,6 +5,7 @@ package lookups
 
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup._
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.annotator.intention._
@@ -26,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
@@ -37,14 +37,12 @@ import scala.annotation.tailrec
  * @author Alefas
  * @since 22.03.12
  */
-final class ScalaLookupItem private(val element: PsiNamedElement,
+final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
                                     override val getLookupString: String,
                                     private val containingClass: PsiClass)
-  extends LookupItem[PsiNamedElement](element, getLookupString) {
+  extends LookupItem[PsiNamedElement](getPsiElement, getLookupString) {
 
   import ScalaLookupItem._
-
-  private implicit val project: ProjectContext = element.projectContext
 
   def this(element: PsiNamedElement,
            name: String,
@@ -101,7 +99,7 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
     if (isNamedParameter) {
       presentation.setTailText(s" = $typeText")
     } else {
-      val grayed = element match {
+      val grayed = getPsiElement match {
         case _: PsiPackage | _: PsiClass => true
         case _ => false
       }
@@ -109,11 +107,11 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
       presentation.setTypeText(typeText)
     }
 
-    presentation.setIcon(element)
+    presentation.setIcon(getPsiElement)
 
     val itemText =
       if (isRenamed.nonEmpty)
-        s"$getLookupString <= ${element.name}"
+        s"$getLookupString <= ${getPsiElement.name}"
       else if (isClassName && shouldImport && containingClassName != null)
         s"$containingClassName.$getLookupString"
       else getLookupString
@@ -121,10 +119,10 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
     presentation.setItemText(itemText)
     wrapOptionIfNeeded(presentation)
 
-    presentation.setStrikeout(element)
+    presentation.setStrikeout(getPsiElement)
 
     presentation.setItemTextBold(bold)
-    if (ScalaProjectSettings.getInstance(element.getProject).isShowImplisitConversions) {
+    if (ScalaProjectSettings.getInstance(getPsiElement.getProject).isShowImplisitConversions) {
       presentation.setItemTextUnderlined(isUnderlined)
     }
   }
@@ -139,8 +137,9 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
 
   private lazy val typeText: String = {
     UIFreezingGuard.withDefaultValue("") {
-      implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-      element match {
+      implicit val pc: Project = getPsiElement.getProject
+      implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+      getPsiElement match {
         case fun: ScFunction =>
           val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
           presentationString(scType, substitutor)
@@ -153,7 +152,7 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
         case t: ScTemplateDefinition if getLookupString == "this" || getLookupString.endsWith(".this") =>
           t.getTypeWithProjections(thisProjections = true) match {
             case Right(tp) =>
-              tp.presentableText(element)
+              tp.presentableText(t)
             case _ => ""
           }
         case f: PsiField =>
@@ -169,8 +168,9 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
 
   private lazy val tailText: String = {
     UIFreezingGuard.withDefaultValue("") {
-      implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-      element match {
+      implicit val pc: Project = getPsiElement.getProject
+      implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+      getPsiElement match {
         //scala
         case fun: ScFunction =>
           if (etaExpanded) " _"
@@ -196,7 +196,8 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
   }
 
   private def typeParametersText(typeParameters: Seq[_ <: PsiTypeParameter])
-                                (implicit context: TypePresentationContext): String =
+                                (implicit project: Project,
+                                 context: TypePresentationContext): String =
     if (typeParameters.isEmpty)
       ""
     else
@@ -209,7 +210,8 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
       }.commaSeparated(Model.SquareBrackets)
 
   private def typeParametersText(owner: PsiTypeParameterListOwner)
-                                (implicit context: TypePresentationContext): String = owner match {
+                                (implicit project: Project,
+                                 context: TypePresentationContext): String = owner match {
     case owner: ScTypeParametersOwner =>
       owner.typeParametersClause.fold("") {
         presentationString(_, substitutor)
@@ -219,7 +221,8 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
   }
 
   private def parametersText(parametersList: PsiParameterList)
-                            (implicit tpc: TypePresentationContext) =
+                            (implicit project: Project,
+                             context: TypePresentationContext) =
     if (isOverloadedForClassName)
       "(...)"
     else
@@ -239,7 +242,7 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
     else if (isClassName || prefixCompletion) {
       context.commitDocument()
 
-      element match {
+      getPsiElement match {
         case _: PsiClass |
              _: ScTypeAlias |
              _: ScPackage =>
@@ -264,7 +267,7 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
 
           ref = findQualifier(ref)
 
-          val cl = element match {
+          val cl = getPsiElement match {
             case clazz: PsiClass => ClassToImport(clazz)
             case ta: ScTypeAlias => TypeAliasToImport(ta)
             case pack: ScPackage => PrefixPackageToImport(pack)
@@ -288,9 +291,9 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
           } else
             nameToUse()
 
-          replaceReference(ref, referenceText)(element)()
+          replaceReference(ref, referenceText)(getPsiElement)()
 
-          element match {
+          getPsiElement match {
             case _: ScObject if isInStableCodeReference =>
               context.scheduleAutoPopup()
             case _ =>
@@ -298,7 +301,7 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
         case _ =>
           simpleInsert(context)
 
-          element match {
+          getPsiElement match {
             case p: PsiPackage if shouldImport =>
               context.commitDocument()
 
@@ -327,7 +330,7 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
                       if (!shouldImport) qualifyReference(ref)
                       else {
                         elementToImport match {
-                          case None => ref.bindToElement(element, Some(containingClass))
+                          case None => ref.bindToElement(getPsiElement, Some(containingClass))
                           case Some(named@ScalaPsiUtil.inNameContext(ContainingClass(clazz))) =>
                             if (clazz.qualifiedName != null) {
                               getImportHolder(ref).addImportForPsiNamedElement(named, null, classToImport)
@@ -372,7 +375,7 @@ object ScalaLookupItem {
 
   def unapply(element: LookupElement): Option[(ScalaLookupItem, PsiNamedElement)] =
     delegate(element) match {
-      case item: ScalaLookupItem => Some(item, item.element)
+      case item: ScalaLookupItem => Some(item, item.getPsiElement)
       case _ => None
     }
 

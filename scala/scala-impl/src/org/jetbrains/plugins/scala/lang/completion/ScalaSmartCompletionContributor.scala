@@ -392,7 +392,7 @@ object ScalaSmartCompletionContributor {
             elementAdded
           }
 
-          scalaLookupItem.element match {
+          scalaLookupItem.getPsiElement match {
             case clazz: PsiClass if isExcluded(clazz) =>
             case fun: ScSyntheticFunction =>
               val second = checkForSecondCompletion && fun.paramClauses.flatten.isEmpty
@@ -552,7 +552,7 @@ object ScalaSmartCompletionContributor {
   }
 
   private[this] def isAccessible(item: ScalaLookupItem)
-                                (implicit place: PsiElement): Boolean = ScalaPsiUtil.nameContext(item.element) match {
+                                (implicit place: PsiElement): Boolean = ScalaPsiUtil.nameContext(item.getPsiElement) match {
     case member: ScMember => isAccessible(member)
     case _ => true
   }

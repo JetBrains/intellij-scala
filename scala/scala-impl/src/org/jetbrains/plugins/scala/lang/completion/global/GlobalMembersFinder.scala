@@ -37,7 +37,7 @@ abstract class GlobalMembersFinder {
           isClassName = true,
           containingClass = containingClass
         ).map { lookupItem =>
-          lookupItem.shouldImport = shouldImport(lookupItem.element)
+          lookupItem.shouldImport = shouldImport(lookupItem.getPsiElement)
           lookupItem.classToImport = Some(classToImport)
           lookupItem.elementToImport = Some(elementToImport)
           patchItem(lookupItem)
@@ -62,7 +62,7 @@ object GlobalMembersFinder {
     private lazy val elements = reference
       .completionVariants()
       .toSet[ScalaLookupItem]
-      .map(_.element)
+      .map(_.getPsiElement)
 
     override def apply(element: PsiNamedElement): Boolean = element.getContainingFile match {
       case `originalFile` =>

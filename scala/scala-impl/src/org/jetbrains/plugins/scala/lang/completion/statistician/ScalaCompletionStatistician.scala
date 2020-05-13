@@ -20,7 +20,7 @@ class ScalaCompletionStatistician extends CompletionStatistician {
   override def serialize(element: LookupElement, location: CompletionLocation): StatisticsInfo = {
     ScalaLookupItem.delegate(element) match {
       case item: ScalaLookupItem =>
-        item.element match {
+        item.getPsiElement match {
           case _ if item.isLocalVariable || item.isNamedParameter => StatisticsInfo.EMPTY
           case withImplicit: ScModifierListOwner if withImplicit.hasModifierPropertyScala("implicit") =>
             StatisticsInfo.EMPTY

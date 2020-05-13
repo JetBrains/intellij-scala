@@ -47,8 +47,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   ): PsiElement =
     obj match {
       case (_, element: PsiElement, _) => element
-      case el: ScalaLookupItem         => el.element
-      case element: PsiElement         => element
+      case el: ScalaLookupItem => el.getPsiElement
+      case element: PsiElement => element
       case _                           => null
     }
 

@@ -18,7 +18,7 @@ final class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
                            consumer: Consumer[LookupElementAction]): Unit = element match {
     case element: ScalaLookupItem if element.isClassName &&
       !element.usedImportStaticQuickfix &&
-      !element.element.isInstanceOf[PsiClass] =>
+      !element.getPsiElement.isInstanceOf[PsiClass] =>
 
       import PlatformIcons.{CHECK_ICON => checkIcon}
       val icon = if (element.shouldImport)

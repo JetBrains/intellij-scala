@@ -259,7 +259,7 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
       }
     }
 
-    item.element match {
+    item.getPsiElement match {
       case _: PsiClass | _: ScTypeAlias if completionChar == '[' =>
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
