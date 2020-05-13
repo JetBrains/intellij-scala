@@ -236,8 +236,8 @@ object ScExpression {
 
             val valueType =
               widened
-                .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
                 .dropMethodTypeEmptyParams(expr, expectedType)
+                .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
                 .inferValueType
                 .unpackedType
                 .synthesizePartialFunctionType(expr, expectedType)

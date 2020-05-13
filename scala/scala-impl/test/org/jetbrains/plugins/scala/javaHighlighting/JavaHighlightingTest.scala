@@ -1437,4 +1437,46 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
     assertNothing(errorsFromJavaCode(scala, java, "Test"))
   }
+
+  def testSCL17466(): Unit = {
+    val java =
+      """
+        |package foo;
+        |public interface Disposable {
+        |    void dispose();
+        |
+        |    public interface Parent extends Disposable {
+        |        void beforeTreeDispose();
+        |    }
+        |
+        |  public static class Application implements Disposable {
+        |    @Override
+        |    public void dispose() {
+        |
+        |    }
+        |  }
+        |
+        |  public static class ApplicationManager {
+        |    protected static Application ourApplication;
+        |
+        |    public ApplicationManager() {
+        |    }
+        |
+        |    public static Application getApplication() {
+        |        return ourApplication;
+        |    }
+        |  }
+        |}
+        |""".stripMargin
+
+    val scala =
+      """
+        |package foo;
+        |object A {
+        |  import foo.Disposable.ApplicationManager
+        |  val a: Disposable = ApplicationManager.getApplication
+        |}""".stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
 }
