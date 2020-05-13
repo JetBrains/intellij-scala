@@ -17,12 +17,10 @@ package org.jetbrains.plugins.scala.lang.psi.compiled;
 
 import com.intellij.debugger.DebuggerManager;
 import com.intellij.openapi.application.Application;
-import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.openapi.util.Computable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 
@@ -33,8 +31,6 @@ public class ScalaCompilerLoader implements StartupActivity.DumbAware {
     @Override
     public void runActivity(@NotNull Project project) {
         if (isDisabled()) return;
-
-        CompilerManager.getInstance(project).addCompilableFileType(ScalaFileType.INSTANCE);
 
         DebuggerManager.getInstance(project).addClassNameMapper(clazz ->
                 getApplication().runReadAction((Computable<String>) () ->
