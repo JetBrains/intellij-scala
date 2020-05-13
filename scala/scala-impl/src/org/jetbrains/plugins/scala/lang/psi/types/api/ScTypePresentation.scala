@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -17,78 +18,103 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   * @author adkozlov
   */
 trait TypePresentation {
+
   final def presentableText(`type`: ScType, withPrefix: Boolean = true)
-                           (implicit context: TypePresentationContext): String = typeText(`type`,
-    new NameRenderer {
+                           (implicit context: TypePresentationContext): String = {
+    val renderer = new NameRenderer {
       override def renderName(e: PsiNamedElement): String = e match {
         case c: PsiClass if withPrefix => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
-        case e => e.name
+        case e                         => e.name
       }
-
       override def renderNameWithPoint(e: PsiNamedElement): String = e match {
-        case o: ScObject if Set("scala.Predef", "scala").contains(o.qualifiedName) => ""
-        case _: PsiPackage => ""
-        case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c) + "."
-        case e => e.name + "."
-      }
-    })
-
-  final def urlText(`type`: ScType): String = typeText(`type`, new NameRenderer {
-    def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
-      e match {
-        case o: ScObject if withPoint && o.qualifiedName == "scala.Predef" => ""
-        case e: PsiClass => "<a href=\"psi_element://" + StringEscapeUtils.escapeHtml(e.qualifiedName) + "\"><code>" +
-          StringEscapeUtils.escapeHtml(e.name) +
-          "</code></a>" + (if (withPoint) "." else "")
-        case _: PsiPackage if withPoint => ""
-        case _ => StringEscapeUtils.escapeHtml(e.name) + (if (withPoint) "." else "")
+        case o: ScObject if isPredefined(o) => ""
+        case _: PsiPackage                  => ""
+        case c: PsiClass                    => ScalaPsiUtil.nameWithPrefixIfNeeded(c) + "."
+        case e                              => e.name + "."
       }
     }
+    typeText(`type`, renderer)
+  }
 
-    override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
+  final def urlText(`type`: ScType): String = {
+    import StringEscapeUtils.escapeHtml
+    import HtmlUtils._
 
-    override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
+    val renderer: NameRenderer = new NameRenderer {
+      override def escapeName(e: String): String = escapeHtml(e)
+      override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
+      override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
 
-    override def escapeName(e: String): String = StringEscapeUtils.escapeHtml(e)
-  })(TypePresentationContext.emptyContext)
-
-  final def canonicalText(`type`: ScType): String = typeText(`type`, new NameRenderer {
-    def removeKeywords(s: String): String =
-      ScalaNamesUtil.escapeKeywordsFqn(s)
-
-    def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
-      removeKeywords(e match {
-        case c: PsiClass =>
-          val qname = c.qualifiedName
-          if (qname != null && qname != c.name /* exlude default package*/ ) "_root_." + qname else c.name
-        case p: PsiPackage => "_root_." + p.getQualifiedName
-        case _ =>
-          ScalaPsiUtil.nameContext(e) match {
-            case m: ScMember =>
-              m.containingClass match {
-                case o: ScObject => nameFun(o, withPoint = true) + e.name
-                case _ => e.name
-              }
-            case _ => e.name
-          }
-      }) + (if (withPoint) "." else "")
+      private def nameFun(e: PsiNamedElement, withPoint: Boolean): String =
+        e match {
+          // TODO: shouldn't "scala" also be checked  like in `presentableText`? see changes of ScTypePresentation.scala in SCL-4493
+          case o: ScObject if withPoint && o.qualifiedName == "scala.Predef" => ""
+          case e: PsiClass                => psiRef(e.qualifiedName)(code(e.name)) + pointOptStr(withPoint)
+          case _: PsiPackage if withPoint => ""
+          case _                          => escapeHtml(e.name) + pointOptStr(withPoint)
+        }
     }
+    typeText(`type`, renderer)(TypePresentationContext.emptyContext)
+  }
 
-    override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
+  final def canonicalText(`type`: ScType): String = {
+    val renderer: NameRenderer = new NameRenderer {
+      override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
+      override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
 
-    override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
-  })(TypePresentationContext.emptyContext)
-
-  trait NameRenderer {
-    def renderName(e: PsiNamedElement): String
-
-    def renderNameWithPoint(e: PsiNamedElement): String
-
-    def escapeName(name: String): String = name
+      private def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
+        val str = e match {
+          case c: PsiClass =>
+            val qname = c.qualifiedName
+            if (qname == null || qname == c.name) c.name
+            else "_root_." + qname
+          case p: PsiPackage =>
+            "_root_." + p.getQualifiedName
+          case _ =>
+            ScalaPsiUtil.nameContext(e) match {
+              case m: ScMember =>
+                m.containingClass match {
+                  case o: ScObject => nameFun(o, withPoint = true) + e.name
+                  case _ => e.name
+                }
+              case _ => e.name
+            }
+        }
+        removeKeywords(str) + pointOptStr(withPoint)
+      }
+    }
+    typeText(`type`, renderer)(TypePresentationContext.emptyContext)
   }
 
   protected def typeText(`type`: ScType, nameRenderer: NameRenderer)
                         (implicit context: TypePresentationContext): String
+}
+
+object TypePresentation {
+
+  private val PredefinedPackages = Set("scala.Predef", "scala")
+  private def isPredefined(td: ScTypeDefinition): Boolean =
+    PredefinedPackages.contains(td.qualifiedName)
+
+  private object HtmlUtils {
+    import StringEscapeUtils._
+    def psiRef(fqn: String)(content: String): String =
+      s"""<a href="psi_element://${escapeHtml(fqn)}">$content</a>"""
+    def code(content: String): String =
+      s"""<code>${StringEscapeUtils.escapeHtml(content)}</code>"""
+  }
+
+  private def pointOptStr(withPoint: Boolean): String =
+    if (withPoint) "." else ""
+
+  private def removeKeywords(text: String): String =
+    ScalaNamesUtil.escapeKeywordsFqn(text)
+
+  trait NameRenderer {
+    def renderName(e: PsiNamedElement): String
+    def renderNameWithPoint(e: PsiNamedElement): String
+    def escapeName(name: String): String = name
+  }
 }
 
 object ScTypePresentation {
@@ -109,9 +135,8 @@ object ScTypePresentation {
   }
 
   def withoutAliases(`type`: ScType)
-                    (implicit context: TypePresentationContext): String = {
+                    (implicit context: TypePresentationContext): String =
     `type`.removeAliasDefinitions(expandableOnly = true).presentableText
-  }
 
   def upperBoundText(maybeType: TypeResult)
                     (toString: ScType => String): String =
