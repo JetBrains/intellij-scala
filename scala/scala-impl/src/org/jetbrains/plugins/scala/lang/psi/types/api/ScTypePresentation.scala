@@ -15,9 +15,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresen
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
-  * @author adkozlov
-  */
+ * @author adkozlov
+ */
 trait TypePresentation {
+
+  protected def typeText(
+    `type`: ScType,
+    nameRenderer: NameRenderer,
+    textEscaper: TextEscaper
+  )(implicit context: TypePresentationContext): String
 
   final def presentableText(`type`: ScType, withPrefix: Boolean = true)
                            (implicit context: TypePresentationContext): String = {
@@ -33,7 +39,7 @@ trait TypePresentation {
         case e                              => e.name + "."
       }
     }
-    typeText(`type`, renderer)
+    typeText(`type`, renderer, TextEscaper.Noop)
   }
 
   final def urlText(`type`: ScType): String = {
@@ -47,14 +53,13 @@ trait TypePresentation {
 
       private def nameFun(e: PsiNamedElement, withPoint: Boolean): String =
         e match {
-          // TODO: shouldn't "scala" also be checked  like in `presentableText`? see changes of ScTypePresentation.scala in SCL-4493
-          case o: ScObject if withPoint && o.qualifiedName == "scala.Predef" => ""
-          case e: PsiClass                => psiRef(e.qualifiedName)(code(e.name)) + pointOptStr(withPoint)
-          case _: PsiPackage if withPoint => ""
-          case _                          => escapeHtml(e.name) + pointOptStr(withPoint)
+          case o: ScObject if withPoint && isPredefined(o) => ""
+          case _: PsiPackage if withPoint                  => ""
+          case e: PsiClass                                 => psiRef(e.qualifiedName)(code(e.name)) + pointStr(withPoint)
+          case _                                           => escapeHtml(e.name) + pointStr(withPoint)
         }
     }
-    typeText(`type`, renderer)(TypePresentationContext.emptyContext)
+    typeText(`type`, renderer, TextEscaper.Html)(TypePresentationContext.emptyContext)
   }
 
   final def canonicalText(`type`: ScType): String = {
@@ -80,14 +85,11 @@ trait TypePresentation {
               case _ => e.name
             }
         }
-        removeKeywords(str) + pointOptStr(withPoint)
+        removeKeywords(str) + pointStr(withPoint)
       }
     }
-    typeText(`type`, renderer)(TypePresentationContext.emptyContext)
+    typeText(`type`, renderer, TextEscaper.Noop)(TypePresentationContext.emptyContext)
   }
-
-  protected def typeText(`type`: ScType, nameRenderer: NameRenderer)
-                        (implicit context: TypePresentationContext): String
 }
 
 object TypePresentation {
@@ -104,7 +106,7 @@ object TypePresentation {
       s"""<code>${StringEscapeUtils.escapeHtml(content)}</code>"""
   }
 
-  private def pointOptStr(withPoint: Boolean): String =
+  private def pointStr(withPoint: Boolean): String =
     if (withPoint) "." else ""
 
   private def removeKeywords(text: String): String =
@@ -114,6 +116,18 @@ object TypePresentation {
     def renderName(e: PsiNamedElement): String
     def renderNameWithPoint(e: PsiNamedElement): String
     def escapeName(name: String): String = name
+  }
+
+  trait TextEscaper {
+    def escape(text: String): String
+  }
+  object TextEscaper {
+    final object Noop extends TextEscaper {
+      override def escape(text: String): String = text
+    }
+    final object Html extends TextEscaper {
+      override def escape(text: String): String = StringEscapeUtils.escapeHtml(text)
+    }
   }
 }
 
@@ -137,42 +151,39 @@ object ScTypePresentation {
   def withoutAliases(`type`: ScType)
                     (implicit context: TypePresentationContext): String =
     `type`.removeAliasDefinitions(expandableOnly = true).presentableText
-
-  def upperBoundText(maybeType: TypeResult)
-                    (toString: ScType => String): String =
-    upperBoundText(maybeType.toOption)(toString)
-
-  def upperBoundText(`type`: ScType)
-                    (toString: ScType => String): String =
-    upperBoundText(Some(`type`))(toString)
-
-  def lowerBoundText(maybeType: TypeResult)
-                    (toString: ScType => String): String =
-    lowerBoundText(maybeType.toOption)(toString)
-
-  def lowerBoundText(`type`: ScType)
-                    (toString: ScType => String): String =
-    lowerBoundText(Some(`type`))(toString)
-
-  import ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
-
-  private[this] def upperBoundText(maybeType: Option[ScType])
-                                  (toString: ScType => String): String =
-    boundText(maybeType, tUPPER_BOUND)(_.isAny, toString)
-
-  private[this] def lowerBoundText(maybeType: Option[ScType])
-                                  (toString: ScType => String): String =
-    boundText(maybeType, tLOWER_BOUND)(_.isNothing, toString)
-
-  private[this] def boundText(maybeType: Option[ScType], bound: IElementType)
-                             (predicate: ScType => Boolean, toString: ScType => String) =
-    maybeType.collect {
-      case t if !predicate(t) => " " + bound + " " + toString(t)
-    }.getOrElse("")
-
 }
 
 case class ScTypeText(tp: ScType)(implicit tpc: TypePresentationContext) {
   val canonicalText: String = tp.canonicalText
   val presentableText: String = tp.presentableText
+}
+
+class TypeBoundsRenderer(textEscaper: TextEscaper) {
+
+  import ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
+
+  def upperBoundText(maybeType: TypeResult)
+                    (toString: ScType => String): String =
+    maybeType.fold(_ => "", upperBoundText(_)(toString))
+
+  def lowerBoundText(maybeType: TypeResult)
+                    (toString: ScType => String): String =
+    maybeType.fold(_ => "", lowerBoundText(_)(toString))
+
+  def upperBoundText(typ: ScType)
+                    (toString: ScType => String): String =
+    boundText(typ, tUPPER_BOUND)(toString, _.isAny)
+
+  def lowerBoundText(typ: ScType)
+                    (toString: ScType => String): String =
+    boundText(typ, tLOWER_BOUND)(toString, _.isNothing)
+
+  private def boundText(typ: ScType, bound: IElementType)
+                       (toString: ScType => String,
+                        ignore: ScType => Boolean): String =
+    if (ignore(typ)) ""
+    else {
+      val boundEscaped = textEscaper.escape(bound.toString)
+      " " + boundEscaped + " " + toString(typ)
+    }
 }

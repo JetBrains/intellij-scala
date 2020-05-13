@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.NameRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.{NameRenderer, TextEscaper}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -26,10 +26,15 @@ trait ScalaTypePresentation extends api.TypePresentation {
   typeSystem: api.TypeSystem =>
 
   import ScalaTypePresentation._
-  import api.ScTypePresentation._
 
-  protected override def typeText(`type`: ScType, nameRenderer: NameRenderer)
-                                 (implicit context: TypePresentationContext): String = {
+  override protected def typeText(
+    `type`: ScType,
+    nameRenderer: NameRenderer,
+    textEscaper: TextEscaper
+  )(implicit context: TypePresentationContext): String = {
+    val boundsRenderer = new TypeBoundsRenderer(textEscaper)
+    import boundsRenderer._
+
     def typesText(types: Seq[ScType]): String = types
       .map(innerTypeText(_))
       .commaSeparated(model = Model.Parentheses)
@@ -41,7 +46,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case _ =>
         def typeParamText(param: ScTypeParam): String = {
 
-          def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer)
+          def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer, textEscaper)
 
           val buffer = new StringBuilder(if (param.isContravariant) "-" else if (param.isCovariant) "+" else "")
           buffer ++= param.name
