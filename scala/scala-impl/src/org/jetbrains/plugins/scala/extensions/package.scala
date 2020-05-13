@@ -1257,7 +1257,7 @@ package object extensions {
     connection.subscribe(DynamicPluginListener.TOPIC, listener)
   }
 
-  def invokeOnAnyPluginUnload(body: => Unit): Unit = {
+  def invokeOnAnyPluginUnload(body: => Unit): Disposable = {
     val disposable = Disposer.newDisposable()
     registerDynamicPluginListener(new DynamicPluginListener {
       override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
@@ -1268,9 +1268,10 @@ package object extensions {
         }
       }
     }, disposable)
+    disposable
   }
 
-  def invokeOnScalaPluginUnload(body: => Unit): Unit = {
+  def invokeOnScalaPluginUnload(body: => Unit): Disposable = {
     val disposable = Disposer.newDisposable()
     registerDynamicPluginListener(new DynamicPluginListener {
       override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
@@ -1280,6 +1281,13 @@ package object extensions {
         }
       }
     }, disposable)
+    disposable
+  }
+
+  def invokeOnScalaPluginUnload(parentDisposable: Disposable)(body: => Unit): Disposable = {
+    val disposable = invokeOnScalaPluginUnload(body)
+    Disposer.register(parentDisposable, disposable)
+    disposable
   }
 
   private def preservingControlFlow(body: => Unit): Unit =
