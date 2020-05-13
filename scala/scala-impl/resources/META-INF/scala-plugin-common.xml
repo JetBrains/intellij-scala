@@ -227,7 +227,7 @@
                       implementationClass="org.jetbrains.plugins.scala.gotoclass.ScalaProximityStatistician"/>
         <statistician key="completion" order="first"
                       implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
-        <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
+        <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.lookups.ScalaImportStaticLookupActionProvider"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWeigher"
                  id="scalaContainingClassWeigher" order="after prefix, before scalaKindWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
