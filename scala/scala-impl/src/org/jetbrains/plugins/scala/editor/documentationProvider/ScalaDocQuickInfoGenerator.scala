@@ -61,9 +61,11 @@ object ScalaDocQuickInfoGenerator {
     }
     val locationString = clazz.getPresentation.getLocationString
     val length = locationString.length
-    if (length > 1) buffer.append(locationString.substring(1, length - 1))
-    if (buffer.nonEmpty) buffer.append("\n")
-    buffer.append(getModifiersPresentableText(clazz.getModifierList))
+    if (length > 1)
+      buffer.append(locationString.substring(1, length - 1)) // remove brackets
+    if (buffer.nonEmpty)
+      buffer.append("\n")
+    renderModifiersPresentableText(buffer, clazz.getModifierList)
     buffer.append(ScalaDocumentationUtils.getKeyword(clazz))
     buffer.append(clazz.name)
     appendTypeParams(clazz, buffer)
@@ -115,9 +117,8 @@ object ScalaDocQuickInfoGenerator {
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(function))
     val list = function.getModifierList
-    if (list != null) {
-      buffer.append(getModifiersPresentableText(list))
-    }
+    if (list != null)
+      renderModifiersPresentableText(buffer, list)
     buffer.append("def ")
     buffer.append(ScalaPsiUtil.getMethodPresentableText(function, subst))
     buffer.toString()
@@ -137,7 +138,7 @@ object ScalaDocQuickInfoGenerator {
     }
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(member))
-    buffer.append(getModifiersPresentableText(member.getModifierList))
+    renderModifiersPresentableText(buffer, member.getModifierList)
     member match {
       case value: ScValue =>
         buffer.append("val ")
@@ -235,9 +236,10 @@ object ScalaDocQuickInfoGenerator {
     prefix + defaultText
   }
 
-  private def getModifiersPresentableText(modList: ScModifierList): String = {
-    import org.jetbrains.plugins.scala.util.EnumSet._
-
-    modList.modifiers.toArray.map(_.text() + " ").mkString
+  private def renderModifiersPresentableText(buffer: StringBuilder, modList: ScModifierList): Unit = {
+    import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
+    modList.modifiers.foreach { m =>
+      buffer.append(m.text).append(" ")
+    }
   }
 }
