@@ -66,8 +66,14 @@ object ScalaDocQuickInfoGenerator {
       buffer.append("\n")
     renderModifiersPresentableText(buffer, clazz.getModifierList)
     buffer.append(ScalaDocumentationUtils.getKeyword(clazz))
-    buffer.append(clazz.name)
-    renderTypeParams(buffer, clazz)
+    clazz.`type`() match {
+      case Right(typ) =>
+        buffer.append(renderTypeWithUrl(typ))
+      case Left(_) =>
+        // TODO: is this case possible? check when indicies are unavailable
+        buffer.append(clazz.name)
+        renderTypeParams(buffer, clazz)
+    }
 
     renderConstructorText(buffer, clazz)
     renderSuperTypes(buffer, clazz)
