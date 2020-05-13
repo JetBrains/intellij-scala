@@ -25,6 +25,7 @@ import org.jdom.JDOMException
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 
 import scala.xml.transform.{RewriteRule, RuleTransformer}
@@ -276,7 +277,7 @@ object ScalaPluginUpdater {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
     import com.intellij.openapi.editor.EditorFactory
-    EditorFactory.getInstance().getEventMulticaster.addDocumentListener(updateListener)
+    EditorFactory.getInstance().getEventMulticaster.addDocumentListener(updateListener, UnloadAwareDisposable.scalaPluginDisposable)
   }
 
   // this hack uses fake plugin.xml deserialization to downgrade plugin version

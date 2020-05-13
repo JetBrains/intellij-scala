@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.libextensions.ui._
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.SbtResolver
 
@@ -51,7 +52,7 @@ final class LibraryExtensionsManager(project: Project) {
       .register(PopupHelper.GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
     if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions)
       loadCachedExtensions()
-    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(LibraryListener, project)
+    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(LibraryListener, UnloadAwareDisposable(project))
   }
 
   private object XMLNoDTD extends XMLLoader[Elem] {
