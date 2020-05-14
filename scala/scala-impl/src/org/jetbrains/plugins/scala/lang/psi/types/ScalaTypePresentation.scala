@@ -73,7 +73,6 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
     def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
       val e = projType.actualElement
-      val refName = e.name
 
       def checkIfStable(element: PsiElement): Boolean = element match {
         case _: ScObject | _: ScBindingPattern | _: ScParameter | _: ScFieldId => true
@@ -89,14 +88,17 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
       object StaticJavaClassHolder {
         def unapply(t: ScType): Option[PsiClass] = t match {
-          case ScDesignatorType(clazz: PsiClass) => Some(clazz)
+          case ScDesignatorType(clazz: PsiClass)                       => Some(clazz)
           case ParameterizedType(ScDesignatorType(clazz: PsiClass), _) => Some(clazz)
-          case ScProjectionType(_, clazz: PsiClass) => Some(clazz)
-          case _ => None
+          case ScProjectionType(_, clazz: PsiClass)                    => Some(clazz)
+          case _                                                       => None
         }
       }
 
-      val escapedName = nameRenderer.escapeName(refName)
+      val refName = e.name
+      val escapedName =
+        if (options.renderProjectionTypeName) nameRenderer.renderName(e)
+        else nameRenderer.escapeName(refName)
 
       if (context.nameResolvesTo(refName, e)) escapedName
       else

@@ -8,6 +8,7 @@ package editor.documentationProvider
  import com.intellij.openapi.diagnostic.Logger
  import com.intellij.openapi.util.Pair
  import com.intellij.psi._
+ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
  import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
  import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
  import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
@@ -18,7 +19,8 @@ package editor.documentationProvider
  import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
  import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
  import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
- import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
+ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWrapper}
  import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
  import scala.annotation.tailrec
@@ -43,7 +45,25 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
     ScalaDocQuickInfoGenerator.getQuickNavigateInfo(element, originalElement)
 
   override def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement =
-    JavaDocUtil.findReferenceTarget(psiManager, link, context)
+    JavaDocUtil.findReferenceTarget(psiManager, link, context) match {
+      case null                        => findTypeAlias(psiManager, link, context)
+      case PsiClassWrapper(definition) => definition
+      case other                       => other
+    }
+
+  private def findTypeAlias(psiManager: PsiManager, link: String, context: PsiElement): PsiElement = {
+    val dotIdx = link.lastIndexOf('.')
+    if (dotIdx < 0 ) null else {
+      val containerFqn = link.substring(0, dotIdx)
+      JavaDocUtil.findReferenceTarget(psiManager, containerFqn, context) match {
+        case null => null
+        case containingElement =>
+          val scalaPsiManager = ScalaPsiManager.instance(psiManager.getProject)
+          val scope = GlobalSearchScope.EMPTY_SCOPE.union(new LocalSearchScope(containingElement))
+          scalaPsiManager.getStableAliasesByFqn(link, scope).headOption.orNull
+      }
+    }
+  }
 
   override def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
     val containingFile = element.getContainingFile

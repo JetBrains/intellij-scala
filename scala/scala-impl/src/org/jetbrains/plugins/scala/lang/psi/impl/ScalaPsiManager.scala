@@ -163,7 +163,7 @@ class ScalaPsiManager(implicit val project: Project) {
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope, classOf[ScTypeAlias])
 
-  def getStableAliasByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
+  def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     STABLE_ALIAS_FQN_KEY
       .integerElements(fqn, scope, classOf[ScTypeAlias])
       .filter(_.qualifiedNameOpt.contains(fqn))
@@ -258,7 +258,7 @@ class ScalaPsiManager(implicit val project: Project) {
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] =
-    getStableAliasByFqn("scala.Seq", scope).headOption
+    getStableAliasesByFqn("scala.Seq", scope).headOption
 
   def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
     if (DumbService.getInstance(project).isDumb) return Set.empty
