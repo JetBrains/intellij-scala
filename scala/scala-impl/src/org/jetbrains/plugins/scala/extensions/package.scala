@@ -1034,9 +1034,9 @@ package object extensions {
     def |>[R](f: T => R): R = f(value)
   }
 
-  implicit class AnyRefExt[T <: AnyRef](private val anyRef: T) extends AnyVal {
+  implicit class DisposableExt[T <: Disposable](private val target: T) extends AnyVal {
     def delegateUserDataHolder: UserDataHolderEx =
-      UserDataHolderDelegator.userDataHolderFor(anyRef)
+      UserDataHolderDelegator.userDataHolderFor(target)
   }
 
   implicit class IteratorExt[A](private val delegate: Iterator[A]) extends AnyVal {
