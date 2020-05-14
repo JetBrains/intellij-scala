@@ -41,10 +41,11 @@ private[completion] final class ExtensionMethodsFinder(originalType: ScType, pla
   private final case class ExtensionMethodCandidate(resolveResult: ScalaResolveResult,
                                                     elementToImport: ScFunction,
                                                     classToImport: ScObject)
-    extends GlobalMemberResult(resolveResult, elementToImport, classToImport) {
+    extends GlobalMemberResult(resolveResult, classToImport) {
 
     override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
       lookupItem.usedImportStaticQuickfix = true
+      lookupItem.elementToImport = Some(elementToImport, classToImport)
     }
   }
 }

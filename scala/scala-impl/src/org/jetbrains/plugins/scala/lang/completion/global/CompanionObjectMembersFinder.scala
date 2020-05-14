@@ -43,11 +43,10 @@ private[completion] sealed abstract class CompanionObjectMembersFinder[E <: PsiE
   protected def createResult(member: ScTypedDefinition,
                              `object`: ScObject): CompanionObjectMemberResult
 
-  protected sealed abstract class CompanionObjectMemberResult(private val member: ScTypedDefinition,
-                                                              private val `object`: ScObject)
+  protected sealed abstract class CompanionObjectMemberResult(protected val member: ScTypedDefinition,
+                                                              protected val `object`: ScObject)
     extends GlobalMemberResult(
       new ScalaResolveResult(member),
-      member,
       `object`,
       Some(`object`)
     ) {
@@ -112,35 +111,32 @@ private[completion] object CompanionObjectMembersFinder {
 
     override protected def createResult(member: ScTypedDefinition,
                                         `object`: ScObject): CompanionObjectMemberResult =
-      new CompanionObjectMemberResult(member, `object`) {
+      new CompanionObjectMemberResult(member.asInstanceOf[ScFunction], `object`) {
 
         override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
-          lookupItem.setInsertHandler(createPostfixInsertHandler())
+          lookupItem.setInsertHandler(createPostfixInsertHandler)
+        }
+
+        private def createPostfixInsertHandler = new InsertHandler[ScalaLookupItem] {
+
+          override def handleInsert(context: InsertionContext, item: ScalaLookupItem): Unit = {
+            val reference@ScReferenceExpression.withQualifier(qualifier) = context
+              .getFile
+              .findReferenceAt(context.getStartOffset)
+
+            val newReference = createExpressionWithContextFromText(
+              `object`.name + "." + member.name + "(" + qualifier.getText + ")",
+              reference.getContext,
+              reference
+            )
+
+            reference.replaceExpression(
+              newReference,
+              removeParenthesis = true
+            )
+          }
         }
       }
-
-    private def createPostfixInsertHandler() = new InsertHandler[ScalaLookupItem] {
-
-      override def handleInsert(context: InsertionContext, item: ScalaLookupItem): Unit = {
-        val reference@ScReferenceExpression.withQualifier(qualifier) = context
-          .getFile
-          .findReferenceAt(context.getStartOffset)
-
-        val Some(targetObject: ScObject) = item.classToImport
-        val Some(targetFunction: ScFunction) = item.elementToImport
-
-        val newReference = createExpressionWithContextFromText(
-          targetObject.name + "." + targetFunction.name + "(" + qualifier.getText + ")",
-          reference.getContext,
-          reference
-        )
-
-        reference.replaceExpression(
-          newReference,
-          removeParenthesis = true
-        )
-      }
-    }
   }
 
   object ExtensionLike {

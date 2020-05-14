@@ -66,8 +66,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   var isInImport: Boolean = false
   var isInStableCodeReference: Boolean = false
   var usedImportStaticQuickfix: Boolean = false
-  var elementToImport: Option[PsiNamedElement] = None
-  var classToImport: Option[PsiClass] = None
+  var elementToImport: Option[(ScFunction, ScObject)] = None
   var someSmartCompletion: Boolean = false
   var bold: Boolean = false
   var etaExpanded: Boolean = false
@@ -331,9 +330,9 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
                       else {
                         elementToImport match {
                           case None => ref.bindToElement(getPsiElement, Some(containingClass))
-                          case Some(named@ScalaPsiUtil.inNameContext(ContainingClass(clazz))) =>
+                          case Some((named@ScalaPsiUtil.inNameContext(ContainingClass(clazz)), classToImport)) =>
                             if (clazz.qualifiedName != null) {
-                              ScImportsHolder(ref).addImportForPsiNamedElement(named, null, classToImport)
+                              ScImportsHolder(ref).addImportForPsiNamedElement(named, null, Some(classToImport))
                             }
                         }
                       }

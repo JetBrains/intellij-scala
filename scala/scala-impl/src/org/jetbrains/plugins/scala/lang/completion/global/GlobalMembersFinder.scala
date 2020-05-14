@@ -27,7 +27,6 @@ abstract class GlobalMembersFinder {
   protected def candidates: Iterable[GlobalMemberResult]
 
   protected abstract class GlobalMemberResult(resolveResult: ScalaResolveResult,
-                                              elementToImport: PsiNamedElement,
                                               classToImport: PsiClass,
                                               containingClass: Option[PsiClass] = None) {
 
@@ -38,8 +37,6 @@ abstract class GlobalMembersFinder {
           containingClass = containingClass
         ).map { lookupItem =>
           lookupItem.shouldImport = shouldImport(lookupItem.getPsiElement)
-          lookupItem.classToImport = Some(classToImport)
-          lookupItem.elementToImport = Some(elementToImport)
           patchItem(lookupItem)
           lookupItem.putUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR, Boolean.box(true))
           lookupItem
