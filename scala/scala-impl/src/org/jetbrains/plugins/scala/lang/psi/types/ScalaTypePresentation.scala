@@ -6,20 +6,19 @@ package types
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorSimplifyTypeProjectionInspection
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.{NameRenderer, PresentationOptions, TextEscaper}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.annotation.tailrec
 
@@ -43,32 +42,35 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
     def typeTail(need: Boolean) = if (need) ObjectTypeSuffix else ""
 
-    def typeParametersText(typeParams: Seq[ScTypeParam], substitutor: ScSubstitutor): String = typeParams match {
-      case Seq() => ""
-      case _ =>
-        def typeParamText(param: ScTypeParam): String = {
+    def typeParametersText(paramsOwner: ScTypeParametersOwner, substitutor: ScSubstitutor): String = paramsOwner.typeParameters match {
+      case Seq()  => ""
+      case params => params.map(typeParamText(_, substitutor)).commaSeparated(model = Model.SquareBrackets)
+    }
 
-          def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer, textEscaper, options)
+    def typeParamText(param: ScTypeParam, substitutor: ScSubstitutor): String = {
+      def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer, textEscaper, options)
 
-          val buffer = new StringBuilder(if (param.isContravariant) "-" else if (param.isCovariant) "+" else "")
-          buffer ++= param.name
+      boundsRenderer.render(
+        param.name,
+        param.lowerBound.toOption,
+        param.upperBound.toOption,
+        param.viewBound,
+        param.contextBound
+      )(typeText0)
+    }
 
-          buffer ++= lowerBoundText(param.lowerBound)(typeText0)
-          buffer ++= upperBoundText(param.upperBound)(typeText0)
-
-          param.viewBound.foreach { tp =>
-            buffer ++= " <% "
-            buffer ++= typeText0(tp)
-          }
-          param.contextBound.foreach { tp =>
-            buffer ++= " : "
-            buffer ++= typeText0(ScTypeUtil.stripTypeArgs(substitutor(tp)))
-          }
-
-          buffer.toString()
-        }
-
-        typeParams.map(typeParamText).commaSeparated(model = Model.SquareBrackets)
+    def typeParameterTypeText(typeParameterType: TypeParameterType): String = {
+      val (viewTypes, contextTypes) = typeParameterType.typeParameter.psiTypeParameter match {
+        case boundsOwner: ScTypeBoundsOwner => (boundsOwner.viewBound, boundsOwner.contextBound)
+        case _                              => EmptyTuple
+      }
+      boundsRenderer.render(
+        typeParameterType.name,
+        Some(typeParameterType.lowerType),
+        Some(typeParameterType.upperType),
+        viewTypes,
+        contextTypes
+      )(innerTypeText(_))
     }
 
     def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
@@ -140,7 +142,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           val paramClauses = ScalaTypePresentationUtils.parseParameters(function, -1)(scType => typeText0(substitutor(scType)))
           val retType = if (!compType.equiv(returnType)) typeText0(substitutor(returnType)) else s"this$ObjectTypeSuffix"
 
-          val typeParameters = typeParametersText(function.typeParameters, substitutor)
+          val typeParameters = typeParametersText(function, substitutor)
 
           Some(s"def ${s.name}$typeParameters$paramClauses: $retType")
         case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
@@ -161,7 +163,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
             if (signature.isDefinition) s" = ${typeText0(signature.upperBound)}"
             else lowerBoundText(signature.lowerBound)(typeText0) + upperBoundText(signature.upperBound)(typeText0)
 
-          val typeParameters = typeParametersText(alias.typeParameters, signature.substitutor)
+          val typeParameters = typeParametersText(alias, signature.substitutor)
           Some(s"type ${signature.name}$typeParameters$defnText")
         case _ => None
       }
@@ -259,20 +261,6 @@ trait ScalaTypePresentation extends api.TypePresentation {
         innerTypeText(des) + typeArgs.map(printArgsFun(_)).commaSeparated(model = Model.SquareBrackets)
     }
 
-    def typeParameterTypeText(typeParameterType: TypeParameterType): String = {
-      val lowerBound  = lowerBoundText(typeParameterType.lowerType)(innerTypeText(_))
-      val upperBound  = upperBoundText(typeParameterType.upperType)(innerTypeText(_))
-      val otherBounds = typeParameterType.typeParameter.psiTypeParameter match {
-        case boundsOwner: ScTypeBoundsOwner =>
-          val contextBounds = boundsOwner.contextBound.map(boundText(_, ScalaTokenTypes.tCOLON)(innerTypeText(_)))
-          val viewBounds = boundsOwner.viewBound.map(boundText(_, ScalaTokenTypes.tVIEW)(innerTypeText(_)))
-          (contextBounds ++ viewBounds).mkString
-        case _ => ""
-      }
-      val name = typeParameterType.name
-      s"$name$lowerBound$upperBound$otherBounds"
-    }
-
     def infixTypeText(op: String, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
       val assoc = InfixExpr.associate(op)
 
@@ -353,4 +341,5 @@ trait ScalaTypePresentation extends api.TypePresentation {
 object ScalaTypePresentation {
 
   val ObjectTypeSuffix = ".type"
+  private val EmptyTuple = (Seq.empty, Seq.empty)
 }

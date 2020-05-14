@@ -2,16 +2,14 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
-import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.apache.commons.lang.StringEscapeUtils
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt, childOf}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -177,14 +175,6 @@ class TypeBoundsRenderer(textEscaper: TextEscaper) {
 
   import ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 
-  def upperBoundText(maybeType: TypeResult)
-                    (toString: ScType => String): String =
-    maybeType.fold(_ => "", upperBoundText(_)(toString))
-
-  def lowerBoundText(maybeType: TypeResult)
-                    (toString: ScType => String): String =
-    maybeType.fold(_ => "", lowerBoundText(_)(toString))
-
   def upperBoundText(typ: ScType)
                     (toString: ScType => String): String =
     if (typ.isAny) ""
@@ -199,5 +189,27 @@ class TypeBoundsRenderer(textEscaper: TextEscaper) {
                (toString: ScType => String): String = {
     val boundEscaped = textEscaper.escape(bound.toString)
     " " + boundEscaped + " " + toString(typ)
+  }
+
+  def render(
+    paramName: String,
+    lower: Option[ScType],
+    upper: Option[ScType],
+    view: Seq[ScType],
+    context: Seq[ScType]
+  )(toString: ScType => String): String = {
+    val buffer = new StringBuilder
+
+    buffer ++= paramName
+
+    def append(text: String): Unit =
+      buffer ++= text
+
+    lower.foreach(b => append(lowerBoundText(b)(toString)))
+    upper.foreach(b => append(upperBoundText(b)(toString)))
+    view.foreach(b => append(boundText(b, ScalaTokenTypes.tVIEW)(toString)))
+    context.foreach(b => append(boundText(b, ScalaTokenTypes.tCOLON)(toString)))
+
+    buffer.result
   }
 }
