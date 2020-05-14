@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
 // TODO 1: analyze whether rendered info is cached?
 // TODO 2:  (!) quick info on the element itself should lead to "Show find usages" tooltip, no to quick info tooltip
@@ -88,7 +87,7 @@ object ScalaDocQuickInfoGenerator {
       case clazz: ScClass =>
         clazz.constructor match {
           case Some(primaryConstructor) =>
-            StructureViewUtil.renderParametersAsString(primaryConstructor.parameterList, short = false, subst)(buffer)
+            ScalaTypePresentationUtils.renderParametersAsString(primaryConstructor.parameterList, short = false, subst)(buffer)
           case _ =>
         }
       case _ =>

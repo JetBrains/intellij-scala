@@ -8,8 +8,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnota
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
+// TODO: unify methods styles
 object ScalaTypePresentationUtils {
 
   // TODO 1: optimize all or nothing, use buffer if we use it inside parseParameterClause
@@ -154,5 +156,35 @@ object ScalaTypePresentationUtils {
       }
     }
     buffer.toString()
+  }
+
+  def renderParametersAsString(x: ScParameters, short: Boolean, subst: ScSubstitutor)
+                              (buffer: StringBuilder): Unit =
+    for (child <- x.clauses) {
+      buffer.append("(")
+      renderParametersAsString(child, short, subst)(buffer)
+      buffer.append(")")
+    }
+
+  def renderParametersAsString(x: ScParameterClause, short: Boolean, subst: ScSubstitutor)
+                              (buffer: StringBuilder): Unit = {
+    var isFirst = true
+    for (param <- x.parameters) {
+      if (isFirst)
+        isFirst = false
+      else
+        buffer.append(", ")
+      if (short) {
+        param.paramType match {
+          case Some(pt) => buffer.append(pt.getText).append(", ")
+          case None => buffer.append("AnyRef")
+        }
+      }
+      else {
+        buffer.append(param.name + ": ")
+        val typez = subst(param.`type`().getOrNothing)
+        buffer.append(typez.presentableText(x) + (if (param.isRepeatedParameter) "*" else ""))
+      }
+    }
   }
 }
