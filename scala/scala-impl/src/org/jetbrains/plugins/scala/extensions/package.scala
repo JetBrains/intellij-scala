@@ -1088,6 +1088,11 @@ package object extensions {
 
     def intersperse[B >: A](start: B, sep: B, end: B): Iterator[B] =
       Iterator(start) ++ delegate.intersperse(sep) ++ Iterator(end)
+
+    def findByType[B](implicit classTag: ClassTag[B]): Option[B] = {
+      val runtimeClass = classTag.runtimeClass
+      delegate.find(runtimeClass.isInstance).map(_.asInstanceOf[B])
+    }
   }
 
   implicit class ConcurrentMapExt[K, V](private val map: JConcurrentMap[K, V]) extends AnyVal {

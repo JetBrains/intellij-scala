@@ -9,7 +9,7 @@ import com.intellij.psi.javadoc.PsiDocComment
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
 import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
@@ -254,7 +254,7 @@ object ScalaDocGenerator {
     docComment: ScDocComment
   ): String = {
     val javaElement = prepareFakeJavaElementWithComment(docCommentOwner, docComment)
-    generateJavaDocInfoContent(javaElement)
+    javaElement.map(generateJavaDocInfoContent).getOrElse("")
   }
 
   def generateRenderedScalaDocContent(
@@ -262,7 +262,7 @@ object ScalaDocGenerator {
     docComment: ScDocComment
   ): String = {
     val javaElement = prepareFakeJavaElementWithComment(docCommentOwner, docComment)
-    generateRenderedJavaDocInfo(javaElement)
+    javaElement.map(generateRenderedJavaDocInfo).getOrElse("")
   }
 
   private def prepareFakeJavaElementWithComment(docCommentOwner: PsiDocCommentOwner, docComment: ScDocComment) = {
@@ -270,7 +270,10 @@ object ScalaDocGenerator {
     createFakeJavaElement(docCommentOwner, withReplacedWikiTags)
   }
 
-  private def createFakeJavaElement(elem: PsiDocCommentOwner, docText: String) = {
+  private def createFakeJavaElement(
+    elem: PsiDocCommentOwner,
+    docText: String
+  ): Option[PsiDocCommentOwner] = {
     def getParams(fun: ScParameterOwner): String =
       fun.parameters.map(param => "int     " + escapeHtml(param.name)).mkString("(", ",\n", ")")
 
@@ -309,9 +312,10 @@ object ScalaDocGenerator {
     val javaDummyFile = createDummyJavaFile(javaText, elem.getProject)
 
     val clazz = javaDummyFile.getClasses.head
+    // not using getAllMethods to avoid accessing indexes (and thus work in dump mode)
     elem match {
-      case _: ScFunction | _: ScClass | _: PsiMethod => clazz.getAllMethods.head
-      case _                                         => clazz
+      case _: ScFunction | _: ScClass | _: PsiMethod => clazz.children.findByType[PsiMethod]
+      case _                                         => Some(clazz)
     }
   }
 
