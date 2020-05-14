@@ -82,30 +82,36 @@ class TermSignature(_name: String,
   }
 
 
-  def paramTypesEquivExtended(other: TermSignature, constraints: ConstraintSystem,
-                              falseUndef: Boolean): ConstraintsResult = {
+  def paramTypesEquivExtended(
+    other:       TermSignature,
+    constraints: ConstraintSystem,
+    falseUndef:  Boolean
+  ): ConstraintsResult = {
 
     if (paramLength != other.paramLength ||
         paramLength > 0 && paramClauseSizes =!= other.paramClauseSizes ||
         hasRepeatedParam =!= other.hasRepeatedParam)
       return ConstraintsResult.Left
 
-    val depParamTypeSubst = depParamTypeSubstitutor(other)
-    val unified = other.substitutor.withBindings(typeParams, other.typeParams)
-    val clauseIterator = substitutedTypes.iterator
+    val depParamTypeSubst   = depParamTypeSubstitutor(other)
+    val unified             = other.substitutor.withBindings(typeParams, other.typeParams)
+    val clauseIterator      = substitutedTypes.iterator
     val otherClauseIterator = other.substitutedTypes.iterator
-    var lastConstraints = constraints
+    var lastConstraints     = constraints
+
     while (clauseIterator.hasNext && otherClauseIterator.hasNext) {
-      val clause1 = clauseIterator.next()
-      val clause2 = otherClauseIterator.next()
-      val typesIterator = clause1.iterator
+      val clause1            = clauseIterator.next()
+      val clause2            = otherClauseIterator.next()
+      val typesIterator      = clause1.iterator
       val otherTypesIterator = clause2.iterator
+
       while (typesIterator.hasNext && otherTypesIterator.hasNext) {
-        val t1 = typesIterator.next()
-        val t2 = otherTypesIterator.next()
+        val t1  = typesIterator.next()
+        val t2  = otherTypesIterator.next()
         val tp1 = unified.followed(depParamTypeSubst)(t1())
         val tp2 = unified(t2())
-        var t = tp2.equiv(tp1, lastConstraints, falseUndef)
+        var t   = tp2.equiv(tp1, lastConstraints, falseUndef)
+
         if (t.isLeft && tp1.equiv(api.AnyRef) && this.isJava) {
           t = tp2.equiv(Any, lastConstraints, falseUndef)
         }
@@ -243,9 +249,6 @@ object TermSignature {
   private val HasParameters = 5
 }
 
-
-
-import com.intellij.psi.PsiMethod
 object PhysicalMethodSignature {
   @tailrec
   def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
@@ -265,11 +268,12 @@ object PhysicalMethodSignature {
 
   def hasRepeatedParam(method: PsiMethod): Array[Int] = {
     val originalMethod = method match {
-      case s: ScMethodLike => s
-      case wrapper: ScFunctionWrapper => wrapper.delegate
+      case s: ScMethodLike                      => s
+      case wrapper: ScFunctionWrapper           => wrapper.delegate
       case wrapper: ScPrimaryConstructorWrapper => wrapper.delegate
-      case _ => method
+      case _                                    => method
     }
+
     originalMethod.getParameterList match {
       case p: ScParameters =>
         val params = p.params
@@ -296,14 +300,13 @@ object PhysicalMethodSignature {
   private def javaParamType(p: PsiParameter): ScType = {
     val treatJavaObjectAsAny = p.parentsInFile.instanceOf[PsiClass] match {
       case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
-      case _ => false
+      case _                                                    => false
     }
+
     val paramTypeNoVarargs = p.paramType(extractVarargComponent = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
 
-    implicit val scope: ElementScope = ElementScope(p.getProject)
-
-    if (p.isVarArgs) paramTypeNoVarargs.tryWrapIntoSeqType
-    else paramTypeNoVarargs
+    if (p.isVarArgs) paramTypeNoVarargs.tryWrapIntoSeqType(p.elementScope)
+    else             paramTypeNoVarargs
   }
 
   private def scalaParamType(p: ScParameter): ScType = {
