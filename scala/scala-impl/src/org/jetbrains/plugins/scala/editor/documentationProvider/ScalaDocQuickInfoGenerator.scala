@@ -14,6 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeBoundsRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.TextEscaper
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -153,32 +156,17 @@ object ScalaDocQuickInfoGenerator {
     }
   }
 
-  private def renderTypeParam(buffer: StringBuilder, param: ScTypeParam)
-                             (implicit subst: ScSubstitutor): Unit = {
-    buffer.append(param.name)
-    renderTypeParamBounds(buffer, param)
+  private def renderTypeParam(param: ScTypeParam)
+                             (implicit subst: ScSubstitutor): String = {
+    val renderer = new TypeBoundsRenderer(TextEscaper.Html)
+    renderer.render(
+      param.name,
+      param.lowerBound.toOption,
+      param.upperBound.toOption,
+      param.viewBound,
+      param.contextBound,
+    )(renderType(_))
   }
-
-  private def renderTypeParamBounds(buffer: StringBuilder, param: ScTypeParam)
-                                   (implicit subst: ScSubstitutor): Unit = {
-    def append(boundElement: ScTypeElement, boundType: IElementType): Unit = {
-      if (buffer.nonEmpty) buffer.append(" ")
-      val boundTypeEscaped = boundType.toString.replace("<", "&lt;")
-      val boundElementRendered = renderTypeElement(boundElement)
-      buffer.append(boundTypeEscaped).append(" ").append(boundElementRendered)
-    }
-    val bounds = param.bounds
-    bounds.foreach { case (bound, boundType) => append(bound, boundType) }
-  }
-
-  private def renderTypeElement(boundElement: ScTypeElement)
-                               (implicit subst: ScSubstitutor): String =
-    boundElement.`type`() match {
-      case Right(typ) =>
-        renderType(typ)
-      case Left(_)  =>
-        boundElement.getText // TODO: is this case possible?
-    }
 
   private def generateFunctionInfo(function: ScFunction)
                                   (implicit subst: ScSubstitutor): String = {
