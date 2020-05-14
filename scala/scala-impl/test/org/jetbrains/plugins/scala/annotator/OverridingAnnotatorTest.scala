@@ -433,4 +433,17 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       """.stripMargin
     ))
   }
+
+  def testSCL17459(): Unit =
+    assertNothing(
+      messages(
+        """trait Api {
+          |  trait Reader[T]
+          |  def OptionReader[T](implicit ev: Reader[T]): Reader[Option[T]] = ???
+          |}
+          |object MyApi extends Api {
+          |  override def OptionReader[T: Reader]: Reader[Option[T]] = ???   // <- error highlighted here
+          |}""".stripMargin
+      )
+    )
 }
