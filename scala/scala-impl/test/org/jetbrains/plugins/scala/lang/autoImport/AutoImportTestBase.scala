@@ -12,11 +12,11 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction.getImportHolder
 import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ScalaImportTypeFix}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
@@ -66,7 +66,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     try {
       executeWriteActionCommand("Test") {
-        val holder = getImportHolder(ref, project)
+        val holder = ScImportsHolder(ref)(project)
         classes(0) match {
           case ClassToImport(clazz) => holder.addImportForClass(clazz)
           case ta => holder.addImportForPath(ta.qualifiedName, ref)

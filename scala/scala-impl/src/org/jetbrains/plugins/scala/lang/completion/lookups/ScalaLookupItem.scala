@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.settings._
@@ -307,7 +307,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
 
               findReferenceAtOffset(context) match {
                 case null =>
-                case reference => getImportHolder(reference).addImportForPath(p.getQualifiedName)
+                case reference => ScImportsHolder(reference).addImportForPath(p.getQualifiedName)
               }
             case _ if containingClass != null =>
               context.commitDocument()
@@ -333,7 +333,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
                           case None => ref.bindToElement(getPsiElement, Some(containingClass))
                           case Some(named@ScalaPsiUtil.inNameContext(ContainingClass(clazz))) =>
                             if (clazz.qualifiedName != null) {
-                              getImportHolder(ref).addImportForPsiNamedElement(named, null, classToImport)
+                              ScImportsHolder(ref).addImportForPsiNamedElement(named, null, classToImport)
                             }
                         }
                       }
@@ -384,11 +384,6 @@ object ScalaLookupItem {
     case parent: ScReference if !parent.qualifier.contains(reference) => findQualifier(parent)
     case _ => reference
   }
-
-  private def getImportHolder(reference: ScReference) = ScalaAddImportAction.getImportHolder(
-    reference,
-    reference.getProject
-  )
 
   private def replaceReference(reference: ScReference, text: String)
                               (elementToBindTo: PsiNamedElement)

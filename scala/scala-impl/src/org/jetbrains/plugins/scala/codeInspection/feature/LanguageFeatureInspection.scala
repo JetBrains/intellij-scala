@@ -5,9 +5,9 @@ package feature
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScRefinement}
@@ -102,14 +102,12 @@ private case class Feature(name: String,
   }
 }
 
-private class ImportFeatureFlagFix(e: PsiElement, name: String, flag: String)
-        extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("import.feature.flag.for.language.feature").format(name), e) {
+private final class ImportFeatureFlagFix(e: PsiElement, name: String, flag: String)
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("import.feature.flag.for.language.feature").format(name), e) {
 
   override protected def doApplyFix(elem: PsiElement)
-                                   (implicit project: Project): Unit = {
-    val importsHolder = ScalaAddImportAction.getImportHolder(elem, elem.getProject)
-    importsHolder.addImportForPath(flag, elem)
-  }
+                                   (implicit project: Project): Unit =
+    ScImportsHolder(elem).addImportForPath(flag, elem)
 }
 
 private class EnableFeatureFix(profile: => ScalaCompilerSettingsProfile,

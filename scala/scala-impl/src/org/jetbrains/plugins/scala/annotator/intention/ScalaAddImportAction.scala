@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.intention
+package org.jetbrains.plugins.scala
+package annotator
+package intention
 
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
@@ -8,20 +10,16 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.util.ObjectUtils
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
-abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants: Array[ElementToImport], place: Elem)
+sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants: Array[ElementToImport], place: Elem)
   extends QuestionAction {
 
   private implicit val project: Project = place.getProject
@@ -118,14 +116,13 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
 
 object ScalaAddImportAction {
 
-  def apply(editor: Editor, variants: Array[ElementToImport], ref: ScReference): ScalaAddImportAction[_] = {
+  def apply(editor: Editor, variants: Array[ElementToImport], ref: ScReference): ScalaAddImportAction[_] =
     ref match {
       case docRef: ScDocResolvableCodeReference => new ForScalaDoc(editor, variants, docRef)
-      case _                                    => new ForReference(editor, variants, ref)
+      case _ => new ForReference(editor, variants, ref)
     }
-  }
 
-  private class ForReference(editor: Editor, variants: Array[ElementToImport], ref: ScReference)
+  private final class ForReference(editor: Editor, variants: Array[ElementToImport], ref: ScReference)
     extends ScalaAddImportAction[ScReference](editor, variants, ref) {
 
     override protected def doAddImport(toImport: ElementToImport): Unit = {
@@ -136,7 +133,7 @@ object ScalaAddImportAction {
     }
   }
 
-  private class ForScalaDoc(editor: Editor, variants: Array[ElementToImport], ref: ScDocResolvableCodeReference)
+  private final class ForScalaDoc(editor: Editor, variants: Array[ElementToImport], ref: ScDocResolvableCodeReference)
     extends ScalaAddImportAction[ScDocResolvableCodeReference](editor, variants, ref) {
 
     //use fully qualified name instead of adding imports for scaladoc references
@@ -148,32 +145,15 @@ object ScalaAddImportAction {
   def importImplicits(editor: Editor, variants: Array[ElementToImport], place: PsiElement, title: String): ScalaAddImportAction[PsiElement] =
     new ImportImplicits(editor, variants, place, title)
 
-  private class ImportImplicits(editor: Editor, variants: Array[ElementToImport], place: PsiElement, title: String)
+  private final class ImportImplicits(editor: Editor, variants: Array[ElementToImport], place: PsiElement, title: String)
     extends ScalaAddImportAction(editor, variants, place) {
 
     override protected def chooserTitle(variants: Array[ElementToImport]): String = title
 
-    override protected def doAddImport(toImport: ElementToImport): Unit = {
-      val holder = getImportHolder(place, place.getProject)
-      holder.addImportForPath(toImport.qualifiedName)
-    }
+    override protected def doAddImport(toImport: ElementToImport): Unit =
+      ScImportsHolder(place).addImportForPath(toImport.qualifiedName)
 
     override protected def alwaysAsk: Boolean = true
-  }
-
-  def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {
-    if (ScalaCodeStyleSettings.getInstance(project).isAddImportMostCloseToReference)
-      PsiTreeUtil.getParentOfType(ref, classOf[ScImportsHolder])
-    else {
-      PsiTreeUtil.getParentOfType(ref, classOf[ScPackaging]) match {
-        case null => ref.getContainingFile match {
-          case holder: ScImportsHolder => holder
-          case file =>
-            throw new AssertionError(s"Holder is wrong, file text: ${file.getText}")
-        }
-        case packaging: ScPackaging => packaging
-      }
-    }
   }
 }
 
