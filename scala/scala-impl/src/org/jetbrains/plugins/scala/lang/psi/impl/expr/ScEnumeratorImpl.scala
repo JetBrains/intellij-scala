@@ -61,10 +61,12 @@ object ScEnumeratorImpl {
       analogMethodCall
         .getLastChild
         .getLastChild
-        .asInstanceOf[ScBlockExpr]
-        .findLastChildByType[ScCaseClauses](ScalaElementType.CASE_CLAUSES)
-        .getLastChild
-        .lastChild collect { case block: ScBlock => block}
+        .asOptionOf[ScBlockExpr]
+        .flatMap(
+          _.findLastChildByType[ScCaseClauses](ScalaElementType.CASE_CLAUSES)
+          .getLastChild
+          .lastChild collect { case block: ScBlock => block}
+        )
     }
 
     override def generatorExpr: Option[ScExpression] = original match {
