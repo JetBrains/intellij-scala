@@ -237,8 +237,10 @@ package object project {
   class ScalaSdkNotConfiguredException(module: Module) extends IllegalArgumentException(s"No Scala SDK configured for module: ${module.getName}")
 
   implicit class ProjectExt(private val project: Project) extends AnyVal {
+    def unloadAwareDisposable: Disposable =
+      UnloadAwareDisposable.forProject(project)
 
-    def subscribeToModuleRootChanged(parentDisposable: Disposable = UnloadAwareDisposable(project))
+    def subscribeToModuleRootChanged(parentDisposable: Disposable = unloadAwareDisposable)
                                     (onRootsChanged: ModuleRootEvent => Unit): Unit =
       project.getMessageBus.connect(parentDisposable).subscribe(
         ProjectTopics.PROJECT_ROOTS,

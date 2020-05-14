@@ -20,7 +20,8 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.util.{NotificationUtil, UnloadAwareDisposable}
+import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 
 import scala.collection.mutable
@@ -66,7 +67,7 @@ class AmmoniteScriptWrappersHolder(project: Project) {
   }
 
   private def init(): Unit = {
-    val connection = project.getMessageBus.connect(UnloadAwareDisposable(project))
+    val connection = project.getMessageBus.connect(project.unloadAwareDisposable)
     connection.subscribe(DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC, new DaemonListener {
       override def daemonFinished(): Unit = problemFiles.replaceAll(setMask(SET_DAEMON_MASK))
     })

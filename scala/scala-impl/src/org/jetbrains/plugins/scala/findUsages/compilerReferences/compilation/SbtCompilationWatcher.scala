@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.Sbt
 import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
 import org.jetbrains.plugins.scala.indices.protocol.sbt.Locking.FileLockingExt
 import org.jetbrains.plugins.scala.indices.protocol.sbt._
-import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
+import org.jetbrains.plugins.scala.project.ProjectExt
 import spray.json._
 
 import scala.util.Try
@@ -81,7 +81,7 @@ private[compilerReferences] class SbtCompilationWatcher(
 
   private[this] def subscribeToSbtNotifications(): Unit = {
     val messageBus = project.getMessageBus
-    val connection = messageBus.connect(UnloadAwareDisposable(project))
+    val connection = messageBus.connect(project.unloadAwareDisposable)
 
     connection.subscribe(ProjectTopics.MODULES, new ModuleListener {
       // if an sbt project is added to the IDEA model, just nuke the indices

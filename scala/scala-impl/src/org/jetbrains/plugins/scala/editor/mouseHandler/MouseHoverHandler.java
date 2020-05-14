@@ -197,7 +197,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
 
     public MouseHoverHandlerListeners(final Project project) {
       myProject = project;
-      myProjectDisposable = UnloadAwareDisposable.apply(myProject);
+      myProjectDisposable = UnloadAwareDisposable.forProject(myProject);
       myDocumentationManager = DocumentationManager.getInstance(project);
       myDocAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, myProjectDisposable);
       myTooltipAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, myProjectDisposable);

@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.Compil
 import org.jetbrains.plugins.scala.findUsages.factory.{CompilerIndicesFindUsagesHandler, ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
-import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.jetbrains.sbt.shell.SbtShellCommunication
 
 import scala.collection.JavaConverters._
@@ -151,7 +150,7 @@ object CompilerIndicesReferencesSearcher {
       lock.locked(indexingFinishedCondition.signal())
     }
 
-    pendingConnection = project.getMessageBus.connect(UnloadAwareDisposable(project))
+    pendingConnection = project.getMessageBus.connect(project.unloadAwareDisposable)
 
     pendingConnection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
       private[this] val targetModuleNames = ContainerUtil.newConcurrentSet[String]

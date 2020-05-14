@@ -10,7 +10,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.XCollection
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
 import org.jetbrains.sbt.settings.SbtSettings.defaultMaxHeapSize
 
@@ -66,7 +66,7 @@ final class SbtSettings(project: Project)
 
   override def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]): Unit = {
     val adapter = new SbtProjectSettingsListenerAdapter(listener)
-    getProject.getMessageBus.connect(UnloadAwareDisposable(project)).subscribe(SbtTopic, adapter)
+    getProject.getMessageBus.connect(project.unloadAwareDisposable).subscribe(SbtTopic, adapter)
   }
 
   override def copyExtraSettingsFrom(settings: SbtSettings): Unit = {

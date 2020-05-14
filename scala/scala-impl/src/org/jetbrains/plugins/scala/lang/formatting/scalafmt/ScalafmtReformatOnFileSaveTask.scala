@@ -13,14 +13,14 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.language.SbtFileImpl
 
 final class ScalafmtReformatOnFileSaveTask extends ProjectManagerListener {
 
   override def projectOpened(project: Project): Unit = {
     val bus = ApplicationManager.getApplication.getMessageBus
-    bus.connect(UnloadAwareDisposable(project)).subscribe(AppTopics.FILE_DOCUMENT_SYNC, new FileDocumentManagerListener {
+    bus.connect(project.unloadAwareDisposable).subscribe(AppTopics.FILE_DOCUMENT_SYNC, new FileDocumentManagerListener {
       override def beforeDocumentSaving(document: Document): Unit = reformatIfNeeded(document)(project)
     })
   }

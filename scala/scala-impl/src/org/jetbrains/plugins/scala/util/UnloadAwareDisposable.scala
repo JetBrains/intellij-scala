@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.invokeOnScalaPluginUnload
 
 object UnloadAwareDisposable {
@@ -21,27 +22,12 @@ object UnloadAwareDisposable {
     unloadDisposable
   }
 
-  def apply(original: Disposable): Disposable = {
-    class DisposableTwin extends Disposable {
-      @Nullable
-      var twin: DisposableTwin = _
+  def forProject(project: Project): Disposable = {
+    project.getService(classOf[UnloadAwareProjectDisposableService])
+  }
 
-      override def dispose(): Unit = {
-        if (twin != null) {
-          twin.twin = null
-          Disposer.dispose(twin)
-        }
-      }
-    }
-
-    val originalChild = new DisposableTwin
-    val unloadingChild = new DisposableTwin
-    originalChild.twin = unloadingChild
-    unloadingChild.twin = originalChild
-
-    Disposer.register(original, originalChild)
-    Disposer.register(scalaPluginDisposable, unloadingChild)
-
-    originalChild
+  @Service
+  private final class UnloadAwareProjectDisposableService extends Disposable {
+    override def dispose(): Unit = ()
   }
 }

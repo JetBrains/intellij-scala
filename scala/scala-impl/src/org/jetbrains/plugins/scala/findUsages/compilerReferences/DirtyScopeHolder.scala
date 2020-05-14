@@ -20,7 +20,6 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import scala.collection.JavaConverters._
 
@@ -115,7 +114,7 @@ abstract class DirtyScopeHolder[Scope](
   }
 
   private[compilerReferences] def installVFSListener(): Unit =
-    project.getMessageBus.connect(UnloadAwareDisposable(project)).subscribe(VirtualFileManager.VFS_CHANGES, this)
+    project.getMessageBus.connect(project.unloadAwareDisposable).subscribe(VirtualFileManager.VFS_CHANGES, this)
 
   def dirtyScope: GlobalSearchScope = inReadAction {
     lock.locked {
