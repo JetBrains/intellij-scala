@@ -56,7 +56,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   @tailrec
   private def getContextInfo(ref: ScReferenceExpression, e: ScExpression): ContextInfo = {
     e.getContext match {
-      case generic : ScGenericCall => getContextInfo(ref, generic)
+      case generic: ScGenericCall => getContextInfo(ref, generic)
       case call: ScMethodCall if !call.isUpdateCall =>
         ContextInfo(Some(call.argumentExpressions), () => call.expectedType(), isUnderscore = false)
       case call: ScMethodCall =>
@@ -81,16 +81,18 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   }
 
   @tailrec
-  private def kinds(ref: ScReferenceExpression, e: ScExpression, incomplete: Boolean): scala.collection.Set[ResolveTargets.Value] = {
-    e.getContext match {
-      case gen: ScGenericCall => kinds(ref, gen, incomplete)
-      case parents: ScParenthesisedExpr => kinds(ref, parents, incomplete)
-      case _: ScMethodCall | _: ScUnderscoreSection => StdKinds.methodRef
-      case inf: ScInfixExpr if ref == inf.operation => StdKinds.methodRef
-      case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
-      case pref: ScPrefixExpr if ref == pref.operation => StdKinds.methodRef
-      case _ => ref.getKinds(incomplete)
-    }
+  private def kinds(
+    ref:        ScReferenceExpression,
+    e:          ScExpression,
+    incomplete: Boolean
+  ): scala.collection.Set[ResolveTargets.Value] = e.getContext match {
+    case gen: ScGenericCall                             => kinds(ref, gen, incomplete)
+    case parents: ScParenthesisedExpr                   => kinds(ref, parents, incomplete)
+    case _: ScMethodCall | _: ScUnderscoreSection       => StdKinds.methodRef
+    case inf: ScInfixExpr if ref == inf.operation       => StdKinds.methodRef
+    case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
+    case pref: ScPrefixExpr if ref == pref.operation    => StdKinds.methodRef
+    case _                                              => ref.getKinds(incomplete)
   }
 
   @tailrec

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderScoreSectionUtil, _}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -121,6 +121,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
    *   and the expected result type is elided using a wildcard.
    *   This does not exclude any overloads that expect a SAM, because they conform to a function type through SAM conversion
    * - OR: all overloads expect a SAM type of the same class, but with potentially varying result types (argument types must be =:=)
+   *       (this last case is not actually working due to a bug in scalac ¯\_(ツ)_/¯ https://github.com/scala/bug/issues/11703)
    * */
   private[this] def expectedFunctionTypeFromOverloadedAlternatives(
     alternatives: Seq[ScType],
@@ -145,27 +146,26 @@ class ExpectedTypesImpl extends ExpectedTypes {
     @tailrec
     def recur(
       tpes:              Iterator[ScType],
-      compatible:        List[ScType]   = Nil,
-      isFunctionN:       Boolean        = false,
-      isPartialFunction: Boolean        = false,
-      paramTpes:         Seq[ScType]    = Seq.empty,
-      returnTpe:         Option[ScType] = None
-    ): (Option[ScType], List[ScType]) =
+      compatibleParams:  List[Seq[ScType]] = Nil,
+      isFunctionN:       Boolean            = false,
+      isPartialFunction: Boolean            = false,
+      paramTpes:         Seq[ScType]        = Seq.empty,
+      returnTpe:         Option[ScType]     = None
+    ): (Option[ScType], List[Seq[ScType]]) =
       if (tpes.isEmpty) {
         val rtpe = returnTpe.getOrElse(Any)
 
         val mergedTpe =
           if (isPartialFunction) PartialFunctionType((rtpe, paramTpes.head)).toOption
           else if (isFunctionN)  FunctionType((rtpe, paramTpes)).toOption
-          else if (compatible.size == 1) compatible.headOption
-          else                           None
+          else                   None
 
-        (mergedTpe, compatible)
+        (mergedTpe, compatibleParams)
       } else tpes.next() match {
-        case ftpe @ functionLikeType(marker, rtpe, ptpes) =>
+        case functionLikeType(marker, rtpe, ptpes) =>
           if (!expectedArity.matches(ptpes.size))
             /* Skip function like types with wrong arity */
-            recur(tpes, compatible, isFunctionN, isPartialFunction, paramTpes, returnTpe)
+            recur(tpes, compatibleParams, isFunctionN, isPartialFunction, paramTpes, returnTpe)
           else if (!paramTpesMatch(paramTpes, ptpes))
           /* One of the expected types is a function-like type of correct arity
              but with mismatched parameter types, FAIL */
@@ -174,7 +174,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
             val functionN        = isFunctionN       || marker == FunctionN
             val pf               = isPartialFunction || marker == PF
             val shouldSkip       = returnTpe.exists(equiv(_, rtpe))
-            val uniqueCompatible = if (shouldSkip) compatible else ftpe :: compatible
+            val uniqueCompatible = if (shouldSkip) compatibleParams else ptpes :: compatibleParams
 
             recur(
               tpes,
@@ -188,16 +188,29 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case _ => (None, Nil)
       }
 
+    def lubParamTpes(altParams: List[Seq[ScType]]): Option[ScType] =
+      e match {
+        case ref: ScReferenceExpression if !ScUnderScoreSectionUtil.isUnderscoreFunction(ref) => None
+        case _ =>
+          val paramLubs = altParams.transpose.map(_.lub())
+          FunctionType((Any, paramLubs)).toOption
+      }
+
     val (maybeMergedTpe, correctArity) = recur(alternatives.iterator)
 
-    val result =
-      if (canMergeParamTpes) maybeMergedTpe
-      else                   onlyOne(correctArity)
+    import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl.Arity.NotAFunction
+    val result = expectedArity match {
+      case NotAFunction => onlyOne(alternatives)
+      case _ =>
+        if (alternatives.size == 1) alternatives.headOption
+        else if (canMergeParamTpes) maybeMergedTpe
+        else                        lubParamTpes(correctArity)
+    }
 
     result.map(_ -> None)
   }
 
-// Expression has no expected type if followed by "." + "Identifier expected" error, #SCL-15754
+  //Expression has no expected type if followed by "." + "Identifier expected" error, #SCL-15754
   private def isInIncompeteCode(e: ScExpression): Boolean = {
     def isIncompleteDot(e1: LeafPsiElement, e2: PsiErrorElement) =
       e1.textMatches(".") && e2.getErrorDescription == ScalaBundle.message("identifier.expected")
