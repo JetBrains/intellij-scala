@@ -100,13 +100,17 @@ object ScalaDocQuickInfoGenerator {
     val superTypes = clazz.superTypes
     superTypes match {
       case head :: tail =>
-        buffer.append(" extends ")
-        buffer.append(renderType(head))
+        if (isJavaLangObject(head) && clazz.isInstanceOf[ScTrait]) {
+          // ignore
+        } else {
+          buffer.append(" extends ")
+          buffer.append(renderType(head))
+        }
 
         if (tail.nonEmpty && !printEachOnNewLine)
           buffer.append("\n")
 
-        tail.foreach { superType =>
+        tail.iterator.filterNot(isJavaLangObject).foreach { superType =>
           if (printEachOnNewLine)
             buffer.append("\n")
           buffer.append(" with ")
@@ -115,6 +119,18 @@ object ScalaDocQuickInfoGenerator {
       case _ =>
     }
   }
+
+  // TODO 1: cover usages with tests
+  // TODO 2: custom `trait Object` should be navigatable (now it navigates to `java.lang.Object`)
+  private def isJavaLangObject(scType: ScType): Boolean =
+    scType match {
+      case designator: ScDesignatorType =>
+        designator.element match {
+          case clazz: PsiClass => clazz.qualifiedName == "java.lang.Object"
+          case _               => false
+        }
+      case _ => false
+    }
 
   private def renderType(typ: ScType)
                         (implicit subst: ScSubstitutor): String =
