@@ -3,9 +3,11 @@ package lang
 package completion
 package global
 
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.implicits._
@@ -39,13 +41,27 @@ private[completion] final class ExtensionMethodsFinder(originalType: ScType, pla
   }
 
   private final case class ExtensionMethodCandidate(resolveResult: ScalaResolveResult,
-                                                    elementToImport: ScFunction,
-                                                    classToImport: ScObject)
+                                                    private val elementToImport: ScFunction,
+                                                    private val classToImport: ScObject)
     extends GlobalMemberResult(resolveResult, classToImport) {
 
     override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
-      lookupItem.usedImportStaticQuickfix = true
-      lookupItem.elementToImport = Some(elementToImport, classToImport)
+      lookupItem.setInsertHandler(new ExtensionMethodInsertHandler)
+    }
+
+    private final class ExtensionMethodInsertHandler extends ScalaImportingInsertHandler(classToImport) {
+
+      override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = for {
+        ContainingClass(ClassQualifiedName(_)) <- Option(elementToImport.nameContext)
+        holder = ScImportsHolder(reference)
+      } holder.addImportForPsiNamedElement(
+        elementToImport,
+        null,
+        Some(containingClass)
+      )
+
+      override protected def qualifyOnly(reference: ScReferenceExpression): Unit =
+        super.qualifyAndImport(reference)
     }
   }
 }

@@ -10,21 +10,19 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
+import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.settings._
@@ -39,7 +37,7 @@ import scala.annotation.tailrec
  */
 final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
                                     override val getLookupString: String,
-                                    private val containingClass: PsiClass)
+                                    private[completion] val containingClass: PsiClass)
   extends LookupItem[PsiNamedElement](getPsiElement, getLookupString) {
 
   import ScalaLookupItem._
@@ -65,7 +63,6 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   var isUnderlined: Boolean = false
   var isInImport: Boolean = false
   var isInStableCodeReference: Boolean = false
-  var usedImportStaticQuickfix: Boolean = false
   var elementToImport: Option[(ScFunction, ScObject)] = None
   var someSmartCompletion: Boolean = false
   var bold: Boolean = false
@@ -242,9 +239,9 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
       context.commitDocument()
 
       getPsiElement match {
-        case _: PsiClass |
-             _: ScTypeAlias |
-             _: ScPackage =>
+        case element@(_: PsiClass |
+                      _: ScTypeAlias |
+                      _: ScPackage) =>
           if (isRenamed.isDefined) return
 
           if (isInSimpleString) {
@@ -266,7 +263,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
 
           ref = findQualifier(ref)
 
-          val cl = getPsiElement match {
+          val cl = element match {
             case clazz: PsiClass => ClassToImport(clazz)
             case ta: ScTypeAlias => TypeAliasToImport(ta)
             case pack: ScPackage => PrefixPackageToImport(pack)
@@ -290,63 +287,29 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           } else
             nameToUse()
 
-          replaceReference(ref, referenceText)(getPsiElement)()
+          ScalaInsertHandler.replaceReference(ref, referenceText)(element)()
 
-          getPsiElement match {
+          element match {
             case _: ScObject if isInStableCodeReference =>
               context.scheduleAutoPopup()
             case _ =>
           }
-        case _ =>
+        case p: PsiPackage if shouldImport =>
           simpleInsert(context)
+          context.commitDocument()
 
-          getPsiElement match {
-            case p: PsiPackage if shouldImport =>
-              context.commitDocument()
-
-              findReferenceAtOffset(context) match {
-                case null =>
-                case reference => ScImportsHolder(reference).addImportForPath(p.getQualifiedName)
-              }
-            case _ if containingClass != null =>
-              context.commitDocument()
-
-              context.getFile match {
-                case scalaFile: ScalaFile =>
-                  val elem = scalaFile.findElementAt(realStartOffset(context))
-
-                  def qualifyReference(reference: ScReferenceExpression): Unit = replaceReference(
-                    reference,
-                    containingClassName + "." + reference.getText
-                  )(containingClass) {
-                    case ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression) => qualifier
-                  }
-
-                  elem.getParent match {
-                    case ref: ScReferenceExpression if !usedImportStaticQuickfix =>
-                      if (shouldImport) qualifyReference(ref)
-                    case ref: ScReferenceExpression =>
-                      if (!shouldImport) qualifyReference(ref)
-                      else {
-                        elementToImport match {
-                          case None => ref.bindToElement(getPsiElement, Some(containingClass))
-                          case Some((named@ScalaPsiUtil.inNameContext(ContainingClass(clazz)), classToImport)) =>
-                            if (clazz.qualifiedName != null) {
-                              ScImportsHolder(ref).addImportForPsiNamedElement(named, null, Some(classToImport))
-                            }
-                        }
-                      }
-                    case _ =>
-                  }
-                case _ =>
-              }
-            case _ =>
+          findReferenceAtOffset(context) match {
+            case null =>
+            case reference => ScImportsHolder(reference).addImportForPath(p.getQualifiedName)
           }
+        case _ if containingClass != null =>
+          new ScalaImportingInsertHandler(containingClass).handleInsert(context, this)
+        case _ =>
       }
     } else simpleInsert(context)
   }
 
-  private def findReferenceAtOffset(context: InsertionContext) = findElementOfClassAtOffset(
+  private[completion] def findReferenceAtOffset(context: InsertionContext) = findElementOfClassAtOffset(
     context.getFile,
     realStartOffset(context),
     classOf[ScReference],
@@ -382,21 +345,5 @@ object ScalaLookupItem {
   private def findQualifier(reference: ScReference): ScReference = reference.getParent match {
     case parent: ScReference if !parent.qualifier.contains(reference) => findQualifier(parent)
     case _ => reference
-  }
-
-  private def replaceReference(reference: ScReference, text: String)
-                              (elementToBindTo: PsiNamedElement)
-                              (collector: ScReference => ScReference = identity): Unit = {
-    import reference.projectContext
-
-    val newReference = reference match {
-      case _: ScReferenceExpression => createExpressionFromText(text).asInstanceOf[ScReferenceExpression]
-      case _ => createReferenceFromText(text)
-    }
-
-    val node = reference.getNode
-    node.getTreeParent.replaceChild(node, newReference.getNode)
-
-    collector(newReference).bindToElement(elementToBindTo)
   }
 }

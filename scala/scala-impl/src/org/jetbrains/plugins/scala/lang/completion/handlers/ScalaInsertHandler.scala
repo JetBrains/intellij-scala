@@ -12,12 +12,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 
 import scala.annotation.tailrec
@@ -47,6 +47,23 @@ object ScalaInsertHandler {
       else (fun.paramClauses.head.length, false)
     case _ => (0, true)
   }
+
+  private[completion] def replaceReference(reference: ScReference, text: String)
+                                          (elementToBindTo: PsiNamedElement)
+                                          (collector: ScReference => ScReference = identity): Unit = {
+    import reference.projectContext
+
+    val newReference = reference match {
+      case _: ScReferenceExpression => createExpressionFromText(text).asInstanceOf[ScReferenceExpression]
+      case _ => createReferenceFromText(text)
+    }
+
+    val node = reference.getNode
+    node.getTreeParent.replaceChild(node, newReference.getNode)
+
+    collector(newReference).bindToElement(elementToBindTo)
+  }
+
 
   private[completion] final class StringInsertPreHandler extends InsertHandler[ScalaLookupItem] {
 
