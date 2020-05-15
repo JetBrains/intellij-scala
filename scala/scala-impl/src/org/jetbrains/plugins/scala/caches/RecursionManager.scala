@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.caches
 
 import java.util
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.RecursionGuard.StackStamp
 import com.intellij.openapi.util.{RecursionManager => PlatformRM}
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.collection.JavaConverters._
@@ -110,7 +110,7 @@ object RecursionManager {
 
   object RecursionGuard {
     private val guards: ConcurrentMap[String, RecursionGuard[_, _]] =
-      ContainerUtil.newConcurrentMap[String, RecursionGuard[_, _]]()
+      new ConcurrentHashMap[String, RecursionGuard[_, _]]()
 
     def apply[Data >: Null <: AnyRef, LocalCacheValue](id: String): RecursionGuard[Data, LocalCacheValue] =
       guards.computeIfAbsent(id, new RecursionGuard[Data, LocalCacheValue](_))

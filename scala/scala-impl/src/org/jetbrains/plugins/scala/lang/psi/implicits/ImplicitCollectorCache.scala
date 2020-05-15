@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import java.lang.System.identityHashCode
+import java.util.concurrent.ConcurrentHashMap
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -13,20 +13,21 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.HashBuilder.toHashBuilder
 
-import scala.collection.{Seq, Set}
+import scala.collection.Seq
+import scala.collection.Set
 
 /**
   * @author Nikolay.Tropin
   */
 class ImplicitCollectorCache(project: Project) {
   private val map =
-    ContainerUtil.newConcurrentMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]]()
+    new ConcurrentHashMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]]()
 
   private val visibleImplicitsMap =
-    ContainerUtil.newConcurrentMap[ImplicitSearchScope, Set[ScalaResolveResult]]()
+    new ConcurrentHashMap[ImplicitSearchScope, Set[ScalaResolveResult]]()
 
   private val nonValueTypesMap =
-    ContainerUtil.newConcurrentMap[NonValueTypesKey, NonValueFunctionTypes]()
+    new ConcurrentHashMap[NonValueTypesKey, NonValueFunctionTypes]()
 
   def get(place: PsiElement, tp: ScType): Option[Seq[ScalaResolveResult]] = {
     val scope = ImplicitSearchScope.forElement(place)

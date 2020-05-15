@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.psi.PsiMethod
-import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.extensions.{ConcurrentMapExt, ObjectExt}
+import org.jetbrains.plugins.scala.extensions.ConcurrentMapExt
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.{getter, setter}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.getter
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.setter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
@@ -44,7 +46,7 @@ object PropertyMethods extends Enumeration {
     values.find(mName == methodName(propertyName, _))
   }
 
-  private val cache: ConcurrentMap[(ScTypedDefinition, DefinitionRole), Option[PsiMethod]] = ContainerUtil.newConcurrentMap()
+  private val cache: ConcurrentMap[(ScTypedDefinition, DefinitionRole), Option[PsiMethod]] = new ConcurrentHashMap()
 
   def clearCache(): Unit = cache.clear()
 

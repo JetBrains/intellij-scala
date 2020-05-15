@@ -3,50 +3,71 @@ package lang
 package psi
 package impl
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicReference
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
+import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiModificationTrackerImpl}
-import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
+import com.intellij.psi.impl.JavaPsiFacadeImpl
+import com.intellij.psi.impl.PsiModificationTrackerImpl
+import com.intellij.psi.search.DelegatingGlobalSearchScope
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.PsiShortNamesCache
 import com.intellij.util.containers.ContainerUtil
-import com.intellij.util.{ArrayUtil, ObjectUtils}
-import org.jetbrains.annotations.{CalledInAwt, TestOnly}
-import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, CleanupScheduler, ScalaShortNamesCacheManager}
+import com.intellij.util.ObjectUtils
+import org.jetbrains.annotations.CalledInAwt
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.caches.stats.CacheCapabilities
+import org.jetbrains.plugins.scala.caches.stats.CacheTracker
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.CleanupScheduler
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{StableNodes, TermNodes, TypeNodes}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithoutModificationCount, ValueWrapper}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithoutModificationCount
+import org.jetbrains.plugins.scala.macroAnnotations.ValueWrapper
+import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
-import scala.collection.{Seq, mutable}
+import scala.collection.Seq
+import scala.collection.mutable
 
 class ScalaPsiManager(implicit val project: Project) {
 
@@ -61,7 +82,7 @@ class ScalaPsiManager(implicit val project: Project) {
   private val clearCacheOnRootsChange = new CleanupScheduler
 
   val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
-    ContainerUtil.newConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]]()
+    new ConcurrentHashMap[(ScType, GlobalSearchScope), Seq[ScType]]()
 
   val implicitCollectorCache: ImplicitCollectorCache =
     CacheTracker.alwaysTrack("ScalaPsiManager.implicitCollectorCache", "ScalaPsiManager.implicitCollectorCache") {

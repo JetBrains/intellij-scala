@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package caches
 
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicReference
 
@@ -11,14 +12,15 @@ import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
-import com.intellij.util.containers.{ContainerUtil, Stack}
+import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.containers.Stack
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
-import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
+import org.jetbrains.plugins.scala.caches.stats.CacheCapabilities
+import org.jetbrains.plugins.scala.caches.stats.CacheTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 
 import scala.util.control.ControlThrowable
 
@@ -43,7 +45,7 @@ object CachesUtil {
    */
   type CachedMap[Data, Result] = CachedValue[ConcurrentMap[Data, Result]]
   type CachedRef[Result] = CachedValue[AtomicReference[Result]]
-  private val keys = ContainerUtil.newConcurrentMap[String, Key[_]]()
+  private val keys = new ConcurrentHashMap[String, Key[_]]()
 
   /**
    * IMPORTANT:
@@ -92,7 +94,7 @@ object CachesUtil {
         val manager = CachedValuesManager.getManager(elem.getProject)
         val provider = new CachedValueProvider[ConcurrentMap[Data, Result]] {
           override def compute(): CachedValueProvider.Result[ConcurrentMap[Data, Result]] =
-            new CachedValueProvider.Result(ContainerUtil.newConcurrentMap(), dependencyItem())
+            new CachedValueProvider.Result(new ConcurrentHashMap(), dependencyItem())
         }
         val newValue = CacheTracker.track(cacheTypeId, cacheTypeName) {
           manager.createCachedValue(provider, false)
