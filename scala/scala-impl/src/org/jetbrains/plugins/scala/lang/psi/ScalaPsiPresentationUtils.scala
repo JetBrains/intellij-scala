@@ -11,9 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-// TODO: unify methods styles
-// TODO: unify with PresentationUtil
-// TODO: unify with ScalaPsiUtil
+// TODO 1: unify methods styles
+// TODO 2: unify with PresentationUtil
+// TODO 3: unify with ScalaPsiUtil
+// TODO 4: after implementation is stable,
+//  investigate performance and check whether passing same buffer everywhere helps
 object ScalaPsiPresentationUtils {
 
   trait TypeRenderer {
@@ -21,26 +23,24 @@ object ScalaPsiPresentationUtils {
     final def apply(typ: ScType): String = render(typ)
   }
 
-  // TODO 1: optimize all or nothing, use buffer if we use it inside parseParameterClause
-  def parseParameters(elem: ScParameterOwner, spaces: Int)
-                     (implicit typeToString: TypeRenderer): String =
-    elem.allClauses.map(parseParameterClause(_, spaces)).mkString("\n")
+  def renderParameters(elem: ScParameterOwner, spaces: Int)
+                      (implicit typeToString: TypeRenderer): String =
+    elem.allClauses.map(renderParameterClause(_, spaces)).mkString("\n")
 
-  private def parseParameterClause(elem: ScParameterClause, spaces: Int)
-                                  (implicit typeToString: TypeRenderer): String = {
+  private def renderParameterClause(elem: ScParameterClause, spaces: Int)
+                                   (implicit typeToString: TypeRenderer): String = {
     val buffer: StringBuilder = new StringBuilder(" ")
     buffer.append(" " * spaces)
 
-    val strings = elem.parameters.map(parseParameter(_, memberModifiers = false))
+    val strings = elem.parameters.map(renderParameter(_, memberModifiers = false))
     val prefix = if (elem.isImplicit) "(implicit " else "("
     val separator = if (spaces < 0) ", " else ",\n" + buffer
     val suffix = ")"
     strings.mkString(prefix, separator, suffix)
   }
 
-  // TODO "format", not "parse"?
-  def parseParameter(param: ScParameter, escape: Boolean = true, memberModifiers: Boolean = true)
-                    (implicit typeToString: TypeRenderer): String = {
+  def renderParameter(param: ScParameter, escape: Boolean = true, memberModifiers: Boolean = true)
+                     (implicit typeToString: TypeRenderer): String = {
     val member = param match {
       case c: ScClassParameter => c.isClassMember
       case _ => false
@@ -48,11 +48,11 @@ object ScalaPsiPresentationUtils {
     val buffer: StringBuilder = new StringBuilder
     // When parameter is val, var, or case class val, annotations are related to member, not to parameter
     if (!member || memberModifiers) {
-      buffer.append(parseAnnotations(param, ' ', escape))
+      buffer.append(renderAnnotations(param, ' ', escape))
     }
     if (memberModifiers) {
       param match {
-        case cl: ScClassParameter => buffer.append(parseModifiers(cl))
+        case cl: ScClassParameter => buffer.append(renderModifiers(cl))
         case _ =>
       }
       buffer.append(param match {
@@ -68,47 +68,29 @@ object ScalaPsiPresentationUtils {
     buffer.toString()
   }
 
-  def parseAnnotations(elem: ScAnnotationsHolder,
-                       sep: Char = '\n', escape: Boolean = true)
-                      (implicit typeToString: TypeRenderer): String = {
+  def renderAnnotations(elem: ScAnnotationsHolder, sep: Char = '\n', escape: Boolean = true)
+                       (implicit typeToString: TypeRenderer): String = {
     val buffer: StringBuilder = new StringBuilder
-
-    def parseAnnotation(elem: ScAnnotation): String = {
-      val res = new StringBuilder("@")
-      val constrInvocation: ScConstructorInvocation = elem.constructorInvocation
-      res.append(typeToString(constrInvocation.typeElement.`type`().getOrAny))
-
-      val attrs = elem.annotationExpr.getAnnotationParameters
-      if (attrs.nonEmpty) res append attrs.map(_.getText).mkString("(", ", ", ")")
-
-      res.toString()
-    }
-
     for (ann <- elem.annotations) {
-      buffer.append(parseAnnotation(ann) + sep)
+      buffer.append(renderAnnotation(ann) + sep)
     }
     buffer.toString()
   }
 
-  def parseModifiers(elem: ScModifierListOwner): String = {
-    val buffer: StringBuilder = new StringBuilder
+  private def renderAnnotation(elem: ScAnnotation)
+                              (implicit typeToString: TypeRenderer): String = {
+    val res = new StringBuilder("@")
+    val constrInvocation: ScConstructorInvocation = elem.constructorInvocation
+    res.append(typeToString(constrInvocation.typeElement.`type`().getOrAny))
 
-    def accessQualifier(x: ScAccessModifier): String = x.getReference match {
-      case null => ""
-      case ref => ref.resolve match {
-        case clazz: PsiClass => "[<a href=\"psi_element://" +
-          escapeHtml(clazz.qualifiedName) + "\"><code>" +
-          (x.idText match {
-            case Some(text) => text
-            case None => ""
-          }) + "</code></a>]"
-        case pack: PsiPackage => "[" + escapeHtml(pack.getQualifiedName) + "]"
-        case _ => x.idText match {
-          case Some(text) => "[" + text + "]"
-          case None => ""
-        }
-      }
-    }
+    val attrs = elem.annotationExpr.getAnnotationParameters
+    if (attrs.nonEmpty) res append attrs.map(_.getText).mkString("(", ", ", ")")
+
+    res.toString()
+  }
+
+  def renderModifiers(elem: ScModifierListOwner): String = {
+    val buffer: StringBuilder = new StringBuilder
 
     for {
       modifier <- elem.getModifierList.accessModifier
@@ -127,6 +109,23 @@ object ScalaPsiPresentationUtils {
     buffer.toString()
   }
 
+  private def accessQualifier(x: ScAccessModifier): String = x.getReference match {
+    case null => ""
+    case ref => ref.resolve match {
+      case clazz: PsiClass => "[<a href=\"psi_element://" +
+        escapeHtml(clazz.qualifiedName) + "\"><code>" +
+        (x.idText match {
+          case Some(text) => text
+          case None => ""
+        }) + "</code></a>]"
+      case pack: PsiPackage => "[" + escapeHtml(pack.getQualifiedName) + "]"
+      case _ => x.idText match {
+        case Some(text) => "[" + text + "]"
+        case None => ""
+      }
+    }
+  }
+
   def typeAnnotationText(elem: ScTypedDefinition)
                         (implicit typeToString: TypeRenderer): String = {
     val typ = elem match {
@@ -141,7 +140,7 @@ object ScalaPsiPresentationUtils {
     s": $typeTextFixed"
   }
 
-    private def decoratedParameterType(param: ScParameter, typeText: String): String = {
+  private def decoratedParameterType(param: ScParameter, typeText: String): String = {
     val buffer = StringBuilder.newBuilder
 
     if (param.isCallByNameParameter) {
@@ -167,16 +166,18 @@ object ScalaPsiPresentationUtils {
     buffer.toString()
   }
 
-  def renderParametersAsString(x: ScParameters, short: Boolean, subst: ScSubstitutor)
-                              (buffer: StringBuilder): Unit =
+  def renderParametersAsString(x: ScParameters, short: Boolean, subst: ScSubstitutor): String = {
+    val buffer = StringBuilder.newBuilder
     for (child <- x.clauses) {
       buffer.append("(")
       renderParametersAsString(child, short, subst)(buffer)
       buffer.append(")")
     }
+    buffer.result
+  }
 
-  def renderParametersAsString(x: ScParameterClause, short: Boolean, subst: ScSubstitutor)
-                              (buffer: StringBuilder): Unit = {
+  private def renderParametersAsString(x: ScParameterClause, short: Boolean, subst: ScSubstitutor)
+                                      (buffer: StringBuilder): Unit = {
     var isFirst = true
     for (param <- x.parameters) {
       if (isFirst)

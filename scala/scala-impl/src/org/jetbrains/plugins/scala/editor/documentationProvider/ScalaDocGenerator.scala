@@ -52,14 +52,14 @@ object ScalaDocGenerator {
     def appendMainSection(element: PsiElement, epilogue: => Unit = {}, needsTpe: Boolean = false): Unit = {
       pre {
         element match {
-          case an: ScAnnotationsHolder => append(ScalaPsiPresentationUtils.parseAnnotations(an))
+          case an: ScAnnotationsHolder => append(ScalaPsiPresentationUtils.renderAnnotations(an))
           case _ =>
         }
 
         val start = length
 
         element match {
-          case m: ScModifierListOwner => append(ScalaPsiPresentationUtils.parseModifiers(m))
+          case m: ScModifierListOwner => append(ScalaPsiPresentationUtils.renderModifiers(m))
           case _ =>
         }
 
@@ -80,7 +80,7 @@ object ScalaDocGenerator {
 
         element match {
           case par: ScParameterOwner =>
-            append(ScalaPsiPresentationUtils.parseParameters(par, length - start - 7).replaceAll("\n\\s*", ""))
+            append(ScalaPsiPresentationUtils.renderParameters(par, length - start - 7).replaceAll("\n\\s*", ""))
           case _ =>
         }
 

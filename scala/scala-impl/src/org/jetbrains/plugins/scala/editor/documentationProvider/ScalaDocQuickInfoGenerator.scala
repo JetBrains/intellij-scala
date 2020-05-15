@@ -77,21 +77,21 @@ object ScalaDocQuickInfoGenerator {
         renderTypeParams(buffer, clazz)
     }
 
-    renderConstructorText(buffer, clazz)
+    buffer.append(renderConstructorText(clazz))
     renderSuperTypes(buffer, clazz)
     buffer.toString()
   }
 
-  private def renderConstructorText(buffer: StringBuilder, clazz: ScTypeDefinition)
-                                   (implicit subst: ScSubstitutor): Unit =
+  private def renderConstructorText(clazz: ScTypeDefinition)
+                                   (implicit subst: ScSubstitutor): String =
     clazz match {
       case clazz: ScClass =>
         clazz.constructor match {
           case Some(primaryConstructor) =>
-            ScalaPsiPresentationUtils.renderParametersAsString(primaryConstructor.parameterList, short = false, subst)(buffer)
-          case _ =>
+            ScalaPsiPresentationUtils.renderParametersAsString(primaryConstructor.parameterList, short = false, subst)
+          case _ => ""
         }
-      case _ =>
+      case _ => ""
     }
 
   private def renderSuperTypes(buffer: StringBuilder, clazz: ScTypeDefinition)

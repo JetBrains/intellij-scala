@@ -105,7 +105,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaPsiPresentationUtils.parseParameter(param, escape = false, memberModifiers = false)(subst(_).presentableText)
+          ScalaPsiPresentationUtils.renderParameter(param, escape = false, memberModifiers = false)(subst(_).presentableText)
         }
         p match {
           case x: String if x == "" =>

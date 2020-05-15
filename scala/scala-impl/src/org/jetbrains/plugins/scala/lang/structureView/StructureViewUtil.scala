@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 private object StructureViewUtil {
 
-  def getParametersAsString(x: ScParameters, short: Boolean = true, subst: ScSubstitutor = ScSubstitutor.empty): String = {
-    val res = new StringBuilder
-    ScalaPsiPresentationUtils.renderParametersAsString(x, short, subst)(res)
-    res.toString
-  }
+  def getParametersAsString(x: ScParameters, short: Boolean = true, subst: ScSubstitutor = ScSubstitutor.empty): String =
+    ScalaPsiPresentationUtils.renderParametersAsString(x, short, subst)
 }

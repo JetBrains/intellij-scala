@@ -138,7 +138,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
           val function = s.namedElement.asInstanceOf[ScFunction]
           val substitutor = s.substitutor
-          val paramClauses = ScalaPsiPresentationUtils.parseParameters(function, -1)(scType => typeText0(substitutor(scType)))
+          val paramClauses = ScalaPsiPresentationUtils.renderParameters(function, -1)(scType => typeText0(substitutor(scType)))
           val retType = if (!compType.equiv(returnType)) typeText0(substitutor(returnType)) else s"this$ObjectTypeSuffix"
 
           val typeParameters = typeParametersText(function, substitutor)
