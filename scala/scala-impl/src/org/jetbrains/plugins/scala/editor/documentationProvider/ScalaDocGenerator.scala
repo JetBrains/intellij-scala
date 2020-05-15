@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
+import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiPresentationUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -52,14 +52,14 @@ object ScalaDocGenerator {
     def appendMainSection(element: PsiElement, epilogue: => Unit = {}, needsTpe: Boolean = false): Unit = {
       pre {
         element match {
-          case an: ScAnnotationsHolder => append(ScalaTypePresentationUtils.parseAnnotations(an))
+          case an: ScAnnotationsHolder => append(ScalaPsiPresentationUtils.parseAnnotations(an))
           case _ =>
         }
 
         val start = length
 
         element match {
-          case m: ScModifierListOwner => append(ScalaTypePresentationUtils.parseModifiers(m))
+          case m: ScModifierListOwner => append(ScalaPsiPresentationUtils.parseModifiers(m))
           case _ =>
         }
 
@@ -80,12 +80,12 @@ object ScalaDocGenerator {
 
         element match {
           case par: ScParameterOwner =>
-            append(ScalaTypePresentationUtils.parseParameters(par, length - start - 7).replaceAll("\n\\s*", ""))
+            append(ScalaPsiPresentationUtils.parseParameters(par, length - start - 7).replaceAll("\n\\s*", ""))
           case _ =>
         }
 
         append(element match {
-          case typed: ScTypedDefinition => ScalaTypePresentationUtils.typeAnnotationText(typed)
+          case typed: ScTypedDefinition => ScalaPsiPresentationUtils.typeAnnotationText(typed)
           case _ if needsTpe            => ": Nothing"
           case _                        => ""
         })
@@ -146,7 +146,7 @@ object ScalaDocGenerator {
         b {
           append(escapeHtml(pattern.name))
         }
-        append(ScalaTypePresentationUtils.typeAnnotationText(pattern))
+        append(ScalaPsiPresentationUtils.typeAnnotationText(pattern))
         val context = pattern.getContext
         if (context != null) {
           context.getContext match {

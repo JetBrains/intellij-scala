@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.psi.tree.IElementType
-import com.intellij.psi.{PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScVariable, ScVariableDefinition}
@@ -18,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeBoundsRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.TextEscaper
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 // TODO 1: analyze whether rendered info is cached?
@@ -90,7 +88,7 @@ object ScalaDocQuickInfoGenerator {
       case clazz: ScClass =>
         clazz.constructor match {
           case Some(primaryConstructor) =>
-            ScalaTypePresentationUtils.renderParametersAsString(primaryConstructor.parameterList, short = false, subst)(buffer)
+            ScalaPsiPresentationUtils.renderParametersAsString(primaryConstructor.parameterList, short = false, subst)(buffer)
           case _ =>
         }
       case _ =>
@@ -275,7 +273,7 @@ object ScalaDocQuickInfoGenerator {
   private def simpleParameterInfo(parameter: ScParameter)
                                  (implicit subst: ScSubstitutor): String = {
     val name = parameter.name
-    val typeAnnotation = ScalaTypePresentationUtils.typeAnnotationText(parameter)(subst.andThen(_.presentableText(parameter)))
+    val typeAnnotation = ScalaPsiPresentationUtils.typeAnnotationText(parameter)(subst.andThen(_.presentableText(parameter)))
 
     val defaultText = s"$name$typeAnnotation"
 

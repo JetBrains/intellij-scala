@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticCla
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentationUtils, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
@@ -35,7 +35,7 @@ object PresentationUtil {
         buffer.append(")")
         buffer.toString()
       case param: ScParameter =>
-        ScalaTypePresentationUtils.parseParameter(param)(presentationString(_, substitutor))
+        ScalaPsiPresentationUtils.parseParameter(param)(presentationString(_, substitutor))
       case param: Parameter =>
         val builder = new StringBuilder
         builder.append(param.name)

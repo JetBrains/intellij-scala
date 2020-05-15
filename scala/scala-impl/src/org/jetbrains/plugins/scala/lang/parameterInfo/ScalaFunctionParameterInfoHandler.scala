@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocGenerato
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.AnnotationParameters
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -104,7 +105,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaTypePresentationUtils.parseParameter(param, escape = false, memberModifiers = false)(subst(_).presentableText)
+          ScalaPsiPresentationUtils.parseParameter(param, escape = false, memberModifiers = false)(subst(_).presentableText)
         }
         p match {
           case x: String if x == "" =>

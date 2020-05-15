@@ -1,18 +1,20 @@
-package org.jetbrains.plugins.scala.lang.psi.types
+package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationsHolder, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 // TODO: unify methods styles
-object ScalaTypePresentationUtils {
+// TODO: unify with PresentationUtil
+// TODO: unify with ScalaPsiUtil
+object ScalaPsiPresentationUtils {
 
   // TODO 1: optimize all or nothing, use buffer if we use it inside parseParameterClause
   // TODO 2: avoid function literal implicits everywhere!
@@ -24,9 +26,12 @@ object ScalaTypePresentationUtils {
                                   (implicit typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder(" ")
     buffer.append(" " * spaces)
-    val separator = if (spaces < 0) ", " else ",\n" + buffer
+
     val strings = elem.parameters.map(parseParameter(_, memberModifiers = false))
-    strings.mkString(if (elem.isImplicit) "(implicit " else "(", separator, ")")
+    val prefix = if (elem.isImplicit) "(implicit " else "("
+    val separator = if (spaces < 0) ", " else ",\n" + buffer
+    val suffix = ")"
+    strings.mkString(prefix, separator, suffix)
   }
 
   // TODO "format", not "parse"?
