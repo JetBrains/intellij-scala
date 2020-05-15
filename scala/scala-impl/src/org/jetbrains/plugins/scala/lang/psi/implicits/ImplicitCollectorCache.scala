@@ -65,15 +65,19 @@ class ImplicitCollectorCache(project: Project) {
     tracer.invocation()
 
     val scope = ImplicitSearchScope.forElement(place)
-    visibleImplicitsMap.computeIfAbsent(scope,
-      _ =>
-        try {
+
+    //computation is potentially recursive and it may lead to deadlock if it is executed in `computeIfAbsent`
+    visibleImplicitsMap.get(scope) match {
+      case null =>
+        val result = try {
           tracer.calculationStart()
           new ImplicitParametersProcessor(place, withoutPrecedence = false).candidatesByPlace
         } finally {
           tracer.calculationEnd()
         }
-    )
+        visibleImplicitsMap.computeIfAbsent(scope, _ => result)
+      case v => v
+    }
   }
 
   private[implicits] def getNonValueTypes(fun: ScFunction,
