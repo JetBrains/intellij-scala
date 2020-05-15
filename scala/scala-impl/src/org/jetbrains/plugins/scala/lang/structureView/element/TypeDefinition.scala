@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.structureView.element.TypeDefinition.childrenOf
 
 /**
@@ -18,7 +19,7 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(d
     val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
 
     val valueParameters = definition.asOptionOf[ScClass].flatMap {
-      _.constructor.map(it => StructureViewUtil.getParametersAsString(it.parameterList))
+      _.constructor.map(it => ScalaPsiPresentationUtils.renderParametersAsString(it.parameterList, short = true, ScSubstitutor.empty))
     }
 
     val name = Option(definition.nameId).map(_.getText)

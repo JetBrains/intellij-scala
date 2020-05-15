@@ -677,19 +677,6 @@ object ScalaPsiUtil {
     TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
   }
 
-  def getMethodPresentableText(method: PsiMethod, subst: ScSubstitutor = ScSubstitutor.empty): String = {
-    method match {
-      case method: ScFunction =>
-        ScalaElementPresentation.getMethodPresentableText(method, fast = false, subst)
-      case _ =>
-        val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
-
-        implicit val elementScope: ElementScope = method.elementScope
-        PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst),
-          PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
-    }
-  }
-
   def isLineTerminator(element: PsiElement): Boolean = {
     element match {
       case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => true
@@ -1268,9 +1255,10 @@ object ScalaPsiUtil {
         (bound, idx) <- typeParameter.contextBoundTypeElement.zipWithIndex
       } yield (typeParameter, bound, idx)
 
-      bounds.find {
-        case (typeParameter, typeElement, index) => contextBoundParameterName(typeParameter, typeElement, index) == parameter.name
-      }.fold(default)(function)
+      val bound = bounds.find { case (typeParameter, typeElement, index) =>
+        contextBoundParameterName(typeParameter, typeElement, index) == parameter.name
+      }
+      bound.fold(default)(function)
     }
 
   /** Creates a synthetic parameter clause based on view and context bounds */

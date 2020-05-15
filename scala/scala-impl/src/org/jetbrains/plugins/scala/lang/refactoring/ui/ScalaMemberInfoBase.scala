@@ -4,7 +4,7 @@ package lang.refactoring.ui
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier}
 import com.intellij.refactoring.classMembers.MemberInfoBase
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
@@ -18,7 +18,7 @@ abstract class ScalaMemberInfoBase[Member <: PsiElement](member: Member) extends
 
   member match {
     case method: PsiMethod =>
-      displayName = ScalaPsiUtil.getMethodPresentableText(method)
+      displayName = ScalaPsiPresentationUtils.getMethodPresentableText(method)
       val (superMethod, containingClass) = method match {
         case scFun: ScFunction => (scFun.superMethod, scFun.containingClass)
         case _ => (method.findSuperMethods().headOption, method.getContainingClass)

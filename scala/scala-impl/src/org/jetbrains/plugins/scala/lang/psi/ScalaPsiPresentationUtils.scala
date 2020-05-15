@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.psi._
+import com.intellij.psi.util.{PsiFormatUtil, PsiFormatUtilBase}
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationsHolder, ScConstructorInvocation}
@@ -12,9 +14,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 // TODO 1: unify methods styles
-// TODO 2: unify with PresentationUtil
-// TODO 3: unify with ScalaPsiUtil
-// TODO 4: after implementation is stable,
+// TODO 2: unify with org.jetbrains.plugins.scala.lang.psi.PresentationUtil
+// TODO 3: unify with org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+// TODO 4: unify with org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+// TODO 5: unify with com.intellij.psi.util.PsiFormatUtil
+// TODO 6: after implementation is stable,
 //  investigate performance and check whether passing same buffer everywhere helps
 object ScalaPsiPresentationUtils {
 
@@ -166,6 +170,7 @@ object ScalaPsiPresentationUtils {
     buffer.toString()
   }
 
+  // TODO: unify with renderParameters
   def renderParametersAsString(x: ScParameters, short: Boolean, subst: ScSubstitutor): String = {
     val buffer = StringBuilder.newBuilder
     for (child <- x.clauses) {
@@ -196,5 +201,55 @@ object ScalaPsiPresentationUtils {
         buffer.append(typez.presentableText(x) + (if (param.isRepeatedParameter) "*" else ""))
       }
     }
+  }
+
+  def getMethodPresentableText(
+    method: PsiMethod,
+    subst: ScSubstitutor = ScSubstitutor.empty
+  ): String =
+    method match {
+      case method: ScFunction =>
+        getMethodPresentableText(method, fast = false, subst)
+      case _ =>
+        getJavaMethodPresentableText(method, subst)
+    }
+
+  def getMethodPresentableText(
+    function: ScFunction,
+    fast: Boolean,
+    subst: ScSubstitutor
+  ): String = {
+    val buffer: StringBuilder = new StringBuilder
+
+    buffer.append(if (function.isConstructor) "this" else function.name)
+    buffer.append(function.typeParametersClause.fold("")(_.getTextByStub)) // (!) text taken from stub
+    buffer.append(Option(function.paramClauses).fold("")(renderParametersAsString(_, fast, subst)))
+    buffer.append(typeAnnotationText2(function, fast, subst))
+
+    buffer.toString
+  }
+
+  // TODO: unify with typeAnnotationText
+  private def typeAnnotationText2(function: ScFunction, fast: Boolean, subst: ScSubstitutor): String =
+    if (fast) {
+      val psiText = function.returnTypeElement.map(_.getText)
+      psiText.fold("")(": " + _)
+    } else {
+      val typText = try {
+        subst(function.returnType.getOrAny).presentableText(function)
+      } catch {
+        case _: IndexNotReadyException => "NoTypeInfo"
+      }
+      s": $typText"
+    }
+
+  private def getJavaMethodPresentableText(
+    method: PsiMethod,
+    subst: ScSubstitutor
+  ): String = {
+    val javaSubstitutor = ScalaPsiUtil.getPsiSubstitutor(subst)(method.elementScope)
+    import PsiFormatUtilBase._
+    val pramOptions = SHOW_NAME | SHOW_TYPE | TYPE_AFTER
+    PsiFormatUtil.formatMethod(method, javaSubstitutor, pramOptions | SHOW_PARAMETERS, pramOptions)
   }
 }

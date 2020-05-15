@@ -23,32 +23,6 @@ object ScalaElementPresentation {
   def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String =
     if (typeDefinition.nameId != null) typeDefinition.nameId.getText else "unnamed"
 
-  def getMethodPresentableText(function: ScFunction, fast: Boolean = true,
-                               subst: ScSubstitutor = ScSubstitutor.empty): String = {
-    val presentableText: StringBuffer = new StringBuffer
-    presentableText.append(if (!function.isConstructor) function.name else "this")
-
-    function.typeParametersClause.foreach(clause => presentableText.append(clause.getTextByStub))
-
-    if (function.paramClauses != null)
-      presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, fast, subst))
-
-    if (fast) {
-      function.returnTypeElement.foreach(rt => presentableText.append(s": ${rt.getText}"))
-    } else {
-      presentableText.append(": ")
-      try {
-        val typez = subst(function.returnType.getOrAny)
-        presentableText.append(typez.presentableText(function))
-      }
-      catch {
-        case _: IndexNotReadyException => presentableText.append("NoTypeInfo")
-      }
-    }
-
-    presentableText.toString
-  }
-
   def getTypeAliasPresentableText(typeAlias: ScTypeAlias): String =
     if (typeAlias.nameId != null) typeAlias.nameId.getText else "type unnamed"
 

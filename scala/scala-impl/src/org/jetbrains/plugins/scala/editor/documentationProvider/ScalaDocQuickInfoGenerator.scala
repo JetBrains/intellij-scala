@@ -174,7 +174,7 @@ object ScalaDocQuickInfoGenerator {
     if (list != null)
       renderModifiersPresentableText(buffer, list)
     buffer.append("def ")
-    buffer.append(ScalaPsiUtil.getMethodPresentableText(function, subst))
+    buffer.append(ScalaPsiPresentationUtils.getMethodPresentableText(function, subst))
     buffer.toString()
   }
 
