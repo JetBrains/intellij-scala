@@ -173,6 +173,7 @@ object ScalaDocGenerator {
     result
   }
 
+   // TODO: extract building of psi link to some utility method
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.containingClass
     if (clazz == null) EmptyDoc
@@ -210,20 +211,23 @@ object ScalaDocGenerator {
   }
 
   // TODO: strange naming.. not "parse", it not only parses but also resolves base
-  private def parseDocComment(docOwner: PsiDocCommentOwner): String = {
-    val docHtml = Option(docOwner.getDocComment) match {
-      case Some(docComment) =>
-        parseDocComment(docOwner, docComment, isInherited = false)
-      case None =>
-        superElementWithDocComment(docOwner)  match {
-          case Some((base, baseComment)) =>
-            parseDocComment(base, baseComment, isInherited = true)
-          case _ =>
-            EmptyDoc
-        }
+  private def parseDocComment(potentialDocOwner: PsiDocCommentOwner): String =
+    findActualComment(potentialDocOwner).fold(EmptyDoc) { case (docOwner, docComment, isInherited) =>
+      parseDocComment(docOwner, docComment, isInherited)
     }
-    docHtml
-  }
+
+  private def findActualComment(docOwner: PsiDocCommentOwner): Option[(PsiDocCommentOwner, PsiDocComment, Boolean)] =
+    docOwner.getDocComment match {
+      case null =>
+        superElementWithDocComment(docOwner) match {
+          case Some((base, baseComment)) =>
+            Some((base, baseComment, true))
+          case _ =>
+            None
+        }
+      case docComment =>
+        Some((docOwner, docComment, false))
+    }
 
   private def parseDocComment(
     docOwner: PsiDocCommentOwner,
