@@ -92,42 +92,50 @@ object ScalaPsiPresentationUtils {
     res.toString()
   }
 
+  // TODO: use modifiers order defined in `Code Style Settings | Scala | Arrangement`
   def renderModifiers(elem: ScModifierListOwner): String = {
     val buffer: StringBuilder = new StringBuilder
 
-    for {
-      modifier <- elem.getModifierList.accessModifier
+    for (modifier <- elem.getModifierList.accessModifier) {
+      val modifierText = accessModifierText(modifier, fast = false)
+      buffer.append(modifierText).append(" ")
+    }
 
-      prefix = if (modifier.isPrivate) PsiModifier.PRIVATE
-      else PsiModifier.PROTECTED
+    val modifiers: Array[String] = Array("abstract", "override", "final", "sealed", "implicit", "lazy")
+    for (modifier <- modifiers if elem.hasModifierPropertyScala(modifier))
+      buffer.append(modifier).append(" ")
 
-      suffix = if (modifier.isThis) "[this]"
-      else accessQualifier(modifier)
-    } buffer.append(prefix)
-      .append(" ")
-      .append(suffix)
-
-    val modifiers = Array("abstract", "final", "sealed", "implicit", "lazy", "override")
-    for (modifier <- modifiers if elem.hasModifierPropertyScala(modifier)) buffer.append(modifier + " ")
     buffer.toString()
   }
 
-  private def accessQualifier(x: ScAccessModifier): String = x.getReference match {
-    case null => ""
-    case ref => ref.resolve match {
-      case clazz: PsiClass => "[<a href=\"psi_element://" +
-        escapeHtml(clazz.qualifiedName) + "\"><code>" +
-        (x.idText match {
-          case Some(text) => text
-          case None => ""
-        }) + "</code></a>]"
-      case pack: PsiPackage => "[" + escapeHtml(pack.getQualifiedName) + "]"
-      case _ => x.idText match {
-        case Some(text) => "[" + text + "]"
-        case None => ""
-      }
-    }
+  def accessModifierText(modifier: ScAccessModifier, fast: Boolean): String = {
+    val builder = new StringBuilder
+    builder.append(if (modifier.isPrivate) PsiModifier.PRIVATE else PsiModifier.PROTECTED)
+    builder.append(accessQualifierText(modifier, fast))
+    builder.result
   }
+
+  private def accessQualifierText(modifier: ScAccessModifier, fast: Boolean): String =
+    accessQualifierInnerText(modifier, fast).fold("")("[" + _ + "]")
+
+  private def accessQualifierInnerText(modifier: ScAccessModifier, fast: Boolean): Option[String] =
+    if (modifier.isThis)
+      Some("this")
+    else
+      modifier.idText.map { idText =>
+        if (fast) idText
+        else accessQualifierInnerTextResolve(modifier, idText)
+      }
+
+  private def accessQualifierInnerTextResolve(modifier: ScAccessModifier, idText: String): String =
+    modifier.getReference match {
+      case ResolvesTo(element) => element match {
+        case clazz: PsiClass  => HtmlPsiUtils.psiElementLink(clazz.qualifiedName, idText)
+        case _: PsiPackage    => HtmlPsiUtils.escape(idText) // not adding link cause it doesn't lead anywhere (for now at least)
+        case _                => idText
+      }
+      case _ => idText
+    }
 
   def typeAnnotationText(elem: ScTypedDefinition)
                         (implicit typeToString: TypeRenderer): String = {

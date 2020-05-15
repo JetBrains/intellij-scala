@@ -116,20 +116,6 @@ object PresentationUtil {
     res.replace(SyntheticClasses.TypeParameter, "T")
   }
 
-  def accessModifierText(am: ScAccessModifier): String = {
-    val builder = new StringBuilder
-    if (am.isPrivate) builder.append("private")
-    else if (am.isProtected) builder.append("protected")
-    else return ""
-    if (am.isThis) {
-      builder.append("[this]")
-      return builder.toString()
-    }
-    am.idText match {
-      case Some(id) => builder.append(s"[$id]")
-      case _ =>
-    }
-    builder.toString()
-  }
-
+  def accessModifierText(modifier: ScAccessModifier): String =
+    ScalaPsiPresentationUtils.accessModifierText(modifier, fast = true)
 }
