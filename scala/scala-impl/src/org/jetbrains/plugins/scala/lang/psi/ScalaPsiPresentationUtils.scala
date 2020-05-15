@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 // TODO 1: unify methods styles
 // TODO 2: unify with org.jetbrains.plugins.scala.lang.psi.PresentationUtil
-// TODO 3: unify with org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 // TODO 4: unify with org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 // TODO 5: unify with com.intellij.psi.util.PsiFormatUtil
 // TODO 6: after implementation is stable,

@@ -4,11 +4,13 @@ package lang.refactoring.ui
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier}
 import com.intellij.refactoring.classMembers.MemberInfoBase
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
 
 /**
  * Nikolay.Tropin
@@ -37,11 +39,11 @@ abstract class ScalaMemberInfoBase[Member <: PsiElement](member: Member) extends
         case _ => method.hasModifierProperty(PsiModifier.STATIC)
       }
     case clazz: ScTypeDefinition =>
-      displayName = ScalaElementPresentation.getTypeDefinitionPresentableText(clazz)
+      displayName = ScalaMemberInfoBase.getTypeDefinitionPresentableText(clazz)
       isStatic = clazz.containingClass.isInstanceOf[ScObject]
       overrides = null
     case ta: ScTypeAlias =>
-      displayName = ScalaElementPresentation.getTypeAliasPresentableText(ta)
+      displayName = ScalaMemberInfoBase.getTypeAliasPresentableText(ta)
       isStatic = ta.containingClass.isInstanceOf[ScObject]
       overrides = null
     case pDef: ScPatternDefinition =>
@@ -53,12 +55,36 @@ abstract class ScalaMemberInfoBase[Member <: PsiElement](member: Member) extends
       isStatic = varDef.containingClass.isInstanceOf[ScObject]
       overrides = null
     case elem: ScNamedElement =>
-      displayName = ScalaElementPresentation.getValOrVarPresentableText(elem)
+      displayName = ScalaMemberInfoBase.getValOrVarPresentableText(elem)
       isStatic = false
       overrides = null
     case _ =>
       isStatic = false
       displayName = ""
       overrides = null
+  }
+}
+
+object ScalaMemberInfoBase {
+
+  private def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String =
+    if (typeDefinition.nameId != null) typeDefinition.nameId.getText else "unnamed"
+
+  private def getTypeAliasPresentableText(typeAlias: ScTypeAlias): String =
+    if (typeAlias.nameId != null) typeAlias.nameId.getText else "type unnamed"
+
+  private def getValOrVarPresentableText(elem: ScNamedElement): String = {
+    val typeText = elem match {
+      case typed: Typeable => ": " + typed.`type`().getOrAny.presentableText(typed)
+      case _ => ""
+    }
+    val keyword = ScalaPsiUtil.nameContext(elem) match {
+      case _: ScVariable                          => ScalaKeyword.VAR
+      case _: ScValue                             => ScalaKeyword.VAL
+      case param: ScClassParameter if param.isVar => ScalaKeyword.VAR
+      case param: ScClassParameter if param.isVal => ScalaKeyword.VAL
+      case _                                      => ""
+    }
+    s"$keyword ${elem.name}$typeText"
   }
 }
