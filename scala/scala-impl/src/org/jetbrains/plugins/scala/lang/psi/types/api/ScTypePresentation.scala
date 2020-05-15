@@ -6,12 +6,15 @@ import org.apache.commons.lang.StringEscapeUtils
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.TypeRenderer
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -178,30 +181,64 @@ class TypeBoundsRenderer(textEscaper: TextEscaper) {
   import ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 
   def upperBoundText(typ: ScType)
-                    (toString: ScType => String): String =
+                    (toString: TypeRenderer): String =
     if (typ.isAny) ""
     else boundText(typ, tUPPER_BOUND)(toString)
 
   def lowerBoundText(typ: ScType)
-                    (toString: ScType => String): String =
+                    (toString: TypeRenderer): String =
     if (typ.isNothing) ""
     else boundText(typ, tLOWER_BOUND)(toString)
 
   def boundText(typ: ScType, bound: IElementType)
-               (toString: ScType => String): String = {
+               (toString: TypeRenderer): String = {
     val boundEscaped = textEscaper.escape(bound.toString)
     " " + boundEscaped + " " + toString(typ)
   }
 
+  def render(param: ScTypeParam)
+            (toString: TypeRenderer): String =
+    render(
+      param.name,
+      param.variance,
+      param.lowerBound.toOption,
+      param.upperBound.toOption,
+      param.viewBound,
+      param.contextBound,
+    )(toString)
+
+  def render(param: TypeParameterType)
+            (toString: TypeRenderer): String = {
+    val (viewTypes, contextTypes) = param.typeParameter.psiTypeParameter match {
+      case boundsOwner: ScTypeBoundsOwner => (boundsOwner.viewBound, boundsOwner.contextBound)
+      case _                              => TypeBoundsRenderer.EmptyTuple
+    }
+    render(
+      param.name,
+      param.variance,
+      Some(param.lowerType),
+      Some(param.upperType),
+      viewTypes,
+      contextTypes,
+    )(toString)
+  }
+
   def render(
     paramName: String,
+    variance: Variance,
     lower: Option[ScType],
     upper: Option[ScType],
     view: Seq[ScType],
     context: Seq[ScType]
-  )(toString: ScType => String): String = {
+  )(toString: TypeRenderer): String = {
     val buffer = new StringBuilder
 
+    val varianceText = variance match {
+      case Variance.Contravariant => "-"
+      case Variance.Covariant     => "+"
+      case _                      => ""
+    }
+    buffer ++= varianceText
     buffer ++= paramName
 
     def append(text: String): Unit =
@@ -214,4 +251,8 @@ class TypeBoundsRenderer(textEscaper: TextEscaper) {
 
     buffer.result
   }
+}
+
+private object TypeBoundsRenderer {
+  private val EmptyTuple = (Seq.empty, Seq.empty)
 }

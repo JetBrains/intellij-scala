@@ -21,7 +21,7 @@ trait ScTypeParam extends ScNamedElement with ScPolymorphicElement with PsiTypeP
 
   def isContravariant: Boolean
 
-  def variance: Variance = if (isCovariant) Covariant else if (isContravariant) Contravariant else Invariant
+  final def variance: Variance = if (isCovariant) Covariant else if (isContravariant) Contravariant else Invariant
 
   def owner: ScTypeParametersOwner
 

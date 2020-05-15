@@ -26,10 +26,13 @@ class TypeParameterType private (val typeParameter: TypeParameter)
   override val name: String = typeParameter.name
 
   def isInvariant: Boolean = typeParameter.isInvariant
-
   def isCovariant: Boolean = typeParameter.isCovariant
-
   def isContravariant: Boolean = typeParameter.isContravariant
+  final def variance: Variance =
+    if (isCovariant) Covariant
+    else if (isContravariant) Contravariant
+    else if (isInvariant) Invariant
+    else Bivariant
 
   override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     val success = `type` match {

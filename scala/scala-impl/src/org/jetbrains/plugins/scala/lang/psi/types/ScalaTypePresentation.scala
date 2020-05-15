@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern,
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.{NameRenderer, PresentationOptions}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
@@ -49,28 +49,11 @@ trait ScalaTypePresentation extends api.TypePresentation {
     def typeParamText(param: ScTypeParam, substitutor: ScSubstitutor): String = {
       def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer, options)
 
-      boundsRenderer.render(
-        param.name,
-        param.lowerBound.toOption,
-        param.upperBound.toOption,
-        param.viewBound,
-        param.contextBound
-      )(typeText0)
+      boundsRenderer.render(param)(typeText0)
     }
 
-    def typeParameterTypeText(typeParameterType: TypeParameterType): String = {
-      val (viewTypes, contextTypes) = typeParameterType.typeParameter.psiTypeParameter match {
-        case boundsOwner: ScTypeBoundsOwner => (boundsOwner.viewBound, boundsOwner.contextBound)
-        case _                              => EmptyTuple
-      }
-      boundsRenderer.render(
-        typeParameterType.name,
-        Some(typeParameterType.lowerType),
-        Some(typeParameterType.upperType),
-        viewTypes,
-        contextTypes
-      )(innerTypeText(_))
-    }
+    def typeParameterTypeText(typeParameterType: TypeParameterType): String =
+      boundsRenderer.render(typeParameterType)(innerTypeText(_))
 
     def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
       val e = projType.actualElement
@@ -348,5 +331,4 @@ trait ScalaTypePresentation extends api.TypePresentation {
 object ScalaTypePresentation {
 
   val ObjectTypeSuffix = ".type"
-  private val EmptyTuple = (Seq.empty, Seq.empty)
 }
