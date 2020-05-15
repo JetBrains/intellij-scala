@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeBoundsRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -75,25 +76,9 @@ object PresentationUtil {
       case tp: ScTypeParamClause =>
         tp.typeParameters.map(t => presentationStringForPsiElement(t, substitutor)).mkString("[", ", ", "]")
       case param: ScTypeParam =>
-        var paramText = param.name
-        if (param.isContravariant) paramText = "-" + paramText
-        else if (param.isCovariant) paramText = "+" + paramText
-        val stdTypes = param.projectContext.stdTypes
-        param.lowerBound.foreach {
-          case stdTypes.Nothing =>
-          case tp: ScType => paramText = paramText + " >: " + presentationStringForScalaType(tp, substitutor)
-        }
-        param.upperBound.foreach {
-          case stdTypes.Any =>
-          case tp: ScType => paramText = paramText + " <: " + presentationStringForScalaType(tp, substitutor)
-        }
-        param.viewBound.foreach {
-          (tp: ScType) => paramText = paramText + " <% " + presentationStringForScalaType(tp, substitutor)
-        }
-        param.contextBound.foreach {
-          (tp: ScType) => paramText = paramText + " : " + presentationStringForScalaType(ScTypeUtil.stripTypeArgs(substitutor(tp)), substitutor)
-        }
-        paramText
+        val boundsRenderer = new TypeBoundsRenderer(stripContextTypeArgs = true)
+        val result = boundsRenderer.render(param)(presentationStringForScalaType(_, substitutor))
+        result
       case param: PsiTypeParameter =>
         val paramText = param.name
         //todo: possibly add supers and extends?

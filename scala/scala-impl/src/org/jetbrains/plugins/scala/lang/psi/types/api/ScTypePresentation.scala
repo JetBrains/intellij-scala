@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 
 /**
  * @author adkozlov
@@ -124,6 +124,9 @@ object TypePresentation {
     object Html extends TextEscaper {
       override def escape(text: String): String = escapeHtml(text)
     }
+    object Noop extends TextEscaper {
+      override def escape(text: String): String = text
+    }
   }
   trait NameRenderer extends TextEscaper {
     def renderName(e: PsiNamedElement): String
@@ -176,7 +179,12 @@ case class ScTypeText(tp: ScType)(implicit tpc: TypePresentationContext) {
   val presentableText: String = tp.presentableText
 }
 
-class TypeBoundsRenderer(textEscaper: TextEscaper) {
+// TODO: check whether it handles higher-kinded types?
+//  def f[T[_, X] = ???
+class TypeBoundsRenderer(
+  textEscaper: TextEscaper = TextEscaper.Noop,
+  stripContextTypeArgs: Boolean = false
+) {
 
   import ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 
@@ -196,6 +204,7 @@ class TypeBoundsRenderer(textEscaper: TextEscaper) {
     " " + boundEscaped + " " + toString(typ)
   }
 
+  // TODO: this should go to some type param renderer
   def render(param: ScTypeParam)
             (toString: TypeRenderer): String =
     render(
@@ -223,7 +232,7 @@ class TypeBoundsRenderer(textEscaper: TextEscaper) {
     )(toString)
   }
 
-  def render(
+  private def render(
     paramName: String,
     variance: Variance,
     lower: Option[ScType],
@@ -241,13 +250,19 @@ class TypeBoundsRenderer(textEscaper: TextEscaper) {
     buffer ++= varianceText
     buffer ++= paramName
 
-    def append(text: String): Unit =
-      buffer ++= text
-
-    lower.foreach(b => append(lowerBoundText(b)(toString)))
-    upper.foreach(b => append(upperBoundText(b)(toString)))
-    view.foreach(b => append(boundText(b, ScalaTokenTypes.tVIEW)(toString)))
-    context.foreach(b => append(boundText(b, ScalaTokenTypes.tCOLON)(toString)))
+    lower.foreach { tp =>
+      buffer.append(lowerBoundText(tp)(toString))
+    }
+    upper.foreach { tp =>
+      buffer.append(upperBoundText(tp)(toString))
+    }
+    view.foreach { tp =>
+      buffer.append(boundText(tp, ScalaTokenTypes.tVIEW)(toString))
+    }
+    context.foreach { tp =>
+      val tpFixed = if (stripContextTypeArgs) ScTypeUtil.stripTypeArgs(tp) else tp
+      buffer.append(boundText(tpFixed, ScalaTokenTypes.tCOLON)(toString))
+    }
 
     buffer.result
   }
