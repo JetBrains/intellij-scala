@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package actions
+package org.jetbrains.plugins.scala.actions.implicitConvertions
 
 import java.awt.Color
 import java.awt.event.{MouseAdapter, MouseEvent}
@@ -18,10 +17,10 @@ import javax.swing._
 import javax.swing.border.Border
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.actions.{MakeExplicitAction, Parameters, ScalaActionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}

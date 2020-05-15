@@ -1,12 +1,12 @@
-package org.jetbrains.plugins.scala.lang.psi.presentation
+package org.jetbrains.plugins.scala.actions.implicitConvertions
 
 import java.awt.{BorderLayout, Component, Container}
-import javax.swing._
 
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.psi.PsiNamedElement
 import com.intellij.ui.{SimpleColoredComponent, SimpleTextAttributes}
 import com.intellij.util.ui.UIUtil
+import javax.swing._
 import org.jetbrains.plugins.scala.actions.Parameters
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
@@ -21,7 +21,9 @@ import org.jetbrains.plugins.scala.util.JListCompatibility
  * User: Alexander Podkhalyuzin
  * Date: 15.06.2010
  */
-class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImplicitFunctionListCellRendererAdapter {
+private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
+  extends ScImplicitFunctionListCellRendererAdapter {
+
   override def getListCellRendererComponentAdapter(containter: JListCompatibility.JListContainer,
                                                    value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
     val foregroundColor = Option(EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS))
