@@ -177,10 +177,7 @@ object ScalaDocGenerator {
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.containingClass
     if (clazz == null) EmptyDoc
-    else "" +
-      s"""<a href="psi_element://${escapeHtml(clazz.qualifiedName)}">""" +
-      s"""<code>${escapeHtml(clazz.qualifiedName)}</code>""" +
-      s"""</a>"""
+    else HtmlPsiUtils.psiElementLink(clazz.qualifiedName, clazz.qualifiedName)
   }
 
   private def parseTypeParameters(elems: ScTypeParametersOwner): String = {
@@ -202,7 +199,7 @@ object ScalaDocGenerator {
           buffer append " with " + typeToString(seq(i).`type`().getOrAny)
       case None =>
         if (elem.isUnderCaseClass) {
-          buffer.append("<a href=\"psi_element://scala.Product\"><code>Product</code></a>")
+          buffer.append(HtmlPsiUtils.psiElementLink("scala.Product", "Product"))
         }
     }
 
@@ -359,9 +356,7 @@ object ScalaDocGenerator {
     val prefix =
       s"""${DocumentationMarkup.CONTENT_START}
          |<b>Description copied from class: </b>
-         |<a href="psi_element://${escapeHtml(clazz.qualifiedName)}">
-         |<code>${escapeHtml(clazz.name)}</code>
-         |</a>
+         |${HtmlPsiUtils.psiElementLink(clazz.qualifiedName, clazz.name)}
          |${DocumentationMarkup.CONTENT_END}""".stripMargin
     prefix + text
   }
