@@ -273,7 +273,7 @@ object ScalaDocQuickInfoGenerator {
   private def simpleParameterInfo(parameter: ScParameter)
                                  (implicit subst: ScSubstitutor): String = {
     val name = parameter.name
-    val typeAnnotation = ScalaPsiPresentationUtils.typeAnnotationText(parameter)(subst.andThen(_.presentableText(parameter)))
+    val typeAnnotation = ScalaPsiPresentationUtils.typeAnnotationText(parameter)(subst(_).presentableText(parameter))
 
     val defaultText = s"$name$typeAnnotation"
 

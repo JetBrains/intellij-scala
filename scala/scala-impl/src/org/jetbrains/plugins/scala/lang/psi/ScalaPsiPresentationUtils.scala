@@ -16,14 +16,18 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 // TODO: unify with ScalaPsiUtil
 object ScalaPsiPresentationUtils {
 
+  trait TypeRenderer {
+    def render(typ: ScType): String
+    final def apply(typ: ScType): String = render(typ)
+  }
+
   // TODO 1: optimize all or nothing, use buffer if we use it inside parseParameterClause
-  // TODO 2: avoid function literal implicits everywhere!
   def parseParameters(elem: ScParameterOwner, spaces: Int)
-                     (implicit typeToString: ScType => String): String =
+                     (implicit typeToString: TypeRenderer): String =
     elem.allClauses.map(parseParameterClause(_, spaces)).mkString("\n")
 
   private def parseParameterClause(elem: ScParameterClause, spaces: Int)
-                                  (implicit typeToString: ScType => String): String = {
+                                  (implicit typeToString: TypeRenderer): String = {
     val buffer: StringBuilder = new StringBuilder(" ")
     buffer.append(" " * spaces)
 
@@ -36,7 +40,7 @@ object ScalaPsiPresentationUtils {
 
   // TODO "format", not "parse"?
   def parseParameter(param: ScParameter, escape: Boolean = true, memberModifiers: Boolean = true)
-                    (implicit typeToString: ScType => String): String = {
+                    (implicit typeToString: TypeRenderer): String = {
     val member = param match {
       case c: ScClassParameter => c.isClassMember
       case _ => false
@@ -66,7 +70,7 @@ object ScalaPsiPresentationUtils {
 
   def parseAnnotations(elem: ScAnnotationsHolder,
                        sep: Char = '\n', escape: Boolean = true)
-                      (implicit typeToString: ScType => String): String = {
+                      (implicit typeToString: TypeRenderer): String = {
     val buffer: StringBuilder = new StringBuilder
 
     def parseAnnotation(elem: ScAnnotation): String = {
@@ -124,7 +128,7 @@ object ScalaPsiPresentationUtils {
   }
 
   def typeAnnotationText(elem: ScTypedDefinition)
-                        (implicit typeToString: ScType => String): String = {
+                        (implicit typeToString: TypeRenderer): String = {
     val typ = elem match {
       case fun: ScFunction => fun.returnType.getOrAny
       case _               => elem.`type`().getOrAny

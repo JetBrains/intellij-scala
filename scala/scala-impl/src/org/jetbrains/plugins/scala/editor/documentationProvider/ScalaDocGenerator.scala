@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi
-import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiPresentationUtils}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.TypeRenderer
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiPresentationUtils}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -30,7 +30,7 @@ object ScalaDocGenerator {
 
     implicit def projectContext: ProjectContext = e.projectContext
 
-    implicit def urlText: ScType => String = projectContext.typeSystem.urlText(_)
+    implicit def urlTypeRenderer: TypeRenderer = projectContext.typeSystem.urlText(_)
 
     val builder = new HtmlBuilderWrapper
     import builder._
@@ -134,7 +134,7 @@ object ScalaDocGenerator {
           tpe match {
             case definition: ScTypeAliasDefinition =>
               val tp = definition.aliasedTypeElement.flatMap(_.`type`().toOption).getOrElse(psi.types.api.Any)
-              append(s" = ${urlText(tp)}")
+              append(s" = ${urlTypeRenderer(tp)}")
             case _ =>
           }
         })
@@ -191,7 +191,7 @@ object ScalaDocGenerator {
   }
 
   private def parseExtendsBlock(elem: ScExtendsBlock)
-                               (implicit typeToString: ScType => String): String = {
+                               (implicit typeToString: TypeRenderer): String = {
     val buffer: StringBuilder = new StringBuilder()
     elem.templateParents match {
       case Some(x: ScTemplateParents) =>
