@@ -6,7 +6,7 @@ import org.apache.commons.lang.StringEscapeUtils
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
@@ -44,7 +44,6 @@ trait TypePresentation {
 
   // For now only used in `documentationProvider` package
   final def urlText(`type`: ScType): String = {
-    import HtmlUtils._
     import StringEscapeUtils.escapeHtml
 
     val renderer: NameRenderer = new NameRenderer {
@@ -53,11 +52,12 @@ trait TypePresentation {
       override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
 
       private def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
+        import HtmlPsiUtils.psiElementLink
         val res = e match {
           case o: ScObject if withPoint && isPredefined(o) => ""
           case _: PsiPackage if withPoint                  => ""
-          case e: PsiClass                                 => psiRef(e.qualifiedName)(code(e.name))
-          case a: ScTypeAlias                              => a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiRef(_)(code(e.name)))
+          case e: PsiClass                                 => psiElementLink(e.qualifiedName, e.name)
+          case a: ScTypeAlias                              => a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiElementLink(_, e.name))
           case _                                           => escapeHtml(e.name)
         }
         res + pointStr(withPoint && res.nonEmpty)
@@ -107,14 +107,6 @@ object TypePresentation {
   private val PredefinedPackages = Set("scala.Predef", "scala")
   private def isPredefined(td: ScTypeDefinition): Boolean =
     PredefinedPackages.contains(td.qualifiedName)
-
-  private object HtmlUtils {
-    import StringEscapeUtils._
-    def psiRef(fqn: String)(content: String): String =
-      s"""<a href="psi_element://${escapeHtml(fqn)}">$content</a>"""
-    def code(content: String): String =
-      s"""<code>${StringEscapeUtils.escapeHtml(content)}</code>"""
-  }
 
   private def pointStr(withPoint: Boolean): String =
     if (withPoint) "." else ""
