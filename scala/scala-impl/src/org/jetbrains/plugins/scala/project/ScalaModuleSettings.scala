@@ -114,9 +114,7 @@ private object ScalaModuleSettings {
     val processor: FindProcessor[libraries.Library] = _.isScalaSdk
 
     OrderEnumerator.orderEntries(module)
-      .recursively
       .librariesOnly
-      .exportedOnly
       .forEachLibrary(processor)
 
     val scalaSdk = processor.getFoundValue.asInstanceOf[LibraryEx]
