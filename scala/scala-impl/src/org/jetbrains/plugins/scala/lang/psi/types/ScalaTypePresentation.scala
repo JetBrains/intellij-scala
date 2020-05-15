@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.{NameRenderer, PresentationOptions, TextEscaper}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.{NameRenderer, PresentationOptions}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -30,10 +30,9 @@ trait ScalaTypePresentation extends api.TypePresentation {
   override protected def typeText(
     `type`: ScType,
     nameRenderer: NameRenderer,
-    textEscaper: TextEscaper,
     options: PresentationOptions
   )(implicit context: TypePresentationContext): String = {
-    val boundsRenderer = new TypeBoundsRenderer(textEscaper)
+    val boundsRenderer = new TypeBoundsRenderer(nameRenderer)
     import boundsRenderer._
 
     def typesText(types: Seq[ScType]): String = types
@@ -48,7 +47,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
     }
 
     def typeParamText(param: ScTypeParam, substitutor: ScSubstitutor): String = {
-      def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer, textEscaper, options)
+      def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer, options)
 
       boundsRenderer.render(
         param.name,
@@ -277,21 +276,28 @@ trait ScalaTypePresentation extends api.TypePresentation {
       s"${componentText(left, -1)} $op ${componentText(right, 1)}"
     }
 
-    def innerTypeText(t: ScType,
-                      needDotType: Boolean = true,
-                      checkWildcard: Boolean = false): String = t match {
+    def innerTypeText(
+      t: ScType,
+      needDotType: Boolean = true,
+      checkWildcard: Boolean = false
+    ): String = t match {
       case typeParameterType: TypeParameterType if options.expandTypeParameterBounds =>
         typeParameterTypeText(typeParameterType)
+      case valType: ValType if options.renderValueTypes =>
+        valType.extractClass match {
+          case Some(clazz) => nameRenderer.renderName(clazz)
+          case _           => valType.name
+        }
       case namedType: NamedType => namedType.name
       case _: WildcardType => "?"
       case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
       case TypeLambda(text)          => text
       case FunctionType(ret, params) if !t.isAliasType =>
         val paramsText = params match {
-          case Seq(fun @ FunctionType(_, _)) => innerTypeText(fun).parenthesize()
-          case Seq(tup @ TupleType(tps)) => innerTypeText(tup).parenthesize()
-          case Seq(head) => innerTypeText(head)
-          case _ => typesText(params)
+          case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
+          case Seq(tup@TupleType(tps))     => innerTypeText(tup).parenthesize()
+          case Seq(head)                   => innerTypeText(head)
+          case _                           => typesText(params)
         }
         s"$paramsText ${ScalaPsiUtil.functionArrow} ${innerTypeText(ret)}"
       case ScThisType(element) =>
@@ -313,14 +319,15 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }
 
         nameRenderer.renderName(element) + typeTail(flag && needDotType)
-      case proj: ScProjectionType if proj != null =>
+      case proj: ScProjectionType =>
         projectionTypeText(proj, needDotType)
-      case p: ParameterizedType => parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
+      case p: ParameterizedType =>
+        parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
       case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
       case UndefinedType(tpt, _) => "NotInferred" + tpt.name
-      case c: ScCompoundType if c != null =>
+      case c: ScCompoundType =>
         compoundTypeText(c)
-      case ex: ScExistentialType if ex != null =>
+      case ex: ScExistentialType =>
         existentialTypeText(ex, checkWildcard, needDotType)
       case ScTypePolymorphicType(internalType, typeParameters) =>
         typeParameters.map {

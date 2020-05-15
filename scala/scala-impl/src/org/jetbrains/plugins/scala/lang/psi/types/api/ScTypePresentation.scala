@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
 import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -21,8 +22,7 @@ trait TypePresentation {
   protected def typeText(
     `type`: ScType,
     nameRenderer: NameRenderer,
-    textEscaper: TextEscaper,
-    options: PresentationOptions
+    options: PresentationOptions = PresentationOptions.Default
   )(implicit context: TypePresentationContext): String
 
   final def presentableText(`type`: ScType, withPrefix: Boolean = true)
@@ -39,7 +39,7 @@ trait TypePresentation {
         case e                              => e.name + "."
       }
     }
-    typeText(`type`, renderer, TextEscaper.Noop, PresentationOptions.Default)
+    typeText(`type`, renderer, PresentationOptions.Default)
   }
 
   // For now only used in `documentationProvider` package
@@ -63,8 +63,13 @@ trait TypePresentation {
         res + pointStr(withPoint && res.nonEmpty)
       }
     }
-    val options = PresentationOptions(expandTypeParameterBounds = true, renderProjectionTypeName = true)
-    typeText(`type`, renderer, TextEscaper.Html, options)(TypePresentationContext.emptyContext)
+
+    val options = PresentationOptions(
+      expandTypeParameterBounds = true,
+      renderProjectionTypeName = true,
+      renderValueTypes = true
+    )
+    typeText(`type`, renderer, options)(TypePresentationContext.emptyContext)
   }
 
   final def canonicalText(`type`: ScType): String = {
@@ -93,7 +98,7 @@ trait TypePresentation {
         removeKeywords(str) + pointStr(withPoint)
       }
     }
-    typeText(`type`, renderer, TextEscaper.Noop, PresentationOptions.Default)(TypePresentationContext.emptyContext)
+    typeText(`type`, renderer, PresentationOptions.Default)(TypePresentationContext.emptyContext)
   }
 }
 
@@ -117,27 +122,32 @@ object TypePresentation {
   private def removeKeywords(text: String): String =
     ScalaNamesUtil.escapeKeywordsFqn(text)
 
-  trait NameRenderer {
-    def renderName(e: PsiNamedElement): String
-    def renderNameWithPoint(e: PsiNamedElement): String
-    def escapeName(name: String): String = name
-  }
-
   trait TextEscaper {
     def escape(text: String): String
   }
   object TextEscaper {
-    final object Noop extends TextEscaper {
-      override def escape(text: String): String = text
+    object Html extends TextEscaper {
+      override def escape(text: String): String = escapeHtml(text)
     }
-    final object Html extends TextEscaper {
-      override def escape(text: String): String = StringEscapeUtils.escapeHtml(text)
+  }
+  trait NameRenderer extends TextEscaper {
+    def renderName(e: PsiNamedElement): String
+    def renderNameWithPoint(e: PsiNamedElement): String
+    def escapeName(name: String): String = name
+    override final def escape(text: String): String = escapeName(text)
+  }
+  object NameRenderer {
+
+    object Noop extends NameRenderer {
+      override def renderName(e: PsiNamedElement): String = e.name
+      override def renderNameWithPoint(e: PsiNamedElement): String = e.name
     }
   }
 
   case class PresentationOptions(
     expandTypeParameterBounds: Boolean = false,
-    renderProjectionTypeName: Boolean = false
+    renderProjectionTypeName: Boolean = false,
+    renderValueTypes: Boolean = false
   )
   object PresentationOptions {
     val Default: PresentationOptions = PresentationOptions()
