@@ -50,8 +50,5 @@ final class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
         elementToBindTo,
         Some(containingClass)
       )
-
-    override protected def qualifyOnly(reference: ScReferenceExpression): Unit =
-      super.qualifyAndImport(reference)
   }
 }

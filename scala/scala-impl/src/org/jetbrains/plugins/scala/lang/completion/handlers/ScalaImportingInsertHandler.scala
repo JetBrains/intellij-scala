@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
-class ScalaImportingInsertHandler(protected val containingClass: PsiClass) extends InsertHandler[ScalaLookupItem] {
+abstract class ScalaImportingInsertHandler(protected val containingClass: PsiClass) extends InsertHandler[ScalaLookupItem] {
 
   override final def handleInsert(context: InsertionContext,
                                   item: ScalaLookupItem): Unit = {
@@ -25,7 +25,9 @@ class ScalaImportingInsertHandler(protected val containingClass: PsiClass) exten
     }
   }
 
-  protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+  protected def qualifyAndImport(reference: ScReferenceExpression): Unit
+
+  protected final def replaceReference(reference: ScReferenceExpression): Unit =
     ScalaInsertHandler.replaceReference(
       reference,
       containingClass.name + "." + reference.getText
@@ -33,5 +35,6 @@ class ScalaImportingInsertHandler(protected val containingClass: PsiClass) exten
       case ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression) => qualifier
     }
 
-  protected def qualifyOnly(reference: ScReferenceExpression): Unit = {}
+  protected def qualifyOnly(reference: ScReferenceExpression): Unit =
+    replaceReference(reference)
 }

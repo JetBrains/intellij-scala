@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -168,6 +170,8 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
       implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
       getPsiElement match {
         //scala
+        case _: ScReferencePattern => // todo should be a ScValueOrVariable instance
+          containingClassText
         case fun: ScFunction =>
           if (etaExpanded) " _"
           else if (isAssignment) " = " + presentationString(fun.parameterList, substitutor)
@@ -230,9 +234,6 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     else
       ""
 
-  private def simpleInsert(context: InsertionContext): Unit =
-    new ScalaInsertHandler().handleInsert(context, this)
-
   override def handleInsert(context: InsertionContext): Unit = {
     if (getInsertHandler != null) super.handleInsert(context)
     else if (isClassName || prefixCompletion) {
@@ -294,19 +295,25 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
               context.scheduleAutoPopup()
             case _ =>
           }
-        case p: PsiPackage if shouldImport =>
-          simpleInsert(context)
-          context.commitDocument()
+        case p: PsiPackage =>
+          new ScalaImportingInsertHandler(null) {
 
-          findReferenceAtOffset(context) match {
-            case null =>
-            case reference => ScImportsHolder(reference).addImportForPath(p.getQualifiedName)
-          }
+            override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+              ScImportsHolder(reference).addImportForPath(p.getQualifiedName)
+          }.handleInsert(context, this)
         case _ if containingClass != null =>
-          new ScalaImportingInsertHandler(containingClass).handleInsert(context, this)
+          new ScalaImportingInsertHandler(containingClass) {
+
+            override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+              replaceReference(reference)
+
+            override protected def qualifyOnly(reference: ScReferenceExpression): Unit = {}
+          }.handleInsert(context, this)
         case _ =>
       }
-    } else simpleInsert(context)
+    } else {
+      new ScalaInsertHandler().handleInsert(context, this)
+    }
   }
 
   private[completion] def findReferenceAtOffset(context: InsertionContext) = findElementOfClassAtOffset(

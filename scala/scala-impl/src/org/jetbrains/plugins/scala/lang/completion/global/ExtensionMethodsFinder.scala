@@ -59,9 +59,6 @@ private[completion] final class ExtensionMethodsFinder(originalType: ScType, pla
         null,
         Some(containingClass)
       )
-
-      override protected def qualifyOnly(reference: ScReferenceExpression): Unit =
-        super.qualifyAndImport(reference)
     }
   }
 }
