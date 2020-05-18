@@ -3,6 +3,7 @@ package psi
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -16,12 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 object PresentationUtil {
-
-  def presentationString(owner: ProjectContextOwner): String =
-    presentationString(owner.asInstanceOf[Any])(owner.projectContext, TypePresentationContext.emptyContext)
-
-  def presentationString(obj: Any)(implicit project: ProjectContext, tpc: TypePresentationContext): String =
-    presentationString(obj, ScSubstitutor.empty)
 
   def presentationString(obj: Any, substitutor: ScSubstitutor)
                         (implicit project: ProjectContext, tpc: TypePresentationContext): String = {
@@ -46,6 +41,9 @@ object PresentationUtil {
     res.replace(SyntheticClasses.TypeParameter, "T")
   }
 
+  def presentationStringForScalaType(scType: ScType): String =
+    presentationStringForScalaType(scType, ScSubstitutor.empty)
+
   private def presentationStringForScalaType(scType: ScType, substitutor: ScSubstitutor): String =
     // empty context is used just because it was so before refactoring
     substitutor(scType).presentableText(TypePresentationContext.emptyContext)
@@ -58,6 +56,13 @@ object PresentationUtil {
       case _         =>
         presentationStringForScalaType(psiType.toScType(), substitutor)
     }
+
+  def presentationStringForPsiElement(element: ScalaPsiElement): String = {
+    val substitutor = ScSubstitutor.empty
+    val projectContext = element.projectContext
+    val presentationContext = TypePresentationContext.emptyContext
+    presentationStringForPsiElement(element, substitutor)(projectContext, presentationContext)
+  }
 
   private def presentationStringForPsiElement(element: PsiElement, substitutor: ScSubstitutor)
                                              (implicit project: ProjectContext, tpc: TypePresentationContext): String =

@@ -184,7 +184,7 @@ object ScalaDocGenerator {
     val typeParameters = elems.typeParameters
     // todo hyperlink identifiers in type bounds
     if (typeParameters.nonEmpty)
-      escapeHtml(typeParameters.map(PresentationUtil.presentationString(_)).mkString("[", ", ", "]"))
+      escapeHtml(typeParameters.map(PresentationUtil.presentationStringForPsiElement(_)).mkString("[", ", ", "]"))
     else EmptyDoc
   }
 
