@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.PresentationOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer, TypeBoundsRenderer}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer, TypeBoundsRenderer, TypeParamsRenderer}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -34,7 +34,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
     options: PresentationOptions
   )(implicit context: TypePresentationContext): String = {
     val boundsRenderer = new TypeBoundsRenderer(nameRenderer)
-    import boundsRenderer._
+    val typeParamsRenderer = new TypeParamsRenderer(boundsRenderer)
 
     def typesText(types: Seq[ScType]): String = types
       .map(innerTypeText(_))
@@ -50,11 +50,11 @@ trait ScalaTypePresentation extends api.TypePresentation {
     def typeParamText(param: ScTypeParam, substitutor: ScSubstitutor): String = {
       def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer, options)
 
-      boundsRenderer.render(param)(typeText0)
+      typeParamsRenderer.render(param)(typeText0)
     }
 
     def typeParameterTypeText(typeParameterType: TypeParameterType): String =
-      boundsRenderer.render(typeParameterType)(innerTypeText(_))
+      typeParamsRenderer.render(typeParameterType)(innerTypeText(_))
 
     def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
       val e = projType.actualElement
@@ -144,7 +144,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           val alias = signature.typeAlias
           val defnText: String =
             if (signature.isDefinition) s" = ${typeText0(signature.upperBound)}"
-            else lowerBoundText(signature.lowerBound)(typeText0) + upperBoundText(signature.upperBound)(typeText0)
+            else boundsRenderer.lowerBoundText(signature.lowerBound)(typeText0) + boundsRenderer.upperBoundText(signature.upperBound)(typeText0)
 
           val typeParameters = typeParametersText(alias, signature.substitutor)
           Some(s"type ${signature.name}$typeParameters$defnText")
@@ -164,8 +164,8 @@ trait ScalaTypePresentation extends api.TypePresentation {
           case parameters => parameters.commaSeparated(model = Model.SquareBrackets)
         }
 
-        val lowerBound = lowerBoundText(wildcard.lower)(innerTypeText(_))
-        val upperBound = upperBoundText(wildcard.upper)(innerTypeText(_))
+        val lowerBound = boundsRenderer.lowerBoundText(wildcard.lower)(innerTypeText(_))
+        val upperBound = boundsRenderer.upperBoundText(wildcard.upper)(innerTypeText(_))
         s"$name$argsText$lowerBound$upperBound"
       }
 
@@ -316,7 +316,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case ScTypePolymorphicType(internalType, typeParameters) =>
         typeParameters.map {
           case TypeParameter(parameter, _, lowerType, upperType) =>
-            parameter.name + lowerBoundText(lowerType)(_.toString) + upperBoundText(upperType)(_.toString)
+            parameter.name + boundsRenderer.lowerBoundText(lowerType)(_.toString) + boundsRenderer.upperBoundText(upperType)(_.toString)
         }.commaSeparated(model = Model.SquareBrackets) + " " + internalType.toString
       case mt@ScMethodType(retType, params, _) =>
         implicit val elementScope: ElementScope = mt.elementScope

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{TextEscaper, TypeBoundsRenderer}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{TextEscaper, TypeBoundsRenderer, TypeParamsRenderer}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -157,7 +157,7 @@ object ScalaDocQuickInfoGenerator {
 
   private def renderTypeParam(param: ScTypeParam)
                              (implicit subst: ScSubstitutor): String = {
-    val renderer = new TypeBoundsRenderer(TextEscaper.Html)
+    val renderer = new TypeParamsRenderer(new TypeBoundsRenderer(TextEscaper.Html))
     renderer.render(param)(renderType(_))
   }
 

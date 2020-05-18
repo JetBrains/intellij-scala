@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeBoundsRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{TypeBoundsRenderer, TypeParamsRenderer}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -609,7 +609,7 @@ object ScalaPsiElementFactory {
 
     val typeParameters = method match {
       case function: ScFunction if function.typeParameters.nonEmpty =>
-        val renderer = new TypeBoundsRenderer(stripContextTypeArgs = true)
+        val renderer = new TypeParamsRenderer(stripContextTypeArgs = true)
 
         def buildText(typeParam: ScTypeParam): String =
           renderer.render(typeParam)(substitutor(_).canonicalText)
