@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, Whitespace}
 
@@ -40,4 +41,26 @@ object IndentUtil {
   @inline
   def compare(first: PsiElement, second: PsiElement, tabSize: Int): Int =
     calcIndent(first, tabSize) - calcIndent(second, tabSize)
+
+  /**
+   * @param indentString indentation string which can contain both tabs and spaces
+   * @param spaces  number of extra spaces to append to `indentString`
+   * @param tabSize      number of space chars to be replaces with a single tab char
+   * @return new indent string value containing as much tab chars as possible in the end
+   *
+   * @example input: indentString ="[TAB][TAB][SPACE]", extraSpaces = 5, tabSize = 4
+   *          return value: "[TAB][TAB][TAB][SPACE][SPACE]"
+   */
+  def appendSpacesToIndentString(indentString: String, spaces: Int, tabSize: Int): String = {
+    val tabsCount = StringUtil.countChars(indentString, '\t')
+    val totalIndentSize = tabsCount * tabSize + (indentString.length - tabsCount) + spaces
+    IndentUtil.buildIndentString(totalIndentSize, tabSize)
+  }
+
+  def buildIndentString(spacesCount: Int, tabSize: Int): String = {
+    val tabsCount = spacesCount / tabSize
+    val tabs    = StringUtil.repeatSymbol('\t', tabsCount)
+    val spaces  = StringUtil.repeatSymbol(' ', spacesCount - tabsCount * tabSize)
+    tabs + spaces
+  }
 }
