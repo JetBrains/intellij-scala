@@ -35,7 +35,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                             completionType: CompletionType = BASIC,
                                             invocationCount: Int = DEFAULT_TIME)
                                            (items: LookupImpl => Iterable[LookupElement] = allItems) = {
-    configureFromFileText(fileText)
+    configureFromFileText(normalize(fileText))
 
     changePsiAt(getEditor.getCaretModel.getOffset)
 
