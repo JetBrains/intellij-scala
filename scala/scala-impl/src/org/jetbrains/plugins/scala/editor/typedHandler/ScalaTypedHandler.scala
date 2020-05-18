@@ -364,8 +364,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     offset: Int
   )(
     prevCondition: PsiElement => Boolean,
-    // TODO: no need in "isLineTerminatorCheck" cause we already check for whitespace
-    condition: PsiElement => Boolean = element => element.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(element)
+    condition: PsiElement => Boolean = _.isInstanceOf[PsiWhiteSpace]
   ): Unit =
     if (condition(element)) {
       val anotherElement = file.findElementAt(offset - 2)
