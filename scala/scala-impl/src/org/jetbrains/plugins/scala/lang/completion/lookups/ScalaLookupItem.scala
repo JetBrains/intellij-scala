@@ -11,8 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -138,16 +137,17 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     UIFreezingGuard.withDefaultValue("") {
       implicit val pc: Project = getPsiElement.getProject
       implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+      import PresentationUtil.{presentationStringForJavaType, presentationStringForScalaType}
       getPsiElement match {
         case fun: ScFunction =>
           val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
-          presentationString(scType, substitutor)
+          presentationStringForScalaType(scType, substitutor)
         case fun: ScFun =>
-          presentationString(fun.retType, substitutor)
+          presentationStringForScalaType(fun.retType, substitutor)
         case alias: ScTypeAliasDefinition =>
-          presentationString(alias.aliasedType.getOrAny, substitutor)
+          presentationStringForScalaType(alias.aliasedType.getOrAny, substitutor)
         case param: ScParameter =>
-          presentationString(param.getRealParameterType.getOrAny, substitutor)
+          presentationStringForScalaType(param.getRealParameterType.getOrAny, substitutor)
         case t: ScTemplateDefinition if getLookupString == "this" || getLookupString.endsWith(".this") =>
           t.getTypeWithProjections(thisProjections = true) match {
             case Right(tp) =>
@@ -155,11 +155,11 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
             case _ => ""
           }
         case f: PsiField =>
-          presentationString(f.getType, substitutor)
+          presentationStringForJavaType(f.getType, substitutor)
         case m: PsiMethod =>
-          presentationString(m.getReturnType, substitutor)
+          presentationStringForJavaType(m.getReturnType, substitutor)
         case t: Typeable =>
-          presentationString(t.`type`().getOrAny, substitutor)
+          presentationStringForScalaType(t.`type`().getOrAny, substitutor)
         case _ => ""
       }
     }
@@ -175,13 +175,12 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           containingClassText
         case fun: ScFunction =>
           if (etaExpanded) " _"
-          else if (isAssignment) " = " + presentationString(fun.parameterList, substitutor)
+          else if (isAssignment) " = " + PresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
           else typeParametersText(fun) + parametersText(fun.parameterList) + containingClassText
         case fun: ScFun =>
           val paramClausesText = fun.paramClauses.map { clause =>
-            clause.map {
-              presentationString(_, substitutor)
-            }.commaSeparated(Model.Parentheses)
+            val clauseText = clause.map(PresentationUtil.presentationStringForParameter(_, substitutor))
+            clauseText.commaSeparated(Model.Parentheses)
           }.mkString
 
           typeParametersText(fun.typeParameters) + paramClausesText
@@ -209,7 +208,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           case _: ScTypeParam => this.substitutor
           case _ => ScSubstitutor.empty
         }
-        presentationString(typeParameter, substitutor)
+        PresentationUtil.presentationStringForPsiElement(typeParameter, substitutor)
       }.commaSeparated(Model.SquareBrackets)
 
   private def typeParametersText(owner: PsiTypeParameterListOwner)
@@ -217,7 +216,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
                                  context: TypePresentationContext): String = owner match {
     case owner: ScTypeParametersOwner =>
       owner.typeParametersClause.fold("") {
-        presentationString(_, substitutor)
+        PresentationUtil.presentationStringForPsiElement(_, substitutor)
       }
     case owner =>
       typeParametersText(owner.getTypeParameters)
@@ -229,7 +228,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     if (isOverloadedForClassName)
       "(...)"
     else
-      presentationString(parametersList, substitutor)
+      PresentationUtil.presentationStringForPsiElement(parametersList, substitutor)
 
   private def containingClassText =
     if (isClassName && containingClassName != null)

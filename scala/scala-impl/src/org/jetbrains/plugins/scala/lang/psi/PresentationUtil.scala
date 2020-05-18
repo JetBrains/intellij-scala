@@ -8,48 +8,33 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeBoundsRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 object PresentationUtil {
 
-  def presentationString(obj: Any, substitutor: ScSubstitutor)
-                        (implicit project: ProjectContext, tpc: TypePresentationContext): String = {
-
-    val res: String = obj match {
-      case null => ""
-      case psiElement: PsiElement =>
-        presentationStringForPsiElement(psiElement, substitutor)
-      case scType: ScType =>
-        presentationStringForScalaType(scType, substitutor)
-      case psiType: PsiType =>
-        presentationStringForJavaType(psiType, substitutor)
-      case param: Parameter =>
-        val builder = new StringBuilder
-        builder.append(param.name)
-        builder.append(": " + presentationStringForScalaType(param.paramType, substitutor))
-        if (param.isRepeated) builder.append("*")
-        if (param.isDefault) builder.append(" = _")
-        builder.toString()
-      case _ => obj.toString
-    }
-    res.replace(SyntheticClasses.TypeParameter, "T")
+  def presentationStringForParameter(param: Parameter, substitutor: ScSubstitutor): String = {
+    val builder = new StringBuilder
+    builder.append(param.name)
+    builder.append(": " + presentationStringForScalaType(param.paramType, substitutor))
+    if (param.isRepeated) builder.append("*")
+    if (param.isDefault) builder.append(" = _")
+    builder.toString()
   }
 
   def presentationStringForScalaType(scType: ScType): String =
     presentationStringForScalaType(scType, ScSubstitutor.empty)
 
-  private def presentationStringForScalaType(scType: ScType, substitutor: ScSubstitutor): String =
+  def presentationStringForScalaType(scType: ScType, substitutor: ScSubstitutor): String =
     // empty context is used just because it was so before refactoring
     substitutor(scType).presentableText(TypePresentationContext.emptyContext)
 
-  private def presentationStringForJavaType(psiType: PsiType, substitutor: ScSubstitutor)
-                                           (implicit project: ProjectContext): String =
+  def presentationStringForJavaType(psiType: PsiType, substitutor: ScSubstitutor)
+                                   (implicit project: ProjectContext): String =
     psiType match {
       case tp: PsiEllipsisType =>
         presentationStringForJavaType(tp.getComponentType, substitutor) + "*"
@@ -64,8 +49,8 @@ object PresentationUtil {
     presentationStringForPsiElement(element, substitutor)(projectContext, presentationContext)
   }
 
-  private def presentationStringForPsiElement(element: PsiElement, substitutor: ScSubstitutor)
-                                             (implicit project: ProjectContext, tpc: TypePresentationContext): String =
+  def presentationStringForPsiElement(element: PsiElement, substitutor: ScSubstitutor)
+                                     (implicit project: ProjectContext, tpc: TypePresentationContext): String =
     element match {
       case clauses: ScParameters =>
         clauses.clauses.map(presentationStringForPsiElement(_, substitutor)).mkString("")
