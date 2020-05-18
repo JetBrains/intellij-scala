@@ -28,7 +28,7 @@ abstract class DocumentationProviderTestBase
   protected def createFile(fileContent: String): PsiFile
 
   /** see parameters of [[com.intellij.lang.documentation.DocumentationProvider#generateDoc]] */
-  private def extractReferredAndOriginalElements(editor: Editor, file: PsiFile): (PsiElement, PsiElement) = {
+  protected def extractReferredAndOriginalElements(editor: Editor, file: PsiFile): (PsiElement, PsiElement) = {
     val elementAtCaret = file.findElementAt(editor.getCaretModel.getOffset)
     elementAtCaret.parentOfType(classOf[ScNamedElement]) match {
       case Some(definition) => // if caret is placed at a the key definition itself

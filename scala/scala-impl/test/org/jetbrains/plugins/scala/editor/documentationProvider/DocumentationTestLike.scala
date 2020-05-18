@@ -18,14 +18,14 @@ trait DocumentationTestLike {
     generateDoc(editor, file)
   }
 
-  protected def doTest(fileContent: String, expectedDoc: String): Unit = {
+  protected def doGenerateDocTest(fileContent: String, expectedDoc: String): Unit = {
     val actualDoc = generateDoc(fileContent)
     assertDocHtml(expectedDoc, actualDoc)
   }
 
-  protected def doShortTest(fileContent: String, expectedDocShort: String): Unit = {
+  protected def doShortGenerateDocTest(fileContent: String, expectedDocShort: String): Unit = {
     val expectedDoc = s"<html><body>${expectedDocShort.trim}</body></html>"
-    doTest(fileContent, expectedDoc)
+    doGenerateDocTest(fileContent, expectedDoc)
   }
 
   protected def assertDocHtml(expected: String, actual: String): Unit =

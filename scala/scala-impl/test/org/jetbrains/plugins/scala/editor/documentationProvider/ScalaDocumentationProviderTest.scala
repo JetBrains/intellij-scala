@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 // TODO: Currently this contains just simple health check tests.
 //  Add more before improving quick-doc SCL-17101
+// TODO2: in-editor doc: code example in the end of the doc produces new line
 class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase {
 
   def testClass(): Unit =
-    doShortTest(
+    doShortGenerateDocTest(
       s"""/** description of A */
          |class ${|}A {}""".stripMargin,
       """<div class="definition"><pre>class <b>A</b></pre></div>
@@ -15,7 +16,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     )
 
   def testClassInPackage(): Unit =
-    doShortTest(
+    doShortGenerateDocTest(
       s"""package a.b.c
          |/** description of A */
          |class ${|}A""".stripMargin,
@@ -27,7 +28,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
   // for not it's not a business requirement just fixing implementation in tests
   def testClassExtendingAnotherClassShouldNotInheritDoc(): Unit =
-    doShortTest(
+    doShortGenerateDocTest(
       s"""/** description of A */
          |class A
          |class ${|}B extends A
@@ -44,7 +45,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |class J {}
         |""".stripMargin
     )
-    doShortTest(
+    doShortGenerateDocTest(
       s"""class ${|}B extends J""".stripMargin,
       """<div class="definition"><pre>
         |class <b>B</b> extends <a href="psi_element://J"><code>J</code></a>
@@ -54,7 +55,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   }
 
   def testMethod(): Unit =
-    doShortTest(
+    doShortGenerateDocTest(
       s"""class A {
          |  /** description of foo */
          |  def ${|}foo: String = ???
@@ -73,7 +74,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |}
         |""".stripMargin
     )
-    doShortTest(
+    doShortGenerateDocTest(
       s"""class A extends BaseScalaClass {
          |  /** description of base method from A */
          |  def ${|}baseMethod: String = ???
@@ -99,7 +100,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     )
     // TODO: do we need override keyword as text in <pre> section?
     //  Java uses `Overrides` section for that (e.g. Overrides: foo in class BaseClass)
-    doShortTest(
+    doShortGenerateDocTest(
       s"""class A extends BaseScalaClass {
          |  override def ${|}baseMethod: String = ???
          |}""".stripMargin,
@@ -124,7 +125,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |}
         |""".stripMargin
     )
-    doShortTest(
+    doShortGenerateDocTest(
       s"""class A extends BaseJavaClass {
          |  override def ${|}baseMethod: String = ???
          |}
@@ -149,7 +150,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  String[] getModules() {  return null;  }
          |}""".stripMargin
     )
-    doShortTest(
+    doShortGenerateDocTest(
       s"""class A extends BaseJavaClass {
          |  override def ${|}getModules: String = ???
          |}
@@ -169,4 +170,17 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |</table>""".stripMargin
     )
   }
+
+  def testEscapeGenericsBounds(): Unit =
+    doShortGenerateDocTest(
+      s"""trait Trait[A]
+         |abstract class ${|}Class[T <: Trait[_ >: Object]]
+         |  extends Comparable[_ <: Trait[_ >: String]]""".stripMargin,
+      """<div class="definition">
+        |<pre>abstract class <b>Class</b>[T &lt;: Trait[_ &gt;: Object]]
+        | extends <a href="psi_element://java.lang.Comparable"><code>Comparable</code></a>[_ &lt;:
+        | <a href="psi_element://Trait"><code>Trait</code></a>[_ &gt;:
+        | <a href="psi_element://scala.Predef.String"><code>String</code></a>]]
+        |</pre></div>""".stripMargin
+    )
 }

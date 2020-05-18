@@ -32,7 +32,7 @@ class DocumentationFromJavaTest extends ScalaLightCodeInsightFixtureTestAdapter
          |}""".stripMargin
     )
 
-    doShortTest(
+    doShortGenerateDocTest(
       s"""class JavaClass {
          |    public static void main(String[] args) {
          |        ScalaObject.${|}scalaMethod("dummy");
