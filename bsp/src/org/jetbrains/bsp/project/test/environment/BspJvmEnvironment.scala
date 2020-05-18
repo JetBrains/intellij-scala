@@ -118,7 +118,7 @@ object BspJvmEnvironment {
       val filePaths = files.map(file => Paths.get(file.getVirtualFile.getPath))
 
       def sourceItemContainsAnyOfFiles(sourceItem: SourceItem): Boolean = {
-        val sourcePath = Paths.get(new URI(sourceItem.getUri).getPath)
+        val sourcePath = Paths.get(sourceItem.getUri.toURI)
         filePaths.exists(_.startsWith(sourcePath))
       }
 
