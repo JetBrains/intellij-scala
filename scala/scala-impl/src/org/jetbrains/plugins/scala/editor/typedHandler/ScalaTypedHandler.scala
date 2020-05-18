@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -59,6 +60,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     val document = editor.getDocument
     val text = document.getImmutableCharSequence
 
+    // TODO: do not use function literal, use dedicated class with descriptive names
     type Task = (Document, Project, PsiElement, Int) => Unit
 
     def chooseXmlTask(withAttr: Boolean): Task =
@@ -110,7 +112,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '{') {
       convertToInterpolated(file, editor)
     } else if (c == '.' && isSingleCharOnLine(editor)) {
-      addContinuationIndent
+      addContinuationIndentBeforeDot(CodeStyle.getLanguageSettings(file, ScalaLanguage.INSTANCE).getIndentOptions)
     } else if (c == '.') {
       startAutoPopupCompletionInInterpolatedString(file, editor)
     } else if (offset > 1) {
@@ -353,10 +355,18 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       ScalaPsiUtil.getParent(_, 2).exists(_.isInstanceOf[ScValue])
     )
 
-  private def indentElement(file: PsiFile)
-                           (document: Document, project: Project, element: PsiElement, offset: Int)
-                           (prevCondition: PsiElement => Boolean,
-                            condition: PsiElement => Boolean = element => element.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(element)): Unit =
+  private def indentElement(
+    file: PsiFile
+  )(
+    document: Document,
+    project: Project,
+    element: PsiElement,
+    offset: Int
+  )(
+    prevCondition: PsiElement => Boolean,
+    // TODO: no need in "isLineTerminatorCheck" cause we already check for whitespace
+    condition: PsiElement => Boolean = element => element.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(element)
+  ): Unit =
     if (condition(element)) {
       val anotherElement = file.findElementAt(offset - 2)
       if (prevCondition(anotherElement)) {
@@ -365,17 +375,22 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       }
     }
 
-  private def addContinuationIndent(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
+  private def addContinuationIndentBeforeDot(indentOptions: IndentOptions)
+                                            (document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
     val file = element.getContainingFile
-    val elementOffset = element.getTextOffset
-    val lineStart = document.lineStartOffset(offset)
 
-    CodeStyleManager.getInstance(project).adjustLineIndent(file, elementOffset)
+    val dotOffset = offset - 1
+    val baseIndent = CodeStyleManager.getInstance(project).getLineIndent(file, dotOffset)
 
-    val additionalIndentSize =
-      CodeStyle.getLanguageSettings(file, ScalaLanguage.INSTANCE).getIndentOptions.CONTINUATION_INDENT_SIZE
-    val indentString = StringUtil.repeatSymbol(' ', additionalIndentSize)
-    document.insertString(lineStart, indentString)
+    val extraIndentSize = indentOptions.CONTINUATION_INDENT_SIZE
+    val indentString =
+      if (indentOptions.USE_TAB_CHARACTER)
+        IndentUtil.appendSpacesToIndentString(baseIndent, extraIndentSize, indentOptions.TAB_SIZE)
+      else
+        baseIndent + StringUtil.repeatSymbol(' ', extraIndentSize)
+
+    val lineStartOffset = document.lineStartOffset(dotOffset)
+    document.replaceString(lineStartOffset, dotOffset, indentString)
     document.commit(project)
   }
 
