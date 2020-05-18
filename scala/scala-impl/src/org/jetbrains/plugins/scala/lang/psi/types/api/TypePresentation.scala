@@ -1,23 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
 import org.apache.commons.lang.StringEscapeUtils
-import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, childOf}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.TypeRenderer
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation._
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.NameRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
+ * TODO: move to presentation package
  * @author adkozlov
  */
 trait TypePresentation {
@@ -105,7 +101,28 @@ trait TypePresentation {
   }
 }
 
+// TODO: remove, this is left to minimize change diff
+@deprecated("use TypePresentation instead")
+object ScTypePresentation {
+
+  val ABSTRACT_TYPE_POSTFIX: String =
+    TypePresentation.ABSTRACT_TYPE_POSTFIX
+
+  def different(t1: ScType, t2: ScType)
+               (implicit context: TypePresentationContext): (String, String) =
+    TypePresentation.different(t1, t2)
+
+  def shouldExpand(typeAlias: ScTypeAliasDefinition): Boolean =
+    TypePresentation.shouldExpand(typeAlias)
+
+  def withoutAliases(`type`: ScType)
+                    (implicit context: TypePresentationContext): String =
+    TypePresentation.withoutAliases(`type`)
+}
+
 object TypePresentation {
+
+  val ABSTRACT_TYPE_POSTFIX = "_"
 
   private val PredefinedPackages = Set("scala.Predef", "scala")
   private def isPredefined(td: ScTypeDefinition): Boolean =
@@ -117,31 +134,6 @@ object TypePresentation {
   private def removeKeywords(text: String): String =
     ScalaNamesUtil.escapeKeywordsFqn(text)
 
-  trait TextEscaper {
-    def escape(text: String): String
-  }
-  object TextEscaper {
-    object Html extends TextEscaper {
-      override def escape(text: String): String = escapeHtml(text)
-    }
-    object Noop extends TextEscaper {
-      override def escape(text: String): String = text
-    }
-  }
-  trait NameRenderer extends TextEscaper {
-    def renderName(e: PsiNamedElement): String
-    def renderNameWithPoint(e: PsiNamedElement): String
-    def escapeName(name: String): String = name
-    override final def escape(text: String): String = escapeName(text)
-  }
-  object NameRenderer {
-
-    object Noop extends NameRenderer {
-      override def renderName(e: PsiNamedElement): String = e.name
-      override def renderNameWithPoint(e: PsiNamedElement): String = e.name
-    }
-  }
-
   case class PresentationOptions(
     expandTypeParameterBounds: Boolean = false,
     renderProjectionTypeName: Boolean = false,
@@ -150,10 +142,6 @@ object TypePresentation {
   object PresentationOptions {
     val Default: PresentationOptions = PresentationOptions()
   }
-}
-
-object ScTypePresentation {
-  val ABSTRACT_TYPE_POSTFIX = "_"
 
   // TODO Why the presentable text for java.lang.Long is "Long" in Scala? (see SCL-15899)
   // TODO (and why the canonical text for scala.Long is "Long", for that matter)
@@ -172,136 +160,4 @@ object ScTypePresentation {
   def withoutAliases(`type`: ScType)
                     (implicit context: TypePresentationContext): String =
     `type`.removeAliasDefinitions(expandableOnly = true).presentableText
-}
-
-case class ScTypeText(tp: ScType)(implicit tpc: TypePresentationContext) {
-  val canonicalText: String = tp.canonicalText
-  val presentableText: String = tp.presentableText
-}
-
-// TODO: check whether it handles higher-kinded types?
-//  def f[T[_, X] = ???
-class TypeBoundsRenderer(
-  textEscaper: TextEscaper = TextEscaper.Noop,
-  stripContextTypeArgs: Boolean = false
-) {
-
-  import ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
-
-  def upperBoundText(typ: ScType)
-                    (toString: TypeRenderer): String =
-    if (typ.isAny) ""
-    else boundText(typ, tUPPER_BOUND)(toString)
-
-  def lowerBoundText(typ: ScType)
-                    (toString: TypeRenderer): String =
-    if (typ.isNothing) ""
-    else boundText(typ, tLOWER_BOUND)(toString)
-
-  def boundText(typ: ScType, bound: IElementType)
-               (toString: TypeRenderer): String = {
-    val boundEscaped = textEscaper.escape(bound.toString)
-    " " + boundEscaped + " " + toString(typ)
-  }
-
-  def renderClause(typeParamClause: ScTypeParamClause)
-                  (toString: TypeRenderer): String =
-    renderParams(typeParamClause.typeParameters)(render(_)(toString))
-
-  private def renderParams[T](parameters: Seq[T])
-                             (renderParam: T => String): String =
-    if (parameters.isEmpty) "" else {
-      val buffer = StringBuilder.newBuilder
-
-      if (parameters.nonEmpty) {
-        buffer.append("[")
-        var isFirst = true
-        parameters.foreach { p =>
-          if (isFirst)
-            isFirst = false
-          else
-            buffer.append(", ")
-          val paramRendered = renderParam(p)
-          buffer.append(paramRendered)
-        }
-        buffer.append("]")
-      }
-
-      buffer.result
-    }
-
-  // TODO: this should go to some type param renderer
-  def render(param: ScTypeParam)
-            (toString: TypeRenderer): String = {
-    val parametersClauseRendered = param.typeParametersClause.fold("")(renderClause(_)(toString))
-    renderImpl(
-      param.name,
-      param.variance,
-      parametersClauseRendered,
-      param.lowerBound.toOption,
-      param.upperBound.toOption,
-      param.viewBound,
-      param.contextBound,
-    )(toString)
-  }
-
-  def render(param: TypeParameterType)
-            (toString: TypeRenderer): String = {
-    val (viewTypes, contextTypes) = param.typeParameter.psiTypeParameter match {
-      case boundsOwner: ScTypeBoundsOwner => (boundsOwner.viewBound, boundsOwner.contextBound)
-      case _                              => TypeBoundsRenderer.EmptyTuple
-    }
-
-    val parametersRendered = renderParams(param.arguments)(render(_)(toString))
-    renderImpl(
-      param.name,
-      param.variance,
-      parametersRendered,
-      Some(param.lowerType),
-      Some(param.upperType),
-      viewTypes,
-      contextTypes,
-    )(toString)
-  }
-
-  private def renderImpl(
-    paramName: String,
-    variance: Variance,
-    parametersClauseRendered: String, // for higher-kinded types case
-    lower: Option[ScType],
-    upper: Option[ScType],
-    view: Seq[ScType],
-    context: Seq[ScType]
-  )(toString: TypeRenderer): String = {
-    val buffer = new StringBuilder
-
-    val varianceText = variance match {
-      case Variance.Contravariant => "-"
-      case Variance.Covariant     => "+"
-      case _                      => ""
-    }
-    buffer ++= varianceText
-    buffer ++= paramName
-    buffer ++= parametersClauseRendered
-
-    lower.foreach { tp =>
-      buffer.append(lowerBoundText(tp)(toString))
-    }
-    upper.foreach { tp =>
-      buffer.append(upperBoundText(tp)(toString))
-    }
-    view.foreach { tp =>
-      buffer.append(boundText(tp, ScalaTokenTypes.tVIEW)(toString))
-    }
-    context.foreach { tp =>
-      val tpFixed = if (stripContextTypeArgs) ScTypeUtil.stripTypeArgs(tp) else tp
-      buffer.append(boundText(tpFixed, ScalaTokenTypes.tCOLON)(toString))
-    }
-
-    buffer.result
-  }
-}
-
-private object TypeBoundsRenderer {
-  private val EmptyTuple = (Seq.empty, Seq.empty)
 }
