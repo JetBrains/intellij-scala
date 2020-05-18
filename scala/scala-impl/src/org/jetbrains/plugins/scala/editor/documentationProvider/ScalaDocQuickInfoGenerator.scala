@@ -136,6 +136,8 @@ object ScalaDocQuickInfoGenerator {
                         (implicit subst: ScSubstitutor): String =
     subst(typ).urlText
 
+  // TODO: unify with org.jetbrains.plugins.scala.lang.psi.types.api.TypeBoundsRenderer
+  //  + review ScTypeParametersOwner & ScTypeParamClause
   private def renderTypeParams(buffer: StringBuilder, paramsOwner: ScTypeParametersOwner)
                               (implicit subst: ScSubstitutor): Unit = {
     val parameters = paramsOwner.typeParameters
@@ -157,13 +159,7 @@ object ScalaDocQuickInfoGenerator {
   private def renderTypeParam(param: ScTypeParam)
                              (implicit subst: ScSubstitutor): String = {
     val renderer = new TypeBoundsRenderer(TextEscaper.Html)
-    renderer.render(
-      param.name,
-      param.lowerBound.toOption,
-      param.upperBound.toOption,
-      param.viewBound,
-      param.contextBound,
-    )(renderType(_))
+    renderer.render(param)(renderType(_))
   }
 
   private def generateFunctionInfo(function: ScFunction)

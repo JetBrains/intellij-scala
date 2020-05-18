@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeBoundsRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -608,32 +609,10 @@ object ScalaPsiElementFactory {
 
     val typeParameters = method match {
       case function: ScFunction if function.typeParameters.nonEmpty =>
-        def buildText(typeParam: ScTypeParam): String = {
-          val variance = if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else ""
-          val clauseText = typeParam.typeParametersClause match {
-            case None => ""
-            case Some(x) => x.typeParameters.map(buildText).mkString("[", ",", "]")
-          }
+        val renderer = new TypeBoundsRenderer(stripContextTypeArgs = true)
 
-          val lowerBoundText = typeParam.lowerBound.toOption.collect {
-            case x if !x.isNothing => " >: " + substitutor(x).canonicalText
-          }
-
-          val upperBoundText = typeParam.upperBound.toOption.collect {
-            case x if !x.isAny => " <: " + substitutor(x).canonicalText
-          }
-
-          val viewBoundText = typeParam.viewBound.map { x =>
-            " <% " + substitutor(x).canonicalText
-          }
-
-          val contextBoundText = typeParam.contextBound.map { tp =>
-            " : " + refactoring.util.ScTypeUtil.stripTypeArgs(substitutor(tp)).canonicalText
-          }
-
-          val boundsText = (lowerBoundText.toSeq ++ upperBoundText.toSeq ++ viewBoundText ++ contextBoundText).mkString
-          s"$variance${typeParam.name}$clauseText$boundsText"
-        }
+        def buildText(typeParam: ScTypeParam): String =
+          renderer.render(typeParam)(substitutor(_).canonicalText)
 
         function.typeParameters.map(buildText)
       case _ if method.hasTypeParameters =>

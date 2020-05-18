@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNam
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.TypeRenderer
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
@@ -204,17 +204,46 @@ class TypeBoundsRenderer(
     " " + boundEscaped + " " + toString(typ)
   }
 
+  def renderClause(typeParamClause: ScTypeParamClause)
+                  (toString: TypeRenderer): String =
+    renderParams(typeParamClause.typeParameters)(render(_)(toString))
+
+  private def renderParams[T](parameters: Seq[T])
+                             (renderParam: T => String): String =
+    if (parameters.isEmpty) "" else {
+      val buffer = StringBuilder.newBuilder
+
+      if (parameters.nonEmpty) {
+        buffer.append("[")
+        var isFirst = true
+        parameters.foreach { p =>
+          if (isFirst)
+            isFirst = false
+          else
+            buffer.append(", ")
+          val paramRendered = renderParam(p)
+          buffer.append(paramRendered)
+        }
+        buffer.append("]")
+      }
+
+      buffer.result
+    }
+
   // TODO: this should go to some type param renderer
   def render(param: ScTypeParam)
-            (toString: TypeRenderer): String =
-    render(
+            (toString: TypeRenderer): String = {
+    val parametersClauseRendered = param.typeParametersClause.fold("")(renderClause(_)(toString))
+    renderImpl(
       param.name,
       param.variance,
+      parametersClauseRendered,
       param.lowerBound.toOption,
       param.upperBound.toOption,
       param.viewBound,
       param.contextBound,
     )(toString)
+  }
 
   def render(param: TypeParameterType)
             (toString: TypeRenderer): String = {
@@ -222,9 +251,12 @@ class TypeBoundsRenderer(
       case boundsOwner: ScTypeBoundsOwner => (boundsOwner.viewBound, boundsOwner.contextBound)
       case _                              => TypeBoundsRenderer.EmptyTuple
     }
-    render(
+
+    val parametersRendered = renderParams(param.arguments)(render(_)(toString))
+    renderImpl(
       param.name,
       param.variance,
+      parametersRendered,
       Some(param.lowerType),
       Some(param.upperType),
       viewTypes,
@@ -232,9 +264,10 @@ class TypeBoundsRenderer(
     )(toString)
   }
 
-  private def render(
+  private def renderImpl(
     paramName: String,
     variance: Variance,
+    parametersClauseRendered: String, // for higher-kinded types case
     lower: Option[ScType],
     upper: Option[ScType],
     view: Seq[ScType],
@@ -249,6 +282,7 @@ class TypeBoundsRenderer(
     }
     buffer ++= varianceText
     buffer ++= paramName
+    buffer ++= parametersClauseRendered
 
     lower.foreach { tp =>
       buffer.append(lowerBoundText(tp)(toString))
