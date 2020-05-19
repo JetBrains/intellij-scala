@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template.TemplateManager
-import com.intellij.codeInsight.template.impl.{TemplateImpl, TemplateManagerImpl, TemplateSettings}
+import com.intellij.codeInsight.template.impl.{TemplateSettings, TemplateManagerImpl, TemplateImpl}
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ui.UIUtil
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.util.TemplateTesting
 import org.junit.Assert._
 
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
-abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TemplateTesting {
 
   protected def templateName: String
 
@@ -19,11 +20,6 @@ abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTes
   final protected def templateId = s"`$templateGroup/$templateName`"
 
   protected def fileExtension: String = "scala"
-
-  override protected def setUp(): Unit = {
-    super.setUp()
-    TemplateManagerImpl.setTemplateTesting(myFixture.getTestRootDisposable)
-  }
 
   protected def doTest(@Language("Scala") before: String,
                        @Language("Scala") after: String): Unit =
