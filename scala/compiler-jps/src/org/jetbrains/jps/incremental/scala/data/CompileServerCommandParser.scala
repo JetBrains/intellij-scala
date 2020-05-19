@@ -21,10 +21,11 @@ object CompileServerCommandParser
         }
       case CommandIds.CompileJps =>
         args match {
-          case Seq(token, projectPath, globalOptionsPath, dataStorageRootPath) =>
+          case Seq(token, projectPath, testScopeOnly, globalOptionsPath, dataStorageRootPath) =>
             CompileServerCommand.CompileJps(
               token = token,
               projectPath = projectPath,
+              testScopeOnly = testScopeOnly.toBoolean,
               globalOptionsPath = globalOptionsPath,
               dataStorageRootPath = dataStorageRootPath
             )

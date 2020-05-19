@@ -3,10 +3,12 @@ package org.jetbrains.jps.incremental.scala.remote
 import java.io._
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
+import java.util
 import java.util.{Base64, Timer, TimerTask}
 
 import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
+import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
 import org.jetbrains.jps.incremental.MessageHandler
 import org.jetbrains.jps.incremental.fs.BuildFSState
@@ -125,7 +127,7 @@ object Main {
   }
 
   private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(_, projectPath, globalOptionsPath, dataStorageRootPath) = command
+    val CompileServerCommand.CompileJps(_, projectPath, testScopeOnly, globalOptionsPath, dataStorageRootPath) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -147,7 +149,10 @@ object Main {
       }
     }
     val descriptor = buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
-    val scopes = CmdlineProtoUtil.createAllModulesScopes(false)
+    val scopes = if (testScopeOnly)
+      util.Arrays.asList(CmdlineProtoUtil.createAllTargetsScope(JavaModuleBuildTargetType.TEST, false))
+    else
+      CmdlineProtoUtil.createAllModulesScopes(false)
 
     try {
       client.compilationStart()

@@ -27,7 +27,7 @@ import scala.util.Try
 import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
 
 trait JpsCompiler {
-  def compile(): Unit
+  def compile(testScopeOnly: Boolean): Unit
 }
 
 object JpsCompiler {
@@ -45,7 +45,7 @@ private class JpsCompilerImpl(project: Project)
   @Cached(ProjectRootManager.getInstance(project), null)
   private def saveProjectOnce(): Unit = project.save()
 
-  override def compile(): Unit = {
+  override def compile(testScopeOnly: Boolean): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
 
@@ -58,6 +58,7 @@ private class JpsCompilerImpl(project: Project)
     val command = CompileServerCommand.CompileJps(
       token = "",
       projectPath = projectPath,
+      testScopeOnly = testScopeOnly,
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath
     )
