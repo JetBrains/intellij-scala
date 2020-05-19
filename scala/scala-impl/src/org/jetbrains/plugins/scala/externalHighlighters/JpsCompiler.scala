@@ -39,7 +39,7 @@ object JpsCompiler {
 private class JpsCompilerImpl(project: Project)
   extends JpsCompiler {
 
-  private val showIndicatorExecutor = new RescheduledExecutor(s"show-indicator-${project.getName}")
+  private val showIndicatorExecutor = new RescheduledExecutor(s"ShowIndicator-${project.getName}")
   
   // SCL-17295
   @Cached(ProjectRootManager.getInstance(project), null)
