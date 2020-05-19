@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api.presentation
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.TypeRenderer
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, Variance}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
@@ -12,6 +12,13 @@ class TypeParamsRenderer(
   boundsRenderer: TypeBoundsRenderer = new TypeBoundsRenderer,
   stripContextTypeArgs: Boolean = false
 ) {
+
+  def this(textEscaper: TextEscaper, stripContextTypeArgs: Boolean) =
+    this(new TypeBoundsRenderer(textEscaper), stripContextTypeArgs)
+
+  def render(paramsOwner: ScTypeParametersOwner)
+            (typeRenderer: TypeRenderer): String =
+    renderParams(paramsOwner.typeParameters)(render(_)(typeRenderer))
 
   def render(param: ScTypeParam)
             (typeRenderer: TypeRenderer): String = {

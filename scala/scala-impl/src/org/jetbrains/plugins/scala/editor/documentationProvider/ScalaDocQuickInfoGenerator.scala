@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{TextEscaper, TypeBoundsRenderer, TypeParamsRenderer}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiPresentationUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 // TODO 1: analyze whether rendered info is cached?
@@ -65,16 +65,11 @@ object ScalaDocQuickInfoGenerator {
       buffer.append(locationString.substring(1, length - 1)) // remove brackets
     if (buffer.nonEmpty)
       buffer.append("\n")
+
     renderModifiersPresentableText(buffer, clazz.getModifierList)
     buffer.append(ScalaDocumentationUtils.getKeyword(clazz))
-    clazz.`type`() match {
-      case Right(typ) =>
-        buffer.append(renderType(typ))
-      case Left(_) =>
-        // TODO: is this case possible? check when indicies are unavailable
-        buffer.append(clazz.name)
-        renderTypeParams(buffer, clazz)
-    }
+    buffer.append(HtmlPsiUtils.psiElementLink(clazz.qualifiedName, clazz.name))
+    buffer.append(renderTypeParams(clazz))
 
     buffer.append(renderConstructorText(clazz))
     renderSuperTypes(buffer, clazz)
@@ -135,30 +130,10 @@ object ScalaDocQuickInfoGenerator {
                         (implicit subst: ScSubstitutor): String =
     subst(typ).urlText
 
-  // TODO: unify with org.jetbrains.plugins.scala.lang.psi.types.api.TypeBoundsRenderer
-  //  + review ScTypeParametersOwner & ScTypeParamClause
-  private def renderTypeParams(buffer: StringBuilder, paramsOwner: ScTypeParametersOwner)
-                              (implicit subst: ScSubstitutor): Unit = {
-    val parameters = paramsOwner.typeParameters
-    if (parameters.nonEmpty) {
-      buffer.append("[")
-      var isFirst = true
-      parameters.foreach { p =>
-        if (isFirst)
-          isFirst = false
-        else
-          buffer.append(", ")
-        val paramRendered = renderTypeParam(p)
-        buffer.append(paramRendered)
-      }
-      buffer.append("]")
-    }
-  }
-
-  private def renderTypeParam(param: ScTypeParam)
-                             (implicit subst: ScSubstitutor): String = {
-    val renderer = new TypeParamsRenderer(new TypeBoundsRenderer(TextEscaper.Html))
-    renderer.render(param)(renderType(_))
+  private def renderTypeParams(paramsOwner: ScTypeParametersOwner)
+                              (implicit subst: ScSubstitutor): String = {
+    val renderer = new TypeParamsRenderer(TextEscaper.Html, stripContextTypeArgs = false)
+    renderer.render(paramsOwner)(renderType(_))
   }
 
   private def generateFunctionInfo(function: ScFunction)
@@ -246,7 +221,7 @@ object ScalaDocQuickInfoGenerator {
     buffer.append(getMemberHeader(alias))
     buffer.append("type ")
     buffer.append(alias.name)
-    renderTypeParams(buffer, alias)
+    buffer.append(renderTypeParams(alias))
 
     alias match {
       case d: ScTypeAliasDefinition =>
