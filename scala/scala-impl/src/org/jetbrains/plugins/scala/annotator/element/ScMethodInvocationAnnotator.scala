@@ -3,15 +3,17 @@ package annotator
 package element
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiComment, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.ScalaBundle
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScParenthesisedExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -31,6 +33,9 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
                               (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = call
     implicit val tpc: TypePresentationContext = TypePresentationContext(call)
+
+    // this has to be checked in every case
+    checkMissingArgumentClauses(call)
 
     //do we need to check it:
     call.getEffectiveInvokedExpr match {
@@ -134,5 +139,52 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     case call: MethodInvocation => isAmbiguousOverload(call)
     case reference: ScReference => reference.multiResolveScala(false).length > 1
     case _ => false
+  }
+
+  @tailrec
+  private def isOuterMostCall(e: PsiElement): Boolean =
+    e.getParent match {
+      case MethodInvocation(`e`, _) => false
+      case p: ScParenthesisedExpr => isOuterMostCall(p)
+      case _ => true
+    }
+
+  private def countArgumentClauses(call: MethodInvocation): Int = {
+    @tailrec
+    def inner(expr: ScExpression, acc: Int): Int = expr match {
+      case MethodInvocation(expr, _) => inner(expr, acc + 1)
+      case ScParenthesisedExpr(expr) => inner(expr, acc)
+      case _ => acc
+    }
+
+    inner(call, 0)
+  }
+
+  private def checkMissingArgumentClauses(call: MethodInvocation)(implicit holder: ScalaAnnotationHolder): Unit = {
+    if (!call.isInScala3Module && isOuterMostCall(call) && !call.expectedType().exists(FunctionType.isFunctionType)) {
+      for {
+        ref <- call.getEffectiveInvokedExpr.asOptionOf[ScReference]
+        resolveResult <- call.applyOrUpdateElement.orElse(ref.bind())
+        fun <- resolveResult.element.asOptionOf[ScFunction]
+        numArgumentClauses = countArgumentClauses(call)
+        problems = Compatibility.missedParameterClauseProblemsFor(fun.effectiveParameterClauses, numArgumentClauses)
+        MissedParametersClause(missedClause) <- problems
+      } {
+        val endOffset = call.getTextRange.getEndOffset
+        val markRange = call
+          .asOptionOf[ScMethodCall]
+          .flatMap(_.args.toOption)
+          .flatMap(_.findLastChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS).toOption)
+          .map(_.getTextRange)
+          .getOrElse(TextRange.create(endOffset - 1, endOffset))
+
+        val funNameWithSig = ScReferenceAnnotator.nameWithSignature(fun)
+        val message =
+          if (missedClause != null)
+            ScalaBundle.message("missing.argument.list.for.method.with.explicit.list", missedClause.getText, funNameWithSig)
+          else ScalaBundle.message("missing.argument.list.for.method", funNameWithSig)
+        holder.createErrorAnnotation(markRange, message)
+      }
+    }
   }
 }
