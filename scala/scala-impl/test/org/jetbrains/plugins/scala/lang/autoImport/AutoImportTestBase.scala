@@ -58,7 +58,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     val refPointer = SmartPointerManager.getInstance(project).createSmartPsiElementPointer(ref)
 
     val classes = ScalaImportTypeFix(ref).classes
-    assertFalse("Haven't classes to import", classes.isEmpty)
+    assertFalse("Element to import not found", classes.isEmpty)
 
     var res: String = null
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)

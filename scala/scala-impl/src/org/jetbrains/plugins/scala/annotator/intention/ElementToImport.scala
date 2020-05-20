@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala
 package annotator
 package intention
 
-import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
+import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.implicits.GlobalImplicitInstance
 
 sealed trait ElementToImport {
@@ -39,11 +39,33 @@ final case class ClassToImport(override val element: PsiClass) extends ElementTo
   override def qualifiedName: String = element.qualifiedName
 }
 
-final case class TypeAliasToImport(override val element: ScTypeAlias) extends ElementToImport {
+final case class MethodToImport(override val element: PsiMethod) extends MemberToImport {
 
-  override protected type E = ScTypeAlias
+  override protected type E = PsiMethod
+}
+
+final case class DefinitionToImport(override val element: ScTypedDefinition) extends ElementToImport {
+
+  override protected type E = ScTypedDefinition
 
   override def qualifiedName: String = element match {
+    case ContainingClass(ClassQualifiedName(qualifiedName)) if qualifiedName.nonEmpty =>
+      qualifiedName + "." + name
+    case _ =>
+      name
+  }
+}
+
+final case class TypeAliasToImport(override val element: ScTypeAlias) extends MemberToImport {
+
+  override protected type E = ScTypeAlias
+}
+
+sealed abstract class MemberToImport extends ElementToImport {
+
+  override protected type E <: PsiMember with PsiNamedElement
+
+  override final def qualifiedName: String = element match {
     case ContainingClass(ClassQualifiedName(qualifiedName)) if qualifiedName.nonEmpty =>
       qualifiedName + "." + name
     case _ =>

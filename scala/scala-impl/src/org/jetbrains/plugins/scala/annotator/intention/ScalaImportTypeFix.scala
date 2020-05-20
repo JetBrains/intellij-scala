@@ -20,10 +20,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScSugarCallExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.{isAccessible, kindMatches}
 import org.jetbrains.plugins.scala.settings._
@@ -198,6 +198,23 @@ object ScalaImportTypeFix {
 
     } yield ClassToImport(classOrCompanion)
 
+    val functions = for {
+      CompanionObject(companion) <- ref.withContexts.toIterable
+
+      function <- companion.allFunctionsByName(referenceName)
+      if kindMatchesAndIsAccessible(function)
+    } yield MethodToImport(function)
+
+    val members = for {
+      CompanionObject(companion) <- ref.withContexts.toIterable
+
+      ValueOrVariable(member) <- companion.members
+      if isAccessible(member, ref)
+
+      definition <- member.declaredElements
+      if kindMatches(definition, kinds)
+    } yield DefinitionToImport(definition)
+
     val aliases = for {
       alias <- manager.getStableAliasesByName(referenceName, ref.resolveScope)
 
@@ -224,7 +241,11 @@ object ScalaImportTypeFix {
 
     } yield PrefixPackageToImport(pack)
 
-    (classes ++ aliases ++ packages)
+    (classes ++
+      functions ++
+      members ++
+      aliases ++
+      packages)
       .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
       .toArray
   }
@@ -269,4 +290,27 @@ object ScalaImportTypeFix {
 
   private def isQualified(name: String) =
     name.indexOf('.') != -1
+
+  // todo to be unified!
+  /**
+   * @see [[lang.completion.global.CompanionObjectMembersFinder]]
+   */
+  private object CompanionObject {
+
+    def unapply(constructorOwner: ScConstructorOwner): Option[ScObject] =
+      constructorOwner match {
+        case _: ScClass |
+             _: ScTrait =>
+          constructorOwner.baseCompanionModule.filterByType[ScObject]
+        case _ => None
+      }
+  }
+
+  private object ValueOrVariable {
+
+    def unapply(member: ScMember): Option[ScValueOrVariable] = member match {
+      case member: ScValueOrVariable => Some(member)
+      case _ => None
+    }
+  }
 }
