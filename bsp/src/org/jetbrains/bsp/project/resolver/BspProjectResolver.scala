@@ -18,7 +18,7 @@ import org.jetbrains.bsp.project.resolver.BspProjectResolver._
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.project.resolver.BspResolverLogic._
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback}
-import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
+import org.jetbrains.bsp.protocol.{BspCommunication, BspConnectionConfig, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -124,7 +124,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspace)
     val sbtMessages = if (
       executionSettings.runPreImportTask &&
-        SbtProjectImportProvider.canImport(vfile)
+        SbtProjectImportProvider.canImport(vfile) &&
+        BspConnectionConfig.workspaceConfigurations(workspace).isEmpty
     ) {
       runBloopInstall(workspace)
     } else Success(BuildMessages.empty.status(BuildMessages.OK))
@@ -331,6 +332,6 @@ object BspProjectResolver {
 
   private[resolver] def rootExclusions(workspace: File): List[File] = List(
     new File(workspace, BspUtil.BloopConfigDirName),
-    new File(workspace, BspUtil.BspConfigDirName),
+    new File(workspace, BspConnectionConfig.BspWorkspaceConfigDirName),
   ) ++ BspUtil.compilerOutputDirFromConfig(workspace).toList
 }

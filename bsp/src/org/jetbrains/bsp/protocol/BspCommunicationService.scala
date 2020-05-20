@@ -51,7 +51,7 @@ class BspCommunicationService extends Disposable {
     comms.getOrElseUpdate(
       base.getCanonicalFile.toURI,
       {
-        val comm = new BspCommunication(base, executionSettings(base))
+        val comm = new BspCommunication(base)
         Disposer.register(this, comm)
         comm
       }

@@ -19,8 +19,7 @@ import org.jetbrains.plugins.scala.build.BuildReporter
 import scala.util.{Failure, Success, Try}
 
 object BspUtil {
-
-  val BspConfigDirName = ".bsp"
+  
   val BloopConfigDirName = ".bloop"
 
   /** BSP Workspaces in modules managed by project. */
@@ -32,23 +31,10 @@ object BspUtil {
       }
       .toSet
 
-  def isBspConfigFile(file: File): Boolean = {
-    file.isFile &&
-      file.getParentFile.getName == BspConfigDirName &&
-      file.getName.endsWith(".json")
-  }
-
   def isBloopConfigFile(file: File): Boolean = {
     file.isFile &&
       file.getParentFile.getName == BloopConfigDirName &&
       file.getName.endsWith(".json")
-  }
-
-  def bspConfigFiles(workspace: File): List[File] = {
-    val bspDir = new File(workspace, BspConfigDirName)
-    if(bspDir.isDirectory)
-      bspDir.listFiles(file => file.getName.endsWith(".json")).toList
-    else List.empty
   }
 
   def bloopConfigDir(workspace: File): Option[File] = {
