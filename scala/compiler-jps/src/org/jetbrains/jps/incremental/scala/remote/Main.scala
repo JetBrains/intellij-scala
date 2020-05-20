@@ -10,7 +10,7 @@ import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
-import org.jetbrains.jps.incremental.MessageHandler
+import org.jetbrains.jps.incremental.{MessageHandler, StopBuildException}
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client
@@ -127,7 +127,7 @@ object Main {
   }
 
   private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(_, projectPath, testScopeOnly, globalOptionsPath, dataStorageRootPath) = command
+    val CompileServerCommand.CompileJps(_, projectPath, sortedModules, testScopeOnly, globalOptionsPath, dataStorageRootPath) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -149,24 +149,35 @@ object Main {
       }
     }
     val descriptor = buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
-    val scopes = if (testScopeOnly)
-      util.Arrays.asList(CmdlineProtoUtil.createAllTargetsScope(JavaModuleBuildTargetType.TEST, false))
+    val scopeTypes = if (testScopeOnly)
+      Seq(JavaModuleBuildTargetType.TEST)
     else
-      CmdlineProtoUtil.createAllModulesScopes(false)
+      Seq(JavaModuleBuildTargetType.PRODUCTION, JavaModuleBuildTargetType.TEST)
 
+    val forceBuild = false
+    val includeDependenciesToScope = false
+
+    client.compilationStart()
     try {
-      client.compilationStart()
-      buildRunner.runBuild(
-        descriptor,
-        () => client.isCanceled,
-        null,
-        messageHandler,
-        BuildType.BUILD,
-        scopes,
-        true
-      )
-      client.compilationEnd(compiledFiles)
+      for {
+        module <- sortedModules
+        scopeType <- scopeTypes
+        scope = CmdlineProtoUtil.createTargetsScope(scopeType.getTypeId, util.Arrays.asList(module), forceBuild)
+      } try {
+        buildRunner.runBuild(
+          descriptor,
+          () => client.isCanceled,
+          null,
+          messageHandler,
+          BuildType.BUILD,
+          util.Arrays.asList(scope),
+          includeDependenciesToScope
+        )
+      } catch {
+        case _: StopBuildException => ()
+      }
     } finally {
+      client.compilationEnd(compiledFiles)
       descriptor.release()
     }
   }

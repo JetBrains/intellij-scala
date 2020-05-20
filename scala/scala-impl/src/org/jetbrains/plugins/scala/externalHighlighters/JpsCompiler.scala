@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import java.io.File
 
+import com.intellij.compiler.ModuleCompilerUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
@@ -19,12 +20,14 @@ import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
 import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
+import scala.collection.JavaConverters._
 
 trait JpsCompiler {
   def compile(testScopeOnly: Boolean): Unit
@@ -55,14 +58,23 @@ private class JpsCompilerImpl(project: Project)
       new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory)),
       projectPath
     ).getCanonicalPath
+    val sortedModules = ModuleCompilerUtil
+      .getSortedModuleChunks(project, project.modules.asJava).asScala
+      .flatMap { chunk =>
+        val modules = chunk.getNodes
+        if (modules.size > 1) throw new IllegalStateException(s"More than one module in the chunk: $modules")
+        modules.asScala
+      }
+      .map(_.getName)
     val command = CompileServerCommand.CompileJps(
       token = "",
       projectPath = projectPath,
+      sortedModules = sortedModules,
       testScopeOnly = testScopeOnly,
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath
     )
-    
+
     val promise = Promise[Unit]
     val future = promise.future
     val taskMsg = ScalaBundle.message("highlighting.compilation")
