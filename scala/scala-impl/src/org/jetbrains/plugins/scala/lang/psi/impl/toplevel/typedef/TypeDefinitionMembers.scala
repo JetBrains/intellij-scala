@@ -53,14 +53,23 @@ object TypeDefinitionMembers {
   //we need to have separate map for stable elements to avoid recursion processing declarations from imports
   object StableNodes extends MixinNodes[TermSignature](StableTermsCollector)
 
-  def getSignatures(clazz: PsiClass, withSupers: Boolean = true): TermNodes.Map =
+  def getSignatures(clazz: PsiClass, withSupers: Boolean): TermNodes.Map =
     ifValid(clazz)(_.TermNodesCache.cachedMap(clazz, withSupers))
 
-  def getStableSignatures(clazz: PsiClass, withSupers: Boolean = true): StableNodes.Map =
+  def getStableSignatures(clazz: PsiClass, withSupers: Boolean): StableNodes.Map =
     ifValid(clazz)(_.StableNodesCache.cachedMap(clazz, withSupers))
 
-  def getTypes(clazz: PsiClass, withSupers: Boolean = true): TypeNodes.Map =
+  def getTypes(clazz: PsiClass, withSupers: Boolean): TypeNodes.Map =
     ifValid(clazz)(_.TypeNodesCache.cachedMap(clazz, withSupers))
+
+  def getSignatures(clazz: PsiClass): TermNodes.Map =
+    getSignatures(clazz, withSupers = true)
+
+  def getStableSignatures(clazz: PsiClass): StableNodes.Map =
+    getStableSignatures(clazz, withSupers = true)
+
+  def getTypes(clazz: PsiClass): TypeNodes.Map =
+    getTypes(clazz, withSupers = true)
 
   private def ifValid[T <: Signature](clazz: PsiClass)
                                      (cache: ScalaPsiManager => MixinNodes[T]#Map): MixinNodes[T]#Map = {
