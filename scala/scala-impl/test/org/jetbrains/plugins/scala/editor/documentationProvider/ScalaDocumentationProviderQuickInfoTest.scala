@@ -199,4 +199,21 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
       """<a href="psi_element://Wrapper"><code>Wrapper</code></a> <default>
         |protected final lazy val field2: <a href="psi_element://java.lang.String"><code>String</code></a> = "hello"""".stripMargin
     )
+
+  def testHigherKindedTypeParameters(): Unit =
+    doGenerateDocTest(
+      s"""object O {
+         |  def ${|}f[A[_, B]] = 42
+         |}""".stripMargin,
+      """<a href="psi_element://O"><code>O</code></a> <default>
+        |def f[A[_, B]]: Int""".stripMargin
+    )
+
+  def testHigherKindedTypeParameters_1(): Unit =
+    doGenerateDocTest(
+      s"""trait ${|}T[X[_, Y[_, Z]]]
+         |""".stripMargin,
+      """[light_idea_test_case] default
+        |trait T[X[_, Y[_, Z]]]""".stripMargin
+    )
 }

@@ -120,10 +120,10 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   def testMethodWithEmptyDocOverridingJavaMethod(): Unit = {
     getFixture.addFileToProject("BaseJavaClass.java",
       s"""public class BaseJavaClass {
-        |  /** description of base method from BaseJavaClass */
-        |  String ${|}baseMethod() { return null; }
-        |}
-        |""".stripMargin
+         |  /** description of base method from BaseJavaClass */
+         |  String ${|}baseMethod() { return null; }
+         |}
+         |""".stripMargin
     )
     doShortGenerateDocTest(
       s"""class A extends BaseJavaClass {
@@ -171,7 +171,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     )
   }
 
-  def testEscapeGenericsBounds(): Unit =
+  def testClassWithVariousGenericsWithBounds(): Unit =
     doShortGenerateDocTest(
       s"""trait Trait[A]
          |abstract class ${|}Class[T <: Trait[_ >: Object]]
@@ -181,6 +181,26 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         | extends <a href="psi_element://java.lang.Comparable"><code>Comparable</code></a>[_ &lt;:
         | <a href="psi_element://Trait"><code>Trait</code></a>[_ &gt;:
         | <a href="psi_element://scala.Predef.String"><code>String</code></a>]]
+        |</pre></div>""".stripMargin
+    )
+
+  def testHigherKindedTypeParameters(): Unit =
+    doShortGenerateDocTest(
+      s"""object O {
+         |  def ${|}f[A[_, B]] = 42
+         |}""".stripMargin,
+      """<div class="definition">
+        |<a href="psi_element://O"><code>O</code></a>
+        |<pre>def <b>f</b>[A[_, B]]: <a href="psi_element://scala.Int"><code>Int</code></a></pre>
+        |</div>""".stripMargin
+    )
+
+  def testHigherKindedTypeParameters_1(): Unit =
+    doShortGenerateDocTest(
+      s"""trait ${|}T[X[_, Y[_, Z]]]
+         |""".stripMargin,
+      """<div class="definition">
+        |<pre>trait <b>T</b>[X[_, Y[_, Z]]]
         |</pre></div>""".stripMargin
     )
 }
