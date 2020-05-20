@@ -1,19 +1,18 @@
-package org.jetbrains.plugins.scala.externalHighlighters
-
-import java.util.concurrent.ConcurrentHashMap
+package org.jetbrains.plugins.scala
+package externalHighlighters
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerListener}
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiJavaFile, PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.ToNullSafe
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.project.{ProjectExt, VirtualFileExt}
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 
@@ -24,17 +23,9 @@ private class RegisterCompilationListener
 
   import RegisterCompilationListener.MyPsiTreeChangeListener
 
-  private val listeners = new ConcurrentHashMap[Project, MyPsiTreeChangeListener]()
-
   override def projectOpened(project: Project): Unit = {
     val listener = new MyPsiTreeChangeListener(project)
-    listeners.put(project, listener)
-    PsiManager.getInstance(project).addPsiTreeChangeListener(listener)
-  }
-
-  override def projectClosing(project: Project): Unit = {
-    val listener = listeners.remove(project)
-    PsiManager.getInstance(project).removePsiTreeChangeListener(listener)
+    PsiManager.getInstance(project).addPsiTreeChangeListener(listener, project.unloadAwareDisposable)
   }
 }
 
