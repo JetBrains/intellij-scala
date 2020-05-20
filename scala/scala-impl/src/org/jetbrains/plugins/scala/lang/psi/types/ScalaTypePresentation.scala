@@ -265,8 +265,6 @@ trait ScalaTypePresentation extends api.TypePresentation {
       needDotType: Boolean = true,
       checkWildcard: Boolean = false
     ): String = t match {
-      case typeParameterType: TypeParameterType if options.expandTypeParameterBounds =>
-        typeParameterTypeText(typeParameterType)
       case valType: ValType if options.renderValueTypes =>
         valType.extractClass match {
           case Some(clazz) => nameRenderer.renderName(clazz)

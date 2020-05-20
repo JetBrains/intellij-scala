@@ -932,7 +932,7 @@ package object extensions {
           wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>
           if (isStatic) {
-            if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
+            if (method.containingClass != null && !method.containingClass.isJavaLangObject) {
               processMethod(StaticPsiMethodWrapper.getWrapper(method, clazz))
               processName(method.getName)
             }
@@ -948,6 +948,9 @@ package object extensions {
         case _ =>
       }
     }
+
+    def isJavaLangObject: Boolean =
+      clazz.qualifiedName == "java.lang.Object"
 
     def namedElements: Seq[PsiNamedElement] = {
       clazz match {

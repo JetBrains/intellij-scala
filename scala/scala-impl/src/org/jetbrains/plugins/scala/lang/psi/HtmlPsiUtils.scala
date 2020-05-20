@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import com.intellij.psi.PsiClass
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 
 /** see [[com.intellij.codeInsight.documentation.DocumentationManagerProtocol]] */
 object HtmlPsiUtils {
@@ -10,6 +12,9 @@ object HtmlPsiUtils {
     val contentWrapped = s"""<code>$escapedContent</code>"""
     s"""<a href="psi_element://${escape(fqn)}">$contentWrapped</a>"""
   }
+
+  def classLink(clazz: PsiClass): String =
+    psiElementLink(clazz.qualifiedName, clazz.name)
 
   def escape(text: String): String = escapeHtml(text)
 }

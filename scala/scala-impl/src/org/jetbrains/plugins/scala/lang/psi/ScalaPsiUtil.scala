@@ -1237,28 +1237,44 @@ object ScalaPsiUtil {
     )
   }
 
-  def withOriginalContextBound[T](parameter: ScParameter)
-                                 (default: => T)
-                                 (function: ((ScTypeParam, ScTypeElement, Int)) => T): T =
-    if (parameter.isPhysical) default
-    else {
-      val maybeOwner = parameter.owner match {
-        case ScPrimaryConstructor.ofClass(cls) => Option(cls)
-        case other: ScTypeParametersOwner => Option(other)
-        case _ => None
-      }
+  /**
+   * Example: lets consider T2 in this code {{{
+   * def foo[T1, T2 : Show : Render](x: T2): String = ???
+   * }}}
+   * typeParam   ~ T2 <br>
+   * contextType ~ Show OR Render <br>
+   * boundIndex  ~ 0 OR 1 <br>
+   */
+  case class ContextBoundInfo(typeParam: ScTypeParam, contextType: ScTypeElement, boundIndex: Int)
 
-      val bounds = for {
-        owner <- maybeOwner.toSeq
-        typeParameter <- owner.typeParameters
-        (bound, idx) <- typeParameter.contextBoundTypeElement.zipWithIndex
-      } yield (typeParameter, bound, idx)
+  /**
+   * @param parameter physical parameter OR
+   *                  synthetic implicit parameter corresponding to some context bound
+   * @return None if `parameter` is a normal physical parameter<br>
+   *         Some(context bound info) if parameter represents some synthetic implicit parameter of some context bound
+   */
+  def findSyntheticContextBoundInfo(parameter: ScParameter): Option[ContextBoundInfo] =
+    if (parameter.isPhysical) None
+    else extractSyntheticContextBoundInfo(parameter)
 
-      val bound = bounds.find { case (typeParameter, typeElement, index) =>
-        contextBoundParameterName(typeParameter, typeElement, index) == parameter.name
-      }
-      bound.fold(default)(function)
+  private def extractSyntheticContextBoundInfo(contextParameter: ScParameter): Option[ContextBoundInfo] = {
+    val maybeOwner: Option[ScTypeParametersOwner] = contextParameter.owner match {
+      case ScPrimaryConstructor.ofClass(cls) => Option(cls)
+      case other: ScTypeParametersOwner      => Option(other)
+      case _                                 => None
     }
+
+    val contextBounds: Seq[ContextBoundInfo] = for {
+      owner         <- maybeOwner.toSeq
+      typeParameter <- owner.typeParameters
+      (bound, idx)  <- typeParameter.contextBoundTypeElement.zipWithIndex
+    } yield ContextBoundInfo(typeParameter, bound, idx)
+
+    contextBounds.find { case ContextBoundInfo(typeParameter, typeElement, index) =>
+      val currentParameterName = contextBoundParameterName(typeParameter, typeElement, index)
+      contextParameter.name == currentParameterName
+    }
+  }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(parameterOwner: ScTypeParametersOwner,

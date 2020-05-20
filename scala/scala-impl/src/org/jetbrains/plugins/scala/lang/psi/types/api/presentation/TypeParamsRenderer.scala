@@ -16,8 +16,8 @@ class TypeParamsRenderer(
   def this(textEscaper: TextEscaper, stripContextTypeArgs: Boolean) =
     this(new TypeBoundsRenderer(textEscaper), stripContextTypeArgs)
 
-  def render(paramsOwner: ScTypeParametersOwner)
-            (typeRenderer: TypeRenderer): String =
+  def renderParams(paramsOwner: ScTypeParametersOwner)
+                  (typeRenderer: TypeRenderer): String =
     renderParams(paramsOwner.typeParameters)(render(_)(typeRenderer))
 
   def render(param: ScTypeParam)

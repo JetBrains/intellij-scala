@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -30,7 +30,8 @@ abstract class DocumentationProviderTestBase
   /** see parameters of [[com.intellij.lang.documentation.DocumentationProvider#generateDoc]] */
   protected def extractReferredAndOriginalElements(editor: Editor, file: PsiFile): (PsiElement, PsiElement) = {
     val elementAtCaret = file.findElementAt(editor.getCaretModel.getOffset)
-    elementAtCaret.parentOfType(classOf[ScNamedElement]) match {
+    val namedElement = elementAtCaret.parentOfType(classOf[PsiNamedElement])
+    namedElement match {
       case Some(definition) => // if caret is placed at a the key definition itself
         (definition, definition)
       case None =>

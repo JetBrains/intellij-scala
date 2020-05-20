@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.EditorTestUtil
+import org.junit.Assert._
 import org.junit.Assert.{assertEquals, assertNull}
 
 trait DocumentationTestLike {
@@ -15,6 +16,7 @@ trait DocumentationTestLike {
 
   protected final def generateDoc(fileContent: String): String = {
     val (editor, file) = createEditorAndFile(fileContent)
+    assertTrue("file should contain valid psi tree", file.isValid)
     generateDoc(editor, file)
   }
 
@@ -33,8 +35,11 @@ trait DocumentationTestLike {
       assertNull(actual)
     } else {
       // new lines are used in tests for the visual readability of HTML
-      val expectedNormalized = expected.replaceAll("[\n\r]", "")
-      val actualNormalized = actual.trim.replaceAll("[\n\r]", "")
+      val expectedNormalized = normalizeHtml(expected)
+      val actualNormalized = normalizeHtml(actual)
       assertEquals(expectedNormalized, actualNormalized)
     }
+
+  protected def normalizeHtml(html: String): String =
+    html.trim.replaceAll("[\r]", "").replaceAll("[\n]", "")
 }

@@ -51,11 +51,11 @@ trait TypePresentation {
       override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
 
       private def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
-        import HtmlPsiUtils.psiElementLink
+        import HtmlPsiUtils._
         val res = e match {
           case o: ScObject if withPoint && isPredefined(o) => ""
           case _: PsiPackage if withPoint                  => ""
-          case e: PsiClass                                 => psiElementLink(e.qualifiedName, e.name)
+          case clazz: PsiClass                             => classLink(clazz)
           case a: ScTypeAlias                              => a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiElementLink(_, e.name))
           case _                                           => escapeHtml(e.name)
         }
@@ -64,7 +64,6 @@ trait TypePresentation {
     }
 
     val options = PresentationOptions(
-      expandTypeParameterBounds = true,
       renderProjectionTypeName = true,
       renderValueTypes = true
     )
@@ -135,7 +134,6 @@ object TypePresentation {
     ScalaNamesUtil.escapeKeywordsFqn(text)
 
   case class PresentationOptions(
-    expandTypeParameterBounds: Boolean = false,
     renderProjectionTypeName: Boolean = false,
     renderValueTypes: Boolean = false
   )

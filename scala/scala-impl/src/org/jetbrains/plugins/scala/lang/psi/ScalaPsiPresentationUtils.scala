@@ -138,12 +138,12 @@ object ScalaPsiPresentationUtils {
     }
 
   def typeAnnotationText(elem: ScTypedDefinition)
-                        (implicit typeToString: TypeRenderer): String = {
+                        (implicit typeRenderer: TypeRenderer): String = {
     val typ = elem match {
       case fun: ScFunction => fun.returnType.getOrAny
       case _               => elem.`type`().getOrAny
     }
-    val typeText = typeToString(typ)
+    val typeText = typeRenderer.render(typ)
     val typeTextFixed = elem match {
       case param: ScParameter => decoratedParameterType(param, typeText)
       case _                  => typeText

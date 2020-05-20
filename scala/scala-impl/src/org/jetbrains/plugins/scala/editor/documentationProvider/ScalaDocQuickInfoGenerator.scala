@@ -2,28 +2,27 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt, PsiClassExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScVariable, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{TextEscaper, TypeBoundsRenderer, TypeParamsRenderer}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{TextEscaper, TypeParamsRenderer}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiPresentationUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-// TODO 1: analyze whether rendered info is cached?
+// TODO 1: analyze performance and whether rendered info is cached?
 // TODO 2:  (!) quick info on the element itself should lead to "Show find usages" tooltip, no to quick info tooltip
 //  (unify with Java behaviour)
-// TODO 3: some methods use functional style, returning string, some use imperative, passing builders
-//  unify those methods to use one style (probably using builder to improve performance (quick info is called frequently on mouse hover))
-// TODO 4: add minimum required module/location, if class/method is in same scope, do not render module/location at all
+// TODO 3: add minimum required module/location, if class/method is in same scope, do not render module/location at all
 object ScalaDocQuickInfoGenerator {
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
@@ -41,13 +40,13 @@ object ScalaDocQuickInfoGenerator {
   def getQuickNavigateInfo(element: PsiElement, substitutor: ScSubstitutor): String = {
     implicit val s: ScSubstitutor = substitutor
     val text = element match {
-      case clazz: ScTypeDefinition                         => generateClassInfo(clazz)
-      case function: ScFunction                            => generateFunctionInfo(function)
-      case value@inNameContext(_: ScValue | _: ScVariable) => generateValueInfo(value)
-      case alias: ScTypeAlias                              => generateTypeAliasInfo(alias)
-      case parameter: ScParameter                          => generateParameterInfo(parameter)
-      case b: ScBindingPattern                             => generateBindingPatternInfo(b)
-      case _                                               => null
+      case clazz: ScTypeDefinition                       => generateClassInfo(clazz)
+      case function: ScFunction                          => generateFunctionInfo(function)
+      case field@inNameContext(value: ScValueOrVariable) => generateValueInfo(field, value)
+      case alias: ScTypeAlias                            => generateTypeAliasInfo(alias)
+      case parameter: ScParameter                        => generateParameterInfo(parameter)
+      case b: ScBindingPattern                           => generateBindingPatternInfo(b)
+      case _                                             => null
     }
     text
   }
@@ -55,9 +54,24 @@ object ScalaDocQuickInfoGenerator {
   private def generateClassInfo(clazz: ScTypeDefinition)
                                (implicit subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
+
+    buffer.append(renderClassHeader(clazz))
+    buffer.append(renderModifiers(clazz))
+    buffer.append(ScalaDocumentationUtils.getKeyword(clazz))
+    buffer.append(HtmlPsiUtils.classLink(clazz))
+    buffer.append(renderTypeParams(clazz))
+    buffer.append(renderConstructorText(clazz))
+    buffer.append(renderSuperTypes(clazz))
+
+    buffer.result
+  }
+
+  private def renderClassHeader(clazz: ScTypeDefinition): String = {
+    val buffer = StringBuilder.newBuilder
+
     val module = ModuleUtilCore.findModuleForPsiElement(clazz)
     if (module != null)
-      buffer.append('[').append(module.getName).append("] ")
+      buffer.append(s"[${module.getName}] ")
 
     val locationString = clazz.getPresentation.getLocationString
     val length = locationString.length
@@ -66,16 +80,10 @@ object ScalaDocQuickInfoGenerator {
     if (buffer.nonEmpty)
       buffer.append("\n")
 
-    renderModifiersPresentableText(buffer, clazz.getModifierList)
-    buffer.append(ScalaDocumentationUtils.getKeyword(clazz))
-    buffer.append(HtmlPsiUtils.psiElementLink(clazz.qualifiedName, clazz.name))
-    buffer.append(renderTypeParams(clazz))
-
-    buffer.append(renderConstructorText(clazz))
-    renderSuperTypes(buffer, clazz)
-    buffer.toString()
+    buffer.result
   }
 
+  // TODO: links in class constructor parameter types are missing
   private def renderConstructorText(clazz: ScTypeDefinition)
                                    (implicit subst: ScSubstitutor): String =
     clazz match {
@@ -88,42 +96,51 @@ object ScalaDocQuickInfoGenerator {
       case _ => ""
     }
 
-  private def renderSuperTypes(buffer: StringBuilder, clazz: ScTypeDefinition)
-                              (implicit subst: ScSubstitutor): Unit = {
-    val printEachOnNewLine = false // TODO: temp variable, extract to settings?
+  // TODO: for case classes Product is displayed but Serializable is not, UNIFY1
+  private def renderSuperTypes(clazz: ScTypeDefinition)
+                              (implicit subst: ScSubstitutor): String = {
+    val buffer = StringBuilder.newBuilder
+
     val superTypes = clazz.superTypes
+
+    val isTooComplex = {
+      //      val VisibleCharsThreshold = 200
+      //      buffer.length > VisibleCharsThreshold
+      false
+    }
+    val printEachSuperOnNewLine = isTooComplex
+
     superTypes match {
-      case head :: tail =>
-        if (isJavaLangObject(head) && clazz.isInstanceOf[ScTrait]) {
+      case extendsType :: withTypes =>
+        if (isJavaLangObject(extendsType) && clazz.isInstanceOf[ScTrait]) {
           // ignore
         } else {
+          if (printEachSuperOnNewLine)
+            buffer.append("\n")
           buffer.append(" extends ")
-          buffer.append(renderType(head))
+          buffer.append(renderType(extendsType))
         }
 
-        if (tail.nonEmpty && !printEachOnNewLine)
+        if (withTypes.nonEmpty && !printEachSuperOnNewLine)
           buffer.append("\n")
 
-        tail.iterator.filterNot(isJavaLangObject).foreach { superType =>
-          if (printEachOnNewLine)
+        // TODO: this is bad hack cause `with Object` can be displayed in many other places for trait, e.g. for method return type
+        withTypes.iterator.filterNot(isJavaLangObject).foreach { superType =>
+          if (printEachSuperOnNewLine)
             buffer.append("\n")
           buffer.append(" with ")
           buffer.append(renderType(superType))
         }
       case _ =>
     }
+
+    buffer.result
   }
 
-  // TODO 1: cover usages with tests
-  // TODO 2: custom `trait Object` should be navigatable (now it navigates to `java.lang.Object`)
   private def isJavaLangObject(scType: ScType): Boolean =
     scType match {
-      case designator: ScDesignatorType =>
-        designator.element match {
-          case clazz: PsiClass => clazz.qualifiedName == "java.lang.Object"
-          case _               => false
-        }
-      case _ => false
+      case ScDesignatorType(clazz: PsiClass) => clazz.isJavaLangObject
+      case _                                 => false
     }
 
   private def renderType(typ: ScType)
@@ -133,75 +150,73 @@ object ScalaDocQuickInfoGenerator {
   private def renderTypeParams(paramsOwner: ScTypeParametersOwner)
                               (implicit subst: ScSubstitutor): String = {
     val renderer = new TypeParamsRenderer(TextEscaper.Html, stripContextTypeArgs = false)
-    renderer.render(paramsOwner)(renderType(_))
+    renderer.renderParams(paramsOwner)(renderType(_))
   }
 
   private def generateFunctionInfo(function: ScFunction)
                                   (implicit subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
-    buffer.append(getMemberHeader(function))
-    val list = function.getModifierList
-    if (list != null)
-      renderModifiersPresentableText(buffer, list)
+    buffer.append(renderMemberHeader(function))
+    buffer.append(renderModifiers(function))
     buffer.append("def ")
     buffer.append(ScalaPsiPresentationUtils.getMethodPresentableText(function, subst))
-    buffer.toString()
+    buffer.result
   }
 
-  private def getMemberHeader(member: ScMember): String = {
+  private def renderMemberHeader(member: ScMember): String = {
     if (!member.getParent.isInstanceOf[ScTemplateBody]) return ""
     if (!member.getParent.getParent.getParent.isInstanceOf[ScTypeDefinition]) return ""
-    member.containingClass.name + " " + member.containingClass.getPresentation.getLocationString + "\n"
+    val clazz = member.containingClass
+    // TODO: should we remove [] from getLocationString (see renderClassHeader and unify)
+    HtmlPsiUtils.classLink(clazz) + " " + clazz.getPresentation.getLocationString + "\n"
   }
 
-  private def generateValueInfo(field: PsiNamedElement)
+  /**
+   * TODO: improve SCL-17582
+   *
+   * @example member: `val (field1, field2) = (1, 2)`
+   *          field: `field2`
+   */
+  private def generateValueInfo(field: PsiNamedElement, member: ScValueOrVariable)
                                (implicit subst: ScSubstitutor): String = {
-    val member = ScalaPsiUtil.nameContext(field) match {
-      case x: ScMember => x
-      case _ => return null
-    }
     val buffer = new StringBuilder
-    buffer.append(getMemberHeader(member))
-    renderModifiersPresentableText(buffer, member.getModifierList)
-    member match {
-      case value: ScValue =>
-        buffer.append("val ")
-        buffer.append(field.name)
-        field match {
-          case typed: ScTypedDefinition =>
-            val typez = subst(typed.`type`().getOrAny)
-            if (typez != null) buffer.append(": " + typez.presentableText(field))
-          case _ =>
-        }
-        value match {
-          case d: ScPatternDefinition =>
-            buffer.append(" = ")
-            d.expr.foreach(it => buffer.append(getOneLine(it.getText)))
-          case _ =>
-        }
-      case variable: ScVariable =>
-        buffer.append("var ")
-        buffer.append(field.name)
-        field match {
-          case typed: ScTypedDefinition =>
-            val typez = subst(typed.`type`().getOrAny)
-            if (typez != null) buffer.append(": " + typez.presentableText(field))
-          case _ =>
-        }
-        variable match {
-          case d: ScVariableDefinition =>
-            buffer.append(" = ")
-            d.expr.foreach(it => buffer.append(getOneLine(it.getText)))
-          case _ =>
-        }
+    buffer.append(renderMemberHeader(member))
+    buffer.append(renderModifiers(member))
+    buffer.append(member.keyword).append(" ")
+    buffer.append(field.name)
+
+    field match {
+      case typed: ScTypedDefinition =>
+        buffer.append(renderTypeAnnotation(typed))
+      case _ =>
     }
-    buffer.toString()
+    member.definitionExpr match {
+      case Some(definition) =>
+        buffer.append(" = ")
+        buffer.append(getOneLine(definition.getText))
+      case _ =>
+    }
+
+    buffer.result
+  }
+
+  private implicit class ScValueOrVariableOps(private val target: ScValueOrVariable) extends AnyVal {
+    def keyword: String  = target match {
+      case _: ScValue => "val"
+      case _          => "var"
+    }
+    def definitionExpr: Option[ScExpression] = target match {
+      case d: ScPatternDefinition  => d.expr
+      case d: ScVariableDefinition => d.expr
+      case _                       => None
+    }
   }
 
   private def getOneLine(s: String): String = {
     val trimed = s.trim
-    val i = trimed.indexOf('\n')
-    if (i == -1) trimed else trimed.substring(0, i) + " ..."
+    val newLineIdx = trimed.indexOf('\n')
+    if (newLineIdx == -1) trimed
+    else trimed.substring(0, newLineIdx) + " ..."
   }
 
   private def generateBindingPatternInfo(binding: ScBindingPattern)
@@ -209,16 +224,14 @@ object ScalaDocQuickInfoGenerator {
     val buffer = new StringBuilder
     buffer.append("Pattern: ")
     buffer.append(binding.name)
-    val typez = subst(subst(binding.`type`().getOrAny))
-    if (typez != null) buffer.append(": " + typez.presentableText(binding))
-
-    buffer.toString()
+    buffer.append(renderTypeAnnotation(binding))
+    buffer.result
   }
 
   private def generateTypeAliasInfo(alias: ScTypeAlias)
                                    (implicit subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
-    buffer.append(getMemberHeader(alias))
+    buffer.append(renderMemberHeader(alias))
     buffer.append("type ")
     buffer.append(alias.name)
     buffer.append(renderTypeParams(alias))
@@ -226,45 +239,62 @@ object ScalaDocQuickInfoGenerator {
     alias match {
       case d: ScTypeAliasDefinition =>
         buffer.append(" = ")
-        val ttype = subst(d.aliasedType.getOrAny)
-        buffer.append(ttype.presentableText(alias))
+        buffer.append(renderType(d.aliasedType.getOrAny))
       case _ =>
     }
-    buffer.toString()
+    buffer.result
   }
 
   private def generateParameterInfo(parameter: ScParameter)(implicit subst: ScSubstitutor): String =
-    ScalaPsiUtil.withOriginalContextBound(parameter)(simpleParameterInfo(parameter)) {
-      case (typeParam, ElementText(boundText), _) =>
-        val clause = typeParam.typeParametersClause.fold("")(_.getText)
-        s"context bound ${typeParam.name}$clause : $boundText"
+    ScalaPsiUtil.findSyntheticContextBoundInfo(parameter) match {
+      case Some(ContextBoundInfo(typeParam, contextBoundType, _)) =>
+        // this branch can be triggered when showing, test on this example (expand all implicit hints):
+        // trait Show[T]
+        //  def foo[T : Show](x: T): String = implicitly
+        // NOTE: link is not added because the tooltip content shown on a synthetic
+        // parameter can't be hovered with mouse itself
+        val boundText = contextBoundType.getText
+        s"context bound ${typeParam.name} : $boundText"
+      case _ =>
+        generateSimpleParameterInfo(parameter)
     }
 
-  private def simpleParameterInfo(parameter: ScParameter)
-                                 (implicit subst: ScSubstitutor): String = {
-    val name = parameter.name
-    val typeAnnotation = ScalaPsiPresentationUtils.typeAnnotationText(parameter)(subst(_).presentableText(parameter))
-
-    val defaultText = s"$name$typeAnnotation"
-
-    val prefix = parameter match {
+  private def generateSimpleParameterInfo(parameter: ScParameter)
+                                         (implicit subst: ScSubstitutor): String = {
+    val header = parameter match {
       case clParameter: ScClassParameter =>
         clParameter.containingClass.toOption.map { clazz =>
-          val classWithLocation = clazz.name + " " + clazz.getPresentation.getLocationString + "\n"
-          val keyword = if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else ""
-
-          classWithLocation + keyword
-
+          val className = clazz.name
+          val location = clazz.getPresentation.getLocationString
+          s"$className $location\n"
         }.getOrElse("")
-      case _ => ""
+      case _ => "" // TODO: add more location info if it's function function parameter (currently none generated at all)
     }
-    prefix + defaultText
+
+    val keyword = if (parameter.isVal) "val " else if (parameter.isVar) "var " else ""
+    val name = parameter.name
+    val typeAnnotation = renderTypeAnnotation(parameter)
+    s"$header$keyword$name$typeAnnotation"
   }
 
-  private def renderModifiersPresentableText(buffer: StringBuilder, modList: ScModifierList): Unit = {
+  private def renderModifiers(modListOwner: ScModifierListOwner): String = {
+    val list = modListOwner.getModifierList
+    if (list != null)
+      renderModifiers(list)
+    else ""
+  }
+
+  private def renderModifiers(modList: ScModifierList): String = {
+    val buffer = StringBuilder.newBuilder
     import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
     modList.modifiers.foreach { m =>
       buffer.append(m.text).append(" ")
     }
+    buffer.result
   }
+
+  private def renderTypeAnnotation(typed: ScTypedDefinition)
+                                  (implicit subst: ScSubstitutor): String =
+    ScalaPsiPresentationUtils.typeAnnotationText(typed)(renderType)
+
 }
