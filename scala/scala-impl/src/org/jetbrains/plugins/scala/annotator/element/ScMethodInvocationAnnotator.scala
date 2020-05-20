@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFi
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScParenthesisedExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -161,10 +161,12 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   }
 
   private def checkMissingArgumentClauses(call: MethodInvocation)(implicit holder: ScalaAnnotationHolder): Unit = {
-    if (!call.isInScala3Module && isOuterMostCall(call) && !call.expectedType().exists(FunctionType.isFunctionType)) {
+    def functionTypeExpected = call.expectedType().exists(FunctionType.isFunctionType)
+    if (!call.isInScala3Module && isOuterMostCall(call) && !functionTypeExpected && !call.parent.exists(_.is[ScUnderscoreSection])) {
       for {
         ref <- call.getEffectiveInvokedExpr.asOptionOf[ScReference]
         resolveResult <- call.applyOrUpdateElement.orElse(ref.bind())
+        if !resolveResult.isDynamic
         fun <- resolveResult.element.asOptionOf[ScFunction]
         numArgumentClauses = countArgumentClauses(call)
         problems = Compatibility.missedParameterClauseProblemsFor(fun.effectiveParameterClauses, numArgumentClauses)
