@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -12,6 +11,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.task.ProjectTaskContext
+import com.intellij.task.ProjectTaskManager
 import javax.swing.Icon
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -69,7 +70,7 @@ object RunWorksheetAction {
     case object NoModuleError extends Error
     case object NoWorksheetFileError extends Error
     case object AlreadyRunning extends Error
-    final case class ProjectCompilationError(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) extends Error
+    final case class ProjectCompilationError(aborted: Boolean, errors: Boolean, context: ProjectTaskContext) extends Error
     final case class WorksheetRunError(error: WorksheetCompilerError) extends Error
   }
 
@@ -104,6 +105,7 @@ object RunWorksheetAction {
     }
     val runImmediatelyExecutionContext = new ExecutionContext {
       override def execute(runnable: Runnable): Unit = runnable.run()
+
       override def reportFailure(cause: Throwable): Unit = Log.error(cause)
     }
     val future = promise.future
@@ -184,16 +186,18 @@ object RunWorksheetAction {
     }
 
     if (makeBeforeRun) {
-      val compilerNotification: CompileStatusNotification =
-        (aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) => {
-          val finishedWithError = aborted || errors != 0
-          if (!finishedWithError) {
-            runnable()
+      ProjectTaskManager.getInstance(project)
+        .build(module)
+        .`then`[Unit] { result: ProjectTaskManager.Result =>
+          if (result.hasErrors || result.isAborted) {
+            promise.success(RunWorksheetActionResult.ProjectCompilationError(result.isAborted, result.hasErrors, result.getContext))
+            invokeLater {
+              WorksheetFileHook.enableRun(vFile, result.hasErrors)
+            }
           } else {
-            promise.success(RunWorksheetActionResult.ProjectCompilationError(aborted, errors, warnings, context))
+            runnable()
           }
         }
-      CompilerManager.getInstance(project).make(module, compilerNotification)
     } else {
       runnable()
     }
