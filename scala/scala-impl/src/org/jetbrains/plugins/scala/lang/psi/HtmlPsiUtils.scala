@@ -16,5 +16,10 @@ object HtmlPsiUtils {
   def classLink(clazz: PsiClass): String =
     psiElementLink(clazz.qualifiedName, clazz.name)
 
+  def classFullLink(clazz: PsiClass): String = {
+    val qualifiedName = clazz.qualifiedName
+    psiElementLink(qualifiedName, qualifiedName)
+  }
+
   def escape(text: String): String = escapeHtml(text)
 }

@@ -206,7 +206,7 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
          |  def ${|}f[A[_, B]] = 42
          |}""".stripMargin,
       """<a href="psi_element://O"><code>O</code></a> <default>
-        |def f[A[_, B]]: Int""".stripMargin
+        |def f[A[_, B]]: <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin
     )
 
   def testHigherKindedTypeParameters_1(): Unit =
@@ -224,7 +224,7 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
          |}
          |""".stripMargin,
       """<a href="psi_element://X"><code>X</code></a> <default>
-        |def f1: Int""".stripMargin
+        |def f1: <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin
     )
 
   def testMethodWithAccessModifier(): Unit =
@@ -234,7 +234,7 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
          |}
          |""".stripMargin,
       """<a href="psi_element://X"><code>X</code></a> <default>
-        |protected def f1: Int""".stripMargin
+        |protected def f1: <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin
     )
 
   def testMethodWithAccessModifierWithThisQualifier(): Unit =
@@ -244,7 +244,24 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
          |}
          |""".stripMargin,
       """<a href="psi_element://X"><code>X</code></a> <default>
-        |protected def f1: Int""".stripMargin
+        |protected def f1: <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin
     )
 
+  def testTypeWithColon(): Unit =
+    doGenerateDocTest(
+      s"""trait MyTrait[T]
+         |class :::[T1, T2]
+         |class ${|}ClassWithGenericColons1[A <: MyTrait[:::[Int, String]]]
+         |  extends MyTrait[Int ::: String]
+         |""".stripMargin,
+      "[light_idea_test_case] default\n" +
+        "class ClassWithGenericColons1[A &lt;:" +
+        " <a href=\"psi_element://MyTrait\"><code>MyTrait</code></a>" +
+        "[<a href=\"psi_element://scala.Int\"><code>Int</code></a> :::" +
+        " <a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]]" +
+        " extends " +
+        "<a href=\"psi_element://MyTrait\"><code>MyTrait</code></a>" +
+        "[<a href=\"psi_element://scala.Int\"><code>Int</code></a> :::" +
+        " <a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]"
+    )
 }

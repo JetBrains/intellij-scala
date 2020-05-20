@@ -8,13 +8,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeParamsRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{TextEscaper, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+@deprecated(
+  """Do not use this generic class!
+    |It has unclear purpose and used in a lot of different subsystems.
+    |All these subsystems can have different requirements and bounding them all to this single utility class is fragile.
+    |Use more specific renderers from org.jetbrains.plugins.scala.lang.psi.types.api.presentation package""".stripMargin
+)
 object PresentationUtil {
 
   def presentationStringForParameter(param: Parameter, substitutor: ScSubstitutor): String = {
@@ -30,7 +37,7 @@ object PresentationUtil {
     presentationStringForScalaType(scType, ScSubstitutor.empty)
 
   def presentationStringForScalaType(scType: ScType, substitutor: ScSubstitutor): String =
-    // empty context is used just because it was so before refactoring
+  // empty context is used just because it was so before refactoring
     substitutor(scType).presentableText(TypePresentationContext.emptyContext)
 
   def presentationStringForJavaType(psiType: PsiType, substitutor: ScSubstitutor)
@@ -45,34 +52,57 @@ object PresentationUtil {
   def presentationStringForPsiElement(element: ScalaPsiElement): String = {
     val substitutor = ScSubstitutor.empty
     val projectContext = element.projectContext
-    val presentationContext = TypePresentationContext.emptyContext
-    presentationStringForPsiElement(element, substitutor)(projectContext, presentationContext)
+    presentationStringForPsiElement(element, substitutor)(projectContext)
   }
 
   def presentationStringForPsiElement(element: PsiElement, substitutor: ScSubstitutor)
-                                     (implicit project: ProjectContext, tpc: TypePresentationContext): String =
+                                     (implicit project: ProjectContext): String = {
+    def typeRenderer: TypeRenderer =
+      presentationStringForScalaType(_, substitutor)
+
+    def paramRenderer(typeRenderer: TypeRenderer = typeRenderer) = new ParameterRenderer(
+      typeRenderer,
+      ModifiersRenderer.SimpleText(TextEscaper.Html),
+      new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll),
+      textEscaper,
+      withMemberModifiers = true,
+      withAnnotations = true
+    )
+
+    def paramsRenderer: ParametersRenderer = new ParametersRenderer(
+      paramRenderer(),
+      renderImplicitModifier = true,
+      clausesSeparator = ""
+    )
+
+    def typeParamsRenderer(typeRenderer: TypeRenderer = typeRenderer) =
+      new TypeParamsRenderer(typeRenderer, stripContextTypeArgs = true)
+
+    def functionRenderer(typeRenderer: TypeRenderer = typeRenderer) =
+      new FunctionRenderer(
+        // empty substitutor for type parameters is used just because it was so before refactoring
+        typeParamsRenderer(presentationStringForScalaType(_, ScSubstitutor.empty)),
+        paramsRenderer,
+        new TypeAnnotationRenderer(typeRenderer),
+        renderDefKeyword = false
+      ) {
+        override def render(fun: ScFunction): String = {
+          val qualifier = fun.getParent match {
+            case _: ScTemplateBody => fun.containingClass.nullSafe.map(_.qualifiedName).map(_ + ".").getOrElse("")
+            case _                 => ""
+          }
+          qualifier + super.render(fun)
+        }
+      }
+
     element match {
-      case clauses: ScParameters =>
-        clauses.clauses.map(presentationStringForPsiElement(_, substitutor)).mkString("")
-      case clause: ScParameterClause =>
-        val buffer = new StringBuilder("")
-        buffer.append("(")
-        if (clause.isImplicit) buffer.append("implicit ")
-        buffer.append(clause.parameters.map(presentationStringForPsiElement(_, substitutor)).mkString(", "))
-        buffer.append(")")
-        buffer.toString()
-      case param: ScParameter =>
-        ScalaPsiPresentationUtils.renderParameter(param)(presentationStringForScalaType(_, substitutor))
-      case tp: ScTypeParamClause =>
-        tp.typeParameters.map(t => presentationStringForPsiElement(t, substitutor)).mkString("[", ", ", "]")
-      case param: ScTypeParam =>
-        val boundsRenderer = new TypeParamsRenderer(stripContextTypeArgs = true)
-        val result = boundsRenderer.render(param)(presentationStringForScalaType(_, substitutor))
-        result
-      case param: PsiTypeParameter =>
-        val paramText = param.name
-        //todo: possibly add supers and extends?
-        paramText
+      case fun: ScFunction             => functionRenderer().render(fun)
+      case parameters: ScParameters    => paramsRenderer.renderClauses(parameters)
+      case clause: ScParameterClause   => paramsRenderer.renderClause(clause)
+      case param: ScParameter          => paramRenderer().render(param)
+      case tpClause: ScTypeParamClause => typeParamsRenderer().render(tpClause)
+      case param: ScTypeParam          => typeParamsRenderer().render(param)
+      case param: PsiTypeParameter     => param.name
       case params: PsiParameterList =>
         params.getParameters.map(presentationStringForPsiElement(_, substitutor)).mkString("(", ", ", ")")
       case param: PsiParameter =>
@@ -93,30 +123,13 @@ object PresentationUtil {
         buffer.append(": ")
         buffer.append(presentationStringForJavaType(param.getType, substitutor)) //todo: create param type, java.lang.Object => Any
         buffer.toString()
-      case fun: ScFunction =>
-        val buffer: StringBuilder = new StringBuilder("")
-        fun.getParent match {
-          case _: ScTemplateBody if fun.containingClass != null =>
-            val qual = fun.containingClass.qualifiedName
-            if (qual != null) {
-              buffer.append(qual).append(".")
-            }
-          case _ =>
-        }
-        buffer.append(fun.name)
-        fun.typeParametersClause match {
-          case Some(tpc) =>
-            // empty substitutor and context are used just because it was so before refactoring
-            buffer.append(presentationStringForPsiElement(tpc, ScSubstitutor.empty)(project, TypePresentationContext.emptyContext))
-          case _ =>
-        }
-        buffer.append(presentationStringForPsiElement(fun.paramClauses, substitutor)).append(": ")
-        buffer.append(presentationStringForScalaType(fun.returnType.getOrAny, substitutor))
-        buffer.toString()
       case _ =>
         element.getText
     }
+  }
 
   def accessModifierText(modifier: ScAccessModifier): String =
-    ScalaPsiPresentationUtils.accessModifierText(modifier, fast = true)
+    new AccessModifierRenderer(new AccessQualifierRenderer.SimpleText(textEscaper)).render(modifier)
+
+  private def textEscaper: TextEscaper = TextEscaper.Html
 }

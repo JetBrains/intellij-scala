@@ -11,26 +11,27 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.TypeRenderer
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, PresentationUtil, ScalaPsiPresentationUtils}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
+import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, PresentationUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScalaDocGenerator {
 
-  def generateDoc(elementWithDoc: PsiElement): String = {
+  def generateDoc(elementWithDoc: PsiElement, originalElement: PsiElement): String = {
     val e = elementWithDoc.getNavigationElement
 
-    implicit def projectContext: ProjectContext = e.projectContext
-
-    implicit def urlTypeRenderer: TypeRenderer = projectContext.typeSystem.urlText(_)
+    implicit val projectContext: ProjectContext = e.projectContext
+    implicit def typeRenderer: TypeRenderer = _.urlText(originalElement)
 
     val builder = new HtmlBuilderWrapper
     import builder._
@@ -52,14 +53,18 @@ object ScalaDocGenerator {
     def appendMainSection(element: PsiElement, epilogue: => Unit = {}, needsTpe: Boolean = false): Unit = {
       pre {
         element match {
-          case an: ScAnnotationsHolder => append(ScalaPsiPresentationUtils.renderAnnotations(an))
+          case an: ScAnnotationsHolder =>
+            val annotationsRendered = new AnnotationsRenderer(typeRenderer, "\n", TextEscaper.Html).renderAnnotations(an)
+            append(annotationsRendered)
           case _ =>
         }
 
-        val start = length
+//        val start = length
 
         element match {
-          case m: ScModifierListOwner => append(ScalaPsiPresentationUtils.renderModifiers(m))
+          case m: ScModifierListOwner =>
+            val renderer = new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
+            append(renderer.render(m))
           case _ =>
         }
 
@@ -78,14 +83,20 @@ object ScalaDocGenerator {
           case _ =>
         }
 
+
         element match {
-          case par: ScParameterOwner =>
-            append(ScalaPsiPresentationUtils.renderParameters(par, length - start - 7).replaceAll("\n\\s*", ""))
+          case params: ScParameterOwner =>
+            val renderer = definitionParamsRenderer(typeRenderer)
+            // TODO: since SCL-13777 spaces are effectively not used! cause we remove all new lines and spaces after rendering
+            //  review SCL-13777, maybe we should improve formatting of large classes
+            //val spaces = length - start - 7
+            val paramsRendered = renderer.renderClauses(params).replaceAll("\n\\s*", "")
+            append(paramsRendered)
           case _ =>
         }
 
         append(element match {
-          case typed: ScTypedDefinition => ScalaPsiPresentationUtils.typeAnnotationText(typed)
+          case typed: ScTypedDefinition => typeAnnotationRenderer.render(typed)
           case _ if needsTpe            => ": Nothing"
           case _                        => ""
         })
@@ -134,7 +145,7 @@ object ScalaDocGenerator {
           tpe match {
             case definition: ScTypeAliasDefinition =>
               val tp = definition.aliasedTypeElement.flatMap(_.`type`().toOption).getOrElse(psi.types.api.Any)
-              append(s" = ${urlTypeRenderer(tp)}")
+              append(s" = ${typeRenderer(tp)}")
             case _ =>
           }
         })
@@ -146,7 +157,7 @@ object ScalaDocGenerator {
         b {
           append(escapeHtml(pattern.name))
         }
-        append(ScalaPsiPresentationUtils.typeAnnotationText(pattern))
+        append(typeAnnotationRenderer.render(pattern))
         val context = pattern.getContext
         if (context != null) {
           context.getContext match {
@@ -173,11 +184,29 @@ object ScalaDocGenerator {
     result
   }
 
-   // TODO: extract building of psi link to some utility method
+  private def definitionParamsRenderer(implicit typeRenderer: TypeRenderer): ParametersRenderer = {
+    val parameterRenderer = new ParameterRenderer(
+      typeRenderer,
+      ModifiersRenderer.WithHtmlPsiLink,
+      typeAnnotationRenderer(typeRenderer),
+      TextEscaper.Html,
+      withMemberModifiers = false,
+      withAnnotations = true
+    )
+    new ParametersRenderer(
+      parameterRenderer,
+      renderImplicitModifier = true,
+      clausesSeparator = "",
+    )
+  }
+
+  private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
+    new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
+
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.containingClass
     if (clazz == null) EmptyDoc
-    else HtmlPsiUtils.psiElementLink(clazz.qualifiedName, clazz.qualifiedName)
+    else HtmlPsiUtils.classFullLink(clazz)
   }
 
   private def parseTypeParameters(elems: ScTypeParametersOwner): String = {

@@ -15,10 +15,12 @@ object TypePresentationContext {
 
   def apply(place: PsiElement): TypePresentationContext = psiElementPresentationContext(place)
 
-  implicit def psiElementPresentationContext(place: PsiElement): TypePresentationContext = (text, target) => {
+  implicit def psiElementPresentationContext(place: PsiElement): TypePresentationContext = (name, target) => {
     if (place.isValid) {
-      ScalaPsiElementFactory.createTypeElementFromText(text, place.getContext, place) match {
-        case ScSimpleTypeElement(ResolvesTo(reference)) => ScEquivalenceUtil.smartEquivalence(reference, target)
+      val element = ScalaPsiElementFactory.createTypeElementFromText(name, place.getContext, place)
+      element match {
+        case ScSimpleTypeElement(ResolvesTo(reference)) =>
+          ScEquivalenceUtil.smartEquivalence(reference, target)
         case _ => false
       }
     }

@@ -12,6 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
+trait Ttt {
+  type Alias
+  def foo(p1: Int, p2: => String = "qwe"): (String, Long)
+  val x: (String, Int)
+}
+
 /**
 * User: Alexander Podkhalyuzin
 * Date: 11.07.2008
@@ -36,7 +42,7 @@ case class ScAliasMember(override val getElement: ScTypeAlias,
 case class ScMethodMember(signature: PhysicalMethodSignature, isOverride: Boolean)
   extends PsiElementClassMember[PsiMethod](
     signature.method,
-    ScalaPsiPresentationUtils.getMethodPresentableText(signature.method)
+    ScalaPsiPresentationUtils.methodPresentableText(signature.method)
   ) with ScalaTypedMember {
 
   override val name: String = signature.name

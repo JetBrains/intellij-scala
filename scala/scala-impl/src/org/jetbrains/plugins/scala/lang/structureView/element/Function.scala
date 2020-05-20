@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
 /**
@@ -21,7 +20,7 @@ private class Function(function: ScFunction, inherited: Boolean, override val sh
   override def getPresentableText: String = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(function)
 
-    val presentation = ScalaPsiPresentationUtils.getMethodPresentableText(function, fast = true, ScSubstitutor.empty)
+    val presentation = renderFunctionFromStubs(function)
 
     val inferredType =
       if (function.isConstructor) None
@@ -31,6 +30,14 @@ private class Function(function: ScFunction, inherited: Boolean, override val sh
       }
 
     withSimpleNames(presentation + inferredType.map(": " + _).mkString)
+  }
+
+  private def renderFunctionFromStubs(function: ScFunction): String = {
+    val typeParameters = function.typeParametersClause.fold("")(_.getTextByStub)
+    val parameters = function.paramClauses.toOption.fold("")(FromStubsParameterRenderer.renderClauses)
+    val typeAnnotation = function.returnTypeElement.map(_.getText).fold("")(": " + _)
+
+    s"${function.name}$typeParameters$parameters$typeAnnotation"
   }
 
   override def children: Seq[PsiElement] = function match {

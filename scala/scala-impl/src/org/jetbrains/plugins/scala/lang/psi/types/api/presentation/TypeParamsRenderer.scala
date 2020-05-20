@@ -1,30 +1,26 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.presentation
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.TypeRenderer
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, Variance}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 
 class TypeParamsRenderer(
+  typeRenderer: TypeRenderer,
   boundsRenderer: TypeBoundsRenderer = new TypeBoundsRenderer,
   stripContextTypeArgs: Boolean = false
 ) {
 
-  def this(textEscaper: TextEscaper, stripContextTypeArgs: Boolean) =
-    this(new TypeBoundsRenderer(textEscaper), stripContextTypeArgs)
+  def this(typeRenderer: TypeRenderer, textEscaper: TextEscaper, stripContextTypeArgs: Boolean) =
+    this(typeRenderer, new TypeBoundsRenderer(textEscaper), stripContextTypeArgs)
 
-  def renderParams(paramsOwner: ScTypeParametersOwner)
-                  (typeRenderer: TypeRenderer): String =
-    renderParams(paramsOwner.typeParameters)(render(_)(typeRenderer))
+  def renderParams(paramsOwner: ScTypeParametersOwner): String =
+    renderParams(paramsOwner.typeParameters)(render)
 
-  def render(param: ScTypeParam)
-            (typeRenderer: TypeRenderer): String = {
-    val parametersClauseRendered = param.typeParametersClause.fold("") { clause =>
-      renderParams(clause.typeParameters)(render(_)(typeRenderer))
-    }
+  def render(param: ScTypeParam): String = {
+    val parametersClauseRendered = param.typeParametersClause.fold("")(render)
     renderImpl(
       param.name,
       param.variance,
@@ -33,17 +29,19 @@ class TypeParamsRenderer(
       param.upperBound.toOption,
       param.viewBound,
       param.contextBound,
-    )(typeRenderer)
+    )
   }
 
-  def render(param: TypeParameterType)
-            (typeRenderer: TypeRenderer): String = {
+  def render(clause: ScTypeParamClause): String =
+    renderParams(clause.typeParameters)(render)
+
+  def render(param: TypeParameterType): String = {
     val (viewTypes, contextTypes) = param.typeParameter.psiTypeParameter match {
       case boundsOwner: ScTypeBoundsOwner => (boundsOwner.viewBound, boundsOwner.contextBound)
       case _                              => TypeParamsRenderer.EmptyTuple
     }
 
-    val parametersRendered = renderParams(param.arguments)(render(_)(typeRenderer))
+    val parametersRendered = renderParams(param.arguments)(render)
     renderImpl(
       param.name,
       param.variance,
@@ -52,7 +50,7 @@ class TypeParamsRenderer(
       Some(param.upperType),
       viewTypes,
       contextTypes,
-    )(typeRenderer)
+    )
   }
 
   private def renderParams[T](parameters: Seq[T])
@@ -85,7 +83,7 @@ class TypeParamsRenderer(
     upper: Option[ScType],
     view: Seq[ScType],
     context: Seq[ScType]
-  )(typeRenderer: TypeRenderer): String = {
+  ): String = {
     val buffer = new StringBuilder
 
     val varianceText = variance match {

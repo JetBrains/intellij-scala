@@ -2,12 +2,10 @@ package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.structureView.element.TypeDefinition.childrenOf
 
 /**
@@ -15,14 +13,17 @@ import org.jetbrains.plugins.scala.lang.structureView.element.TypeDefinition.chi
 * Date: 04.05.2008
 */
 class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(definition) {
+
   override def getPresentableText: String = {
+    val name = Option(definition.nameId).map(_.getText)
+
     val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
 
     val valueParameters = definition.asOptionOf[ScClass].flatMap {
-      _.constructor.map(it => ScalaPsiPresentationUtils.renderParametersAsString(it.parameterList, short = true, ScSubstitutor.empty))
+      _.constructor.map { constructor =>
+        FromStubsParameterRenderer.renderClauses(constructor.parameterList)
+      }
     }
-
-    val name = Option(definition.nameId).map(_.getText)
 
     name.getOrElse("") + typeParameters.getOrElse("") + valueParameters.getOrElse("")
   }

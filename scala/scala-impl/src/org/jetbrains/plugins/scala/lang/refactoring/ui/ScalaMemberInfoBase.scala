@@ -20,7 +20,7 @@ abstract class ScalaMemberInfoBase[Member <: PsiElement](member: Member) extends
 
   member match {
     case method: PsiMethod =>
-      displayName = ScalaPsiPresentationUtils.getMethodPresentableText(method)
+      displayName = ScalaPsiPresentationUtils.methodPresentableText(method)
       val (superMethod, containingClass) = method match {
         case scFun: ScFunction => (scFun.superMethod, scFun.containingClass)
         case _ => (method.findSuperMethods().headOption, method.getContainingClass)

@@ -172,6 +172,14 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
 object ScSubstitutor {
   val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor")
 
+  /**
+   * Substitutor that returns the same type object instance without any modifications
+   * i.e. `ScSubstitutor.empty(t) eq t == true`
+   *
+   * TODO: consider rewriting ScSubstitutor with a seled trait with an Empty implementation which just returns same instance.
+   *  (!) but before that investigate the performance impact, because Substitutor.apply is a VERY HOT method !,
+   *  in theory JIT-compiler can work worse after rewriting (according Nikolay)
+   */
   val empty: ScSubstitutor = new ScSubstitutor(Array.empty)
 
   private[recursiveUpdate] def apply(s: Update) = new ScSubstitutor(Array(s))

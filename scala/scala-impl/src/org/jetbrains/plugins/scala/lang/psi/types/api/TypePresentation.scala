@@ -38,11 +38,12 @@ trait TypePresentation {
         case e                              => e.name + "."
       }
     }
-    typeText(`type`, renderer, PresentationOptions.Default)
+    typeText(`type`, renderer, PresentationOptions.Default)(context)
   }
 
   // For now only used in `documentationProvider` package
-  final def urlText(`type`: ScType): String = {
+  final def urlText(`type`: ScType)
+                   (implicit context: TypePresentationContext): String = {
     import StringEscapeUtils.escapeHtml
 
     val renderer: NameRenderer = new NameRenderer {
@@ -67,7 +68,7 @@ trait TypePresentation {
       renderProjectionTypeName = true,
       renderValueTypes = true
     )
-    typeText(`type`, renderer, options)(TypePresentationContext.emptyContext)
+    typeText(`type`, renderer, options)(context)
   }
 
   final def canonicalText(`type`: ScType): String = {

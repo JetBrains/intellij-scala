@@ -70,16 +70,18 @@ trait ScTypeDefinition extends ScTemplateDefinition
 }
 
 object ScTypeDefinition {
+
   implicit class ScTypeDefinitionExt(private val target: ScTypeDefinition) extends AnyVal {
-    def shortDefinition: String = {
-      val prefix = target match {
+    def shortDefinition: String =
+      keywordPrefix + target.name
+
+    def keywordPrefix: String =
+      target match {
         case _: ScObject => "object "
-        case _: ScTrait => "trait "
-        case _: ScClass => "class "
-        case _: ScEnum => "enum "
-        case _ => ""
+        case _: ScTrait  => "trait "
+        case _: ScClass  => "class "
+        case _: ScEnum   => "enum "
+        case _           => ""
       }
-      prefix + target.name
-    }
   }
 }

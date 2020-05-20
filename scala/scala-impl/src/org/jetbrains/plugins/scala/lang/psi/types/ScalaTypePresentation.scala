@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.PresentationOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer, TypeBoundsRenderer, TypeParamsRenderer}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -33,8 +34,8 @@ trait ScalaTypePresentation extends api.TypePresentation {
     nameRenderer: NameRenderer,
     options: PresentationOptions
   )(implicit context: TypePresentationContext): String = {
-    val boundsRenderer = new TypeBoundsRenderer(nameRenderer)
-    val typeParamsRenderer = new TypeParamsRenderer(boundsRenderer)
+    val textEscaper = nameRenderer
+    val boundsRenderer = new TypeBoundsRenderer(textEscaper)
 
     def typesText(types: Seq[ScType]): String = types
       .map(innerTypeText(_))
@@ -48,13 +49,10 @@ trait ScalaTypePresentation extends api.TypePresentation {
     }
 
     def typeParamText(param: ScTypeParam, substitutor: ScSubstitutor): String = {
-      def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer, options)
-
-      typeParamsRenderer.render(param)(typeText0)
+      val typeRenderer: TypeRenderer = t => typeText(substitutor(t), nameRenderer, options)
+      val typeParamsRenderer = new TypeParamsRenderer(typeRenderer, boundsRenderer)
+      typeParamsRenderer.render(param)
     }
-
-    def typeParameterTypeText(typeParameterType: TypeParameterType): String =
-      typeParamsRenderer.render(typeParameterType)(innerTypeText(_))
 
     def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
       val e = projType.actualElement
@@ -85,7 +83,8 @@ trait ScalaTypePresentation extends api.TypePresentation {
         if (options.renderProjectionTypeName) nameRenderer.renderName(e)
         else nameRenderer.escapeName(refName)
 
-      if (context.nameResolvesTo(refName, e)) escapedName
+      if (context.nameResolvesTo(refName, e))
+        escapedName // if reference can be resolved from the context we do not render any context info
       else
         projType.projected match {
           case ScDesignatorType(pack: PsiPackage) =>
@@ -122,7 +121,24 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
           val function = s.namedElement.asInstanceOf[ScFunction]
           val substitutor = s.substitutor
-          val paramClauses = ScalaPsiPresentationUtils.renderParameters(function, -1)(scType => typeText0(substitutor(scType)))
+
+          val paramClauses: String = {
+            val typeRenderer: TypeRenderer = t => typeText0(substitutor(t))
+            val paramRenderer = new ParameterRenderer(
+              typeRenderer,
+              ModifiersRenderer.SimpleText(textEscaper),
+              new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll),
+              textEscaper,
+              withMemberModifiers = false,
+              withAnnotations = true
+            )
+            val paramsRenderer = new ParametersRenderer(
+              paramRenderer,
+              renderImplicitModifier = true
+            )
+            paramsRenderer.renderClauses(function)
+          }
+
           val retType = if (!compType.equiv(returnType)) typeText0(substitutor(returnType)) else s"this$ObjectTypeSuffix"
 
           val typeParameters = typeParametersText(function, substitutor)

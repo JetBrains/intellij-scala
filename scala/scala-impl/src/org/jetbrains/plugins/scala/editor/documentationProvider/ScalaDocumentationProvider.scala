@@ -81,7 +81,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       return null
     }
 
-    ScalaDocGenerator.generateDoc(elementWithDoc)
+    ScalaDocGenerator.generateDoc(elementWithDoc, originalElement)
   }
 
   override def findExistingDocComment(contextElement: PsiComment): PsiComment = {
