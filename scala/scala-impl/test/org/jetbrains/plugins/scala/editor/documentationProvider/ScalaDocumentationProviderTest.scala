@@ -60,7 +60,10 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  /** description of foo */
          |  def ${|}foo: String = ???
          |}""".stripMargin,
-      """<div class="definition"><a href="psi_element://A"><code>A</code></a><pre>def <b>foo</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a></pre></div>
+      """<div class="definition">
+        |<a href="psi_element://A"><code>A</code></a>
+        |<pre>def <b>foo</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a></pre>
+        |</div>
         |<div class='content'> description of foo <p></div>
         |<table class='sections'><p></table>
         |""".stripMargin
@@ -170,6 +173,30 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |</table>""".stripMargin
     )
   }
+
+  def testMethodWithAccessModifier(): Unit =
+    doShortGenerateDocTest(
+      s"""class X {
+         |  protected def ${|}f1 = 42
+         |}
+         |""".stripMargin,
+      """<div class="definition">
+        |<a href="psi_element://X"><code>X</code></a>
+        |<pre>protected def <b>f1</b>: <a href="psi_element://scala.Int"><code>Int</code></a></pre>
+        |</div>""".stripMargin
+    )
+
+  def testMethodWithAccessModifierWithThisQualifier(): Unit =
+    doShortGenerateDocTest(
+      s"""class X {
+         |  protected[this] def ${|}f1 = 42
+         |}
+         |""".stripMargin,
+      """<div class="definition">
+        |<a href="psi_element://X"><code>X</code></a>
+        |<pre>protected[this] def <b>f1</b>: <a href="psi_element://scala.Int"><code>Int</code></a></pre>
+        |</div>""".stripMargin
+    )
 
   def testClassWithVariousGenericsWithBounds(): Unit =
     doShortGenerateDocTest(

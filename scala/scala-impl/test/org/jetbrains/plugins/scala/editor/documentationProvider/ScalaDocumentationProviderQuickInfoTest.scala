@@ -216,4 +216,35 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
       """[light_idea_test_case] default
         |trait T[X[_, Y[_, Z]]]""".stripMargin
     )
+
+  def testMethod(): Unit =
+    doGenerateDocTest(
+      s"""class X {
+         | def ${|}f1 = 42
+         |}
+         |""".stripMargin,
+      """<a href="psi_element://X"><code>X</code></a> <default>
+        |def f1: Int""".stripMargin
+    )
+
+  def testMethodWithAccessModifier(): Unit =
+    doGenerateDocTest(
+      s"""class X {
+         |  protected def ${|}f1 = 42
+         |}
+         |""".stripMargin,
+      """<a href="psi_element://X"><code>X</code></a> <default>
+        |protected def f1: Int""".stripMargin
+    )
+
+  def testMethodWithAccessModifierWithThisQualifier(): Unit =
+    doGenerateDocTest(
+      s"""class X {
+         |  protected[this] def ${|}f1 = 42
+         |}
+         |""".stripMargin,
+      """<a href="psi_element://X"><code>X</code></a> <default>
+        |protected def f1: Int""".stripMargin
+    )
+
 }
