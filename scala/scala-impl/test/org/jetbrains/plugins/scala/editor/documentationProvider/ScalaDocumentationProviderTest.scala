@@ -60,7 +60,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  /** description of foo */
          |  def ${|}foo: String = ???
          |}""".stripMargin,
-      """<div class="definition"><a href="psi_element://A"><code>A</code></a><pre>def <b>foo</b>: String</pre></div>
+      """<div class="definition"><a href="psi_element://A"><code>A</code></a><pre>def <b>foo</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a></pre></div>
         |<div class='content'> description of foo <p></div>
         |<table class='sections'><p></table>
         |""".stripMargin
@@ -82,7 +82,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       """<div class="definition">
         |<a href="psi_element://A"><code>A</code></a>
-        |<pre>def <b>baseMethod</b>: String</pre>
+        |<pre>def <b>baseMethod</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a></pre>
         |</div>
         |<div class='content'> description of base method from A <p></div>
         |<table class='sections'><p></table>
@@ -106,7 +106,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}""".stripMargin,
       """<div class="definition">
         |<a href="psi_element://A"><code>A</code></a>
-        |<pre>override def <b>baseMethod</b>: String</pre>
+        |<pre>override def <b>baseMethod</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a></pre>
         |</div>
         |<div class='content'>
         |<b>Description copied from class: </b>
@@ -132,7 +132,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       """<div class="definition">
         |<a href="psi_element://A"><code>A</code></a>
-        |<pre>override def <b>baseMethod</b>: String</pre>
+        |<pre>override def <b>baseMethod</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a></pre>
         |</div>
         |<div class='content'>
         |<b>Description copied from class: </b>
@@ -157,7 +157,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       """<div class="definition">
         |<a href="psi_element://A"><code>A</code></a>
-        |<pre>override def <b>getModules</b>: String</pre>
+        |<pre>override def <b>getModules</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a></pre>
         |</div>
         |<div class='content'>
         |<b>Description copied from class: </b>
