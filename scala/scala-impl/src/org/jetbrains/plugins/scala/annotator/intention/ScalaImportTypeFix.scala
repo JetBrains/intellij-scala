@@ -1,5 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.intention
-
+package org.jetbrains.plugins.scala
+package annotator
+package intention
 
 import java.awt.Point
 
@@ -14,8 +15,6 @@ import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -27,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.{isAccessible, kindMatches}
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.OrderingUtil
 
@@ -35,23 +34,25 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /**
-  * User: Alexander Podkhalyuzin
-  * Date: 15.07.2009
-  */
-
-class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScReference)
+ * User: Alexander Podkhalyuzin
+ * Date: 15.07.2009
+ */
+final class ScalaImportTypeFix private(private var classes_ : Array[ElementToImport], ref: ScReference)
   extends HintAction with HighPriorityAction {
 
-  private val project = ref.getProject
+  import ScalaImportTypeFix._
 
-  override def getText: String = {
+  def classes: Array[ElementToImport] = classes_
+
+  def isValid: Boolean = classes.nonEmpty
+
+  override def getText: String =
     if (classes.length == 1) ScalaBundle.message("import.with", classes(0).qualifiedName)
     else ElementToImport.messageByType(classes)(
       ScalaBundle.message("import.class"),
       ScalaBundle.message("import.package"),
       ScalaBundle.message("import.something")
     )
-  }
 
   override def getFamilyName: String = ScalaBundle.message("import.class")
 
@@ -60,7 +61,7 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     CommandProcessor.getInstance().runUndoTransparentAction(() => {
       if (ref.isValid) {
-        classes = ScalaImportTypeFix.getTypesToImport(ref)
+        classes_ = getTypesToImport(ref)
         ScalaAddImportAction(editor, classes, ref).execute()
       }
     })
@@ -77,7 +78,7 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
       case pref: ScPrefixExpr if pref.operation == ref => false
       case inf: ScInfixExpr if inf.operation == ref => false
       case _ =>
-        classes = ScalaImportTypeFix.getTypesToImport(ref)
+        classes_ = getTypesToImport(ref)
         classes.length match {
           case 0 => false
           case 1 if ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
@@ -136,30 +137,33 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
 
 object ScalaImportTypeFix {
 
+  def apply(reference: ScReference) = new ScalaImportTypeFix(
+    getTypesToImport(reference),
+    reference
+  )
+
   @tailrec
-  private def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
-    clazz match {
-      case o: ScObject if o.isSyntheticObject =>
-        ScalaPsiUtil.getCompanionModule(o) match {
-          case Some(cl) => notInner(cl, ref)
-          case _ => true
-        }
-      case t: ScTypeDefinition =>
-        t.getParent match {
-          case _: ScalaFile => true
-          case _: ScPackaging => true
-          case _: ScTemplateBody =>
-            Option(t.containingClass) match {
-              case Some(obj: ScObject) => ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
-              case _ => false
-            }
-          case _ => false
-        }
-      case _ => true
-    }
+  private[this] def notInner(clazz: PsiClass, ref: PsiElement): Boolean = clazz match {
+    case o: ScObject if o.isSyntheticObject =>
+      ScalaPsiUtil.getCompanionModule(o) match {
+        case Some(cl) => notInner(cl, ref)
+        case _ => true
+      }
+    case t: ScTypeDefinition =>
+      t.getParent match {
+        case _: ScalaFile |
+             _: ScPackaging => true
+        case _: ScTemplateBody =>
+          t.containingClass match {
+            case obj: ScObject if isAccessible(obj, ref) => notInner(obj, ref)
+            case _ => false
+          }
+        case _ => false
+      }
+    case _ => true
   }
 
-  def getTypesToImport(ref: ScReference): Array[ElementToImport] = {
+  private def getTypesToImport(ref: ScReference): Array[ElementToImport] = {
     if (!ref.isValid || ref.isInstanceOf[ScTypeProjection])
       return Array.empty
 
@@ -173,9 +177,9 @@ object ScalaImportTypeFix {
       clazz != null &&
         clazz.qualifiedName != null &&
         clazz.qualifiedName.indexOf(".") > 0 &&
-        ResolveUtils.kindMatches(clazz, kinds) &&
+        kindMatches(clazz, kinds) &&
         notInner(clazz, ref) &&
-        ResolveUtils.isAccessible(clazz, ref) &&
+        isAccessible(clazz, ref) &&
         !JavaCompletionUtil.isInExcludedPackage(clazz, false)
     }
 
@@ -190,7 +194,7 @@ object ScalaImportTypeFix {
     for (alias <- typeAliases) {
       val containingClass = alias.containingClass
       if (containingClass != null && ScalaPsiUtil.hasStablePath(alias) &&
-        ResolveUtils.kindMatches(alias, kinds) && ResolveUtils.isAccessible(alias, ref) &&
+        kindMatches(alias, kinds) && isAccessible(alias, ref) &&
         !JavaCompletionUtil.isInExcludedPackage(containingClass, false)) {
         buffer += TypeAliasToImport(alias)
       }
@@ -206,7 +210,7 @@ object ScalaImportTypeFix {
 
     for (packageQualifier <- packagesList) {
       val pack = ScPackageImpl.findPackage(project, packageQualifier)
-      if (pack != null && pack.getQualifiedName.indexOf('.') != -1 && ResolveUtils.kindMatches(pack, kinds) &&
+      if (pack != null && pack.getQualifiedName.indexOf('.') != -1 && kindMatches(pack, kinds) &&
         !JavaProjectCodeInsightSettings.getSettings(project).isExcluded(pack.getQualifiedName)) {
         buffer += PrefixPackageToImport(pack)
       }
