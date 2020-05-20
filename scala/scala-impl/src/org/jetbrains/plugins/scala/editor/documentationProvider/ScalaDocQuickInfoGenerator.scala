@@ -58,7 +58,7 @@ object ScalaDocQuickInfoGenerator {
     buffer.append(renderClassHeader(clazz))
     buffer.append(renderModifiers(clazz))
     buffer.append(ScalaDocumentationUtils.getKeyword(clazz))
-    buffer.append(HtmlPsiUtils.classLink(clazz))
+    buffer.append(clazz.name)
     buffer.append(renderTypeParams(clazz))
     buffer.append(renderConstructorText(clazz))
     buffer.append(renderSuperTypes(clazz))

@@ -23,7 +23,7 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     doGenerateDocTest(
       s"""class ${|}MyClass""",
       s"""[$moduleName] default
-         |class <a href="psi_element://MyClass"><code>MyClass</code></a>""".stripMargin +
+         |class MyClass""".stripMargin +
         """ extends <a href="psi_element://java.lang.Object"><code>Object</code></a>""".stripMargin
     )
 
@@ -31,14 +31,14 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     doGenerateDocTest(
       s"""trait ${|}MyTrait""",
       s"""[$moduleName] default
-         |trait <a href="psi_element://MyTrait"><code>MyTrait</code></a>""".stripMargin
+         |trait MyTrait""".stripMargin
     )
 
   def testSimpleObject(): Unit =
     doGenerateDocTest(
       s"""object ${|}MyObject""",
       s"""[$moduleName] default
-         |object <a href="psi_element://MyObject"><code>MyObject</code></a>""".stripMargin +
+         |object MyObject""".stripMargin +
         """ extends <a href="psi_element://java.lang.Object"><code>Object</code></a>"""
     )
 
@@ -46,7 +46,7 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     doGenerateDocTest(
       s"""abstract sealed class ${|}MyClass""",
       s"""[$moduleName] default
-         |abstract sealed class <a href="psi_element://MyClass"><code>MyClass</code></a>""".stripMargin +
+         |abstract sealed class MyClass""".stripMargin +
         """ extends <a href="psi_element://java.lang.Object"><code>Object</code></a>"""
     )
 
@@ -54,7 +54,7 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     doGenerateDocTest(
       s"""final class ${|}MyClass""",
       s"""[$moduleName] default
-         |final class <a href="psi_element://MyClass"><code>MyClass</code></a>""".stripMargin +
+         |final class MyClass""".stripMargin +
         """ extends <a href="psi_element://java.lang.Object"><code>Object</code></a>"""
     )
 
@@ -62,7 +62,7 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     doGenerateDocTest(
       s"""class ${|}Class[T]""",
       s"[$moduleName] default\n" +
-        "class <a href=\"psi_element://Class\"><code>Class</code></a>[T]" +
+        "class Class[T]" +
         " extends <a href=\"psi_element://java.lang.Object\"><code>Object</code></a>"
     )
 
@@ -72,30 +72,30 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
          |class ${|}Class[T <: Trait[_ >: Object]]
          |""".stripMargin,
       s"[$moduleName] default\n" +
-        "class <a href=\"psi_element://Class\"><code>Class</code></a>[T &lt;:" +
+        "class Class[T &lt;:" +
         " <a href=\"psi_element://Trait\"><code>Trait</code></a>[_ &gt;:" +
         " <a href=\"psi_element://java.lang.Object\"><code>Object</code></a>]]" +
         " extends <a href=\"psi_element://java.lang.Object\"><code>Object</code></a>"
     )
 
-  def testClassWIthGenericParameter_WithRecursiveBounds(): Unit =
+  def testClassWithGenericParameter_WithRecursiveBounds(): Unit =
     doGenerateDocTest(
       s"""trait Trait[T]
          |class ${|}Class2[T <: Trait[T]]
          |""".stripMargin,
       s"[$moduleName] default\n" +
-        "class <a href=\"psi_element://Class2\"><code>Class2</code></a>[T &lt;:" +
+        "class Class2[T &lt;:" +
         " <a href=\"psi_element://Trait\"><code>Trait</code></a>[T]]" +
         " extends <a href=\"psi_element://java.lang.Object\"><code>Object</code></a>"
     )
 
-  def testClassWIthGenericParameter_WithRecursiveBounds_1(): Unit =
+  def testClassWithGenericParameter_WithRecursiveBounds_1(): Unit =
     doGenerateDocTest(
       s"""trait Trait[T]
          |class ${|}Class4[T <: Trait[_ >: Trait[T]]]
          |""".stripMargin,
       s"[$moduleName] default\n" +
-        "class <a href=\"psi_element://Class4\"><code>Class4</code></a>[T &lt;:" +
+        "class Class4[T &lt;:" +
         " <a href=\"psi_element://Trait\"><code>Trait</code></a>[_ &gt;:" +
         " <a href=\"psi_element://Trait\"><code>Trait</code></a>[T]]]" +
         " extends <a href=\"psi_element://java.lang.Object\"><code>Object</code></a>"
@@ -107,7 +107,7 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
          |abstract class ${|}Class extends Comparable[_ <: Trait[_ >: String]]
          |""".stripMargin,
       s"[$moduleName] default\n" +
-        "abstract class <a href=\"psi_element://Class\"><code>Class</code></a>" +
+        "abstract class Class" +
         " extends <a href=\"psi_element://java.lang.Comparable\"><code>Comparable</code></a>[_ &lt;:" +
         " <a href=\"psi_element://Trait\"><code>Trait</code></a>[_ &gt;:" +
         " <a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]]"
