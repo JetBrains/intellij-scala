@@ -5,7 +5,6 @@ package intention
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.codeInsight.hint.QuestionAction
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
@@ -13,7 +12,7 @@ import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.util.ObjectUtils
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
@@ -28,7 +27,7 @@ sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, v
 
   protected def alwaysAsk: Boolean = false
 
-  override def execute: Boolean = {
+  override def execute(): Boolean = {
     val validVariants = variants.filter(_.isValid)
 
     if (validVariants.isEmpty)
@@ -101,26 +100,25 @@ sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, v
   }
 
 
-  private def addImport(toImport: ElementToImport): Unit = {
-    ApplicationManager.getApplication.invokeLater(() =>
-      if (place.isValid && FileModificationService.getInstance.prepareFileForWrite(place.getContainingFile))
-        executeWriteActionCommand(ScalaBundle.message("add.import.action")) {
-          PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-          if (place.isValid) {
-            doAddImport(toImport)
-          }
+  private def addImport(toImport: ElementToImport): Unit = invokeLater {
+    if (place.isValid && FileModificationService.getInstance.prepareFileForWrite(place.getContainingFile))
+      executeWriteActionCommand(ScalaBundle.message("add.import.action")) {
+        PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        if (place.isValid) {
+          doAddImport(toImport)
         }
-    )
+      }
   }
 }
 
 object ScalaAddImportAction {
 
-  def apply(editor: Editor, variants: Array[ElementToImport], ref: ScReference): ScalaAddImportAction[_] =
-    ref match {
-      case docRef: ScDocResolvableCodeReference => new ForScalaDoc(editor, variants, docRef)
-      case _ => new ForReference(editor, variants, ref)
-    }
+  def apply(reference: ScReference,
+            variants: Array[ElementToImport])
+           (implicit editor: Editor): ScalaAddImportAction[_] = reference match {
+    case reference: ScDocResolvableCodeReference => new ForScalaDoc(editor, variants, reference)
+    case _ => new ForReference(editor, variants, reference)
+  }
 
   private final class ForReference(editor: Editor, variants: Array[ElementToImport], ref: ScReference)
     extends ScalaAddImportAction[ScReference](editor, variants, ref) {
