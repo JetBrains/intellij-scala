@@ -2,6 +2,8 @@ package org.jetbrains.bsp.project.test.environment
 
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.extensions.ExtensionPointName
+import org.jetbrains.bsp.BspUtil
+
 import scala.collection.JavaConverters._
 
 sealed trait ExecutionEnvironmentType
@@ -17,8 +19,13 @@ object BspEnvironmentRunnerExtension {
   val EP_NAME: ExtensionPointName[BspEnvironmentRunnerExtension] =
     ExtensionPointName.create("com.intellij.bspEnvironmentRunnerExtension")
 
-  def isSupported(config: RunConfiguration): Boolean =
-    extensions.exists(_.runConfigurationSupported(config))
+  def isSupported(config: RunConfiguration): Boolean = {
+    config match {
+      case ModuleBasedConfiguration(_, module) =>
+        BspUtil.isBspModule(module) && extensions.exists(_.runConfigurationSupported(config))
+      case _ => false
+    }
+  }
 
   def getClassExtractor(runConfiguration: RunConfiguration): Option[BspEnvironmentRunnerExtension] =
     extensions.find(_.runConfigurationSupported(runConfiguration))
