@@ -8,6 +8,7 @@ import ch.epfl.scala.bsp4j._
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiFile}
@@ -19,7 +20,7 @@ import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
-import org.jetbrains.plugins.scala.extensions.{inReadAction, invokeAndWait}
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Promise
@@ -107,7 +108,7 @@ object BspJvmEnvironment {
     def sourceFileForClass(className: String): Option[PsiFile] = {
       val psiFacade = JavaPsiFacade.getInstance(project)
       val scope = GlobalSearchScope.allScope(project)
-      val matchedClasses = invokeAndWait(inReadAction(psiFacade.findClasses(className, scope)))
+      val matchedClasses = invokeAndWait(readInSmartMode(project)(psiFacade.findClasses(className, scope)))
       matchedClasses match {
         case Array(matchedClass) => Option(matchedClass.getContainingFile)
         case _ => None
@@ -236,6 +237,11 @@ object BspJvmEnvironment {
       case Seq(single) => Some(single)
       case _ => None
     }
+  }
+
+  private def readInSmartMode[A](project: Project)(block: => A): A = {
+    val dumbService = DumbService.getInstance(project)
+    dumbService.runReadActionInSmartMode(() => block)
   }
 
 }
