@@ -8,25 +8,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 05.05.2008
 */
-private class Variable(element: ScNamedElement, inherited: Boolean, override val showType: Boolean)
-  extends AbstractTreeElement(element, inherited) with Typed {
+private class Variable(element: ScNamedElement, inherited: Boolean)
+  extends AbstractTreeElement(element, inherited) {
 
   override def location: Option[String] = variable.map(_.containingClass).map(_.name)
 
   override def getPresentableText: String = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(element)
     val typeAnnotation = variable.flatMap(_.typeElement.map(_.getText))
-
-    def inferredType = if (showType) variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases) else None
-
-    withSimpleNames(element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString)
+    withSimpleNames(element.nameId.getText + typeAnnotation.map(": " + _).mkString)
   }
 
   override def getIcon(open: Boolean): Icon =

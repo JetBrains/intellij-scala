@@ -5,15 +5,14 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-private class Function(function: ScFunction, inherited: Boolean, override val showType: Boolean)
-  extends AbstractTreeElement(function, inherited) with Typed {
+private class Function(function: ScFunction, inherited: Boolean)
+  extends AbstractTreeElement(function, inherited) {
 
   override def location: Option[String] = Option(function.containingClass).map(_.name)
 
@@ -21,15 +20,7 @@ private class Function(function: ScFunction, inherited: Boolean, override val sh
     implicit val tpc: TypePresentationContext = TypePresentationContext(function)
 
     val presentation = renderFunctionFromStubs(function)
-
-    val inferredType =
-      if (function.isConstructor) None
-      else function.returnTypeElement match {
-        case Some(_) => None
-        case None => if (showType) function.returnType.toOption.map(ScTypePresentation.withoutAliases) else None
-      }
-
-    withSimpleNames(presentation + inferredType.map(": " + _).mkString)
+    withSimpleNames(presentation )
   }
 
   private def renderFunctionFromStubs(function: ScFunction): String = {
