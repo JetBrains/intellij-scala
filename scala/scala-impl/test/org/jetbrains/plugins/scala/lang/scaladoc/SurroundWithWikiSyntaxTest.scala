@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc
 
 import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
 import com.intellij.lang.surroundWith.SurroundDescriptor
 import com.intellij.psi.PsiElement
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
@@ -36,9 +34,11 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     executeWriteActionCommand("Surround With Test") {
       SurroundWithHandler.invoke(getProject, getEditor, getFile, surrounder)
     }(getProject)
-    val surrounded = surroundWith(text, surrounder)
 
-    val expected = normalize(surrounded, stripTrailingSpaces)
+    val expected: String = {
+      val tag = surrounder.getSyntaxTag
+      normalize(text.replace(START, tag).replace(END, tag), stripTrailingSpaces)
+    }
     getFixture.checkResult(expected, stripTrailingSpaces)
   }
 
@@ -50,154 +50,124 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     assertTrue(s"Elements to be surrounded: ${elements.mkString(", ")}", elements.isEmpty)
   }
 
-  def testSurroundSimpleData(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testSurroundSimpleData(): Unit =
+    performWithAllSurrounders(
+      s"""/**
          | * b${START}lah b${END}lah
          | * blah blah blah
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testSurroundMultilineData(): Unit = {
-    val text =
-      s"""
-         |/** blah lb${START}lah akfhsdhfsadhf
+  def testSurroundMultilineData(): Unit =
+    performWithAllSurrounders(
+      s"""/** blah lb${START}lah akfhsdhfsadhf
          | * skjgh dfsg shdfa hsdaf jhsad fsd
          | * dfgas dfhgsajdf sad${END}jfjsd
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testSurroundAnotherSyntax1(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testSurroundAnotherSyntax1(): Unit =
+    performWithAllSurrounders(
+      s"""/**
          | * __blah blah
          | * dfgasdhgfjk ^ashgdfkjgds|   * ''aaaaaa''  sdkfhsadjkh^ ll
          | * sd${START}hfkhsa${END}dl__
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testSurroundAnotherSyntax2(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testSurroundAnotherSyntax2(): Unit =
+    performWithAllSurrounders(
+      s"""/**
          | * __blah blah
          | * blkjhsd${START}asdhajs ''sdfsddlk''
          | * shfg`sad`jhg${END}f__
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testSurroundDataWithLeadingWhitespace(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testSurroundDataWithLeadingWhitespace(): Unit =
+    performWithAllSurrounders(
+      s"""/**
          | * $START      datadatad${END}atadata
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testSurroundWholeToken(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testSurroundWholeToken(): Unit =
+    performWithAllSurrounders(
+      s"""/**
          | * ${START}comment_data$END
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testSurroundInTag1(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testSurroundInTag1(): Unit =
+    performWithAllSurrounders(
+      s"""/**
          | * @param a aaa${START}aa
          | *          aaaaa${END}aaa
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testSurroundInTag2(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testSurroundInTag2(): Unit =
+    performWithAllSurrounders(
+      s"""/**
          | * @todo blah ${START}blah b${END}lah
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testSurroundAlreadyMarkedElement1(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testSurroundAlreadyMarkedElement1(): Unit =
+    performWithAllSurrounders(
+      s"""/**
          | * blah $START^blah blah
          | * jhsdbjbhsafd^$END dajsdgf
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testSurroundAlreadyMarkedElement2(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testSurroundAlreadyMarkedElement2(): Unit =
+    performWithAllSurrounders(
+      s"""/**
          | * blah ,,${START}blah blha
          | * blah blah$END,, blah
          | */""".stripMargin
-    performWithAllSurrounders(text)
-  }
+    )
 
-  def testCannotSurroundCrossTags(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testCannotSurroundCrossTags(): Unit =
+    checkCannotBeSurrounded(
+      s"""/**
          | * aa${START}aa__sahdkljahskdhasd
          | * dajs${END}kjhd__kas
          | */""".stripMargin
-    checkCannotBeSurrounded(text)
-  }
+    )
 
-  def testCannotSurroundMultilineWhitespace(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testCannotSurroundMultilineWhitespace(): Unit =
+    checkCannotBeSurrounded(
+      s"""/**
          | * b${START}lah blah
          | *
          | * blah blah$END blah
          | */""".stripMargin
-    checkCannotBeSurrounded(text)
-  }
+    )
 
-  def testCannotSurroundTagName(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testCannotSurroundTagName(): Unit =
+    checkCannotBeSurrounded(
+      s"""/**
          | * bla${START}h blah blah
          | * @see   some${END}thing
          | */""".stripMargin
-    checkCannotBeSurrounded(text)
-  }
+    )
 
-  def testCannotSurroundCrossTag2(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testCannotSurroundCrossTag2(): Unit =
+    checkCannotBeSurrounded(
+      s"""/**
          | * blah${START}__blah${END}blah__
          | */""".stripMargin
-    checkCannotBeSurrounded(text)
-  }
+    )
 
-  def testCannotSurroundCrossTagWithWSAndSyntax(): Unit = {
-    val text =
-      s"""
-         |/**
+  def testCannotSurroundCrossTagWithWSAndSyntax(): Unit =
+    checkCannotBeSurrounded(
+      s"""/**
          | * blah blah ${START}__blah blah
          | *     blah bl${END}ah blah __
          | */""".stripMargin
-    checkCannotBeSurrounded(text)
-  }
+    )
 }
 
 object SurroundWithWikiSyntaxTest {
@@ -207,9 +177,4 @@ object SurroundWithWikiSyntaxTest {
     .collect {
       case surrounder: ScalaDocWithSyntaxSurrounder => surrounder
     }
-
-  private def surroundWith(text: String, surrounder: ScalaDocWithSyntaxSurrounder): String = {
-    val tag = surrounder.getSyntaxTag
-    text.replace(START, tag).replace(END, tag)
-  }
 }

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.actions.editor
 
 class DotOnNewLineTypingTest extends EditorTypeActionTestBase {
 
-  private val | = CARET
   private val Tab = "\t"
 
   override protected def typedChar: Char = '.'

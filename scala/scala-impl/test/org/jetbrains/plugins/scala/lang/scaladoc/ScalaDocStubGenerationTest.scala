@@ -3,6 +3,8 @@ package lang.scaladoc
 
 class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
 
+  private val || = s"/**${|}"
+
   private def intended(code: String, spaces: Int = 2): String = {
     val indent = " " * spaces
     indent + code.replace("\n", s"\n$indent")
@@ -19,7 +21,7 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
     doTest(beforeNew, expectedNew)
   }
 
-  def testSimpleMethodParamStub(): Unit = {
+  def testSimpleMethodParamStub(): Unit =
     doMethodTest(
       s"""${||}
          |def f(i: Int, j: Int): Unit = ???""".stripMargin,
@@ -30,7 +32,6 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
          | */
          |def f(i: Int, j: Int): Unit = ???""".stripMargin
     )
-  }
 
   def testMethodSpecificStub(): Unit =
     doMethodTest(
@@ -45,7 +46,7 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
          |def f(): Int = {1}""".stripMargin
     )
 
-  def testMixedMethodStub(): Unit = {
+  def testMixedMethodStub(): Unit =
     doMethodTest(
       s"""${||}def f[C](a: String, b: String): Int = 1""",
       s"""/**
@@ -57,7 +58,6 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
          | */
          |def f[C](a: String, b: String): Int = 1""".stripMargin,
     )
-  }
 
   def testClassStub(): Unit =
     doTest(
@@ -172,7 +172,7 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
          |}""".stripMargin
     )
 
-  def test_SCL9049(): Unit = {
+  def test_SCL9049(): Unit =
     doTest(
       s"""${||}def fooboobar(i: Int)(j: String) {}""",
       s"""/**
@@ -182,9 +182,8 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
          | */
          |def fooboobar(i: Int)(j: String) {}""".stripMargin,
     )
-  }
 
-  def test_SCL9049_1(): Unit = {
+  def test_SCL9049_1(): Unit =
     doTest(
       s"""${||}def fooboobar(i: Int) {}""",
       s"""/**
@@ -193,7 +192,6 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
          | */
          |def fooboobar(i: Int) {}""".stripMargin,
     )
-  }
 
   def testSCL16279(): Unit =
     doTest(
@@ -243,15 +241,18 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
     )
 
   def testCompleteInTheEndOfTheFile(): Unit = {
+    // ignored due to buggy com.intellij.codeInsight.editorActions.EnterHandler.DoEnterAction.run, not important
+    // because it's unlikely that someone will create doc stub in the end of file wihtout any method of class
+    return
+
     val expected =
       s"""/**
          | * ${|}
          | */""".stripMargin
-    // commented due to buggy com.intellij.codeInsight.editorActions.EnterHandler.DoEnterAction.run, not important
-    //doTest(s"/**${|}\n", expected)
-    //doTest(s"/** ${|}\n", expected)
-    //doTest(s"/**${|}", expected)
-    //doTest(s"/** ${|}", expected)
+    doTest(s"/**${|}\n", expected)
+    doTest(s"/** ${|}\n", expected)
+    doTest(s"/**${|}", expected)
+    doTest(s"/** ${|}", expected)
   }
 
   def testCompleteInTheEndOfTheFile_BlockComment(): Unit = {

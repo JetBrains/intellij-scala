@@ -62,8 +62,3 @@ class ScalaDocParamDescriptionAlignmentTest extends ScalaDocEnterActionTestBase 
          | */""".stripMargin
     )
 }
-
-/**
- * @see          something
- *
- */
