@@ -27,13 +27,18 @@ class BspFetchEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchEnvi
 
   override def getIcon: Icon = Icons.BSP
 
-  override def createTask(runConfiguration: RunConfiguration): BspFetchEnvironmentTask = new BspFetchEnvironmentTask
+  override def createTask(runConfiguration: RunConfiguration): BspFetchEnvironmentTask = {
+    runConfiguration match {
+      case BspSupportedConfiguration(_, _) => new BspFetchEnvironmentTask
+      case _ => null
+    }
+  }
 
   override def isConfigurable: Boolean = true
 
   override def configureTask(context: DataContext, configuration: RunConfiguration, task: BspFetchEnvironmentTask): Promise[lang.Boolean] = {
     configuration match {
-      case ModuleBasedConfiguration(_, module) =>
+      case BspSupportedConfiguration(_, module) =>
         val potentialTargets = BspJvmEnvironment.getBspTargets(module) match {
           case Right(targets) => targets
           case Left(error) =>
@@ -46,8 +51,6 @@ class BspFetchEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchEnvi
     }
   }
 
-  case class BspGetEnvironmentError(msg: String) extends Throwable(msg)
-
   override def executeTask(
     context: DataContext,
     configuration: RunConfiguration,
@@ -56,9 +59,7 @@ class BspFetchEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchEnvi
   ): Boolean = {
     try {
       configuration match {
-        case ModuleBasedConfiguration(config, module)
-          if BspUtil.isBspModule(module) && BspEnvironmentRunnerExtension.isSupported(configuration) =>
-
+        case BspSupportedConfiguration(config, module) =>
           BspJvmEnvironment.resolveForRun(config, module, task) match {
             case Right(environment) =>
               config.putUserData(BspFetchEnvironmentTask.jvmEnvironmentKey, environment)
@@ -74,12 +75,11 @@ class BspFetchEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchEnvi
   }
 
 
-  private object ModuleBasedConfiguration {
+  private object BspSupportedConfiguration {
     def unapply(configuration: RunConfiguration): Option[(ModuleBasedConfiguration[_, _], Module)] = {
-      configuration match {
-        case config: ModuleBasedConfiguration[_, _] => Some(config, config.getConfigurationModule.getModule)
-        case _ => None
-      }
+      ModuleBasedConfiguration.unapply(configuration)
+        .filter(_ => BspEnvironmentRunnerExtension.isSupported(configuration))
     }
   }
+
 }
