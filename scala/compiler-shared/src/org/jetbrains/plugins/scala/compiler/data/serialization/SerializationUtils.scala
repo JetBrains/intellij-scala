@@ -14,7 +14,11 @@ import scala.util.Try
   def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)
   def filesToPaths(files: Iterable[File]): String = sequenceToString(files.map(fileToPath))
   def optionToString(s: Option[String]): String = s.getOrElse("")
-  def sequenceToString(strings: Iterable[String]): String = strings.mkString(Delimiter)
+  
+  def sequenceToString(strings: Iterable[String]): String =
+    strings.mkString(Delimiter)
+  def stringToSequence(string: String): Seq[String] =
+    if (string.isEmpty) Seq.empty else string.split(SerializationUtils.Delimiter).toSeq
 
   // deserializing
   // probably better separate parsing from validation (nullability, file existence, etc...), but nit critical now

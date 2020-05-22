@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.project.{IncrementalityType, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.everyValueGreaterThanIn
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.jetbrains.plugins.scala.{ScalaVersion, ScalacTests}
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.junit.Assert.assertThat
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_0
 ))
-@Category(Array(classOf[ScalacTests]))
+@Category(Array(classOf[SlowTests]))
 abstract class IncrementalCompilationTestBase(override protected val incrementalityType: IncrementalityType,
                                               override protected val useCompileServer: Boolean = false)
   extends ScalaCompilerTestBase {

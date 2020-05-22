@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import java.io.File
 
+import com.intellij.compiler.ModuleCompilerUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
@@ -11,21 +12,25 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.util.io.PathKt
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
-import org.jetbrains.plugins.scala.extensions.ToNullSafe
-import org.jetbrains.plugins.scala.util.FutureUtil
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
+import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
+import scala.collection.JavaConverters._
 
 trait JpsCompiler {
-  def compile(): Unit
+  def compile(testScopeOnly: Boolean): Unit
 }
 
 object JpsCompiler {
@@ -37,11 +42,13 @@ object JpsCompiler {
 private class JpsCompilerImpl(project: Project)
   extends JpsCompiler {
 
+  private val showIndicatorExecutor = new RescheduledExecutor(s"ShowIndicator-${project.getName}")
+  
   // SCL-17295
   @Cached(ProjectRootManager.getInstance(project), null)
   private def saveProjectOnce(): Unit = project.save()
 
-  override def compile(): Unit = {
+  override def compile(testScopeOnly: Boolean): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
 
@@ -51,13 +58,23 @@ private class JpsCompilerImpl(project: Project)
       new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory)),
       projectPath
     ).getCanonicalPath
+    val sortedModules = ModuleCompilerUtil
+      .getSortedModuleChunks(project, project.modules.asJava).asScala
+      .flatMap { chunk =>
+        val modules = chunk.getNodes
+        if (modules.size > 1) throw new IllegalStateException(s"More than one module in the chunk: $modules")
+        modules.asScala
+      }
+      .map(_.getName)
     val command = CompileServerCommand.CompileJps(
       token = "",
       projectPath = projectPath,
+      sortedModules = sortedModules,
+      testScopeOnly = testScopeOnly,
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath
     )
-    
+
     val promise = Promise[Unit]
     val future = promise.future
     val taskMsg = ScalaBundle.message("highlighting.compilation")
@@ -71,8 +88,11 @@ private class JpsCompilerImpl(project: Project)
     
     val indicator = new DeferredShowProgressIndicator(task)
     ProgressManager.getInstance.runProcessWithProgressAsynchronously(task, indicator)
-    FutureUtil.executeIfTimeout(future, timeout = ScalaHighlightingMode.compilationTimeoutToShowProgress) {
+    showIndicatorExecutor.schedule(ScalaHighlightingMode.compilationTimeoutToShowProgress) {
       indicator.show()
+    }
+    future.onComplete { _ =>
+      showIndicatorExecutor.cancelLast()
     }
     Await.result(future, Duration.Inf)
   }
@@ -90,8 +110,9 @@ private class JpsCompilerImpl(project: Project)
     def show(): Unit =
       if (!project.isDisposed && !project.isDefault && !ApplicationManager.getApplication.isUnitTestMode)
         for {
-          frameHelper <- WindowManagerEx.getInstanceEx.findFrameHelper(project).nullSafe
-          statusBar <- frameHelper.getStatusBar.nullSafe
-        } statusBar.asInstanceOf[StatusBarEx].addProgress(this, task)
+          frameHelper <- WindowManagerEx.getInstanceEx.findFrameHelper(project).toOption
+          statusBar <- frameHelper.getStatusBar.toOption
+          statusBarEx <- statusBar.asOptionOf[StatusBarEx]
+        } UIUtil.invokeLaterIfNeeded(() => statusBarEx.addProgress(this, task))
   }
 }

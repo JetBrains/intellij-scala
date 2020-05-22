@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, LibraryExt, ModuleExt}
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, ScalacTests}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests}
 import org.junit.experimental.categories.Category
 
 /**
@@ -24,7 +24,7 @@ import org.junit.experimental.categories.Category
  * - then compiles it
  * - and then loads Main class
  */
-@Category(Array(classOf[ScalacTests]))
+@Category(Array(classOf[SlowTests]))
 abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
                                         useCompileServer: Boolean = false)
   extends DownloadingAndImportingTestCase

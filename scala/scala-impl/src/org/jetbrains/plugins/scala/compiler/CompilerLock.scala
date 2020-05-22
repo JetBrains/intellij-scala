@@ -31,10 +31,12 @@ private class CompilerLockImpl(project: Project)
 
   private val semaphore = new Semaphore(1)
 
+  // TODO remove isShowErrorsFromCompilerEnabled condition
   override def lock(): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
       semaphore.acquire()
 
+  // TODO remove isShowErrorsFromCompilerEnabled condition
   override def unlock(): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) synchronized {
       val permits = semaphore.availablePermits()

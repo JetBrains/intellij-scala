@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerListener}
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
@@ -32,7 +33,7 @@ private class RegisterCompilationListener
 object RegisterCompilationListener {
 
   private val executor = new RescheduledExecutor("CompileJpsExecutor")
-  private val worksheetScheduler = new RescheduledExecutor("CompileWorksheetExecutor")
+  private val worksheetExecutor = new RescheduledExecutor("CompileWorksheetExecutor")
 
   // cause worksheet compilation doesn't require whole project rebuild
   // we start highlighting it right away on editor opening
@@ -95,13 +96,14 @@ object RegisterCompilationListener {
       val delay = ScalaHighlightingMode.compilationDelay
       file match {
         case scalaFile: ScalaFile if scalaFile.isWorksheetFile =>
-          worksheetScheduler.schedule(delay, virtualFile.getPath) {
+          worksheetExecutor.schedule(delay, virtualFile.getPath) {
             compileWorksheet(scalaFile, document)
           }
         case _: ScalaFile | _: PsiJavaFile =>
           document.syncToDisk(project)
+          val testScopeOnly = ProjectFileIndex.getInstance(project).isInTestSourceContent(virtualFile)
           executor.schedule(delay) {
-            compiler.compile()
+            compiler.compile(testScopeOnly)
           }
         case _ =>
       }
