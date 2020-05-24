@@ -26,8 +26,9 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, External
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam, upgradedSbtVersion}
-import org.jetbrains.sbt.project.structure.SbtStructureDump
-import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectImportProvider}
+import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
+import org.jetbrains.sbt.project.structure.{MillPreImporter, Cancellable, SbtStructureDump}
+import org.jetbrains.sbt.project.{MillProjectImportProvider, SbtExternalSystemManager, SbtProjectImportProvider}
 import org.jetbrains.sbt.{Sbt, SbtUtil}
 
 import scala.annotation.tailrec
@@ -122,12 +123,13 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     // special handling for sbt projects: run bloopInstall first
     // TODO support other bloop-enabled build tools as well
     val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspace)
-    val sbtMessages = if (
-      executionSettings.runPreImportTask &&
-        SbtProjectImportProvider.canImport(vfile)
-    ) {
-      runBloopInstall(workspace)
-    } else Success(BuildMessages.empty.status(BuildMessages.OK))
+    val sbtMessages =
+      if (executionSettings.runPreImportTask && SbtProjectImportProvider.canImport(vfile))
+        runBloopInstall(workspace)
+      else if (executionSettings.runPreImportTask && MillProjectImportProvider.canImport(vfile))
+        runMillBspInstall(workspace)
+      else
+        Success(BuildMessages.empty.status(BuildMessages.OK))
 
     val communication = BspCommunication.forWorkspace(workspace)
     importState = BspTask(communication)
@@ -202,9 +204,17 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         false
     }
 
+  private def runMillBspInstall(baseDir: File)(implicit reporter: BuildReporter) = Try {
+    val preImporter = MillPreImporter.setupBsp(baseDir)
+    importState = PreImportTask(preImporter)
+    preImporter.waitFinish()
+
+    BuildMessages(Seq.empty, Seq.empty, Seq.empty, BuildMessages.OK)
+  }.recoverWith {
+    case fail => Failure(ImportCancelledException(fail))
+  }
 
   private def runBloopInstall(baseDir: File)(implicit reporter: BuildReporter) = {
-
     val jdkType = JavaSdk.getInstance()
     val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType)
     val jdkExe = new File(jdkType.getVMExecutablePath(jdk)) // TODO error when none, offer jdk config
@@ -255,7 +265,7 @@ object BspProjectResolver {
   private sealed abstract class ImportState
   private case object Inactive extends ImportState
   private case object Active extends ImportState
-  private case class PreImportTask(dumper: SbtStructureDump) extends ImportState
+  private case class PreImportTask(dumper: Cancellable) extends ImportState
   private case class BspTask(communication: BspCommunication) extends ImportState
 
   private[resolver] def targetData(targets: List[BuildTarget], parentId: EventId)

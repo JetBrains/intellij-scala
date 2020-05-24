@@ -28,7 +28,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-class SbtStructureDump {
+class SbtStructureDump extends Cancellable {
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
