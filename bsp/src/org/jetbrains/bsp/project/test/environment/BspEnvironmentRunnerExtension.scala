@@ -1,8 +1,11 @@
 package org.jetbrains.bsp.project.test.environment
 
 import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.openapi.extensions.ExtensionPointName
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration
+
+import scala.collection.JavaConverters._
 
 sealed trait ExecutionEnvironmentType
 
@@ -15,8 +18,8 @@ object ExecutionEnvironmentType {
 object BspEnvironmentRunnerExtension
   extends ExtensionPointDeclaration[BspEnvironmentRunnerExtension]("com.intellij.bspEnvironmentRunnerExtension") {
 
-  def getClassExtractor(runConfiguration: RunConfiguration): Option[BspEnvironmentRunnerExtension] =
-    implementations.find(_.runConfigurationSupported(runConfiguration))
+  val EP_NAME: ExtensionPointName[BspEnvironmentRunnerExtension] =
+    ExtensionPointName.create("com.intellij.bspEnvironmentRunnerExtension")
 
   def isSupported(config: RunConfiguration): Boolean = {
     config match {
@@ -24,6 +27,13 @@ object BspEnvironmentRunnerExtension
         BspUtil.isBspModule(module) && extensions.exists(_.runConfigurationSupported(config))
       case _ => false
     }
+  }
+  
+  def getClassExtractor(runConfiguration: RunConfiguration): Option[BspEnvironmentRunnerExtension] =
+    implementations.find(_.runConfigurationSupported(runConfiguration))
+
+  private def extensions = {
+    EP_NAME.getExtensionList().asScala.iterator
   }
 }
 
