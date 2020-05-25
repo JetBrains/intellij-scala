@@ -138,6 +138,11 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     return list.toArray(new String[list.size()]);
   }
 
+  @Override
+  public String[] getPlugins() {
+    return myState.plugins;
+  }
+
   @NotNull
   @Override
   public CompilerSettingsImpl createCopy() {
