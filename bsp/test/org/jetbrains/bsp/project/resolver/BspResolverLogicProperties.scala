@@ -28,19 +28,6 @@ class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
   implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
 
   @Test @Ignore
-  def testCommonBase(): Unit = check(
-    forAll(Gen.listOf(genPath)) { paths: List[Path] =>
-      val files = paths.map(_.toFile)
-      val base = commonBase(files)
-      val findsBase =
-        files.nonEmpty ==> base.isDefined
-      val baseIsAncestor =
-        (files.size > 1) ==> files.forall { f => FileUtil.isAncestor(base.get, f, false) }
-
-      findsBase && baseIsAncestor
-    })
-
-  @Test @Ignore
   def testGetScalaSdkData(): Unit = check(
     forAll { (scalaBuildTarget: ScalaBuildTarget, scalacOptionsItem: ScalacOptionsItem) =>
 
@@ -83,7 +70,7 @@ class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
       forAll(Gen.listOf(genSourceDirectoryUnder(basePath)), Gen.listOf(genSourceDirectoryUnder(basePath))) {
           (sourceRoots: List[SourceDirectory], resourceRoots: List[SourceDirectory]) =>
         forAll { (target: BuildTarget, moduleBase: Option[File], outputPath: Option[File], classpath: List[File], dependencySources: List[File]) =>
-          val description = createModuleDescriptionData(Seq(target), tags, moduleBase, outputPath, sourceRoots, resourceRoots, classpath, dependencySources)
+          val description = createModuleDescriptionData(target, tags, moduleBase, outputPath, sourceRoots, resourceRoots, classpath, dependencySources)
 
           val p1 = (description.basePath == moduleBase) :| "base path should be set"
           val p2 = (tags.contains(BuildTargetTag.LIBRARY) || tags.contains(BuildTargetTag.APPLICATION)) ==>

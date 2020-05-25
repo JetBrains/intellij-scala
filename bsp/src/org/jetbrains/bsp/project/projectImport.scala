@@ -29,7 +29,7 @@ import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, 
 import javax.swing.Icon
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings._
-import org.jetbrains.sbt.project.SbtProjectImportProvider
+import org.jetbrains.sbt.project.{MillProjectImportProvider, SbtProjectImportProvider}
 
 class BspProjectImportBuilder
   extends AbstractExternalProjectImportBuilder[BspImportControl](
@@ -198,7 +198,8 @@ object BspProjectOpenProcessor {
     // val sbtProject = SbtProjectImportProvider.canImport(workspace)
     // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
     val sbtProject = false
+    val millProject = MillProjectImportProvider.canImport(workspace)
 
-    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject
+    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject || millProject
   }
 }
