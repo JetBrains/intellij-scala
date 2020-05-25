@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser
 
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Paths, StandardCopyOption}
 
 import com.intellij.openapi.project.Project
 import junit.framework.{TestResult, TestSuite}
@@ -39,7 +39,8 @@ object Scala3ImportedParserTest_Move_Fixed_Tests {
           println("  to " + to)
           Files.move(
             Paths.get(from),
-            Paths.get(to)
+            Paths.get(to),
+            StandardCopyOption.REPLACE_EXISTING
           )
         }
 
