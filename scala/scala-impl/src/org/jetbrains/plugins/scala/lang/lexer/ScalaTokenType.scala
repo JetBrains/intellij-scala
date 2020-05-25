@@ -32,10 +32,11 @@ object ScalaTokenType {
   val Then          = new ScalaTokenType("then")
   val EndKeyword    = new ScalaTokenType("end")
 
-  val As                             = new ScalaTokenType("as")
-  val Derives                        = new ScalaTokenType("derives")
-  val Inline: ScalaModifierTokenType = ScalaTokenTypes.kINLINE
-  val Opaque                         = new ScalaTokenType("opaque")
+  val As                                  = new ScalaTokenType("as")
+  val Derives                             = new ScalaTokenType("derives")
+  val Inline: ScalaModifierTokenType      = ScalaTokenTypes.kINLINE
+  val Transparent: ScalaModifierTokenType = ScalaTokenTypes.kTRANSPARENT
+  val Opaque                              = new ScalaTokenType("opaque")
 
   val SpliceStart = new ScalaTokenType("$")
   val QuoteStart  = new ScalaTokenType("'")
