@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package annotator
 
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.{FlakyTests, SlowTests}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.Version
 import org.junit.Assert.assertTrue
@@ -34,7 +34,7 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
   }
 }
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[FlakyTests]))
 class SbtAnnotatorConformanceTest_0_12_4 extends SbtAnnotatorConformanceTestBase with MockSbt_0_12 {
   override implicit val sbtVersion: Version = Version("0.12.4")
 
@@ -43,7 +43,7 @@ class SbtAnnotatorConformanceTest_0_12_4 extends SbtAnnotatorConformanceTestBase
   def testSeqSettings(): Unit = testSeqSettings("Seq[Project.Setting[_]]")
 }
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[FlakyTests]))
 class SbtAnnotatorConformanceTest_0_13_1 extends SbtAnnotatorConformanceTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: Version = Version("0.13.1")
 
@@ -52,7 +52,7 @@ class SbtAnnotatorConformanceTest_0_13_1 extends SbtAnnotatorConformanceTestBase
   def testSeqSettings(): Unit = testSeqSettings("Seq[Def.SettingsDefinition]")
 }
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[FlakyTests]))
 class SbtAnnotatorConformanceTest_0_13_7 extends SbtAnnotatorConformanceTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: Version = Version("0.13.7")
 

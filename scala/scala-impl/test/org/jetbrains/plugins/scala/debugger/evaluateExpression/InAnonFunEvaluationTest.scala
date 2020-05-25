@@ -4,7 +4,7 @@ package debugger.evaluateExpression
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[FlakyTests])) // works locally, may fail on server
 class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
 
   override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
