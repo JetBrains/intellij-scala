@@ -48,8 +48,8 @@ trait SimpleScala3ParserTestBase extends SimpleTestCase {
   }
 
   def checkTree(code: String, expectedTree: String): Unit = {
-    val file = parseText(code, lang = Scala3Language.INSTANCE)
+    val file = parseText(code.withNormalizedSeparator, lang = Scala3Language.INSTANCE)
     val resultTree = psiToString(file, false).replace(": " + file.name, "")
-    assertEquals(expectedTree.trim, resultTree.trim)
+    assertEquals(expectedTree.trim.withNormalizedSeparator, resultTree.trim)
   }
 }
