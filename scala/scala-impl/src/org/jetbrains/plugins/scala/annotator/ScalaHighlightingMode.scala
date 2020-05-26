@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.registry.Registry
+import com.intellij.openapi.util.registry.{Registry, RegistryValueListener}
 import com.intellij.psi.{PsiFile, PsiJavaFile}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
@@ -18,6 +18,13 @@ object ScalaHighlightingMode {
 
   private def showDotcErrors: Boolean = Registry.is(ShowDotcErrorsKey)
   private def showScalacErrors: Boolean = Registry.is(ShowScalacErrorsKey)
+  
+  def addRegistryListener(project: Project)
+                         (listener: RegistryValueListener): Unit =
+    Seq(ShowDotcErrorsKey, ShowScalacErrorsKey)
+      .foreach { key =>
+        Registry.get(key).addListener(listener, project.unloadAwareDisposable)
+      }
 
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
     showDotcErrors && project.hasScala3 || showScalacErrors && project.hasScala
