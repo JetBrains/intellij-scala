@@ -504,7 +504,7 @@ class ImplicitCollector(place: PsiElement,
       case Some(undefined: ScType) =>
 
         val undefinedConforms =
-          isExtensionConversion && argsConformWeakly(undefined, tp) ||
+          isImplicitConversion && checkWeakConformance(undefined, tp) ||
             undefined.conforms(tp)
 
         if (undefinedConforms) {
@@ -566,32 +566,32 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def complexity(tp: ScType): Int = {
+  private def complexity(tp: ScType): Int =
     tp match {
-      case ScProjectionType(proj, _) => 1 + complexity(proj)
-      case ParameterizedType(_, args) => 1 + args.foldLeft(0)(_ + complexity(_))
+      case ScProjectionType(proj, _)     => 1 + complexity(proj)
+      case ParameterizedType(_, args)    => 1 + args.foldLeft(0)(_ + complexity(_))
       case ScDesignatorType(_: ScObject) => 1
       case ScDesignatorType(v: ScTypedDefinition) =>
         val valueType: ScType = v.`type`().getOrAny
         1 + complexity(valueType)
       case ScCompoundType(comps, _, _) => comps.foldLeft(0)(_ + complexity(_))
-      case _ => 1
+      case _                           => 1
     }
-  }
 
-  private def argsConformWeakly(left: ScType, right: ScType): Boolean = {
-    def function1Arg(scType: ScType): Option[ScType] = scType match {
+  private def checkWeakConformance(left: ScType, right: ScType): Boolean = {
+    def function1Arg(scType: ScType): Option[(ScType, ScType)] = scType match {
       case ParameterizedType(ScDesignatorType(c: PsiClass), args) if args.size == 2 =>
-        if (c.qualifiedName == "scala.Function1") args.headOption
-        else None
+        if (c.qualifiedName == "scala.Function1") (args.head, args.last).toOption
+        else                                      None
       case _ => None
     }
 
     function1Arg(left) match {
-      case Some(leftArg) => function1Arg(right) match {
-        case Some(rightArg) => rightArg.weakConforms(leftArg)
-        case _ => false
-      }
+      case Some((leftArg, leftRes)) =>
+        function1Arg(right) match {
+          case Some((rightArg, rightRes)) => rightArg.weakConforms(leftArg) && leftRes.conforms(rightRes)
+          case _                          => false
+        }
       case _ => false
     }
   }

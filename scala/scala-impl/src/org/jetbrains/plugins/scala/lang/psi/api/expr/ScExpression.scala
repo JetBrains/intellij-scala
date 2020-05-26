@@ -295,10 +295,10 @@ object ScExpression {
       import stdTypes._
 
       expected.removeAbstracts match {
-        case Char if isChar(intLiteralValue) => success(Char)
-        case Byte if isByte(intLiteralValue) => success(Byte)
+        case Char if isChar(intLiteralValue)   => success(Char)
+        case Byte if isByte(intLiteralValue)   => success(Byte)
         case Short if isShort(intLiteralValue) => success(Short)
-        case _ => None
+        case _                                 => None
       }
     }
 
@@ -323,19 +323,20 @@ object ScExpression {
     private def isWidening(valueType: ScType, expected: ScType): Option[TypeResult] = {
       val (l, r) = (getStdType(valueType), getStdType(expected)) match {
         case (Some(left), Some(right)) => (left, right)
-        case _ => return None
+        case _                         => return None
       }
+
       val stdTypes = project.stdTypes
       import stdTypes._
 
       (l, r) match {
-        case (Byte, Short | Int | Long | Float | Double) => Some(Right(expected))
-        case (Short, Int | Long | Float | Double) => Some(Right(expected))
+        case (Byte, Short | Int | Long | Float | Double)        => Some(Right(expected))
+        case (Short, Int | Long | Float | Double)               => Some(Right(expected))
         case (Char, Byte | Short | Int | Long | Float | Double) => Some(Right(expected))
-        case (Int, Long | Float | Double) => Some(Right(expected))
-        case (Long, Float | Double) => Some(Right(expected))
-        case (Float, Double) => Some(Right(expected))
-        case _ => None
+        case (Int, Long | Float | Double)                       => Some(Right(expected))
+        case (Long, Float | Double)                             => Some(Right(expected))
+        case (Float, Double)                                    => Some(Right(expected))
+        case _                                                  => None
       }
     }
 
