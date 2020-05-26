@@ -436,21 +436,92 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "deprecated"
   )
 
-  def testStringLength(): Unit = doCompletionTest(
+  def testStringLength(): Unit = doRawCompletionTest(
     fileText =
-      s"""
-         |class A {
+      s"""class Foo {
          |  "".len$CARET
          |}
       """.stripMargin,
     resultText =
-      s"""
-         |class A {
+      s"""class Foo {
          |  "".length$CARET
          |}
+      """.stripMargin
+  ) {
+    hasItemText(_, "length")(itemTextBold = true)
+  }
+
+  def testStringTrim(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  "".tri$CARET
+         |}
       """.stripMargin,
-    item = "length"
-  )
+    resultText =
+      s"""class Foo {
+         |  "".trim$CARET
+         |}
+      """.stripMargin
+  ) {
+    hasItemText(_, "trim")(itemTextBold = true)
+  }
+
+  def testStringHashCode(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  "".hash$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""class Foo {
+         |  "".hashCode$CARET
+         |}
+      """.stripMargin
+  ) {
+    hasItemText(_, "hashCode")(itemTextBold = true)
+  }
+
+  def testObjectHashCode(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  new Object().hash$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""class Foo {
+         |  new Object().hashCode()$CARET
+         |}
+      """.stripMargin
+  ) {
+    hasItemText(_, "hashCode")(tailText = "()", itemTextBold = true)
+  }
+
+  def testJavaMethod(): Unit = {
+    this.configureJavaFile(
+      fileText =
+        s"""public class Foo {
+           |  public int getFoo() {
+           |    return 42;
+           |  }
+           |}""".stripMargin,
+      className = "Foo"
+    )
+
+    doRawCompletionTest(
+      fileText =
+        s"""class Bar {
+           |  new Foo().get$CARET
+           |}
+      """.stripMargin,
+      resultText =
+        s"""class Bar {
+           |  new Foo().getFoo$CARET
+           |}
+      """.stripMargin
+    ) {
+      hasItemText(_, "getFoo")(itemTextBold = true)
+    }
+  }
 
   def testNamedParametersCompletion(): Unit = {
     configureFromFileText(

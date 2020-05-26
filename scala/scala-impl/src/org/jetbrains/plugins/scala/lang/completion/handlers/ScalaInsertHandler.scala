@@ -28,6 +28,21 @@ import scala.annotation.tailrec
  */
 object ScalaInsertHandler {
 
+  def isParameterless(method: PsiMethod): Boolean = method match {
+    case _: ScFunction => false
+    case _ if method.isAccessor => true
+    case _ =>
+      method.getName match {
+        case "hashCode" |
+             "length" |
+             "trim" =>
+          val containingClass = method.containingClass
+          containingClass != null &&
+            containingClass.qualifiedName == CommonClassNames.JAVA_LANG_STRING
+        case _ => false
+      }
+  }
+
   def getItemParametersAndAccessorStatus(element: PsiNamedElement): (Int, Boolean) = element match {
     case fun: ScFunction =>
       val clauses = fun.paramClauses.clauses
@@ -35,13 +50,7 @@ object ScalaInsertHandler {
       else if (clauses.head.isImplicit) (-1, false)
       else (clauses.head.parameters.length, false)
     case method: PsiMethod =>
-      def isStringSpecialMethod: Boolean = {
-        Set("hashCode", "length", "trim").contains(method.getName) &&
-          method.containingClass != null &&
-          method.containingClass.qualifiedName == "java.lang.String"
-      }
-
-      (method.getParameterList.getParametersCount, method.isAccessor || isStringSpecialMethod)
+      (method.getParameterList.getParametersCount, isParameterless(method))
     case fun: ScFun =>
       if (fun.paramClauses.isEmpty) (-1, false)
       else (fun.paramClauses.head.length, false)

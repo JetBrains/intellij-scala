@@ -42,6 +42,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
                                     private[completion] val containingClass: PsiClass)
   extends LookupItem[PsiNamedElement](getPsiElement, getLookupString) {
 
+  import ScalaInsertHandler._
   import ScalaLookupItem._
 
   def this(element: PsiNamedElement,
@@ -187,7 +188,9 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
         case clazz: PsiClass =>
           typeParametersText(clazz) + " " + clazz.getPresentation.getLocationString
         case method: PsiMethod =>
-          typeParametersText(method) + parametersText(method.getParameterList) + containingClassText
+          typeParametersText(method) +
+            (if (isParameterless(method)) "" else parametersText(method.getParameterList)) +
+            containingClassText
         case p: PsiPackage =>
           s"    (${p.getQualifiedName})"
         case _ => ""
@@ -246,13 +249,9 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           if (isRenamed.isDefined) return
 
           if (isInSimpleString) {
-            new ScalaInsertHandler
-            .StringInsertPreHandler()
-              .handleInsert(context, this)
+            new StringInsertPreHandler().handleInsert(context, this)
 
-            new ScalaInsertHandler
-            .StringInsertPostHandler()
-              .handleInsert(context, this)
+            new StringInsertPostHandler().handleInsert(context, this)
           }
 
           var ref = findReferenceAtOffset(context)
@@ -288,7 +287,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           } else
             nameToUse()
 
-          ScalaInsertHandler.replaceReference(ref, referenceText)(element)()
+          replaceReference(ref, referenceText)(element)()
 
           element match {
             case _: ScObject if isInStableCodeReference =>
