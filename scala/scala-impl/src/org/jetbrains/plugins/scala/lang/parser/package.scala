@@ -78,6 +78,15 @@ package object parser {
   }
 
   implicit class ScalaPsiBuilderExt(private val repr: parser.parsing.builder.ScalaPsiBuilder) extends AnyVal {
+    // this alters the state of the builder, so if you want to undo this with a marker,
+    // the marker must be created beforehand
+    def tryParseSoftKeyword(softKeyword: IElementType): Boolean = {
+      if (repr.getTokenText == softKeyword.toString) {
+        repr.remapCurrentToken(softKeyword)
+        repr.advanceLexer()
+        true
+      } else false
+    }
 
     def consumeTrailingComma(expectedBrace: IElementType): Boolean = {
       val result = repr.isTrailingComma &&

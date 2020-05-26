@@ -4,7 +4,7 @@ package parser
 package parsing
 package top.params
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -35,6 +35,11 @@ object ClassParamClause {
             return false
           case _ =>
         }
+
+        if (builder.isScala3) {
+          builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)
+        }
+
         //ok, let's parse parameters
         if (ClassParam parse builder) {
           while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
