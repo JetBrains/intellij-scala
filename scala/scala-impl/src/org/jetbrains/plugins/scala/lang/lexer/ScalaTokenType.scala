@@ -19,6 +19,7 @@ object ScalaTokenType {
   val EnumKeyword      = new ScalaTokenType("enum")
   val ObjectKeyword    = new ScalaTokenType("object")
   val GivenKeyword     = new ScalaTokenType("given")
+  val UsingKeyword     = new ScalaTokenType("using")
   val ExtensionKeyword = new ScalaTokenType("extension")
 
   val NewKeyword = new ScalaTokenType("new")
