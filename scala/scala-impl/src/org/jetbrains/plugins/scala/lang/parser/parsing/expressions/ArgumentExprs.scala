@@ -4,7 +4,7 @@ package parser
 package parsing
 package expressions
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -24,6 +24,11 @@ object ArgumentExprs {
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
         builder.disableNewlines()
+
+        if (builder.isScala3) {
+          builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)
+        }
+
         Expr parse builder
         while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
           builder.advanceLexer()
