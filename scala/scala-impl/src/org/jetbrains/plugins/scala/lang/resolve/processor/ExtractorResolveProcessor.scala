@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -34,14 +35,17 @@ class ExtractorResolveProcessor(ref: ScReference,
         def resultsFor(unapplyName: String) = {
           val typeResult = state.fromType match {
             case Some(tp) => Right(ScProjectionType(tp, obj))
-            case _ => obj.`type`()
+            case _        => obj.`type`()
           }
+
           val processor = new CollectMethodsProcessor(ref, unapplyName)
           typeResult.foreach(t => processor.processType(t, ref))
+
           val sigs = processor.candidatesS.flatMap {
             case ScalaResolveResult(meth: PsiMethod, subst) => Some((meth, subst, Some(obj)))
-            case _ => None
+            case _                                          => None
           }.toSeq
+
           addResults(sigs.map {
             case (m, subst, parent) =>
               val resolveToMethod = new ScalaResolveResult(m, subst, state.importsUsed,
@@ -84,23 +88,24 @@ class ExtractorResolveProcessor(ref: ScReference,
         def isApplicable(r: ScalaResolveResult): Boolean = {
           r.element match {
             case fun: ScFunction =>
+              val undefSubst = ScSubstitutor.bind(fun.typeParameters)(UndefinedType(_))
+              val subst      = r.substitutor.followed(undefSubst)
               val clauses = fun.paramClauses.clauses
               if (clauses.nonEmpty && clauses.head.parameters.length == 1) {
-                for (paramType <- clauses.head.parameters.head.`type`().toOption
-                     if tp conforms r.substitutor(paramType)) return true
-              }
-              false
+                val paramTpe = clauses.head.parameters.head.`type`()
+                paramTpe.exists(t => tp.conforms(subst(t)))
+              } else false
             case _ => true
           }
         }
-        val filtered = candidates.filter(t => isApplicable(t))
-        if (filtered.isEmpty) candidates
+
+        val filtered = candidates.filter(isApplicable)
+
+        if (filtered.isEmpty)        candidates
         else if (filtered.size == 1) filtered
-        else {
-          new MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered, expandInnerResult = false) match {
-            case Some(r) => mutable.HashSet(r)
-            case None => candidates
-          }
+        else MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered, expandInnerResult = false) match {
+          case Some(r) => mutable.HashSet(r)
+          case None    => candidates
         }
       case _ => candidates
     }
