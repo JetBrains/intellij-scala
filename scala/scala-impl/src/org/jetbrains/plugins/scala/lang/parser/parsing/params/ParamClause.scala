@@ -39,11 +39,15 @@ object ParamClause {
       case _ =>
     }
 
-    if (builder.isScala3) {
-      builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)
+    if (builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)) {
+      if (!TypesAsParams.parse(builder)) {
+        Params.parse(builder)
+      }
+    } else {
+      Params.parse(builder)
     }
 
-    Params parse builder
+
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )

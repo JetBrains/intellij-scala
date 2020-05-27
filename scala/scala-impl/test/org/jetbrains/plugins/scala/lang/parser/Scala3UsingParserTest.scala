@@ -116,4 +116,63 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_using_parameters_without_name(): Unit = checkTree(
+    """
+      |def test(using Int)(using String, Double, ): Unit = ()
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        PsiElement(using)('using')
+      |        PsiWhiteSpace(' ')
+      |        Parameter: _
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        PsiElement(using)('using')
+      |        PsiWhiteSpace(' ')
+      |        Parameter: _
+      |          SimpleType: String
+      |            CodeReferenceElement: String
+      |              PsiElement(identifier)('String')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        Parameter: _
+      |          SimpleType: Double
+      |            CodeReferenceElement: Double
+      |              PsiElement(identifier)('Double')
+      |        PsiElement(,)(',')
+      |        PsiErrorElement:Expected more types
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: Unit
+      |      CodeReferenceElement: Unit
+      |        PsiElement(identifier)('Unit')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    UnitExpression
+      |      PsiElement(()('(')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
