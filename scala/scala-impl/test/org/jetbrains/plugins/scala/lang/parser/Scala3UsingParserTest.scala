@@ -175,4 +175,100 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+
+  def test_class_parameter_clauses(): Unit = checkTree(
+    """
+      |class Test(using Int, Test)(i: Int)(using val xxx: String, yyy: Int = 3)
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScClass: Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Test')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        ParametersClause
+      |          PsiElement(()('(')
+      |          PsiElement(using)('using')
+      |          PsiWhiteSpace(' ')
+      |          ClassParameter: _
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          ClassParameter: _
+      |            SimpleType: Test
+      |              CodeReferenceElement: Test
+      |                PsiElement(identifier)('Test')
+      |          PsiElement())(')')
+      |        ParametersClause
+      |          PsiElement(()('(')
+      |          ClassParameter: i
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(identifier)('i')
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace(' ')
+      |            ParameterType
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |          PsiElement())(')')
+      |        ParametersClause
+      |          PsiElement(()('(')
+      |          PsiElement(using)('using')
+      |          PsiWhiteSpace(' ')
+      |          ClassParameter: xxx
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(val)('val')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(identifier)('xxx')
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace(' ')
+      |            ParameterType
+      |              SimpleType: String
+      |                CodeReferenceElement: String
+      |                  PsiElement(identifier)('String')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          ClassParameter: yyy
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(identifier)('yyy')
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace(' ')
+      |            ParameterType
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(=)('=')
+      |            PsiWhiteSpace(' ')
+      |            IntegerLiteral
+      |              PsiElement(integer)('3')
+      |          PsiElement())(')')
+      |    ExtendsBlock
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
