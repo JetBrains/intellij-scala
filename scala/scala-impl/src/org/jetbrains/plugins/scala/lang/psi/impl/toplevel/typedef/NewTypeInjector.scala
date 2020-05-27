@@ -32,7 +32,7 @@ object NewTypeInjector {
 
   private def mkCompanionMembers(clazz: ScClass): Seq[String] = clazz.parameters.headOption.flatMap(_.`type`().toOption).map { reprType =>
     val (reprName, hasDifferentShape) = reprType match {
-      case pt: ScParameterizedType => pt.designator.canonicalText -> (pt.typeArguments.map(_.canonicalText) != clazz.typeParameters.map(_.getName))
+      case pt: ScParameterizedType => pt.designator.canonicalText -> (pt.typeArguments.map(_.canonicalText) != clazz.typeParameters.map(_.name))
       case t => t.canonicalText -> clazz.typeParameters.nonEmpty
     }
 
@@ -43,7 +43,7 @@ object NewTypeInjector {
     val declareTypeParams = if (isHigherKinded) typeParams.mkString(",", ",", "") else ""
     val appliedTypeParams = if (isHigherKinded) typeParams.map(_.replaceAll("\\[.*\\]", "")).mkString("[", ",", "]") else ""
     val shape = if (isHigherKinded) typeParams.map(_.replaceAll("\\w+", "_")).mkString("[", ",", "]") else ""
-    val className = clazz.getName
+    val className = clazz.name
 
     val deriving = List(s"def deriving[TC[_]$declareTypeParams](implicit ev: TC[$fullReprName]): TC[$className$appliedTypeParams] = ???")
     val derivingK = if (isHigherKinded && !hasDifferentShape) List(s"def derivingK[TC[_$shape]](implicit ev: TC[$reprName]): TC[$className] = ???") else Nil
