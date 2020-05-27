@@ -100,6 +100,18 @@ package object parser {
       result
     }
 
+    def withDisabledNewlines[T](body: => T): T = {
+      repr.disableNewlines()
+      try body
+      finally repr.restoreNewlinesState()
+    }
+
+    def withEnabledNewlines[T](body: => T): T = {
+      repr.enableNewlines()
+      try body
+      finally repr.restoreNewlinesState()
+    }
+
     def findPreviousNewLine: Option[String] = {
       val (steps, _) = repr.skipWhiteSpacesAndComments(1)
 
