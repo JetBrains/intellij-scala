@@ -369,7 +369,7 @@ val fastTestOptions = "-v -s -a +c +q " +
   s"--exclude-categories=$typecheckerTests " +
   s"--exclude-categories=$testingSupportTests " +
   s"--exclude-categories=$highlightingTests " +
-  s"--exclude-categories=$worksheetEvaluationTests "
+  s"--exclude-categories=$worksheetEvaluationTests " +
   s"--exclude-categories=$flakyTests "
 
 addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
