@@ -17,7 +17,7 @@ import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -30,7 +30,12 @@ import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
 import scala.collection.JavaConverters._
 
 trait JpsCompiler {
+  
   def compile(testScopeOnly: Boolean): Unit
+  
+  def cancel(): Unit
+  
+  def isRunning: Boolean
 }
 
 object JpsCompiler {
@@ -43,6 +48,7 @@ private class JpsCompilerImpl(project: Project)
   extends JpsCompiler {
 
   private val showIndicatorExecutor = new RescheduledExecutor(s"ShowIndicator-${project.getName}")
+  @volatile private var progressIndicator: Option[ProgressIndicator] = None
   
   // SCL-17295
   @Cached(ProjectRootManager.getInstance(project), null)
@@ -80,8 +86,10 @@ private class JpsCompilerImpl(project: Project)
     val taskMsg = ScalaBundle.message("highlighting.compilation")
     val task: Task.Backgroundable = new Task.Backgroundable(project, taskMsg, true) {
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
+        progressIndicator = Some(indicator)
         val client = new CompilerEventGeneratingClient(project, indicator)
         val result = Try(new RemoteServerRunner(project).buildProcess(command, client).runSync())
+        progressIndicator = None
         promise.complete(result)
       }
     }
@@ -96,6 +104,12 @@ private class JpsCompilerImpl(project: Project)
     }
     Await.result(future, Duration.Inf)
   }
+  
+  override def cancel(): Unit =
+    progressIndicator.foreach(_.cancel())
+
+  override def isRunning: Boolean =
+    progressIndicator.isDefined
   
   private class DeferredShowProgressIndicator(task: Task.Backgroundable)
     extends ProgressIndicatorBase {

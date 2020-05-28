@@ -5,6 +5,9 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
 import com.intellij.openapi.util.registry.{RegistryValue, RegistryValueListener}
+import com.intellij.psi.PsiManager
+import com.intellij.psi.impl.PsiModificationTrackerImpl
+import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -27,11 +30,16 @@ class SyncExternalHighlightings
   
   private def compileOrEraseHighlightings(project: Project): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
-      if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+      if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
         CompilerManager.getInstance(project).make(null)
-      } else {
+      else
         ExternalHighlighters.eraseAllHighlightings(project)
-      }
-      DaemonCodeAnalyzer.getInstance(project).restart()
+      updateStandardHighlightings(project)
     }
+  
+  private def updateStandardHighlightings(project: Project): Unit = {
+    ResolveCache.getInstance(project).clearCache(true)
+    PsiManager.getInstance(project).getModificationTracker.asInstanceOf[PsiModificationTrackerImpl].incCounter()
+    DaemonCodeAnalyzer.getInstance(project).restart()
+  }
 }

@@ -14,7 +14,9 @@ import scala.collection.JavaConverters._
   */
 class ScalaBuildProcessParametersProvider(project: Project)
   extends BuildProcessParametersProvider {
-  override def getVMArguments: util.List[String] = customScalaCompilerInterfaceDir().toSeq.asJava
+  
+  override def getVMArguments: util.List[String] =
+    customScalaCompilerInterfaceDir().toSeq.asJava
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
     val key = SbtData.compilerInterfacesKey

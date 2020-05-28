@@ -5,7 +5,6 @@ import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, Prog
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.compiler.CompilerLock
 import java.util.{List => JList}
 import java.util.{ArrayList => JArrayList}
 
@@ -25,7 +24,7 @@ class CustomTrafficLightRendererContributor
     new TrafficLightRenderer(project, editor.getDocument) {
       override def getDaemonCodeAnalyzerStatus(severityRegistrar: SeverityRegistrar): DaemonCodeAnalyzerStatus = {
         val compilerHighlightingInProgress =
-          CompilerLock.get(project).isLocked && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
+          JpsCompiler.get(project).isRunning && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
         val status = super.getDaemonCodeAnalyzerStatus(severityRegistrar)
         status.errorAnalyzingFinished = status.errorAnalyzingFinished && !compilerHighlightingInProgress
         if (compilerHighlightingInProgress) {

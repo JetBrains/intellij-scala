@@ -492,8 +492,8 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
-        <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompilerLock"
-                        serviceImplementation="org.jetbrains.plugins.scala.compiler.CompilerLockImpl"/>
+        <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.CompilerLock"
+                        serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockImpl"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerGeneratedStateManager$MutableState"/>
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
@@ -1706,7 +1706,7 @@
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.CompilerLockBuildManagerListener"/>
+                  class="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.DropProjectDataChangesBuildManagerListener"/>
         <!-- Formatter listeners-->
