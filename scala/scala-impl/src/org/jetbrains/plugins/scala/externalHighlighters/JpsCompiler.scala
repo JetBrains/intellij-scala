@@ -33,6 +33,11 @@ trait JpsCompiler {
   
   def compile(testScopeOnly: Boolean): Unit
   
+  final def rescheduleCompilation(testScopeOnly: Boolean): Unit =
+    JpsCompiler.executor.schedule(ScalaHighlightingMode.compilationDelay) {
+      compile(testScopeOnly)
+    }
+  
   def cancel(): Unit
   
   def isRunning: Boolean
@@ -40,6 +45,8 @@ trait JpsCompiler {
 
 object JpsCompiler {
 
+  private val executor = new RescheduledExecutor("CompileJpsExecutor")
+  
   def get(project: Project): JpsCompiler =
     ServiceManager.getService(project, classOf[JpsCompiler])
 }

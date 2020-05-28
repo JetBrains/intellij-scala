@@ -32,7 +32,6 @@ private class RegisterCompilationListener
 
 object RegisterCompilationListener {
 
-  private val executor = new RescheduledExecutor("CompileJpsExecutor")
   private val worksheetExecutor = new RescheduledExecutor("CompileWorksheetExecutor")
 
   // cause worksheet compilation doesn't require whole project rebuild
@@ -93,18 +92,15 @@ object RegisterCompilationListener {
       if (!ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) return
       val document = virtualFile.findDocument.getOrElse(return)
 
-      val delay = ScalaHighlightingMode.compilationDelay
       file match {
         case scalaFile: ScalaFile if scalaFile.isWorksheetFile =>
-          worksheetExecutor.schedule(delay, virtualFile.getPath) {
+          worksheetExecutor.schedule(ScalaHighlightingMode.compilationDelay, virtualFile.getPath) {
             compileWorksheet(scalaFile, document)
           }
         case _: ScalaFile | _: PsiJavaFile =>
           document.syncToDisk(project)
           val testScopeOnly = ProjectFileIndex.getInstance(project).isInTestSourceContent(virtualFile)
-          executor.schedule(delay) {
-            compiler.compile(testScopeOnly)
-          }
+          compiler.rescheduleCompilation(testScopeOnly)
         case _ =>
       }
     }
