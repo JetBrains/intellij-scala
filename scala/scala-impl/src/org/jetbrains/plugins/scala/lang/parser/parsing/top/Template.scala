@@ -19,32 +19,30 @@ sealed abstract class Template extends ParsingRule {
   May be hard to read. Because written before understanding that before TemplateBody could be nl token
   So there are fixed it, but may be should be some rewrite.
    */
-  protected def check(implicit builder: ScalaPsiBuilder): Boolean = true
+  protected def endedByMultipleNewlines(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.twoNewlinesBeforeCurrentToken
 
   override final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
-    val skipBody =
-      builder.getTokenType match {
-        case `kEXTENDS` | `tUPPER_BOUND` =>
-          builder.advanceLexer() // Ate extends
+    builder.getTokenType match {
+      case `kEXTENDS` | `tUPPER_BOUND` =>
+        builder.advanceLexer() // Ate extends
 
-          builder.getTokenType match {
-            case `tLBRACE` if !EarlyDef.parse(builder) => false
-            case _ =>
-              parentsRule()
+        builder.getTokenType match {
+          case `tLBRACE` if !EarlyDef.parse(builder) => bodyRule()
+          case _ =>
+            parentsRule()
 
-              builder.getTokenType match {
-                case `tLBRACE` if !check => true
-                case _ => false
-              }
-          }
-        case `tLBRACE` if !check => true
-        case _ => false
-      }
-
-    if (!skipBody) {
-      bodyRule()
+            builder.getTokenType match {
+              case `tCOLON` => bodyRule()
+              case `tLBRACE` if !endedByMultipleNewlines => bodyRule()
+              case _ =>
+            }
+        }
+      case `tCOLON` => bodyRule()
+      case `tLBRACE` if !endedByMultipleNewlines => bodyRule()
+      case _ =>
     }
 
     marker.done(ScalaElementType.EXTENDS_BLOCK)
@@ -63,9 +61,6 @@ object ClassTemplate extends Template
 object TraitTemplate extends Template {
 
   override protected def parentsRule: MixinParents.type = MixinParents
-
-  override protected def check(implicit builder: ScalaPsiBuilder): Boolean =
-    !builder.twoNewlinesBeforeCurrentToken
 }
 
 /**
@@ -74,4 +69,7 @@ object TraitTemplate extends Template {
 object EnumTemplate extends Template {
 
   override protected def bodyRule: EnumBody.type = EnumBody
+
+  override protected def endedByMultipleNewlines(implicit builder: ScalaPsiBuilder): Boolean =
+    false
 }
