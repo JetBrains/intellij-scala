@@ -33,11 +33,9 @@ private class CompilerLockImpl(project: Project)
 
   override def unlock(): Unit = synchronized {
     val permits = semaphore.availablePermits()
-    if (permits == 0) {
+    if (permits == 0)
       semaphore.release()
-    } else {
-      println(s"Can't unlock compiler for $project. Available permits: $permits")
+    else
       throw new IllegalStateException(s"Can't unlock compiler for $project. Available permits: $permits")
-    }
   }
 }
