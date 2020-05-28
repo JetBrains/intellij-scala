@@ -64,10 +64,7 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
 class Scala3ImportedParserTest extends Scala3ImportedParserTestBase(Scala3ImportedParserTest.directory) {
   override protected def shouldHaveErrorElements: Boolean = false
 
-  override val testsWithPsiResult = Set(
-    "i7217", "i7648", "i7428", "i7757", "i4561",
-    "reference_auto-param-tupling"
-  )
+  override val testsWithPsiResult = Set()
 }
 
 object Scala3ImportedParserTest {
