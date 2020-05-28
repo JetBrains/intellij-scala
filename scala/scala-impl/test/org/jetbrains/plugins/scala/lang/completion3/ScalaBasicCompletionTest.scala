@@ -712,20 +712,51 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "aaa.super"
   )
 
+  def testCompanionTraitName(): Unit = doCompletionTest(
+    fileText =
+      s"""trait F$CARET
+         |
+         |object Foo
+         |""".stripMargin,
+    resultText =
+      s"""trait Foo$CARET
+         |
+         |object Foo
+         |""".stripMargin,
+    item = "Foo"
+  )
 
   def testCompanionObjectName(): Unit = doCompletionTest(
     fileText =
-      s"""
-         |class aaa {
-         |}
-         |object a$CARET
-      """.stripMargin,
+      s"""class Foo
+         |
+         |object F$CARET
+         |""".stripMargin,
     resultText =
-      s"""
-         |class aaa {
-         |}
-         |object aaa$CARET
-      """.stripMargin,
+      s"""class Foo
+         |
+         |object Foo$CARET
+         |""".stripMargin,
+    item = "Foo"
+  )
+
+  def testClassFileName(): Unit = doCompletionTest(
+    fileText =
+      s"""class a$CARET
+         |""".stripMargin,
+    resultText =
+      s"""class aaa$CARET
+         |""".stripMargin,
+    item = "aaa"
+  )
+
+  def testObjectFileName(): Unit = doCompletionTest(
+    fileText =
+      s"""class a$CARET
+         |""".stripMargin,
+    resultText =
+      s"""class aaa$CARET
+         |""".stripMargin,
     item = "aaa"
   )
 
@@ -1434,5 +1465,29 @@ class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicComp
     fileText = s"Nil.length$CARET",
     resultText = s"Nil.lengthIs$CARET",
     item = "lengthIs"
+  )
+}
+
+class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTestBase {
+
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+
+  def testEnumFileName(): Unit = doCompletionTest(
+    fileText =
+      s"""enum a$CARET
+         |""".stripMargin,
+    resultText =
+      s"""enum aaa$CARET
+         |""".stripMargin,
+    item = "aaa"
+  )
+
+  def testCompanionTraitName(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""enum aaa
+         |
+         |object a$CARET
+         |""".stripMargin,
+    item = "aaa"
   )
 }
