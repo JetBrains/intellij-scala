@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import java.lang.{StringBuilder => JStringBuilder}
+
 import com.intellij.codeInsight.javadoc.JavaDocInfoGenerator
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.fileTypes.StdFileTypes
@@ -8,19 +10,23 @@ import com.intellij.psi._
 import com.intellij.psi.javadoc.PsiDocComment
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScaladocWikiProcessor.WikiProcessorResult
 import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
+import org.jetbrains.plugins.scala.extensions.&&
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, PresentationUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -36,146 +42,143 @@ object ScalaDocGenerator {
     val builder = new HtmlBuilderWrapper
     import builder._
 
-    def appendDef(mainPart: => Unit): Unit = {
-//      append(DocumentationMarkup.DEFINITION_START)
-//      mainPart
-//      append(DocumentationMarkup.DEFINITION_END)
-      withTag("div", Seq(("class", "definition"))) {
-        mainPart
-      }
+    def appendDefinitionSection(mainPart: => Unit): Unit = {
+      append(DocumentationMarkup.DEFINITION_START)
+      mainPart
+      append(DocumentationMarkup.DEFINITION_END)
     }
 
-    def appendDefWithContent(docOwner: PsiDocCommentOwner)(mainPart: => Unit): Unit = {
-      appendDef(mainPart)
+    def appendDefinitionSectionWithComment(docOwner: PsiDocCommentOwner)(mainPart: => Unit): Unit = {
+      appendDefinitionSection(mainPart)
       append(parseDocComment(docOwner))
     }
 
-    def appendMainSection(element: PsiElement, epilogue: => Unit = {}, needsTpe: Boolean = false): Unit = {
-      pre {
-        element match {
-          case an: ScAnnotationsHolder =>
-            val annotationsRendered = new AnnotationsRenderer(typeRenderer, "\n", TextEscaper.Html).renderAnnotations(an)
-            append(annotationsRendered)
-          case _ =>
-        }
-
-//        val start = length
-
-        element match {
-          case m: ScModifierListOwner =>
-            val renderer = new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
-            append(renderer.render(m))
-          case _ =>
-        }
-
-        append(ScalaDocumentationUtils.getKeyword(element))
-
-        b {
-          append(element match {
-            case named: ScNamedElement => escapeHtml(named.name)
-            case _ => "_"
-          })
-        }
-
-        element match {
-          case tpeParamOwner: ScTypeParametersOwner =>
-            append(parseTypeParameters(tpeParamOwner))
-          case _ =>
-        }
-
-
-        element match {
-          case params: ScParameterOwner =>
-            val renderer = definitionParamsRenderer(typeRenderer)
-            // TODO: since SCL-13777 spaces are effectively not used! cause we remove all new lines and spaces after rendering
-            //  review SCL-13777, maybe we should improve formatting of large classes
-            //val spaces = length - start - 7
-            val paramsRendered = renderer.renderClauses(params).replaceAll("\n\\s*", "")
-            append(paramsRendered)
-          case _ =>
-        }
-
-        append(element match {
-          case typed: ScTypedDefinition => typeAnnotationRenderer.render(typed)
-          case _ if needsTpe            => ": Nothing"
-          case _                        => ""
-        })
-
-        epilogue
+    def appendContainingClass(elem: ScMember): Unit =
+      parseClassUrl(elem) match {
+        case Some(psiLink) =>
+          append(psiLink)
+          appendNl()
+        case _ =>
       }
+
+    def appendDeclMainSection(element: PsiElement): Unit =
+      appendDeclMainSection2(element, element)
+
+    def appendDeclMainSection2(element: PsiElement, keywordOwner: PsiElement): Unit = {
+      element match {
+        case an: ScAnnotationsHolder =>
+          val annotationsRendered = annotationsRenderer.renderAnnotations(an)
+          append(annotationsRendered)
+        case _ =>
+      }
+
+      //        val start = length
+
+      element match {
+        case m: ScModifierListOwner =>
+          val renderer = new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
+          append(renderer.render(m))
+        case _ =>
+      }
+
+      append(ScalaDocumentationUtils.getKeyword(keywordOwner))
+
+      b {
+        append(element match {
+          case named: ScNamedElement => escapeHtml(named.name)
+          case value: ScValueOrVariable => escapeHtml(value.declaredNames.head) // TODO
+          case _ => "_"
+        })
+      }
+
+      element match {
+        case tpeParamOwner: ScTypeParametersOwner =>
+          append(parseTypeParameters(tpeParamOwner))
+        case _ =>
+      }
+
+      element match {
+        case params: ScParameterOwner =>
+          val renderer = definitionParamsRenderer(typeRenderer)
+          // TODO: since SCL-13777 spaces are effectively not used! cause we remove all new lines and spaces after rendering
+          //  review SCL-13777, maybe we should improve formatting of large classes
+          //val spaces = length - start - 7
+          val paramsRendered = renderer.renderClauses(params).replaceAll("\n\\s*", "")
+          append(paramsRendered)
+        case _ =>
+      }
+
+      append(element match {
+        case typed: ScTypedDefinition => typeAnnotationRenderer.render(typed)
+        case typed: ScValueOrVariable => typeAnnotationRenderer.render(typed)
+        case _                        => ""
+      })
     }
 
     def appendTypeDef(typedef: ScTypeDefinition): Unit =
-      appendDefWithContent(typedef) {
-        typedef.qualifiedName.lastIndexOf(".") match {
-          case -1 =>
-          case a =>
-            withTag("font", Seq(("size", "-1"))) {
-              b {
-                append(typedef.qualifiedName.substring(0, a))
-              }
-            }
-        }
-
-        appendMainSection(typedef, {
+      appendDefinitionSectionWithComment(typedef) {
+        val path = typedef.getPath
+        if (path.nonEmpty) {
+          append(path)
           appendNl()
-          append(parseExtendsBlock(typedef.extendsBlock))
-        })
+        }
+        appendDeclMainSection(typedef)
+        appendNl()
+        append(parseExtendsBlock(typedef.extendsBlock))
       }
 
     def appendFunction(fun: ScFunction): Unit =
-      appendDefWithContent(fun) {
-        append(parseClassUrl(fun))
-        appendMainSection(fun)
-      }
-
-    def appendValOrVar(decl: ScValueOrVariable): Unit =
-      appendDefWithContent(decl) {
-        decl match {
-          case decl: ScMember => append(parseClassUrl(decl))
-          case _ =>
-        }
-        appendMainSection(decl, needsTpe = true)
+      appendDefinitionSectionWithComment(fun) {
+        appendContainingClass(fun)
+        appendDeclMainSection(fun)
       }
 
     def appendTypeAlias(tpe: ScTypeAlias): Unit =
-      appendDefWithContent(tpe) {
-        append(parseClassUrl(tpe))
-        appendMainSection(tpe, {
-          tpe match {
-            case definition: ScTypeAliasDefinition =>
-              val tp = definition.aliasedTypeElement.flatMap(_.`type`().toOption).getOrElse(psi.types.api.Any)
-              append(s" = ${typeRenderer(tp)}")
-            case _ =>
-          }
-        })
+      appendDefinitionSectionWithComment(tpe) {
+        appendContainingClass(tpe)
+        appendDeclMainSection(tpe)
+        tpe match {
+          case definition: ScTypeAliasDefinition =>
+            val tp = definition.aliasedTypeElement.flatMap(_.`type`().toOption).getOrElse(psi.types.api.Any)
+            append(s" = ${typeRenderer(tp)}")
+          case _ =>
+        }
+      }
+
+    def appendValOrVar(decl: ScValueOrVariable): Unit =
+      appendDefinitionSectionWithComment(decl) {
+        decl match {
+          case decl: ScMember =>
+            appendContainingClass(decl)
+          case _ =>
+        }
+        appendDeclMainSection(decl)
       }
 
     def appendBindingPattern(pattern: ScBindingPattern): Unit =
-      pre {
-        append("Pattern: ")
-        b {
-          append(escapeHtml(pattern.name))
-        }
-        append(typeAnnotationRenderer.render(pattern))
-        val context = pattern.getContext
-        if (context != null) {
-          context.getContext match {
-            case co: PsiDocCommentOwner =>
-              append(parseDocComment(co))
-            case _ =>
+      pattern.nameContext match {
+        case (definition: ScValueOrVariable) && (_: ScPatternDefinition | _: ScVariableDefinition) =>
+          appendDefinitionSectionWithComment(definition) {
+            appendContainingClass(definition)
+            appendDeclMainSection2(pattern, definition)
           }
-        }
+        case _                           =>
+      }
+
+    // TODO: it should contain description of the parameter from the scaladoc
+    def appendParameter(param: ScParameter): Unit =
+      appendDefinitionSection {
+        appendDeclMainSection(param)
       }
 
     withHtmlMarkup {
       e match {
         case typeDef: ScTypeDefinition => appendTypeDef(typeDef)
         case fun: ScFunction           => appendFunction(fun)
-        case decl: ScValueOrVariable   => appendValOrVar(decl)
         case tpe: ScTypeAlias          => appendTypeAlias(tpe)
+        case decl: ScValueOrVariable   => appendValOrVar(decl)
         case pattern: ScBindingPattern => appendBindingPattern(pattern)
-        case param: ScParameter        => appendMainSection(param) // TODO: it should contain description of the parameter from the scaladoc
+        case param: ScParameter        => appendParameter(param)
         case _                         =>
       }
     }
@@ -203,10 +206,26 @@ object ScalaDocGenerator {
   private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
 
-  private def parseClassUrl(elem: ScMember): String = {
+  private def annotationsRenderer(implicit typeRenderer: TypeRenderer): AnnotationsRendererLike =
+    new AnnotationsRenderer(typeRenderer, "\n", TextEscaper.Html) {
+      override def shouldSkipArguments(annotationType: ScType, arguments: Seq[ScExpression]): Boolean =
+        arguments.isEmpty || isThrowsAnnotationConstructor(annotationType, arguments)
+
+      // see SCL-17608
+      private def isThrowsAnnotationConstructor(annotationType: ScType, arguments: Seq[ScExpression]): Boolean =
+        if (arguments.size == 1) {
+          //assuming that @throws annotation has single constructor with parametrized type which accepts java.lang.Class
+          annotationType.extractClass.exists { clazz =>
+            clazz.qualifiedName == "scala.throws" &&
+              arguments.head.`type`().exists(_.isInstanceOf[ScParameterizedType])
+          }
+        } else false
+    }
+
+  private def parseClassUrl(elem: ScMember): Option[String]= {
     val clazz = elem.containingClass
-    if (clazz == null) EmptyDoc
-    else HtmlPsiUtils.classFullLink(clazz)
+    if (clazz == null) None
+    else Some(HtmlPsiUtils.classFullLink(clazz))
   }
 
   private def parseTypeParameters(elems: ScTypeParametersOwner): String = {
@@ -282,22 +301,81 @@ object ScalaDocGenerator {
   def generateScalaDocInfoContent(
     docCommentOwner: PsiDocCommentOwner,
     docComment: ScDocComment
-  ): String = {
-    val javaElement = prepareFakeJavaElementWithComment(docCommentOwner, docComment)
-    javaElement.map(generateJavaDocInfoContent).getOrElse("")
-  }
+  ): String =
+    prepareFakeJavaElementWithComment(docCommentOwner, docComment) match {
+      case Some((javaElement, sections)) =>
+        val javaDoc = generateJavaDocInfoContent(javaElement)
+        val result = insertCustomSections(javaDoc, sections)
+        result
+      case _ => ""
+    }
 
   def generateRenderedScalaDocContent(
     docCommentOwner: PsiDocCommentOwner,
     docComment: ScDocComment
-  ): String = {
-    val javaElement = prepareFakeJavaElementWithComment(docCommentOwner, docComment)
-    javaElement.map(generateRenderedJavaDocInfo).getOrElse("")
+  ): String =
+    prepareFakeJavaElementWithComment(docCommentOwner, docComment) match {
+      case Some((javaElement, sections)) =>
+        val javaDoc = generateRenderedJavaDocInfo(javaElement)
+        val result = insertCustomSections(javaDoc, sections)
+        result
+      case _ => ""
+    }
+
+  private def insertCustomSections(javaDoc: String, sections: Seq[ScaladocWikiProcessor.Section]): String = {
+    import DocumentationMarkup._
+    val sectionsEnd = javaDoc.indexOf(SECTIONS_END)
+    if (sectionsEnd > -1)
+      return insertCustomSections(javaDoc, sectionsEnd, sections, createSectionsTag = false)
+
+    val contentEndTag = javaDoc.indexOf(CONTENT_END)
+    if (contentEndTag > -1)
+      return insertCustomSections(javaDoc, contentEndTag + CONTENT_END.length, sections, createSectionsTag = true)
+
+    val definitionEndTag = javaDoc.indexOf(DEFINITION_END)
+    if (definitionEndTag > -1)
+      return insertCustomSections(javaDoc, definitionEndTag + DEFINITION_END.length, sections, createSectionsTag = true)
+
+    // assuming that it's the impossible case and generated javadoc at least contains definition section
+    ""
   }
 
-  private def prepareFakeJavaElementWithComment(docCommentOwner: PsiDocCommentOwner, docComment: ScDocComment) = {
-    val withReplacedWikiTags = ScaladocWikiProcessor.replaceWikiWithTags(docComment)
-    createFakeJavaElement(docCommentOwner, withReplacedWikiTags)
+  private def insertCustomSections(
+    javadoc: String,
+    index: Int,
+    sections: Seq[ScaladocWikiProcessor.Section],
+    createSectionsTag: Boolean
+  ): String = {
+    import DocumentationMarkup._
+    val builder = new JStringBuilder
+    builder.append(javadoc, 0, index)
+    if (createSectionsTag)
+      builder.append(SECTIONS_START)
+    appendCustomSections(builder, sections)
+    if (createSectionsTag)
+      builder.append(SECTIONS_END)
+    builder.append(javadoc, index, javadoc.length)
+    builder.toString
+  }
+
+  private def appendCustomSections(output: JStringBuilder, sections: Seq[ScaladocWikiProcessor.Section]): Unit =
+    sections.foreach { section =>
+      import DocumentationMarkup._
+      output
+        .append(SECTION_HEADER_START)
+        .append(section.title)
+        .append(":")
+        .append(SECTION_SEPARATOR)
+        .append(section.content)
+        .append(SECTION_END)
+    }
+
+  private def prepareFakeJavaElementWithComment(
+    docCommentOwner: PsiDocCommentOwner,
+    docComment: ScDocComment
+  ): Option[(PsiDocCommentOwner, Seq[ScaladocWikiProcessor.Section])] = {
+    val WikiProcessorResult(withReplacedWikiTags, sections) = ScaladocWikiProcessor.replaceWikiWithTags(docComment)
+    createFakeJavaElement(docCommentOwner, withReplacedWikiTags).map((_, sections))
   }
 
   private def createFakeJavaElement(
@@ -320,7 +398,7 @@ object ScalaDocGenerator {
            |}""".stripMargin
       case typeAlias: ScTypeAlias =>
         s"""$docText
-           | class A${getTypeParams(typeAlias.typeParameters)} {}""".stripMargin
+           |class A${getTypeParams(typeAlias.typeParameters)} {}""".stripMargin
       case _: ScTypeDefinition =>
         s"""$docText
            |class A {

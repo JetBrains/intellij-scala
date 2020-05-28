@@ -27,30 +27,28 @@ class DocumentationFromJavaTest extends ScalaLightCodeInsightFixtureTestAdapter
          |  /**
          |   * Some description
          |   * @param s some parameter
+         |   * @param t another parameter (indented)
          |   */
-         |  def scalaMethod(s: String): Unit = ???
+         |  def scalaMethod(s: String, t: String): Unit = ???
          |}""".stripMargin
     )
 
     doShortGenerateDocTest(
       s"""class JavaClass {
          |    public static void main(String[] args) {
-         |        ScalaObject.${|}scalaMethod("dummy");
+         |        ScalaObject.${|}scalaMethod("dummy1", "dummy1");
          |    }
          |}""".stripMargin,
-      """<div class="definition">
-        |<a href="psi_element://ScalaObject"><code>ScalaObject</code></a>
-        |<pre>
-        |def <b>scalaMethod</b>(s: <a href="psi_element://scala.Predef.String"><code>String</code></a>)
-        |: <a href="psi_element://scala.Unit"><code>Unit</code></a>
-        |</pre>
-        |</div>
-        |<div class='content'>     Some description     <p></div>
-        |<table class='sections'>
-        |<p><tr>
-        |<td valign='top' class='section'><p>Params:</td>
-        |<td valign='top'>s &ndash; some parameter</td>
-        |</table>""".stripMargin
+      s"""$DefinitionStart
+         |<a href="psi_element://ScalaObject"><code>ScalaObject</code></a>
+         |def <b>scalaMethod</b>(s: <a href="psi_element://scala.Predef.String"><code>String</code></a>, t: <a href="psi_element://scala.Predef.String"><code>String</code></a>): <a href="psi_element://scala.Unit"><code>Unit</code></a>
+         |$DefinitionEnd
+         |<div class='content'>   Some description   <p></div>
+         |<table class='sections'>
+         |<p><tr>
+         |<td valign='top' class='section'><p>Params:</td>
+         |<td valign='top'>s &ndash; some parameter  <p>t &ndash; another parameter (indented)</td>
+         |</table>""".stripMargin
     )
   }
 }

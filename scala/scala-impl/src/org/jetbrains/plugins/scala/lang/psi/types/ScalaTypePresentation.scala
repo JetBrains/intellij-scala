@@ -273,7 +273,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         printArgsFun(`type`).parenthesize(needParenthesis)
       }
 
-      s"${componentText(left, -1)} $op ${componentText(right, 1)}"
+      s"${componentText(left, -1)} ${textEscaper.escape(op)} ${componentText(right, 1)}"
     }
 
     def innerTypeText(

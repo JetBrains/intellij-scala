@@ -5,16 +5,15 @@ import com.intellij.openapi.project.IndexNotReadyException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 
 class TypeAnnotationRenderer(
   typeRenderer: TypeRenderer,
   parameterTypeDecorateOptions: ParameterTypeDecorateOptions = ParameterTypeDecorateOptions.DecorateNone
 ) {
 
-  def render(typed: ScTypedDefinition): String = {
+  def render(typed: Typeable): String = {
     val typeText = renderType(typed)
 
     val typeTextDecorated = typed match {
@@ -25,7 +24,7 @@ class TypeAnnotationRenderer(
     s": $typeTextDecorated"
   }
 
-  private def renderType(typed: ScTypedDefinition): String =
+  private def renderType(typed: Typeable): String =
     try {
       val typ = typeAnnotation(typed).getOrAny
       typeRenderer.render(typ)
@@ -48,7 +47,7 @@ class TypeAnnotationRenderer(
         "NoTypeInfo"
     }
 
-  private def typeAnnotation(typed: ScTypedDefinition): TypeResult =
+  private def typeAnnotation(typed: Typeable): TypeResult =
     typed match {
       case fun: ScFunction => fun.returnType
       case _               => typed.`type`()
