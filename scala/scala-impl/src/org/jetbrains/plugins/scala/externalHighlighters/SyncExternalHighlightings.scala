@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
@@ -26,9 +27,11 @@ class SyncExternalHighlightings
   
   private def compileOrEraseHighlightings(project: Project): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
-      if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+      if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
         CompilerManager.getInstance(project).make(null)
-      else
+      } else {
         ExternalHighlighters.eraseAllHighlightings(project)
+      }
+      DaemonCodeAnalyzer.getInstance(project).restart()
     }
 }
