@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, invokeAndWait}
-import org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener.{CompilerGeneratedStateTopic, CompilerGeneratedStateTopicListener}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
