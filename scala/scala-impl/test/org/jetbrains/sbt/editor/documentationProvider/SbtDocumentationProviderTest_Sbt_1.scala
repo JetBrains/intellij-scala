@@ -9,13 +9,13 @@ class SbtDocumentationProviderTest_Sbt_1 extends SbtDocumentationProviderTestBas
 
   override val sbtVersion: Version = Sbt.LatestVersion
 
-  def testBuildSyntax(): Unit = doGenerateSbtDocTest(
-    s"""val ${CARET}someKey = settingKey[Map[String, File]]("$description")""",
-    description
+  def testBuildSyntax(): Unit = doGenerateSbtDocDescriptionTest(
+    s"""val ${CARET}someKey = settingKey[Map[String, File]]("$commonDescription")""",
+    commonDescription
   )
 
-  def testBuildSyntaxWithRank(): Unit = doGenerateSbtDocTest(
-    s"""val ${CARET}someKey = settingKey[Map[String, File]]("$description").withRank(DSetting)""",
-    description
+  def testBuildSyntaxWithRank(): Unit = doGenerateSbtDocDescriptionTest(
+    s"""val ${CARET}someKey = settingKey[Map[String, File]]("$commonDescription").withRank(DSetting)""",
+    commonDescription
   )
 }
