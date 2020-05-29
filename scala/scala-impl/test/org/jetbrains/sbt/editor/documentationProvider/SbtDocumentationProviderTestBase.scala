@@ -15,7 +15,7 @@ abstract class SbtDocumentationProviderTestBase extends DocumentationProviderTes
 
   override protected def documentationProvider = new SbtDocumentationProvider
 
-  override protected def doShortGenerateDocTest(sbtContent: String, expectedDocShort: String): Unit = {
+  protected def doGenerateSbtDocTest(sbtContent: String, expectedDocShort: String): Unit = {
     val actualDoc = generateDoc(sbtContent)
     val actualDocShort = actualDoc match {
       case WrapperHtmlReg(inner) => inner

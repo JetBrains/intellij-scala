@@ -4,7 +4,7 @@ import com.intellij.openapi.util.TextRange
 import org.junit.Assert._
 
 import scala.annotation.tailrec
-import scala.collection.mutable
+import scala.collection.{immutable, mutable}
 
 trait Markers {
 
@@ -82,24 +82,7 @@ trait Markers {
    * TODO: reuse extractSequentialMarkers generic implementation
    */
   def extractSequentialMarkers(inputText: String, startMarker: String, endMarker: String): (String, Seq[TextRange]) = {
-    val startReg = s"\\Q$startMarker\\E".r
-    val endReg = s"\\Q$endMarker\\E".r
-
-    val startIndexes = startReg.findAllMatchIn(inputText).map(_.start).toList
-    val endIndexes = endReg.findAllMatchIn(inputText).map(_.start).toList
-    assertEquals(
-      s"start & end markers counts are not equal\nstart: $startIndexes,\nend: $endIndexes",
-      startIndexes.size,
-      endIndexes.size
-    )
-    val ranges = startIndexes.zip(endIndexes).map { case (s, e) => TextRange.create(s, e)}
-    ranges.foreach { range =>
-      assertTrue("range end offset can't be smaller then start offset", range.getEndOffset >= range.getStartOffset)
-    }
-    ranges.sliding(2).foreach {
-      case Seq(prev, curr) => assertTrue("ranges shouldn't intersect", curr.getStartOffset >= prev.getEndOffset)
-      case _ =>
-    }
+    val ranges = findRanges(inputText, startMarker, endMarker)
 
     val rangesFixed = ranges.zipWithIndex.map { case (range, idx) =>
       val alreadyRemovedChars = idx * (endMarker.length + startMarker.length)
@@ -113,6 +96,27 @@ trait Markers {
     (textFixed, rangesFixed)
   }
 
+  def findRanges(inputText: String, startMarker: String, endMarker: String): Seq[TextRange] = {
+    val startReg = s"\\Q$startMarker\\E".r
+    val endReg = s"\\Q$endMarker\\E".r
+
+    val startIndexes = startReg.findAllMatchIn(inputText).map(_.start).toList
+    val endIndexes = endReg.findAllMatchIn(inputText).map(_.start).toList
+    assertEquals(
+      s"start & end markers counts are not equal\nstart: $startIndexes,\nend: $endIndexes\ntext: ${inputText}",
+      startIndexes.size,
+      endIndexes.size
+    )
+    val ranges = startIndexes.zip(endIndexes).map { case (s, e) => TextRange.create(s, e) }
+    ranges.foreach { range =>
+      assertTrue("range end offset can't be smaller then start offset", range.getEndOffset >= range.getStartOffset)
+    }
+    ranges.sliding(2).foreach {
+      case Seq(prev, curr) => assertTrue("ranges shouldn't intersect", curr.getStartOffset >= prev.getEndOffset)
+      case _ =>
+    }
+    ranges
+  }
   /**
    * Used to extract ranges that do not do not intersect, support
    *

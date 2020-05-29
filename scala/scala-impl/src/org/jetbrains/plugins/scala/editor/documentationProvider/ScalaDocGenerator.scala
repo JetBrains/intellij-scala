@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
@@ -109,6 +109,8 @@ object ScalaDocGenerator {
       }
 
       append(element match {
+        // TODO: remove check when ScObject hierarchy is fixed
+        case _: ScObject              => "" // ignore, for some reason ScObject extends ScTypeDefinition
         case typed: ScTypedDefinition => typeAnnotationRenderer.render(typed)
         case typed: ScValueOrVariable => typeAnnotationRenderer.render(typed)
         case _                        => ""
@@ -123,8 +125,11 @@ object ScalaDocGenerator {
           appendNl()
         }
         appendDeclMainSection(typedef)
-        appendNl()
-        append(parseExtendsBlock(typedef.extendsBlock))
+        val extendsListRendered = parseExtendsBlock(typedef.extendsBlock)
+        if (extendsListRendered.nonEmpty) {
+          appendNl()
+          append(extendsListRendered)
+        }
       }
 
     def appendFunction(fun: ScFunction): Unit =
@@ -242,9 +247,16 @@ object ScalaDocGenerator {
     elem.templateParents match {
       case Some(x: ScTemplateParents) =>
         val seq = x.allTypeElements
-        buffer.append(typeToString(seq.head.`type`().getOrAny) + "\n")
-        for (i <- 1 until seq.length)
-          buffer append " with " + typeToString(seq(i).`type`().getOrAny)
+        buffer.append(typeToString(seq.head.`type`().getOrAny))
+        if (seq.length > 1) {
+          buffer.append("\n")
+          for (i <- 1 until seq.length) {
+            if (i > 1)
+              buffer.append(" ")
+            buffer.append("with ")
+            buffer.append(typeToString(seq(i).`type`().getOrAny))
+          }
+        }
       case None =>
         if (elem.isUnderCaseClass) {
           buffer.append(HtmlPsiUtils.psiElementLink("scala.Product", "Product"))
@@ -252,7 +264,7 @@ object ScalaDocGenerator {
     }
 
     if (buffer.isEmpty) EmptyDoc
-    else " extends " + buffer
+    else "extends " + buffer
   }
 
   // TODO: strange naming.. not "parse", it not only parses but also resolves base

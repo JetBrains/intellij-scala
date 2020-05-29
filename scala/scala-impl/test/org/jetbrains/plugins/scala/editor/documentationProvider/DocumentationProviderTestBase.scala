@@ -11,7 +11,7 @@ import org.junit.Assert
 
 abstract class DocumentationProviderTestBase
   extends ScalaLightCodeInsightFixtureTestAdapter
-    with DocumentationTestLike {
+    with DocumentationTesting {
 
   protected def documentationProvider: DocumentationProvider
 

@@ -12,64 +12,64 @@ trait SbtDocumentationProviderCommonTests {
        |""".stripMargin
   )
 
-  def testSettingKey(): Unit = doShortGenerateDocTest(
+  def testSettingKey(): Unit = doGenerateSbtDocTest(
     s"""val ${CARET}someKey = SettingKey[Int]("some-key", "$description")""",
     description
   )
 
-  def testAttributeKey(): Unit = doShortGenerateDocTest(
+  def testAttributeKey(): Unit = doGenerateSbtDocTest(
     s"""val ${CARET}someKey = AttributeKey[Int]("some-key", "$description")""",
     description
   )
 
-  def testTaskKey(): Unit = doShortGenerateDocTest(
+  def testTaskKey(): Unit = doGenerateSbtDocTest(
     s"""val ${CARET}someKey = TaskKey[Int]("some-key", "$description")""",
     description
   )
 
-  def testInputKey(): Unit = doShortGenerateDocTest(
+  def testInputKey(): Unit = doGenerateSbtDocTest(
     s"""val ${CARET}someKey = InputKey[Int]("some-key", "$description")""",
     description
   )
 
-  def testKeyWithLabelAndDescription(): Unit = doShortGenerateDocTest(
+  def testKeyWithLabelAndDescription(): Unit = doGenerateSbtDocTest(
     s"""val ${CARET}someKey = SettingKey[Int]("some-key", "$description")""",
     description
   )
 
-  def testKeyWithLabelAndDescriptionAndRank(): Unit = doShortGenerateDocTest(
+  def testKeyWithLabelAndDescriptionAndRank(): Unit = doGenerateSbtDocTest(
     s"""val ${CARET}someKey = SettingKey[Int]("some-key", "$description", KeyRanks.APlusSetting)""",
     description
   )
 
-  def testKeyWithLabelAndDescriptionAndExtend(): Unit = doShortGenerateDocTest(
+  def testKeyWithLabelAndDescriptionAndExtend(): Unit = doGenerateSbtDocTest(
     s"""val someKey = SettingKey[Int]("some-key")
        |val ${CARET}someKey1 = SettingKey[Int]("some-key-1", "$description", someKey)
        |""".stripMargin,
     description
   )
 
-  def testKeyWithLabelAndDescriptionAndRankAndExtend(): Unit = doShortGenerateDocTest(
+  def testKeyWithLabelAndDescriptionAndRankAndExtend(): Unit = doGenerateSbtDocTest(
     s"""val someKey = SettingKey[Int]("some-other-key")
        |val ${CARET}someKey1 = SettingKey[Int]("some-key", "$description", KeyRanks.APlusSetting, someOtherKey)
        |""".stripMargin,
     description
   )
 
-  def testKeyWithReferenceDescription(): Unit = doShortGenerateDocTest(
+  def testKeyWithReferenceDescription(): Unit = doGenerateSbtDocTest(
     s"""val someValue: String = "some text"
        |val ${CARET}someKey = SettingKey[Int](someValue)
        |""".stripMargin,
     s"""<i>someValue</i>"""
   )
 
-  def testUseLabelAsDescriptionIfDescriptionIsMissing(): Unit = doShortGenerateDocTest(
+  def testUseLabelAsDescriptionIfDescriptionIsMissing(): Unit = doGenerateSbtDocTest(
     s"""val ${CARET}someKey = SettingKey[Int]("some-key-label")""",
     "some-key-label"
   )
 
   def testDoNotDetectDocumentationForNonKeyApplyMethod(): Unit = doGenerateDocTest(
     s"""val ${CARET}someKey = SomeUnknownClass[Int]("some-key", "$description")""",
-    null
+    null: String
   )
 }

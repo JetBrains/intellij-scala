@@ -14,9 +14,6 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     documentationProvider.getQuickNavigateInfo(referredElement, elementAtCaret)
   }
 
-  override protected def normalizeHtml(html: String): String =
-    html.trim.replaceAll("[\r]", "")
-
   def moduleName: String = getModule.getName
 
   def testSimpleClass(): Unit =
