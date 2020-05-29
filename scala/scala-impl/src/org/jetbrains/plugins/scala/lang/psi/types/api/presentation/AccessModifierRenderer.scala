@@ -28,7 +28,8 @@ object AccessModifierRenderer {
       textEscaper: TextEscaper = TextEscaper.Noop
     ) extends AccessQualifierRenderer {
       override def renderQualifier(modifier: ScAccessModifier): String =
-        modifier.idText.map(textEscaper.escape).getOrElse("")
+        if (modifier.isThis) textEscaper.escape("this")
+        else modifier.idText.map(textEscaper.escape).getOrElse("")
     }
 
     object WithHtmlPsiLink extends AccessQualifierRenderer {
