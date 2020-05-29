@@ -1,18 +1,12 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import java.io.File
-import java.util.EventListener
-
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.messages.Topic
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
-import org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener.CompilerGeneratedStateTopic
 import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
@@ -76,14 +70,6 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
       updateHighlightings(toHighlight, highlightingState)
       if (informWolf) ExternalHighlighters.informWolf(project, highlightingState)
     }
-
-    // for test purposes only
-    event match {
-      case CompilerEvent.CompilationFinished(_, sources) =>
-        val publisher = project.getMessageBus.syncPublisher(CompilerGeneratedStateTopic)
-        publisher.stateUpdated(sources)
-      case _ =>
-    }
   }
 
   private def kindToHighlightInfoType(kind: Kind, text: String): HighlightInfoType = kind match {
@@ -132,13 +118,4 @@ object UpdateCompilerGeneratedStateListener {
   private case class HandleEventResult(newState: CompilerGeneratedState,
                                        toHighlight: Set[VirtualFile],
                                        informWolf: Boolean)
-  
-  @TestOnly
-  trait CompilerGeneratedStateTopicListener extends EventListener {
-    def stateUpdated(sources: Set[File]): Unit
-  }
-  val CompilerGeneratedStateTopic: Topic[CompilerGeneratedStateTopicListener] = Topic.create(
-    "compiler-generated-state-update",
-    classOf[CompilerGeneratedStateTopicListener]
-  )
 }

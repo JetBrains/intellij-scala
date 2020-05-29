@@ -7,14 +7,13 @@ import com.intellij.openapi.util.registry.{RegistryValue, RegistryValueListener}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiModificationTrackerImpl
 import com.intellij.psi.impl.source.resolve.ResolveCache
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Ensures correct toggling between "standard" and "compiler-based" highlighting modes.
  * Toggling means that the value of 
- * [[org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode.isShowErrorsFromCompilerEnabled]] was changed.
+ * [[ScalaHighlightingMode.isShowErrorsFromCompilerEnabled]] was changed.
  */
 class ToggleHighlightingModeListener
   extends ProjectManagerListener {

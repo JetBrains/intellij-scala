@@ -4,7 +4,6 @@ import java.util.UUID
 
 import com.intellij.compiler.server.{BuildManager, BuildManagerListener}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 
 /**
  * Issue: SCL-17303

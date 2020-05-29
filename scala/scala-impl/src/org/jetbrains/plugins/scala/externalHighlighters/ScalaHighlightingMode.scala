@@ -1,12 +1,12 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.{Registry, RegistryValueListener}
 import com.intellij.psi.{PsiFile, PsiJavaFile}
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.concurrent.duration._

@@ -9,7 +9,6 @@ import java.util.{List => JList}
 import java.util.{ArrayList => JArrayList}
 
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 
 /**
  * We need this for showing the highlighting compilation progress in the "traffic light".

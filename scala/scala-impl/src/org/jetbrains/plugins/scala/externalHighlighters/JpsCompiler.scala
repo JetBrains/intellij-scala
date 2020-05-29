@@ -16,7 +16,6 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -27,6 +26,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
 import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
+
 import scala.collection.JavaConverters._
 
 trait JpsCompiler {

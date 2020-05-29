@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.EdtTestUtil
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.HighlightingTests
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, invokeAndWait}
 import org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener.{CompilerGeneratedStateTopic, CompilerGeneratedStateTopicListener}
@@ -191,12 +191,17 @@ class ScalaCompilerHighlightingTest
     val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
       // Compilation is done on file opening (see RegisterCompilationListener.MyFileEditorManagerListener)
       // There is no explicit compile worksheet action for now, like we have in Build with JPS.
-      // In order to detect the end of we wait until special event is generated
+      // In order to detect the end of we wait until CompilationFinished event is generated
       val promise = Promise[Unit]()
-      val listener: CompilerGeneratedStateTopicListener = _ => {
-        promise.complete(Success(())) // todo (minor): we should also ensure that the file is actually the tested file
-      }
-      getProject.getMessageBus.connect().subscribe(CompilerGeneratedStateTopic, listener)
+      getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
+        override def eventReceived(event: CompilerEvent): Unit = event match {
+          case CompilerEvent.CompilationFinished(_, files) =>
+            // todo (minor): we should also ensure that the file is actually the tested file
+            promise.complete(Success(()))
+          case _ =>
+            ()
+        }
+      })
 
       invokeAndWait {
         FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
