@@ -148,13 +148,13 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     isIndirectReferenceTo(resolved, element)
   }
 
-  private def isSyntheticForCaseClass(method: ScFunction, td: ScTemplateDefinition): Boolean = {
-    td match {
+  private def isSyntheticForCaseClass(method: ScFunction,
+                                      templateDefinition: ScTemplateDefinition): Boolean =
+    templateDefinition match {
       case cl: ScClass if cl.isCase && method.isSynthetic =>
-        ScalaPsiUtil.getCompanionModule(td).exists(isReferenceTo)
+        ScalaPsiUtil.getCompanionModule(cl).exists(isReferenceTo)
       case _ => false
     }
-  }
 
   /**
    * Is `resolved` (the resolved target of this reference) itself a reference to `element`, by way of a type alias defined in a object, such as:

@@ -718,7 +718,7 @@ object ScalaPsiUtil {
 
   /**
     * For one classOf use PsiTreeUtil.getContextOfType instead
-    */
+   */
   def getContextOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
     var el: PsiElement = if (!strict) element else {
       if (element == null) return null
@@ -728,12 +728,27 @@ object ScalaPsiUtil {
     el
   }
 
-  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = clazz match {
-    case obj: ScObject if obj.isSyntheticObject => obj.syntheticNavigationElement.asOptionOf[ScTypeDefinition]
-    case obj: ScObject                          => obj.baseCompanionModule
-    case definition: ScTypeDefinition           => definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
-    case _                                      => None
-  }
+  def getCompanionModule(typeDefinition: ScTypeDefinition): Option[ScTypeDefinition] =
+    typeDefinition match {
+      case scObject: ScObject =>
+        if (scObject.isSyntheticObject)
+          scObject.syntheticNavigationElement
+            .asOptionOf[ScTypeDefinition]
+        else
+          scObject.baseCompanionModule
+      case _: ScTypeDefinition =>
+        typeDefinition.baseCompanionModule
+          .orElse(typeDefinition.fakeCompanionModule)
+    }
+
+  def getCompanionModule(`class`: PsiClass): Option[ScTypeDefinition] =
+    `class` match {
+      case typeDefinition: ScTypeDefinition => getCompanionModule(typeDefinition)
+      case _ => None
+    }
+
+  def withCompanionModule(`class`: PsiClass): List[PsiClass] =
+    `class` :: getCompanionModule(`class`).toList
 
   // determines if an element can access other elements in a synthetic subtree that shadows
   // element's original(physical) subtree - e.g. physical method of some class referencing

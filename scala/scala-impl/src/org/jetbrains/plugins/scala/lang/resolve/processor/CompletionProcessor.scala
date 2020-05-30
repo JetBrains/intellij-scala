@@ -6,7 +6,7 @@ package processor
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.withCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -105,7 +105,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case AuxiliaryConstructor(_) =>
         Seq.empty // do not add constructor
       case definition: ScTypeDefinition =>
-        (Seq(definition) ++ getCompanionModule(definition)).map((_, false))
+        withCompanionModule(definition).map((_, false))
       case _ =>
         val isNamedParameter = state.isNamedParameter
         Seq((namedElement, isNamedParameter))

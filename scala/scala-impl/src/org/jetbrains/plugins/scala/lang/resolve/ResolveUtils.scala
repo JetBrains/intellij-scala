@@ -5,7 +5,6 @@ package resolve
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
-import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
@@ -22,14 +21,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import _root_.scala.collection.Set
@@ -140,16 +138,16 @@ object ResolveUtils {
         }
         while (placeTd != null) {
           if (td == placeTd) return true
-          val companion = getCompanionModule(placeTd).orNull
-          if (companion != null && companion == td) return true
+          if (getCompanionModule(placeTd).contains(td)) return true
           placeTd = getPlaceTd(placeTd)
         }
         return false
       }
       while (placeTd != null) {
         if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
-        val companion = getCompanionModule(placeTd).orNull
-        if (withCompanion && companion != null && td != null && isInheritorDeep(companion, td)) return true
+        if (withCompanion &&
+          td != null
+          && getCompanionModule(placeTd).exists(isInheritorDeep(_, td))) return true
         placeTd = getPlaceTd(placeTd)
       }
       false

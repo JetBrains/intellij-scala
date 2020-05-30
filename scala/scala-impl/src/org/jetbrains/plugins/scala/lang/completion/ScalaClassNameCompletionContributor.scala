@@ -12,7 +12,7 @@ import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tMULTILINE_STRING, tSTRING}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.withCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -191,10 +191,10 @@ object ScalaClassNameCompletionContributor {
           case _ =>
             //todo: filter according to position
             for {
-              clazz <- `class` :: getCompanionModule(`class`).toList
-              if state.isValidClass(clazz)
+              companionOrClass <- withCompanionModule(`class`)
+              if state.isValidClass(companionOrClass)
 
-              lookupElement = state.createLookupElement(clazz, maybeConstructor)
+              lookupElement = state.createLookupElement(companionOrClass, maybeConstructor)
             } result.addElement(lookupElement)
         }
       }
