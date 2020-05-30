@@ -2,7 +2,7 @@ package org.jetbrains.bsp.project.resolver
 
 import java.io.File
 import java.net.URI
-import java.nio.file.{Files, Paths, StandardOpenOption}
+import java.nio.file.Paths
 import java.util.Collections
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonElement}
@@ -16,7 +16,7 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
-import org.jetbrains.bsp.{BSP, BspBundle, BspErrorMessage}
+import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
 import scala.collection.JavaConverters._
@@ -106,7 +106,7 @@ private[resolver] object BspResolverLogic {
       val id = target.getId
       val scalacOptions = idToScalacOptions.get(id)
       val depSources = idToDepSources.getOrElse(id, Seq.empty)
-      val sharedSourcesAndGenerated = (sharedSources.keys ++ sharedGeneratedSources.keys).toSeq
+      val sharedSourcesAndGenerated = (sharedSources.keys ++ sharedGeneratedSources.values.flatten).toSeq
       val sources = idToSources.getOrElse(id, Seq.empty).filterNot(sharedSourcesAndGenerated.contains)
       val resources = idToResources.getOrElse(id, Seq.empty).filterNot(sharedResources.contains)
       val dependencyOutputs = transitiveDependencyOutputs(target)
@@ -126,7 +126,7 @@ private[resolver] object BspResolverLogic {
       .toSeq
       .sortBy(_._1.size)
 
-    val idsGeneratedSources = sharedSources.values.toSeq
+    val idsGeneratedSources = sharedSources.values.toSeq.distinct
       .sortBy(_.size)
       .foldRight((sharedGeneratedSources, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceDirectory]])) {
         case (ids, (sharedGeneratedSources, result)) =>
