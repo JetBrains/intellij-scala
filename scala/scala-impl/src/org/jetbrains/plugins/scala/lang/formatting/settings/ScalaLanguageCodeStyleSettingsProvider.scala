@@ -63,6 +63,9 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         "SPACE_AFTER_SEMICOLON",
 
         // Before
+        "SPACE_BEFORE_IF_PARENTHESES",
+        "SPACE_BEFORE_FOR_PARENTHESES",
+        "SPACE_BEFORE_WHILE_PARENTHESES",
         "SPACE_BEFORE_METHOD_PARENTHESES",
         "SPACE_BEFORE_METHOD_CALL_PARENTHESES",
         "SPACE_BEFORE_CLASS_LBRACE",
