@@ -4,6 +4,7 @@ package completion
 package handlers
 
 import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.template.TemplateBuilderFactory
 import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
@@ -27,6 +28,8 @@ import scala.annotation.tailrec
  * Date: 28.07.2008
  */
 object ScalaInsertHandler {
+
+  val AssignmentText = " = "
 
   def isParameterless(method: PsiMethod): Boolean = method match {
     case _: ScFunction => false
@@ -290,7 +293,7 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
       case _: PsiNamedElement if item.isNamedParameterOrAssignment => //some is impossible here
-        val shouldAddEqualsSign = element.getParent match {
+        val shouldAddAssignment = element.getParent match {
           case ref: ScReferenceExpression =>
             ref.getParent match {
               case ass: ScAssignment if ass.leftExpression == ref =>
@@ -303,10 +306,27 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
           case _ => true //should be impossible
         }
         context.setAddCompletionChar(false)
-        if (shouldAddEqualsSign) {
-          document.insertString(endOffset, " = ")
-          endOffset += 3
-          model.moveToOffset(endOffset)
+
+        if (shouldAddAssignment) {
+          document.insertString(endOffset, AssignmentText)
+          endOffset += AssignmentText.length
+
+          if (item.isAssignment) {
+            model.moveToOffset(endOffset)
+          } else {
+            document.insertString(endOffset, NotImplementedError)
+            context.commitDocument()
+
+            val expression = file.findElementAt(endOffset)
+            endOffset += NotImplementedError.length
+
+            val builder = TemplateBuilderFactory
+              .getInstance
+              .createTemplateBuilder(expression)
+
+            builder.replaceElement(expression, NotImplementedError)
+            builder.run(editor, false)
+          }
         }
         return
       case _: PsiMethod if item.isInImport => moveCaretIfNeeded()

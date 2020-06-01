@@ -11,7 +11,6 @@ import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
-import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -24,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.settings._
@@ -94,17 +94,16 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   }
 
   override def renderElement(presentation: LookupElementPresentation): Unit = {
-    if (isNamedParameter) {
-      presentation.setTailText(s" = $typeText")
-    } else {
-      val grayed = getPsiElement match {
-        case _: PsiPackage | _: PsiClass => true
-        case _ => false
-      }
-      presentation.setTailText(tailText, grayed)
-      presentation.setTypeText(typeText)
+    val grayed = getPsiElement match {
+      case _: PsiPackage | _: PsiClass => true
+      case _ => false
     }
 
+    presentation.setTailText(
+      if (isNamedParameter) AssignmentText else tailText,
+      grayed
+    )
+    presentation.setTypeText(typeText)
     presentation.setIcon(getPsiElement)
 
     val itemText =
@@ -175,12 +174,13 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           containingClassText
         case fun: ScFunction =>
           if (etaExpanded) " _"
-          else if (isAssignment) " = " + PresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
+          else if (isAssignment) AssignmentText + PresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
           else typeParametersText(fun) + parametersText(fun.parameterList) + containingClassText
         case fun: ScFun =>
           val paramClausesText = fun.paramClauses.map { clause =>
-            val clauseText = clause.map(PresentationUtil.presentationStringForParameter(_, substitutor))
-            clauseText.commaSeparated(Model.Parentheses)
+            clause.map {
+              PresentationUtil.presentationStringForParameter(_, substitutor)
+            }.commaSeparated(Model.Parentheses)
           }.mkString
 
           typeParametersText(fun.typeParameters) + paramClausesText

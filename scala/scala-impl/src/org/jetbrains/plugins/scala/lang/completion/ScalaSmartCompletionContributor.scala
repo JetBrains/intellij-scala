@@ -694,7 +694,7 @@ object ScalaSmartCompletionContributor {
             builder.replaceElement(parameter.nameId, parameter.name)
           }
           f.result.foreach {
-            case qMarks: ScReferenceExpression if qMarks.refName == "???" =>
+            case qMarks: ScReferenceExpression if qMarks.refName == NotImplementedError =>
               builder.replaceElement(qMarks.nameId, qMarks.refName)
             case _ =>
           }
@@ -736,7 +736,7 @@ object ScalaSmartCompletionContributor {
         .append(" ")
         .append(functionArrow)
         .append(" ")
-        .append("???")
+        .append(NotImplementedError)
         .toString
 
     private def createBuffer = StringBuilder.newBuilder match {

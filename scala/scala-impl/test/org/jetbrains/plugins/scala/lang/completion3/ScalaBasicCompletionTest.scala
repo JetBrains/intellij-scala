@@ -523,17 +523,42 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     }
   }
 
-  def testNamedParametersCompletion(): Unit = {
-    configureFromFileText(
-      fileText =
-        s"""class A {
-           |  def foo(xxxx: Int) {
-           |    foo(xxx$CARET)
-           |  }
-           |}""".stripMargin
-    )
+  def testParameterCompletion(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  def foo(bar: Int) {
+         |    foo(b$CARET)
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  def foo(bar: Int) {
+         |    foo(bar$CARET)
+         |  }
+         |}
+         |""".stripMargin,
+  ) {
+    hasItemText(_, "bar")()
+  }
 
-    assertEquals(2, completeBasic(0).length)
+  def testNamedParameterCompletion(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  def foo(bar: Int) {
+         |    foo(b$CARET)
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  def foo(bar: Int) {
+         |    foo(bar = ???$CARET)
+         |  }
+         |}
+         |""".stripMargin
+  ) {
+    hasItemText(_, "bar")(tailText = " = ")
   }
 
   def testHiding1(): Unit = doCompletionTest(
@@ -1315,28 +1340,28 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
   def testThisTypeDependentType(): Unit = doCompletionTest(
     fileText =
       s"""
-        |class Abc {
-        |  trait Type
-        |}
-        |
-        |class Foo(val abc: Abc) {
-        |  private def baz(): Int = {
-        |    val a: Foo.this.abc.T$CARET = ???
-        |  }
-        |}
-        |""".stripMargin,
+         |class Abc {
+         |  trait Type
+         |}
+         |
+         |class Foo(val abc: Abc) {
+         |  private def baz(): Int = {
+         |    val a: Foo.this.abc.T$CARET = ???
+         |  }
+         |}
+         |""".stripMargin,
     resultText =
       s"""
-        |class Abc {
-        |  trait Type
-        |}
-        |
-        |class Foo(val abc: Abc) {
-        |  private def baz(): Int = {
-        |    val a: Foo.this.abc.Type$CARET = ???
-        |  }
-        |}
-        |""".stripMargin,
+         |class Abc {
+         |  trait Type
+         |}
+         |
+         |class Foo(val abc: Abc) {
+         |  private def baz(): Int = {
+         |    val a: Foo.this.abc.Type$CARET = ???
+         |  }
+         |}
+         |""".stripMargin,
     item = "Type"
   )
 
@@ -1373,54 +1398,56 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
   def testSuperTypeDependentType(): Unit = doCompletionTest(
     fileText =
       s"""
-        |trait Abc {
-        |  type Type
-        |}
-        |
-        |class Foo extends Abc {
-        |  type Type = Int
-        |
-        |  private def baz(): String = {
-        |    val a: Foo.super.Type = ???
-        |    a.toS$CARET
-        |  }
-        |}
-        |""".stripMargin,
+         |trait Abc {
+         |  type Type
+         |}
+         |
+         |class Foo extends Abc {
+         |  type Type = Int
+         |
+         |  private def baz(): String = {
+         |    val a: Foo.super.Type = ???
+         |    a.toS$CARET
+         |  }
+         |}
+         |""".stripMargin,
     resultText =
       s"""
-        |trait Abc {
-        |  type Type
-        |}
-        |
-        |class Foo extends Abc {
-        |  type Type = Int
-        |
-        |  private def baz(): String = {
-        |    val a: Foo.super.Type = ???
-        |    a.toString$CARET
-        |  }
-        |}
-        |""".stripMargin,
+         |trait Abc {
+         |  type Type
+         |}
+         |
+         |class Foo extends Abc {
+         |  type Type = Int
+         |
+         |  private def baz(): String = {
+         |    val a: Foo.super.Type = ???
+         |    a.toString$CARET
+         |  }
+         |}
+         |""".stripMargin,
     item = "toString"
   )
 
   def testCompletionAfterDotNotLastInBlock(): Unit = doCompletionTest(
-    fileText = s"""class TestClass {
-       |  def unitReturnFunc: Unit = {
-       |    val testValue = ""
-       |    testValue.$CARET
-       |    ()
-       |  }
-       |}
-       |""".stripMargin,
-    resultText = s"""class TestClass {
-       |  def unitReturnFunc: Unit = {
-       |    val testValue = ""
-       |    testValue.charAt($CARET)
-       |    ()
-       |  }
-       |}
-       |""".stripMargin,
+    fileText =
+      s"""class TestClass {
+         |  def unitReturnFunc: Unit = {
+         |    val testValue = ""
+         |    testValue.$CARET
+         |    ()
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class TestClass {
+         |  def unitReturnFunc: Unit = {
+         |    val testValue = ""
+         |    testValue.charAt($CARET)
+         |    ()
+         |  }
+         |}
+         |""".stripMargin,
     item = "charAt"
   )
 
@@ -1453,7 +1480,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
 }
 
 class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
   def test2_13_extensionMethod1(): Unit = doCompletionTest(
     fileText = s""""".toInt$CARET""",
