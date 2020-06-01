@@ -99,7 +99,9 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""trait Trait[A]
          |abstract class ${|}Class[T <: Trait[_ >: Object]]
          |  extends Comparable[_ <: Trait[_ >: String]]""".stripMargin,
-      s"abstract class <b>Class</b>[T &lt;: Trait[_ &gt;: Object]]\n" +
+      "abstract class <b>Class</b>[T &lt;: <a href=\"psi_element://Trait\"><code>Trait</code></a>" +
+        "[_ &gt;: <a href=\"psi_element://java.lang.Object\"><code>Object</code></a>]" +
+        "]\n" +
         "extends <a href=\"psi_element://java.lang.Comparable\"><code>Comparable</code></a>" +
         "[_ &lt;: <a href=\"psi_element://Trait\"><code>Trait</code></a>" +
         "[_ &gt;: <a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]]"
@@ -498,6 +500,33 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   }
 
   def testCodeLinks(): Unit = {
+    val fileText =
+      s"""/**
+         | * [[http://jetbrains.ru     ]]
+         | * [[http://jetbrains.com/idea/scala   Scala Plugin        ]]
+         | * [[http://google.com This is google]]
+         | * [[http://scala-lang.org]]
+         | * ,,__[[http://jetbrains.com]]__,,
+         | * [[java.lang.String]] ^[[java.lang.Integer]]^
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc = expectedBody(
+      """val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>""",
+      s"""
+         |   <a href="http://jetbrains.ru     ">http://jetbrains.ru     </a>
+         |   <a href="http://jetbrains.com/idea/scala">  Scala Plugin</a>
+         |   <a href="http://google.com">This is google</a>
+         |   <a href="http://scala-lang.org">http://scala-lang.org</a>
+         |   <sub><u><a href="http://jetbrains.com">http://jetbrains.com</a></u></sub>
+         |   <a href="psi_element://java.lang.String"><code>String</code></a> <sup><a href="psi_element://java.lang.Integer"><code>Integer</code></a></sup>
+         | """.stripMargin
+    )
+
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinksInside(): Unit = {
     val fileText =
       s"""/**
          | * [[http://jetbrains.ru     ]]

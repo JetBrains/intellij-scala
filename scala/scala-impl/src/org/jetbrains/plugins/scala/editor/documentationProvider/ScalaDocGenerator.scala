@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TextEscaper.Html
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, TypePresentationContext}
@@ -96,7 +97,8 @@ object ScalaDocGenerator {
 
       element match {
         case tpeParamOwner: ScTypeParametersOwner =>
-          append(parseTypeParameters(tpeParamOwner))
+          val renderer = new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
+          append(renderer.renderParams(tpeParamOwner))
         case _ =>
       }
 
@@ -235,14 +237,6 @@ object ScalaDocGenerator {
     val clazz = elem.containingClass
     if (clazz == null) None
     else Some(HtmlPsiUtils.classFullLink(clazz))
-  }
-
-  private def parseTypeParameters(elems: ScTypeParametersOwner): String = {
-    val typeParameters = elems.typeParameters
-    // todo hyperlink identifiers in type bounds
-    if (typeParameters.nonEmpty)
-      escapeHtml(typeParameters.map(PresentationUtil.presentationStringForPsiElement(_)).mkString("[", ", ", "]"))
-    else EmptyDoc
   }
 
   private def parseExtendsBlock(elem: ScExtendsBlock)
