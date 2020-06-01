@@ -13,7 +13,7 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.annotator.hints._
-import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, ScalaHighlightingMode}
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsPass}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
