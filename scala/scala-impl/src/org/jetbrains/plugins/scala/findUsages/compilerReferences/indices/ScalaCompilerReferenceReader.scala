@@ -1,17 +1,24 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.indices
 
-import java.io.{File, IOException}
+import java.io.File
+import java.io.IOException
 import java.util
 
-import com.intellij.compiler.backwardRefs.{CompilerHierarchySearchType, CompilerReferenceReader, SearchId}
+import com.intellij.compiler.backwardRefs.CompilerHierarchySearchType
+import com.intellij.compiler.backwardRefs.CompilerReferenceReader
+import com.intellij.compiler.backwardRefs.SearchId
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileWithId}
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileWithId
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.containers.Queue
 import com.intellij.util.indexing.StorageException
 import com.intellij.util.indexing.ValueContainer.ContainerAction
-import gnu.trove.{THashSet, TIntHashSet}
+import gnu.trove.THashSet
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet
+import it.unimi.dsi.fastutil.ints.IntSet
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.UsagesInFile
 
@@ -64,9 +71,9 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
       usages.result()
     }
 
-  override def findReferentFileIds(ref: CompilerRef, checkBaseClassAmbiguity: Boolean): TIntHashSet =
+  override def findReferentFileIds(ref: CompilerRef, checkBaseClassAmbiguity: Boolean): IntSet =
     rethrowStorageExceptionIn {
-      val referentFiles = new TIntHashSet()
+      val referentFiles = new IntOpenHashSet()
 
       searchInBackwardUsagesIndex(ref) {
         case (fileId, _) =>
@@ -149,5 +156,5 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
     compilerHierarchySearchType: CompilerHierarchySearchType
   ): util.Map[VirtualFile, Array[SearchId]] = null
 
-  override def findFileIdsWithImplicitToString(compilerRef: CompilerRef): TIntHashSet = null
+  override def findFileIdsWithImplicitToString(compilerRef: CompilerRef): IntSet = null
 }
