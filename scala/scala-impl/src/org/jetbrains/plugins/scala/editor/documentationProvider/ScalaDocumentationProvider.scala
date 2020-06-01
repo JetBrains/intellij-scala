@@ -144,20 +144,11 @@ object ScalaDocumentationProvider {
     } else if (elem.getContainingFile == null) {
       s"[Element: ${elem.getNode} ${elem.getClass.getName}] [File: NULL]"
     } else {
-      s"[Element: ${elem.getNode} ${elem.getClass.getName}] [File: ${elem.getContainingFile.getName}] [Language: ${elem.getContainingFile.getLanguage}]"
+      s"[Element: ${elem.getNode} ${elem.getClass.getName}] [File: ${elem.getContainingFile.name}] [Language: ${elem.getContainingFile.getLanguage}]"
     }
 
     LOG.debug(s"[ScalaDocProvider] [ $msg ] $footer")
   }
-
-  val replaceWikiScheme = Map(
-    "__" -> "u>",
-    "'''" -> "b>",
-    "''" -> "i>",
-    "`" -> "tt>",
-    ",," -> "sub>",
-    "^" -> "sup>"
-  )
 
   @tailrec
   private def getElementWithDoc(originalElement: PsiElement): PsiElement =

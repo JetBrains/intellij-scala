@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider.replaceWikiScheme
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -189,4 +188,13 @@ private object ScaladocWikiProcessor {
         result.append(elementText)
     }
   }
+
+  private val replaceWikiScheme = Map(
+    "__" -> "u>",
+    "'''" -> "b>",
+    "''" -> "i>",
+    "`" -> "tt>",
+    ",," -> "sub>",
+    "^" -> "sup>"
+  )
 }
