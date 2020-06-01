@@ -108,13 +108,14 @@ object ScalaDocGenerator {
         case _ =>
       }
 
-      append(element match {
-        // TODO: remove check when ScObject hierarchy is fixed
-        case _: ScObject              => "" // ignore, for some reason ScObject extends ScTypeDefinition
+
+      val typeAnnotation = element match {
+        case _: ScObject              => "" // ignore, object doesn't need type annotation
         case typed: ScTypedDefinition => typeAnnotationRenderer.render(typed)
         case typed: ScValueOrVariable => typeAnnotationRenderer.render(typed)
         case _                        => ""
-      })
+      }
+      append(typeAnnotation)
     }
 
     def appendTypeDef(typedef: ScTypeDefinition): Unit =
