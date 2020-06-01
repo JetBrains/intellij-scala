@@ -4,6 +4,7 @@ import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation._
@@ -56,9 +57,9 @@ trait TypePresentation {
         val res = e match {
           case o: ScObject if withPoint && isPredefined(o) => ""
           case _: PsiPackage if withPoint                  => ""
-          case clazz: PsiClass                             => classLink(clazz)
+          case clazz: PsiClass                             => classLinkSafe(clazz).getOrElse(escapeName(clazz.name))
           case a: ScTypeAlias                              => a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiElementLink(_, e.name))
-          case _                                           => escapeHtml(e.name)
+          case _                                           => escapeName(e.name)
         }
         res + pointStr(withPoint && res.nonEmpty)
       }
@@ -66,7 +67,8 @@ trait TypePresentation {
 
     val options = PresentationOptions(
       renderProjectionTypeName = true,
-      renderValueTypes = true
+      renderValueTypes = true,
+      renderInfixType = true
     )
     typeText(`type`, renderer, options)(context)
   }
@@ -136,7 +138,8 @@ object TypePresentation {
 
   case class PresentationOptions(
     renderProjectionTypeName: Boolean = false,
-    renderValueTypes: Boolean = false
+    renderValueTypes: Boolean = false,
+    renderInfixType: Boolean = false
   )
   object PresentationOptions {
     val Default: PresentationOptions = PresentationOptions()

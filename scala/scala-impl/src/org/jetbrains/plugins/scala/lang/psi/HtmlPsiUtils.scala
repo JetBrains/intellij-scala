@@ -16,6 +16,9 @@ object HtmlPsiUtils {
   def classLink(clazz: PsiClass): String =
     psiElementLink(clazz.qualifiedName, clazz.name)
 
+  def classLinkSafe(clazz: PsiClass): Option[String] =
+    Option(clazz.qualifiedName).map(psiElementLink(_, clazz.name))
+
   def classFullLink(clazz: PsiClass): String = {
     val qualifiedName = clazz.qualifiedName
     psiElementLink(qualifiedName, qualifiedName)

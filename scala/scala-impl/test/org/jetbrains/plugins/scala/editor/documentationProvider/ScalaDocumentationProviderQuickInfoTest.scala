@@ -14,7 +14,7 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     documentationProvider.getQuickNavigateInfo(referredElement, elementAtCaret)
   }
 
-  def moduleName: String = getModule.getName
+  private def moduleName: String = getModule.getName
 
   def testSimpleClass(): Unit =
     doGenerateDocTest(
@@ -252,13 +252,15 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
          |  extends MyTrait[Int ::: String]
          |""".stripMargin,
       "[light_idea_test_case] default\n" +
-        "class ClassWithGenericColons1[A &lt;:" +
-        " <a href=\"psi_element://MyTrait\"><code>MyTrait</code></a>" +
-        "[<a href=\"psi_element://scala.Int\"><code>Int</code></a> :::" +
-        " <a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]]" +
+        "class ClassWithGenericColons1[A &lt;: " +
+        "<a href=\"psi_element://MyTrait\"><code>MyTrait</code></a>" +
+        "[<a href=\"psi_element://scala.Int\"><code>Int</code></a>" +
+        " <a href=\"psi_element://:::\"><code>:::</code></a> " +
+        "<a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]]" +
         " extends " +
         "<a href=\"psi_element://MyTrait\"><code>MyTrait</code></a>" +
-        "[<a href=\"psi_element://scala.Int\"><code>Int</code></a> :::" +
-        " <a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]"
+        "[<a href=\"psi_element://scala.Int\"><code>Int</code></a>" +
+        " <a href=\"psi_element://:::\"><code>:::</code></a> " +
+        "<a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]"
     )
 }

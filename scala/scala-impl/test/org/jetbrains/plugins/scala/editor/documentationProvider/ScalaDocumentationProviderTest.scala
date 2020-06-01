@@ -254,6 +254,17 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       """trait <b>T</b>[X[_, Y[_, Z]]]"""
     )
 
+  def testMethod_HigherKindedTypeParameters_ReferToParameterInExtendsList(): Unit = {
+    val input1  =
+      s"""trait Trait1[A]
+         |trait Trait2[A, CC[X] <: Seq[X]]
+         |extends Trait1[CC[A]]
+         |val ${|}x: Trait2[_, _] = ???""".stripMargin
+    val expectedDoc =
+      s"""${DefinitionStart}val <b>x</b>: <a href="psi_element://Trait2"><code>Trait2</code></a>[_, _]$DefinitionEnd"""
+    doGenerateDocBodyTest(input1, expectedDoc)
+  }
+
   private def sharedValVarDefinition(definitionBody: String): String = {
     s"""class X {
        |  /**
@@ -716,7 +727,11 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  trait <:<[A,B]
          |  def ${|}f(a: Int <:< String): Unit = {}
          |}""".stripMargin,
-      s"""<a href="psi_element://A"><code>A</code></a>
-         |def <b>f</b>(a: <a href="psi_element://scala.Int"><code>Int</code></a> &lt;:&lt; <a href="psi_element://scala.Predef.String"><code>String</code></a>): <a href="psi_element://scala.Unit"><code>Unit</code></a>""".stripMargin
+      "<a href=\"psi_element://A\"><code>A</code></a>\n" +
+        "def <b>f</b>(" +
+        "a: <a href=\"psi_element://scala.Int\"><code>Int</code></a>" +
+        " <a href=\"psi_element://A.&lt;:&lt;\"><code>&lt;:&lt;</code></a> " +
+        "<a href=\"psi_element://scala.Predef.String\"><code>String</code></a>" +
+        "): <a href=\"psi_element://scala.Unit\"><code>Unit</code></a>"
     )
 }

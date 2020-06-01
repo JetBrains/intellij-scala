@@ -34,7 +34,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
     nameRenderer: NameRenderer,
     options: PresentationOptions
   )(implicit context: TypePresentationContext): String = {
-    val textEscaper = nameRenderer
+    val textEscaper: TextEscaper = nameRenderer
     val boundsRenderer = new TypeBoundsRenderer(textEscaper)
 
     def typesText(types: Seq[ScType]): String = types
@@ -232,11 +232,10 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
       private def hasOperatorName(named: PsiNamedElement): Boolean = ScalaNamesUtil.isOperatorName(named.name)
 
-      def unapply(des: ScType): Option[String] = {
+      def unapply(des: ScType): Option[PsiNamedElement] = {
         des.extractDesignated(expandAliases = false)
           .filter(mayUseSimpleName)
           .filter(named => annotated(named) || hasOperatorName(named))
-          .map(_.name)
       }
     }
 
@@ -260,20 +259,23 @@ trait ScalaTypePresentation extends api.TypePresentation {
         innerTypeText(des) + typeArgs.map(printArgsFun(_)).commaSeparated(model = Model.SquareBrackets)
     }
 
-    def infixTypeText(op: String, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
-      val assoc = InfixExpr.associate(op)
+    def infixTypeText(op: PsiNamedElement, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
+      val assoc = InfixExpr.associate(op.name)
 
       def componentText(`type`: ScType, requiredAssoc: Int) = {
         val needParenthesis = `type` match {
           case ParameterizedType(InfixDesignator(newOp), _) =>
-            assoc != InfixExpr.associate(newOp) || assoc == requiredAssoc
+            assoc != InfixExpr.associate(newOp.name) || assoc == requiredAssoc
           case _ => false
         }
 
         printArgsFun(`type`).parenthesize(needParenthesis)
       }
 
-      s"${componentText(left, -1)} ${textEscaper.escape(op)} ${componentText(right, 1)}"
+      val opRendered =
+        if (options.renderInfixType) nameRenderer.renderName(op)
+        else nameRenderer.escapeName(op.name)
+      s"${componentText(left, -1)} $opRendered ${componentText(right, 1)}"
     }
 
     def innerTypeText(
@@ -284,7 +286,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case valType: ValType if options.renderValueTypes =>
         valType.extractClass match {
           case Some(clazz) => nameRenderer.renderName(clazz)
-          case _           => valType.name
+          case _           => nameRenderer.escapeName(valType.name)
         }
       case namedType: NamedType => namedType.name
       case _: WildcardType => "?"
@@ -335,7 +337,8 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case mt@ScMethodType(retType, params, _) =>
         implicit val elementScope: ElementScope = mt.elementScope
         innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
-      case ScLiteralType(value, _) => value.presentation
+      case ScLiteralType(value, _) =>
+        value.presentation
       case _ => "" //todo
     }
 

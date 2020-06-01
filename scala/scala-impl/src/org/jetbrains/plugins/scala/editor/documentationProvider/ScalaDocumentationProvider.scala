@@ -1,29 +1,31 @@
 package org.jetbrains.plugins.scala
 package editor.documentationProvider
 
- import java.util.function.Consumer
+import java.util.function.Consumer
 
- import com.intellij.codeInsight.javadoc.JavaDocUtil
- import com.intellij.lang.documentation.CodeDocumentationProvider
- import com.intellij.openapi.diagnostic.Logger
- import com.intellij.openapi.util.Pair
- import com.intellij.psi._
- import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
- import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
- import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
- import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
- import org.jetbrains.plugins.scala.extensions._
- import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
- import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
- import org.jetbrains.plugins.scala.lang.psi.api.statements._
- import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
- import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
- import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
- import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
- import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWrapper}
- import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import com.intellij.codeInsight.javadoc.JavaDocUtil
+import com.intellij.lang.documentation.CodeDocumentationProvider
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.Pair
+import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWrapper}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 
- import scala.annotation.tailrec
+import scala.annotation.tailrec
 
 class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
@@ -46,26 +48,22 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
   override def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement =
     JavaDocUtil.findReferenceTarget(psiManager, link, context) match {
-      case null                        => findTypeAlias(psiManager, link, context)
+      case null                        => findScalaReferenceTarget(psiManager, link, context).orNull
       case PsiClassWrapper(definition) => definition
       case other                       => other
     }
 
-  private def findTypeAlias(psiManager: PsiManager, link: String, context: PsiElement): PsiElement = {
-    val dotIdx = link.lastIndexOf('.')
-    if (dotIdx < 0 ) null else {
-      val containerFqn = link.substring(0, dotIdx)
-      JavaDocUtil.findReferenceTarget(psiManager, containerFqn, context) match {
-        case null => null
-        case containingElement =>
-          val scalaPsiManager = ScalaPsiManager.instance(psiManager.getProject)
-          val scope = GlobalSearchScope.EMPTY_SCOPE.union(new LocalSearchScope(containingElement))
-          scalaPsiManager.getStableAliasesByFqn(link, scope).headOption.orNull
-      }
+  private def findScalaReferenceTarget(psiManager: PsiManager, link: String, context: PsiElement): Option[PsiElement] = {
+    val scalaPsiManager = ScalaPsiManager.instance(psiManager.getProject)
+    val scope = context.containingFile.map(_.resolveScope)
+    scope.flatMap { s =>
+      val res1 = scalaPsiManager.getCachedClass(s, link)
+      val res2 = res1.orElse(scalaPsiManager.getStableAliasesByFqn(link, s).headOption)
+      res2
     }
   }
 
-  override def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
+  override def generateDoc(element: PsiElement, @Nullable originalElement: PsiElement): String = {
     val containingFile = element.getContainingFile
 
     if (!containingFile.isInstanceOf[ScalaFile]) {
@@ -81,7 +79,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       return null
     }
 
-    ScalaDocGenerator.generateDoc(elementWithDoc, originalElement)
+    ScalaDocGenerator.generateDoc(elementWithDoc, Option(originalElement))
   }
 
   override def findExistingDocComment(contextElement: PsiComment): PsiComment = {

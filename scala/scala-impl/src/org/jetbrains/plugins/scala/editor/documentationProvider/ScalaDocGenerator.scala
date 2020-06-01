@@ -26,18 +26,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, PresentationUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScalaDocGenerator {
 
-  def generateDoc(elementWithDoc: PsiElement, originalElement: PsiElement): String = {
+  def generateDoc(elementWithDoc: PsiElement, originalElement: Option[PsiElement]): String = {
     val e = elementWithDoc.getNavigationElement
 
     implicit val projectContext: ProjectContext = e.projectContext
-    implicit def typeRenderer: TypeRenderer = _.urlText(originalElement)
+    implicit def typeRenderer: TypeRenderer = {
+      val presentableContext = originalElement.fold(TypePresentationContext.emptyContext)(TypePresentationContext.psiElementPresentationContext)
+      _.urlText(presentableContext)
+    }
 
     val builder = new HtmlBuilderWrapper
     import builder._
