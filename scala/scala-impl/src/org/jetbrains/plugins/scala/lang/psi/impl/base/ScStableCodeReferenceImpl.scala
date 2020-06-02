@@ -481,13 +481,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         }
       }
     }
-    if (!accessibilityCheck)
-      processor.doNotCheckAccessibility()
-    var x = false
+
+    if (!accessibilityCheck) processor.doNotCheckAccessibility()
     //performance improvement
     ScalaPsiUtil.fileContext(this) match {
       case s: ScalaFile if s.isCompiled =>
-        x = true
         //todo: improve checking for this and super
         val refText = getText
 

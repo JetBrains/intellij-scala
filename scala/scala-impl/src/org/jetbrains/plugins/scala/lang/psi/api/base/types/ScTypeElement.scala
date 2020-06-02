@@ -5,7 +5,6 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -64,18 +63,18 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   @volatile
   private[this] var _analog: Option[ScTypeElement] = None
-  
+
   def isRepeated: Boolean = {
     val nextNode = Option(getNextSibling).map(_.getNode)
-    
+
     val isAsterisk = nextNode
       .exists(n => n.getElementType == ScalaTokenTypes.tIDENTIFIER && n.getText == "*")
-    
+
     val notAnInfixType = (for {
       node <- nextNode
       next <- Option(node.getTreeNext)
     } yield next.getElementType != ScalaTokenTypes.tIDENTIFIER).getOrElse(true)
-    
+
     isAsterisk && notAnInfixType
   }
 }
