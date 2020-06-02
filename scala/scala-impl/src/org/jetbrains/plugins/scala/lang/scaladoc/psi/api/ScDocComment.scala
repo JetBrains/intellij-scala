@@ -1,18 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package psi
-package api
+package org.jetbrains.plugins.scala.lang.scaladoc.psi.api
 
-
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
-/**
-* User: Alexander Podkhalyuzin
-* Date: 22.07.2008
-*/
 trait ScDocComment extends PsiDocComment with ScalaPsiElement {
   def version: Int
 

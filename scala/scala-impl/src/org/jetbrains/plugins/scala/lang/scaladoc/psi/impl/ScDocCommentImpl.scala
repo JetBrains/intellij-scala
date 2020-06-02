@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package psi
-package impl
+package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 
 import java.util
 
@@ -20,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag
 
 import scala.collection.mutable
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.07.2008
- */
 final class ScDocCommentImpl(buffer: CharSequence,
                              override val getTokenType: IElementType)
   extends LazyParseablePsiElement(getTokenType, buffer)

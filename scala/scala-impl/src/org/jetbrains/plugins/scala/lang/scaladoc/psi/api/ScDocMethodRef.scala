@@ -1,17 +1,5 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package psi
-package api
+package org.jetbrains.plugins.scala.lang.scaladoc.psi.api
 
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.07.2008
- */
- 
-trait ScDocMethodRef extends ScalaPsiElement {
-  
-}
+trait ScDocMethodRef extends ScalaPsiElement

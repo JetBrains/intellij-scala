@@ -1,9 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package psi
-package impl
-
+package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
@@ -15,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.07.2008
- */
- 
 class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTag{
   override def toString: String = "DocTag"
 
@@ -40,21 +30,20 @@ class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTa
   override def getValueElement: PsiDocTagValue = findChildByClass(classOf[PsiDocTagValue])
   
   override def getName: String =
-    if (getNameElement != null) {
+    if (getNameElement != null)
       getNameElement.getText
-    } else {
+    else
       null
-    }
 
   override def setName(name: String): PsiElement = {
-    if (findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME) != null) {
-      findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME).replace(createDocTagName(name))
-    }
+    val tagNameNode = findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME)
+    if (tagNameNode != null)
+      tagNameNode.replace(createDocTagName(name))
 
     this
   }
 
-  override def getCommentDataText(): String =
+  override def getCommentDataText: String =
     getNode.getChildren(TokenSet.create(ScalaDocTokenType.DOC_COMMENT_DATA)).map(_.getText).mkString("\n")
 
   override def getAllText(handler: PsiElement => String): String = 

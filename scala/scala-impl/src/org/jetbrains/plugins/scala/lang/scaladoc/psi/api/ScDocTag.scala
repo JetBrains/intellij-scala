@@ -1,22 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package psi
-package api
+package org.jetbrains.plugins.scala.lang.scaladoc.psi.api
 
-
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.javadoc.PsiDocTag
-
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.07.2008
- */
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 trait ScDocTag extends ScalaPsiElement with PsiDocTag {
-  def getCommentDataText(): String
-  
+  def getCommentDataText: String // TODO: unused
   def getAllText(handler: PsiElement => String): String
   def getAllText: String = getAllText(element => element.getText)
 }
