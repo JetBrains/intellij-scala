@@ -70,6 +70,7 @@ object ScalaElementType {
   val FUNCTION_DECLARATION: ScFunctionElementType[ScFunctionDeclaration] = FunctionDeclaration
   val FUNCTION_DEFINITION: ScFunctionElementType[ScFunctionDefinition] = FunctionDefinition
   val MACRO_DEFINITION: ScFunctionElementType[ScMacroDefinition] = MacroDefinition
+  val GIVEN_ALIAS: ScFunctionElementType[ScGivenAlias] = GivenAlias
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
   val PATTERN_LIST = new ScPatternListElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
@@ -147,6 +148,15 @@ object ScalaElementType {
                                      node: ASTNode,
                                      debugName: String) =
       new ScNewTemplateDefinitionImpl(stub, nodeType, node, debugName)
+  }
+
+  val GivenDefinition = new ScTemplateDefinitionElementType[ScGivenDefinition]("ScGivenDefinition") {
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScGivenDefinition],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String): ScGivenDefinition = {
+      new ScGivenDefinitionImpl(stub, nodeType, node, debugName)
+    }
   }
 
   val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType
