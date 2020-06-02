@@ -5,6 +5,7 @@ package org.jetbrains.plugins.scala.lang.lexer.core;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
  * on 03.02.2020, 16:58 from the specification file
  * <tt>split_lexer.flex</tt>
  */
-public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, ScalaDocElementTypes {
+public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, ScalaDocTokenType {
   /** initial size of the lookahead buffer */
   private static final int ZZ_BUFFERSIZE = 16384;
 
@@ -28,24 +29,24 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
    *                  at the beginning of a line
    * l is of the form l = 2*k, k a non negative integer
    */
-  private static final int ZZ_LEXSTATE[] = { 
+  private static final int ZZ_LEXSTATE[] = {
      0,  0,  1, 1
   };
 
-  /** 
+  /**
    * Translates characters to character classes
    */
-  private static final String ZZ_CMAP_PACKED = 
+  private static final String ZZ_CMAP_PACKED =
     "\12\0\1\6\2\0\1\6\23\0\1\15\1\13\1\14\3\0\1\12"+
     "\2\0\1\2\4\0\1\1\1\10\7\3\2\4\1\16\6\0\1\11"+
     "\5\4\25\0\1\5\3\0\1\17\6\4\16\0\1\7\uff8a\0";
 
-  /** 
+  /**
    * Translates characters to character classes
    */
   private static final char [] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
 
-  /** 
+  /**
    * Translates DFA states to action switch labels.
    */
   private static final int [] ZZ_ACTION = zzUnpackAction();
@@ -75,7 +76,7 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   }
 
 
-  /** 
+  /**
    * Translates a state to a row index in the transition table
    */
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
@@ -106,7 +107,7 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
     return j;
   }
 
-  /** 
+  /**
    * The transition table of the DFA
    */
   private static final int [] ZZ_TRANS = zzUnpackTrans();
@@ -260,7 +261,7 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
     this(new java.io.InputStreamReader(in));
   }
 
-  /** 
+  /**
    * Unpacks the compressed character translation table.
    *
    * @param packed   the packed character translation table
@@ -423,7 +424,7 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   private void zzDoEOF() {
     if (!zzEOFDone) {
       zzEOFDone = true;
-    
+
     }
   }
 
@@ -545,7 +546,7 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
         case 13:
           break;
         case 6: {
-          commentType = SCALA_DOC_COMMENT;
+          commentType = ScalaDocElementTypes.SCALA_DOC_COMMENT;
           braceCount++;
           yybegin(IN_BLOCK_COMMENT);
           return (commentType);
