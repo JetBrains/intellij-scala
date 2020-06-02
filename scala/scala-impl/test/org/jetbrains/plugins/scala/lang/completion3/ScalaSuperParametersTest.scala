@@ -121,4 +121,60 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
       """.stripMargin,
     item = "x, y, z"
   )
+
+  def testMethodCall(): Unit = doCompletionTest(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 1
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, y: Int) = {
+         |    foo($CARET)
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 1
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, y: Int) = {
+         |    foo(x, y)$CARET
+         |  }
+         |}
+      """.stripMargin,
+    item = "x, y"
+  )
+
+  def testQualifiedMethodCall(): Unit = doCompletionTest(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 1
+         |}
+         |
+         |class B {
+         |  private val a = new A
+         |
+         |  def bar(x: Int, y: Int) = {
+         |    a.foo($CARET)
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 1
+         |}
+         |
+         |class B {
+         |  private val a = new A
+         |
+         |  def bar(x: Int, y: Int) = {
+         |    a.foo(x, y)$CARET
+         |  }
+         |}
+      """.stripMargin,
+    item = "x, y"
+  )
 }

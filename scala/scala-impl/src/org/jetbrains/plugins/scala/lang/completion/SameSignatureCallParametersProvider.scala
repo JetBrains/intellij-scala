@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScReferenceExpression, ScSuperReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
@@ -31,7 +31,7 @@ final class SameSignatureCallParametersProvider extends ScalaCompletionContribut
 
   extendBasicAndSmart(classOf[ScConstructorInvocation])(new ConstructorParametersCompletionProvider)
 
-  extendBasicAndSmart(classOf[ScMethodCall])(new SuperCallParametersCompletionProvider)
+  extendBasicAndSmart(classOf[ScMethodCall])(new MethodParametersCompletionProvider)
 
   private def extendBasicAndSmart(invocationClass: Class[_ <: ScalaPsiElement])
                                  (provider: CompletionProvider[CompletionParameters]): Unit = {
@@ -48,7 +48,7 @@ final class SameSignatureCallParametersProvider extends ScalaCompletionContribut
 
 object SameSignatureCallParametersProvider {
 
-  private class SuperCallParametersCompletionProvider extends ScalaCompletionProvider {
+  private class MethodParametersCompletionProvider extends ScalaCompletionProvider {
 
     override protected def completionsFor(position: PsiElement)
                                          (implicit parameters: CompletionParameters,
@@ -57,10 +57,10 @@ object SameSignatureCallParametersProvider {
       val call = args.getContext.asInstanceOf[ScMethodCall]
 
       call.deepestInvokedExpr match {
-        case reference@ScReferenceExpression.withQualifier(_: ScSuperReference) =>
+        case reference: ScReferenceExpression =>
           getContextOfType(reference, classOf[ScFunction]) match {
             case null => Iterable.empty
-            case function if function.name == reference.refName =>
+            case function =>
               val clauseIndex = args.invocationCount - 1
 
               for {
@@ -71,7 +71,6 @@ object SameSignatureCallParametersProvider {
                   function
                 )
               } yield lookupElement
-            case _ => Iterable.empty
           }
         case _ => Iterable.empty
       }
