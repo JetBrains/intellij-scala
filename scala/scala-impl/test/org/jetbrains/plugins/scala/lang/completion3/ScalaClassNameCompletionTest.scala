@@ -175,6 +175,21 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
       """.stripMargin,
     item = "Foo"
   )
+
+  def testJavaClassLocation(): Unit = {
+    this.configureJavaFile(
+      fileText =
+        "public class Foo",
+      className = "Foo"
+    )
+
+    doRawCompletionTest(
+      fileText = s"val foo: $CARET = null",
+      resultText = s"val foo: Foo$CARET = null"
+    ) {
+      ScalaCodeInsightTestBase.hasItemText(_, "Foo")()
+    }
+  }
 }
 
 class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {

@@ -185,7 +185,8 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
 
           typeParametersText(fun.typeParameters) + paramClausesText
         case clazz: PsiClass =>
-          typeParametersText(clazz) + " " + clazz.getPresentation.getLocationString
+          typeParametersText(clazz) +
+            classLocationSuffix(clazz)
         case method: PsiMethod =>
           typeParametersText(method) +
             (if (isParameterless(method)) "" else parametersText(method.getParameterList)) +
@@ -232,7 +233,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
 
   private def containingClassText =
     if (isClassName && containingClassName != null)
-      s"${if (shouldImport) "" else " in " + containingClassName} ${containingClass.getPresentation.getLocationString}"
+      (if (shouldImport) "" else " in " + containingClassName) + classLocationSuffix(containingClass)
     else
       ""
 
@@ -350,5 +351,17 @@ object ScalaLookupItem {
   private def findQualifier(reference: ScReference): ScReference = reference.getParent match {
     case parent: ScReference if !parent.qualifier.contains(reference) => findQualifier(parent)
     case _ => reference
+  }
+
+  private def classLocationSuffix(`class`: PsiClass) = {
+    val location = `class`.getPresentation match {
+      case null => null
+      case presentation => presentation.getLocationString
+    }
+
+    location match {
+      case null | "" => ""
+      case _ => " " + location
+    }
   }
 }
