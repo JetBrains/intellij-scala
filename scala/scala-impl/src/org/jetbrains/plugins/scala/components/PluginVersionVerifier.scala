@@ -42,6 +42,7 @@ object ScalaPluginVersionVerifier
 
   object Version {
     object Snapshot extends Version(Int.MaxValue, Int.MaxValue, Int.MaxValue)
+    object Zero extends Version(0,0,0)
     def parse(version: String): Option[Version] = {
       val VersionRegex = "(\\d+)[.](\\d+)[.](\\d+)".r
       version match {

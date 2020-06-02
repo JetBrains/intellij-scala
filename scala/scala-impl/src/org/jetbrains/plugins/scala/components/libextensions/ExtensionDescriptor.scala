@@ -48,8 +48,8 @@ object LibraryDescriptor {
     }
 
     def parseIdeaVersionDescriptor(node: Node): IdeaVersionDescriptor = {
-      val sinceBuild = Option(node \@ "since-build").filter(_.nonEmpty).flatMap(Version.parse).orNull
-      val untilBuild = Option(node \@ "until-build").filter(_.nonEmpty).flatMap(Version.parse).orNull
+      val sinceBuild = Option(node \@ "since-build").filter(_.nonEmpty).flatMap(Version.parse).getOrElse(Version.Zero)
+      val untilBuild = Option(node \@ "until-build").filter(_.nonEmpty).flatMap(Version.parse).getOrElse(Version.Snapshot)
       val pluginId   = Option(node \@ "pluginId").filter(_.nonEmpty)
       val defaultPackage   = node  \@ "defaultPackage"
       val extensions        = node \  "extension" map parseExtension
