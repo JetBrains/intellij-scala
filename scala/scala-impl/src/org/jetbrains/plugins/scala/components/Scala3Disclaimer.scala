@@ -11,7 +11,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable}
 import org.jetbrains.plugins.scala.util.NotificationUtil.HyperlinkListener
@@ -21,7 +21,7 @@ import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSetting
 object Scala3Disclaimer {
   private val DottyVersion = "scalaVersion\\s*:=\\s*\"(0\\.\\S+)\"".r
   // TODO Create a constant (for project template, compiler, etc.)
-  private val SupportedDottyVersion = "0.24.0-RC1"
+  private val SupportedDottyVersion = LatestScalaVersions.Dotty.minor
 
   private var versionInfoShown = false
 

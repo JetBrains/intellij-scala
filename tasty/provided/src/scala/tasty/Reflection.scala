@@ -3,8 +3,9 @@ package scala.tasty
 import scala.quoted.show.SyntaxHighlight
 import scala.tasty.reflect._
 
-// Reproduces the ABI of https://github.com/lampepfl/dotty/blob/0.24.0-RC1/library/src/scala/tasty/Reflection.scala
+// Reproduces the ABI of Dotty's Reflection.scala
 // Requires the corresponding "compat" class to reproduce the API.
+// See: tasty/provided/README.md
 class Reflection(private[scala] val internal: CompilerInterface) { self =>
 
   // Core
