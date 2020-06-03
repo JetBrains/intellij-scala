@@ -113,7 +113,7 @@ object FunDef {
         }
       case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this
-        ParamClauses parse(builder, true)
+        ParamClauses parse(builder, expectAtLeastOneClause = true)
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
