@@ -11,8 +11,4 @@ class KorolevProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest
 
   //v.0.9.0
   override def revision = "7d4d41113b574061aedb5a791747b0fa5d122fdf"
-
-  override def filesWithProblems = Map(
-    "server/base/src/main/scala/korolev/server/package.scala" -> Set((8106, 8143), (12316, 12317))
-  )
 }
