@@ -10,8 +10,8 @@ class CompilerLockBuildManagerListener
   extends BuildManagerListener {
 
   private val lockSource = From.BuildProcess
-  
-  override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
+
+  override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
     JpsCompiler.get(project).cancel()
     CompilerLock.get(project).lock(lockSource)
   }
