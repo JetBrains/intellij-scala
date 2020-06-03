@@ -13,9 +13,11 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, Scal
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
-final class ScalaSyntaxHighlighter(scalaLexer: Lexer,
-                                   scalaDocHighlighter: SyntaxHighlighter,
-                                   htmlHighlighter: SyntaxHighlighter) extends SyntaxHighlighterBase {
+final class ScalaSyntaxHighlighter(
+  scalaLexer: Lexer,
+  scalaDocHighlighter: SyntaxHighlighter,
+  htmlHighlighter: SyntaxHighlighter
+) extends SyntaxHighlighterBase {
 
   import ScalaSyntaxHighlighter._
 
@@ -91,7 +93,7 @@ object ScalaSyntaxHighlighter {
   )
 
   // XML tags in ScalaDoc
-  private val tSCALADOC_HTML_TAGS = TokenSet.create(
+  private val tSCALADOC_XML_TAGS = TokenSet.create(
     XML_TAG_NAME,
     XML_START_TAG_START,
     XML_EMPTY_ELEMENT_END,
@@ -100,10 +102,11 @@ object ScalaSyntaxHighlighter {
   )
 
   //ScalaDoc Wiki syntax elements
-  private val tSCALADOC_WIKI_SYNTAX = ALL_SCALADOC_SYNTAX_ELEMENTS
+  private val tSCALADOC_WIKI_SYNTAX: TokenSet =
+    ALL_SCALADOC_SYNTAX_ELEMENTS
 
   //for value in @param value
-  private val tDOC_TAG_PARAM = TokenSet.create(
+  private val tDOC_TAG_VALUE = TokenSet.create(
     DOC_TAG_VALUE_TOKEN
   )
 
@@ -141,7 +144,7 @@ object ScalaSyntaxHighlighter {
   )
 
   //ScalaDoc comment tags like @see
-  private val tCOMMENT_TAGS = TokenSet.create(
+  private val tDOC_COMMENT_TAGS = TokenSet.create(
     DOC_TAG_NAME
   )
 
@@ -176,14 +179,6 @@ object ScalaSyntaxHighlighter {
 
       TokenSet.create(tASSIGN) -> ASSIGN,
       TokenSet.create(tFUNTYPE) -> ARROW,
-      tCOMMENT_TAGS -> SCALA_DOC_TAG,
-      TokenSet.orSet(
-        TokenSet.andNot(ALL_SCALADOC_TOKENS, tCOMMENT_TAGS),
-        TokenSet.create(DOC_COMMENT_BAD_CHARACTER, DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT)
-      ) -> DOC_COMMENT,
-      tSCALADOC_HTML_TAGS -> SCALA_DOC_HTML_TAG,
-      tSCALADOC_WIKI_SYNTAX -> SCALA_DOC_WIKI_SYNTAX,
-      tSCALADOC_HTML_ESCAPE -> SCALA_DOC_HTML_ESCAPE,
 
       tXML_TAG_NAME -> XML_TAG_NAME,
       tXML_TAG_DATA -> XML_TAG_DATA,
@@ -191,41 +186,65 @@ object ScalaSyntaxHighlighter {
       tXML_ATTRIBUTE_VALUE -> XML_ATTRIBUTE_VALUE,
       tXML_COMMENT -> XML_COMMENT,
 
-      tDOC_TAG_PARAM -> SCALA_DOC_TAG_PARAM_VALUE,
+      tDOC_TAG_VALUE -> SCALA_DOC_TAG_PARAM_VALUE,
+      tDOC_COMMENT_TAGS -> SCALA_DOC_TAG,
+      (tSCALADOC_XML_TAGS -- tXML_TAG_NAME) -> SCALA_DOC_HTML_TAG,
+      tSCALADOC_WIKI_SYNTAX -> SCALA_DOC_WIKI_SYNTAX,
+      tSCALADOC_HTML_ESCAPE -> SCALA_DOC_HTML_ESCAPE,
+      ((ALL_SCALADOC_TOKENS ++ (DOC_COMMENT_BAD_CHARACTER, DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT))
+        -- tDOC_TAG_VALUE
+        -- tDOC_COMMENT_TAGS
+        -- tSCALADOC_XML_TAGS
+        -- tSCALADOC_WIKI_SYNTAX
+        -- tSCALADOC_HTML_ESCAPE
+        ) -> DOC_COMMENT,
+
       tINTERPOLATED_STRINGS -> INTERPOLATED_STRING_INJECTION
     )
   }
 
   private def attributesMap(attributes: (TokenSet, TextAttributesKey)*): Map[IElementType, TextAttributesKey] = {
-    for {
-      (tokenSet, key) <- Map(attributes: _*)
-      typ <- tokenSet.getTypes
+    val elementTypesAttributes: Seq[(IElementType, TextAttributesKey)] = for {
+      (tokenSet, key) <- attributes
+      typ  <- tokenSet.getTypes
     } yield typ -> key
+
+    val (unique, nonUnique) = elementTypesAttributes.groupBy(_._1).mapValues(_.map(_._2).distinct).partition(_._2.size == 1)
+    if (nonUnique.nonEmpty) {
+      val nonUniqueTexts = nonUnique.map { case (token, attributes) => s"element type: $token, attributes: ${attributes.mkString(", ")}"}
+      val message = s"Tree element types were registered multiple times with different attributes:\n${nonUniqueTexts.mkString("\n")}}"
+      throw new AssertionError(message)
+    }
+    unique.mapValues(_.head)
   }
 
-  private class CompoundLexer(scalaLexer: Lexer,
-                              scalaDocLexer: Lexer,
-                              htmlLexer: Lexer) extends LayeredLexer(scalaLexer) {
+  private class CompoundLexer(
+    scalaLexer: Lexer,
+    scalaDocLexer: Lexer,
+    htmlLexer: Lexer
+  ) extends LayeredLexer(scalaLexer) {
 
-    registerSelfStoppingLayer(
-      new StringLiteralLexer('\"', tSTRING),
-      Array(tSTRING),
-      IElementType.EMPTY_ARRAY
-    )
+    init()
 
-    registerSelfStoppingLayer(
-      new StringLiteralLexer('\'', tSTRING),
-      Array(tCHAR),
-      IElementType.EMPTY_ARRAY
-    )
+    private def init(): Unit = {
+      registerSelfStoppingLayer(
+        new StringLiteralLexer('\"', tSTRING),
+        Array(tSTRING),
+        IElementType.EMPTY_ARRAY
+      )
 
-    //interpolated string highlighting
-    registerLayer(
-      new LayeredLexer(new StringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tINTERPOLATED_STRING)),
-      tINTERPOLATED_STRING
-    )
+      registerSelfStoppingLayer(
+        new StringLiteralLexer('\'', tSTRING),
+        Array(tCHAR),
+        IElementType.EMPTY_ARRAY
+      )
 
-    {
+      //interpolated string highlighting
+      registerLayer(
+        new LayeredLexer(new StringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tINTERPOLATED_STRING)),
+        tINTERPOLATED_STRING
+      )
+
       //scalaDoc highlighting
       val scalaDocLayer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper(scalaDocLexer))
       scalaDocLayer.registerLayer(
@@ -273,7 +292,7 @@ object ScalaSyntaxHighlighter {
       case XML_COMMENT_START => tXML_COMMENT_START
       case XML_COMMENT_END => tXML_COMMENT_END
       case elementType =>
-        if (tSCALADOC_HTML_TAGS.contains(elementType)) tXMLTAGPART
+        if (tSCALADOC_XML_TAGS.contains(elementType)) tXMLTAGPART
         else elementType
     }
 
@@ -349,7 +368,7 @@ object ScalaSyntaxHighlighter {
       case `tDOT` | `tIDENTIFIER` => DOC_COMMENT_DATA
       case _ if isOnTop(DOC_COMMON_CLOSE_WIKI_TAG) => DOC_COMMON_CLOSE_WIKI_TAG
       case tokenType => tokenType
-      }
+    }
 
     override def start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int): Unit = {
       elements.clear()
@@ -394,4 +413,14 @@ object ScalaSyntaxHighlighter {
     )
   }
 
+  implicit class TokenSetOps(private val tokenSet: TokenSet) extends AnyVal {
+    def :+(elementType: IElementType): TokenSet =
+      TokenSet.orSet(tokenSet, TokenSet.create(elementType))
+    def ++(elementTypes: IElementType*): TokenSet =
+      TokenSet.orSet(tokenSet, TokenSet.create(elementTypes.toArray: _*))
+    def :-(elementType: IElementType): TokenSet =
+      TokenSet.andNot(tokenSet, TokenSet.create(elementType))
+    def --(other: TokenSet): TokenSet =
+      TokenSet.andNot(tokenSet, other)
+  }
 }
