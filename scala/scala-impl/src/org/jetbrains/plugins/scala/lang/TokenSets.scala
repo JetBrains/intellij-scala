@@ -16,7 +16,8 @@ object TokenSets {
     ClassDefinition,
     TraitDefinition,
     EnumDefinition,
-    ObjectDefinition
+    ObjectDefinition,
+    GivenDefinition
   )
 
   val BINDING_PATTERNS: TokenSet = TokenSet.create(

@@ -5,6 +5,6 @@ package api
 package toplevel
 package typedef
 
-trait ScGivenDefinition extends ScTypeDefinition with ScGiven {
+trait ScGivenDefinition extends ScTemplateDefinition with ScGiven {
 
 }
