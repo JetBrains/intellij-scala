@@ -4,15 +4,18 @@ import java.util.UUID
 
 import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.externalHighlighters.CompilerLock.From
 
 class CompilerLockBuildManagerListener
   extends BuildManagerListener {
 
+  private val lockSource = From.BuildProcess
+  
   override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
     JpsCompiler.get(project).cancel()
-    CompilerLock.get(project).lock()
+    CompilerLock.get(project).lock(lockSource)
   }
 
   override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
-    CompilerLock.get(project).unlock()
+    CompilerLock.get(project).unlock(lockSource)
 }
