@@ -10,7 +10,7 @@ import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
-import org.jetbrains.jps.incremental.{MessageHandler, StopBuildException}
+import org.jetbrains.jps.incremental.MessageHandler
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client
@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
+import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -127,7 +128,7 @@ object Main {
   }
 
   private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(_, projectPath, sortedModules, testScopeOnly, globalOptionsPath, dataStorageRootPath) = command
+    val CompileServerCommand.CompileJps(_, projectPath, globalOptionsPath, dataStorageRootPath, testScopeOnly, forceCompileModule) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -149,32 +150,38 @@ object Main {
       }
     }
     val descriptor = buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
+    val forceBuild = false
     val scopeTypes = if (testScopeOnly)
       Seq(JavaModuleBuildTargetType.TEST)
     else
-      Seq(JavaModuleBuildTargetType.PRODUCTION, JavaModuleBuildTargetType.TEST)
-
-    val forceBuild = false
-    val includeDependenciesToScope = false
+      Seq(JavaModuleBuildTargetType.TEST, JavaModuleBuildTargetType.PRODUCTION)
+    val scopes = scopeTypes.map(CmdlineProtoUtil.createAllTargetsScope(_, forceBuild)).asJava
 
     client.compilationStart()
     try {
-      for {
-        module <- sortedModules
-        scopeType <- scopeTypes
-        scope = CmdlineProtoUtil.createTargetsScope(scopeType.getTypeId, util.Arrays.asList(module), forceBuild)
-      } try {
+      buildRunner.runBuild(
+        descriptor,
+        () => client.isCanceled,
+        null,
+        messageHandler,
+        BuildType.BUILD,
+        scopes,
+        true
+      )
+      // TODO improve. Force compile only one file. And only if it wasn't compiled in previous compilation.
+      forceCompileModule.foreach { module =>
+        val scopes = scopeTypes.map { scopeType =>
+          CmdlineProtoUtil.createTargetsScope(scopeType.getTypeId, util.Arrays.asList(module), forceBuild)
+        }.asJava
         buildRunner.runBuild(
           descriptor,
           () => client.isCanceled,
           null,
           messageHandler,
           BuildType.BUILD,
-          util.Arrays.asList(scope),
-          includeDependenciesToScope
+          scopes,
+          false
         )
-      } catch {
-        case _: StopBuildException => ()
       }
     } finally {
       client.compilationEnd(compiledFiles)

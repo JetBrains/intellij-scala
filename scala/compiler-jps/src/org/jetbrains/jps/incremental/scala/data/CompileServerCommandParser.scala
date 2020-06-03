@@ -22,14 +22,14 @@ object CompileServerCommandParser
         }
       case CommandIds.CompileJps =>
         args match {
-          case Seq(token, projectPath, sortedModules, testScopeOnly, globalOptionsPath, dataStorageRootPath) =>
+          case Seq(token, projectPath, globalOptionsPath, dataStorageRootPath, testScopeOnly, forceCompileModule) =>
             CompileServerCommand.CompileJps(
               token = token,
               projectPath = projectPath,
-              sortedModules = SerializationUtils.stringToSequence(sortedModules),
-              testScopeOnly = testScopeOnly.toBoolean,
               globalOptionsPath = globalOptionsPath,
-              dataStorageRootPath = dataStorageRootPath
+              dataStorageRootPath = dataStorageRootPath,
+              testScopeOnly = testScopeOnly.toBoolean,
+              forceCompileModule = Option(forceCompileModule).filter(_.nonEmpty)
             )
           case _ =>
             throwIllegalArgs(commandId, args)

@@ -98,8 +98,10 @@ object RegisterCompilationListener {
           }
         case _: ScalaFile | _: PsiJavaFile =>
           document.syncToDisk(project)
-          val testScopeOnly = ProjectFileIndex.getInstance(project).isInTestSourceContent(virtualFile)
-          compiler.rescheduleCompilation(testScopeOnly)
+          val projectFileIndex = ProjectFileIndex.getInstance(project)
+          val testScopeOnly = projectFileIndex.isInTestSourceContent(virtualFile)
+          val forceCompileModule = Option(projectFileIndex.getModuleForFile(virtualFile)).map(_.getName)
+          compiler.rescheduleCompilation(testScopeOnly, forceCompileModule)
         case _ =>
       }
     }

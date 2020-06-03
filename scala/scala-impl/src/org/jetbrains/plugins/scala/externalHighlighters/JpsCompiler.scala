@@ -32,11 +32,11 @@ import scala.collection.JavaConverters._
 
 trait JpsCompiler {
   
-  def compile(testScopeOnly: Boolean): Unit
+  def compile(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit
   
-  final def rescheduleCompilation(testScopeOnly: Boolean): Unit =
+  final def rescheduleCompilation(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit =
     JpsCompiler.executor.schedule(ScalaHighlightingMode.compilationDelay) {
-      compile(testScopeOnly)
+      compile(testScopeOnly, forceCompileModule)
     }
   
   def cancel(): Unit
@@ -62,7 +62,7 @@ private class JpsCompilerImpl(project: Project)
   @Cached(ProjectRootManager.getInstance(project), null)
   private def saveProjectOnce(): Unit = project.save()
 
-  override def compile(testScopeOnly: Boolean): Unit = {
+  override def compile(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
 
@@ -83,10 +83,10 @@ private class JpsCompilerImpl(project: Project)
     val command = CompileServerCommand.CompileJps(
       token = "",
       projectPath = projectPath,
-      sortedModules = sortedModules,
-      testScopeOnly = testScopeOnly,
       globalOptionsPath = globalOptionsPath,
-      dataStorageRootPath = dataStorageRootPath
+      dataStorageRootPath = dataStorageRootPath,
+      testScopeOnly = testScopeOnly,
+      forceCompileModule = forceCompileModule
     )
 
     val promise = Promise[Unit]

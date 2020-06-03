@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
 import org.jetbrains.plugins.scala.compiler.data.Arguments
-import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 
 sealed trait CompileServerCommand {
 
@@ -29,10 +28,10 @@ object CompileServerCommand {
 
   case class CompileJps(token: String,
                         projectPath: String,
-                        sortedModules: Seq[String],
-                        testScopeOnly: Boolean,
                         globalOptionsPath: String,
-                        dataStorageRootPath: String)
+                        dataStorageRootPath: String,
+                        testScopeOnly: Boolean,
+                        forceCompileModule: Option[String])
     extends CompileServerCommand {
 
     override def id: String = CommandIds.CompileJps
@@ -40,10 +39,10 @@ object CompileServerCommand {
     override def asArgs: Seq[String] = Seq(
       token,
       projectPath,
-      SerializationUtils.sequenceToString(sortedModules),
-      testScopeOnly.toString,
       globalOptionsPath,
-      dataStorageRootPath
+      dataStorageRootPath,
+      testScopeOnly.toString,
+      forceCompileModule.getOrElse(""),
     )
   }
 }
