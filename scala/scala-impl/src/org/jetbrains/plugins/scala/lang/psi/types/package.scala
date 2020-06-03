@@ -367,6 +367,14 @@ package object types {
     case object FunctionN         extends FunctionTypeMarker
     case object PF                extends FunctionTypeMarker
     case class SAM(cls: PsiClass) extends FunctionTypeMarker
+
+    private[this] def priority(marker: FunctionTypeMarker): Int = marker match {
+      case PF        => 2
+      case FunctionN => 1
+      case _: SAM    => 0
+    }
+
+    implicit val markerOrdering: Ordering[FunctionTypeMarker] = Ordering.by(priority)
   }
 
   object FullyAbstractType {

@@ -35,7 +35,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_13
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_13, Scala_2_12}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -123,14 +124,24 @@ class ExpectedTypesImpl extends ExpectedTypes {
    * - OR: all overloads expect a SAM type of the same class, but with potentially varying result types (argument types must be =:=)
    *       (this last case is not actually working due to a bug in scalac ¯\_(ツ)_/¯ https://github.com/scala/bug/issues/11703)
    * */
+  import FunctionTypeMarker._
+  case class FunctionLikeTpe(
+    marker:    FunctionTypeMarker,
+    resTpe:    ScType,
+    paramTpes: Seq[ScType],
+    fromTpe:   ScType
+  ) {
+    def instantiate(implicit scope: ElementScope): ScType = marker match {
+      case PF        => PartialFunctionType((resTpe, paramTpes.head))
+      case FunctionN => FunctionType((resTpe, paramTpes))
+      case _         => fromTpe
+    }
+  }
+
   private[this] def expectedFunctionTypeFromOverloadedAlternatives(
     alternatives: Seq[ScType],
     e:            PsiElement
   ): Option[ParameterType] = {
-    case class FunctionLikeTpe(maker: FunctionTypeMarker, resTpe: ScType, paramTpes: Seq[ScType])
-
-    import FunctionTypeMarker._
-
     def equiv(ltpe: ScType, rtpe: ScType): Boolean = {
       val comparingAbstractTypes = ltpe.is[ScAbstractType] && rtpe.is[ScAbstractType]
       ltpe.equiv(rtpe, ConstraintSystem.empty, falseUndef = !comparingAbstractTypes).isRight
@@ -138,46 +149,60 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     implicit val scope: ElementScope = e.elementScope
 
-    lazy val canMergeParamTpes = e.scalaLanguageLevelOrDefault >= Scala_2_13
-    lazy val expectedArity     = aritiesOf(e)
-    lazy val functionLikeType  = FunctionLikeType(e)
+    lazy val (canMergeParamTpes, canLubParamTpes) = {
+      val languageLevel = e.scalaLanguageLevelOrDefault
+      (languageLevel >= Scala_2_13, languageLevel == Scala_2_12)
+    }
+
+    lazy val expectedArity    = aritiesOf(e)
+    lazy val functionLikeType = FunctionLikeType(e)
 
     def paramTpesMatch(lhs: Seq[ScType], rhs: Seq[ScType]): Boolean =
       lhs.isEmpty || lhs.corresponds(rhs)(equiv)
 
     @tailrec
-    def recur(
-      tpes:              Iterator[FunctionLikeTpe],
-      isFunctionN:       Boolean           = false,
-      isPartialFunction: Boolean           = false,
-      paramTpes:         Seq[ScType]       = Seq.empty,
-      returnTpe:         Option[ScType]    = None
+    def mergeFunctionLikeTpes(
+      tpes:   Iterator[FunctionLikeTpe],
+      result: FunctionLikeTpe
     ): Option[ScType] =
-      if (tpes.isEmpty) {
-        val rtpe = returnTpe.getOrElse(Any)
+      if (tpes.isEmpty) result.instantiate.toOption
+      else {
+        val FunctionLikeTpe(marker, rtpe, ptpes, _) = tpes.next()
 
-        if (isPartialFunction) PartialFunctionType((rtpe, paramTpes.head)).toOption
-        else if (isFunctionN)  FunctionType((rtpe, paramTpes)).toOption
-        else                   None
-      } else {
-        val FunctionLikeTpe(marker, rtpe, ptpes) = tpes.next()
-
-        if (!paramTpesMatch(paramTpes, ptpes))
+        if (!paramTpesMatch(result.paramTpes, ptpes))
           /* One of the expected types is a function-like type of correct arity
            but with mismatched parameter types, FAIL */
           None
         else {
-          val functionN = isFunctionN       || marker == FunctionN
-          val pf        = isPartialFunction || marker == PF
-          recur(tpes, functionN, pf, ptpes, returnTpe.orElse(rtpe.toOption))
+          val returnTypesEquiv = equiv(result.resTpe, rtpe)
+
+          val resultingMarker = (result.marker, marker) match {
+            case (SAM(cls1), SAM(cls2)) =>
+              if (returnTypesEquiv && ScEquivalenceUtil.smartEquivalence(cls1, cls2))
+                /* technically, the spec says we should merge SAM with same class but different
+                * result types, but scalac implementation is different/bugged */
+                marker.toOption
+              else None
+            case (lhs, rhs) => Ordering[FunctionTypeMarker].max(lhs, rhs).toOption
+          }
+
+          resultingMarker match {
+            case Some(newMarker) =>
+              val newResTpe = if (returnTypesEquiv) rtpe else Any
+              val newResult = result.copy(marker = newMarker, resTpe = newResTpe)
+              mergeFunctionLikeTpes(tpes, newResult)
+            case None => None
+          }
         }
       }
 
     /** Produce expected type by lub-ing parameter types of alternatives
-     * Do nothing if [[e]] is a method reference. */
+     * Do nothing if [[e]] is a method reference or function literal with
+     * explicit type ascriptions. */
     def lubParamTpes(altParams: List[FunctionLikeTpe]): Option[ScType] =
       e match {
         case ref: ScReferenceExpression if !ScUnderScoreSectionUtil.isUnderscoreFunction(ref) => None
+        case fn: ScFunctionExpr if fn.parameters.forall(_.typeElement.isDefined)              => None
         case _ =>
           val paramLubs = altParams.map(_.paramTpes).transpose.map(_.lub())
           FunctionType((Any, paramLubs)).toOption
@@ -189,9 +214,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
     def filterByArity(tpes: Iterator[ScType], acc: List[FunctionLikeTpe] = List.empty): List[FunctionLikeTpe] =
       if (tpes.isEmpty) acc
       else tpes.next() match {
-        case functionLikeType(marker, resTpe, ptpes) =>
+        case t @ functionLikeType(marker, resTpe, ptpes) =>
           if (expectedArity.matches(ptpes.size)) {
-            val ftpe = FunctionLikeTpe(marker, resTpe, ptpes)
+            val ftpe = FunctionLikeTpe(marker, resTpe, ptpes, t)
             filterByArity(tpes, ftpe :: acc)
           } else filterByArity(tpes, acc)
         case _ => List.empty
@@ -199,15 +224,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     val correctArity = filterByArity(alternatives.iterator)
 
-    val maybeMergedTpe = recur(correctArity.iterator)
-
-    import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl.Arity.NotAFunction
-    val result = expectedArity match {
-      case NotAFunction => onlyOne(alternatives)
-      case _ =>
-        if (canMergeParamTpes) maybeMergedTpe
-        else                   lubParamTpes(correctArity)
-    }
+    val result =
+      if (correctArity.isEmpty)   None
+      else if (canMergeParamTpes) mergeFunctionLikeTpes(correctArity.tail.iterator, correctArity.head)
+      else if (canLubParamTpes)   lubParamTpes(correctArity)
+      else                        onlyOne(correctArity).map(_.resTpe)
 
     result.map(_ -> None)
   }
