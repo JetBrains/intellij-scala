@@ -49,14 +49,16 @@ object ExternalHighlighters {
       editorProject <- Option(editor.getProject)
       if editorProject == project
     } invokeLater {
-      val document = editor.getDocument
-      UpdateHighlightersUtil.setHighlightersToEditor(
-        project,
-        document, 0, document.getTextLength,
-        Collections.emptyList(),
-        editor.getColorsScheme,
-        ScalaCompilerPassId
-      )
+      if (!project.isDisposed) {
+        val document = editor.getDocument
+        UpdateHighlightersUtil.setHighlightersToEditor(
+          project,
+          document, 0, document.getTextLength,
+          Collections.emptyList(),
+          editor.getColorsScheme,
+          ScalaCompilerPassId
+        )
+      }
     }
     ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
   }
