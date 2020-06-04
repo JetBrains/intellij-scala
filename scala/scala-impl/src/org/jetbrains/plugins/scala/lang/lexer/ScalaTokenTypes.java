@@ -249,7 +249,7 @@ public interface ScalaTokenTypes {
             kMACRO // scala 2 only
     );
 
-    TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
+    TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER, tINTERPOLATED_STRING_ID);
 
     TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(
             tSTRING,
