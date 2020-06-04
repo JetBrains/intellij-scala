@@ -3,14 +3,18 @@ package org.jetbrains.plugins.scala.util
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ScheduledFuture, ScheduledThreadPoolExecutor}
 
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
 
 import scala.concurrent.duration.FiniteDuration
 
-class RescheduledExecutor(name: String,
-                          mayInterruptIfRunning: Boolean = false) {
+class RescheduledExecutor(val name: String,
+                          parentDisposable: Disposable) extends Disposable {
 
   import RescheduledExecutor.IgnoreKey
+
+  Disposer.register(parentDisposable, this)
   
   private val scheduler = AppExecutorUtil.createBoundedScheduledExecutorService(name, 1)
 
@@ -33,7 +37,7 @@ class RescheduledExecutor(name: String,
   private def cancelLast(key: String): Unit = {
     lastScheduledTask.get match {
       case (task, taskKey) if taskKey == key =>
-        task.cancel(mayInterruptIfRunning)
+        task.cancel(/*mayInterruptIfRunning*/ false)
       case _ =>
     }
     lastScheduledTask.set(null)
@@ -52,6 +56,11 @@ class RescheduledExecutor(name: String,
     val future = scheduler.schedule(runnable, delay.length, delay.unit)
 
     lastScheduledTask.set((future, key))
+  }
+
+  override def dispose(): Unit = {
+    scheduler.shutdown()
+    lastScheduledTask.set(null)
   }
 }
 

@@ -4,10 +4,11 @@ import java.io.File
 
 import com.intellij.compiler.ModuleCompilerUtil
 import com.intellij.compiler.server.BuildManager
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{ProgressManager, Task, ProgressIndicator}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
@@ -16,7 +17,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{RemoteServerRunner, CompileServerLauncher}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.externalHighlighters.CompilerLock.From
@@ -31,13 +32,9 @@ import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
 import scala.collection.JavaConverters._
 
 trait JpsCompiler {
-  
   def compile(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit
   
-  final def rescheduleCompilation(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit =
-    JpsCompiler.executor.schedule(ScalaHighlightingMode.compilationDelay) {
-      compile(testScopeOnly, forceCompileModule)
-    }
+  def rescheduleCompilation(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit
   
   def cancel(): Unit
   
@@ -46,21 +43,26 @@ trait JpsCompiler {
 
 object JpsCompiler {
 
-  private val executor = new RescheduledExecutor("CompileJpsExecutor")
-  
   def get(project: Project): JpsCompiler =
     ServiceManager.getService(project, classOf[JpsCompiler])
 }
 
 private class JpsCompilerImpl(project: Project)
-  extends JpsCompiler {
+  extends JpsCompiler with Disposable {
 
-  private val showIndicatorExecutor = new RescheduledExecutor(s"ShowIndicator-${project.getName}")
+  private val executor = new RescheduledExecutor("CompileJpsExecutor", this)
+  private val showIndicatorExecutor = new RescheduledExecutor(s"ShowIndicator-${project.getName}", this)
+
   @volatile private var progressIndicator: Option[ProgressIndicator] = None
   
   // SCL-17295
   @Cached(ProjectRootManager.getInstance(project), null)
   private def saveProjectOnce(): Unit = project.save()
+
+  override def rescheduleCompilation(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit =
+    executor.schedule(ScalaHighlightingMode.compilationDelay) {
+      compile(testScopeOnly, forceCompileModule)
+    }
 
   override def compile(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit = {
     saveProjectOnce()
@@ -136,5 +138,9 @@ private class JpsCompilerImpl(project: Project)
           statusBar <- frameHelper.getStatusBar.toOption
           statusBarEx <- statusBar.asOptionOf[StatusBarEx]
         } UIUtil.invokeLaterIfNeeded(() => statusBarEx.addProgress(this, task))
+  }
+
+  override def dispose(): Unit = {
+    progressIndicator = None
   }
 }
