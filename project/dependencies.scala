@@ -32,6 +32,7 @@ object Versions {
     val latest_2_12 = "2.12.10"
     val latest_2_13 = "2.13.1"
     val latest_3_0 = "0.24.0-RC1"
+    val latest_dotty = latest_3_0
     val latest: String = latest_2_12
     /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
     val project = "2.12.7"
@@ -119,7 +120,7 @@ object Dependencies {
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M2" % zincVersion classifier "sources"
-  val dottySbtBridge = "ch.epfl.lamp" % "dotty-sbt-bridge" % Scala.latest_3_0
+  val dottySbtBridge = "ch.epfl.lamp" % "dotty-sbt-bridge" % Scala.latest_dotty
 
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
