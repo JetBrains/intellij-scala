@@ -1,21 +1,25 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
+import java.lang
 import java.util
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletableFuture.completedFuture
 
 import com.intellij.debugger.DebuggerContext
-import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.impl.PositionUtil
 import com.intellij.debugger.ui.impl.watch.{ValueDescriptorImpl, WatchItemDescriptor}
 import com.intellij.debugger.ui.tree.render._
-import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, ValueDescriptor, NodeDescriptor}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{JavaPsiFacade, PsiExpression}
+import com.intellij.psi.{PsiExpression, JavaPsiFacade}
 import com.intellij.util.IncorrectOperationException
 import com.sun.jdi._
 import com.sun.tools.jdi.ObjectReferenceImpl
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
-import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer.{CollectionElementNodeDescriptor, Fail, SimpleMethodInvocationResult}
-import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer.{hasDefiniteSize, instanceOf, lazyList_2_13, nonEmpty, streamClassName, streamViewClassName, transformName, viewClassName, viewClassName_2_13}
+import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer.{Fail, SimpleMethodInvocationResult, CollectionElementNodeDescriptor}
+import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
+import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer.{viewClassName, transformName, instanceOf, streamClassName, nonEmpty, streamViewClassName, lazyList_2_13, viewClassName_2_13, hasDefiniteSize}
 
 /**
  * User: Dmitry Naydanov
@@ -142,9 +146,21 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
     case _ => false
   }
 
+  override def isApplicableAsync(tpe: Type): CompletableFuture[java.lang.Boolean] = tpe match {
+    case _: ReferenceType if !mustNotExpandStreams =>
+      orAsync(isLazyAsync(tpe), isViewAsync(tpe))
+    case _ => completedFuture(false)
+  }
+
   private def isView(tpe: Type): Boolean = instanceOf(tpe, viewClassName, viewClassName_2_13)
 
   private def isLazy(tpe: Type): Boolean = instanceOf(tpe, streamClassName, lazyList_2_13)
+
+  private def isViewAsync(tpe: Type): CompletableFuture[Boolean] =
+    instanceOfAsync(tpe, viewClassName, viewClassName_2_13)
+
+  private def isLazyAsync(tpe: Type): CompletableFuture[Boolean] =
+    instanceOfAsync(tpe, streamClassName, lazyList_2_13)
 
   private def isStreamView(tpe: Type): Boolean = instanceOf(tpe, streamViewClassName)
 
