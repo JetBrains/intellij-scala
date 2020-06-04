@@ -177,4 +177,65 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
       """.stripMargin,
     item = "x, y"
   )
+
+  def testQualifiedMethodCallCompletionChar(): Unit = doCompletionTest(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 1
+         |}
+         |
+         |class B {
+         |  private val a = new A
+         |
+         |  def bar(x: Int, y: Int) = {
+         |    a.foo($CARET)
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 1
+         |}
+         |
+         |class B {
+         |  private val a = new A
+         |
+         |  def bar(x: Int, y: Int) = {
+         |    a.foo(x, y)$CARET
+         |  }
+         |}
+      """.stripMargin,
+    item = "x, y",
+    char = ')'
+  )
+
+  def testCaseClass(): Unit = doRawCompletionTest(
+    fileText =
+      s"""final case class Foo(foo: Int, bar: Int)
+         |
+         |Foo(f$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""final case class Foo(foo: Int, bar: Int)
+         |
+         |Foo(foo = ???, bar = ???)$CARET
+         |""".stripMargin,
+  ) {
+    ScalaCodeInsightTestBase.hasItemText(_, "foo, bar")(tailText = " = ")
+  }
+
+  def testCaseClassCompletionChar(): Unit = doCompletionTest(
+    fileText =
+      s"""final case class Foo(foo: Int, bar: Int)
+         |
+         |Foo(f$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""final case class Foo(foo: Int, bar: Int)
+         |
+         |Foo(foo, bar)$CARET
+         |""".stripMargin,
+    item = "foo, bar",
+    char = ')'
+  )
 }

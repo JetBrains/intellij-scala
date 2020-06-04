@@ -2,20 +2,24 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
+import com.intellij.codeInsight.CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
+import com.intellij.codeInsight.template.TemplateBuilderFactory
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiElement, PsiMethod, PsiParameter}
 import com.intellij.ui.LayeredIcon
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler.AssignmentText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -29,9 +33,11 @@ final class SameSignatureCallParametersProvider extends ScalaCompletionContribut
 
   import SameSignatureCallParametersProvider._
 
-  extendBasicAndSmart(classOf[ScConstructorInvocation])(new ConstructorParametersCompletionProvider)
-
   extendBasicAndSmart(classOf[ScMethodCall])(new MethodParametersCompletionProvider)
+
+  extendBasicAndSmart(classOf[ScMethodCall])(new CaseClassParametersCompletionProvider)
+
+  extendBasicAndSmart(classOf[ScConstructorInvocation])(new ConstructorParametersCompletionProvider)
 
   private def extendBasicAndSmart(invocationClass: Class[_ <: ScalaPsiElement])
                                  (provider: CompletionProvider[CompletionParameters]): Unit = {
@@ -48,7 +54,7 @@ final class SameSignatureCallParametersProvider extends ScalaCompletionContribut
 
 object SameSignatureCallParametersProvider {
 
-  private class MethodParametersCompletionProvider extends ScalaCompletionProvider {
+  private final class MethodParametersCompletionProvider extends ScalaCompletionProvider {
 
     override protected def completionsFor(position: PsiElement)
                                          (implicit parameters: CompletionParameters,
@@ -77,7 +83,27 @@ object SameSignatureCallParametersProvider {
     }
   }
 
-  private class ConstructorParametersCompletionProvider extends ScalaCompletionProvider {
+  private final class CaseClassParametersCompletionProvider extends ScalaCompletionProvider {
+
+    override protected def completionsFor(position: PsiElement)
+                                         (implicit parameters: CompletionParameters,
+                                          context: ProcessingContext): Iterable[LookupElement] = {
+      val args = getContextOfType(position, classOf[ScArgumentExprList])
+      val call = args.getContext.asInstanceOf[ScMethodCall]
+
+      for {
+        ResolvesTo(function: ScFunction) <- Iterable(call.deepestInvokedExpr)
+        if function.isApplyMethod
+
+        signature = parametersSignature(function)
+        lookupElement <- createLookupElementBySignature(signature, function)
+      } yield lookupElement
+        .withTailText(AssignmentText)
+        .withInsertHandler(new AssignmentsInsertHandler)
+    }
+  }
+
+  private final class ConstructorParametersCompletionProvider extends ScalaCompletionProvider {
 
     override protected def completionsFor(position: PsiElement)
                                          (implicit parameters: CompletionParameters,
@@ -135,8 +161,8 @@ object SameSignatureCallParametersProvider {
   }
 
   private[this] def parametersSignature(method: ScMethodLike,
-                                        substitutor: ScSubstitutor,
-                                        clauseIndex: Int): Seq[ParameterDescriptor] =
+                                        substitutor: ScSubstitutor = ScSubstitutor.empty,
+                                        clauseIndex: Int = 0): Seq[ParameterDescriptor] =
     method.effectiveParameterClauses match {
       case clauses if clauseIndex < clauses.length =>
         clauses(clauseIndex)
@@ -177,7 +203,7 @@ object SameSignatureCallParametersProvider {
     val result = LookupElementBuilder
       .create(lookupString)
       .withIcon(parametersIcon)
-      .withInsertHandler(new MoveCaretInsertHandler)
+      .withInsertHandler(new MoveCaretInsertHandler) // todo make non default?
     result.putUserData(JavaCompletionUtil.SUPER_METHOD_PARAMETERS, java.lang.Boolean.TRUE)
     result
   }
@@ -190,10 +216,10 @@ object SameSignatureCallParametersProvider {
     result
   }
 
-  private[this] class MoveCaretInsertHandler extends InsertHandler[LookupElement] {
+  private[this] abstract class ExpressionListInsertHandler extends InsertHandler[LookupElement] {
 
-    override def handleInsert(context: InsertionContext,
-                              item: LookupElement): Unit = context.getCompletionChar match {
+    override final def handleInsert(context: InsertionContext,
+                                    element: LookupElement): Unit = context.getCompletionChar match {
       case ')' =>
       case _ =>
         val element = context
@@ -202,11 +228,60 @@ object SameSignatureCallParametersProvider {
 
         getContextOfType(element, classOf[ScArgumentExprList]) match {
           case null =>
-          case list => context
-            .getEditor
-            .getCaretModel
-            .moveToOffset(list.getTextRange.getEndOffset) // put caret after )
+          case list => onExpressionList(list)(context)
         }
+    }
+
+    protected def onExpressionList(list: ScArgumentExprList)
+                                  (implicit context: InsertionContext): Unit
+  }
+
+  private[this] final class MoveCaretInsertHandler extends ExpressionListInsertHandler {
+
+    override protected def onExpressionList(list: ScArgumentExprList)
+                                           (implicit context: InsertionContext): Unit =
+      context
+        .getEditor
+        .getCaretModel
+        .moveToOffset(list.getTextRange.getEndOffset) // put caret after )
+  }
+
+  private[this] final class AssignmentsInsertHandler extends ExpressionListInsertHandler {
+
+    override protected def onExpressionList(list: ScArgumentExprList)
+                                           (implicit context: InsertionContext): Unit = {
+      foreachArgument(list) { argument =>
+        val replacementText = argument.getText + AssignmentText + NotImplementedError
+        argument.replaceExpression(
+          createExpressionFromText(replacementText)(argument),
+          removeParenthesis = false
+        )
+      }
+
+      val newList = forcePsiPostprocessAndRestoreElement(list)
+      createTemplateBuilder(newList)
+        .run(context.getEditor, false)
+    }
+
+    private def foreachArgument(list: ScArgumentExprList)
+                               (action: ScExpression => Unit): Unit =
+      list.exprs.foreach(action)
+
+    // todo unify with ScalaInsertHandler
+    private def createTemplateBuilder(list: ScArgumentExprList) = {
+      val result = TemplateBuilderFactory
+        .getInstance
+        .createTemplateBuilder(list)
+
+      foreachArgument(list) {
+        case ScAssignment(_, Some(placeholder)) =>
+          result.replaceElement(
+            placeholder,
+            NotImplementedError
+          )
+      }
+
+      result
     }
   }
 
