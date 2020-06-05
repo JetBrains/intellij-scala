@@ -69,8 +69,10 @@ object TokenSets {
 
   implicit class TokenSetExt(private val set: TokenSet) extends AnyVal {
     def ++ (other: TokenSet): TokenSet = TokenSet.orSet(set, other)
+    def ++ (other: IElementType*): TokenSet = TokenSet.orSet(set, TokenSet.create(other: _*))
     def + (other: IElementType): TokenSet = TokenSet.orSet(set, TokenSet.create(other))
     def -- (other: TokenSet): TokenSet = TokenSet.andNot(set, other)
+    def -- (other: IElementType*): TokenSet = TokenSet.andNot(set, TokenSet.create(other: _*))
     def - (other: IElementType): TokenSet = set -- TokenSet.create(other)
   }
 }

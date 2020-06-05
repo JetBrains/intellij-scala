@@ -8,10 +8,4 @@ trait ScDocSyntaxElement extends ScalaPsiElement {
   def getFlags: Int = flags
 
   def setFlag(flag: Int): Unit = flags |= flag
-
-  def reverseFlag(flag: Int): Unit = flags ^= flag
-
-  def clearFlag(flag: Int): Unit = flags &= ~flag
-
-  def clearAll(): Unit = flags = 0
 }

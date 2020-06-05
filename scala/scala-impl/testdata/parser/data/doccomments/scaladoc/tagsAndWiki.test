@@ -69,7 +69,8 @@ ScalaFile
           PsiErrorElement:Inline tag
             <empty list>
           PsiElement(DOC_WHITESPACE)(' ')
-          PsiElement(DOC_COMMENT_DATA)('linjkl')
+          CodeReferenceElement (scalaDoc): linjkl
+            PsiElement(identifier)('linjkl')
           PsiElement(DOC_INLINE_TAG_END)('}')
         PsiElement(DOC_ITALIC_TAG 2)('''')
       PsiElement(DOC_BOLD_TAG 1)(''''')

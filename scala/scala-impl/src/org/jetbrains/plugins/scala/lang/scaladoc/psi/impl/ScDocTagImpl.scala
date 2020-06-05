@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTagValue}
-import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocTagName
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
@@ -42,13 +41,4 @@ class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTa
 
     this
   }
-
-  override def getCommentDataText: String =
-    getNode.getChildren(TokenSet.create(ScalaDocTokenType.DOC_COMMENT_DATA)).map(_.getText).mkString("\n")
-
-  override def getAllText(handler: PsiElement => String): String = 
-    getNode
-      .getChildren(TokenSet.orSet(TokenSet.create(ScalaDocTokenType.DOC_COMMENT_DATA), ScalaDocTokenType.ALL_SCALADOC_SYNTAX_ELEMENTS))
-      .map(nd => handler(nd.getPsi))
-      .mkString(" ")
 }

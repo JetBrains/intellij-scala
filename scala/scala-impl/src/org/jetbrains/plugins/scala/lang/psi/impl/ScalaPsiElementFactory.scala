@@ -783,6 +783,10 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScStableCodeReference](text, context, child) {
       types.StableId.parse(_, parser.ScalaElementType.REFERENCE)
     }
+  def createDocReferenceFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
+    createElementWithContext[ScDocResolvableCodeReference](text, context, child) {
+      types.StableId.parse(_, parser.ScalaElementType.DOC_REFERENCE)
+    }
 
   // TODO method should be eliminated eventually
   def createExpressionWithContextFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScExpression = {

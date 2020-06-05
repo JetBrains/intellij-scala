@@ -8,7 +8,6 @@ import com.intellij.lang.documentation.CodeDocumentationProvider
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Pair
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
@@ -23,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWrapper}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 
 import scala.annotation.tailrec
 
@@ -36,8 +34,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   ): PsiElement =
     obj match {
       case (_, element: PsiElement, _) => element
-      case el: ScalaLookupItem => el.getPsiElement
-      case element: PsiElement => element
+      case el: ScalaLookupItem         => el.getPsiElement
+      case element: PsiElement         => element
       case _                           => null
     }
 
@@ -111,9 +109,12 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   override final def generateRenderedDoc(comment: PsiDocCommentBase): String =
     comment match {
       case scalaComment: ScDocComment  =>
-        ScalaDocGenerator.generateRenderedScalaDocContent(scalaComment.getOwner, scalaComment)
-      case _ =>
-        super.generateRenderedDoc(comment)
+        scalaComment.getOwner match {
+          case scalaCommentOwner: ScDocCommentOwner =>
+            ScalaDocGenerator.generateDocRendered(scalaCommentOwner, scalaComment)
+          case _ => super.generateRenderedDoc(comment)
+        }
+      case _ => super.generateRenderedDoc(comment)
     }
 
   override final def collectDocComments(file: PsiFile, sink: Consumer[PsiDocCommentBase]): Unit = {

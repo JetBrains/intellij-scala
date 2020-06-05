@@ -116,7 +116,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
          |def <b>foo</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a>$DefinitionEnd
          |$ContentStart description of foo <p>$ContentEnd
-         |$EmptySections""".stripMargin
+         |""".stripMargin
     )
 
   def testMethod_Overriding(): Unit = {
@@ -136,7 +136,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
          |def <b>baseMethod</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a>$DefinitionEnd
          |$ContentStart description of base method from A <p>$ContentEnd
-         |$EmptySections""".stripMargin
+         |""".stripMargin
     )
   }
 
@@ -163,7 +163,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |$ContentStart
          | description of base method from BaseScalaClass <p>
          |$ContentEnd
-         |$EmptySections
          |""".stripMargin
     )
   }
@@ -190,7 +189,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |$ContentStart
          |description of base method from BaseJavaClass <p>
          |$ContentEnd
-         |$EmptySections""".stripMargin
+         |$SectionsStart<p>$SectionsEnd
+         |""".stripMargin
     )
   }
 
@@ -282,9 +282,9 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocBodyTest(
       sharedValVarDefinition(definitionBody),
       s"""$DefinitionStart$expectedDocDefinitionSection$DefinitionEnd
-         |$ContentStart some description $ContentEnd
+         |$ContentStart some description <p>$ContentEnd
          |$SectionsStart
-         |<p><tr><td valign='top' class='section'><p>Note:</td><td valign='top'>some note</td>
+         |<tr><td valign='top' class='section'><p>Note:</td><td valign='top'>some note</td>
          |$SectionsEnd""".stripMargin
     )
 
@@ -337,33 +337,61 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""<a href="psi_element://X"><code>X</code></a>\nvar <b>v</b>: <a href="psi_element://scala.Int"><code>Int</code></a>"""
     )
 
-  def testTagsSimple(): Unit = {
+  def testAllTags(): Unit = {
+    // Should only add to sections these tags in the same order:
+    // @deprecated @param, @tparam, @return, @throws
+    // @example @note @see @since @to-do
     val fileText    =
-      s"""/**
-         |  * Description
-         |  *
-         |  * @see something
-         |  * @example 2 + 2 = 4
-         |  * @note some note
-         |  * @todo some task
-         |  */
-         |class ${|}A {}
+      s"""class AllTags {
+         |  /**
+         |   * @see some text
+         |   * @author some text
+         |   * @note some text
+         |   * @since some text
+         |   * @define some text
+         |   * @version some text
+         |   * @todo some text
+         |   * @usecase some text
+         |   * @example some text
+         |   * @deprecated some text
+         |   * @migration some text
+         |   * @group some text
+         |   * @groupname some text
+         |   * @groupdesc some text
+         |   * @groupprio some text
+         |   * @constructor some text
+         |   * @return some text
+         |   * @tparam T some text
+         |   * @throws Exception some text
+         |   * @param p some text
+         |   */
+         |  def ${|}foo[T](p: String) = 42
+         |}
          |""".stripMargin
+
     val expectedDoc =
-      s"""${DefinitionStart}class <b>A</b>$DefinitionEnd
-         |$ContentStart   Description  \n   <p>$ContentEnd
-         |$SectionsStart<p>
-         |<tr><td valign='top' class='section'><p>See also:</td>
-         |<td valign='top'><dd>something</dd></td>
-         |<tr><td valign='top' class='section'><p>Example:</td>
-         |<td valign='top'>2 + 2 = 4</td>
+      s"""<tr><td valign='top' class='section'><p>Deprecated</td>
+         |<td valign='top'>some text</td>
+         |<tr><td valign='top' class='section'><p>Params:</td>
+         |<td valign='top'>p &ndash; some text</td>
+         |<tr><td valign='top' class='section'><p>Type parameters:</td>
+         |<td valign='top'>T &ndash; some text</td>
+         |<tr><td valign='top' class='section'><p>Returns:</td>
+         |<td valign='top'> some text</td>
+         |<tr><td valign='top' class='section'><p>Throws:</td>
+         |<td valign='top'><a href="psi_element://scala.Exception"><code>Exception</code></a> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Note:</td>
-         |<td valign='top'>some note</td>
+         |<td valign='top'>some text</td>
+         |<tr><td valign='top' class='section'><p>Example:</td>
+         |<td valign='top'>some text</td>
+         |<tr><td valign='top' class='section'><p>See also:</td>
+         |<td valign='top'>some text</td>
+         |<tr><td valign='top' class='section'><p>Since:</td>
+         |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Todo:</td>
-         |<td valign='top'>some task</td>
-         |$SectionsEnd
+         |<td valign='top'>some text</td>
          |""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocSectionsTest(fileText, expectedDoc)
   }
 
   //note strong requirement, just fixating current behaviour
@@ -379,7 +407,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""${DefinitionStart}class <b>A</b>$DefinitionEnd
          |$ContentStart Description <p>$ContentEnd
-         |$EmptySections""".stripMargin
+         |""".stripMargin
 
     doGenerateDocBodyTest(
       fileText,
@@ -390,7 +418,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   def testTags_ParamsForMethod(): Unit = {
     val fileText =
       s"""/**
-         | * @note some note
          | * @param i aaa
          | * @param j bbb
          | * @param k ccc
@@ -401,38 +428,72 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |def ${|}f[T, E](i: Int, j: Int, k: String) {}
          |""".stripMargin
     val expectedDoc =
-      """<p>
-        |<tr><td valign='top' class='section'><p>Params:</td>
-        |<td valign='top'>i &ndash; aaa  <p>j &ndash; bbb  <p>k &ndash; ccc  </td>
-        |<tr><td valign='top' class='section'><p>Type parameters:</td>
-        |<td valign='top'>&lt;T&gt; &ndash;  ddd  <p>&lt;E&gt; &ndash;  eee            ggg</td>
-        |<tr><td valign='top' class='section'><p>Note:</td>
-        |<td valign='top'>some note</td>""".stripMargin
+      s"""<tr><td valign='top' class='section'><p>Params:</td>
+         |<td valign='top'>i &ndash; aaa  <p>j &ndash; bbb  <p>k &ndash; ccc  </td>
+         |<tr><td valign='top' class='section'><p>Type parameters:</td>
+         |<td valign='top'>
+         |T &ndash; ddd<p>
+         |E &ndash; eee\n            ggg</td>
+         |""".stripMargin
     doGenerateDocSectionsTest(fileText, expectedDoc)
   }
 
-  def testTags_ThrowsTagForMethod(): Unit = {
+  def testTags_Throws(): Unit = {
     val fileText =
       s"""/**
          |  * @throws Exception some condition 1
          |  * @throws java.lang.IllegalAccessException some condition 2
+         |  * @throws java.util.ConcurrentModificationException some condition 3
          |  */
          |def ${|}g() {}
          |""".stripMargin
-    val expectedDoc = s"""<p>
-                         |<tr><td valign='top' class='section'><p>Throws:</td>
-                         |<td valign='top'>
-                         |<p><a href="psi_element://java.lang.Exception"><code>Exception</code></a>
-                         | &ndash; some condition 1
-                         |  <p><a href="psi_element://java.lang.IllegalAccessException"><code>IllegalAccessException</code></a>
-                         | &ndash; some condition 2</td>""".stripMargin
+    val expectedDoc =
+      s"""<tr><td valign='top' class='section'><p>Throws:</td>
+         |<td valign='top'>
+         |<a href="psi_element://scala.Exception"><code>Exception</code></a>
+         | &ndash; some condition 1
+         |<p><a href="psi_element://java.lang.IllegalAccessException"><code>IllegalAccessException</code></a>
+         | &ndash; some condition 2
+         |<p><a href="psi_element://java.util.ConcurrentModificationException"><code>java.util.ConcurrentModificationException</code></a>
+         | &ndash; some condition 3</td>
+         |""".stripMargin
+    doGenerateDocSectionsTest(fileText, expectedDoc)
+  }
+
+  def testTags_Throws_ShouldUseShortestExceptionName(): Unit = {
+    val fileText =
+      s"""import java.util._
+         |/** @throws java.util.ConcurrentModificationException some condition */
+         |def ${|}g() {}
+         |""".stripMargin
+    val expectedDoc =
+      s"""<tr><td valign='top' class='section'><p>Throws:</td>
+         |<td valign='top'>
+         |<a href="psi_element://java.util.ConcurrentModificationException"><code>ConcurrentModificationException</code></a>
+         | &ndash; some condition</td>
+         |""".stripMargin
+    doGenerateDocSectionsTest(fileText, expectedDoc)
+  }
+
+  def testTags_Throws_ShouldEscapeExceptionName(): Unit = {
+    val fileText =
+      s"""import java.util._
+         |class <:::< extends Exception
+         |/** @throws <:::< some condition */
+         |def ${|}g() {}
+         |""".stripMargin
+    val expectedDoc =
+      s"""<tr><td valign='top' class='section'><p>Throws:</td>
+         |<td valign='top'>
+         |<a href="psi_element://<:::<"><code>&lt;:::&lt;</code></a>
+         | &ndash; some condition</td>
+         |""".stripMargin
     doGenerateDocSectionsTest(fileText, expectedDoc)
   }
 
   def testTags_ParamsForClass(): Unit = {
     val fileText =
       s"""/**
-         |  * @note some note
          |  * @param o
          |  * @tparam E
          |  * @param f description for f
@@ -441,13 +502,11 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A[E, K](o: Any, f: AnyVal) {}
          |""".stripMargin
     val expectedDoc  =
-      s"""<p>
-         |<tr><td valign='top' class='section'><p>Params:</td>
-         |<td valign='top'>o &ndash;  <p>f &ndash; description for f  </td>
+      s"""<tr><td valign='top' class='section'><p>Params:</td>
+         |<td valign='top'>o &ndash;<p>f &ndash; description for f  </td>
          |<tr><td valign='top' class='section'><p>Type parameters:</td>
-         |<td valign='top'>&lt;E&gt; &ndash;  <p>&lt;K&gt; &ndash;  description for K</td>
-         |<tr><td valign='top' class='section'><p>Note:</td>
-         |<td valign='top'>some note</td>""".stripMargin
+         |<td valign='top'>E &ndash;<p>K &ndash; description for K</td>
+         |""".stripMargin
 
     doGenerateDocSectionsTest(fileText, expectedDoc)
   }
@@ -456,15 +515,14 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val fileText =
       s"""/**
          |  * @tparam A
-         |  * @tparam B description for B
+         |  * @tparam B    description for B
          |  * @tparam C
          |  */
          |type ${|}myType[A, B, C] = java.util.HashMap[A, java.util.HashMap[B, C]]
          |""".stripMargin
     val expectedDoc  =
-      s"""<p>
-         |<tr><td valign='top' class='section'><p>Type parameters:</td>
-         |<td valign='top'>&lt;A&gt; &ndash;  <p>&lt;B&gt; &ndash;  description for B  <p>&lt;C&gt; &ndash; </td>""".stripMargin
+      s"""<tr><td valign='top' class='section'><p>Type parameters:</td>
+         |<td valign='top'>A &ndash;  <p>B &ndash; description for B<p>C &ndash;</td>""".stripMargin
     doGenerateDocSectionsTest(fileText, expectedDoc)
   }
 
@@ -476,8 +534,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin,
       s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
-         |$ContentStart   <u>xxx<sup>yyy<i>zzz</i>yyy</sup>xxx</u> $ContentEnd
-         |$EmptySections""".stripMargin
+         |$ContentStart   <u>xxx<sup>yyy<i>zzz</i>yyy</sup>xxx</u><p>$ContentEnd
+         |""".stripMargin
     )
 
   def testFontStyles_InTags(): Unit = {
@@ -490,67 +548,323 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin
 
     val expectedDoc  =
-      s"""<p>
-         |<tr><td valign='top' class='section'><p>Note:</td>
+      s"""<tr><td valign='top' class='section'><p>Note:</td>
          |<td valign='top'><b><u>bold with underscore text</u></b></td>
          |<tr><td valign='top' class='section'><p>See also:</td>
-         |<td valign='top'><dd>abc</dd><sub>index text <u>index with underscore text</u> index text 2</sub><dd>def</dd></td>""".stripMargin
+         |<td valign='top'>abc<sub>index text <u>index with underscore text</u> index text 2</sub>def</td>""".stripMargin
 
     doGenerateDocSectionsTest(fileText, expectedDoc)
   }
 
-  def testCodeLinks(): Unit = {
+  def testHttpLinks(): Unit = {
     val fileText =
       s"""/**
-         | * [[http://jetbrains.ru     ]]
-         | * [[http://jetbrains.com/idea/scala   Scala Plugin        ]]
-         | * [[http://google.com This is google]]
-         | * [[http://scala-lang.org]]
-         | * ,,__[[http://jetbrains.com]]__,,
-         | * [[java.lang.String]] ^[[java.lang.Integer]]^
+         | * [[http://example.org]]<br>
+         | * [[http://example.org    ]]<br>
+         | * [[  http://example.org]]<br>
+         | * [[  http://example.org    ]]<br>
          | */
          |val ${|}a = 1
          |""".stripMargin
-    val expectedDoc = expectedBody(
-      """val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>""",
-      s"""
-         |   <a href="http://jetbrains.ru     ">http://jetbrains.ru     </a>
-         |   <a href="http://jetbrains.com/idea/scala">  Scala Plugin</a>
-         |   <a href="http://google.com">This is google</a>
-         |   <a href="http://scala-lang.org">http://scala-lang.org</a>
-         |   <sub><u><a href="http://jetbrains.com">http://jetbrains.com</a></u></sub>
-         |   <a href="psi_element://java.lang.String"><code>String</code></a> <sup><a href="psi_element://java.lang.Integer"><code>Integer</code></a></sup>
-         | """.stripMargin
-    )
-
+    val expectedDoc =
+      s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |   <a href="http://example.org">http://example.org</a><br>
+         |   <a href="http://example.org">http://example.org</a><br>
+         |   <a href="http://example.org">http://example.org</a><br>
+         |   <a href="http://example.org">http://example.org</a><br>
+         |   <p>
+         |$ContentEnd""".stripMargin
     doGenerateDocBodyTest(fileText, expectedDoc)
   }
 
-  def testCodeLinksInside(): Unit = {
+  def testHttpLinks_WithDescription_Simple(): Unit = {
     val fileText =
       s"""/**
-         | * [[http://jetbrains.ru     ]]
-         | * [[http://jetbrains.com/idea/scala   Scala Plugin        ]]
-         | * [[http://google.com This is google]]
-         | * [[http://scala-lang.org]]
-         | * ,,__[[http://jetbrains.com]]__,,
-         | * [[java.lang.String]] ^[[java.lang.Integer]]^
+         | * [[http://example.org   label]]<br>
+         | * [[http://example.org   label  ]]<br>
+         | * [[http://example.org   label with   spaces    ]]<br>
+         | * [[  http://example.org   label with   spaces    ]]<br>
          | */
          |val ${|}a = 1
          |""".stripMargin
-    val expectedDoc = expectedBody(
-      """val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>""",
-      s"""
-         |   <a href="http://jetbrains.ru     ">http://jetbrains.ru     </a>
-         |   <a href="http://jetbrains.com/idea/scala">  Scala Plugin</a>
-         |   <a href="http://google.com">This is google</a>
-         |   <a href="http://scala-lang.org">http://scala-lang.org</a>
-         |   <sub><u><a href="http://jetbrains.com">http://jetbrains.com</a></u></sub>
-         |   <a href="psi_element://java.lang.String"><code>String</code></a> <sup><a href="psi_element://java.lang.Integer"><code>Integer</code></a></sup>
-         | """.stripMargin
+    val expectedDoc =
+      s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |   <a href="http://example.org">label</a><br>
+         |   <a href="http://example.org">label</a><br>
+         |   <a href="http://example.org">label with   spaces</a><br>
+         |   <a href="http://example.org">label with   spaces</a><br>
+         |   <p>
+         |$ContentEnd""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testHttpLinks_WithDescription_WithMarkupSyntax(): Unit = {
+    val fileText =
+      s"""/**
+         | * [[http://example.org   '''label with markdown text''']]<br>
+         | * [[http://example.org   label '''with markdown text'''  ]]<br>
+         | * [[http://example.org   '''label with markdown''' text  ]]<br>
+         | * [[http://example.org   label '''with markdown''' text  ]]<br>
+         | * [[http://example.org   label '''__with nested__ markdown''' text  ]]<br>
+         | * [[  http://example.org   label '''__with nested__ markdown''' text  ]]<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |   <a href="http://example.org"><b>label with markdown text</b></a><br>
+         |   <a href="http://example.org">label <b>with markdown text</b></a><br>
+         |   <a href="http://example.org"><b>label with markdown</b> text</a><br>
+         |   <a href="http://example.org">label <b>with markdown</b> text</a><br>
+         |   <a href="http://example.org">label <b><u>with nested</u> markdown</b> text</a><br>
+         |   <a href="http://example.org">label <b><u>with nested</u> markdown</b> text</a><br>
+         |   <p>
+         |$ContentEnd""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testHttpLinks_WithMarkupSyntaxOutside(): Unit = {
+    val fileText =
+      s"""/**
+         | * ,,__[[http://example.org]]__,,<br>
+         | * ,,__[[http://example.org   label text]]__,,<br>
+         | * [[http://example.org]] ^[[http://example.org]]^<br>
+         | * [[http://example.org  label  1 ]] ^[[http://example.org label 2]]^<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |   <sub><u><a href="http://example.org">http://example.org</a></u></sub><br>
+         |   <sub><u><a href="http://example.org">label text</a></u></sub><br>
+         |   <a href="http://example.org">http://example.org</a> <sup><a href="http://example.org">http://example.org</a></sup><br>
+         |   <a href="http://example.org">label  1</a> <sup><a href="http://example.org">label 2</a></sup><br>
+         |   <p>
+         |$ContentEnd""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testHttpLink_WithValidEqualSignInside(): Unit =
+    doGenerateDocContentTest(
+      s"""/** [[https://example.org?at=location]] */
+         |val ${|}a = 1
+         |""".stripMargin,
+      s"""<a href="https://example.org?at=location">https://example.org?at=location</a><p>""".stripMargin
     )
 
-    doGenerateDocBodyTest(fileText, expectedDoc)
+  def testEmptyLink(): Unit = {
+    val fileText =
+      s"""/**
+         | * [[]]<br>
+         | * [[    ]]<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      s"""<font color=red></font><br><font color=red></font><br><p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_ToClass_WithoutCompanionObject(): Unit = {
+    val fileText =
+      s"""/**
+         | * [[scala.util.DynamicVariable]]<br>
+         | * [[scala.util.DynamicVariable    ]]<br>
+         | * [[  scala.util.DynamicVariable]]<br>
+         | * [[  scala.util.DynamicVariable    ]]<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      s"""<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
+         |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_ToClass_WithCompanionObject(): Unit = {
+    // TODO: implement support of ref to companion objects
+    return
+    val fileText =
+      s"""/**
+         | * [[scala.util.Try]]<br>
+         | * [[scala.util.Try$$]]<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      """<a href="psi_element://scala.util.Try"><code>scala.util.DynamicVariable</code></a><br>
+        |<a href="psi_element://scala.util.Try$"><code>scala.util.DynamicVariable$</code></a><br>
+        |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_ToObject_WithoutCompanionClass(): Unit = {
+    val fileText =
+      s"""/**
+         | * [[scala.util.Properties]]<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      """<a href="psi_element://scala.util.Properties"><code>scala.util.Properties</code></a><br>
+        |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_ToObject_WithoutCompanionClass_1(): Unit = {
+    // TODO: implement support of ref to companion objects
+    return
+    val fileText =
+      s"""/**
+         | * [[scala.util.Properties$$]]<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      """<a href="psi_element://scala.util.Properties$"><code>scala.util.Properties$</code></a><br>
+        |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_WithDescription_Simple(): Unit = {
+    val fileText =
+      s"""/**
+         | * [[scala.util.DynamicVariable   label]]<br>
+         | * [[scala.util.DynamicVariable   label  ]]<br>
+         | * [[scala.util.DynamicVariable   label with   spaces    ]]<br>
+         | * [[  scala.util.DynamicVariable   label with   spaces    ]]<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      s"""<a href="psi_element://scala.util.DynamicVariable"><code>label</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>label</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>label with   spaces</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>label with   spaces</code></a><br>
+         |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_WithDescription_WithMarkupSyntax(): Unit = {
+    val fileText =
+      s"""/**
+         | * [[scala.util.DynamicVariable   '''label with markdown text''']]<br>
+         | * [[scala.util.DynamicVariable   label '''with markdown text'''  ]]<br>
+         | * [[scala.util.DynamicVariable   '''label with markdown''' text  ]]<br>
+         | * [[scala.util.DynamicVariable   label '''with markdown''' text  ]]<br>
+         | * [[scala.util.DynamicVariable   label '''__with nested__ markdown''' text  ]]<br>
+         | * [[  scala.util.DynamicVariable   label '''__with nested__ markdown''' text  ]]<br>
+         | * [[  scala.util.DynamicVariable   label '''__with nested__ markdown''' text and special chars >>> <<< ]]<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      s"""<a href="psi_element://scala.util.DynamicVariable"><code><b>label with markdown text</b></code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>label <b>with markdown text</b></code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code><b>label with markdown</b> text</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>label <b>with markdown</b> text</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>label <b><u>with nested</u> markdown</b> text</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>label <b><u>with nested</u> markdown</b> text</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>label <b><u>with nested</u> markdown</b> text and special chars >>> <<<</code></a><br>
+         |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_WithMarkupSyntaxOutside(): Unit = {
+    val fileText =
+      s"""/**
+         | * ,,__[[scala.util.DynamicVariable]]__,,<br>
+         | * ,,__[[scala.util.DynamicVariable   label text]]__,,<br>
+         | * [[scala.util.DynamicVariable]] ^[[scala.util.DynamicVariable]]^<br>
+         | * [[scala.util.DynamicVariable  label  1 ]] ^[[scala.util.DynamicVariable label 2]]^<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      s"""<sub><u><a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a></u></sub><br>
+         |<sub><u><a href="psi_element://scala.util.DynamicVariable"><code>label text</code></a></u></sub><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a>
+         |<sup><a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a></sup><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>label  1</code></a> <sup><a href="psi_element://scala.util.DynamicVariable"><code>label 2</code></a></sup><br>
+         |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_Unresolved(): Unit = {
+    val fileText =
+      s"""/**
+         | * [[org.Unresolved]]<br>
+         | * [[org.Unresolved description __with markup__]]<br>
+         | */
+         |val ${|}a = 1
+         |""".stripMargin
+    val expectedDoc =
+      s"""<font color=red>org.Unresolved</font><br>
+         |<font color=red>description <u>with markup</u></font><br>
+         |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_Mixed_UseShortestNameInTheContext(): Unit = {
+    val fileText =
+      s"""import scala.util.DynamicVariable
+         |
+         |/**
+         | * [[DynamicVariable]]<br>
+         | * [[scala.util.DynamicVariable]]<br>
+         | * {@link DynamicVariable}<br>
+         | * {@link scala.util.DynamicVariable}<br>
+         | */
+         |class ${|}A
+         |""".stripMargin
+    val expectedDoc =
+      s"""<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
+         |<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
+         |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_Mixed_UseShortestNamesFromScalaPredef(): Unit = {
+    val fileText =
+      s"""/**
+         | * [[java.lang.Exception]]<br>
+         | * [[Exception]]<br>
+         | * [[scala.Exception]]<br>
+         | */
+         |class ${|}A
+         |""".stripMargin
+    val expectedDoc =
+      s"""<a href="psi_element://java.lang.Exception"><code>java.lang.Exception</code></a><br>
+         |<a href="psi_element://scala.Exception"><code>Exception</code></a><br>
+         |<a href="psi_element://scala.Exception"><code>Exception</code></a><br>
+         |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
+  }
+
+  def testCodeLinks_Mixed_EscapeClassNames(): Unit = {
+    val fileText =
+      s"""class <:::<
+         |
+         |/**
+         | * [[<:::<]]<br>
+         | * {@link <:::<}<br>
+         | */
+         |class ${|}A
+         |""".stripMargin
+    val expectedDoc =
+      s"""<a href="psi_element://<:::<"><code>&lt;:::&lt;</code></a><br>
+         |<a href="psi_element://<:::<"><code>&lt;:::&lt;</code></a><br>
+         |<p>""".stripMargin
+    doGenerateDocContentTest(fileText, expectedDoc)
   }
 
   def testMalformedFontStyles(): Unit =
@@ -562,10 +876,10 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |val ${|}a = 1
          |""".stripMargin,
-      expectedBody(
-        s"""val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>""",
-        s"""<sup>blah-blah  </sup><u>aaaaaaa<sub>bbbbbbb </sub>""".stripMargin
-      )
+      s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |<sup>blah-blah  </sup><u>aaaaaaa<sub>bbbbbbb </sub></u><p>
+         |$ContentEnd""".stripMargin
     )
 
   def testMalformedTags(): Unit =
@@ -580,16 +894,47 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin,
       s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart<p>$ContentEnd
          |$SectionsStart
-         |<p>
-         |<tr><td valign='top' class='section'><p>See also:</td>
-         |<td valign='top'></td>
          |<tr><td valign='top' class='section'><p>Note:</td>
          |<td valign='top'>aaaaa</td>
+         |<tr><td valign='top' class='section'><p>See also:</td>
+         |<td valign='top'></td>
          |$SectionsEnd""".stripMargin
     )
 
-  def testInheritDocWithMacro(): Unit = {
+  def testTags_InheritDoc_SimpleContent(): Unit = {
+    val fileText =
+      s"""class A {
+         |  /**
+         |   * Parent description
+         |   */
+         |  def f = 42
+         |}
+         |
+         |class B extends A {
+         |  /**
+         |   * Child description
+         |   * @inheritdoc
+         |   * Extra child description
+         |   */
+         |  override def ${|}f = 23
+         |}
+         |""".stripMargin
+
+    val expectedDoc =
+      s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
+         |override def <b>f</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |Child description
+         |<p>
+         |Parent description<br>
+         |Extra child description<p>
+         |$ContentEnd""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testTags_InheritDoc_WithMacro(): Unit = {
     val fileText =
       s"""
          |/**
@@ -619,15 +964,53 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}
          |""".stripMargin
 
-    val expectedDoc = expectedBody(
-      """<a href="psi_element://B"><code>B</code></a>
-        |override def <b>f</b>(i: <a href="psi_element://scala.Int"><code>Int</code></a>): <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin,
-      s"""      The function f defined in B returns some integer without no special property. (previously defined in A)
+    val expectedDoc =
+      s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
+         |override def <b>f</b>(i: <a href="psi_element://scala.Int"><code>Int</code></a>): <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |      <p>The function f defined in B returns some integer without no special property. (previously defined in A)<br>
          |   \n   Some notes on implementation performance, the function runs in O(1).
          |   <p>
-         |""".stripMargin,
-      """<p><tr><td valign='top' class='section'><p>Params:</td><td valign='top'>i &ndash; An important parameter</td>"""
+         |$ContentEnd
+         |$SectionsStart
+         |<tr><td valign='top' class='section'><p>Params:</td>
+         |<td valign='top'>i &ndash; An important parameter</td>
+         |$SectionsEnd""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testTags_InheritDoc_FromJavaClass(): Unit = {
+    myFixture.addFileToProject("JavaClass.java",
+      """/**
+        | * text from <b>java</b><br>
+        | * {@code code tag}<br>
+        | * {@link JavaClass}<br>
+        | */
+        |public class JavaClass {}
+        |""".stripMargin
     )
+    val fileText =
+      s"""/**
+         | * text from __scala__
+         | * @inheritdoc
+         | * extra text from __scala__
+         | */
+         |class ${|}ScalaClass extends JavaClass
+         |""".stripMargin
+
+    val expectedDoc =
+      s"""${DefinitionStart}class <b>ScalaClass</b>
+         |extends <a href="psi_element://JavaClass"><code>JavaClass</code></a>$DefinitionEnd
+         |$ContentStart
+         |text from<u>scala</u>
+         |<p>
+         |text from <b>java</b><br>
+         |<code>code tag</code><br>
+         |<a href="psi_element://JavaClass"><code>JavaClass</code></a><br>
+         |<br>
+         |extra text from<u>scala</u><p>
+         |$ContentEnd
+         |""".stripMargin
     doGenerateDocBodyTest(fileText, expectedDoc)
   }
 
@@ -646,10 +1029,10 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
          |def <b>boo</b>(): <a href="psi_element://scala.Unit"><code>Unit</code></a>$DefinitionEnd
          |$ContentStart   Function defined in A <p>$ContentEnd
-         |$EmptySections""".stripMargin
+         |""".stripMargin
     )
 
-  def testMacroComplicated(): Unit =
+  def testMacro_Complicated(): Unit =
     doGenerateDocBodyTest(
       s"""/**
          | * @define KEY1 VALUE1
@@ -674,14 +1057,14 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  override def ${|}boo() = 2
          |}
          |""".stripMargin,
-      expectedBody(
-        """<a href="psi_element://C"><code>C</code></a>
-           |override def <b>boo</b>(): <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin,
-        s"""a VALUE1 b VALUE2 c [Cannot find macro: $$KEY_UNREACHED] <p>""".stripMargin
-      )
+      s"""$DefinitionStart<a href="psi_element://C"><code>C</code></a>
+         |override def <b>boo</b>(): <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |a VALUE1 b VALUE2 c [Cannot find macro: $$KEY_UNREACHED] <p>
+         |$ContentEnd""".stripMargin
     )
 
-  def testMacroWiki(): Unit =
+  def testMacro_Wiki(): Unit =
     doGenerateDocBodyTest(
       s"""/**
          | * @define none `None`
@@ -696,7 +1079,17 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
          |def <b>foo</b>(): <a href="psi_element://scala.Unit"><code>Unit</code></a>$DefinitionEnd
          |$ContentStart <tt>None</tt><p>$ContentEnd
-         |$EmptySections""".stripMargin
+         |""".stripMargin
+    )
+
+
+  /** Returns true if the option is $$none, false otherwise */
+  def testMacro_Undefined(): Unit =
+    doGenerateDocContentTest(
+      """/** Returns true if the option is $none, false otherwise */
+        |class A {}
+        |""".stripMargin,
+      """Returns true if the option is [Cannot find macro: $none], false otherwise<p>""".stripMargin
     )
 
   def testAnnotationArgs(): Unit = {
@@ -762,5 +1155,115 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         " <a href=\"psi_element://A.&lt;:&lt;\"><code>&lt;:&lt;</code></a> " +
         "<a href=\"psi_element://scala.Predef.String\"><code>String</code></a>" +
         "): <a href=\"psi_element://scala.Unit\"><code>Unit</code></a>"
+    )
+
+  def testNestedScaladocShouldBeTreatedAsCommentData(): Unit ={
+    val fileContent =
+      s"""/**
+         | * text 1
+         | * /**
+         | * * text inner 1
+         | * */
+         | * text 2
+         | *
+         | * {{{/**   text inner   3   */}}}
+         | */
+         |class ${|}NestedDoc""".stripMargin
+
+    val expectedContent =
+      """text 1   /**   * text inner 1   */   text 2
+        |   <pre><code>/**   text inner   3   */</code></pre> <p>""".stripMargin
+
+    doGenerateDocContentTest(fileContent, expectedContent)
+  }
+
+  def testJavadocInlinedTag_Code(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * {@code}<br>
+         | * {@code  }<br>
+         | * {@code [[this.is.not.an.actual.Link]]}<br>
+         | */
+         |class ${|}X
+         |""".stripMargin,
+      """<code></code><br>
+        |<code></code><br>
+        |<code>[[this.is.not.an.actual.Link]]</code><br>
+        |<p>""".stripMargin
+    )
+
+  def testJavadocInlinedTag_DocRoot(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * {@docRoot}
+         | * {@docRoot some text}
+         | */
+         |class ${|}X
+         |""".stripMargin,
+      """<p>"""
+    )
+
+  def testJavadocInlinedTag_Literal_Value(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * {@literal some text}
+         | * {@value some text}
+         | */
+         |class ${|}X
+         |""".stripMargin,
+      """<tt>some text</tt>
+        |<tt>some text</tt>
+        |<p>""".stripMargin
+    )
+
+  def testJavadocInlinedTag_Link_LinkPain(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * {@link scala.util.DynamicVariable  }<br>
+         | * {@link scala.util.DynamicVariable label}<br>
+         | * {@linkplain   scala.util.DynamicVariable   label text }<br>
+         | */
+         |class ${|}X
+         |""".stripMargin,
+      """<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
+        |<a href="psi_element://scala.util.DynamicVariable"><code>label</code></a><br>
+        |<a href="psi_element://scala.util.DynamicVariable">label text</a><br>
+        |<p>""".stripMargin
+    )
+
+  def testJavadocInlinedTag_Link_LinkPlain_Empty(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * {@link}<br>
+         | * {@link  }<br>
+         | */
+         |class ${|}X
+         |""".stripMargin,
+      """<font color=red></font><br>
+        |<font color=red></font><br>
+        |<p>""".stripMargin
+    )
+
+  def testJavadocInlinedTag_Link_LinkPLain_Unresolved(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * {@link org.Unresolved  }<br>
+         | * {@linkplain   org.Unresolved   label text  }<br>
+         | */
+         |class ${|}X
+         |""".stripMargin,
+      """<font color=red>org.Unresolved</font><br>
+        |<font color=red>label text</font><br>
+        |<p>""".stripMargin
+    )
+
+  def testJavadocInlinedTag_Unknown(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * {@unknown javadoc tag}
+         | */
+         |class ${|}X
+         |""".stripMargin,
+      """{@unknown javadoc tag}<p>""".stripMargin
     )
 }

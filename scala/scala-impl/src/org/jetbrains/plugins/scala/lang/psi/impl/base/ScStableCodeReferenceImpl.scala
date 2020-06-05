@@ -48,6 +48,9 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) with ScStableCodeReference {
 
+  override def toString: String = s"CodeReferenceElement${debugKind.fold("")(" (" + _ + ")")}: ${ifReadAllowed(getText)("")}"
+  protected def debugKind: Option[String] = None
+
   override def getResolveResultVariants: Array[ScalaResolveResult] =
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this))
 
@@ -56,8 +59,6 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       .flatMap(_.findConstructorInvocation)
 
   override def isConstructorReference: Boolean = getConstructorInvocation.nonEmpty
-
-  override def toString: String = "CodeReferenceElement: " + ifReadAllowed(getText)("")
 
   override def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._

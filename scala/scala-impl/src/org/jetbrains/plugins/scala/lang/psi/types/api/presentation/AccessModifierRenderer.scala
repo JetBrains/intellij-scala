@@ -35,7 +35,7 @@ object AccessModifierRenderer {
     object WithHtmlPsiLink extends AccessQualifierRenderer {
 
       override def renderQualifier(modifier: ScAccessModifier): String =
-        if (modifier.isThis) HtmlPsiUtils.escape("this") else {
+        if (modifier.isThis) "this" else {
           val res = for {
             id <- modifier.idText
             qualifier <- resolveAccessQualifier(modifier, id)

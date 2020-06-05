@@ -14,8 +14,6 @@ trait ScalaDocumentationsSectionsTesting {
   protected val ContentEnd     : String = DocumentationMarkup.CONTENT_END
   protected val SectionsStart  : String = DocumentationMarkup.SECTIONS_START
   protected val SectionsEnd    : String = DocumentationMarkup.SECTIONS_END
-  protected val EmptySectionsContent = "<p>"
-  protected val EmptySections = s"$SectionsStart<p>$SectionsEnd"
 
   protected def doGenerateDocBodyTest(fileContent: String, expectedDoc: String): Unit = {
     val actualDoc = generateDoc(fileContent)
@@ -49,11 +47,6 @@ trait ScalaDocumentationsSectionsTesting {
       case -1 => fail(s"no '$sectionName' section found\n$doc").asInstanceOf[Nothing]
       case idx  => doc.substring(idx, doc.indexOf(tagEnd, idx)) + tagEnd
     }
-
-  protected def expectedBody(definition: String, content: String, sections: String = EmptySectionsContent): String =
-    s"$DefinitionStart$definition$DefinitionEnd" +
-      s"$ContentStart$content$ContentEnd" +
-      s"$SectionsStart$sections$SectionsEnd"
 }
 
 

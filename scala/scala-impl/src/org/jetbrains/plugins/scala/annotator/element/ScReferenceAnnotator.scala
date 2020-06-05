@@ -565,7 +565,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference)
                                      (implicit holder: ScalaAnnotationHolder): Unit = {
-    if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReferenceImpl]) return
+    if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReference]) return
     resolve(0) match {
       case r if !r.isAccessible =>
         val error = "Symbol %s is inaccessible from this place".format(r.element.name)

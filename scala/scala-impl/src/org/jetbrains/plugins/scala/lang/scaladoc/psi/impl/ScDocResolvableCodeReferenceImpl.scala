@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeRefe
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceImpl(node) with ScDocResolvableCodeReference {
 
+  override protected def debugKind: Option[String] = Some("scalaDoc")
+
   override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
     super.multiResolveScala(incomplete).map {
       case ScalaResolveResult(cstr: ScPrimaryConstructor, _) if cstr.containingClass != null =>

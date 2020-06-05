@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
 final class ScDocThrowTagValueImpl(node: ASTNode) extends ScStableCodeReferenceImpl(node) with ScDocTagValue {
 
+  override protected def debugKind: Option[String] = Some("scala doc throws")
+
   override def getName: String = getText
 
   override def isSoft: Boolean = false

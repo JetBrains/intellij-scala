@@ -25,6 +25,7 @@ public interface ScalaDocTokenType {
 
   IElementType DOC_INNER_CODE_TAG = new ScalaDocElementType("DOC_INNER_CODE_TAG"); // TODO: rename to DOC_INNER_CODE_START
   IElementType DOC_INNER_CODE = new ScalaDocElementType("DOC_INNER_CODE");
+  IElementType DOC_HTTP_LINK_VALUE = new ScalaDocElementType("DOC_HTTP_LINK_VALUE");
   IElementType DOC_INNER_CLOSE_CODE_TAG = new ScalaDocElementType("DOC_INNER_CLOSE_CODE_TAG"); // TODO: rename to DOC_INNER_CLOSE_END
 
   IElementType DOC_CODE_LINK_VALUE = new ScalaDocElementType("DOC_CODE_LINK_VALUE");
@@ -59,6 +60,7 @@ public interface ScalaDocTokenType {
           ScalaDocTokenType.DOC_SUBSCRIPT_TAG, ScalaDocTokenType.DOC_SUPERSCRIPT_TAG, ScalaDocTokenType.DOC_UNDERLINE_TAG,
           ScalaDocTokenType.DOC_LINK_TAG, ScalaDocTokenType.DOC_LINK_CLOSE_TAG, ScalaDocTokenType.DOC_HTTP_LINK_TAG,
           ScalaDocTokenType.DOC_INNER_CODE_TAG, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG,
+          ScalaDocTokenType.VALID_DOC_HEADER, ScalaDocTokenType.DOC_HEADER,
           ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG
   );
 
@@ -66,6 +68,6 @@ public interface ScalaDocTokenType {
           DOC_COMMENT_START, DOC_COMMENT_END, DOC_COMMENT_DATA, DOC_WHITESPACE, DOC_COMMENT_LEADING_ASTERISKS, DOC_TAG_NAME,
           DOC_INLINE_TAG_START, DOC_INLINE_TAG_END, DOC_TAG_VALUE_TOKEN, DOC_TAG_VALUE_DOT, DOC_TAG_VALUE_COMMA,
           DOC_TAG_VALUE_LPAREN, DOC_TAG_VALUE_RPAREN, DOC_TAG_VALUE_SHARP_TOKEN, DOC_MARKED_ELEMENT,
-          DOC_INNER_CODE, DOC_HEADER, VALID_DOC_HEADER, DOC_MACROS, DOC_CODE_LINK_VALUE
+          DOC_INNER_CODE, DOC_MACROS, DOC_CODE_LINK_VALUE, DOC_HTTP_LINK_VALUE
   ));
 }

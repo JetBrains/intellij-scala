@@ -30,9 +30,8 @@ trait DocumentationTesting {
     if (expected == null) {
       assertNull(actual)
     } else {
-      // new lines are used in tests for the visual readability of HTML
-      val expectedNormalized = normalizeNewLines(expected)
-      val actualNormalized = normalizeNewLines(actual)
+      val expectedNormalized = normalizeWhiteSpaces(expected)
+      val actualNormalized = normalizeWhiteSpaces(actual)
       assertEquals(expectedNormalized, actualNormalized)
     }
 
@@ -40,7 +39,15 @@ trait DocumentationTesting {
   private def removeSpacesAroundTags(html: String): String =
     html.replaceAll(s"(?m)\\s*($htmlTagRegex)\\s*", "$1")
 
-  private def normalizeNewLines(htmlRaw: String): String = {
+  /**
+   * Everywhere outside <pre> tag:
+   * 1. Removes whitespaces tags
+   * 2. Collapses all whitespaces (including new lines) sequences to a single whitespace
+   *
+   * This is done for an easier testing.
+   * NOTE: we assume that whitespaces character only matter inside <pre> tag.
+   */
+  private def normalizeWhiteSpaces(htmlRaw: String): String = {
     val html = htmlRaw.replace("\r", "")
 
     val buffer = new java.lang.StringBuilder
@@ -55,7 +62,8 @@ trait DocumentationTesting {
     preformattedRangesFixed.sliding(2).foreach { case Seq(prev, cur) =>
       val contentBefore = html.substring(prev.getEndOffset, cur.getStartOffset)
       val preformattedContent = html.substring(cur.getStartOffset, cur.getEndOffset)
-      buffer.append(removeSpacesAroundTags(contentBefore))
+
+      buffer.append(removeSpacesAroundTags(contentBefore).replaceAll("\\s+", " "))
       buffer.append(preformattedContent)
     }
 

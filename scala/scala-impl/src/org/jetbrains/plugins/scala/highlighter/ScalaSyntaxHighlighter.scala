@@ -3,6 +3,7 @@ package highlighter
 
 import java.{util => ju}
 
+import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import com.intellij.lexer._
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterBase}
@@ -102,8 +103,11 @@ object ScalaSyntaxHighlighter {
   )
 
   //ScalaDoc Wiki syntax elements
+  // TODO: headers are excluded cause:
+  //  1) inner headers are parsed wrongly e.g. ===header = content===, `=` is also parsed as header instead of content
+  //  2) current headers using <h1>, <h2> tags are not rendered as headers by IDEA
   private val tSCALADOC_WIKI_SYNTAX: TokenSet =
-    ALL_SCALADOC_SYNTAX_ELEMENTS
+    ALL_SCALADOC_SYNTAX_ELEMENTS -- (ScalaDocTokenType.VALID_DOC_HEADER, ScalaDocTokenType.DOC_HEADER)
 
   //for value in @param value
   private val tDOC_TAG_VALUE = TokenSet.create(
@@ -191,6 +195,7 @@ object ScalaSyntaxHighlighter {
       (tSCALADOC_XML_TAGS -- tXML_TAG_NAME) -> SCALA_DOC_HTML_TAG,
       tSCALADOC_WIKI_SYNTAX -> SCALA_DOC_WIKI_SYNTAX,
       tSCALADOC_HTML_ESCAPE -> SCALA_DOC_HTML_ESCAPE,
+
       ((ALL_SCALADOC_TOKENS ++ (DOC_COMMENT_BAD_CHARACTER, DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT))
         -- tDOC_TAG_VALUE
         -- tDOC_COMMENT_TAGS
@@ -411,16 +416,5 @@ object ScalaSyntaxHighlighter {
         DOC_INNER_CLOSE_CODE_TAG
       )
     )
-  }
-
-  implicit class TokenSetOps(private val tokenSet: TokenSet) extends AnyVal {
-    def :+(elementType: IElementType): TokenSet =
-      TokenSet.orSet(tokenSet, TokenSet.create(elementType))
-    def ++(elementTypes: IElementType*): TokenSet =
-      TokenSet.orSet(tokenSet, TokenSet.create(elementTypes.toArray: _*))
-    def :-(elementType: IElementType): TokenSet =
-      TokenSet.andNot(tokenSet, TokenSet.create(elementType))
-    def --(other: TokenSet): TokenSet =
-      TokenSet.andNot(tokenSet, other)
   }
 }

@@ -1,0 +1,8 @@
+/** /** /** */*/*/
+-----
+ScalaFile
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('/** /** */*/')
+    PsiElement(DOC_COMMENT_END)('*/')

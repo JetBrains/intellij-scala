@@ -1,0 +1,106 @@
+/** text outer
+ *
+ * /**
+ * * text inner
+ * */
+ *
+ * text outer /**
+ * * text inner
+ * */ text outer
+ *
+ * text outer /** text inner
+  **  text inner
+ * text outer */ text outer
+ *
+ * text outer
+ * /**
+ * text inner
+ * */
+ * text outer
+ *
+ * {{{/** text inner */}}}
+ ****/
+
+-----
+ScalaFile
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('text outer')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('/**')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('* text inner')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('*/')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('text outer /**')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('* text inner')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('*/ text outer')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('text outer /** text inner')
+    PsiElement(DOC_WHITESPACE)('\n  ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_COMMENT_DATA)('*  text inner')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('text outer */ text outer')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('text outer')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('/**')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('text inner')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('*/')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('text outer')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    InnerCodeElement
+      PsiElement(DOC_INNER_CODE_TAG)('{{{')
+      PsiElement(DOC_INNER_CODE)('/** text inner */')
+      PsiElement(DOC_INNER_CLOSE_CODE_TAG)('}}}')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_COMMENT_DATA)('**')
+    PsiElement(DOC_COMMENT_END)('*/')
+  PsiWhiteSpace('\n')

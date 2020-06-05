@@ -39,6 +39,17 @@ class ScalaDocTokenTypeTest extends TestCase {
       nonRegisteredElementsFields.isEmpty
     )
   }
+  def testAllScalaDocSyntaxTokensShouldContainAllTokensIndeed(): Unit = {
+    val declaredTokensField = declaredTokenTypesFields
+    val nonRegisteredElementsFields = declaredTokensField.filterNot { tokenField =>
+      val elementValue = tokenField.value.asInstanceOf[ScaladocSyntaxElementType]
+      ScalaDocTokenType.ALL_SCALADOC_SYNTAX_ELEMENTS.contains(elementValue)
+    }
+    assertTrue(
+      s"All syntax token types should be registered, but these are not:\n${nonRegisteredElementsFields.map(_.name).mkString(", ")}",
+      nonRegisteredElementsFields.isEmpty
+    )
+  }
 
   def testAllScalaDocTokensDebugNameShouldBeEqualToTheFieldName(): Unit = {
     val invalid = declaredTokenTypesFields

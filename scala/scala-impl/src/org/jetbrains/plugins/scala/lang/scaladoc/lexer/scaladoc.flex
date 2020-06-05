@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %{ // User code
 
   private boolean isOddItalicBold = false;;
+  private int braceCount = 0;
 
   public _ScalaDocLexer() {
     this((java.io.Reader)null);
@@ -75,11 +76,15 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %state DOC_TAG_VALUE_IN_PAREN
 %state DOC_TAG_VALUE_IN_LTGT
 %state INLINE_TAG_NAME
+%state INLINE_LINK_TAG_DOC_SPACE
+%state INLINE_LINK_TAG_VALUE
 %state INLINE_DOC_TAG_VALUE
 %state INLINE_TAG_DOC_SPACE
+%state CODE_LINK_INNER_START
 %state CODE_LINK_INNER
-%state CODE_BAD_LINK
+%state HTTP_LINK_INNER_START
 %state HTTP_LINK_INNER
+%state CODE_BAD_LINK
 %state DOC_TAG_VALUE_SPACE
 %xstate COMMENT_INNER_CODE
 %xstate INNER_CODE_WHITESPACE
@@ -89,9 +94,12 @@ WHITE_DOC_SPACE_NO_NL=[\ \t\f]
 DIGIT=[0-9]
 ALPHA=[:jletter:]
 
-TAG_IDENTIFIER=[^\ \t\f\n\r]+ // SCL-13537
-INLINE_TAG_IDENTIFIER=[^\ \t\f\n\r}]+
+TAG_IDENTIFIER=[^\ \t\f\n\r}]+ // SCL-13537
 MACRO_IDENTIFIER=("{" .* "}") | ({ALPHA} | {DIGIT})+ // SCL-9720
+
+COMMENT_BEGIN = "/*"
+DOC_COMMENT_BEGIN = "/*""*"
+COMMENT_END = "*/"
 
 /////////////////////////////////// for arbitrary scala identifiers////////////////////////////////////////////////////
 special = \u0021 | \u0023 | [\u0025-\u0026] | [\u002A-\u002B] | \u002D | \u005E | \u003A| [\u003C-\u0040]| \u007E
@@ -117,7 +125,27 @@ plainid = {varid} | {op}
 
 %%
 
-<YYINITIAL> "/**" { yybegin(COMMENT_DATA_START); return DOC_COMMENT_START; }
+<YYINITIAL> {DOC_COMMENT_BEGIN} {
+  braceCount++;
+  yybegin(COMMENT_DATA_START);
+  return DOC_COMMENT_START;
+}
+{DOC_COMMENT_BEGIN} | {COMMENT_BEGIN} {
+  braceCount++;
+  yybegin(COMMENT_DATA);
+  return DOC_COMMENT_DATA;
+}
+{COMMENT_END} {
+  braceCount--;
+  if (braceCount == 0) {
+    return DOC_COMMENT_END;
+  }
+  else {
+    yybegin(COMMENT_DATA);
+    return DOC_COMMENT_DATA;
+  }
+}
+
 <COMMENT_DATA_START> {WHITE_DOC_SPACE_CHAR}+ { return DOC_WHITESPACE; }
 <COMMENT_DATA>  {WHITE_DOC_SPACE_NO_NL}+ { return DOC_COMMENT_DATA; }
 <COMMENT_DATA, COMMENT_INNER_CODE>  [\n\r]+{WHITE_DOC_SPACE_CHAR}* { return DOC_WHITESPACE; }
@@ -151,8 +179,12 @@ plainid = {varid} | {op}
   return DOC_MONOSPACE_TAG;
 }
 <COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") {
-  yybegin(CODE_LINK_INNER);
+  yybegin(CODE_LINK_INNER_START);
   return DOC_LINK_TAG;
+}
+<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") / {WHITE_DOC_SPACE_NO_NL}*("http:" | "https:") {
+  yybegin(HTTP_LINK_INNER_START);
+  return DOC_HTTP_LINK_TAG;
 }
 <COMMENT_DATA, COMMENT_DATA_START> ("{{{"|"\u007b\u007b\u007b") {
   yybegin(COMMENT_INNER_CODE);
@@ -177,19 +209,39 @@ plainid = {varid} | {op}
   return DOC_INNER_CLOSE_CODE_TAG;
 }
 
-<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") / ("http:" | "https:") {
-  yybegin(COMMENT_DATA);
-  return DOC_HTTP_LINK_TAG;
+<HTTP_LINK_INNER_START> {WHITE_DOC_SPACE_NO_NL}+ {
+  yybegin(HTTP_LINK_INNER);
+  return DOC_WHITESPACE;
 }
 
-<CODE_LINK_INNER> ({plainid} | "`" {stringLiteralExtra} "`") / ["."] {
+<HTTP_LINK_INNER> {WHITE_DOC_SPACE_NO_NL}+ {
+  yybegin(COMMENT_DATA);
+  return DOC_WHITESPACE;
+}
+<HTTP_LINK_INNER_START, HTTP_LINK_INNER> [^\ \t\f\n\r\]\u005d]+ {
+  yybegin(HTTP_LINK_INNER);
+  return DOC_HTTP_LINK_VALUE;
+}
+
+<CODE_LINK_INNER, CODE_LINK_INNER_START,HTTP_LINK_INNER, HTTP_LINK_INNER_START, CODE_BAD_LINK,COMMENT_DATA, COMMENT_DATA_START> ("]]"|"\u005d\u005d") {
+  yybegin(COMMENT_DATA);
+  return DOC_LINK_CLOSE_TAG;
+}
+
+<CODE_LINK_INNER_START> {WHITE_DOC_SPACE_NO_NL}+ {
+  yybegin(CODE_LINK_INNER);
+  return DOC_WHITESPACE;
+}
+<CODE_LINK_INNER_START, CODE_LINK_INNER> ({plainid} | "`" {stringLiteralExtra} "`") {
+  yybegin(CODE_LINK_INNER);
   return tIDENTIFIER;
 }
 <CODE_LINK_INNER> "." {
   return tDOT;
 }
-<CODE_LINK_INNER> ({plainid} | "`" {stringLiteralExtra} "`") / ("]]"|"\u005d\u005d") {
-  return tIDENTIFIER;
+<CODE_LINK_INNER> {WHITE_DOC_SPACE_NO_NL}+ {
+  yybegin(COMMENT_DATA);
+  return DOC_WHITESPACE;
 }
 <CODE_BAD_LINK> [\n\r]+({WHITE_DOC_SPACE_CHAR})* {
   yybegin(COMMENT_DATA);
@@ -197,14 +249,6 @@ plainid = {varid} | {op}
 }
 <CODE_BAD_LINK> . {
   return DOC_COMMENT_BAD_CHARACTER;
-}
-<CODE_LINK_INNER> ({plainid} | "`" {stringLiteralExtra} "`") {
-  yybegin(CODE_BAD_LINK);
-  return tIDENTIFIER;
-}
-<CODE_LINK_INNER, COMMENT_DATA, CODE_BAD_LINK, COMMENT_DATA_START> ("]]"|"\u005d\u005d") {
-  yybegin(COMMENT_DATA);
-  return DOC_LINK_CLOSE_TAG;
 }
 
 <DOC_TAG_VALUE> {WHITE_DOC_SPACE_CHAR}+ { yybegin(COMMENT_DATA); return DOC_WHITESPACE; }
@@ -215,13 +259,23 @@ plainid = {varid} | {op}
 <DOC_TAG_VALUE, DOC_TAG_VALUE_IN_PAREN> [,] { return DOC_TAG_VALUE_COMMA; }
 <DOC_TAG_VALUE_IN_PAREN> {WHITE_DOC_SPACE_CHAR}+ { return DOC_WHITESPACE; }
 
-<COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{INLINE_TAG_IDENTIFIER} {
+<COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{TAG_IDENTIFIER} {
   yybegin(INLINE_TAG_NAME);
   return DOC_INLINE_TAG_START;
 }
-<INLINE_TAG_NAME> "@"{INLINE_TAG_IDENTIFIER} { yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
-<INLINE_TAG_DOC_SPACE, INLINE_DOC_TAG_VALUE> "}" { yybegin(COMMENT_DATA); return DOC_INLINE_TAG_END; }
+<INLINE_TAG_NAME> "@"("link" | "linkplain") { yybegin(INLINE_LINK_TAG_DOC_SPACE); return DOC_TAG_NAME; }
+<INLINE_TAG_NAME> "@"{TAG_IDENTIFIER} {  yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME;  }
+<INLINE_LINK_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ { yybegin(INLINE_LINK_TAG_VALUE); return DOC_WHITESPACE;  }
+<INLINE_LINK_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") { return tIDENTIFIER; }
+<INLINE_LINK_TAG_VALUE> "." { return tDOT; }
+<INLINE_LINK_TAG_VALUE> {WHITE_DOC_SPACE_CHAR}+ { yybegin(INLINE_DOC_TAG_VALUE); return DOC_WHITESPACE;  }
+<INLINE_TAG_DOC_SPACE> {WHITE_DOC_SPACE_CHAR}+ { yybegin(INLINE_DOC_TAG_VALUE);return DOC_WHITESPACE; }
 <INLINE_DOC_TAG_VALUE> [^\}]+ { return DOC_COMMENT_DATA; }
+
+<INLINE_TAG_DOC_SPACE, INLINE_LINK_TAG_DOC_SPACE, INLINE_DOC_TAG_VALUE, INLINE_LINK_TAG_VALUE> "}" {
+  yybegin(COMMENT_DATA);
+  return DOC_INLINE_TAG_END;
+}
 
 <COMMENT_DATA_START, COMMENT_DATA, DOC_TAG_VALUE> . {
   yybegin(COMMENT_DATA);
@@ -265,10 +319,5 @@ plainid = {varid} | {op}
    yybegin(COMMENT_DATA);
    return DOC_WHITESPACE;
 }
-<INLINE_TAG_DOC_SPACE> {WHITE_DOC_SPACE_CHAR}+ {
-  yybegin(INLINE_DOC_TAG_VALUE);
-  return DOC_WHITESPACE;
-}
 
-\*+"/" { return DOC_COMMENT_END; }
 [^] { return DOC_COMMENT_BAD_CHARACTER; }

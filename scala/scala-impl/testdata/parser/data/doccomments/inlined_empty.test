@@ -1,0 +1,29 @@
+/**
+ * {@code}
+ * {@code   }
+ */
+-----
+ScalaFile
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    DocInlinedTag
+      PsiElement(DOC_INLINE_TAG_START)('{')
+      PsiElement(DOC_TAG_NAME)('@code')
+      PsiErrorElement:Inline tag
+        <empty list>
+      PsiElement(DOC_INLINE_TAG_END)('}')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    DocInlinedTag
+      PsiElement(DOC_INLINE_TAG_START)('{')
+      PsiElement(DOC_TAG_NAME)('@code')
+      PsiErrorElement:Inline tag
+        <empty list>
+      PsiElement(DOC_WHITESPACE)('   ')
+      PsiElement(DOC_INLINE_TAG_END)('}')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_END)('*/')

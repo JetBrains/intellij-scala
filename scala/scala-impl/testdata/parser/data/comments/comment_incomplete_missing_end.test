@@ -27,6 +27,4 @@ ScalaFile
     PsiElement(DOC_WHITESPACE)('\n\n')
     PsiElement(DOC_COMMENT_DATA)('/*')
     PsiElement(DOC_WHITESPACE)('\n\n')
-    PsiElement(DOC_COMMENT_END)('*/')
-    PsiElement(DOC_WHITESPACE)('  ')
-    PsiElement(DOC_COMMENT_DATA)('}')
+    PsiElement(DOC_COMMENT_DATA)('*/  }')
