@@ -1,50 +1,27 @@
 package org.jetbrains.plugins.scala
 package util
 
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 
-import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal.startCleanupLoad
 
 final class UnloadableThreadLocal[T >: Null](init: => T) {
-  private val unloaded = new AtomicBoolean(false)
-  private val references = ContainerUtil.createConcurrentList[AtomicReference[T]]
+  private val untilNextCleanup = new AtomicInteger(startCleanupLoad)
+  private val references = new ConcurrentHashMap[Thread, T]
 
-  private val inner = new ThreadLocal[AtomicReference[T]] {
-    override def initialValue(): AtomicReference[T] = {
-      val initial = init
-      assert(initial != null)
-      val ref = new AtomicReference(initial)
-      references.add(ref)
-      if (unloaded.get()) {
-        // plugin is in unloading process?
-        ref.set(null)
-        throw new AssertionError("Threadlocal should not be used when unloding is in progress")
+  def value: T = {
+    references.computeIfAbsent(Thread.currentThread(), _ => {
+      if (untilNextCleanup.decrementAndGet() == 0) {
+        removeDeadThreadData()
+        untilNextCleanup.set(references.size())
       }
-      ref
-    }
-  }
-
-  invokeOnScalaPluginUnload {
-    val alreadyUnloaded = unloaded.getAndSet(true)
-    if (alreadyUnloaded) {
-      throw new AssertionError("Thread local should not be cleared twice")
-    }
-    references.forEach(ref => {
-      ref.set(null)
+      init
     })
   }
 
-  def value: T = {
-    val value = inner.get.get
-    assert(value != null, "Thread local is already unloaded and cannot be used anymore!")
-    value
-  }
-
   def value_=(newValue: T): Unit = {
-    require(newValue != null, "Cannot set null to thread local")
-    val old = inner.get.getAndSet(newValue)
-    assert(old != null, "Thread local is already unloaded and cannot be set anymore!")
+    references.put(Thread.currentThread(), newValue)
   }
 
   def withValue[R](newValue: T)(body: => R): R = {
@@ -54,8 +31,21 @@ final class UnloadableThreadLocal[T >: Null](init: => T) {
     value = save
     result
   }
+
+  private def removeDeadThreadData(): Unit = {
+    val keys = references.keys()
+
+    while (keys.hasMoreElements) {
+      val thread = keys.nextElement()
+      if (!thread.isAlive) {
+        references.remove(thread)
+      }
+    }
+  }
 }
 
 object UnloadableThreadLocal {
+  private val startCleanupLoad = 20
+
   def apply[T >: Null](init: => T): UnloadableThreadLocal[T] = new UnloadableThreadLocal(init)
 }
