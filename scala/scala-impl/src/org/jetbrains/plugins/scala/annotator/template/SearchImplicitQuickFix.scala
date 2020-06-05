@@ -69,21 +69,26 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: Implicit
     else {
       val title = ScalaBundle.message("import.implicitInstance.chooser.title")
       ScalaAddImportAction.importImplicits(editor, instances.map(ImplicitToImport).toArray, place, title)
-        .execute
+        .execute()
     }
   }
 
   override def startInWriteAction(): Boolean = true
 }
 
-private object SearchImplicitQuickFix {
+object SearchImplicitQuickFix {
   def apply(notFoundImplicitParams: Seq[ScalaResolveResult],
-            owner: ImplicitArgumentsOwner): Option[SearchImplicitQuickFix] = {
+            owner: ImplicitArgumentsOwner,
+            searchProbableArgs: Boolean): Option[IntentionAction] = {
 
-    val notFoundTypes = notFoundImplicitParams.flatMap(withProbableArguments(_)).flatMap(implicitTypeToSearch)
+    val allArguments =
+      if (searchProbableArgs) notFoundImplicitParams.flatMap(withProbableArguments(_))
+      else notFoundImplicitParams
+
+    val notFoundTypes = allArguments.flatMap(implicitTypeToSearch)
 
     if (notFoundTypes.nonEmpty)
-      Some(new SearchImplicitQuickFix(notFoundTypes, owner))
+      Some(new SearchImplicitQuickFix(notFoundTypes.distinct, owner))
     else None
   }
 

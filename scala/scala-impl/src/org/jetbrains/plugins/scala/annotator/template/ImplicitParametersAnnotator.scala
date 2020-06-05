@@ -48,7 +48,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
 
         val notFound = parameters.filter(_.isNotFoundImplicitParameter)
         if (notFound.nonEmpty) {
-          SearchImplicitQuickFix(notFound, element).foreach(annotation.registerFix)
+          SearchImplicitQuickFix(notFound, element, searchProbableArgs = true).foreach(annotation.registerFix)
         }
 
         //make annotation invisible in editor in favor of inlay hint

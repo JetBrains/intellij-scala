@@ -29,11 +29,11 @@ package object hints {
     def withAttributes(attr: TextAttributes): Seq[Text] = parts.map(_.withAttributes(attr))
 
     //nested text may have more specific tooltip
-    def withErrorTooltipIfEmpty(tooltip: String): Seq[Text] = parts.map { p =>
+    def withErrorTooltipIfEmpty(tooltip: ErrorTooltip): Seq[Text] = parts.map { p =>
       if (p.errorTooltip.isEmpty) p.withErrorTooltip(tooltip) else p
     }
 
-    def withErrorTooltipIfEmpty(tooltip: Option[String]): Seq[Text] = tooltip.map(parts.withErrorTooltipIfEmpty).getOrElse(parts)
+    def withErrorTooltipIfEmpty(tooltip: Option[ErrorTooltip]): Seq[Text] = tooltip.map(parts.withErrorTooltipIfEmpty).getOrElse(parts)
   }
 
   val foldedString: String = "..."
