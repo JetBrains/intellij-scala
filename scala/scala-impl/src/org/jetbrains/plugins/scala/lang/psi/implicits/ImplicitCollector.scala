@@ -67,6 +67,7 @@ object ImplicitCollector {
       val collector = new ImplicitCollector(state.copy(fullInfo = true))
       collector.collect().flatMap { r =>
         r.implicitReason match {
+          case CantInferTypeParameterResult => Seq.empty
           case reason: FullInfoResult => Seq((r, reason))
           case _ => Seq.empty
         }
