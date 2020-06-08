@@ -45,6 +45,7 @@ class MouseHandler extends ProjectManagerListener {
       if (handlingRequired(e) && !e.isConsumed) {
         val editor = e.getEditor
         val event = e.getMouseEvent
+        errorTooltip.foreach(_.cancel())
 
         if (SwingUtilities.isLeftMouseButton(event)) {
           if (SystemInfo.isMac && event.isMetaDown || event.isControlDown) {
