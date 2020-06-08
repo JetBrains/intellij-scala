@@ -1,19 +1,18 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
-import java.awt.event.MouseEvent
+import java.awt.Point
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.Inlay
 
 trait TooltipUI {
   val message: String
 
-  final def show(inlay: Inlay[_], e: MouseEvent): this.type = {
-    showImpl(inlay, e)
+  final def show(editor: Editor, screenLocation: Point): this.type = {
+    showImpl(editor, screenLocation)
     this
   }
 
-  protected def showImpl(inlay: Inlay[_], e: MouseEvent): Unit
+  protected def showImpl(editor: Editor, screenLocation: Point): Unit
 
   def isDisposed: Boolean
 

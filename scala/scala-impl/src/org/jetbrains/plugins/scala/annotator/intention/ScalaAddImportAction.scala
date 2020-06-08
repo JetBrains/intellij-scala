@@ -18,7 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
-sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants: Array[ElementToImport], place: Elem)
+sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor,
+                                                               variants: Array[ElementToImport],
+                                                               place: Elem,
+                                                               popupPosition: PopupPosition = PopupPosition.best)
   extends QuestionAction {
 
   private implicit val project: Project = place.getProject
@@ -96,7 +99,8 @@ sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, v
         true
       }
     }
-    JBPopupFactory.getInstance.createListPopup(firstPopupStep).showInBestPositionFor(editor)
+    val popup = JBPopupFactory.getInstance.createListPopup(firstPopupStep)
+    popupPosition.showPopup(popup, editor)
   }
 
 
@@ -140,11 +144,19 @@ object ScalaAddImportAction {
     }
   }
 
-  def importImplicits(editor: Editor, variants: Array[ElementToImport], place: PsiElement, title: String): ScalaAddImportAction[PsiElement] =
-    new ImportImplicits(editor, variants, place, title)
+  def importImplicits(editor: Editor,
+                      variants: Array[ElementToImport],
+                      place: PsiElement,
+                      title: String,
+                      popupPosition: PopupPosition): ScalaAddImportAction[PsiElement] =
+    new ImportImplicits(editor, variants, place, title, popupPosition)
 
-  private final class ImportImplicits(editor: Editor, variants: Array[ElementToImport], place: PsiElement, title: String)
-    extends ScalaAddImportAction(editor, variants, place) {
+  private final class ImportImplicits(editor: Editor,
+                                      variants: Array[ElementToImport],
+                                      place: PsiElement,
+                                      title: String,
+                                      popupPosition: PopupPosition)
+    extends ScalaAddImportAction(editor, variants, place, popupPosition) {
 
     override protected def chooserTitle(variants: Array[ElementToImport]): String = title
 

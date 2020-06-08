@@ -20,19 +20,16 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import com.intellij.ui.HintHint
 import com.intellij.util.concurrency.AppExecutorUtil
+import org.jetbrains.plugins.scala.annotator.intention.PopupPosition
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
 private class PopupUI(override val message: String,
-                      popup: JBPopup)
+                      val popup: JBPopup)
   extends TooltipUI {
 
-  override protected def showImpl(inlay: Inlay[_], e: MouseEvent): Unit = {
-    val editor = inlay.getEditor
-    val line = inlay.getVisualPosition.line
-    val editorContent = editor.getContentComponent.getLocationOnScreen
-    val x = inlay.getBounds.x + editorContent.x
-    val y = editor.visualLineToY(line) + editorContent.y + editor.getLineHeight
-    popup.showInScreenCoordinates(editor.getComponent, new Point(x, y))
+  override protected def showImpl(editor: Editor, inlayLocation: Point): Unit = {
+    val underLine = new Point(inlayLocation.x, inlayLocation.y + editor.getLineHeight)
+    PopupPosition.at(underLine).showPopup(popup, editor)
     popup.setUiVisible(false)
 
     val makeVisible: Runnable = () => {
@@ -87,9 +84,13 @@ private object PopupUI {
     override def getText: String = action.getText
 
     override def execute(editor: Editor, event: InputEvent): Unit = {
-      ui.get().cancel()
+      val popupUi = ui.get()
+      val popupLocation = popupUi.popup.getLocationOnScreen
+      popupUi.cancel()
       if (element.isValid) {
-        action.invoke(element.getProject, editor, element.getContainingFile)
+        PopupPosition.withCustomPopupLocation(editor, popupLocation) {
+          action.invoke(element.getProject, editor, element.getContainingFile)
+        }
       }
     }
 

@@ -14,6 +14,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import org.jetbrains.plugins.scala.annotator.intention.PopupPosition
 import org.jetbrains.plugins.scala.annotator.template.SearchImplicitQuickFix
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
@@ -326,7 +327,7 @@ private object ImplicitHintsPass {
 
   private def notFoundErrorTooltip(message: String, notFoundArgs: Seq[ScalaResolveResult])
                                   (implicit owner: ImplicitArgumentsOwner): ErrorTooltip = {
-    SearchImplicitQuickFix(notFoundArgs, owner, searchProbableArgs = false)
+    SearchImplicitQuickFix(notFoundArgs, owner, searchProbableArgs = false, PopupPosition.atCustomLocation)
       .map(ErrorTooltip(message, _, owner))
       .getOrElse(ErrorTooltip(message))
   }

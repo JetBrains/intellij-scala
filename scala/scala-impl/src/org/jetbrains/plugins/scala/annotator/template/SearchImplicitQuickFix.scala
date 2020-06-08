@@ -6,11 +6,14 @@ import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
-import com.intellij.psi.{PsiFile, PsiNamedElement}
+import com.intellij.psi.{PsiNamedElement, PsiFile}
 import com.intellij.util.ObjectUtils
 import javax.swing.Icon
+import javax.swing.JLabel
+import org.jetbrains.plugins.scala.annotator.intention.PopupPosition
 import org.jetbrains.plugins.scala.annotator.intention.{ImplicitToImport, ScalaAddImportAction}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
@@ -20,7 +23,9 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.Seq
 
-private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: ImplicitArgumentsOwner) extends IntentionAction {
+private class SearchImplicitQuickFix(typesToSearch: Seq[ScType],
+                                     place: ImplicitArgumentsOwner,
+                                     popupPosition: PopupPosition) extends IntentionAction {
   override def getText: String = {
     val typeOrEllipsis = typesToSearch match {
       case Seq(tp) => tp.presentableText(place)
@@ -54,8 +59,8 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: Implicit
         PopupStep.FINAL_CHOICE
       }
     }
-    JBPopupFactory.getInstance.createListPopup(popup)
-      .showInBestPositionFor(editor)
+    val listPopup = JBPopupFactory.getInstance.createListPopup(popup)
+    popupPosition.showPopup(listPopup, editor)
   }
 
   private def searchAndSuggestImport(typeToSearch: ScType, editor: Editor): Unit = {
@@ -64,11 +69,12 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: Implicit
       place.resolveScope
     )(place.getProject)
 
-    if (instances.isEmpty)
-      HintManager.getInstance().showInformationHint(editor, "Applicable implicits not found")
-    else {
+    if (instances.isEmpty) {
+      val popup = JBPopupFactory.getInstance().createMessage("Applicable implicits not found")
+      popupPosition.showPopup(popup, editor)
+    } else {
       val title = ScalaBundle.message("import.implicitInstance.chooser.title")
-      ScalaAddImportAction.importImplicits(editor, instances.map(ImplicitToImport).toArray, place, title)
+      ScalaAddImportAction.importImplicits(editor, instances.map(ImplicitToImport).toArray, place, title, popupPosition)
         .execute()
     }
   }
@@ -79,7 +85,8 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: Implicit
 object SearchImplicitQuickFix {
   def apply(notFoundImplicitParams: Seq[ScalaResolveResult],
             owner: ImplicitArgumentsOwner,
-            searchProbableArgs: Boolean): Option[IntentionAction] = {
+            searchProbableArgs: Boolean,
+            popupPosition: PopupPosition = PopupPosition.best): Option[IntentionAction] = {
 
     val allArguments =
       if (searchProbableArgs) notFoundImplicitParams.flatMap(withProbableArguments(_))
@@ -88,7 +95,7 @@ object SearchImplicitQuickFix {
     val notFoundTypes = allArguments.flatMap(implicitTypeToSearch)
 
     if (notFoundTypes.nonEmpty)
-      Some(new SearchImplicitQuickFix(notFoundTypes.distinct, owner))
+      Some(new SearchImplicitQuickFix(notFoundTypes.distinct, owner, popupPosition))
     else None
   }
 
