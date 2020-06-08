@@ -101,12 +101,14 @@ class MouseHandler extends ProjectManagerListener {
         } else {
           textAtPoint match {
             case Some((inlay, text)) =>
-              if (text.errorTooltip.nonEmpty && !errorTooltip.exists(_.isVisible)) {
+              val sameUiShown = errorTooltip.exists(ui => text.errorTooltip.map(_.message).contains(ui.message) && !ui.isDisposed)
+              if (text.errorTooltip.nonEmpty && !sameUiShown) {
+                errorTooltip.foreach(_.cancel())
                 errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _, inlay))
                 errorTooltip.foreach(_.addHideListener(() => errorTooltip = None))
               }
             case None =>
-              errorTooltip.foreach(_.hide())
+              errorTooltip.foreach(_.cancel())
           }
           deactivateActiveHyperlink(e.getEditor)
         }
@@ -150,7 +152,7 @@ class MouseHandler extends ProjectManagerListener {
     inlay.repaint()
     UIUtil.setCursor(editor.getContentComponent, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
 
-    if (!hyperlinkTooltip.exists(_.isVisible)) {
+    if (!hyperlinkTooltip.exists(_.isDisposed)) {
       hyperlinkTooltip = text.tooltip.map(showTooltip(editor, event, _, inlay))
     }
 
@@ -179,7 +181,7 @@ class MouseHandler extends ProjectManagerListener {
     }
     activeHyperlink = None
 
-    hyperlinkTooltip.foreach(_.hide())
+    hyperlinkTooltip.foreach(_.cancel())
     hyperlinkTooltip = None
   }
 

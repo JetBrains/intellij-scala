@@ -6,6 +6,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
 
 trait TooltipUI {
+  val message: String
+
   final def show(inlay: Inlay[_], e: MouseEvent): this.type = {
     showImpl(inlay, e)
     this
@@ -13,9 +15,9 @@ trait TooltipUI {
 
   protected def showImpl(inlay: Inlay[_], e: MouseEvent): Unit
 
-  def isVisible: Boolean
+  def isDisposed: Boolean
 
-  def hide(): Unit
+  def cancel(): Unit
 
   def addHideListener(action: () => Unit): Unit
 }
@@ -26,8 +28,8 @@ object TooltipUI {
     errorTooltip match {
       case ErrorTooltip.JustText(message) =>
         HintUI(message, editor)
-      case ErrorTooltip.WithAction(message, tooltipAction) =>
-        PopupUI(message, tooltipAction, editor)
+      case ErrorTooltip.WithAction(message, action, element) =>
+        PopupUI(message, action, element, editor)
     }
   }
 }
