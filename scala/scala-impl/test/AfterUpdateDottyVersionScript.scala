@@ -82,6 +82,9 @@ class AfterUpdateDottyVersionScript
       }
   }
 
+  /**
+   * Replaces dotty version in the README.md files
+   */
   def replaceDottyVersionInTastyReadmeFiles(): Unit = {
     val actualVersion = LatestScalaVersions.Dotty.minor
     val regex = "(lampepfl/dotty/blob/)(.+)(/library/src/scala/tasty/Reflection)".r
