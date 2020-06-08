@@ -55,8 +55,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |class B(x: Int, y: Int, z: Int) extends A($CARET)
         """.stripMargin,
     resultText =
-      s"""
-         |class A(x: Int, y: Int) {
+      s"""class A(x: Int, y: Int) {
          |  def this(x: Int, y: Int, z: Int) = this(x, y)
          |}
          |
@@ -64,6 +63,38 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
       """.stripMargin,
     item = "x, y",
     completionType = SMART
+  )
+
+  def testEmptyConstructor(): Unit = checkNoCompletion(
+    s"""class A()
+       |
+       |class B(x: Int, y: Int) extends A($CARET)
+       |""".stripMargin
+  )
+
+  def testTooShortConstructor(): Unit = checkNoCompletion(
+    s"""class A(x: Int)
+       |
+       |class B(x: Int, y: Int) extends A($CARET)
+       |""".stripMargin
+  )
+
+  def testNoNameMatchingConstructor(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |class B(x: Int, z: Int) extends A($CARET)
+         |""".stripMargin,
+    item = "x, y"
+  )
+
+  def testNoTypeMatchingConstructor(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |class B(x: Int, y: String) extends A($CARET)
+         |""".stripMargin,
+    item = "x, y"
   )
 
   def testSuperCall(): Unit = doCompletionTest(
@@ -120,6 +151,44 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |}
       """.stripMargin,
     item = "x, y, z"
+  )
+
+  def testEmptySuperMethod(): Unit = checkNoCompletion(
+    s"""class A {
+       |  def foo() = 42
+       |}
+       |
+       |class B extends A {
+       |  override def foo() =
+       |    super.foo($CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testTooShortSuperMethod(): Unit = checkNoCompletion(
+    s"""class A {
+       |  def foo(x: Int) = 42
+       |}
+       |
+       |class B extends A {
+       |  override def foo(x: Int) =
+       |    super.foo($CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testNoNameMatchingSuperMethod(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x: Int, z: Int) =
+         |    super.foo($CARET)
+         |}
+         |""".stripMargin,
+    item = "x, y"
   )
 
   def testMethodCall(): Unit = doCompletionTest(
@@ -209,6 +278,58 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     char = ')'
   )
 
+  def testEmptyMethod(): Unit = checkNoCompletion(
+    s"""class A {
+       |  def foo() = 42
+       |}
+       |
+       |class B extends A {
+       |  def bar() =
+       |    foo($CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testTooShortMethod(): Unit = checkNoCompletion(
+    s"""class A {
+       |  def foo(x: Int) = 42
+       |}
+       |
+       |class B extends A {
+       |  def bar(x: Int) =
+       |    foo($CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testNoNameMatchingMethod(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, z: Int) =
+         |    foo($CARET)
+         |}
+         |""".stripMargin,
+    item = "x, y"
+  )
+
+  def testNoTypeMatchingMethod(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, y: String) =
+         |    foo($CARET)
+         |}
+         |""".stripMargin,
+    item = "x, y"
+  )
+
   def testCaseClass(): Unit = doRawCompletionTest(
     fileText =
       s"""final case class Foo()(foo: Int, bar: Int)
@@ -238,4 +359,32 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     item = "foo, bar",
     char = ')'
   )
+
+  def testEmptyCaseClass(): Unit = checkNoCompletion(
+    s"""final case class Foo()
+       |
+       |Foo(f$CARET)
+       |""".stripMargin
+  )
+
+  def testTooShortCaseClass(): Unit = checkNoCompletion(
+    s"""final case class Foo(foo: Int)
+       |
+       |Foo(f$CARET)
+       |""".stripMargin
+  )
+
+  def testNonApplyMethod(): Unit = checkNoCompletion(
+    s"""object Foo {
+       |  def baz(foo: Int, bar: Int): Unit = {}
+       |}
+       |
+       |Foo.baz(f$CARET)
+       |""".stripMargin
+  )
+
+  private def checkNoCompletion(fileText: String): Unit =
+    super.checkNoCompletion(fileText) {
+      _.getLookupString.contains(", ")
+    }
 }

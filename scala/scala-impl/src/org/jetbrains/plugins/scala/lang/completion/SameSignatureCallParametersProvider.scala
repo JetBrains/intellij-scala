@@ -6,8 +6,8 @@ import com.intellij.codeInsight.CodeInsightUtilCore.forcePsiPostprocessAndRestor
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template.TemplateBuilderFactory
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
-import com.intellij.psi.{PsiElement, PsiMethod, PsiParameter}
 import com.intellij.ui.LayeredIcon
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
@@ -21,8 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -71,10 +70,14 @@ object SameSignatureCallParametersProvider {
 
               for {
                 ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.getSimpleVariants()
+                if method.name == reference.refName
 
                 lookupElement <- createLookupElementBySignature(
-                  parametersSignature(method, clauseIndex, substitutor),
-                  function
+                  method,
+                  clauseIndex
+                )(
+                  function,
+                  substitutor
                 )
               } yield lookupElement
           }
@@ -98,7 +101,9 @@ object SameSignatureCallParametersProvider {
         if function.isApplyMethod
 
         lookupElement <- createLookupElementBySignature(
-          parametersSignature(function, clauseIndex),
+          function,
+          clauseIndex
+        )(
           function
         )
       } yield lookupElement
@@ -127,8 +132,11 @@ object SameSignatureCallParametersProvider {
                     extractedClassConstructor <- clazz.constructors
 
                     lookupElement <- createLookupElementBySignature(
-                      paramsInClause(extractedClassConstructor, clauseIndex, substitutor),
-                      constructor
+                      extractedClassConstructor,
+                      clauseIndex
+                    )(
+                      constructor,
+                      substitutor
                     )
                   } yield lookupElement
                 case _ => Iterable.empty
@@ -139,69 +147,45 @@ object SameSignatureCallParametersProvider {
       }
   }
 
-  private[this] final case class ParameterDescriptor(name: String, `type`: ScType) {
-
-    private def this(name: String)
-                    (`type`: ScType,
-                     substitutor: ScSubstitutor) =
-      this(name, substitutor(`type`))
-  }
-
-  private[this] object ParameterDescriptor {
-
-    def apply(parameter: ScParameter,
-              substitutor: ScSubstitutor) =
-      new ParameterDescriptor(parameter.name)(
-        parameter.`type`().getOrAny,
-        substitutor
-      )
-
-    def apply(parameter: PsiParameter,
-              substitutor: ScSubstitutor) =
-      new ParameterDescriptor(parameter.getName)(
-        parameter.getType.toScType()(parameter),
-        substitutor
-      )
-  }
-
-  private def parametersSignature(method: ScMethodLike,
-                                  clauseIndex: Int,
-                                  substitutor: ScSubstitutor = ScSubstitutor.empty) =
-    method.effectiveParameterClauses match {
+  private[this] def createLookupElementBySignature(parameterMethod: ScMethodLike,
+                                                   clauseIndex: Int)
+                                                  (argumentMethod: ScMethodLike,
+                                                   substitutor: ScSubstitutor = ScSubstitutor.empty): Option[LookupElementBuilder] =
+    parameterMethod.effectiveParameterClauses match {
       case clauses if clauseIndex < clauses.length =>
-        clauses(clauseIndex)
-          .effectiveParameters
-          .map(ParameterDescriptor(_, substitutor))
-      case _ => Seq.empty
+        val parameters = clauses(clauseIndex).effectiveParameters
+
+        parameters.length match {
+          case 0 | 1 => None
+          case clauseLength =>
+            val nameToArgument = argumentMethod
+              .parameterList
+              .params
+              .map(parameter => parameter.name -> parameter)
+              .toMap
+
+            applicableNames(parameters, substitutor, nameToArgument) match {
+              case names if names.length == clauseLength =>
+                Some(createLookupElement(names.commaSeparated()))
+              case _ => None
+            }
+        }
+      case _ => None
     }
 
-  private[this] def paramsInClause(method: PsiMethod,
-                                   clauseIndex: Int,
-                                   substitutor: ScSubstitutor): Seq[ParameterDescriptor] =
-    method match {
-      case method: ScMethodLike => parametersSignature(method, clauseIndex, substitutor)
-      case _ if clauseIndex == 0 => method.parameters.map(ParameterDescriptor(_, substitutor))
-      case _ => Seq.empty
-    }
+  private[this] def applicableNames(parameters: Seq[ScParameter],
+                                    substitutor: ScSubstitutor,
+                                    nameToArgument: Map[String, ScParameter]) = for {
+    parameter <- parameters
 
-  private[this] def createLookupElementBySignature(signature: Seq[ParameterDescriptor],
-                                                   methodLike: ScMethodLike): Option[LookupElementBuilder] =
-    if (signature.length <= 1 || signature.exists(_.name == null))
-      None
-    else {
-      val parameters = methodLike.parameterList.params
-      val names = for {
-        ParameterDescriptor(name, scType) <- signature
+    name = parameter.name
+    if name != null
 
-        parameter <- parameters.find(_.name == name)
-        if parameter.`type`().getOrAny.conforms(scType)
-      } yield name
+    argument <- nameToArgument.get(name)
 
-      if (names.length == signature.length)
-        Some(createLookupElement(names.commaSeparated()))
-      else
-        None
-    }
+    parameterType = substitutor(parameter.`type`().getOrAny)
+    if argument.`type`().getOrAny.conforms(parameterType)
+  } yield name
 
   private[this] def createLookupElement(lookupString: String) = {
     val result = LookupElementBuilder
