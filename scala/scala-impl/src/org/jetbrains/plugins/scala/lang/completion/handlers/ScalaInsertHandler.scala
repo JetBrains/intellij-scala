@@ -4,7 +4,6 @@ package completion
 package handlers
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.template.TemplateBuilderFactory
 import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
@@ -310,23 +309,7 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
         if (shouldAddAssignment) {
           document.insertString(endOffset, AssignmentText)
           endOffset += AssignmentText.length
-
-          if (item.isAssignment) {
-            model.moveToOffset(endOffset)
-          } else {
-            document.insertString(endOffset, NotImplementedError)
-            context.commitDocument()
-
-            val expression = file.findElementAt(endOffset)
-            endOffset += NotImplementedError.length
-
-            val builder = TemplateBuilderFactory
-              .getInstance
-              .createTemplateBuilder(expression)
-
-            builder.replaceElement(expression, NotImplementedError)
-            builder.run(editor, false)
-          }
+          model.moveToOffset(endOffset)
         }
         return
       case _: PsiMethod if item.isInImport => moveCaretIfNeeded()

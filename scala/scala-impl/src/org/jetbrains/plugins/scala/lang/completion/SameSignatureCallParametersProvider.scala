@@ -267,7 +267,6 @@ object SameSignatureCallParametersProvider {
                                (action: ScExpression => Unit): Unit =
       list.exprs.foreach(action)
 
-    // todo unify with ScalaInsertHandler
     private def createTemplateBuilder(list: ScArgumentExprList) = {
       val result = TemplateBuilderFactory
         .getInstance

@@ -553,7 +553,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     resultText =
       s"""class Foo {
          |  def foo(bar: Int) {
-         |    foo(bar = ???$CARET)
+         |    foo(bar = $CARET)
          |  }
          |}
          |""".stripMargin
