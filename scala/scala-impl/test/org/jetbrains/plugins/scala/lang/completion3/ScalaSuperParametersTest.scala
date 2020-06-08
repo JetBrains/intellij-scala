@@ -211,14 +211,14 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
 
   def testCaseClass(): Unit = doRawCompletionTest(
     fileText =
-      s"""final case class Foo(foo: Int, bar: Int)
+      s"""final case class Foo()(foo: Int, bar: Int)
          |
-         |Foo(f$CARET)
+         |Foo()(f$CARET)
          |""".stripMargin,
     resultText =
-      s"""final case class Foo(foo: Int, bar: Int)
+      s"""final case class Foo()(foo: Int, bar: Int)
          |
-         |Foo(foo = ???, bar = ???)$CARET
+         |Foo()(foo = ???, bar = ???)$CARET
          |""".stripMargin,
   ) {
     ScalaCodeInsightTestBase.hasItemText(_, "foo, bar")(tailText = " = ")

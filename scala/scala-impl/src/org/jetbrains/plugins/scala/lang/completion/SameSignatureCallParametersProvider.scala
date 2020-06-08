@@ -59,21 +59,21 @@ object SameSignatureCallParametersProvider {
     override protected def completionsFor(position: PsiElement)
                                          (implicit parameters: CompletionParameters,
                                           context: ProcessingContext): Iterable[LookupElementBuilder] = {
-      val args = getContextOfType(position, classOf[ScArgumentExprList])
-      val call = args.getContext.asInstanceOf[ScMethodCall]
+      val argumentsList = findArgumentsList(position)
+      val call = argumentsList.getContext.asInstanceOf[ScMethodCall]
 
       call.deepestInvokedExpr match {
         case reference: ScReferenceExpression =>
           getContextOfType(reference, classOf[ScFunction]) match {
             case null => Iterable.empty
             case function =>
-              val clauseIndex = args.invocationCount - 1
+              val clauseIndex = argumentsList.invocationCount - 1 // not to be inlined
 
               for {
                 ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.getSimpleVariants()
 
                 lookupElement <- createLookupElementBySignature(
-                  parametersSignature(method, substitutor, clauseIndex),
+                  parametersSignature(method, clauseIndex, substitutor),
                   function
                 )
               } yield lookupElement
@@ -88,15 +88,19 @@ object SameSignatureCallParametersProvider {
     override protected def completionsFor(position: PsiElement)
                                          (implicit parameters: CompletionParameters,
                                           context: ProcessingContext): Iterable[LookupElement] = {
-      val args = getContextOfType(position, classOf[ScArgumentExprList])
-      val call = args.getContext.asInstanceOf[ScMethodCall]
+      val argumentsList = findArgumentsList(position)
+      val call = argumentsList.getContext.asInstanceOf[ScMethodCall]
+
+      val clauseIndex = argumentsList.invocationCount - 1 // not to be inlined
 
       for {
         ResolvesTo(function: ScFunction) <- Iterable(call.deepestInvokedExpr)
         if function.isApplyMethod
 
-        signature = parametersSignature(function)
-        lookupElement <- createLookupElementBySignature(signature, function)
+        lookupElement <- createLookupElementBySignature(
+          parametersSignature(function, clauseIndex),
+          function
+        )
       } yield lookupElement
         .withTailText(AssignmentText)
         .withInsertHandler(new AssignmentsInsertHandler)
@@ -110,20 +114,20 @@ object SameSignatureCallParametersProvider {
                                           context: ProcessingContext): Iterable[LookupElementBuilder] =
       getContextOfType(position, classOf[ScTemplateDefinition]) match {
         case ClassConstructor(constructor) =>
-          val args = getContextOfType(position, classOf[ScArgumentExprList])
-          val constructorInvocation = args.getContext.asInstanceOf[ScConstructorInvocation]
+          val argumentsList = findArgumentsList(position)
+          val constructorInvocation = argumentsList.getContext.asInstanceOf[ScConstructorInvocation]
 
           constructorInvocation.typeElement match {
             case typeElement@Typeable(tp) =>
               tp.extractClassType match {
                 case Some((clazz: ScClass, substitutor)) if (if (clazz.hasTypeParameters) typeElement.isInstanceOf[ScParameterizedTypeElement] else true) =>
-                  val index = constructorInvocation.arguments.indexOf(args)
+                  val clauseIndex = constructorInvocation.arguments.indexOf(argumentsList)
 
                   for {
                     extractedClassConstructor <- clazz.constructors
 
                     lookupElement <- createLookupElementBySignature(
-                      paramsInClause(extractedClassConstructor, substitutor, index),
+                      paramsInClause(extractedClassConstructor, clauseIndex, substitutor),
                       constructor
                     )
                   } yield lookupElement
@@ -160,9 +164,9 @@ object SameSignatureCallParametersProvider {
       )
   }
 
-  private[this] def parametersSignature(method: ScMethodLike,
-                                        substitutor: ScSubstitutor = ScSubstitutor.empty,
-                                        clauseIndex: Int = 0): Seq[ParameterDescriptor] =
+  private def parametersSignature(method: ScMethodLike,
+                                  clauseIndex: Int,
+                                  substitutor: ScSubstitutor = ScSubstitutor.empty) =
     method.effectiveParameterClauses match {
       case clauses if clauseIndex < clauses.length =>
         clauses(clauseIndex)
@@ -172,10 +176,10 @@ object SameSignatureCallParametersProvider {
     }
 
   private[this] def paramsInClause(method: PsiMethod,
-                                   substitutor: ScSubstitutor,
-                                   clauseIndex: Int): Seq[ParameterDescriptor] =
+                                   clauseIndex: Int,
+                                   substitutor: ScSubstitutor): Seq[ParameterDescriptor] =
     method match {
-      case method: ScMethodLike => parametersSignature(method, substitutor, clauseIndex)
+      case method: ScMethodLike => parametersSignature(method, clauseIndex, substitutor)
       case _ if clauseIndex == 0 => method.parameters.map(ParameterDescriptor(_, substitutor))
       case _ => Seq.empty
     }
@@ -226,7 +230,7 @@ object SameSignatureCallParametersProvider {
           .getFile
           .findElementAt(context.getStartOffset)
 
-        getContextOfType(element, classOf[ScArgumentExprList]) match {
+        findArgumentsList(element) match {
           case null =>
           case list => onExpressionList(list)(context)
         }
@@ -283,6 +287,9 @@ object SameSignatureCallParametersProvider {
       result
     }
   }
+
+  private[this] def findArgumentsList(position: PsiElement) =
+    getContextOfType(position, classOf[ScArgumentExprList])
 
   private[this] object ClassConstructor {
 
