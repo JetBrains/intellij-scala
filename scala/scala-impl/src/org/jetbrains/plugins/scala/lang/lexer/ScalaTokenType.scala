@@ -51,7 +51,8 @@ object ScalaTokenType {
       ClassKeyword,
       TraitKeyword,
       EnumKeyword,
-      ObjectKeyword
+      ObjectKeyword,
+      GivenKeyword,
     )
 
     def unapply(elementType: IElementType): Boolean =
