@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.ui.LayeredIcon
 import com.intellij.util.ProcessingContext
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler.AssignmentText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -66,7 +67,7 @@ object SameSignatureCallParametersProvider {
 
           val regularElements = getContextOfType(reference, classOf[ScFunction]) match {
             case null => Iterable.empty
-            case function => findRegularElements(reference, function, clauseIndex)
+            case function => findRegularElements(reference, function, clauseIndex)()
           }
 
           syntheticElements ++ regularElements
@@ -76,7 +77,8 @@ object SameSignatureCallParametersProvider {
 
     private def findRegularElements(reference: ScReferenceExpression,
                                     function: ScFunction,
-                                    clauseIndex: Int) = for {
+                                    clauseIndex: Int)
+                                   (hasSuperQualifier: Boolean = reference.qualifier.exists(_.isInstanceOf[ScSuperReference])) = for {
       ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.getSimpleVariants(completion = true)
       if method.name == reference.refName
 
@@ -88,6 +90,8 @@ object SameSignatureCallParametersProvider {
         substitutor
       )
     } yield lookupElement
+      .withInsertHandler(new MoveCaretInsertHandler)
+      .withSuperMethodParameters(hasSuperQualifier)
 
     private def findSyntheticElements(reference: ScReferenceExpression,
                                       clauseIndex: Int) = for {
@@ -119,6 +123,7 @@ object SameSignatureCallParametersProvider {
           constructorInvocation.typeElement match {
             case typeElement@Typeable(tp) =>
               tp.extractClassType match {
+                //noinspection ScalaUnnecessaryParentheses
                 case Some((clazz: ScClass, substitutor)) if (if (clazz.hasTypeParameters) typeElement.isInstanceOf[ScParameterizedTypeElement] else true) =>
                   val clauseIndex = constructorInvocation.arguments.indexOf(argumentsList)
 
@@ -133,6 +138,8 @@ object SameSignatureCallParametersProvider {
                       substitutor
                     )
                   } yield lookupElement
+                    .withInsertHandler(new MoveCaretInsertHandler)
+                    .withSuperMethodParameters(true)
                 case _ => Iterable.empty
               }
             case _ => Iterable.empty
@@ -146,7 +153,7 @@ object SameSignatureCallParametersProvider {
                                                   (argumentMethod: ScMethodLike,
                                                    substitutor: ScSubstitutor): Option[LookupElementBuilder] =
     parameterMethod.parametersInClause(clauseIndex) match {
-      case parameters@Seq(_, _, _*) =>
+      case parameters@Seq(first, second, _*) =>
         val nameToArgument = argumentMethod
           .parameterList
           .params
@@ -155,7 +162,11 @@ object SameSignatureCallParametersProvider {
 
         applicableNames(parameters, substitutor, nameToArgument) match {
           case names if names.length == parameters.length =>
-            Some(createLookupElement(names.commaSeparated()))
+            Some {
+              LookupElementBuilder
+                .create(names.commaSeparated())
+                .withCompositeIcon(first, second)
+            }
           case _ => None
         }
       case _ => None
@@ -174,23 +185,6 @@ object SameSignatureCallParametersProvider {
     parameterType = substitutor(parameter.`type`().getOrAny)
     if argument.`type`().getOrAny.conforms(parameterType)
   } yield name
-
-  private[this] def createLookupElement(lookupString: String) = {
-    val result = LookupElementBuilder
-      .create(lookupString)
-      .withIcon(parametersIcon)
-      .withInsertHandler(new MoveCaretInsertHandler) // todo make non default?
-    result.putUserData(JavaCompletionUtil.SUPER_METHOD_PARAMETERS, java.lang.Boolean.TRUE)
-    result
-  }
-
-  private[this] def parametersIcon = {
-    import icons.Icons.{PARAMETER => ParameterIcon}
-    val result = new LayeredIcon(2)
-    result.setIcon(ParameterIcon, 0, 2 * ParameterIcon.getIconWidth / 5, 0)
-    result.setIcon(ParameterIcon, 1)
-    result
-  }
 
   private[this] abstract class ExpressionListInsertHandler extends InsertHandler[LookupElement] {
 
@@ -266,5 +260,50 @@ object SameSignatureCallParametersProvider {
   private[this] object ClassConstructor {
 
     def unapply(`class`: ScClass): Option[ScPrimaryConstructor] = `class`.constructor
+  }
+
+  private[this] implicit class LookupElementBuilderExt(private val builder: LookupElementBuilder) extends AnyVal {
+
+    import LookupElementBuilderExt._
+
+    def withCompositeIcon(first: PsiElement,
+                          second: PsiElement): LookupElementBuilder =
+      builder.withIcon {
+        compositeIcon(first, second)
+      }
+
+    def withSuperMethodParameters(hasSuperQualifier: Boolean): LookupElementBuilder = {
+      if (hasSuperQualifier) {
+        builder.putUserData(
+          JavaCompletionUtil.SUPER_METHOD_PARAMETERS,
+          java.lang.Boolean.TRUE
+        )
+      }
+      builder
+    }
+  }
+
+  private[this] object LookupElementBuilderExt {
+
+    import language.implicitConversions
+
+    private implicit def element2Icon(element: PsiElement): Icon =
+      element.getIcon(0)
+
+    private def compositeIcon(leftIcon: Icon,
+                              rightIcon: Icon) = {
+      val result = new LayeredIcon(2)
+      result.setIcon(
+        rightIcon,
+        0,
+        2 * leftIcon.getIconWidth / 5,
+        0
+      )
+      result.setIcon(
+        leftIcon,
+        1
+      )
+      result
+    }
   }
 }

@@ -2,13 +2,18 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType.SMART
+import com.intellij.codeInsight.completion.{CompletionType, JavaCompletionUtil}
+import com.intellij.ui.{LayeredIcon, RowIcon}
+import javax.swing.Icon
 
 /**
  * @author Alefas
  * @since 04.09.13
  */
 class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
+
+  import ScalaCodeInsightTestBase._
+  import icons.Icons.PARAMETER
 
   def testConstructorCall(): Unit = doCompletionTest(
     fileText =
@@ -62,7 +67,23 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |class B(x: Int, y: Int, z: Int) extends A(x, y)$CARET
       """.stripMargin,
     item = "x, y",
-    completionType = SMART
+    completionType = CompletionType.SMART
+  )
+
+  def testConstructorCallLookupElement(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |class B(x: Int, y: Int) extends A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int)
+         |
+         |class B(x: Int, y: Int) extends A(x, y)$CARET
+        """.stripMargin,
+    item = "x, y",
+    isSuper = true,
+    icons = PARAMETER, PARAMETER
   )
 
   def testEmptyConstructor(): Unit = checkNoCompletion(
@@ -151,6 +172,32 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |}
       """.stripMargin,
     item = "x, y, z"
+  )
+
+  def testSuperCallLookupElement(): Unit = checkLookupElement(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x: Int, y: Int) =
+         |    super.foo($CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x: Int, y: Int) =
+         |    super.foo(x, y)$CARET
+         |}
+         |""".stripMargin,
+    item = "x, y",
+    isSuper = true,
+    icons = PARAMETER, PARAMETER
   )
 
   def testEmptySuperMethod(): Unit = checkNoCompletion(
@@ -278,6 +325,32 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     char = ')'
   )
 
+  def testMethodCallLookupElement(): Unit = checkLookupElement(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, y: Int) =
+         |    foo($CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, y: Int) =
+         |    foo(x, y)$CARET
+         |}
+         |""".stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
   def testEmptyMethod(): Unit = checkNoCompletion(
     s"""class A {
        |  def foo() = 42
@@ -342,7 +415,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |Foo()(foo = ???, bar = ???)$CARET
          |""".stripMargin,
   ) {
-    ScalaCodeInsightTestBase.hasItemText(_, "foo, bar")(tailText = " = ")
+    hasItemText(_, "foo, bar")(tailText = " = ")
   }
 
   def testPhysicalApplyMethod(): Unit = doCompletionTest(
@@ -429,6 +502,22 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     item = "foo, bar"
   )
 
+  def testApplyCallLookupElement(): Unit = checkLookupElement(
+    fileText =
+      s"""final case class Foo(foo: Int, bar: Int)
+         |
+         |Foo(f$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""final case class Foo(foo: Int, bar: Int)
+         |
+         |Foo(foo = ???, bar = ???)$CARET
+         |""".stripMargin,
+    item = "foo, bar",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
   def testCaseClassCompletionChar(): Unit = doCompletionTest(
     fileText =
       s"""final case class Foo(foo: Int, bar: Int)
@@ -467,8 +556,28 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
        |""".stripMargin
   )
 
+  private def checkLookupElement(fileText: String,
+                                 resultText: String,
+                                 item: String,
+                                 isSuper: Boolean,
+                                 icons: Icon*): Unit =
+    super.doRawCompletionTest(fileText, resultText) { lookup =>
+      hasLookupString(lookup, item) &&
+        lookup.getUserData(JavaCompletionUtil.SUPER_METHOD_PARAMETERS) == (if (isSuper) java.lang.Boolean.TRUE else null) &&
+        allIcons(createPresentation(lookup).getIcon) == icons
+    }
+
   private def checkNoCompletion(fileText: String): Unit =
     super.checkNoCompletion(fileText) {
       _.getLookupString.contains(", ")
     }
+
+  private def allIcons(icon: Icon) = icon match {
+    case icon: LayeredIcon =>
+      icon.getAllLayers.toSeq.flatMap {
+        case layer: RowIcon => layer.getAllIcons
+        case layer => Array(layer)
+      }
+    case _ => Array(icon)
+  }
 }
