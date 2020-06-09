@@ -34,8 +34,6 @@ final class SameSignatureCallParametersProvider extends ScalaCompletionContribut
 
   extendBasicAndSmart(classOf[ScMethodCall])(new MethodParametersCompletionProvider)
 
-  extendBasicAndSmart(classOf[ScMethodCall])(new CaseClassParametersCompletionProvider)
-
   extendBasicAndSmart(classOf[ScConstructorInvocation])(new ConstructorParametersCompletionProvider)
 
   private def extendBasicAndSmart(invocationClass: Class[_ <: ScalaPsiElement])
@@ -59,57 +57,53 @@ object SameSignatureCallParametersProvider {
                                          (implicit parameters: CompletionParameters,
                                           context: ProcessingContext): Iterable[LookupElementBuilder] = {
       val argumentsList = findArgumentsList(position)
-      val call = argumentsList.getContext.asInstanceOf[ScMethodCall]
 
-      call.deepestInvokedExpr match {
-        case reference: ScReferenceExpression =>
-          getContextOfType(reference, classOf[ScFunction]) match {
+      argumentsList.getContext match {
+        case ScMethodCall.withDeepestInvoked(reference: ScReferenceExpression) =>
+          val clauseIndex = argumentsList.invocationCount - 1
+
+          val syntheticElements = findSyntheticElements(reference, clauseIndex)
+
+          val regularElements = getContextOfType(reference, classOf[ScFunction]) match {
             case null => Iterable.empty
-            case function =>
-              val clauseIndex = argumentsList.invocationCount - 1 // not to be inlined
-
-              for {
-                ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.getSimpleVariants()
-                if method.name == reference.refName
-
-                lookupElement <- createLookupElementBySignature(
-                  method,
-                  clauseIndex
-                )(
-                  function,
-                  substitutor
-                )
-              } yield lookupElement
+            case function => findRegularElements(reference, function, clauseIndex)
           }
+
+          syntheticElements ++ regularElements
         case _ => Iterable.empty
       }
     }
-  }
 
-  private final class CaseClassParametersCompletionProvider extends ScalaCompletionProvider {
+    private def findRegularElements(reference: ScReferenceExpression,
+                                    function: ScFunction,
+                                    clauseIndex: Int) = for {
+      ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.getSimpleVariants(completion = true)
+      if method.name == reference.refName
 
-    override protected def completionsFor(position: PsiElement)
-                                         (implicit parameters: CompletionParameters,
-                                          context: ProcessingContext): Iterable[LookupElement] = {
-      val argumentsList = findArgumentsList(position)
-      val call = argumentsList.getContext.asInstanceOf[ScMethodCall]
+      lookupElement <- createLookupElementBySignature(
+        method,
+        clauseIndex
+      )(
+        function,
+        substitutor
+      )
+    } yield lookupElement
 
-      val clauseIndex = argumentsList.invocationCount - 1 // not to be inlined
+    private def findSyntheticElements(reference: ScReferenceExpression,
+                                      clauseIndex: Int) = for {
+      ScalaResolveResult(function: ScFunction, substitutor) <- reference.multiResolveScala(incomplete = true)
+      if function.isApplyMethod
 
-      for {
-        ResolvesTo(function: ScFunction) <- Iterable(call.deepestInvokedExpr)
-        if function.isApplyMethod
-
-        lookupElement <- createLookupElementBySignature(
-          function,
-          clauseIndex
-        )(
-          function
-        )
-      } yield lookupElement
-        .withTailText(AssignmentText)
-        .withInsertHandler(new AssignmentsInsertHandler)
-    }
+      lookupElement <- createLookupElementBySignature(
+        function,
+        clauseIndex
+      )(
+        function,
+        substitutor
+      )
+    } yield lookupElement
+      .withTailText(AssignmentText)
+      .withInsertHandler(new AssignmentsInsertHandler)
   }
 
   private final class ConstructorParametersCompletionProvider extends ScalaCompletionProvider {
@@ -150,25 +144,19 @@ object SameSignatureCallParametersProvider {
   private[this] def createLookupElementBySignature(parameterMethod: ScMethodLike,
                                                    clauseIndex: Int)
                                                   (argumentMethod: ScMethodLike,
-                                                   substitutor: ScSubstitutor = ScSubstitutor.empty): Option[LookupElementBuilder] =
-    parameterMethod.effectiveParameterClauses match {
-      case clauses if clauseIndex < clauses.length =>
-        val parameters = clauses(clauseIndex).effectiveParameters
+                                                   substitutor: ScSubstitutor): Option[LookupElementBuilder] =
+    parameterMethod.parametersInClause(clauseIndex) match {
+      case parameters@Seq(_, _, _*) =>
+        val nameToArgument = argumentMethod
+          .parameterList
+          .params
+          .map(parameter => parameter.name -> parameter)
+          .toMap
 
-        parameters.length match {
-          case 0 | 1 => None
-          case clauseLength =>
-            val nameToArgument = argumentMethod
-              .parameterList
-              .params
-              .map(parameter => parameter.name -> parameter)
-              .toMap
-
-            applicableNames(parameters, substitutor, nameToArgument) match {
-              case names if names.length == clauseLength =>
-                Some(createLookupElement(names.commaSeparated()))
-              case _ => None
-            }
+        applicableNames(parameters, substitutor, nameToArgument) match {
+          case names if names.length == parameters.length =>
+            Some(createLookupElement(names.commaSeparated()))
+          case _ => None
         }
       case _ => None
     }

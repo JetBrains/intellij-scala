@@ -345,6 +345,90 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     ScalaCodeInsightTestBase.hasItemText(_, "foo, bar")(tailText = " = ")
   }
 
+  def testPhysicalApplyMethod(): Unit = doCompletionTest(
+    fileText =
+      s"""final class Foo private(val foo: Int,
+         |                        val bar: Int,
+         |                        val baz: Int)
+         |
+         |object Foo {
+         |
+         |  def apply(foo: Int,
+         |            bar: Int,
+         |            baz: Int) =
+         |    new Foo(foo, bar, baz)
+         |
+         |  def apply(foo: Int,
+         |            bar: Int) =
+         |    new Foo(foo, bar, 42)
+         |}
+         |
+         |Foo(f$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""final class Foo private(val foo: Int,
+         |                        val bar: Int,
+         |                        val baz: Int)
+         |
+         |object Foo {
+         |
+         |  def apply(foo: Int,
+         |            bar: Int,
+         |            baz: Int) =
+         |    new Foo(foo, bar, baz)
+         |
+         |  def apply(foo: Int,
+         |            bar: Int) =
+         |    new Foo(foo, bar, 42)
+         |}
+         |
+         |Foo(foo = ???, bar = ???, baz = ???)$CARET
+         |""".stripMargin,
+    item = "foo, bar, baz"
+  )
+
+  def testPhysicalApplyMethod2(): Unit = doCompletionTest(
+    fileText =
+      s"""final class Foo private(val foo: Int,
+         |                        val bar: Int,
+         |                        val baz: Int)
+         |
+         |object Foo {
+         |
+         |  def apply(foo: Int,
+         |            bar: Int,
+         |            baz: Int) =
+         |    new Foo(foo, bar, baz)
+         |
+         |  def apply(foo: Int,
+         |            bar: Int) =
+         |    new Foo(foo, bar, 42)
+         |}
+         |
+         |Foo(f$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""final class Foo private(val foo: Int,
+         |                        val bar: Int,
+         |                        val baz: Int)
+         |
+         |object Foo {
+         |
+         |  def apply(foo: Int,
+         |            bar: Int,
+         |            baz: Int) =
+         |    new Foo(foo, bar, baz)
+         |
+         |  def apply(foo: Int,
+         |            bar: Int) =
+         |    new Foo(foo, bar, 42)
+         |}
+         |
+         |Foo(foo = ???, bar = ???)$CARET
+         |""".stripMargin,
+    item = "foo, bar"
+  )
+
   def testCaseClassCompletionChar(): Unit = doCompletionTest(
     fileText =
       s"""final case class Foo(foo: Int, bar: Int)

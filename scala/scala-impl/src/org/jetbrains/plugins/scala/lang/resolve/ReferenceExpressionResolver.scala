@@ -621,18 +621,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   /**
    * Seek parameter with appropriate name in appropriate parameter clause.
    *
-   * @param name           parameter name
-   * @param clausePosition = -1, effective clause number, if -1 then parameter in any explicit? clause
+   * @param name        parameter name
+   * @param clauseIndex = -1, effective clause number, if -1 then parameter in any explicit? clause
    */
-  private def getParamByName(ml: ScMethodLike, name: String, clausePosition: Int = -1): Option[ScParameter] = {
-    val parameters = clausePosition match {
+  private def getParamByName(ml: ScMethodLike,
+                             name: String,
+                             clauseIndex: Int = -1): Option[ScParameter] = {
+    val parameters = clauseIndex match {
       case -1 => ml.parameters
-      case _ =>
-        ml.effectiveParameterClauses match {
-          case clauses if clausePosition < clauses.length =>
-            clauses(clausePosition).effectiveParameters
-          case _ => Seq.empty
-        }
+      case _ => ml.parametersInClause(clauseIndex)
     }
 
     parameters.find { parameter =>
