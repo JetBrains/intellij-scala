@@ -198,23 +198,20 @@ object ScalaPsiUtil {
       case Seq() => Some(Unit)
       // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
       case _ =>
-        def getType(expression: Expression) = {
-          val result =
-            expression
-              .getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
-              .tr
-          result.getOrAny
-        }
+        def getType(expression: Expression): ScType =
+          expression
+            .getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
+            .tr
+            .getOrAny
+            .widenIfLiteral
 
         TupleType(s.map(getType)) match {
           case t if t.isNothing => None
-          case t => Some(t)
+          case t                => Some(t)
         }
     }
 
-    maybeType.map { t =>
-      Seq(Expression(t, firstLeaf(context)))
-    }
+    maybeType.map(t => Seq(Expression(t, firstLeaf(context))))
   }
 
   def getNextSiblingOfType[T <: PsiElement](sibling: PsiElement, aClass: Class[T]): T = {

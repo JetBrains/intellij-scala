@@ -244,7 +244,7 @@ package object types {
 
     def widenIfLiteral: ScType = scType match {
       case litTy: ScLiteralType => litTy.wideType
-      case _ => scType
+      case _                    => scType
     }
   }
 
