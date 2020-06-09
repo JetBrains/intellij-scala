@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox;
 import com.intellij.openapi.ui.ex.MultiLineLabel;
@@ -43,13 +44,13 @@ public class ScalaCompileServerForm implements Configurable {
         public static String USE_COMPILE_SERVER_FOR_SCALA = "use scala compile server";
     }
 
-    public ScalaCompileServerForm() {
+    public ScalaCompileServerForm(Project project) {
         mySettings = ScalaCompileServerSettings.getInstance();
 
         myEnableCompileServer.addChangeListener(e -> updateCompilationServerSettingsPanel());
 
         sdkModel = new ProjectSdksModelWithDefault();
-        sdkModel.reset(null);
+        sdkModel.reset(project);
 
         myCompilationServerSdk = new JdkComboBox(null, sdkModel, null, null, null, null);
         myCompilationServerSdk.showNoneSdkItem();

@@ -116,10 +116,10 @@
                              bundle="messages.ScalaInspectionBundle"
                              key="displayname.scala"
                              instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
-        <applicationConfigurable bundle="messages.ScalaInspectionBundle"
-                                 key="displayname.scala.compile.server"
-                                 parentId="Scala Compiler"
-                                 instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
+        <projectConfigurable bundle="messages.ScalaInspectionBundle"
+                             key="displayname.scala.compile.server"
+                             parentId="Scala Compiler"
+                             instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings"/>
         <projectConfigurable id="Bytecode Indices" parentId="Scala Compiler"
                              instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesConfigurable"/>
