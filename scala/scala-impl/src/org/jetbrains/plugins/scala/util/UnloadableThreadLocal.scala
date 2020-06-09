@@ -20,9 +20,8 @@ final class UnloadableThreadLocal[T >: Null](init: => T) {
   def withValue[R](newValue: T)(body: => R): R = {
     val save = value
     value = newValue
-    val result = body
-    value = save
-    result
+    try body
+    finally value = save
   }
 }
 
