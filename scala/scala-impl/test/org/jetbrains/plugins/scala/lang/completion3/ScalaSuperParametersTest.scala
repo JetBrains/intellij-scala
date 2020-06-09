@@ -13,7 +13,7 @@ import javax.swing.Icon
 class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
 
   import ScalaCodeInsightTestBase._
-  import icons.Icons.PARAMETER
+  import icons.Icons.{PARAMETER, PATTERN_VAL}
 
   def testConstructorCall(): Unit = doCompletionTest(
     fileText =
@@ -632,6 +632,94 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
        |""".stripMargin
   )
 
+  def testClauseLookupElement(): Unit = checkLookupElement(
+    fileText =
+      s"""def foo(bar: Int, baz: String): Int = 42
+         |
+         |def foo(bar: Int): Int = {
+         |  val baz = ""
+         |  foo(b$CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""def foo(bar: Int, baz: String): Int = 42
+         |
+         |def foo(bar: Int): Int = {
+         |  val baz = ""
+         |  foo(bar, baz)$CARET
+         |}
+         |""".stripMargin,
+    item = "bar, baz",
+    isSuper = false,
+    icons = PARAMETER, PATTERN_VAL
+  )
+
+  def testEmptyClause(): Unit = checkNoCompletion(
+    s"""def foo() = 42
+       |
+       |foo(f$CARET)
+       |""".stripMargin
+  )
+
+  def testTooShortClause(): Unit = checkNoCompletion(
+    s"""def foo(bar: Int) = 42
+       |
+       |foo(b$CARET)
+       |""".stripMargin
+  )
+
+  def testNoNameMatchingClause(): Unit = checkNoCompletion(
+    s"""def foo(bar: Int, baz: String): Int = 42
+       |
+       |def foo(bar: Int): Int = {
+       |  val barBaz = ""
+       |  foo(b$CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testNoTypeMatchingClause(): Unit = checkNoCompletion(
+    s"""def foo(bar: Int, baz: String): Int = 42
+       |
+       |def foo(bar: Int): Int = {
+       |  val baz = 42
+       |  foo(b$CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testMultipleClause(): Unit = doCompletionTest(
+    fileText =
+      s"""def foo(foo: Int)
+         |       (bar: Int, baz: String): Int = 42
+         |
+         |def foo(bar: Int): Int = {
+         |  val baz = ""
+         |  foo()(b$CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""def foo(foo: Int)
+         |       (bar: Int, baz: String): Int = 42
+         |
+         |def foo(bar: Int): Int = {
+         |  val baz = ""
+         |  foo()(bar, baz)$CARET
+         |}
+         |""".stripMargin,
+    item = "bar, baz"
+  )
+
+  def testMultipleClausePosition(): Unit = checkNoCompletion(
+    s"""def foo(bar: Int, baz: String)(): Int = 42
+       |
+       |def foo(bar: Int): Int = {
+       |  val baz = ""
+       |  foo()($CARET)
+       |}
+       |""".stripMargin
+  )
+
   private def checkLookupElement(fileText: String,
                                  resultText: String,
                                  item: String,
@@ -648,12 +736,15 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
       _.getLookupString.contains(", ")
     }
 
-  private def allIcons(icon: Icon) = icon match {
+  private def allIcons(icon: Icon): Seq[Icon] = icon match {
     case icon: LayeredIcon =>
-      icon.getAllLayers.toSeq.flatMap {
-        case layer: RowIcon => layer.getAllIcons
-        case layer => Array(layer)
-      }
-    case _ => Array(icon)
+      icon
+        .getAllLayers
+        .reverse
+        .flatMap {
+          case layer: RowIcon => layer.getAllIcons
+          case layer => Array(layer)
+        }
+    case _ => Seq(icon)
   }
 }

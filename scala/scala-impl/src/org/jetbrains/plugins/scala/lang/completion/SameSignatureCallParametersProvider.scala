@@ -14,13 +14,13 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler.AssignmentText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -65,39 +65,28 @@ object SameSignatureCallParametersProvider {
         case ScMethodCall.withDeepestInvoked(reference: ScReferenceExpression) =>
           val clauseIndex = argumentsList.invocationCount - 1
 
-          val syntheticElements = findSyntheticElements(reference, clauseIndex)
-
-          val regularElements = getContextOfType(reference, classOf[ScFunction]) match {
-            case null => Iterable.empty
-            case function => findRegularElements(reference, function, clauseIndex)()
-          }
-
-          syntheticElements ++ regularElements
+          createFunctionArgumentsElements(reference, clauseIndex)() ++
+            createAssignmentElements(reference, clauseIndex)
         case _ => Iterable.empty
       }
     }
 
-    private def findRegularElements(reference: ScReferenceExpression,
-                                    function: ScFunction,
-                                    clauseIndex: Int)
-                                   (hasSuperQualifier: Boolean = reference.qualifier.exists(_.isInstanceOf[ScSuperReference])) = for {
+    private def createFunctionArgumentsElements(reference: ScReferenceExpression,
+                                                clauseIndex: Int)
+                                               (hasSuperQualifier: Boolean = reference.qualifier.exists(_.isInstanceOf[ScSuperReference])) = for {
       ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.getSimpleVariants(completion = true)
       if method.name == reference.refName
 
-      lookupElement <- createLookupElementBySignature(
-        method,
-        clauseIndex
-      )(
-        function,
-        substitutor
-      )
+      lookupElement <- createLookupElement(method, clauseIndex, substitutor) {
+        findResolvableParameters(reference)
+      }
     } yield lookupElement
-      .withInsertHandler(new MoveCaretInsertHandler)
+      .withMoveCaretInsertionHandler
       .withSuperMethodParameters(hasSuperQualifier)
 
-    private def findSyntheticElements(reference: ScReferenceExpression,
-                                      clauseIndex: Int) = for {
-      ScalaResolveResult(function: ScFunction, substitutor) <- reference.multiResolveScala(incomplete = true)
+    private def createAssignmentElements(reference: ScReferenceExpression,
+                                         clauseIndex: Int) = for {
+      ScalaResolveResult(function: ScFunction, substitutor) <- reference.multiResolveScala(incomplete = true).toSeq
       if function.isApplyMethod
 
       lookupElement <- createLookupElementBySignature(
@@ -110,6 +99,23 @@ object SameSignatureCallParametersProvider {
     } yield lookupElement
       .withTailText(AssignmentText)
       .withInsertHandler(new AssignmentsInsertHandler)
+
+    private def findResolvableParameters(reference: PsiElement)
+                                        (parameters: Seq[ScParameter]) = {
+      val names = parameters.map(_.name)
+
+      val elements = names.map {
+        createReferenceFromText(_, reference.getContext, reference)
+          .resolve
+      }
+
+      if (elements.forall(_.isInstanceOf[Argument]))
+        names
+          .zip(elements)
+          .asInstanceOf[Seq[(String, Argument)]]
+      else
+        Seq.empty
+    }
   }
 
   private final class ConstructorParametersCompletionProvider extends ScalaCompletionProvider {
@@ -140,7 +146,7 @@ object SameSignatureCallParametersProvider {
                       substitutor
                     )
                   } yield lookupElement
-                    .withInsertHandler(new MoveCaretInsertHandler)
+                    .withMoveCaretInsertionHandler
                     .withSuperMethodParameters(true)
                 case _ => Iterable.empty
               }
@@ -150,20 +156,35 @@ object SameSignatureCallParametersProvider {
       }
   }
 
+  private[this] type Argument = PsiElement with Typeable
+
   private[this] def createLookupElementBySignature(parameterMethod: ScMethodLike,
                                                    clauseIndex: Int)
                                                   (argumentMethod: ScMethodLike,
                                                    substitutor: ScSubstitutor): Option[LookupElementBuilder] =
-    parameterMethod.parametersInClause(clauseIndex) match {
-      case parameters@Seq(first, second, _*) =>
-        val nameToArgument = argumentMethod
-          .parameterList
-          .params
-          .map(parameter => parameter.name -> parameter)
-          .toMap
+    createLookupElement(parameterMethod, clauseIndex, substitutor) { _ =>
+      argumentMethod
+        .parameterList
+        .params
+        .map(parameter => parameter.name -> parameter)
+    }
+
+  private[this] def createLookupElement(method: ScMethodLike,
+                                        clauseIndex: Int,
+                                        substitutor: ScSubstitutor)
+                                       (argumensWithNames: Seq[ScParameter] => Seq[(String, Argument)]) = {
+    val parameters = method.parametersInClause(clauseIndex)
+    parameters.length match {
+      case 0 | 1 => None
+      case clauseLength =>
+        val nameToArgument = argumensWithNames(parameters).toMap
 
         applicableNames(parameters, substitutor, nameToArgument) match {
-          case names if names.length == parameters.length =>
+          case names if names.length == clauseLength =>
+            //noinspection ZeroIndexToHead
+            val first = nameToArgument(names(0))
+            val second = nameToArgument(names(1))
+
             Some {
               LookupElementBuilder
                 .create(names.commaSeparated())
@@ -171,12 +192,12 @@ object SameSignatureCallParametersProvider {
             }
           case _ => None
         }
-      case _ => None
     }
+  }
 
   private[this] def applicableNames(parameters: Seq[ScParameter],
                                     substitutor: ScSubstitutor,
-                                    nameToArgument: Map[String, ScParameter]) = for {
+                                    nameToArgument: Map[String, Argument]) = for {
     parameter <- parameters
 
     name = parameter.name
@@ -206,16 +227,6 @@ object SameSignatureCallParametersProvider {
 
     protected def onExpressionList(list: ScArgumentExprList)
                                   (implicit context: InsertionContext): Unit
-  }
-
-  private[this] final class MoveCaretInsertHandler extends ExpressionListInsertHandler {
-
-    override protected def onExpressionList(list: ScArgumentExprList)
-                                           (implicit context: InsertionContext): Unit =
-      context
-        .getEditor
-        .getCaretModel
-        .moveToOffset(list.getTextRange.getEndOffset) // put caret after )
   }
 
   private[this] final class AssignmentsInsertHandler extends ExpressionListInsertHandler {
@@ -274,6 +285,11 @@ object SameSignatureCallParametersProvider {
         compositeIcon(first, second)
       }
 
+    def withMoveCaretInsertionHandler: LookupElementBuilder =
+      builder.withInsertHandler {
+        new MoveCaretInsertHandler
+      }
+
     def withSuperMethodParameters(hasSuperQualifier: Boolean): LookupElementBuilder = {
       if (hasSuperQualifier) {
         builder.putUserData(
@@ -286,6 +302,16 @@ object SameSignatureCallParametersProvider {
   }
 
   private[this] object LookupElementBuilderExt {
+
+    private final class MoveCaretInsertHandler extends ExpressionListInsertHandler {
+
+      override protected def onExpressionList(list: ScArgumentExprList)
+                                             (implicit context: InsertionContext): Unit =
+        context
+          .getEditor
+          .getCaretModel
+          .moveToOffset(list.getTextRange.getEndOffset) // put caret after )
+    }
 
     import language.implicitConversions
 
@@ -308,4 +334,5 @@ object SameSignatureCallParametersProvider {
       result
     }
   }
+
 }
