@@ -1,7 +1,11 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
 import java.awt.Point
+import java.awt.event.FocusAdapter
+import java.awt.event.FocusEvent
 import java.awt.event.InputEvent
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
 import java.util.concurrent.TimeUnit
 
 import com.intellij.codeInsight.hint.LineTooltipRenderer
@@ -68,10 +72,23 @@ private object PopupUI {
     component.setOpaque(true)
 
     val popup = JBPopupFactory.getInstance.createComponentPopupBuilder(component, null)
-      .setFocusable(true)
       .setCancelOnClickOutside(true)
+      .setCancelOnOtherWindowOpen(true)
+      .setCancelOnWindowDeactivation(true)
+      .setCancelOnMouseOutCallback(event => component.contains(event.getPoint))
       .setModalContext(false)
       .createPopup
+
+    val keyListener: KeyListener = new KeyListener {
+      private def cancel(): Unit = {
+        popup.cancel()
+        editor.getContentComponent.removeKeyListener(this)
+      }
+      override def keyTyped(e: KeyEvent): Unit = cancel()
+      override def keyPressed(e: KeyEvent): Unit = cancel()
+      override def keyReleased(e: KeyEvent): Unit = cancel()
+    }
+    editor.getContentComponent.addKeyListener(keyListener)
 
     popup.addListener(new JBPopupListener {
       override def onClosed(event: LightweightWindowEvent): Unit = dummyHint.hide()
