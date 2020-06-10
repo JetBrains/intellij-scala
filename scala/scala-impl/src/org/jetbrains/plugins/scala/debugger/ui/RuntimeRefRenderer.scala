@@ -24,20 +24,18 @@ import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
  */
 class RuntimeRefRenderer extends NodeRendererImpl {
 
+  setIsApplicableChecker(t => CompletableFuture.completedFuture(isApplicableFor(t)))
+
   override def getName = "Scala runtime references renderer"
   override def setName(name: String): Unit = { }
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS
   override def setEnabled(enabled: Boolean): Unit = {/*see ScalaDebuggerSettingsConfigurable */}
   override def getUniqueId: String = "ScalaRuntimeRefRenderer"
 
-  override def isApplicable(t: Type): Boolean = {
+  private def isApplicableFor(t: Type): Boolean = {
     t != null && t.name() != null && t.name().startsWith("scala.runtime.") && t.name().endsWith("Ref")
   }
 
-  override def isApplicableAsync(t: Type): CompletableFuture[java.lang.Boolean] = {
-    CompletableFuture.completedFuture(isApplicable(t))
-  }
-  
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
     val descr = unwrappedDescriptor(value, context.getProject)
     autoRenderer(context.getDebugProcess, descr).buildChildren(descr.getValue, builder, context)
@@ -65,16 +63,15 @@ class RuntimeRefRenderer extends NodeRendererImpl {
     }
   }
 
-
-  override def getIdLabel(value: Value, process: DebugProcess): String = {
-    val descr = unwrappedDescriptor(value, process.getProject)
-    autoRenderer(process, descr).getIdLabel(descr.getValue, process)
+  override def calcIdLabel(descriptor: ValueDescriptor, process: DebugProcess, labelListener: DescriptorLabelListener): String = {
+    val descr = unwrappedDescriptor(descriptor.getValue, process.getProject)
+    autoRenderer(process, descr).calcIdLabel(descr, process, labelListener)
   }
 
   private def autoRenderer(debugProcess: DebugProcess, valueDescriptor: ValueDescriptor) = {
     val unwrappedType = valueDescriptor.getType
 
-    if (isApplicable(unwrappedType))
+    if (isApplicableFor(unwrappedType))
       DebugProcessImpl.getDefaultRenderer(unwrappedType).asInstanceOf[NodeRendererImpl]
     else
       debugProcess.asInstanceOf[DebugProcessImpl].getAutoRenderer(valueDescriptor).asInstanceOf[NodeRendererImpl]

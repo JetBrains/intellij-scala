@@ -47,14 +47,6 @@ class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSett
 
   setClassName(collectionClassName)
 
-  override def isApplicable(tp: Type): Boolean = {
-    super.isApplicable(tp) && notStream(tp) && notView(tp)
-  }
-
-  override def isApplicableAsync(tp: Type): CompletableFuture[java.lang.Boolean] = {
-    forallAsync(super.isApplicableAsync(tp), notStreamAsync(tp), notViewAsync(tp))
-  }
-
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
 }
 
@@ -142,9 +134,6 @@ object ScalaCollectionRenderer {
     if (shortNames.exists(tp.name().contains(_))) completedFuture(false)
     else instanceOfAsync(tp, baseClassNames: _*).thenApply(!_)
 
-  private def notView(tp: Type): Boolean =
-    checkNotCollectionOfKind(tp, "View")(viewClassName, viewClassName_2_13)
-
   private def notStream(tp: Type): Boolean =
     checkNotCollectionOfKind(tp, "Stream", "LazyList")(streamClassName, lazyList_2_13)
 
@@ -225,15 +214,11 @@ object ScalaCollectionRenderer {
 
     override def getUniqueId: String = "ScalaToArrayRenderer"
 
-    override def isExpandableAsync(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): CompletableFuture[lang.Boolean] = {
+    override def isExpandableAsync(value: Value, context: EvaluationContext, parentDescriptor: NodeDescriptor): CompletableFuture[lang.Boolean] = {
       //todo: make async
-      completedFuture(isExpandableImpl(value, evaluationContext, parentDescriptor))
-    }
-
-    private def isExpandableImpl(value: Value, context: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = {
       val evaluationContext: EvaluationContext = context.createEvaluationContext(value)
       try {
-        return nonEmpty(value, context) && hasDefiniteSize(value, context)
+        return CompletableFuture.completedFuture(nonEmpty(value, context) && hasDefiniteSize(value, context))
       }
       catch {
         case _: EvaluateException =>
@@ -242,11 +227,11 @@ object ScalaCollectionRenderer {
       try {
         val children: Value = evaluateChildren(evaluationContext, parentDescriptor)
         val defaultChildrenRenderer: ChildrenRenderer = DebugProcessImpl.getDefaultRenderer(value.`type`)
-        defaultChildrenRenderer.isExpandable(children, evaluationContext, parentDescriptor)
+        defaultChildrenRenderer.isExpandableAsync(children, evaluationContext, parentDescriptor)
       }
       catch {
         case _: EvaluateException =>
-          true
+          CompletableFuture.completedFuture(true)
       }
     }
 

@@ -1,33 +1,42 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
-import java.lang
 import java.util
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletableFuture.completedFuture
 
 import com.intellij.debugger.DebuggerContext
-import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluateException, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.EvaluateException
+import com.intellij.debugger.engine.evaluation.EvaluationContext
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.impl.PositionUtil
-import com.intellij.debugger.ui.impl.watch.{ValueDescriptorImpl, WatchItemDescriptor}
+import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
+import com.intellij.debugger.ui.impl.watch.WatchItemDescriptor
 import com.intellij.debugger.ui.tree.render._
-import com.intellij.debugger.ui.tree.{DebuggerTreeNode, ValueDescriptor, NodeDescriptor}
+import com.intellij.debugger.ui.tree.DebuggerTreeNode
+import com.intellij.debugger.ui.tree.NodeDescriptor
+import com.intellij.debugger.ui.tree.ValueDescriptor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiExpression, JavaPsiFacade}
+import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiExpression
 import com.intellij.util.IncorrectOperationException
 import com.sun.jdi._
 import com.sun.tools.jdi.ObjectReferenceImpl
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
-import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer.{Fail, SimpleMethodInvocationResult, CollectionElementNodeDescriptor}
+import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer._
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
-import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer.{viewClassName, transformName, instanceOf, streamClassName, nonEmpty, streamViewClassName, lazyList_2_13, viewClassName_2_13, hasDefiniteSize}
 
 /**
  * User: Dmitry Naydanov
  * Date: 9/3/12
  */
 class NonStrictCollectionsRenderer extends NodeRendererImpl {
-  import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer.{MethodNotFound, Success}
-  import org.jetbrains.plugins.scala.debugger.ui.{NonStrictCollectionsRenderer => companionObject}
+
+  //noinspection UnstableApiUsage
+  setIsApplicableChecker {
+    case tpe@(_: ReferenceType) if !mustNotExpandStreams =>
+      orAsync(isLazyAsync(tpe), isViewAsync(tpe))
+    case _ => completedFuture(false)
+  }
 
   def getStartIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_START_INDEX.intValue()
   def getEndIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_END_INDEX.intValue()
@@ -48,7 +57,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
                                        context: EvaluationContext) = {
     val suitableMethods = objectRef.referenceType().methodsByName(methodName, "()" + signature)
     if (suitableMethods.size() > 0) {
-      companionObject.invokeEmptyArgsMethod(objectRef, suitableMethods get 0, context)
+      invokeEmptyArgsMethod(objectRef, suitableMethods get 0, context)
     } else {
       MethodNotFound()
     }
@@ -75,7 +84,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
       if (suitableMethods.size() == 0) return null
 
       try {
-        evaluationContext.getDebugProcess.invokeMethod(evaluationContext, obj, suitableMethods get 0, companionObject.EMPTY_ARGS)
+        evaluationContext.getDebugProcess.invokeMethod(evaluationContext, obj, suitableMethods get 0, EMPTY_ARGS)
       }
       catch {
         case (_: EvaluateException | _: InvocationException | _: InvalidTypeException |
@@ -135,26 +144,15 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
   }
 
-  override def isExpandable(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = value match {
-    case objectRef: ObjectReferenceImpl => nonEmpty(objectRef, evaluationContext)
-    case _ => false
+  override def isExpandableAsync(value: Value,
+                                 evaluationContext: EvaluationContext,
+                                 parentDescriptor: NodeDescriptor): CompletableFuture[java.lang.Boolean] = {
+    val isExpandable = value match {
+      case objectRef: ObjectReferenceImpl => nonEmpty(objectRef, evaluationContext)
+      case _ => false
+    }
+    CompletableFuture.completedFuture(isExpandable)
   }
-
-  override def isApplicable(tpe: Type): Boolean = tpe match {
-    case _: ReferenceType if !mustNotExpandStreams =>
-      isLazy(tpe) || isView(tpe)
-    case _ => false
-  }
-
-  override def isApplicableAsync(tpe: Type): CompletableFuture[java.lang.Boolean] = tpe match {
-    case _: ReferenceType if !mustNotExpandStreams =>
-      orAsync(isLazyAsync(tpe), isViewAsync(tpe))
-    case _ => completedFuture(false)
-  }
-
-  private def isView(tpe: Type): Boolean = instanceOf(tpe, viewClassName, viewClassName_2_13)
-
-  private def isLazy(tpe: Type): Boolean = instanceOf(tpe, streamClassName, lazyList_2_13)
 
   private def isViewAsync(tpe: Type): CompletableFuture[Boolean] =
     instanceOfAsync(tpe, viewClassName, viewClassName_2_13)
