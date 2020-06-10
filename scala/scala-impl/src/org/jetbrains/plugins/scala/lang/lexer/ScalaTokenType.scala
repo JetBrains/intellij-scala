@@ -30,14 +30,14 @@ object ScalaTokenType {
   val Float   = new ScalaTokenType("float")
 
   val ExportKeyword = new ScalaTokenType("export")
-  val Then          = new ScalaTokenType("then")
+  val ThenKeyword   = new ScalaTokenType("then")
   val EndKeyword    = new ScalaTokenType("end")
 
-  val As                                  = new ScalaTokenType("as")
-  val Derives                             = new ScalaTokenType("derives")
-  val Inline: ScalaModifierTokenType      = ScalaTokenTypes.kINLINE
-  val Transparent: ScalaModifierTokenType = ScalaTokenTypes.kTRANSPARENT
-  val Opaque                              = new ScalaTokenType("opaque")
+  val AsKeyword                                  = new ScalaTokenType("as")
+  val DerivesKeyword                             = new ScalaTokenType("derives")
+  val InlineKeyword: ScalaModifierTokenType      = ScalaTokenTypes.kINLINE
+  val TransparentKeyword: ScalaModifierTokenType = ScalaTokenTypes.kTRANSPARENT
+  val OpaqueKeyword                              = new ScalaTokenType("opaque")
 
   val SpliceStart = new ScalaTokenType("$")
   val QuoteStart  = new ScalaTokenType("'")

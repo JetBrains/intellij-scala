@@ -60,7 +60,7 @@ object Expr1 extends ParsingRule {
             if (!Expr()) {
               builder error ErrMsg("wrong.expression")
             }
-            if (builder.getTokenType == ScalaTokenType.Then) {
+            if (builder.getTokenType == ScalaTokenType.ThenKeyword) {
               builder.advanceLexer()
             } else if (!builder.isPrecededByNewIndent) {
               builder error ErrMsg("expected.then")

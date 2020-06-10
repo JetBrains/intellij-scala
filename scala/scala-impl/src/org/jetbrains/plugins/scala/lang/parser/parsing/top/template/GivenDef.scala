@@ -70,7 +70,7 @@ object GivenSig extends ParsingRule {
     val givenSigMarker = builder.mark()
 
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-          builder.getTokenText != ScalaTokenType.As.text) {
+          builder.getTokenText != ScalaTokenType.AsKeyword.text) {
       builder.advanceLexer() // ate id
     }
 
@@ -78,7 +78,7 @@ object GivenSig extends ParsingRule {
 
     ParamClauses.parse(builder)
 
-    if (builder.tryParseSoftKeyword(ScalaTokenType.As)) {
+    if (builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
       givenSigMarker.drop()
       true
     } else {

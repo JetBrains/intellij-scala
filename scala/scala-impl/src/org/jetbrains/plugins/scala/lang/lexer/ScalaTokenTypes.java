@@ -237,7 +237,7 @@ public interface ScalaTokenTypes {
             kRETURN,
             kSEALED,
             kSUPER,
-            Then(),
+            ThenKeyword(),
             kTHIS, // scala 2 only
             kTHROW,
             TraitKeyword(),
@@ -254,13 +254,13 @@ public interface ScalaTokenTypes {
 
     // Soft keywords are highlighted by `ScalaColorSchemeAnnotator`
     TokenSet SOFT_KEYWORDS = TokenSet.create(
-            As(),
-            Derives(),
+            AsKeyword(),
+            DerivesKeyword(),
             EndKeyword(),
             ExtensionKeyword(),
-            Opaque(),
-            Inline(),
-            Transparent(),
+            OpaqueKeyword(),
+            InlineKeyword(),
+            TransparentKeyword(),
             UsingKeyword()
     );
 

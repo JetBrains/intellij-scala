@@ -10,6 +10,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import static com.intellij.openapi.util.text.StringUtil.endsWith;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Double;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Float;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Integer;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Long;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 
@@ -1520,7 +1524,7 @@ public class _ScalaCoreLexer implements FlexLexer {
           }
         case 106: break;
         case 67: 
-          { return processScala3(Then());
+          { return processScala3(ThenKeyword());
           }
         case 107: break;
         case 3: 
