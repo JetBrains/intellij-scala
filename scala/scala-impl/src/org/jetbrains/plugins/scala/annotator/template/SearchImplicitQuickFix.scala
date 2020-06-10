@@ -64,12 +64,12 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType],
   }
 
   private def searchAndSuggestImport(typeToSearch: ScType, editor: Editor): Unit = {
-    val allInstances = GlobalImplicitInstance.compatibleInstances(
-      typeToSearch,
-      place.resolveScope
-    )(place.getProject)
+    val allInstances =
+      GlobalImplicitInstance.compatibleInstances(typeToSearch, place.resolveScope, place)
 
-    val alreadyAvailable = ImplicitCollector.visibleImplicits(place) ++ ImplicitCollector.implicitsFromType(place, typeToSearch)
+    val alreadyAvailable =
+      ImplicitCollector.visibleImplicits(place) ++ ImplicitCollector.implicitsFromType(place, typeToSearch)
+
     val instances = allInstances -- alreadyAvailable.flatMap(GlobalImplicitInstance.from)
 
     if (instances.isEmpty) {
