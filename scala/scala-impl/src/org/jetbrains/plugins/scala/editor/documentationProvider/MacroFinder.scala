@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.editor.documentationProvider.MacroFinderImpl.DefineTagContentTokens
+import org.jetbrains.plugins.scala.editor.documentationProvider.MacroFinderImpl.{DefineTagContentTokens, ScDocCommentWithOwner}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -17,13 +17,13 @@ private trait MacroFinder {
   def getMacroBody(name: String): Option[String]
 }
 
-private class MacroFinderDummy extends MacroFinder {
+private object MacroFinderDummy extends MacroFinder {
   override def getMacroBody(name: String): Option[String] = None
 }
 
 private class MacroFinderImpl(
   commentOwner: ScDocCommentOwner,
-  getDefineTagInnerNodeText: PsiElement => String
+  renderDefineTagChildElement: (ScDocCommentWithOwner, PsiElement) => String
 ) extends MacroFinder {
   private val myCache = mutable.HashMap[String, String]()
 
@@ -45,33 +45,27 @@ private class MacroFinderImpl(
   }
 
   private def findMacroValue(macroName: String): Option[String] = {
+    val commentOwners   = dequeueComments(processingQueue)
+    val comments = for {
+      owner   <- commentOwners
+      comment <- owner.docComment
+    } yield ScDocCommentWithOwner(owner, comment)
 
-    @scala.annotation.tailrec
-    def inner(commentOpt: Option[ScDocComment]): Option[String] =
-      commentOpt match {
-        case Some(comment) =>
-          val defineTags = findDefineTags(comment)
-          defineTags.find(_._1 == macroName) match {
-            case Some((_, macroValue)) => Some(macroValue)
-            case _                     => inner(selectComment2())
-          }
-        case None => None
-      }
-
-    inner(selectComment2())
+    val defineTags = comments.flatMap(findDefineTags)
+    defineTags.find(_._1 == macroName).map(_._2)
   }
 
-  private def findDefineTags(comment: ScDocComment): Seq[(String, String)] =
+  private def findDefineTags(doc: ScDocCommentWithOwner): Seq[(String, String)] =
     for {
-      tag <- comment.getTags
+      tag <- doc.comment.getTags
       if tag.name == MyScaladocParsing.DEFINE_TAG
-    } yield getDefineTagNameAndValue(tag.asInstanceOf[ScDocTag])
+    } yield getDefineTagNameAndValue(doc, tag.asInstanceOf[ScDocTag])
 
-  private def getDefineTagNameAndValue(tag: ScDocTag): (String, String) = {
+  private def getDefineTagNameAndValue(doc: ScDocCommentWithOwner, tag: ScDocTag): (String, String) = {
     val valueElement = Option(tag.getValueElement)
     val tagText = valueElement.map(_.getText).mkString
 
-    val tagValue = defineTagContentChildren(tag).map(getDefineTagInnerNodeText).mkString(" ").trim
+    val tagValue = defineTagContentChildren(tag).map(renderDefineTagChildElement(doc, _)).mkString(" ").trim
     val result = (tagText, tagValue)
     if (tagText.nonEmpty)
       myCache += result
@@ -126,18 +120,16 @@ private class MacroFinderImpl(
     fillInner(Option(commentOwner))
   }
 
-  private def selectComment2(): Option[ScDocComment] = {
-    while (processingQueue.nonEmpty) {
-      val next = processingQueue.dequeue()
-
-      if (next.docComment.isDefined)
-        return next.docComment
-    }
-
-    None
+  private def dequeueComments(
+    queue: mutable.Queue[ScDocCommentOwner]
+  ): Iterator[ScDocCommentOwner] = new Iterator[ScDocCommentOwner] {
+    override def hasNext: Boolean = queue.nonEmpty
+    override def next(): ScDocCommentOwner = queue.dequeue()
   }
 }
 
 object MacroFinderImpl {
+
   private val DefineTagContentTokens = ScalaDocTokenType.ALL_SCALADOC_SYNTAX_ELEMENTS ++ ScalaDocTokenType.DOC_COMMENT_DATA
+  final case class ScDocCommentWithOwner(owner: ScDocCommentOwner, comment: ScDocComment)
 }

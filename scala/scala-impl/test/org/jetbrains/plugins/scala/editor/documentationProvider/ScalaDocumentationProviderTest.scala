@@ -968,9 +968,10 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
          |override def <b>f</b>(i: <a href="psi_element://scala.Int"><code>Int</code></a>): <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |      <p>The function f defined in B returns some integer without no special property. (previously defined in A)<br>
-         |   \n   Some notes on implementation performance, the function runs in O(1).
-         |   <p>
+         |<p>
+         |The function f defined in B returns some integer without no special property. (previously defined in A)<br>
+         |Some notes on implementation performance, the function runs in O(1).
+         |<p>
          |$ContentEnd
          |$SectionsStart
          |<tr><td valign='top' class='section'><p>Params:</td>
@@ -1082,14 +1083,35 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin
     )
 
-
-  /** Returns true if the option is $$none, false otherwise */
   def testMacro_Undefined(): Unit =
     doGenerateDocContentTest(
       """/** Returns true if the option is $none, false otherwise */
         |class A {}
         |""".stripMargin,
       """Returns true if the option is [Cannot find macro: $none], false otherwise<p>""".stripMargin
+    )
+
+  def testMacro_Recursive_ShouldNotFail_1(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * test $$myTag
+         | * @define myTag myTag description $$myTag
+         | */
+         |class ${|}RecursiveDefine
+         |""".stripMargin,
+      """test myTag description<p>""".stripMargin
+    )
+
+  def testMacro_Recursive_ShouldNotFail_2(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * test $$myTag1 $$myTag2
+         | * @define myTag1 myTag1 description $$myTag2
+         | * @define myTag2 myTag2 description $$myTag1
+         | */
+         |class RecursiveDefine2
+         |""".stripMargin,
+      """test myTag1 description myTag2 description<p>""".stripMargin
     )
 
   def testAnnotationArgs(): Unit = {
