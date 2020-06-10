@@ -86,6 +86,20 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     icons = PARAMETER, PARAMETER
   )
 
+  def testAfterParenthesisOnlyInConstructor(): Unit = checkNoCompletion(
+    s"""class A(x: Int, y: Int)
+       |
+       |class B(x: Int, y: Int) extends A(x, $CARET)
+       |""".stripMargin
+  )
+
+  def testBeforeParenthesisOnlyInConstructor(): Unit = checkNoCompletion(
+    s"""class A(x: Int, y: Int)
+       |
+       |class B(x: Int, y: Int) extends A($CARET, y)
+       |""".stripMargin
+  )
+
   def testEmptyConstructor(): Unit = checkNoCompletion(
     s"""class A()
        |
@@ -198,6 +212,30 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     item = "x, y",
     isSuper = true,
     icons = PARAMETER, PARAMETER
+  )
+
+  def testAfterParenthesisOnlyInSuperMethod(): Unit = checkNoCompletion(
+    s"""class A {
+       |  def foo(x: Int, y: Int) = 42
+       |}
+       |
+       |class B extends A {
+       |  override def foo(x: Int, y: Int) =
+       |    super.foo(x, $CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testBeforeParenthesisOnlyInSuperMethod(): Unit = checkNoCompletion(
+    s"""class A {
+       |  def foo(x: Int, y: Int) = 42
+       |}
+       |
+       |class B extends A {
+       |  override def foo(x: Int, y: Int) =
+       |    super.foo($CARET, y)
+       |}
+       |""".stripMargin
   )
 
   def testEmptySuperMethod(): Unit = checkNoCompletion(
@@ -349,6 +387,30 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     item = "x, y",
     isSuper = false,
     icons = PARAMETER, PARAMETER
+  )
+
+  def testAfterParenthesisOnlyInMethodCall(): Unit = checkNoCompletion(
+    s"""class A {
+       |  def foo(x: Int, y: Int) = 42
+       |}
+       |
+       |class B extends A {
+       |  def bar(x: Int, y: Int) =
+       |    foo(x, $CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testBeforeParenthesisOnlyInMethodCall(): Unit = checkNoCompletion(
+    s"""class A {
+       |  def foo(x: Int, y: Int) = 42
+       |}
+       |
+       |class B extends A {
+       |  def bar(x: Int, y: Int) =
+       |    foo($CARET, y)
+       |}
+       |""".stripMargin
   )
 
   def testEmptyMethod(): Unit = checkNoCompletion(
@@ -531,6 +593,20 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     item = "foo, bar",
     char = ')'
+  )
+
+  def testAfterParenthesisOnlyInApplyCall(): Unit = checkNoCompletion(
+    s"""final case class Foo(foo: Int, bar: Int)
+       |
+       |Foo(foo, $CARET)
+       |""".stripMargin
+  )
+
+  def testBeforeParenthesisOnlyInApplyCall(): Unit = checkNoCompletion(
+    s"""final case class Foo(foo: Int, bar: Int)
+       |
+       |Foo($CARET, bar)
+       |""".stripMargin
   )
 
   def testEmptyCaseClass(): Unit = checkNoCompletion(

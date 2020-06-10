@@ -43,7 +43,9 @@ final class SameSignatureCallParametersProvider extends ScalaCompletionContribut
       classOf[ScReferenceExpression],
       classOf[ScArgumentExprList],
       invocationClass
-    )
+    ).afterLeaf("(")
+      .beforeLeaf(")")
+
     extend(CompletionType.BASIC, place, provider)
     extend(CompletionType.SMART, place, provider)
   }
