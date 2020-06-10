@@ -7,12 +7,12 @@ import com.intellij.openapi.editor.Editor
 trait TooltipUI {
   val message: String
 
-  final def show(editor: Editor, screenLocation: Point): this.type = {
-    showImpl(editor, screenLocation)
+  final def show(editor: Editor, mousePoint: Point, inlayOffset: Int): this.type = {
+    showImpl(editor, mousePoint, inlayOffset)
     this
   }
 
-  protected def showImpl(editor: Editor, screenLocation: Point): Unit
+  protected def showImpl(editor: Editor, mousePoint: Point, inlayOffset: Int): Unit
 
   def isDisposed: Boolean
 

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
+import java.awt.Component
 import java.awt.Point
 
 import com.intellij.codeInsight.hint.HintManager
@@ -15,14 +16,23 @@ private class HintUI(override val message: String,
                      hint: LightweightHint)
   extends TooltipUI {
 
-  override protected def showImpl(editor: Editor, screenLocation: Point): Unit = {
+  override protected def showImpl(editor: Editor, mousePoint: Point, inlayOffset: Int): Unit = {
     val constraint = HintManager.ABOVE
 
     val manager = HintManagerImpl.getInstanceImpl
 
-    manager.showEditorHint(hint, editor, screenLocation,
+    def xOnScreen(c: Component) = c.getLocationOnScreen.x
+
+    val deltaX = xOnScreen(editor.getContentComponent) - xOnScreen(editor.getContentComponent.getTopLevelAncestor)
+    val x = mousePoint.x + deltaX
+
+    val y = HintManagerImpl.getHintPosition(hint, editor, editor.xyToVisualPosition(mousePoint), constraint).y
+
+    val point = new Point(x, y)
+
+    manager.showEditorHint(hint, editor, point,
       HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING, 0, false,
-      HintManagerImpl.createHintHint(editor, screenLocation, hint, constraint).setContentActive(false))
+      HintManagerImpl.createHintHint(editor, point, hint, constraint).setContentActive(false))
   }
 
   override def isDisposed: Boolean = !hint.isVisible

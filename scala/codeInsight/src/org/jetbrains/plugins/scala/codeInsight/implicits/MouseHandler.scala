@@ -49,13 +49,13 @@ class MouseHandler extends ProjectManagerListener {
 
         if (SwingUtilities.isLeftMouseButton(event)) {
           if (SystemInfo.isMac && event.isMetaDown || event.isControlDown) {
-            hyperlinkAt(editor, event.getPoint).foreach { case TextAtPoint(text, _, _) =>
+            hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
               e.consume()
               deactivateActiveHyperlink(editor)
               navigateTo(text, editor.getProject)
             }
           } else {
-            expandableAt(editor, event.getPoint).foreach { case TextAtPoint(text, inlay, _) =>
+            expandableAt(editor, event.getPoint).foreach { case (inlay, text) =>
               inlay.getRenderer.asOptionOf[TextPartsHintRenderer].foreach { renderer =>
                 renderer.expand(text)
                 inlay.update()
@@ -66,7 +66,7 @@ class MouseHandler extends ProjectManagerListener {
             }
           }
         } else if (SwingUtilities.isMiddleMouseButton(event) && activeHyperlink.isEmpty) {
-          hyperlinkAt(editor, event.getPoint).foreach { case TextAtPoint(text, _, _) =>
+          hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
             e.consume()
             navigateTo(text, editor.getProject)
           }
@@ -85,7 +85,7 @@ class MouseHandler extends ProjectManagerListener {
 
         if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
           textAtPoint match {
-            case Some(TextAtPoint(text, inlay, _)) if text.navigatable.isDefined =>
+            case Some((inlay, text)) if text.navigatable.isDefined =>
               if (!activeHyperlink.contains((inlay, text))) {
                 deactivateActiveHyperlink (e.getEditor)
                 activateHyperlink(e.getEditor, inlay, text, e.getMouseEvent)
@@ -94,18 +94,18 @@ class MouseHandler extends ProjectManagerListener {
               deactivateActiveHyperlink(e.getEditor)
           }
           textAtPoint match {
-            case Some(TextAtPoint(text, inlay, _)) =>
+            case Some((inlay, text)) =>
               highlightMatches(e.getEditor, inlay, text)
             case None =>
               clearHighlightedMatches()
           }
         } else {
           textAtPoint match {
-            case Some(TextAtPoint(text, inlay, relativeX)) =>
+            case Some((inlay, text)) =>
               val sameUiShown = errorTooltip.exists(ui => text.errorTooltip.map(_.message).contains(ui.message) && !ui.isDisposed)
               if (text.errorTooltip.nonEmpty && !sameUiShown) {
                 errorTooltip.foreach(_.cancel())
-                errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, _, inlay, relativeX))
+                errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, _, e.getMouseEvent, inlay))
                 errorTooltip.foreach(_.addHideListener(() => errorTooltip = None))
               }
             case None =>
@@ -191,20 +191,19 @@ class MouseHandler extends ProjectManagerListener {
       () => text.navigatable.filter(_.canNavigate).foreach(_.navigate(true)), null, null)
   }
 
-  private def expandableAt(editor: Editor, point: Point): Option[TextAtPoint] = textAt(editor, point).filter {
-    _.text.expansion.isDefined
+  private def expandableAt(editor: Editor, point: Point): Option[(Inlay, Text)] = textAt(editor, point).filter {
+    case (_, text) => text.expansion.isDefined
   }
 
-  private def hyperlinkAt(editor: Editor, point: Point): Option[TextAtPoint] = textAt(editor, point).filter {
-    _.text.navigatable.isDefined
+  private def hyperlinkAt(editor: Editor, point: Point): Option[(Inlay, Text)] = textAt(editor, point).filter {
+    case (_, text) => text.navigatable.isDefined
   }
 
-  private def textAt(editor: Editor, point: Point): Option[TextAtPoint] =
+  private def textAt(editor: Editor, point: Point): Option[(Inlay, Text)] =
     Option(editor.getInlayModel.getElementAt(point)).flatMap { inlay =>
       inlay.getRenderer.asOptionOf[TextPartsHintRenderer].flatMap { renderer =>
         val inlayPoint = editor.visualPositionToXY(inlay.getVisualPosition)
-        val x = point.x - inlayPoint.x
-        renderer.textAt(editor, x).map(t => TextAtPoint(t._1, inlay, t._2))
+        renderer.textAt(editor, point.x - inlayPoint.x).map((inlay, _))
       }
     }
 
@@ -234,20 +233,12 @@ class MouseHandler extends ProjectManagerListener {
     }
   }
 
-  private def showTooltip(editor: Editor, errorTooltip: ErrorTooltip, inlay: Inlay, relativeX: Int): TooltipUI = {
-    val offset = inlay.getOffset
-    val x = editor.offsetToXY(offset).x + editor.getContentComponent.getLocationOnScreen.x + relativeX
-
-    TooltipUI(errorTooltip, editor).show(editor, new Point(x, lineScreenY(editor, inlay)))
+  private def showTooltip(editor: Editor, errorTooltip: ErrorTooltip, e: MouseEvent, inlay: Inlay): TooltipUI = {
+    TooltipUI(errorTooltip, editor).show(editor, e.getPoint, inlay.getOffset)
   }
 
   private def showTooltip(editor: Editor, e: MouseEvent, text: String, inlay: Inlay): TooltipUI = {
-    TooltipUI(text, editor).show(editor, new Point(e.getXOnScreen, lineScreenY(editor, inlay)))
-  }
-
-  private def lineScreenY(editor: Editor, inlay: Inlay): Int = {
-    val line = editor.offsetToLogicalPosition(inlay.getOffset).line
-    editor.visualLineToY(line) + editor.getContentComponent.getLocationOnScreen.y
+    TooltipUI(text, editor).show(editor, e.getPoint, inlay.getOffset)
   }
 
   private def highlightMatches(editor: Editor, inlay: Inlay, text: Text): Unit = {

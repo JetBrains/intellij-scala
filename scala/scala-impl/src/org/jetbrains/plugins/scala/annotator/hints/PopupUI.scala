@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala.annotator.hints
 
 import java.awt.Point
 import java.awt.event.InputEvent
-import java.awt.event.MouseEvent
 import java.util.concurrent.TimeUnit
 
 import com.intellij.codeInsight.hint.LineTooltipRenderer
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.impl.ShowIntentionActionsHandler
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.ex.EditorMarkupModel
 import com.intellij.openapi.editor.ex.TooltipAction
 import com.intellij.openapi.ui.popup.JBPopup
@@ -27,9 +25,14 @@ private class PopupUI(override val message: String,
                       val popup: JBPopup)
   extends TooltipUI {
 
-  override protected def showImpl(editor: Editor, inlayLocation: Point): Unit = {
-    val underLine = new Point(inlayLocation.x, inlayLocation.y + editor.getLineHeight)
-    PopupPosition.at(underLine).showPopup(popup, editor)
+  override protected def showImpl(editor: Editor, mousePoint: Point, inlayOffset: Int): Unit = {
+    val underLineY = editor.offsetToXY(inlayOffset).y + editor.getLineHeight
+    val point = new Point(
+      mousePoint.x + editor.getContentComponent.getLocationOnScreen.x,
+      underLineY + editor.getContentComponent.getLocationOnScreen.y
+    )
+
+    PopupPosition.at(point).showPopup(popup, editor)
     popup.setUiVisible(false)
 
     val makeVisible: Runnable = () => {

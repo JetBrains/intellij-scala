@@ -137,13 +137,13 @@ class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
     metrics
   }
 
-  def textAt(editor: Editor, x: Int): Option[(Text, Int)] = {
+  def textAt(editor: Editor, x: Int): Option[Text] = {
     val m = getMargin(editor)
     val p = getPadding(editor)
     val fontMetrics = getFontMetrics0(editor).getMetrics
     val xs = parts.map(it => fontMetrics.stringWidth(it.string)).scanLeft(m.left + p.left)(_ + _)
     parts.zip(xs.zip(xs.tail)).collectFirst {
-      case (text, (start, end)) if start <= x && x <= end => (text, start)
+      case (text, (start, end)) if start <= x && x <= end => text
     }
   }
 
