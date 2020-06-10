@@ -21,7 +21,9 @@ object MatchType {
           MatchTypeSuffix.parse(builder)
           marker.done(ScalaElementType.MATCH_TYPE)
           true
-        case _ => false
+        case _ =>
+          marker.rollbackTo()
+          false
       }
   }
 }
