@@ -655,6 +655,8 @@ package object extensions {
 
     def withNextSiblings: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
 
+    def withPrevSiblings: Iterator[PsiElement] = Iterator(element) ++ prevSiblings
+
     def prevElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.startOffset - 1))
 
     def nextElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.endOffset))

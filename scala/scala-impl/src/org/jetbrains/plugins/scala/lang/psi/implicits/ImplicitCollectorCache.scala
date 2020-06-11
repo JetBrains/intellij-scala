@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.HashBuilder.toHashBuilder
 
 import scala.collection.Seq
-import scala.collection.Set
 
 /**
   * @author Nikolay.Tropin
@@ -22,9 +21,6 @@ import scala.collection.Set
 class ImplicitCollectorCache(project: Project) {
   private val map =
     new ConcurrentHashMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]]()
-
-  private val visibleImplicitsMap =
-    new ConcurrentHashMap[ImplicitSearchScope, Set[ScalaResolveResult]]()
 
   private val nonValueTypesMap =
     new ConcurrentHashMap[NonValueTypesKey, NonValueFunctionTypes]()
@@ -61,26 +57,6 @@ class ImplicitCollectorCache(project: Project) {
     }
   }
 
-  def getVisibleImplicits(place: PsiElement): Set[ScalaResolveResult] = {
-    val tracer = Tracer("ImplicitCollectorCache.getVisibleImplicits", "ImplicitCollectorCache.getVisibleImplicits")
-    tracer.invocation()
-
-    val scope = ImplicitSearchScope.forElement(place)
-
-    //computation is potentially recursive and it may lead to deadlock if it is executed in `computeIfAbsent`
-    visibleImplicitsMap.get(scope) match {
-      case null =>
-        val result = try {
-          tracer.calculationStart()
-          new ImplicitParametersProcessor(place, withoutPrecedence = false).candidatesByPlace
-        } finally {
-          tracer.calculationEnd()
-        }
-        visibleImplicitsMap.computeIfAbsent(scope, _ => result)
-      case v => v
-    }
-  }
-
   private[implicits] def getNonValueTypes(fun: ScFunction,
                                           substitutor: ScSubstitutor,
                                           typeFromMacro: Option[ScType]): NonValueFunctionTypes = {
@@ -94,11 +70,10 @@ class ImplicitCollectorCache(project: Project) {
     map.put((scope, tp), value)
   }
 
-  def size(): Int = map.size() + visibleImplicitsMap.size() + nonValueTypesMap.size()
+  def size(): Int = map.size() + nonValueTypesMap.size()
 
   def clear(): Unit = {
     map.clear()
-    visibleImplicitsMap.clear()
     nonValueTypesMap.clear()
   }
 

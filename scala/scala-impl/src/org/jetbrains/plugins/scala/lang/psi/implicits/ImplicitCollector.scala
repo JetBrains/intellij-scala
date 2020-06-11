@@ -5,12 +5,14 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
+import org.jetbrains.plugins.scala.lang.macros.evaluator.MacroContext
+import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
@@ -18,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ReplaceWith
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
@@ -77,10 +80,11 @@ object ImplicitCollector {
     }
   }
 
-  private def visibleNamesCandidates(project: Project, place: PsiElement, state: ImplicitState): Set[ScalaResolveResult] =
-    ImplicitCollector.cache(project)
-      .getVisibleImplicits(place)
-      .map(_.copy(implicitSearchState = Some(state)))
+  def visibleImplicits(place: PsiElement): Set[ScalaResolveResult] =
+    ImplicitSearchScope.forElement(place).cachedVisibleImplicits
+
+  def implicitsFromType(place: PsiElement, scType: ScType): Set[ScalaResolveResult] =
+    ImplicitSearchScope.forElement(place).cachedImplicitsByType(scType)
 
 }
 
@@ -167,11 +171,11 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private def visibleNamesCandidates: Set[ScalaResolveResult] =
-    ImplicitCollector.visibleNamesCandidates(project, place, collectorState)
+    ImplicitCollector.visibleImplicits(place)
+      .map(_.copy(implicitSearchState = Some(collectorState)))
 
-  private def fromTypeCandidates =
-    new ImplicitParametersProcessor(place, withoutPrecedence = true)
-      .candidatesByType(expandedTp)
+  private def fromTypeCandidates: Set[ScalaResolveResult] =
+    ImplicitCollector.implicitsFromType(place, expandedTp)
       .map(_.copy(implicitSearchState = Some(collectorState)))
 
   private def compatible(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
