@@ -31,8 +31,10 @@ private class PopupUI(override val message: String,
 
   override protected def showImpl(editor: Editor, mousePoint: Point, inlayOffset: Int): Unit = {
     val underLineY = editor.offsetToXY(inlayOffset).y + editor.getLineHeight
+    val popupWidth = popup.getContent.getPreferredSize.width
+
     val point = new Point(
-      mousePoint.x + editor.getContentComponent.getLocationOnScreen.x,
+      mousePoint.x + editor.getContentComponent.getLocationOnScreen.x - popupWidth / 8,
       underLineY + editor.getContentComponent.getLocationOnScreen.y
     )
 
