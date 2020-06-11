@@ -1,24 +1,25 @@
-package org.jetbrains.plugins.scala
-package annotator
-package template
+package org.jetbrains.plugins.scala.annotator.quickfix
 
-import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
-import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
-import com.intellij.psi.{PsiNamedElement, PsiFile}
-import com.intellij.util.ObjectUtils
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.PopupStep
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.SmartPointerManager
 import javax.swing.Icon
-import javax.swing.JLabel
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.PopupPosition
-import org.jetbrains.plugins.scala.annotator.intention.{ImplicitToImport, ScalaAddImportAction}
+import org.jetbrains.plugins.scala.annotator.intention.ImplicitToImport
+import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitInstance, ImplicitCollector}
+import org.jetbrains.plugins.scala.lang.psi.implicits.GlobalImplicitInstance
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.Seq
@@ -26,9 +27,19 @@ import scala.collection.Seq
 private class SearchImplicitQuickFix(typesToSearch: Seq[ScType],
                                      place: ImplicitArgumentsOwner,
                                      popupPosition: PopupPosition) extends IntentionAction {
+  private val pointer =
+    SmartPointerManager.getInstance(place.getProject)
+      .createSmartPsiElementPointer(place)
+
+  private def owner: Option[ImplicitArgumentsOwner] = Option(pointer.getElement)
+
+  private implicit def context: TypePresentationContext =
+    owner.map(TypePresentationContext(_)).getOrElse(TypePresentationContext.emptyContext)
+
+
   override def getText: String = {
     val typeOrEllipsis = typesToSearch match {
-      case Seq(tp) => tp.presentableText(place)
+      case Seq(tp) => tp.presentableText
       case _ => "..."
     }
     ScalaBundle.message("search.implicit.instances.for", typeOrEllipsis)
@@ -50,7 +61,7 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType],
       override def getIconFor(aValue: ScType): Icon = null
 
       override def getTextFor(value: ScType): String =
-        ObjectUtils.assertNotNull(value.presentableText(place))
+        value.presentableText
 
       override def isAutoSelectionEnabled: Boolean = false
 
@@ -64,6 +75,11 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType],
   }
 
   private def searchAndSuggestImport(typeToSearch: ScType, editor: Editor): Unit = {
+    val place = owner match {
+      case Some(p) => p
+      case _ => return
+    }
+
     val allInstances =
       GlobalImplicitInstance.compatibleInstances(typeToSearch, place.resolveScope, place)
 
