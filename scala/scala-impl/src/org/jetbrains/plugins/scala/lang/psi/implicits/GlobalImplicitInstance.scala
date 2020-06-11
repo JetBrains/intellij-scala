@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
 import org.jetbrains.plugins.scala.lang.psi.types.WrongTypeParameterInferred
 
 final case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) {
@@ -85,6 +86,10 @@ object GlobalImplicitInstance {
     val srr = global.toScalaResolveResult
     collector.checkCompatible(srr, withLocalTypeInference = false)
       .orElse(collector.checkCompatible(srr, withLocalTypeInference = true))
-      .exists(!_.problems.contains(WrongTypeParameterInferred))
+      .exists(isCompatible)
+  }
+
+  private def isCompatible(srr: ScalaResolveResult): Boolean = {
+    !srr.problems.contains(WrongTypeParameterInferred) && srr.implicitReason != TypeDoesntConformResult
   }
 }
