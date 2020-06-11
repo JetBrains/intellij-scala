@@ -104,12 +104,9 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType],
 object SearchImplicitQuickFix {
   def apply(notFoundImplicitParams: Seq[ScalaResolveResult],
             owner: ImplicitArgumentsOwner,
-            searchProbableArgs: Boolean,
             popupPosition: PopupPosition = PopupPosition.best): Option[IntentionAction] = {
 
-    val allArguments =
-      if (searchProbableArgs) notFoundImplicitParams.flatMap(withProbableArguments(_))
-      else notFoundImplicitParams
+    val allArguments = notFoundImplicitParams.flatMap(withProbableArguments(_))
 
     val notFoundTypes = allArguments.flatMap(implicitTypeToSearch)
 
