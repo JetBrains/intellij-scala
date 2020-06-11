@@ -54,7 +54,7 @@ object GlobalImplicitInstance {
   def compatibleInstances(`type`: ScType,
                           scope: GlobalSearchScope,
                           place: ImplicitArgumentsOwner): Set[GlobalImplicitInstance] = {
-    val collector = new ImplicitCollector(place, `type`, `type`, None, false)
+    val collector = new ImplicitCollector(place, `type`, `type`, None, false, fullInfo = true)
     for {
       clazz <- `type`.extractClass.toSet[PsiClass]
 
