@@ -11,16 +11,24 @@ trait PopupPosition {
 }
 
 object PopupPosition {
+  private class CustomPosition extends PopupPosition {
+    var point: Point = _
+
+    override def showPopup(popup: JBPopup, editor: Editor): Unit = {
+      if (point == null) {
+        point = customLocationKey.get(editor)
+      }
+      if (point != null) {
+        popup.showInScreenCoordinates(editor.getComponent, point)
+      }
+    }
+  }
+
   def best: PopupPosition = _.showInBestPositionFor(_)
 
   def at(point: Point): PopupPosition = (popup, editor) => popup.showInScreenCoordinates(editor.getComponent, point)
 
-  def atCustomLocation: PopupPosition =  { (popup, editor) =>
-    val customPoint = customLocationKey.get(editor)
-    if (customPoint != null) {
-      popup.showInScreenCoordinates(editor.getComponent, customPoint)
-    }
-  }
+  def atCustomLocation: PopupPosition = new CustomPosition
 
   def withCustomPopupLocation(editor: Editor, point: Point)(action: => Unit): Unit = {
     customLocationKey.set(editor, point)
