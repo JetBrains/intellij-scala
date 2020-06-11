@@ -260,7 +260,7 @@ private object ImplicitHintsPass {
                                          (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
 
     arguments match {
-      case Seq((arg, result)) => presentationOfProbable(arg, result)
+      case Seq((arg, result)) => presentationOfProbable(arg, result).withErrorTooltipIfEmpty(notFoundTooltip(parameter))
       case _                  => expandedAmbiguousPresentation(parameter, arguments)
     }
   }
@@ -327,9 +327,11 @@ private object ImplicitHintsPass {
 
   private def notFoundErrorTooltip(message: String, notFoundArgs: Seq[ScalaResolveResult])
                                   (implicit owner: ImplicitArgumentsOwner): ErrorTooltip = {
-    SearchImplicitQuickFix(notFoundArgs, owner, searchProbableArgs = false, PopupPosition.atCustomLocation)
-      .map(ErrorTooltip(message, _, owner))
-      .getOrElse(ErrorTooltip(message))
+    val quickFix = SearchImplicitQuickFix(notFoundArgs, owner, searchProbableArgs = false, PopupPosition.atCustomLocation)
+    quickFix match {
+      case Some(fix) => ErrorTooltip(message, fix, owner)
+      case _         => ErrorTooltip(message)
+    }
   }
 
 
