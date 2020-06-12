@@ -883,6 +883,51 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocContentTest(fileText, expectedDoc)
   }
 
+  def testCodeLinks_UsingNonFullyQualifiedNames(): Unit = {
+    myFixture.addFileToProject(
+      "MyClass3.scala",
+      """package com.example
+        |class MyClass3""".stripMargin
+    )
+    // NOTE: the file has non default package but still is added to the root src dir
+    // but looks like it's ok, resolve works as expected
+    val fileContent =
+      s"""package com
+         |package example
+         |
+         |/**
+         | * [[MyClass1]] <br>
+         | * [[example.MyClass1]] <br>
+         | * [[com.example.MyClass1]] <br>
+         | * [[MyClass2]] <br>
+         | * [[example.MyClass2]] <br>
+         | * [[com.example.MyClass2]] <br>
+         | * [[MyClass3]] <br>
+         | * [[example.MyClass3]] <br>
+         | * [[com.example.MyClass3]] <br>
+         | */
+         |class ${|}MyClass1
+         |class MyClass2
+         |""".stripMargin
+
+    val expectedContent =
+      """<a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a><br>
+        |<a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a><br>
+        |<a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a><br>
+        |<a href="psi_element://com.example.MyClass2"><code>MyClass2</code></a><br>
+        |<a href="psi_element://com.example.MyClass2"><code>MyClass2</code></a><br>
+        |<a href="psi_element://com.example.MyClass2"><code>MyClass2</code></a><br>
+        |<a href="psi_element://com.example.MyClass3"><code>MyClass3</code></a><br>
+        |<a href="psi_element://com.example.MyClass3"><code>MyClass3</code></a><br>
+        |<a href="psi_element://com.example.MyClass3"><code>MyClass3</code></a><br>
+        |""".stripMargin
+
+    doGenerateDocContentTest(
+      fileContent,
+      expectedContent
+    )
+  }
+
   def testMalformedFontStyles(): Unit =
     doGenerateDocBodyTest(
       s"""/**
