@@ -27,11 +27,19 @@ trait ScalaDocumentationsSectionsTesting {
   }
 
   /** NOTE: doesn't support inner <div> tags, see [[extractSection]] */
-  protected def doGenerateDocContentTest(fileContent: String, expectedDefinition: String): Unit = {
+  protected def doGenerateDocContentTest(fileContent: String, expectedContent: String): Unit = {
     val actualDoc = generateDoc(fileContent)
     val actualSections = extractSection(actualDoc, "content", ContentStart, ContentEnd)
-    assertDocHtml(ContentStart + expectedDefinition + ContentEnd, actualSections)
+    assertDocHtml(ContentStart + expectedContent + ContentEnd, actualSections)
   }
+
+  /** The same as [[doGenerateDocContentTest]] but accepts a comment without any definition */
+  protected def doGenerateDocContentDanglingTest(commentContent: String, expectedContent: String): Unit =
+    doGenerateDocContentTest(
+      s"""$commentContent
+         |class A""".stripMargin,
+      expectedContent
+    )
 
   protected def doGenerateDocSectionsTest(fileContent: String, expectedDoSections: String): Unit = {
     val actualDoc = generateDoc(fileContent)

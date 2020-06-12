@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-object ScalaDocUtil {
+private object ScalaDocUtil {
 
   def shortestClassName(clazz: PsiClass, context: PsiElement): String =
     shortestClassNameImpl(clazz, context)

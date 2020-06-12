@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 object ScalaDocGenerator {
 
+  private final case class ActualComment(owner: PsiDocCommentOwner, comment: PsiDocComment, isInherited: Boolean)
+
   def generateDoc(elementWithDoc: PsiElement, originalElement: Option[PsiElement]): String = {
 
     val builder = new StringBuilder
@@ -33,16 +35,15 @@ object ScalaDocGenerator {
 
   def generateDocRendered(commentOwner: ScDocCommentOwner, comment: ScDocComment): String = {
     val builder = new StringBuilder
-    ScalaDocContentWithSectionsGenerator.generate(builder, commentOwner, comment, rendered = true)
+    new ScalaDocContentWithSectionsGenerator(commentOwner, comment, rendered = true).generate(builder)
     builder.result
   }
 
-  private def generateDocContent(builder: StringBuilder, e: PsiElement): Unit = {
+  private def generateDocContent(builder: StringBuilder, e: PsiElement): Unit =
     for {
       commentOwner  <- getCommentOwner(e)
       actualComment <- findActualComment(commentOwner)
     } yield generateDocComment(builder, actualComment)
-  }
 
   private def getCommentOwner(e: PsiElement): Option[PsiDocCommentOwner] =
     e match {
@@ -65,14 +66,12 @@ object ScalaDocGenerator {
 
     actualComment match {
       case ActualComment(scalaOwner: ScDocCommentOwner, scalaDoc: ScDocComment, _) =>
-        ScalaDocContentWithSectionsGenerator.generate(builder, scalaOwner, scalaDoc, rendered = false)
+        new ScalaDocContentWithSectionsGenerator(scalaOwner, scalaDoc, rendered = false).generate(builder)
       case _ =>
         val javadocContent = ScalaDocUtil.generateJavaDocInfoContentWithSections(actualComment.owner)
         builder.append(javadocContent)
     }
   }
-
-  private final case class ActualComment(owner: PsiDocCommentOwner, comment: PsiDocComment, isInherited: Boolean)
 
   private def findActualComment(docOwner: PsiDocCommentOwner): Option[ActualComment] =
     docOwner.getDocComment match {

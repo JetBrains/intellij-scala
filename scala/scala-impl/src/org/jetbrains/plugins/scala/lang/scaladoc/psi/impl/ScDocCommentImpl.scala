@@ -50,10 +50,9 @@ final class ScDocCommentImpl(buffer: CharSequence,
   //todo: implement me
   override def getTags: Array[PsiDocTag] = findTagsByName(_ => true)
 
-
   override def getDescriptionElements: Array[PsiElement] = {
-    this.getFirstChildNode.treeNextNodes
-      .takeWhile(_.getElementType != ScalaDocElementTypes.DOC_TAG)
+    val beforeTags = this.getFirstChildNode.treeNextNodes.takeWhile(_.getElementType != ScalaDocElementTypes.DOC_TAG)
+    beforeTags
       .filter { node =>
         val elementType = node.getElementType
         elementType != ScalaDocTokenType.DOC_COMMENT_START &&
