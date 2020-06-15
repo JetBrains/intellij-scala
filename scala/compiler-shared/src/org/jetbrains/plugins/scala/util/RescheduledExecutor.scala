@@ -59,7 +59,7 @@ class RescheduledExecutor(val name: String,
   }
 
   override def dispose(): Unit = {
-    scheduler.shutdown()
+    scheduler.shutdownNow()
     lastScheduledTask.set(null)
   }
 }
