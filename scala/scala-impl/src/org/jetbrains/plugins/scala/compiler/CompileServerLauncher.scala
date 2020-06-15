@@ -230,7 +230,9 @@ object CompileServerLauncher {
 
   def port: Option[Int] = serverInstance.map(_.port)
   
-  def defaultSdk(project: Project): Sdk = BuildManager.getBuildProcessRuntimeSdk(project).first
+  def defaultSdk(project: Project): Sdk =
+    CompileServerJdkManager.recommendedSdk(project)
+      .getOrElse(BuildManager.getBuildProcessRuntimeSdk(project).first)
 
   def compileServerSdk(project: Project): Either[String, Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance()
