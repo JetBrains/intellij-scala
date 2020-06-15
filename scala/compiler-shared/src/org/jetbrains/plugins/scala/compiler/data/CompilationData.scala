@@ -16,8 +16,4 @@ case class CompilationData(sources: Seq[File],
                            cacheFile: File,
                            outputToCacheMap: Map[File, File],
                            outputGroups: Seq[(File, File)],
-                           zincData: ZincData) {
-
-  def allSourceFilesCount: Option[Int] =
-    Some(zincData.allSources.size)
-}
+                           zincData: ZincData)

@@ -23,7 +23,7 @@ abstract class AbstractCompiler extends Compiler {
 
   def getLogger(client: Client, zincLogFilter: ZincLogFilter): Logger = new ClientLogger(client, zincLogFilter) with JavacOutputParsing
 
-  def getProgress(client: Client): ClientProgress = new ClientProgress(client)
+  def getProgress(client: Client, sourcesCount: Int): ClientProgress = new ClientProgress(client, sourcesCount)
 
   private class ClientLogger(val client: Client, logFilter: ZincLogFilter) extends Logger {
     override def error(msg: Supplier[String]): Unit = {
@@ -51,7 +51,8 @@ abstract class AbstractCompiler extends Compiler {
     }
   }
 
-  class ClientProgress(client: Client) extends CompileProgress {
+  class ClientProgress(client: Client, sourcesCount: Int)
+    extends CompileProgress {
 
     private var lastTimeChecked = System.currentTimeMillis()
     private final val cancelThreshold = 1000L
@@ -59,9 +60,18 @@ abstract class AbstractCompiler extends Compiler {
     override def startUnit(phase: String, unitPath: String): Unit = ()
 
     override def advance(current: Int, total: Int): Boolean = {
-      client.progress("", Some(current.toFloat / total.toFloat))
+      val done = Some(current.toFloat / total.toFloat)
+      val doneString = done
+        .filter(_ > 0)
+        .map { value =>
+          val percents = math.round(value * 100)
+          s" $percents%"
+        }
+        .getOrElse("")
+      val text = s"Compiling $sourcesCount sources...$doneString"
+      client.progress(text, done)
       // Since isCanceled is blocking method (waiting on flush on socket connection to finish).
-      // We don't want to block compilation more often then once per second (this is optimalization)
+      // We don't want to block compilation more often then once per second (this is optimization)
       // It also means that compilation may be canceled 1 sec later - but this is not a problem.
       val time = System.currentTimeMillis()
       if (time - lastTimeChecked > cancelThreshold) {
