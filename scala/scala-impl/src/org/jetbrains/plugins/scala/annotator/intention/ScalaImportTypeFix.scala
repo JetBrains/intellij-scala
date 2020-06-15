@@ -213,7 +213,8 @@ object ScalaImportTypeFix {
       if isAccessible(member, ref)
 
       definition <- member.declaredElements
-      if kindMatches(definition, kinds)
+      if definition.name == referenceName &&
+        kindMatches(definition, kinds)
     } yield DefinitionToImport(definition)
 
     val aliases = for {

@@ -10,7 +10,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.SmartPointerManager
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ScalaImportTypeFix}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
@@ -26,7 +26,7 @@ import org.junit.Assert._
  * Date: 15.03.2009
  */
 abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  private val refMarker =  "/*ref*/"
+  private val refMarker = "/*ref*/" // todo to be replaced with <caret>
 
   protected def folderPath = baseRootPath + "autoImport/"
 
@@ -35,6 +35,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
   // file type to run the test with (to be able to run same tests as Worksheet files)
   protected def fileType: FileType = ScalaFileType.INSTANCE
 
+  // todo configureBy* should be called instead
   protected def doTest(): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -45,8 +46,8 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
 
     configureFromFileTextAdapter(getTestName(false) + "." + fileType.getDefaultExtension, fileText)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
-    assertNotEquals("Not specified ref marker in test case. Use /*ref*/ in scala file for this.", offset, -1)
-    val ref: ScReference = PsiTreeUtil.getParentOfType(scalaFile.findElementAt(offset), classOf[ScReference])
+    assertNotEquals(s"Not specified ref marker in test case. Use $refMarker in scala file for this.", offset, -1)
+    val ref = getParentOfType(scalaFile.findElementAt(offset), classOf[ScReference])
     assertNotNull("Not specified reference at marker.", ref)
 
     ref.resolve() match {
@@ -61,7 +62,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     assertFalse("Element to import not found", classes.isEmpty)
 
     var res: String = null
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+    val lastPsi = scalaFile.findElementAt(scalaFile.getTextLength - 1)
     try {
       executeWriteActionCommand("Test") {
         val holder = ScImportsHolder(ref)(project)
