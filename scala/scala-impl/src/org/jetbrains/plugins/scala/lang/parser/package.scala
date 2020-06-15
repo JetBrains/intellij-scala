@@ -88,6 +88,15 @@ package object parser {
       } else false
     }
 
+    def tryParseSoftKeywordWithRollbackMarker(softKeyword: IElementType): Option[PsiBuilder.Marker] = {
+      if (repr.getTokenText == softKeyword.toString) {
+        val marker = repr.mark()
+        repr.remapCurrentToken(softKeyword)
+        repr.advanceLexer()
+        Some(marker)
+      } else None
+    }
+
     def consumeTrailingComma(expectedBrace: IElementType): Boolean = {
       val result = repr.isTrailingComma &&
         repr.predict {
