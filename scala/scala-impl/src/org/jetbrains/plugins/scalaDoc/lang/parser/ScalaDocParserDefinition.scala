@@ -35,6 +35,7 @@ final class ScalaDocParserDefinition extends ParserDefinition {
 
   override def createParser(project: Project) = new ScalaDocParser
 
+  /** see also [[org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory#createLeaf]] */
   override def createElement(node: ASTNode): PsiElement = node.getElementType match {
     case DOC_INNER_CODE_TAG   => new ScDocInnerCodeElementImpl(node)
     case DOC_INLINED_TAG      => new ScDocInlinedTagImpl(node)

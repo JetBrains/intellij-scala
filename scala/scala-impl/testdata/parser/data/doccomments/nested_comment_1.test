@@ -2,7 +2,7 @@
 -----
 ScalaFile
   DocComment
-    PsiElement(DOC_COMMENT_START)('/**')
-    PsiElement(DOC_WHITESPACE)(' ')
-    PsiElement(DOC_COMMENT_DATA)('/** /** */*/')
-    PsiElement(DOC_COMMENT_END)('*/')
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)(' ')
+    ScPsiDocToken(DOC_COMMENT_DATA)('/** /** */*/')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

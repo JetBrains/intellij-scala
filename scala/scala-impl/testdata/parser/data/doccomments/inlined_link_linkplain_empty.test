@@ -7,44 +7,44 @@
 -----
 ScalaFile
   DocComment
-    PsiElement(DOC_COMMENT_START)('/**')
-    PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_WHITESPACE)(' ')
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocInlinedTag
-      PsiElement(DOC_INLINE_TAG_START)('{')
-      PsiElement(DOC_TAG_NAME)('@link')
+      ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+      ScPsiDocToken(DOC_TAG_NAME)('@link')
       PsiErrorElement:Inline tag
         <empty list>
-      PsiElement(DOC_INLINE_TAG_END)('}')
-    PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocInlinedTag
-      PsiElement(DOC_INLINE_TAG_START)('{')
-      PsiElement(DOC_TAG_NAME)('@link')
+      ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+      ScPsiDocToken(DOC_TAG_NAME)('@link')
       PsiErrorElement:Inline tag
         <empty list>
-      PsiElement(DOC_WHITESPACE)('  ')
-      PsiElement(DOC_INLINE_TAG_END)('}')
-    PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocInlinedTag
-      PsiElement(DOC_INLINE_TAG_START)('{')
-      PsiElement(DOC_TAG_NAME)('@linkplain')
+      ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+      ScPsiDocToken(DOC_TAG_NAME)('@linkplain')
       PsiErrorElement:Inline tag
         <empty list>
-      PsiElement(DOC_INLINE_TAG_END)('}')
-    PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocInlinedTag
-      PsiElement(DOC_INLINE_TAG_START)('{')
-      PsiElement(DOC_TAG_NAME)('@linkplain')
+      ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+      ScPsiDocToken(DOC_TAG_NAME)('@linkplain')
       PsiErrorElement:Inline tag
         <empty list>
-      PsiElement(DOC_WHITESPACE)('  ')
-      PsiElement(DOC_INLINE_TAG_END)('}')
-    PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_END)('*/')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

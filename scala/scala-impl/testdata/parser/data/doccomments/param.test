@@ -5,25 +5,25 @@
 -----
 ScalaFile
   DocComment
-    PsiElement(DOC_COMMENT_START)('/**')
-    PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_WHITESPACE)(' ')
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocTag
-      PsiElement(DOC_TAG_NAME)('@param')
-      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@param')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
       ScalaDocTagValue: String
-        PsiElement(DOC_TAG_VALUE_TOKEN)('String')
-      PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_COMMENT_DATA)('this is book's test')
-      PsiElement(DOC_WHITESPACE)('\n ')
-      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      PsiElement(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('String')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('this is book's test')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocTag
-      PsiElement(DOC_TAG_NAME)('@param')
-      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@param')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
       ScalaDocTagValue: <
-        PsiElement(DOC_TAG_VALUE_TOKEN)('<')
-      PsiElement(DOC_COMMENT_DATA)('T> strange parameter')
-      PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_END)('*/')
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('<')
+      ScPsiDocToken(DOC_COMMENT_DATA)('T> strange parameter')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')
