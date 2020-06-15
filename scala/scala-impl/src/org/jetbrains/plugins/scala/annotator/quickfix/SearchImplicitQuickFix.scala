@@ -57,7 +57,7 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType],
   }
 
   private def chooseType(editor: Editor): Unit = {
-    val popup = new BaseListPopupStep("Choose type to search", typesToSearch: _*) {
+    val popup = new BaseListPopupStep(ScalaBundle.message("choose.type.to.search"), typesToSearch: _*) {
       override def getIconFor(aValue: ScType): Icon = null
 
       override def getTextFor(value: ScType): String =
@@ -89,7 +89,7 @@ private class SearchImplicitQuickFix(typesToSearch: Seq[ScType],
     val instances = allInstances -- alreadyAvailable.flatMap(GlobalImplicitInstance.from)
 
     if (instances.isEmpty) {
-      val popup = JBPopupFactory.getInstance().createMessage("Applicable implicits not found")
+      val popup = JBPopupFactory.getInstance().createMessage(ScalaBundle.message("applicable.implicits.not.found"))
       popupPosition.showPopup(popup, editor)
     } else {
       val title = ScalaBundle.message("import.implicitInstance.chooser.title")
