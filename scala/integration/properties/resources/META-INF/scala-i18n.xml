@@ -22,7 +22,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="internal.expression.without.nls.passed.to.nls"
                          language="Scala" groupPath="Scala" groupName="Internal"
-                         isInternal="true" level="WARNING" enabledByDefault="false" />
+                         isInternal="true" level="WARNING" enabledByDefault="true" />
 
         <intentionAction>
             <category>Scala/Extract Java String to bundle in Intellj Scala Plugin</category>
