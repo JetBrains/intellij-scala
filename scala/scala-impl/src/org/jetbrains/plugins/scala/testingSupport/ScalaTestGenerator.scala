@@ -137,25 +137,25 @@ class ScalaTestGenerator extends TestGenerator {
     import ScalaTestGenerator._
     import TestConfigurationUtil.isInheritor
 
-    if (isInheritor(typeDef, "org.scalatest.FeatureSpecLike", "org.scalatest.fixture.FeatureSpecLike")) {
+    if (isInheritor(typeDef, "org.scalatest.FeatureSpecLike", "org.scalatest.fixture.FeatureSpecLike", "org.scalatest.featurespec.AnyFeatureSpecLike", "org.scalatest.featurespec.FixtureAnyFeatureSpecLike")) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFeatureSpecMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.FlatSpecLike", "org.scalatest.fixture.FlatSpecLike")) {
+    } else if (isInheritor(typeDef, "org.scalatest.FlatSpecLike", "org.scalatest.fixture.FlatSpecLike", "org.scalatest.flatspec.AnyFlatSpecLike", "org.scalatest.flatspec.FixtureAnyFlatSpecLike")) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFlatSpecMethods(methods, body, className)
-    } else if (isInheritor(typeDef, "org.scalatest.FreeSpecLike", "org.scalatest.fixture.FreeSpecLike", "org.scalatest.path.FreeSpecLike")) {
+    } else if (isInheritor(typeDef, "org.scalatest.FreeSpecLike", "org.scalatest.fixture.FreeSpecLike", "org.scalatest.path.FreeSpecLike", "org.scalatest.freespec.AnyFreeSpecLike", "org.scalatest.freespec.FixtureAnyFreeSpecLike", "org.scalatest.freespec.PathAnyFreeSpecLike")) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFreeSpecMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.FunSpecLike", "org.scalatest.fixture.FunSpecLike")) {
+    } else if (isInheritor(typeDef, "org.scalatest.FunSpecLike", "org.scalatest.fixture.FunSpecLike", "org.scalatest.funspec.AnyFunSpecLike", "org.scalatest.funspec.FixtureAnyFunSpecLike")) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFunSpecMethods(methods, body, className)
-    } else if (isInheritor(typeDef, "org.scalatest.FunSuiteLike", "org.scalatest.fixture.FunSuiteLike")) {
+    } else if (isInheritor(typeDef, "org.scalatest.FunSuiteLike", "org.scalatest.fixture.FunSuiteLike", "org.scalatest.funsuite.AnyFunSuiteLike", "org.scalatest.funsuite.FixtureAnyFunSuiteLike")) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFunSuiteMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.PropSpecLike", "org.scalatest.fixture.PropSpecLike")) {
+    } else if (isInheritor(typeDef, "org.scalatest.PropSpecLike", "org.scalatest.fixture.PropSpecLike", "org.scalatest.propspec.AnyPropSpecLike", "org.scalatest.propspec.FixtureAnyPropSpecLike")) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestPropSpecMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.WordSpecLike", "org.scalatest.fixture.WordSpecLike")) {
+    } else if (isInheritor(typeDef, "org.scalatest.WordSpecLike", "org.scalatest.fixture.WordSpecLike", "org.scalatest.wordspec.AnyWordSpecLike", "org.scalatest.wordspec.FixtureAnyWordSpecLike")) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestWordSpecMethods(methods, body, className)
     } else if (isInheritor(typeDef, "org.specs2.specification.script.SpecificationLike")) {
