@@ -19,6 +19,7 @@ import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.JlineResolveResult._
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
@@ -30,7 +31,15 @@ import org.jetbrains.sbt.{RichFile, RichOption}
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
-final class ScalaConsoleRunConfiguration(
+/**
+ * Run configuration with a single purpose: run Scala REPL instance in a internal IDEA console.
+ * <br>
+ * The class is not intended to be reused/extended in other plugins.
+ * If you want to reuse some of the class functionality, please contact Scala Plugin team
+ * via https://gitter.im/JetBrains/intellij-scala and we will extract some proper abstract base class.
+ */
+@ApiStatus.Experimental
+class ScalaConsoleRunConfiguration(
   project: Project,
   configurationFactory: ConfigurationFactory,
   name: String
