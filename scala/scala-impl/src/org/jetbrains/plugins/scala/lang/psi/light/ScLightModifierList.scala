@@ -5,9 +5,12 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
 import gnu.trove.THashSet
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightModifierList._
 
 import scala.annotation.tailrec
@@ -56,7 +59,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
         set.add("final")
 
       // don't add an access modifier if the element is a parameter
-      if (!owner.isInstanceOf[PsiParameter]) {
+      if (!owner.isInstanceOf[PsiParameter] || owner.isInstanceOf[ScClassParameter]) {
         owner.getModifierList.accessModifier match {
           case Some(a) if a.isUnqualifiedPrivateOrThis =>
             set.add("private")
