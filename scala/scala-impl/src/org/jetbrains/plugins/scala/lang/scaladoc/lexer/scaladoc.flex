@@ -151,12 +151,16 @@ plainid = {varid} | {op}
 <COMMENT_DATA, COMMENT_INNER_CODE>  [\n\r]+{WHITE_DOC_SPACE_CHAR}* { return DOC_WHITESPACE; }
 
 
-<COMMENT_DATA, COMMENT_DATA_START> ("__"|"\u005f\u005f") {
-  return DOC_UNDERLINE_TAG;
-}
-<COMMENT_DATA, COMMENT_DATA_START> ("''"|"\u0027\u0027") {
-  return DOC_ITALIC_TAG;
-}
+////////////////////////////////////////////////////////////////////////////////////////////
+// Markup syntax e.g. __underlined text__, '''old text'''
+////////////////////////////////////////////////////////////////////////////////////////////
+<COMMENT_DATA, COMMENT_DATA_START> ("__"|"\u005f\u005f") { return DOC_UNDERLINE_TAG; }
+<COMMENT_DATA, COMMENT_DATA_START> ("^"|"\u005e") { return DOC_SUPERSCRIPT_TAG; }
+<COMMENT_DATA, COMMENT_DATA_START> (",,"|"\u002c\u002c") { return DOC_SUBSCRIPT_TAG; }
+<COMMENT_DATA, COMMENT_DATA_START> ("`"|"\u0060") { return DOC_MONOSPACE_TAG; }
+<COMMENT_DATA> ("="|"\u003d")+ { return DOC_HEADER; }
+<COMMENT_DATA_START> ("="|"\u003d")+ { return VALID_DOC_HEADER; }
+<COMMENT_DATA, COMMENT_DATA_START> ("''"|"\u0027\u0027") { return DOC_ITALIC_TAG; }
 <COMMENT_DATA, COMMENT_DATA_START> "'''" / ("''"[^"'"]) {
   if (isOddItalicBold) {
     isOddItalicBold = false;
@@ -166,40 +170,15 @@ plainid = {varid} | {op}
   isOddItalicBold = true;
   return DOC_BOLD_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START> ("'''"|"\u0027\u0027\u0027") {
-  return DOC_BOLD_TAG;
-}
-<COMMENT_DATA, COMMENT_DATA_START> ("^"|"\u005e") {
-  return DOC_SUPERSCRIPT_TAG;
-}
-<COMMENT_DATA, COMMENT_DATA_START> (",,"|"\u002c\u002c") {
-  return DOC_SUBSCRIPT_TAG;
-}
-<COMMENT_DATA, COMMENT_DATA_START> ("`"|"\u0060") {
-  return DOC_MONOSPACE_TAG;
-}
-<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") {
-  yybegin(CODE_LINK_INNER_START);
-  return DOC_LINK_TAG;
-}
-<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") / {WHITE_DOC_SPACE_NO_NL}*("http:" | "https:") {
-  yybegin(HTTP_LINK_INNER_START);
-  return DOC_HTTP_LINK_TAG;
-}
+<COMMENT_DATA, COMMENT_DATA_START> ("'''"|"\u0027\u0027\u0027") { return DOC_BOLD_TAG; }
+
+<COMMENT_DATA, COMMENT_DATA_START> "$"{MACRO_IDENTIFIER} { return DOC_MACROS; }
+
+
 <COMMENT_DATA, COMMENT_DATA_START> ("{{{"|"\u007b\u007b\u007b") {
   yybegin(COMMENT_INNER_CODE);
   return DOC_INNER_CODE_TAG;
 }
-<COMMENT_DATA> ("="|"\u003d")+ {
-  return DOC_HEADER;
-}
-<COMMENT_DATA_START> ("="|"\u003d")+ {
-  return VALID_DOC_HEADER;
-}
-<COMMENT_DATA, COMMENT_DATA_START> "$"{MACRO_IDENTIFIER} {
-  return DOC_MACROS;
-}
-
 <COMMENT_INNER_CODE> . {
   yybegin(COMMENT_INNER_CODE);
   return DOC_INNER_CODE;
@@ -207,6 +186,20 @@ plainid = {varid} | {op}
 <COMMENT_INNER_CODE> ("}}}"|"\u007d\u007d\u007d") {
   yybegin(COMMENT_DATA);
   return DOC_INNER_CLOSE_CODE_TAG;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Code links e.g. [[scala.collection.Seq]], [[scala.collection.Seq label text]]
+// HTTP links e.g. [[http://example.org]], [[https://example.org label text]]
+////////////////////////////////////////////////////////////////////////////////////////////
+<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") {
+  yybegin(CODE_LINK_INNER_START);
+  return DOC_LINK_TAG;
+}
+<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") / {WHITE_DOC_SPACE_NO_NL}*("http:" | "https:") {
+  yybegin(HTTP_LINK_INNER_START);
+  return DOC_HTTP_LINK_TAG;
 }
 
 <HTTP_LINK_INNER_START> {WHITE_DOC_SPACE_NO_NL}+ {
@@ -251,14 +244,10 @@ plainid = {varid} | {op}
   return DOC_COMMENT_BAD_CHARACTER;
 }
 
-<DOC_TAG_VALUE> {WHITE_DOC_SPACE_CHAR}+ { yybegin(COMMENT_DATA); return DOC_WHITESPACE; }
-<DOC_TAG_VALUE, DOC_TAG_VALUE_IN_PAREN> ({ALPHA}|[_0-9\."$"\[\]])+ { return DOC_TAG_VALUE_TOKEN; }
-<DOC_TAG_VALUE> [\(] { yybegin(DOC_TAG_VALUE_IN_PAREN); return DOC_TAG_VALUE_LPAREN; }
-<DOC_TAG_VALUE_IN_PAREN> [\)] { yybegin(DOC_TAG_VALUE); return DOC_TAG_VALUE_RPAREN; }
-<DOC_TAG_VALUE> [#] { return DOC_TAG_VALUE_SHARP_TOKEN; }
-<DOC_TAG_VALUE, DOC_TAG_VALUE_IN_PAREN> [,] { return DOC_TAG_VALUE_COMMA; }
-<DOC_TAG_VALUE_IN_PAREN> {WHITE_DOC_SPACE_CHAR}+ { return DOC_WHITESPACE; }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// JavaDoc - style inlie tags e.g. {@code 2 + 2 == 4}
+////////////////////////////////////////////////////////////////////////////////////////////
 <COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{TAG_IDENTIFIER} {
   yybegin(INLINE_TAG_NAME);
   return DOC_INLINE_TAG_START;
@@ -282,6 +271,21 @@ plainid = {varid} | {op}
   return DOC_COMMENT_DATA;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// tags e.g.
+// @param pName some description
+// @returns some value
+// etc...
+////////////////////////////////////////////////////////////////////////////////////////////
+<DOC_TAG_VALUE> {WHITE_DOC_SPACE_CHAR}+ { yybegin(COMMENT_DATA); return DOC_WHITESPACE; }
+<DOC_TAG_VALUE, DOC_TAG_VALUE_IN_PAREN> ({ALPHA}|[_0-9\."$"\[\]])+ { return DOC_TAG_VALUE_TOKEN; }
+<DOC_TAG_VALUE> [\(] { yybegin(DOC_TAG_VALUE_IN_PAREN); return DOC_TAG_VALUE_LPAREN; }
+<DOC_TAG_VALUE_IN_PAREN> [\)] { yybegin(DOC_TAG_VALUE); return DOC_TAG_VALUE_RPAREN; }
+<DOC_TAG_VALUE> [#] { return DOC_TAG_VALUE_SHARP_TOKEN; }
+<DOC_TAG_VALUE, DOC_TAG_VALUE_IN_PAREN> [,] { return DOC_TAG_VALUE_COMMA; }
+<DOC_TAG_VALUE_IN_PAREN> {WHITE_DOC_SPACE_CHAR}+ { return DOC_WHITESPACE; }
+
 <COMMENT_DATA_START> "@define" {yybegin(PARAM_DEFINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <PARAM_DEFINE_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_DEFINE_TAG_VALUE); return DOC_COMMENT_DATA;}
 <PARAM_DOC_DEFINE_TAG_VALUE> {MACRO_IDENTIFIER} { yybegin(DOC_TAG_VALUE_SPACE); return DOC_TAG_VALUE_TOKEN; }
@@ -298,12 +302,8 @@ plainid = {varid} | {op}
   yybegin(DOC_TAG_VALUE_SPACE);
   return tIDENTIFIER;
 }
-<PARAM_DOC_THROWS_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") / ["."] {
-  return tIDENTIFIER;
-}
-<PARAM_DOC_THROWS_TAG_VALUE> "." {
-  return tDOT;
-}
+<PARAM_DOC_THROWS_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") / ["."] { return tIDENTIFIER; }
+<PARAM_DOC_THROWS_TAG_VALUE> "." { return tDOT; }
 
 <COMMENT_DATA_START> "@"("param"|"tparam"|"define") {yybegin(PARAM_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <PARAM_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_TAG_VALUE); return DOC_COMMENT_DATA;}
@@ -312,7 +312,6 @@ plainid = {varid} | {op}
 
 <DOC_TAG_VALUE_SPACE> {WHITE_DOC_SPACE_CHAR}+ { yybegin(COMMENT_DATA); return DOC_WHITESPACE; }
 <DOC_TAG_VALUE_SPACE> . { yybegin(COMMENT_DATA); return DOC_COMMENT_DATA; }
-
 
 <COMMENT_DATA_START> "@"{TAG_IDENTIFIER} {yybegin(TAG_DOC_SPACE); return DOC_TAG_NAME;  }
 <TAG_DOC_SPACE>  {WHITE_DOC_SPACE_CHAR}+ {
