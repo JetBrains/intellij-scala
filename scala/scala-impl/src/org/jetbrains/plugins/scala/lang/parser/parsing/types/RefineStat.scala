@@ -17,12 +17,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def, Emp
  * RefineStat ::= Dcl
  *              | 'type' TypeDef
  */
-object RefineStat {
+object RefineStat extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE =>
-        if (!Def.parse(builder, isMod = false)) {
+        if (!Def()) {
           if (!Dcl.parse(builder, isMod = false)) {
             EmptyDcl.parse(builder, isMod = false)
           }
