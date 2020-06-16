@@ -28,7 +28,7 @@ class ReferencePassedToNlsInspection extends AbstractRegisteredInspection {
                                            highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
     val expr = element match {
-      case _: PsiReference | _: MethodInvocation if isPassedToAnnotated(element, AnnotationUtil.NLS) =>
+      case _: PsiReference | _: MethodInvocation if isPassedToNls(element) =>
         resolveToNotNlsAnnotated(element)
       case _ =>
         None
@@ -88,7 +88,7 @@ object ReferencePassedToNlsInspection {
   private def evaluatesNotToNls(ref: PsiElement, found: mutable.Set[PsiElement]): Boolean = {
     if (!found.add(ref)) false
     else ref match {
-      case _ if isAnnotatedWith(ref, AnnotationUtil.NLS) => false
+      case _ if isAnnotatedWithNls(ref) => false
       case _: PsiReference | _: MethodInvocation => resolveToNotNlsAnnotated(ref, found).isDefined
       case pattern: ScBindingPattern => evaluatesNotToNls(pattern.nameContext, found)
       case pd: ScPatternDefinition => pd.expr.exists(_.calculateTailReturns.exists(evaluatesNotToNls(_, found)))

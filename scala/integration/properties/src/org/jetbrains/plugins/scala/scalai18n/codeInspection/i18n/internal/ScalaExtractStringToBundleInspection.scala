@@ -57,13 +57,10 @@ object ScalaExtractStringToBundleInspection {
     }
 
   private def isNaturalLangString(element: PsiElement, string: String): Boolean =
-    isPassedToNls(element)
+    ScalaI18nUtil.isPassedToNls(element)
     //string.length > 3 &&
     //hasAtLeastOneLetters(string) &&
     //!hasCamelCase(string)
-
-  private def isPassedToNls(element: PsiElement): Boolean =
-    ScalaI18nUtil.isPassedToAnnotated(element, AnnotationUtil.NLS)
 
   private lazy val letterRegex = raw"""\w""".r
   private def hasAtLeastOneLetters(string: String): Boolean =
