@@ -17,8 +17,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerLock, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.externalHighlighters.CompilerLock.From
