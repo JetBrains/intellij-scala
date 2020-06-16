@@ -187,7 +187,7 @@ object ScalaI18nUtil {
     }
   }
 
-  @NotNull def propertiesFilesByBundleName(resourceBundleName: String, context: PsiElement): java.util.List[PropertiesFile] = {
+  def propertiesFilesByBundleName(resourceBundleName: String, context: PsiElement): java.util.List[PropertiesFile] = {
     var containingFile: PsiFile = context.getContainingFile
     val containingFileContext: PsiElement = containingFile.getContext
     if (containingFileContext != null) containingFile = containingFileContext.getContainingFile
@@ -240,7 +240,7 @@ object ScalaI18nUtil {
     maxCount
   }
 
-  def isValidPropertyReference(@NotNull project: Project, @NotNull expression: ScLiteral, @NotNull key: String, @NotNull outResourceBundle: Ref[String]): Boolean = {
+  def isValidPropertyReference(expression: ScLiteral, key: String, outResourceBundle: Ref[String]): Boolean = {
     val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
     annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
     if (mustBePropertyKey(expression, annotationAttributeValues)) {

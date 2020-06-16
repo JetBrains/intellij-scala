@@ -92,7 +92,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
       val key: String = value.asInstanceOf[String]
       if (UnresolvedPropertyVisitor.isComputablePropertyExpression(expression)) return
       val resourceBundleName: Ref[String] = new Ref[String]
-      if (!ScalaI18nUtil.isValidPropertyReference(myManager.getProject, expression, key, resourceBundleName)) {
+      if (!ScalaI18nUtil.isValidPropertyReference(expression, key, resourceBundleName)) {
         UnresolvedPropertyVisitor.appendPropertyKeyNotFoundProblem(resourceBundleName.get, key,
           expression, myManager, myProblems, onTheFly)
       } else {
