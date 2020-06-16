@@ -3,8 +3,10 @@ package lang
 package completion3
 
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
-import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.alwaysAddType
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.set
 
 /**
   * Created by kate
@@ -279,7 +281,7 @@ object ScalaOverrideCompletionTest {
        |  def annotFoo(int: Int): Int = 45
        |}
        |
-       |$fileText
+       |${normalize(fileText)}
     """
 }
 

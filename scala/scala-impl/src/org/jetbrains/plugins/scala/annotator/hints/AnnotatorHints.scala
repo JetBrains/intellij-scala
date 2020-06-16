@@ -5,9 +5,9 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiElement, PsiManager}
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints.AnnotatorHintsKey
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 // Annotator hints, SCL-15593
 case class AnnotatorHints(hints: Seq[Hint], modificationCount: Long) {

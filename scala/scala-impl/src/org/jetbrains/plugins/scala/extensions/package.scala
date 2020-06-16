@@ -11,6 +11,7 @@ import java.util.{Arrays, Set => JSet}
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
+import com.intellij.ide.plugins.{DynamicPluginListener, IdeaPluginDescriptor}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
@@ -36,6 +37,8 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
 import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
+import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -652,6 +655,8 @@ package object extensions {
 
     def withNextSiblings: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
 
+    def withPrevSiblings: Iterator[PsiElement] = Iterator(element) ++ prevSiblings
+
     def prevElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.startOffset - 1))
 
     def nextElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.endOffset))
@@ -929,7 +934,7 @@ package object extensions {
           wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>
           if (isStatic) {
-            if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
+            if (method.containingClass != null && !method.containingClass.isJavaLangObject) {
               processMethod(StaticPsiMethodWrapper.getWrapper(method, clazz))
               processName(method.getName)
             }
@@ -945,6 +950,9 @@ package object extensions {
         case _ =>
       }
     }
+
+    def isJavaLangObject: Boolean =
+      clazz.qualifiedName == "java.lang.Object"
 
     def namedElements: Seq[PsiNamedElement] = {
       clazz match {
@@ -1031,6 +1039,11 @@ package object extensions {
     def |>[R](f: T => R): R = f(value)
   }
 
+  implicit class DisposableExt[T <: Disposable](private val target: T) extends AnyVal {
+    def delegateUserDataHolder: UserDataHolderEx =
+      UserDataHolderDelegator.userDataHolderFor(target)
+  }
+
   implicit class IteratorExt[A](private val delegate: Iterator[A]) extends AnyVal {
     def instanceOf[T: ClassTag]: Option[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
@@ -1080,6 +1093,11 @@ package object extensions {
 
     def intersperse[B >: A](start: B, sep: B, end: B): Iterator[B] =
       Iterator(start) ++ delegate.intersperse(sep) ++ Iterator(end)
+
+    def findByType[B](implicit classTag: ClassTag[B]): Option[B] = {
+      val runtimeClass = classTag.runtimeClass
+      delegate.find(runtimeClass.isInstance).map(_.asInstanceOf[B])
+    }
   }
 
   implicit class ConcurrentMapExt[K, V](private val map: JConcurrentMap[K, V]) extends AnyVal {
@@ -1243,6 +1261,44 @@ package object extensions {
 
   def invokeAndWaitInTransaction(body: => Unit): Unit =
     TransactionGuard.getInstance().submitTransactionAndWait(() => body)
+
+  def registerDynamicPluginListener(listener: DynamicPluginListener, parentDisposable: Disposable): Unit = {
+    val connection = ApplicationManager.getApplication.getMessageBus.connect(parentDisposable)
+    connection.subscribe(DynamicPluginListener.TOPIC, listener)
+  }
+
+  def invokeOnAnyPluginUnload(body: => Unit): Disposable = {
+    val disposable = Disposer.newDisposable()
+    registerDynamicPluginListener(new DynamicPluginListener {
+      override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
+        body
+        if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
+          // last time we are called before unload
+          Disposer.dispose(disposable)
+        }
+      }
+    }, disposable)
+    disposable
+  }
+
+  def invokeOnScalaPluginUnload(body: => Unit): Disposable = {
+    val disposable = Disposer.newDisposable()
+    registerDynamicPluginListener(new DynamicPluginListener {
+      override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
+        if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
+          body
+          Disposer.dispose(disposable)
+        }
+      }
+    }, disposable)
+    disposable
+  }
+
+  def invokeOnScalaPluginUnload(parentDisposable: Disposable)(body: => Unit): Disposable = {
+    val disposable = invokeOnScalaPluginUnload(body)
+    Disposer.register(parentDisposable, disposable)
+    disposable
+  }
 
   private def preservingControlFlow(body: => Unit): Unit =
     try {

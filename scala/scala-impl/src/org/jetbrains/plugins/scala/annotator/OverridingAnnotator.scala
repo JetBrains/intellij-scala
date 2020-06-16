@@ -248,38 +248,51 @@ trait OverridingAnnotator {
         case _ => s.substitutor(baseType)
       }
 
-      def allowEmptyParens(pat: ScBindingPattern): Boolean = pat.nameContext match {
-        case v: ScValueOrVariable => v.typeElement.isDefined || PropertyMethods.isBeanProperty(v)
-        case _ => false
+      def allowEmptyParens(e: ScNamedElement): Boolean = e match {
+        case _: ScClassParameter => true
+        case _ =>
+          e.nameContext match {
+            case v: ScValueOrVariable =>
+              v.typeElement.isDefined || PropertyMethods.isBeanProperty(v)
+            case _ => false
+          }
       }
 
       actualType.conforms(actualBase) || ((actualBase, actualType, namedElement) match {
-        case (ParameterizedType(des, args), _, pat: ScBindingPattern) if des.canonicalText == "_root_.scala.Function0" &&
-          allowEmptyParens(pat) => actualType.conforms(args.head)
+        /* 5.1.3.3 M defines a parameterless method and M′ defines a method with an empty parameter list () or vice versa. */
         case (ParameterizedType(des, args), _, _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
           actualType.conforms(args.head)
         case (aType, ParameterizedType(des, args), _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
           aType.conforms(args.head)
+        case (ParameterizedType(des, args), _, patOrClassParam)
+          if des.canonicalText == "_root_.scala.Function0" && allowEmptyParens(patOrClassParam) =>
+          actualType.conforms(args.head)
         case _ => false
       })
     }
 
     def comparableType(named: PsiNamedElement): Option[ScType] = named match {
       case cp: ScClassParameter => cp.getRealParameterType.toOption
-      case fun: ScFunction if fun.isEmptyParen || fun.isParameterless => fun.returnType.toOption
-      case t: Typeable => t.`type`().toOption
-      case _ => None
+      case t: Typeable          => t.`type`().toOption
+      case _                    => None
     }
 
     implicit val tpc: TypePresentationContext = TypePresentationContext(memberNameId)
+
     for {
       overridingType <- comparableType(namedElement)
-      superSig <- superSignatures.filterBy[TermSignature]
-      baseType <- comparableType(superSig.namedElement)
+      superSig       <- superSignatures.filterBy[TermSignature]
+      baseType       <- comparableType(superSig.namedElement)
       if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
     } {
-      holder.createErrorAnnotation(memberNameId,
-        ScalaBundle.message("override.types.not.conforming", overridingType.presentableText, baseType.presentableText))
+      holder.createErrorAnnotation(
+        memberNameId,
+        ScalaBundle.message(
+          "override.types.not.conforming",
+          overridingType.presentableText,
+          baseType.presentableText
+        )
+      )
     }
   }
 }

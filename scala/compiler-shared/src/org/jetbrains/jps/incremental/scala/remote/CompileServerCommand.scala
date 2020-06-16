@@ -29,12 +29,21 @@ object CompileServerCommand {
   case class CompileJps(token: String,
                         projectPath: String,
                         globalOptionsPath: String,
-                        dataStorageRootPath: String)
+                        dataStorageRootPath: String,
+                        testScopeOnly: Boolean,
+                        forceCompileModule: Option[String])
     extends CompileServerCommand {
 
     override def id: String = CommandIds.CompileJps
 
-    override def asArgs: Seq[String] = Seq(token, projectPath, globalOptionsPath, dataStorageRootPath)
+    override def asArgs: Seq[String] = Seq(
+      token,
+      projectPath,
+      globalOptionsPath,
+      dataStorageRootPath,
+      testScopeOnly.toString,
+      forceCompileModule.getOrElse(""),
+    )
   }
 }
 

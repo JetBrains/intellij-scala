@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 import org.jetbrains.plugins.scala.settings.annotations.Definition.{FunctionDefinition, ValueDefinition, VariableDefinition}
 import ScalaTypeHintsPass._
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 private[codeInsight] trait ScalaTypeHintsPass {
   protected implicit def settings: ScalaHintsSettings

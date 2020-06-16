@@ -3,19 +3,14 @@ package org.jetbrains.bsp.protocol
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 
-import ch.epfl.scala.bsp4j.BspConnectionDetails
-import com.google.gson.Gson
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
-import com.intellij.openapi.roots.CompilerProjectExtension
-import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFileManager}
-import com.intellij.util.SystemProperties
+import com.intellij.openapi.vfs.VfsUtil
+import org.jetbrains.bsp._
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector._
@@ -23,15 +18,13 @@ import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
-import org.jetbrains.bsp.{BSP, BspBundle, BspError, BspErrorMessage, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildReporter
 
 import scala.concurrent.duration._
-import scala.io.Source
-import scala.util.{Failure, Success, Try}
+import scala.util.{Success, Try}
 
 
-class BspCommunication(base: File, executionSettings: BspExecutionSettings) extends Disposable {
+class BspCommunication private[protocol](base: File) extends Disposable {
 
   private val log = Logger.getInstance(classOf[BspCommunication])
 
@@ -125,7 +118,7 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
              notifications: NotificationCallback,
              processLogger: ProcessLogger)
             (implicit reporter: BuildReporter): BspJob[T] = {
-    val callback = (a: Unit, n: BspNotification) => notifications(n)
+    val callback = (_: Unit, n: BspNotification) => notifications(n)
     val job = run(bspSessionTask, (), callback, processLogger)
     new NonAggregatingBspJob(job)
   }
@@ -150,7 +143,7 @@ object BspCommunication {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
     val capabilities = BspCapabilities(supportedLanguages)
-    val connectionDetails = findBspConfigs(base)
+    val connectionDetails = BspConnectionConfig.allBspConfigs(base)
     val configuredMethods = connectionDetails.map(ProcessBsp)
 
     val compilerOutputDir = BspUtil.compilerOutputDirFromConfig(base)
@@ -169,69 +162,6 @@ object BspCommunication {
       else new DummyConnector(base.toURI)
 
     connector.connect(reporter)
-  }
-
-  private def findBspConfigs(projectBase: File): List[BspConnectionDetails] = {
-
-    val workspaceConfigs = BspUtil.bspConfigFiles(projectBase)
-    val systemConfigs = systemDependentConnectionFiles
-    val potentialConfigs = tryReadingConnectionFiles(workspaceConfigs ++ systemConfigs)
-
-    potentialConfigs.flatMap(_.toOption).toList
-  }
-
-  /**
-   * Find connection files installed on user's system.
-   * https://build-server-protocol.github.io/docs/server-discovery.html#default-locations-for-bsp-connection-files
-   */
-  private def systemDependentConnectionFiles: List[File] = {
-    val basePaths =
-      if (SystemInfo.isWindows) windowsBspFiles()
-      else if (SystemInfo.isMac) macBspFiles()
-      else if (SystemInfo.isUnix) unixBspFiles()
-      else Nil
-
-    listFiles(bspDirs(basePaths))
-  }
-
-  private def tryReadingConnectionFiles(files: Seq[File]): Seq[Try[BspConnectionDetails]] = {
-    val gson = new Gson()
-    files.map { file =>
-      if (file.canRead) {
-        val reader = Source.fromFile(file).bufferedReader()
-        Try(gson.fromJson(reader, classOf[BspConnectionDetails]))
-      } else Failure(BspErrorMessage(BspBundle.message("bsp.protocol.file.not.readable", file)))
-    }
-  }
-
-  private val BspDirName = "bsp"
-
-  private def windowsBspFiles() = {
-    val localAppData = System.getenv("LOCALAPPDATA")
-    val programData = System.getenv("PROGRAMDATA")
-    List(localAppData, programData)
-  }
-
-  private def unixBspFiles() = {
-    val xdgDataHome = System.getenv("XDG_DATA_HOME")
-    val xdgDataDirs = System.getenv("XDG_DATA_DIRS")
-    val dataHome = defaultIfEmpty(xdgDataHome, SystemProperties.getUserHome + "/.local/share")
-    val dataDirs = defaultIfEmpty(xdgDataDirs, "/usr/local/share:/usr/share").split(":").toList
-    dataHome :: dataDirs
-  }
-
-  private def macBspFiles() = {
-    val userHome = SystemProperties.getUserHome
-    val userData = userHome + "/Library/Application Support"
-    val systemData = "/Library/Application Support"
-    List(userData, systemData)
-  }
-
-  private def bspDirs(basePaths: List[String]): List[File] = basePaths.map(new File(_, BspDirName))
-
-  private def listFiles(dirs: List[File]): List[File] = dirs.flatMap { dir =>
-    if (dir.isDirectory) dir.listFiles()
-    else Array.empty[File]
   }
 
 }

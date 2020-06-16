@@ -1,23 +1,22 @@
-package org.jetbrains.plugins.scala.caches
+package org.jetbrains.plugins.scala
+package caches
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
 
-/**
-  * Nikolay.Tropin
-  * 28-May-18
-  */
 trait ProjectUserDataHolder[-E] {
   def dataHolder(e: E): UserDataHolder
 
   def project(e: E): Project
 }
 
+
 object ProjectUserDataHolder {
 
-  implicit class Syntax[E](private val e: E) extends AnyVal {
+  implicit class ProjectUserDataHolderOps[E](private val e: E) extends AnyVal {
 
     def getProject(implicit ev: ProjectUserDataHolder[E]): Project = ev.project(e)
 
@@ -45,13 +44,13 @@ object ProjectUserDataHolder {
 
   implicit val module: ProjectUserDataHolder[Module] =
     new ProjectUserDataHolder[Module] {
-      override def dataHolder(e: Module): UserDataHolder = e
+      override def dataHolder(e: Module): UserDataHolder = e.delegateUserDataHolder
       override def project(e: Module): Project = e.getProject
     }
 
   implicit val project: ProjectUserDataHolder[Project] =
     new ProjectUserDataHolder[Project] {
-      override def dataHolder(e: Project): UserDataHolder = e
+      override def dataHolder(e: Project): UserDataHolder = e.delegateUserDataHolder
       override def project(e: Project): Project = e
     }
 }

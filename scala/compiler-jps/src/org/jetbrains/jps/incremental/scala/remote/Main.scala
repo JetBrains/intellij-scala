@@ -3,10 +3,12 @@ package org.jetbrains.jps.incremental.scala.remote
 import java.io._
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
+import java.util
 import java.util.{Base64, Timer, TimerTask}
 
 import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
+import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
 import org.jetbrains.jps.incremental.MessageHandler
 import org.jetbrains.jps.incremental.fs.BuildFSState
@@ -19,6 +21,7 @@ import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
+import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -125,7 +128,7 @@ object Main {
   }
 
   private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(_, projectPath, globalOptionsPath, dataStorageRootPath) = command
+    val CompileServerCommand.CompileJps(_, projectPath, globalOptionsPath, dataStorageRootPath, testScopeOnly, forceCompileModule) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -147,10 +150,15 @@ object Main {
       }
     }
     val descriptor = buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
-    val scopes = CmdlineProtoUtil.createAllModulesScopes(false)
+    val forceBuild = false
+    val scopeTypes = if (testScopeOnly)
+      Seq(JavaModuleBuildTargetType.TEST)
+    else
+      Seq(JavaModuleBuildTargetType.TEST, JavaModuleBuildTargetType.PRODUCTION)
+    val scopes = scopeTypes.map(CmdlineProtoUtil.createAllTargetsScope(_, forceBuild)).asJava
 
+    client.compilationStart()
     try {
-      client.compilationStart()
       buildRunner.runBuild(
         descriptor,
         () => client.isCanceled,
@@ -160,8 +168,23 @@ object Main {
         scopes,
         true
       )
-      client.compilationEnd(compiledFiles)
+      // TODO improve. Force compile only one file. And only if it wasn't compiled in previous compilation.
+      forceCompileModule.foreach { module =>
+        val scopes = scopeTypes.map { scopeType =>
+          CmdlineProtoUtil.createTargetsScope(scopeType.getTypeId, util.Arrays.asList(module), forceBuild)
+        }.asJava
+        buildRunner.runBuild(
+          descriptor,
+          () => client.isCanceled,
+          null,
+          messageHandler,
+          BuildType.BUILD,
+          scopes,
+          false
+        )
+      }
     } finally {
+      client.compilationEnd(compiledFiles)
       descriptor.release()
     }
   }

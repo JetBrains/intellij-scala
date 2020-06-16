@@ -12,12 +12,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 
 import scala.annotation.tailrec
@@ -28,6 +28,23 @@ import scala.annotation.tailrec
  */
 object ScalaInsertHandler {
 
+  val AssignmentText = " = "
+
+  def isParameterless(method: PsiMethod): Boolean = method match {
+    case _: ScFunction => false
+    case _ if method.isAccessor => true
+    case _ =>
+      method.getName match {
+        case "hashCode" |
+             "length" |
+             "trim" =>
+          val containingClass = method.containingClass
+          containingClass != null &&
+            containingClass.qualifiedName == CommonClassNames.JAVA_LANG_STRING
+        case _ => false
+      }
+  }
+
   def getItemParametersAndAccessorStatus(element: PsiNamedElement): (Int, Boolean) = element match {
     case fun: ScFunction =>
       val clauses = fun.paramClauses.clauses
@@ -35,18 +52,29 @@ object ScalaInsertHandler {
       else if (clauses.head.isImplicit) (-1, false)
       else (clauses.head.parameters.length, false)
     case method: PsiMethod =>
-      def isStringSpecialMethod: Boolean = {
-        Set("hashCode", "length", "trim").contains(method.getName) &&
-          method.containingClass != null &&
-          method.containingClass.qualifiedName == "java.lang.String"
-      }
-
-      (method.getParameterList.getParametersCount, method.isAccessor || isStringSpecialMethod)
+      (method.getParameterList.getParametersCount, isParameterless(method))
     case fun: ScFun =>
       if (fun.paramClauses.isEmpty) (-1, false)
       else (fun.paramClauses.head.length, false)
     case _ => (0, true)
   }
+
+  private[completion] def replaceReference(reference: ScReference, text: String)
+                                          (elementToBindTo: PsiNamedElement)
+                                          (collector: ScReference => ScReference = identity): Unit = {
+    import reference.projectContext
+
+    val newReference = reference match {
+      case _: ScReferenceExpression => createExpressionFromText(text).asInstanceOf[ScReferenceExpression]
+      case _ => createReferenceFromText(text)
+    }
+
+    val node = reference.getNode
+    node.getTreeParent.replaceChild(node, newReference.getNode)
+
+    collector(newReference).bindToElement(elementToBindTo)
+  }
+
 
   private[completion] final class StringInsertPreHandler extends InsertHandler[ScalaLookupItem] {
 
@@ -259,12 +287,12 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
       }
     }
 
-    item.element match {
+    item.getPsiElement match {
       case _: PsiClass | _: ScTypeAlias if completionChar == '[' =>
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
       case _: PsiNamedElement if item.isNamedParameterOrAssignment => //some is impossible here
-        val shouldAddEqualsSign = element.getParent match {
+        val shouldAddAssignment = element.getParent match {
           case ref: ScReferenceExpression =>
             ref.getParent match {
               case ass: ScAssignment if ass.leftExpression == ref =>
@@ -277,9 +305,10 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
           case _ => true //should be impossible
         }
         context.setAddCompletionChar(false)
-        if (shouldAddEqualsSign) {
-          document.insertString(endOffset, " = ")
-          endOffset += 3
+
+        if (shouldAddAssignment) {
+          document.insertString(endOffset, AssignmentText)
+          endOffset += AssignmentText.length
           model.moveToOffset(endOffset)
         }
         return

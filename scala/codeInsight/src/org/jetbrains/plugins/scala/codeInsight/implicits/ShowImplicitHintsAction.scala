@@ -8,7 +8,7 @@ class ShowImplicitHintsAction extends ToggleAction(
   ScalaCodeInsightBundle.message("show.implicit.hints.action.description"),
   /* icon = */ null
 ) {
-  setShortcuts(ShowImplicitHintsAction.Id, EnableShortcuts)
+  ImplicitShortcuts.setShortcuts(ShowImplicitHintsAction.Id, ImplicitShortcuts.EnableShortcuts)
 
   override def isSelected(event: AnActionEvent): Boolean = ImplicitHints.enabled
 

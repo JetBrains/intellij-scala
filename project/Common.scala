@@ -63,6 +63,7 @@ object Common {
     val typecheckerTests: String = cat("TypecheckerTests")
     val testingSupportTests: String = cat("TestingSupportTests")
     val worksheetEvaluationTests: String = cat("WorksheetEvaluationTests")
+    val flakyTests: String = cat("FlakyTests")
   }
 
   def pluginVersion: String =

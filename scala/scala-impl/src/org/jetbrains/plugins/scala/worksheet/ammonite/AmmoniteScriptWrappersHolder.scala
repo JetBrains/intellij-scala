@@ -16,12 +16,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
-import com.intellij.util.Processor
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 
@@ -68,11 +67,12 @@ class AmmoniteScriptWrappersHolder(project: Project) {
   }
 
   private def init(): Unit = {
-    project.getMessageBus.connect(project).subscribe(DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC, new DaemonListener {
+    val connection = project.getMessageBus.connect(project.unloadAwareDisposable)
+    connection.subscribe(DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC, new DaemonListener {
       override def daemonFinished(): Unit = problemFiles.replaceAll(setMask(SET_DAEMON_MASK))
     })
 
-    project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener {
+    connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener {
       override def fileClosed(source: FileEditorManager, file: VirtualFile): Unit = {
         decrementImpl(file, SET_OPEN_MASK)
       }

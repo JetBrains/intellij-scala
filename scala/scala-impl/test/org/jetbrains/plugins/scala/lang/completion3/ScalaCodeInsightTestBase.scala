@@ -37,7 +37,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                             completionType: CompletionType = BASIC,
                                             invocationCount: Int = DEFAULT_TIME)
                                            (items: LookupImpl => Iterable[LookupElement] = allItems) = {
-    configureFromFileText(fileText)
+    configureFromFileText(normalize(fileText))
 
     changePsiAt(getEditor.getCaretModel.getOffset)
 
@@ -120,11 +120,18 @@ object ScalaCodeInsightTestBase {
 
   object LookupString {
 
-    def unapply(lookup: LookupElement): Option[String] = Some(lookup.getLookupString)
+    def unapply(lookup: LookupElement): Some[String] =
+      Some(lookup.getLookupString)
   }
 
   def hasLookupString(lookup: LookupElement, lookupString: String): Boolean =
     lookup.getLookupString == lookupString
+
+  def createPresentation(lookup: LookupElement): LookupElementPresentation = {
+    val presentation = new LookupElementPresentation
+    lookup.renderElement(presentation)
+    presentation
+  }
 
   def hasItemText(lookup: LookupElement,
                   lookupString: String)
@@ -134,8 +141,7 @@ object ScalaCodeInsightTestBase {
                   tailText: String = null,
                   grayed: Boolean = false): Boolean = lookup match {
     case LookupString(`lookupString`) =>
-      val presentation = new LookupElementPresentation
-      lookup.renderElement(presentation)
+      val presentation = createPresentation(lookup)
       presentation.getItemText == itemText &&
         presentation.isItemTextItalic == itemTextItalic &&
         presentation.isItemTextBold == itemTextBold &&

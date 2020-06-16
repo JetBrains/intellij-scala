@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.annotator.Tree.Leaf
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Mismatch, asString}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScParenthesisedExpr, ScTypedExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
@@ -46,7 +46,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
           case (_, t2: ScLiteralType) => t2.wideType
           case (_, t2) => t2
         }
-        val message = s"Cannot upcast ${wideActual.presentableText} to ${expected.presentableText}"
+        val message = ScalaBundle.message("cannot.upcast.type.to.other.type", wideActual.presentableText, expected.presentableText)
         ranges.foreach { range =>
           val annotation = holder.createErrorAnnotation(range, message)
           annotation.registerFix(ReportHighlightingErrorQuickFix)

@@ -12,4 +12,6 @@ public interface CompilerSettings {
   SbtIncrementalOptions getSbtIncrementalOptions();
 
   String[] getCompilerOptions();
+  
+  String[] getPlugins();
 }

@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceT
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.ScalaPluginJars
+import org.jetbrains.plugins.scala.util.{ScalaPluginJars, UnloadAwareDisposable}
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.collection.JavaConverters._
@@ -237,8 +237,10 @@ package object project {
   class ScalaSdkNotConfiguredException(module: Module) extends IllegalArgumentException(s"No Scala SDK configured for module: ${module.getName}")
 
   implicit class ProjectExt(private val project: Project) extends AnyVal {
+    def unloadAwareDisposable: Disposable =
+      UnloadAwareDisposable.forProject(project)
 
-    def subscribeToModuleRootChanged(parentDisposable: Disposable = project)
+    def subscribeToModuleRootChanged(parentDisposable: Disposable = unloadAwareDisposable)
                                     (onRootsChanged: ModuleRootEvent => Unit): Unit =
       project.getMessageBus.connect(parentDisposable).subscribe(
         ProjectTopics.PROJECT_ROOTS,

@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala.debugger.renderers
 
 import java.util
+import java.util.concurrent.TimeUnit
+
 import javax.swing.Icon
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.DurationDouble
-
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.ui.impl.ThreadsDebuggerTree
-import com.intellij.debugger.ui.impl.watch.{DebuggerTree, NodeDescriptorImpl}
+import com.intellij.debugger.ui.impl.watch.{NodeDescriptorImpl, DebuggerTree}
 import com.intellij.debugger.ui.tree._
-import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, ArrayRenderer, DescriptorLabelListener}
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.xdebugger.frame.{XDebuggerTreeNodeHyperlink, XValueChildrenList}
@@ -31,7 +32,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
     val testVariable = inSuspendContextAction(10.seconds, s"Too long rendering of $variableName") {
       val context = evaluationContext()
       val testVariable = localVar(frameTree, context, variableName)
-      val renderer = testVariable.getRenderer(getDebugProcess)
+      val renderer = testVariable.getRenderer(getDebugProcess).get(5, TimeUnit.SECONDS)
       testVariable.setRenderer(renderer)
       testVariable.updateRepresentation(context, DescriptorLabelListener.DUMMY_LISTENER)
 

@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 /**
  * @author ven
@@ -52,14 +53,23 @@ object TypeDefinitionMembers {
   //we need to have separate map for stable elements to avoid recursion processing declarations from imports
   object StableNodes extends MixinNodes[TermSignature](StableTermsCollector)
 
-  def getSignatures(clazz: PsiClass, withSupers: Boolean = true): TermNodes.Map =
+  def getSignatures(clazz: PsiClass, withSupers: Boolean): TermNodes.Map =
     ifValid(clazz)(_.TermNodesCache.cachedMap(clazz, withSupers))
 
-  def getStableSignatures(clazz: PsiClass, withSupers: Boolean = true): StableNodes.Map =
+  def getStableSignatures(clazz: PsiClass, withSupers: Boolean): StableNodes.Map =
     ifValid(clazz)(_.StableNodesCache.cachedMap(clazz, withSupers))
 
-  def getTypes(clazz: PsiClass, withSupers: Boolean = true): TypeNodes.Map =
+  def getTypes(clazz: PsiClass, withSupers: Boolean): TypeNodes.Map =
     ifValid(clazz)(_.TypeNodesCache.cachedMap(clazz, withSupers))
+
+  def getSignatures(clazz: PsiClass): TermNodes.Map =
+    getSignatures(clazz, withSupers = true)
+
+  def getStableSignatures(clazz: PsiClass): StableNodes.Map =
+    getStableSignatures(clazz, withSupers = true)
+
+  def getTypes(clazz: PsiClass): TypeNodes.Map =
+    getTypes(clazz, withSupers = true)
 
   private def ifValid[T <: Signature](clazz: PsiClass)
                                      (cache: ScalaPsiManager => MixinNodes[T]#Map): MixinNodes[T]#Map = {
@@ -125,20 +135,17 @@ object TypeDefinitionMembers {
   }
 
   /** Take extra care to avoid reentrancy issues when processing package objects */
-  private[this] val processing = new ThreadLocal[ju.Map[String, java.lang.Long]] {
-    override def initialValue(): ju.Map[String, java.lang.Long] =
-      new ju.HashMap[String, java.lang.Long]()
-  }
+  private[this] val processing: UnloadableThreadLocal[ju.Map[String, java.lang.Long]] = UnloadableThreadLocal(new ju.HashMap)
 
   private[this] def checkPackageObjectReentrancy(fqn: String): Boolean =
-    processing.get().getOrDefault(fqn, 0L) != 0L
+    processing.value.getOrDefault(fqn, 0L) != 0L
 
   private[this] def withReentrancyGuard(fqn: String)(action: => Boolean): Boolean =
     try {
-      processing.get.merge(fqn, 1L, (old, _) => old + 1)
+      processing.value.merge(fqn, 1L, (old, _) => old + 1)
       action
     } finally {
-      processing.get.merge(fqn, 0L, (old, _) => if (old == 1L) null else old - 1)
+      processing.value.merge(fqn, 0L, (old, _) => if (old == 1L) null else old - 1)
     }
 
   def processClassDeclarations(

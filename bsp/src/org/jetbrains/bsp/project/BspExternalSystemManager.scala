@@ -19,6 +19,7 @@ import org.jetbrains.bsp._
 import org.jetbrains.bsp.project.resolver.BspProjectResolver
 import org.jetbrains.bsp.settings._
 import org.jetbrains.bsp.project.BspExternalSystemManager.DetectExternalProjectFiles
+import org.jetbrains.bsp.protocol.BspConnectionConfig
 
 import scala.collection.JavaConverters._
 
@@ -49,7 +50,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
   override def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project): String = {
     if (detectExternalProjectFiles(project)) {
       val file = new File(changedFileOrDirPath)
-      val isConfigFile = (BspUtil.isBspConfigFile(file) || BspUtil.isBloopConfigFile(file)) &&
+      val isConfigFile = (BspConnectionConfig.isBspConfigFile(file) || BspUtil.isBloopConfigFile(file)) &&
         BspUtil.workspaces(project).contains(file.getParentFile.toPath)
 
       if (isConfigFile) file.getParentFile.getAbsolutePath
@@ -60,7 +61,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
   override def getAffectedExternalProjectFiles(projectPath: String, project: Project): JList[File] = {
     if (detectExternalProjectFiles(project)) {
       val workspace = new File(projectPath)
-      val bspConfigs = BspUtil.bspConfigFiles(workspace)
+      val bspConfigs = BspConnectionConfig.workspaceConfigurations(workspace)
       val bloopConfigs = BspUtil.bloopConfigDir(workspace).toList
         .flatMap(_.listFiles(file => file.getName.endsWith(".json")).toList)
 
@@ -74,7 +75,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
     cached(DetectExternalProjectFiles, project) {
       if (BspUtil.isBspProject(project)) {
         val workspace = new File(project.getBasePath)
-        val files = BspUtil.bspConfigFiles(workspace)
+        val files = BspConnectionConfig.workspaceConfigurations(workspace)
         files.forall { file =>
           val bspConnectionDetails = parseAsMap(file)
           !bspConnectionDetails.get("X-detectExternalProjectFiles").contains(false)

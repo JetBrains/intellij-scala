@@ -77,7 +77,7 @@ object Cached {
           //wrap type of value in Some to avoid unboxing in putIfAbsent for primitive types
           val mapType = tq"$concurrentMapTypeFqn[(..${flatParams.map(_.tpt)}), _root_.scala.Some[$retTp]]"
 
-          def createNewMap = q"_root_.com.intellij.util.containers.ContainerUtil.newConcurrentMap()"
+          def createNewMap = q"new _root_.java.util.concurrent.ConcurrentHashMap()"
 
           val fields =
             q"""

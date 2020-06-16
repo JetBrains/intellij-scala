@@ -6,7 +6,6 @@ import com.intellij.execution.filters.HyperlinkInfoFactory;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -19,7 +18,6 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.reference.SoftReference;
 import com.intellij.util.ObjectUtils;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,8 +25,8 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
 
 
 /**
@@ -131,7 +129,7 @@ public class ScalaTestFailureLocationFilter implements Filter {
    * public.
    */
   private static class ExceptionInfoCache {
-    private final ConcurrentMap<String, SoftReference<Pair<PsiClass[], PsiFile[]>>> myCache = ContainerUtil.newConcurrentMap();
+    private final ConcurrentMap<String, SoftReference<Pair<PsiClass[], PsiFile[]>>> myCache = new ConcurrentHashMap();
     private final Project myProject;
     private final GlobalSearchScope mySearchScope;
 

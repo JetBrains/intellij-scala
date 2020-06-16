@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors}
-import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
+import com.intellij.openapi.editor.colors.CodeInsightColors
+import com.intellij.openapi.editor.colors.EditorColors
+import com.intellij.openapi.editor.markup.EffectType
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.pom.Navigatable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
@@ -11,7 +13,7 @@ case class Text(string: String,
                 effectRange: Option[(Int, Int)]    = None,
                 tooltip: Option[String]            = None,
                 navigatable: Option[Navigatable]   = None,
-                errorTooltip: Option[String]       = None,
+                errorTooltip: Option[ErrorTooltip] = None,
                 expansion: Option[() => Seq[Text]] = None) {
 
   var hyperlink: Boolean = false
@@ -38,7 +40,7 @@ case class Text(string: String,
   def withAttributes(attributes: TextAttributes): Text =
     copy(attributes = Some(this.attributes.map(_ + attributes).getOrElse(attributes)))
 
-  def withErrorTooltip(tooltip: String): Text =
+  def withErrorTooltip(tooltip: ErrorTooltip): Text =
     copy(errorTooltip = Some(tooltip))
 
   // We want auto-generate apply() and copy() methods, but reference-based equality

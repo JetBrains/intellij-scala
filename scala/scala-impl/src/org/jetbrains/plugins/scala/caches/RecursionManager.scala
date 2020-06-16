@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.caches
 
 import java.util
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.RecursionGuard.StackStamp
 import com.intellij.openapi.util.{RecursionManager => PlatformRM}
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.util.HashBuilder._
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import scala.collection.JavaConverters._
 
@@ -27,24 +28,22 @@ object RecursionManager {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.RecursionManager")
   private type LocalCacheMap = Map[MyKey[_], (Any, Int)]
 
-  private val ourStack: ThreadLocal[CalculationStack] = new ThreadLocal[CalculationStack]() {
-    override protected def initialValue: CalculationStack = new CalculationStack
-  }
+  private val ourStack: UnloadableThreadLocal[CalculationStack] = UnloadableThreadLocal(new CalculationStack)
 
   /** see [[com.intellij.openapi.util.RecursionGuard#markStack]]*/
   def markStack(): StackStamp = new StackStamp {
-    private val stamp = ourStack.get.stamp()
+    private val stamp = ourStack.value.stamp()
     private val platformStamp = PlatformRM.markStack()
 
     override def mayCacheNow: Boolean = {
-      val stack = ourStack.get
+      val stack = ourStack.value
       !stack.isStampWithinRecursion(stamp) && !stack.isDirty && platformStamp.mayCacheNow()
     }
   }
 
   //invalidates all current StackStamps
   def prohibitCaching(): Unit = {
-    ourStack.get().prohibitCaching()
+    ourStack.value.prohibitCaching()
   }
 
   class RecursionGuard[Data >: Null <: AnyRef, LocalCacheValue] private (id: String) {
@@ -61,9 +60,9 @@ object RecursionManager {
       }
 
     def getFromLocalCache(data: Data): LocalCacheValue = {
-      val stack = ourStack.get()
+      val stack = ourStack.value
       val key = createKey(data)
-      val result = ourStack.get().localCache.get(key) match {
+      val result = stack.localCache.get(key) match {
         case Some((value, stackDepthOfLocallyCachedRecord)) =>
           stack.minStackDepthInRecursion = math.min(stack.minStackDepthInRecursion, stackDepthOfLocallyCachedRecord)
           value
@@ -74,14 +73,14 @@ object RecursionManager {
     }
 
     def cacheInLocalCache(data: Data, value: LocalCacheValue): Unit = {
-      val stack = ourStack.get()
+      val stack = ourStack.value
       val key = createKey(data, myCallEquals = true)
       if (stack.currentStackHasRecursion)
         stack.localCache += key -> (value -> stack.minStackDepthInRecursion)
     }
 
     def checkReentrancy(data: Data): Boolean = {
-      val stack = ourStack.get()
+      val stack = ourStack.value
       val realKey = createKey(data, myCallEquals = true)
       stack.checkReentrancy(realKey)
     }
@@ -89,7 +88,7 @@ object RecursionManager {
     def createKey(data: Data, myCallEquals: Boolean = false) = new MyKey[Data](id, data, myCallEquals)
 
     def beforeComputation(realKey: MyKey[Data]): (Int, Int, Int, LocalCacheMap) = {
-      val stack = ourStack.get()
+      val stack = ourStack.value
       val sizeBefore: Int = stack.progressMap.size
       val minDepthBefore = stack.beforeComputation(realKey)
       val sizeAfter: Int = stack.progressMap.size
@@ -97,7 +96,7 @@ object RecursionManager {
     }
 
     def afterComputation(realKey: MyKey[Data], sizeBefore: Int, sizeAfter: Int, minDepthBefore: Int, localCacheBefore: LocalCacheMap): Unit = {
-      val stack = ourStack.get()
+      val stack = ourStack.value
       try stack.afterComputation(realKey, sizeBefore, sizeAfter, minDepthBefore, localCacheBefore)
       catch {
         case e: Throwable =>
@@ -110,7 +109,7 @@ object RecursionManager {
 
   object RecursionGuard {
     private val guards: ConcurrentMap[String, RecursionGuard[_, _]] =
-      ContainerUtil.newConcurrentMap[String, RecursionGuard[_, _]]()
+      new ConcurrentHashMap[String, RecursionGuard[_, _]]()
 
     def apply[Data >: Null <: AnyRef, LocalCacheValue](id: String): RecursionGuard[Data, LocalCacheValue] =
       guards.computeIfAbsent(id, new RecursionGuard[Data, LocalCacheValue](_))
@@ -245,19 +244,19 @@ object RecursionManager {
       }
     }
 
-private[RecursionManager] def checkZero(): Boolean = {
-  if (progressMap.size == 1 && progressMap.values().iterator().next() != 1) {
-    val message = "Recursion stack: first inserted key should have a depth of 1"
-    LOG.error(message + "\n" +
-      progressMap +
-      "\nvalue=" + progressMap.values().iterator().next() +
-      "\nenters=" + enters +
-      "\nexits=" + exits +
-      "\ndepth=" + depth)
-    return false
-  }
-  true
-}
+    private[RecursionManager] def checkZero(): Boolean = {
+      if (progressMap.size == 1 && progressMap.values().iterator().next() != 1) {
+        val message = "Recursion stack: first inserted key should have a depth of 1"
+        LOG.error(message + "\n" +
+          progressMap +
+          "\nvalue=" + progressMap.values().iterator().next() +
+          "\nenters=" + enters +
+          "\nexits=" + exits +
+          "\ndepth=" + depth)
+        return false
+      }
+      true
+    }
   }
 }
 

@@ -1,6 +1,6 @@
 object O {
-  private case class CC1
-  private[this] case class CC2
+  private case class CC1()
+  private[this] case class CC2()
 
   /* */CC1.getClass
   classOf[/* */CC1]

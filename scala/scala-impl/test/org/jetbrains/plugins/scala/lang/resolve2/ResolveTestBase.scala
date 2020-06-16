@@ -3,10 +3,10 @@ package org.jetbrains.plugins.scala.lang.resolve2
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase
 import com.intellij.psi.impl.source.resolve.reference.impl.PsiMultiReference
 import com.intellij.psi.{PsiElement, PsiReference}
-import junit.framework._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.junit.Assert._
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -53,7 +53,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
       val reference = getFileAdapter.findReferenceAt(m.end)
 
       assertKnown(parameters)
-      Assert.assertNotNull("No reference found at offset " + m.end, references)
+      assertNotNull("No reference found at offset " + m.end, references)
 
       options = parameters :: options
       references = reference :: references
@@ -62,15 +62,15 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     options = options.reverse
     references = references.reverse
     
-    Assert.assertFalse("At least one expectation must be specified", references.isEmpty)
-    Assert.assertEquals("Options number", references.size, options.size)
+    assertFalse("At least one expectation must be specified", references.isEmpty)
+    assertEquals("Options number", references.size, options.size)
 
     null
   }
 
   def assertKnown(parameters: Parameters): Unit = {
     for ((key, value) <- parameters) {
-      Assert.assertTrue("Unknown parameter: " + key + "\nAllowed: " + Parameters.mkString(", "),
+      assertTrue("Unknown parameter: " + key + "\nAllowed: " + Parameters.mkString(", "),
         Parameters.contains(key))
     }
   }
@@ -83,12 +83,11 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     }: _*)
   }
 
-  def doTest(): Unit = {
-    doTest(getTestName(false) + ".scala")
-  }
+  def doTest(): Unit =
+    doTestImpl()
 
-  def doTest(file: String): Unit = {
-    references.zip(options).foreach(it => {
+  private def doTestImpl(): Unit =
+    references.zip(options).foreach { it =>
       it._1 match {
         case ref: ScReference =>
           doEachTest(ref, it._2)
@@ -98,14 +97,14 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
             hostReferences.find(_.isInstanceOf[ScReference]) match {
               case Some(r: ScReference) =>
                 doEachTest(r, it._2)
-              case _ => assert(assertion = false, message = "Multihost references are not supported")
+              case _ =>
+                assert(assertion = false, message = "Multihost references are not supported")
             }
           } else {
             assert(assertion = false, message = "Multihost references are not supported")
           }
       }
-    })
-  }
+    }
 
   def doEachTest(reference: ScReference, options: Parameters): Unit = {
     val referenceName = reference.refName
@@ -118,24 +117,24 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     def message = format(getFileAdapter.getText, _: String, lineOf(reference))
 
     def assertEquals(name: String, v1: Any, v2: Any): Unit = {
-      if(v1 != v2) Assert.fail(message(name + " - expected: " + v1 + ", actual: " + v2))
+      if(v1 != v2) fail(message(name + " - expected: " + v1 + ", actual: " + v2))
     }
 
     if (options.contains(Resolved) && options(Resolved) == "false") {
-      Assert.assertNull(message(referenceName + " must NOT be resolved!"), target)
+      assertNull(message(referenceName + " must NOT be resolved!"), target)
     } else {
-      Assert.assertNotNull(message(referenceName + " must BE resolved!"), target)
+      assertNotNull(message(referenceName + " must BE resolved!"), target)
 
       if (options.contains(Accessible) && options(Accessible) == "false") {
-        Assert.assertFalse(message(referenceName + " must NOT be accessible!"), accessible)
+        assertFalse(message(referenceName + " must NOT be accessible!"), accessible)
       } else {
-        Assert.assertTrue(message(referenceName + " must BE accessible!"), accessible)
+        assertTrue(message(referenceName + " must BE accessible!"), accessible)
       }
 
       if (options.contains(Applicable) && options(Applicable) == "false") {
-        Assert.assertFalse(message(referenceName + " must NOT be applicable!"), applicable)
+        assertFalse(message(referenceName + " must NOT be applicable!"), applicable)
       } else {
-        Assert.assertTrue(message(referenceName + " must BE applicable! " +
+        assertTrue(message(referenceName + " must BE applicable! " +
           result.get.problems.mkString("(", ",", ")")), applicable)
       }
 
@@ -170,16 +169,15 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
         val expectedClass = Class.forName(options(Type))
         val targetClass = target.getClass
         val text = Type + " - expected: " + expectedClass.getSimpleName + ", actual: " + targetClass.getSimpleName
-        Assert.assertTrue(message(text), expectedClass.isAssignableFrom(targetClass))
+        assertTrue(message(text), expectedClass.isAssignableFrom(targetClass))
       }
     }
   }
 
-  def lineOf(element: PsiElement) = {
+  private def lineOf(element: PsiElement) =
     element.getContainingFile.getText.substring(0, element.getTextOffset).count(_ == '\n') + 1
-  }
 
-  def format(text: String, message: String, line: Int) = {
+  private def format(text: String, message: String, line: Int) = {
     val lines = text.linesIterator.zipWithIndex.map(p => if (p._2 + 1 == line) p._1 + " // " + message else p._1)
     "\n\n" + lines.mkString("\n") + "\n"
   }

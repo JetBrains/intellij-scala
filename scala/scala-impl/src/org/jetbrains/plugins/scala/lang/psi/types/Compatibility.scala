@@ -10,7 +10,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScPrimaryConstructor}
@@ -27,11 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
@@ -633,19 +632,24 @@ object Compatibility {
     // Providing more clauses than required is ok, as those might be calls to apply
     // see: class A(i: Int) { def apply(j: Int) = ??? }
     // new A(2)(3) is ok
+    val missedParameterClauseProblems = missedParameterClauseProblemsFor(paramClauses, nonEmptyArgClause.length)
+    if (missedParameterClauseProblems.isEmpty) result
+    else result.copy(problems = result.problems ++ missedParameterClauseProblems)
+  }
+
+  def missedParameterClauseProblemsFor(paramClauses: Seq[ScParameterClause],
+                                       argClauseCount: Int): Seq[MissedParametersClause] = {
     var minParamClauses = paramClauses.length
 
     val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicit)
     if (hasImplicitClause)
       minParamClauses -= 1
 
-    if (nonEmptyArgClause.length < minParamClauses) {
-      val missingClauses = paramClauses.drop(nonEmptyArgClause.length)
-      result.copy(
-        problems = result.problems ++ missingClauses.map(MissedParametersClause.apply)
-      )
+    if (argClauseCount < minParamClauses) {
+      val missingClauses = paramClauses.drop(argClauseCount)
+      missingClauses.map(MissedParametersClause.apply)
     } else {
-      result
+      Seq.empty
     }
   }
 }

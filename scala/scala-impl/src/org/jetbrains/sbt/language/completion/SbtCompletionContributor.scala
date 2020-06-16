@@ -117,7 +117,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
           case _ => return
         }
 
-        variant.element match {
+        variant.getPsiElement match {
           case f: PsiField if f.getType.toScType().conforms(expectedType) =>
             apply(variant)
           case typed: ScTypedDefinition if typed.`type`().getOrAny.conforms(expectedType) =>

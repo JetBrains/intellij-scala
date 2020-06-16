@@ -67,7 +67,7 @@ object WorksheetDefaultSourcePreprocessor {
       "MacroPrinter210",
       "MacroPrinter211",
       "MacroPrinter213",
-      "MacroPrinter3_24",
+      "MacroPrinter3",
       "MacroPrinter"
     )
     val packageOpt: Option[String] = packageForFile(srcFile)

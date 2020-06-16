@@ -10,16 +10,18 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
+import com.intellij.openapi.ui.popup.{JBPopupFactory, LightweightWindowEvent, JBPopup, JBPopupListener}
 import com.intellij.openapi.util.{Disposer, Ref}
 import com.intellij.psi.util.PsiUtilBase
-import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
+import com.intellij.psi.{PsiFile, PsiElement, PsiWhiteSpace}
 import com.intellij.ui.tree.{AsyncTreeModel, StructureTreeModel}
 import com.intellij.ui.treeStructure.Tree
-import com.intellij.ui.{ClickListener, ScrollPaneFactory}
+import com.intellij.ui.{ScrollPaneFactory, ClickListener}
 import com.intellij.util.ArrayUtil
 import javax.swing.tree.{DefaultMutableTreeNode, TreePath}
 import javax.swing.{JPanel, JTree}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -192,7 +194,7 @@ object ShowImplicitArgumentsAction {
     val ENTER: Array[Shortcut] = CustomShortcutSet.fromString("ENTER").getShortcuts
     val shortcutSet: CustomShortcutSet = new CustomShortcutSet(ArrayUtil.mergeArrays(F4, ENTER): _*)
 
-    val title = if (isConversion) "Implicit arguments for implicit conversion:" else "Implicit arguments:"
+    val title = if (isConversion) ScalaBundle.message("implicit.arguments.for.implicit.conversion") else ScalaBundle.message("implicit.arguments")
 
     val popup: JBPopup = JBPopupFactory.getInstance().createComponentPopupBuilder(panel, jTree).
       setRequestFocus(true).

@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import java.util.Collections
+
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
-import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{JavaTokenType, PsiElement, PsiFile, PsiJavaToken, PsiManager, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, invokeLater}
 import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
@@ -41,6 +42,26 @@ object ExternalHighlighters {
         )
       }
     }
+  
+  def eraseAllHighlightings(project: Project): Unit = {
+    for {
+      editor <- EditorFactory.getInstance.getAllEditors
+      editorProject <- Option(editor.getProject)
+      if editorProject == project
+    } invokeLater {
+      if (!project.isDisposed) {
+        val document = editor.getDocument
+        UpdateHighlightersUtil.setHighlightersToEditor(
+          project,
+          document, 0, document.getTextLength,
+          Collections.emptyList(),
+          editor.getColorsScheme,
+          ScalaCompilerPassId
+        )
+      }
+    }
+    ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
+  }
 
   def informWolf(project: Project, state: HighlightingState): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {

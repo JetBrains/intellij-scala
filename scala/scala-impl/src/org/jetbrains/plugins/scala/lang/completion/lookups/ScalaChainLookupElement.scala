@@ -48,7 +48,7 @@ final class ScalaChainLookupElement(override val getDelegate: ScalaLookupItem,
     element.handleInsert(context)
 
     val document = context.getDocument
-    val (count, isAccessor) = handlers.ScalaInsertHandler.getItemParametersAndAccessorStatus(prefix.element)
+    val (count, isAccessor) = handlers.ScalaInsertHandler.getItemParametersAndAccessorStatus(prefix.getPsiElement)
     val addParams = count >= 0 && !(count == 0 && isAccessor)
     if (addParams) {
       document.insertString(offsetForPrefix, "()")

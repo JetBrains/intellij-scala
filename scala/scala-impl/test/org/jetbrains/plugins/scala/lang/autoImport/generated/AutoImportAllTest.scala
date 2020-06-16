@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.autoImport
+package org.jetbrains.plugins.scala
+package lang
+package autoImport
 package generated
 
 class AutoImportAllTest extends AutoImportTestBase {
@@ -14,4 +16,15 @@ class AutoImportAllTest extends AutoImportTestBase {
   def testObjectPackage(): Unit = doTest()
 
   def testNoPlaceHolder(): Unit = doTest()
+
+  def testCompanionObjectMethod(): Unit = doTest()
+
+  def testCompanionObjectValue(): Unit = doTest()
+
+  def testCompanionObjectMemberNotFound(): Unit = try {
+    doTest()
+  } catch {
+        // todo decompose doTest
+    case e: AssertionError if e.getMessage == "Element to import not found" =>
+  }
 }

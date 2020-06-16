@@ -118,7 +118,7 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
   def testValInheritReturnTypeParens(): Unit = {
     //TODO: this, for some reason, does not work in compiler
     assertMatches(errorsFromScalaCode(inheritWithStringToIntConversion("def foo(): Int", "val foo = \"\""))) {
-      case Error(_, "Overriding type String does not conform to base type Int") :: Nil =>
+      case Error(_, "Overriding type String does not conform to base type () => Int") :: Nil =>
     }
   }
 
@@ -145,7 +145,7 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
   def testVarInheritReturnTypeParens(): Unit = {
     //TODO: this, for some reason, does not work in compiler
     assertMatches(errorsFromScalaCode(inheritWithStringToIntConversion("def foo(): Int", "var foo = \"\""))) {
-      case Error(_, "Overriding type String does not conform to base type Int") :: Nil =>
+      case Error(_, "Overriding type String does not conform to base type () => Int") :: Nil =>
     }
   }
 

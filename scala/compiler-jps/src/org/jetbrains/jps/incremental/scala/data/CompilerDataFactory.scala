@@ -14,6 +14,7 @@ import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.model.java.{JpsJavaExtensionService, JpsJavaSdkType}
 import org.jetbrains.jps.model.library.JpsLibrary
 import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.jps.model.serialization.JpsModelSerializationDataService
 import org.jetbrains.plugins.scala.compiler.data
 import org.jetbrains.plugins.scala.compiler.data.CompilerJarsFactory.CompilerJarsResolveError
 import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, CompilerJarsFactory}
@@ -114,16 +115,14 @@ object CompilerDataFactory
 
   def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Seq[String] = {
     val options = compilerSettings.getCompilerOptions
-    scalaOptionsFor(options, chunk)
-  }
-
-  private def scalaOptionsFor(options: Seq[String], chunk: ModuleChunk): Seq[String] = {
+    val plugins = compilerSettings.getPlugins
     val modules = chunk.getModules.asScala.toSet
     val hasDotty = CompilerDataFactory.hasDotty(modules)
 
     val bootCpArgs = CompilerDataFactory.bootCpArgs(hasDotty, hasOldScala(modules))
+    val implicitlyAddedArgs = CompilerDataFactory.implicitlyAddedArgs(options, plugins, chunk)
     val otherArgs = options.filterNot(_.startsWith("-g:") && hasDotty) // TODO SCL-16881
-    bootCpArgs ++ otherArgs
+    bootCpArgs ++ implicitlyAddedArgs ++ otherArgs 
   }
 
   private def bootCpArgs(hasDotty: => Boolean, hasOldScala: => Boolean): Seq[String] =
@@ -134,6 +133,25 @@ object CompilerDataFactory
     } else {
       Seq.empty
     }
+  
+  private def implicitlyAddedArgs(options: Seq[String],
+                                  plugins: Seq[String],
+                                  chunk: ModuleChunk): Seq[String] = {
+    val semanticDbSourceRootPrefix = "-P:semanticdb:sourceroot:"
+
+    // SCL-17519
+    val needSemanticDbSourceRoot =
+      !options.exists(_ startsWith semanticDbSourceRootPrefix) &&
+        plugins.exists(new File(_).getName.startsWith("semanticdb-scalac")) 
+    
+    if (needSemanticDbSourceRoot) {
+      val jpsProject = chunk.representativeTarget().getModule.getProject
+      val projectPath = JpsModelSerializationDataService.getBaseDirectory(jpsProject).getAbsolutePath
+      Seq(s"$semanticDbSourceRootPrefix$projectPath")
+    } else {
+      Seq.empty
+    }
+  }
 
   def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
     val compilerConfig = {

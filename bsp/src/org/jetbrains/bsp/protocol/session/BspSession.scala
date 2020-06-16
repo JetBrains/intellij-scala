@@ -1,4 +1,6 @@
-package org.jetbrains.bsp.protocol.session
+package org.jetbrains.bsp
+package protocol
+package session
 
 import java.io._
 import java.lang.reflect.{InvocationHandler, Method}
@@ -14,11 +16,9 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
-import org.jetbrains.bsp.{BspBundle, _}
 import org.jetbrains.bsp.protocol.BspNotifications._
 import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
-import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 
 import scala.annotation.tailrec
 import scala.concurrent._
@@ -198,7 +198,7 @@ class BspSession private(bspIn: InputStream,
         val resultFromBsp = method.invoke(bspServer, args:_*)
         // Some BSP endpoints return CompletableFutures, but other return void
         resultFromBsp match {
-          case future: CompletableFuture[_] => CancellableFuture.from(future)
+          case future: CompletableFuture[_] => new CancellableFuture(future)
           case x => x
         }
       }

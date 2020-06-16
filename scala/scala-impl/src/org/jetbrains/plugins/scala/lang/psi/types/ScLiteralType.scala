@@ -24,7 +24,7 @@ final class ScLiteralType private(val value: ScLiteral.Value[_],
 
   override def equals(obj: Any): Boolean = obj match {
     case other: ScLiteralType => value == other.value
-    case _ => false
+    case _                    => false
   }
 
   override def hashCode: Int = value.hashCode

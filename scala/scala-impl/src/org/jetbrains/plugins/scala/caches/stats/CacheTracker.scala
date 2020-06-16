@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala
 package caches
 package stats
 
-import com.intellij.util.containers.{ContainerUtil, WeakList}
+import java.util.concurrent.ConcurrentHashMap
+
+import com.intellij.util.containers.WeakList
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.JavaConverters._
@@ -24,7 +26,7 @@ object CacheTracker {
     override def clear(): Unit = tracked.foreach(capabilities.clear)
   }
 
-  private val trackedCacheTypes = ContainerUtil.newConcurrentMap[String, TrackedCacheType]
+  private val trackedCacheTypes = new ConcurrentHashMap[String, TrackedCacheType]
 
   def isEnabled: Boolean = Tracer.isEnabled
 

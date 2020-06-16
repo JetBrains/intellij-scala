@@ -23,7 +23,7 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
   extends AbstractCompiler {
 
   override def compile(compilationData: CompilationData, client: Client): Unit = {
-    val progress = getProgress(client)
+    val progress = getProgress(client, compilationData.sources.size)
     val reporter = getReporter(client)
     val logFilter = new ZincLogFilter {
       override def shouldLog(serverity: Kind, msg: String): Boolean = true

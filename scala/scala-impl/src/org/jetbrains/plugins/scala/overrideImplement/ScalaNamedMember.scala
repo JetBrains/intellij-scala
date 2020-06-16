@@ -5,12 +5,18 @@ import com.intellij.codeInsight.generation.PsiElementClassMember
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getMethodPresentableText
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+
+trait Ttt {
+  type Alias
+  def foo(p1: Int, p2: => String = "qwe"): (String, Long)
+  val x: (String, Int)
+}
 
 /**
 * User: Alexander Podkhalyuzin
@@ -34,7 +40,10 @@ case class ScAliasMember(override val getElement: ScTypeAlias,
 }
 
 case class ScMethodMember(signature: PhysicalMethodSignature, isOverride: Boolean)
-  extends PsiElementClassMember[PsiMethod](signature.method, getMethodPresentableText(signature.method)) with ScalaTypedMember {
+  extends PsiElementClassMember[PsiMethod](
+    signature.method,
+    ScalaPsiPresentationUtils.methodPresentableText(signature.method)
+  ) with ScalaTypedMember {
 
   override val name: String = signature.name
 

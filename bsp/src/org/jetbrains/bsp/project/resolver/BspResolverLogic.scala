@@ -2,7 +2,7 @@ package org.jetbrains.bsp.project.resolver
 
 import java.io.File
 import java.net.URI
-import java.nio.file.{Path, Paths}
+import java.nio.file.Paths
 import java.util.Collections
 
 import ch.epfl.scala.bsp4j._
@@ -17,7 +17,7 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
-import org.jetbrains.bsp.{BSP, BspBundle, BspErrorMessage}
+import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
 
@@ -34,22 +34,6 @@ private[resolver] object BspResolverLogic {
 
   private def extractSbtData(data: JsonElement)(implicit gson: Gson): Option[SbtBuildTarget] =
     Option(gson.fromJson[SbtBuildTarget](data, classOf[SbtBuildTarget]))
-
-  /** Find common base path of all given files */
-  private[resolver] def commonBase(dirs: Iterable[File]): Option[File] = {
-    val paths = dirs.map(_.toPath)
-    if (paths.isEmpty) None
-    else {
-      val basePath = paths.foldLeft(paths.head) { case (common, it) =>
-        common.iterator().asScala.zip(it.iterator().asScala)
-          .takeWhile { case (c, p) => c == p }
-          .map(_._1)
-          .foldLeft(paths.head.getRoot) { case (base, child) => base.resolve(child) }
-      }
-
-      Some(basePath.toFile)
-    }
-  }
 
   private[resolver] def getJdkData(target: JvmBuildTarget): JdkData = {
     JdkData(new URI(target.getJavaHome), target.getJavaVersion)
@@ -86,7 +70,6 @@ private[resolver] object BspResolverLogic {
                                                     resourcesItems: Seq[ResourcesItem],
                                                     dependencySourcesItems: Seq[DependencySourcesItem]): ProjectModules = {
 
-
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalacOptions = scalacOptionsItems.map(item => (item.getTarget, item)).toMap
 
@@ -115,16 +98,19 @@ private[resolver] object BspResolverLogic {
       .map(item => (item.getTarget, sourceDirectories(item)))
       .toMap
 
-    val sharedSources = sharedSourceDirs(idToSources)
+    val sharedResources = sharedSourceDirs(idToResources)
+    val sharedSources = sharedSourceDirs(idToSources.mapValues(_.filterNot(_.generated)))
+    val sharedGeneratedSources = idToSources
+      .mapValues(_.filter(_.generated))
+      .filter { case (id, src) => sharedSources.values.flatten.toSeq.contains(id) && src.nonEmpty }
 
     val moduleDescriptions = buildTargets.flatMap { target: BuildTarget =>
       val id = target.getId
       val scalacOptions = idToScalacOptions.get(id)
-      val depSources = idToDepSources.getOrElse(id, List.empty)
-      val sources = idToSources
-        .getOrElse(id, Seq.empty)
-        .filterNot(sharedSources.contains)
-      val resources = idToResources.getOrElse(id, List.empty)
+      val depSources = idToDepSources.getOrElse(id, Seq.empty)
+      val sharedSourcesAndGenerated = (sharedSources.keys ++ sharedGeneratedSources.values.flatten).toSeq
+      val sources = idToSources.getOrElse(id, Seq.empty).filterNot(sharedSourcesAndGenerated.contains)
+      val resources = idToResources.getOrElse(id, Seq.empty).filterNot(sharedResources.contains)
       val dependencyOutputs = transitiveDependencyOutputs(target)
 
       implicit val gson: Gson = new Gson()
@@ -136,16 +122,33 @@ private[resolver] object BspResolverLogic {
       t <- m.data.targets
     } yield (t.getId, m)).toMap
 
-    val allSourcesBase = commonBase(idToSources.values.flatten.map(_.directory)).map(_.toPath)
+    val targetIdsResources = sharedResources.toSeq
+      .groupBy(_._2.sortBy(_.getUri))
+      .mapValues(_.map(_._1))
+      .toSeq
+      .sortBy(_._1.size)
 
-    val syntheticModules = sharedSources.toSeq
-      .groupBy(d => d._2.sortBy(_.getUri))
-      .mapValues(_.map(_._1)).toSeq
-      .map(_.swap)
-      .map { case (srcs, targetIds) =>
+    val idsGeneratedSources = sharedSources.values.toSeq.distinct
+      .sortBy(_.size)
+      .foldRight((sharedGeneratedSources, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceDirectory]])) {
+        case (ids, (sharedGeneratedSources, result)) =>
+          val sharedGeneratedSourcesForIds = sharedGeneratedSources.filterKeys(ids.contains)
+          (
+            sharedGeneratedSources.filterKeys(!sharedGeneratedSourcesForIds.keySet.contains(_)),
+            result + (ids.sortBy(_.getUri) -> sharedGeneratedSourcesForIds.values.flatten.toSeq)
+          )
+      }._2
+
+    val syntheticSourceModules = sharedSources.toSeq
+      .groupBy(_._2.sortBy(_.getUri))
+      .mapValues(_.map(_._1))
+      .toSeq
+      .map { case (targetIds, sources) =>
         val targets = targetIds.map(idToTarget)
         val sharingModules = targetIds.map(idToModule)
-        createSyntheticModuleDescription(allSourcesBase, targets, srcs, sharingModules)
+        val resources = targetIdsResources.find(_._1.diff(targetIds).isEmpty).toSeq.flatMap(_._2)
+        val genSources = idsGeneratedSources.get(targetIds).toSeq.flatten
+        createSyntheticModuleDescription(targets, resources, sources, genSources, sharingModules)
       }
 
     // merge modules with the same module base
@@ -153,7 +156,7 @@ private[resolver] object BspResolverLogic {
     val mergedBase = withBase.groupBy(_.data.basePath).values.map(mergeModules)
     val modules = noBase ++ mergedBase
 
-    ProjectModules(modules, syntheticModules)
+    ProjectModules(modules, syntheticSourceModules)
   }
 
   private def sharedSourceDirs(idToSources: Map[BuildTargetIdentifier, Seq[SourceDirectory]]): Map[SourceDirectory, Seq[BuildTargetIdentifier]] = {
@@ -220,9 +223,7 @@ private[resolver] object BspResolverLogic {
     val sourceRoots = filterRoots(sourceDirs)
     val resourceRoots = filterRoots(resourceDirs)
 
-    val moduleBase = Option(target.getBaseDirectory)
-      .map(_.toURI.toFile)
-
+    val moduleBase = Option(target.getBaseDirectory).map(_.toURI.toFile)
     val outputPath = scalacOptions.map(_.getClassDirectory.toURI.toFile)
 
     // classpath needs to be filtered for module dependency output paths since they are handled by IDEA module dep mechanism
@@ -233,7 +234,7 @@ private[resolver] object BspResolverLogic {
     val tags = target.getTags.asScala
 
     val targetData = Option(target.getData).map(_.asInstanceOf[JsonElement])
-    val moduleKind = targetData.flatMap { data =>
+    val moduleKind = targetData.flatMap { _ =>
       target.getDataKind match {
         case BuildTargetDataKind.JVM =>
           targetData.flatMap(extractJdkData)
@@ -256,14 +257,14 @@ private[resolver] object BspResolverLogic {
     }
 
     val moduleDescriptionData = createModuleDescriptionData(
-      Seq(target), tags, moduleBase, outputPath, sourceRoots, resourceRoots,
+      target, tags, moduleBase, outputPath, sourceRoots, resourceRoots,
       classPathWithoutDependencyOutputs, dependencySourceDirs)
 
     if (tags.contains(BuildTargetTag.NO_IDE)) None
     else Option(ModuleDescription(moduleDescriptionData, moduleKind.getOrElse(UnspecifiedModule())))
   }
 
-  private[resolver] def createModuleDescriptionData(targets: Seq[BuildTarget],
+  private[resolver] def createModuleDescriptionData(target: BuildTarget,
                                                     tags: Seq[String],
                                                     moduleBase: Option[File],
                                                     outputPath: Option[File],
@@ -274,19 +275,13 @@ private[resolver] object BspResolverLogic {
                                                ): ModuleDescriptionData = {
     import BuildTargetTag._
 
-    val primaryTarget = targets.headOption
-    val moduleId = primaryTarget
-      .map(_.getId.getUri)
-      .orElse(moduleBase.map(_.toURI.toString))
-      .orElse(sourceRoots.headOption.map(_.directory.toURI.toString))
-      .orElse(resourceRoots.headOption.map(_.directory.toURI.toString))
-      .getOrElse(throw BspErrorMessage(BspBundle.message("bsp.resolver.unable.to.determine.unique.module.id", targets)))
-    val moduleName = primaryTarget.flatMap(t => Option(t.getDisplayName)).getOrElse(moduleId)
+    val moduleId = target.getId.getUri
+    val moduleName = target.getDisplayName
 
     val dataBasic = ModuleDescriptionData(
       moduleId,
       moduleName,
-      targets,
+      Seq(target),
       Seq.empty, Seq.empty,
       moduleBase,
       None, None,
@@ -295,7 +290,7 @@ private[resolver] object BspResolverLogic {
       Seq.empty, Seq.empty,
       Seq.empty, Seq.empty)
 
-    val targetDeps = targets.flatMap(_.getDependencies.asScala)
+    val targetDeps = target.getDependencies.asScala
 
     val data = if(tags.contains(TEST))
       dataBasic.copy(
@@ -318,31 +313,46 @@ private[resolver] object BspResolverLogic {
     data
   }
 
+  private[resolver] def sharedModuleId(targets: Seq[BuildTarget]): String = {
+    val upperCaseWords = """(?<!(^|[A-Z]))(?=[A-Z])""".r
+    val pascalCaseWords = """(?<!^)(?=[A-Z][a-z])""".r
+    val underscores = """(?<=[^\w.]|_)|(?=[^\w.]|_)""".r
+    val dotsAndDigits = """(?<!\d)(?=\.)|(?<=\.)(?!\d)""".r
+    val splitedNames = targets
+      .map(_.getDisplayName.split(s"$upperCaseWords|$pascalCaseWords|$underscores|$dotsAndDigits"))
+    val maxPartsCount = splitedNames.map(_.length).max
+    val groups = splitedNames
+      .map(parts => parts ++ Seq.fill(maxPartsCount - parts.length)(""))
+      .transpose
+      .map(_.distinct)
+    val (head, tail) = groups.partition(_.forall(_.nonEmpty))
+    def combine(parts: Seq[String]) = {
+      val nonEmptyParts = parts.filter(_.nonEmpty)
+      if (nonEmptyParts.size > 1) nonEmptyParts.mkString("(", "|", ")") else nonEmptyParts.mkString
+    }
+    head.map(combine).mkString +
+      (if (tail.nonEmpty) tail.map(combine).mkString("(", "", ")") else tail.mkString)
+  }
+
   /** "Inherits" data from other modules into newly created synthetic module description.
    * This is a heuristic to for sharing source directories between modules. If those modules have conflicting dependencies,
    * this mapping may break in unspecified ways.
    */
-  private[resolver] def createSyntheticModuleDescription(allSourcesBase: Option[Path],
-                                                         targets: Seq[BuildTarget],
+  private[resolver] def createSyntheticModuleDescription(targets: Seq[BuildTarget],
+                                                         resources: Seq[SourceDirectory],
                                                          sourceRoots: Seq[SourceDirectory],
+                                                         generatedSourceRoots: Seq[SourceDirectory],
                                                          ancestors: Seq[ModuleDescription]): ModuleDescription = {
     // the synthetic module "inherits" most of the "ancestors" data
     val merged = mergeModules(ancestors)
-    val sharedPrefix = "(shared) "
-    val id = sourceRoots.sortBy(_.directory).headOption
-      .map { dir =>
-        val idPath = allSourcesBase
-            .map(_.relativize(dir.directory.toPath))
-            .getOrElse(dir.directory.toPath)
-        sharedPrefix + idPath.toString
-      }
-      .getOrElse(sharedPrefix + merged.data.id)
+    val id = sharedModuleId(targets)
 
     val inheritorData = merged.data.copy(
       id = id,
-      name = id,
+      name = id + " (shared)",
       targets = targets,
-      sourceDirs = sourceRoots,
+      resourceDirs = resources,
+      sourceDirs = sourceRoots ++ generatedSourceRoots,
       testSourceDirs = Seq.empty,
       basePath = None
     )
@@ -501,7 +511,6 @@ private[resolver] object BspResolverLogic {
                                          moduleFilesDirectoryPath: String,
                                          moduleDescription: ModuleDescription,
                                          projectNode: DataNode[ProjectData]): DataNode[ModuleData] = {
-
     import ExternalSystemSourceType._
 
     val moduleDescriptionData = moduleDescription.data

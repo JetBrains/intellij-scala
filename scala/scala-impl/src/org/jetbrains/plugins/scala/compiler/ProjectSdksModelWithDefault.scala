@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk, SdkTypeId}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 
@@ -10,19 +10,23 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
   * 13-Jul-17
   */
 private[compiler] class ProjectSdksModelWithDefault extends ProjectSdksModel {
-  object DefaultSdk extends ProjectJdkImpl("Project Default", JavaSdk.getInstance()) {
-    override def clone(): ProjectJdkImpl = DefaultSdk
+  class DefaultSdk(versionString: String)
+    extends ProjectJdkImpl("Project Default", JavaSdk.getInstance(), "", versionString) {
+
+    override def clone(): ProjectJdkImpl = new DefaultSdk(versionString)
   }
+
 
   override def reset(project: Project): Unit = {
     super.reset(project)
-    addSdk(DefaultSdk)
+    val defaultSdk = new DefaultSdk(CompileServerLauncher.defaultSdk(project).getVersionString)
+    addSdk(defaultSdk)
   }
 
-  def isDefault(sdk: Sdk): Boolean = sdk == DefaultSdk
+  def isDefault(sdk: Sdk): Boolean = sdk.isInstanceOf[DefaultSdk]
 
   def sdkFrom(settings: ScalaCompileServerSettings): Sdk = {
-    if (settings.USE_DEFAULT_SDK) DefaultSdk
+    if (settings.USE_DEFAULT_SDK) getSdks.find(isDefault).orNull
     else if (settings.COMPILE_SERVER_SDK == null) null
     else ProjectJdkTable.getInstance.findJdk(settings.COMPILE_SERVER_SDK)
   }

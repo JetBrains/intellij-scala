@@ -27,7 +27,6 @@ abstract class GlobalMembersFinder {
   protected def candidates: Iterable[GlobalMemberResult]
 
   protected abstract class GlobalMemberResult(resolveResult: ScalaResolveResult,
-                                              elementToImport: PsiNamedElement,
                                               classToImport: PsiClass,
                                               containingClass: Option[PsiClass] = None) {
 
@@ -37,9 +36,7 @@ abstract class GlobalMembersFinder {
           isClassName = true,
           containingClass = containingClass
         ).map { lookupItem =>
-          lookupItem.shouldImport = shouldImport(lookupItem.element)
-          lookupItem.classToImport = Some(classToImport)
-          lookupItem.elementToImport = Some(elementToImport)
+          lookupItem.shouldImport = shouldImport(lookupItem.getPsiElement)
           patchItem(lookupItem)
           lookupItem.putUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR, Boolean.box(true))
           lookupItem
@@ -62,7 +59,7 @@ object GlobalMembersFinder {
     private lazy val elements = reference
       .completionVariants()
       .toSet[ScalaLookupItem]
-      .map(_.element)
+      .map(_.getPsiElement)
 
     override def apply(element: PsiNamedElement): Boolean = element.getContainingFile match {
       case `originalFile` =>

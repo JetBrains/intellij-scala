@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -100,8 +101,10 @@ object AnnotatorUtils {
   def registerTypeMismatchError(actualType: ScType, expectedType: ScType,
                                 expression: ScExpression)
                                (implicit holder: ScalaAnnotationHolder): Unit = {
-
-    if (ScMethodType.hasMethodType(expression)) {
+    // See comments in ScMethodType.hasMethodType
+    // The workaround is nice but there is a situation where we want to show the mismatch error with function types:
+    // => namely if a function type is expected
+    if (!FunctionType.isFunctionType(expectedType) && ScMethodType.hasMethodType(expression)) {
       return
     }
 

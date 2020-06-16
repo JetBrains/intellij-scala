@@ -18,6 +18,7 @@ import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJav
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.ShortCaretMarker
 import org.junit.Assert.{assertNotNull, fail}
 
 import scala.collection.JavaConverters._

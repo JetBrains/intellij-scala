@@ -3,7 +3,7 @@ package lang
 package psi
 package impl
 
-import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import java.util.concurrent.atomic.AtomicReference
 
 import com.intellij.openapi.diagnostic.Logger
@@ -14,11 +14,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiModificationTrackerImpl}
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
+import com.intellij.util.ObjectUtils
 import com.intellij.util.containers.ContainerUtil
-import com.intellij.util.{ArrayUtil, ObjectUtils}
 import org.jetbrains.annotations.{CalledInAwt, TestOnly}
-import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, CleanupScheduler, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -31,14 +31,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticP
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.{Map => SMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{StableNodes, TermNodes, TypeNodes}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithoutModificationCount, ValueWrapper}
@@ -61,7 +61,7 @@ class ScalaPsiManager(implicit val project: Project) {
   private val clearCacheOnRootsChange = new CleanupScheduler
 
   val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
-    ContainerUtil.newConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]]()
+    new ConcurrentHashMap[(ScType, GlobalSearchScope), Seq[ScType]]()
 
   val implicitCollectorCache: ImplicitCollectorCache =
     CacheTracker.alwaysTrack("ScalaPsiManager.implicitCollectorCache", "ScalaPsiManager.implicitCollectorCache") {
@@ -163,7 +163,7 @@ class ScalaPsiManager(implicit val project: Project) {
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope, classOf[ScTypeAlias])
 
-  def getStableAliasByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
+  def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     STABLE_ALIAS_FQN_KEY
       .integerElements(fqn, scope, classOf[ScTypeAlias])
       .filter(_.qualifiedNameOpt.contains(fqn))
@@ -258,7 +258,7 @@ class ScalaPsiManager(implicit val project: Project) {
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] =
-    getStableAliasByFqn("scala.Seq", scope).headOption
+    getStableAliasesByFqn("scala.Seq", scope).headOption
 
   def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
     if (DumbService.getInstance(project).isDumb) return Set.empty
@@ -326,7 +326,7 @@ class ScalaPsiManager(implicit val project: Project) {
       clearOnRootsChange()
     }
     registerLowMemoryWatcher(project)
-    PsiManager.getInstance(project).addPsiTreeChangeListener(psiChangeListener, project)
+    PsiManager.getInstance(project).addPsiTreeChangeListener(psiChangeListener, project.unloadAwareDisposable)
   }
 
   private val syntheticPackages = ContainerUtil.createConcurrentWeakValueMap[String, AnyRef]()

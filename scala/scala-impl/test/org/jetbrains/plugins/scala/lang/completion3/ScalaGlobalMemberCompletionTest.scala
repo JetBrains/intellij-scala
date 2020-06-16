@@ -203,20 +203,28 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
   def testCompanionObjectMethod(): Unit = doCompletionTest(
     fileText =
       s"""class Foo {
+         |  import Foo.bar
+         |
          |  f$CARET
          |}
          |
          |object Foo {
-         |  def foo(): Unit = {}
+         |  def foo(foo: Int): Unit = {}
+         |
+         |  def bar(): Unit = {}
          |}
          |""".stripMargin,
     resultText =
       s"""class Foo {
-         |  Foo.foo()$CARET
+         |  import Foo.{bar, foo}
+         |
+         |  foo($CARET)
          |}
          |
          |object Foo {
-         |  def foo(): Unit = {}
+         |  def foo(foo: Int): Unit = {}
+         |
+         |  def bar(): Unit = {}
          |}
          |""".stripMargin,
     item = "foo"
@@ -234,7 +242,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""class Foo {
-         |  Foo.foo$CARET
+         |
+         |  import Foo.foo
+         |
+         |  foo$CARET
          |}
          |
          |object Foo {
@@ -259,7 +270,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""class Foo {
          |  class Bar {
-         |    Foo.foo$CARET
+         |
+         |    import Foo.foo
+         |
+         |    foo$CARET
          |  }
          |}
          |
@@ -270,9 +284,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
-  def testCompanionObjectVariable(): Unit = doCompletionTest(
+  def testCompanionObjectVariableNameCollision(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
+         |  val foo = 42
          |  f$CARET
          |}
          |
@@ -282,15 +297,17 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""class Foo {
+         |  val foo = 42
          |  Foo.foo$CARET
          |}
          |
          |object Foo {
          |  var foo = 42
          |}
-         |""".stripMargin,
-    item = "foo"
-  )
+         |""".stripMargin
+  ) {
+    hasItemText(_, "foo")(tailText = " in Foo <default>")
+  }
 
   def testCompanionObjectExtensionLikeMethod(): Unit = doCompletionTest(
     fileText =

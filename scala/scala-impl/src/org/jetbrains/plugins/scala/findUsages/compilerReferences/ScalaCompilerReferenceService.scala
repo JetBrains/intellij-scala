@@ -1,19 +1,26 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.io.File
-import java.util.concurrent.atomic.{AtomicInteger, LongAdder}
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.LongAdder
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.startup.StartupActivity
-import com.intellij.openapi.util.{Disposer, ModificationTracker}
-import com.intellij.psi.search.{ScopeOptimizer, SearchScope}
-import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
+import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.ModificationTracker
+import com.intellij.psi.search.ScopeOptimizer
+import com.intellij.psi.search.SearchScope
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiElement
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
@@ -56,7 +63,7 @@ final private[findUsages] class ScalaCompilerReferenceService(project: Project) 
     new CompilerReferenceIndexerScheduler(project, ScalaCompilerReferenceReaderFactory.expectedIndexVersion)
 
   private[this] val failedToParse                       = ContainerUtil.newConcurrentSet[File]()
-  private[this] val compilationTimestamps               = ContainerUtil.newConcurrentMap[String, Long]()
+  private[this] val compilationTimestamps               = new ConcurrentHashMap[String, Long]()
   private[this] val messageBus                          = project.getMessageBus
   private[this] var currentCompilerMode: CompilerMode   = CompilerMode.JPS
 

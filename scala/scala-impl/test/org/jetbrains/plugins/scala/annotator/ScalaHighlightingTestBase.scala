@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.experimental.categories.Category
 import org.junit.Assert.fail

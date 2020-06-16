@@ -5,6 +5,7 @@ package template
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.quickfix.SearchImplicitQuickFix
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.probableArgumentsFor
@@ -38,11 +39,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
                                (implicit holder: ScalaAnnotationHolder): Unit = {
     val settings = ScalaProjectSettings.getInstance(element.getProject)
 
-    parameters.filter(it =>
-      it.isImplicitParameterProblem &&
-        (if (probableArgumentsFor(it).size > 1) settings.isShowAmbiguousImplicitArguments
-        else settings.isShowNotFoundImplicitArguments)) match {
-
+    parameters.filter(hasProblemToHighlight(_, settings)) match {
       case Seq() =>
       case params =>
         val presentableTypes = params
@@ -50,11 +47,22 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
 
         val annotation = holder.createErrorAnnotation(lastLineRange(element), message(presentableTypes))
 
-        //SearchImplicitQuickFix(params, element).foreach(annotation.registerFix)
+        val notFound = parameters.filter(_.isNotFoundImplicitParameter)
+        if (notFound.nonEmpty) {
+          SearchImplicitQuickFix(notFound, element).foreach(annotation.registerFix)
+        }
 
         //make annotation invisible in editor in favor of inlay hint
         adjustTextAttributesOf(annotation)
     }
+
+
+  }
+
+  private def hasProblemToHighlight(param: ScalaResolveResult, settings: ScalaProjectSettings): Boolean = {
+    param.isImplicitParameterProblem &&
+      (if (probableArgumentsFor(param).size > 1) settings.isShowAmbiguousImplicitArguments
+      else settings.isShowNotFoundImplicitArguments)
   }
 
   //to avoid error stripes for several lines

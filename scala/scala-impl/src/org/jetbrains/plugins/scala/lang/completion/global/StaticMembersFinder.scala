@@ -70,7 +70,6 @@ private[completion] final class StaticMembersFinder private(namePredicate: NameP
                                               isOverloadedForClassName: Boolean = false)
     extends GlobalMemberResult(
       new ScalaResolveResult(elementToImport),
-      elementToImport,
       classToImport,
       Some(classToImport)
     ) {

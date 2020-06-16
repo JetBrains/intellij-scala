@@ -28,8 +28,9 @@ import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
 import javax.swing.Icon
 import org.jetbrains.bsp._
+import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings._
-import org.jetbrains.sbt.project.SbtProjectImportProvider
+import org.jetbrains.sbt.project.{MillProjectImportProvider, SbtProjectImportProvider}
 
 class BspProjectImportBuilder
   extends AbstractExternalProjectImportBuilder[BspImportControl](
@@ -193,12 +194,13 @@ object BspProjectOpenProcessor {
   def canOpenProject(workspace: VirtualFile): Boolean = {
     val ioWorkspace = new File(workspace.getPath)
 
-    val bspConnectionProtocolSupported = BspUtil.bspConfigFiles(ioWorkspace).nonEmpty
+    val bspConnectionProtocolSupported = BspConnectionConfig.workspaceConfigurations(ioWorkspace).nonEmpty
     val bloopProject = BspUtil.bloopConfigDir(ioWorkspace).isDefined
     // val sbtProject = SbtProjectImportProvider.canImport(workspace)
     // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
     val sbtProject = false
+    val millProject = MillProjectImportProvider.canImport(workspace)
 
-    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject
+    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject || millProject
   }
 }

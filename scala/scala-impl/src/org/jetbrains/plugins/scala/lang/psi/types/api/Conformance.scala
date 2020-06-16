@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.lang.psi
 package types
 package api
 
-import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.ConcurrentHashMap
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiClass
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
-import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker, Tracer}
+import org.jetbrains.plugins.scala.caches.stats.CacheCapabilities
+import org.jetbrains.plugins.scala.caches.stats.CacheTracker
+import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.jetbrains.plugins.scala.extensions.NullSafe
 import org.jetbrains.plugins.scala.lang.psi.types.api.Conformance._
 
@@ -26,7 +27,7 @@ trait Conformance {
 
   private val cache =
     CacheTracker.alwaysTrack(conformsInnerCache, conformsInnerCache) {
-      ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
+      new ConcurrentHashMap[Key, ConstraintsResult]()
     }
 
   /**
@@ -76,8 +77,8 @@ trait Conformance {
 
 object Conformance {
   val conformsInnerCache: String = "Conformance.conformsInner"
-  implicit def ConformanceCacheCapabilities[T]: CacheCapabilities[ConcurrentMap[T, ConstraintsResult]] =
-    new CacheCapabilities[ConcurrentMap[T, ConstraintsResult]] {
+  implicit def ConformanceCacheCapabilities[T]: CacheCapabilities[ConcurrentHashMap[T, ConstraintsResult]] =
+    new CacheCapabilities[ConcurrentHashMap[T, ConstraintsResult]] {
       override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
       override def clear(cache: CacheType): Unit = cache.clear()
     }

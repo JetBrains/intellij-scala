@@ -5,20 +5,22 @@ package types
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorSimplifyTypeProjectionInspection
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider.parseParameters
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.PresentationOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.annotation.tailrec
 
@@ -26,47 +28,34 @@ trait ScalaTypePresentation extends api.TypePresentation {
   typeSystem: api.TypeSystem =>
 
   import ScalaTypePresentation._
-  import api.ScTypePresentation._
 
-  protected override def typeText(`type`: ScType, nameRenderer: NameRenderer)
-                                 (implicit context: TypePresentationContext): String = {
+  override protected def typeText(
+    `type`: ScType,
+    nameRenderer: NameRenderer,
+    options: PresentationOptions
+  )(implicit context: TypePresentationContext): String = {
+    val textEscaper: TextEscaper = nameRenderer
+    val boundsRenderer = new TypeBoundsRenderer(textEscaper)
+
     def typesText(types: Seq[ScType]): String = types
       .map(innerTypeText(_))
       .commaSeparated(model = Model.Parentheses)
 
     def typeTail(need: Boolean) = if (need) ObjectTypeSuffix else ""
 
-    def typeParametersText(typeParams: Seq[ScTypeParam], substitutor: ScSubstitutor): String = typeParams match {
-      case Seq() => ""
-      case _ =>
-        def typeParamText(param: ScTypeParam): String = {
+    def typeParametersText(paramsOwner: ScTypeParametersOwner, substitutor: ScSubstitutor): String = paramsOwner.typeParameters match {
+      case Seq()  => ""
+      case params => params.map(typeParamText(_, substitutor)).commaSeparated(model = Model.SquareBrackets)
+    }
 
-          def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer)
-
-          val buffer = new StringBuilder(if (param.isContravariant) "-" else if (param.isCovariant) "+" else "")
-          buffer ++= param.name
-
-          buffer ++= lowerBoundText(param.lowerBound)(typeText0)
-          buffer ++= upperBoundText(param.upperBound)(typeText0)
-
-          param.viewBound.foreach { tp =>
-            buffer ++= " <% "
-            buffer ++= typeText0(tp)
-          }
-          param.contextBound.foreach { tp =>
-            buffer ++= " : "
-            buffer ++= typeText0(ScTypeUtil.stripTypeArgs(substitutor(tp)))
-          }
-
-          buffer.toString()
-        }
-
-        typeParams.map(typeParamText).commaSeparated(model = Model.SquareBrackets)
+    def typeParamText(param: ScTypeParam, substitutor: ScSubstitutor): String = {
+      val typeRenderer: TypeRenderer = t => typeText(substitutor(t), nameRenderer, options)
+      val typeParamsRenderer = new TypeParamsRenderer(typeRenderer, boundsRenderer)
+      typeParamsRenderer.render(param)
     }
 
     def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
       val e = projType.actualElement
-      val refName = e.name
 
       def checkIfStable(element: PsiElement): Boolean = element match {
         case _: ScObject | _: ScBindingPattern | _: ScParameter | _: ScFieldId => true
@@ -82,16 +71,20 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
       object StaticJavaClassHolder {
         def unapply(t: ScType): Option[PsiClass] = t match {
-          case ScDesignatorType(clazz: PsiClass) => Some(clazz)
+          case ScDesignatorType(clazz: PsiClass)                       => Some(clazz)
           case ParameterizedType(ScDesignatorType(clazz: PsiClass), _) => Some(clazz)
-          case ScProjectionType(_, clazz: PsiClass) => Some(clazz)
-          case _ => None
+          case ScProjectionType(_, clazz: PsiClass)                    => Some(clazz)
+          case _                                                       => None
         }
       }
 
-      val escapedName = nameRenderer.escapeName(refName)
+      val refName = e.name
+      val escapedName =
+        if (options.renderProjectionTypeName) nameRenderer.renderName(e)
+        else nameRenderer.escapeName(refName)
 
-      if (context.nameResolvesTo(refName, e)) escapedName
+      if (context.nameResolvesTo(refName, e))
+        escapedName // if reference can be resolved from the context we do not render any context info
       else
         projType.projected match {
           case ScDesignatorType(pack: PsiPackage) =>
@@ -128,10 +121,27 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
           val function = s.namedElement.asInstanceOf[ScFunction]
           val substitutor = s.substitutor
-          val paramClauses = parseParameters(function, -1)(scType => typeText0(substitutor(scType)))
+
+          val paramClauses: String = {
+            val typeRenderer: TypeRenderer = t => typeText0(substitutor(t))
+            val paramRenderer = new ParameterRenderer(
+              typeRenderer,
+              ModifiersRenderer.SimpleText(textEscaper),
+              new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll),
+              textEscaper,
+              withMemberModifiers = false,
+              withAnnotations = true
+            )
+            val paramsRenderer = new ParametersRenderer(
+              paramRenderer,
+              renderImplicitModifier = true
+            )
+            paramsRenderer.renderClauses(function)
+          }
+
           val retType = if (!compType.equiv(returnType)) typeText0(substitutor(returnType)) else s"this$ObjectTypeSuffix"
 
-          val typeParameters = typeParametersText(function.typeParameters, substitutor)
+          val typeParameters = typeParametersText(function, substitutor)
 
           Some(s"def ${s.name}$typeParameters$paramClauses: $retType")
         case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
@@ -150,9 +160,9 @@ trait ScalaTypePresentation extends api.TypePresentation {
           val alias = signature.typeAlias
           val defnText: String =
             if (signature.isDefinition) s" = ${typeText0(signature.upperBound)}"
-            else lowerBoundText(signature.lowerBound)(typeText0) + upperBoundText(signature.upperBound)(typeText0)
+            else boundsRenderer.lowerBoundText(signature.lowerBound)(typeText0) + boundsRenderer.upperBoundText(signature.upperBound)(typeText0)
 
-          val typeParameters = typeParametersText(alias.typeParameters, signature.substitutor)
+          val typeParameters = typeParametersText(alias, signature.substitutor)
           Some(s"type ${signature.name}$typeParameters$defnText")
         case _ => None
       }
@@ -170,8 +180,8 @@ trait ScalaTypePresentation extends api.TypePresentation {
           case parameters => parameters.commaSeparated(model = Model.SquareBrackets)
         }
 
-        val lowerBound = lowerBoundText(wildcard.lower)(innerTypeText(_))
-        val upperBound = upperBoundText(wildcard.upper)(innerTypeText(_))
+        val lowerBound = boundsRenderer.lowerBoundText(wildcard.lower)(innerTypeText(_))
+        val upperBound = boundsRenderer.upperBoundText(wildcard.upper)(innerTypeText(_))
         s"$name$argsText$lowerBound$upperBound"
       }
 
@@ -222,11 +232,10 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
       private def hasOperatorName(named: PsiNamedElement): Boolean = ScalaNamesUtil.isOperatorName(named.name)
 
-      def unapply(des: ScType): Option[String] = {
+      def unapply(des: ScType): Option[PsiNamedElement] = {
         des.extractDesignated(expandAliases = false)
           .filter(mayUseSimpleName)
           .filter(named => annotated(named) || hasOperatorName(named))
-          .map(_.name)
       }
     }
 
@@ -250,35 +259,45 @@ trait ScalaTypePresentation extends api.TypePresentation {
         innerTypeText(des) + typeArgs.map(printArgsFun(_)).commaSeparated(model = Model.SquareBrackets)
     }
 
-    def infixTypeText(op: String, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
-      val assoc = InfixExpr.associate(op)
+    def infixTypeText(op: PsiNamedElement, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
+      val assoc = InfixExpr.associate(op.name)
 
       def componentText(`type`: ScType, requiredAssoc: Int) = {
         val needParenthesis = `type` match {
           case ParameterizedType(InfixDesignator(newOp), _) =>
-            assoc != InfixExpr.associate(newOp) || assoc == requiredAssoc
+            assoc != InfixExpr.associate(newOp.name) || assoc == requiredAssoc
           case _ => false
         }
 
         printArgsFun(`type`).parenthesize(needParenthesis)
       }
 
-      s"${componentText(left, -1)} $op ${componentText(right, 1)}"
+      val opRendered =
+        if (options.renderInfixType) nameRenderer.renderName(op)
+        else nameRenderer.escapeName(op.name)
+      s"${componentText(left, -1)} $opRendered ${componentText(right, 1)}"
     }
 
-    def innerTypeText(t: ScType,
-                      needDotType: Boolean = true,
-                      checkWildcard: Boolean = false): String = t match {
+    def innerTypeText(
+      t: ScType,
+      needDotType: Boolean = true,
+      checkWildcard: Boolean = false
+    ): String = t match {
+      case valType: ValType if options.renderValueTypes =>
+        valType.extractClass match {
+          case Some(clazz) => nameRenderer.renderName(clazz)
+          case _           => nameRenderer.escapeName(valType.name)
+        }
       case namedType: NamedType => namedType.name
       case _: WildcardType => "?"
       case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
       case TypeLambda(text)          => text
       case FunctionType(ret, params) if !t.isAliasType =>
         val paramsText = params match {
-          case Seq(fun @ FunctionType(_, _)) => innerTypeText(fun).parenthesize()
-          case Seq(tup @ TupleType(tps)) => innerTypeText(tup).parenthesize()
-          case Seq(head) => innerTypeText(head)
-          case _ => typesText(params)
+          case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
+          case Seq(tup@TupleType(tps))     => innerTypeText(tup).parenthesize()
+          case Seq(head)                   => innerTypeText(head)
+          case _                           => typesText(params)
         }
         s"$paramsText ${ScalaPsiUtil.functionArrow} ${innerTypeText(ret)}"
       case ScThisType(element) =>
@@ -300,24 +319,26 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }
 
         nameRenderer.renderName(element) + typeTail(flag && needDotType)
-      case proj: ScProjectionType if proj != null =>
+      case proj: ScProjectionType =>
         projectionTypeText(proj, needDotType)
-      case p: ParameterizedType => parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
+      case p: ParameterizedType =>
+        parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
       case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
       case UndefinedType(tpt, _) => "NotInferred" + tpt.name
-      case c: ScCompoundType if c != null =>
+      case c: ScCompoundType =>
         compoundTypeText(c)
-      case ex: ScExistentialType if ex != null =>
+      case ex: ScExistentialType =>
         existentialTypeText(ex, checkWildcard, needDotType)
       case ScTypePolymorphicType(internalType, typeParameters) =>
         typeParameters.map {
           case TypeParameter(parameter, _, lowerType, upperType) =>
-            parameter.name + lowerBoundText(lowerType)(_.toString) + upperBoundText(upperType)(_.toString)
+            parameter.name + boundsRenderer.lowerBoundText(lowerType)(_.toString) + boundsRenderer.upperBoundText(upperType)(_.toString)
         }.commaSeparated(model = Model.SquareBrackets) + " " + internalType.toString
       case mt@ScMethodType(retType, params, _) =>
         implicit val elementScope: ElementScope = mt.elementScope
         innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
-      case ScLiteralType(value, _) => value.presentation
+      case ScLiteralType(value, _) =>
+        value.presentation
       case _ => "" //todo
     }
 

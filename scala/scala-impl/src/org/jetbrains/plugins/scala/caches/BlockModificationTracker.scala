@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.caches
 
-import com.intellij.openapi.util.{Key, ModificationTracker, SimpleModificationTracker}
+import com.intellij.openapi.util.{Key, SimpleModificationTracker, ModificationTracker}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.CachesUtil.scalaTopLevelModTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 import scala.annotation.tailrec
@@ -92,7 +93,7 @@ object BlockModificationTracker {
          _: ScDo => false
 // TODO enable (SmartIfCondition test needs to be fixed)
 //    case `if`: ScIf if `if`.condition.contains(expr) => false
-    case guard: ScGuard if guard.expr.contains(expr) => false
+    case guard: ScGuard if guard.getContext.isInstanceOf[ScCaseClause] && guard.expr.contains(expr) => false
     //expression is not last in a block and not assigned to anything, cannot affect type inference outside
     case block: ScBlock => block.resultExpression.contains(expr)
     case _ => true

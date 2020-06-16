@@ -5,7 +5,7 @@
 .idea/inspectionProfiles/
 .idea/libraries/
 .idea/modules/
-.idea/runConfigurations/scalaCommunity.xml
+.idea/runConfigurations/
 .idea/.name
 .idea/*.xml
 !.idea/vcs.xml

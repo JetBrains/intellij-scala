@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.getSignatures
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.findInheritorObjectsForContainer
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.PredefFqn
 
@@ -45,7 +45,7 @@ object GlobalImplicitConversion {
       case _ => Nil
     }
 
-    containingObject <- findInheritorObjectsForContainer(function)
+    containingObject <- findInheritorObjectsForOwner(function)
     if containingObject.qualifiedName != PredefFqn
   } yield GlobalImplicitConversion(containingObject, function)
 

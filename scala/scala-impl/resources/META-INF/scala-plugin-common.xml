@@ -32,6 +32,7 @@
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.CirceCodecInjector"/>
         <syntheticMemberInjector implementation="scala.meta.intellij.MetaSupportInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.NewTypeInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum.SimulacrumInjector"/>
 
         <genericTypeNamesProvider
@@ -115,10 +116,10 @@
                              bundle="messages.ScalaInspectionBundle"
                              key="displayname.scala"
                              instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
-        <applicationConfigurable bundle="messages.ScalaInspectionBundle"
-                                 key="displayname.scala.compile.server"
-                                 parentId="Scala Compiler"
-                                 instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
+        <projectConfigurable bundle="messages.ScalaInspectionBundle"
+                             key="displayname.scala.compile.server"
+                             parentId="Scala Compiler"
+                             instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings"/>
         <projectConfigurable id="Bytecode Indices" parentId="Scala Compiler"
                              instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesConfigurable"/>
@@ -227,7 +228,7 @@
                       implementationClass="org.jetbrains.plugins.scala.gotoclass.ScalaProximityStatistician"/>
         <statistician key="completion" order="first"
                       implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
-        <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
+        <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.lookups.ScalaImportStaticLookupActionProvider"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWeigher"
                  id="scalaContainingClassWeigher" order="after prefix, before scalaKindWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
@@ -286,7 +287,7 @@
         <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
         <xdebugger.settings implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings"/>
         <debugger.jvmSmartStepIntoHandler implementation="org.jetbrains.plugins.scala.debugger.smartStepInto.ScalaSmartStepIntoHandler"/>
-        <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
+        <lang.documentationProvider id="ScalaDocumentationProvider" language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.PrepareRenameScalaMethodProcessor" order="last"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaPackageProcessor" order="first"/>
@@ -491,8 +492,8 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
-        <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompilerLock"
-                        serviceImplementation="org.jetbrains.plugins.scala.compiler.CompilerLockImpl"/>
+        <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.CompilerLock"
+                        serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockImpl"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerGeneratedStateManager$MutableState"/>
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
@@ -534,6 +535,7 @@
 
         <fileType name="TASTY" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
         <filetype.decompiler filetype="TASTY" implementationClass="org.jetbrains.plugins.scala.tasty.TastyDecompiler"/>
+        <compilableFileTypesProvider implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilableFileTypesProvider" />
         <syntaxHighlighter id="tasty.file" key="TASTY" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
 
         <registryKey key="scala.highlighting.compiler.errors.in.editor" defaultValue="false" restartRequired="false"
@@ -1700,13 +1702,15 @@
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterCompilationListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.CompileProjectWhenOpenedListener"/>
+                  class="org.jetbrains.plugins.scala.externalHighlighters.ToggleHighlightingModeListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.CompileOnProjectOpenedListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.CompilerLockBuildManagerListener"/>
+                  class="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.DropProjectDataChangesBuildManagerListener"/>
+                  class="org.jetbrains.plugins.scala.externalHighlighters.DropProjectDataChangesBuildManagerListener"/>
         <!-- Formatter listeners-->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
@@ -1782,7 +1786,7 @@
             <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift L"/>
         </action>
-        <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.ShowImplicitConversionsAction">
+        <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.implicitConvertions.ShowImplicitConversionsAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift Q" remove="true"/>

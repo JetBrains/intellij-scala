@@ -1,25 +1,42 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
+import java.lang
 import java.util
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletableFuture.completedFuture
 
 import com.intellij.debugger.engine._
-import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, TypeEvaluator}
-import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateException, EvaluationContext, TextWithImportsImpl}
-import com.intellij.debugger.impl.DebuggerUtilsEx
+import com.intellij.debugger.engine.evaluation.expression.Evaluator
+import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
+import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluatorImpl
+import com.intellij.debugger.engine.evaluation.expression.TypeEvaluator
+import com.intellij.debugger.engine.evaluation.CodeFragmentKind
+import com.intellij.debugger.engine.evaluation.EvaluateException
+import com.intellij.debugger.engine.evaluation.EvaluationContext
+import com.intellij.debugger.engine.evaluation.TextWithImportsImpl
+import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
-import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, NodeManager, ValueDescriptor}
-import com.intellij.debugger.{JavaDebuggerBundle, DebuggerContext}
+import com.intellij.debugger.ui.tree.DebuggerTreeNode
+import com.intellij.debugger.ui.tree.NodeDescriptor
+import com.intellij.debugger.ui.tree.NodeManager
+import com.intellij.debugger.ui.tree.ValueDescriptor
+import com.intellij.debugger.DebuggerContext
+import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaDuplexEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaThisEvaluator}
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaDuplexEvaluator
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaFieldEvaluator
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaThisEvaluator
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 import scala.collection.mutable
+import scala.language.implicitConversions
 import scala.reflect.NameTransformer
 
 /**
@@ -30,11 +47,6 @@ class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSett
 
   setClassName(collectionClassName)
 
-
-  override def isApplicable(tp: Type): Boolean = {
-    super.isApplicable(tp) && notStream(tp) && notView(tp)
-  }
-
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
 }
 
@@ -43,8 +55,28 @@ object ScalaCollectionRenderer {
     def exprEval = new ExpressionEvaluatorImpl(e)
   }
 
+  implicit def toCFJBoolean(f: CompletableFuture[Boolean]): CompletableFuture[java.lang.Boolean] =
+    f.asInstanceOf[CompletableFuture[java.lang.Boolean]]
+
+  implicit def toCFBoolean(f: CompletableFuture[java.lang.Boolean]): CompletableFuture[Boolean] =
+    f.asInstanceOf[CompletableFuture[Boolean]]
+
   def instanceOf(tp: Type, baseClassNames: String*): Boolean =
     baseClassNames.exists(DebuggerUtils.instanceOf(tp, _))
+
+  def instanceOfAsync(tp: Type, baseClassNames: String*): CompletableFuture[Boolean] = {
+    val futures = baseClassNames.map(DebuggerUtilsAsync.instanceOf(tp, _).thenApply[Boolean](_.booleanValue()))
+    forallAsync(futures: _*)
+  }
+
+  def andAsync(f1: CompletableFuture[Boolean], f2: CompletableFuture[Boolean]): CompletableFuture[Boolean] =
+    f1.thenCombine[Boolean, Boolean](f2, _ && _)
+
+  def orAsync(f1: CompletableFuture[Boolean], f2: CompletableFuture[Boolean]): CompletableFuture[Boolean] =
+    f1.thenCombine[Boolean, Boolean](f2, _ || _)
+
+  def forallAsync(futures: CompletableFuture[Boolean]*): CompletableFuture[Boolean] =
+    futures.reduce(andAsync)
 
   private val evaluators: mutable.HashMap[DebugProcess, CachedEvaluators] = new mutable.HashMap()
 
@@ -98,11 +130,18 @@ object ScalaCollectionRenderer {
   private def checkNotCollectionOfKind(tp: Type, shortNames: String*)(baseClassNames: String*) =
     !shortNames.exists(tp.name().contains(_)) && !instanceOf(tp, baseClassNames: _*)
 
-  private def notView(tp: Type): Boolean =
-    checkNotCollectionOfKind(tp, "View")(viewClassName, viewClassName_2_13)
+  private def checkNotCollectionOfKindAsync(tp: Type, shortNames: String*)(baseClassNames: String*): CompletableFuture[Boolean] =
+    if (shortNames.exists(tp.name().contains(_))) completedFuture(false)
+    else instanceOfAsync(tp, baseClassNames: _*).thenApply(!_)
 
   private def notStream(tp: Type): Boolean =
     checkNotCollectionOfKind(tp, "Stream", "LazyList")(streamClassName, lazyList_2_13)
+
+  private def notViewAsync(tp: Type): CompletableFuture[Boolean] =
+    checkNotCollectionOfKindAsync(tp, "View")(viewClassName, viewClassName_2_13)
+
+  private def notStreamAsync(tp: Type): CompletableFuture[Boolean] =
+    checkNotCollectionOfKindAsync(tp, "Stream", "LazyList")(streamClassName, lazyList_2_13)
 
   private def notIterator(tp: Type): Boolean = checkNotCollectionOfKind(tp, "Iterator")(iteratorClassName)
   /**
@@ -175,10 +214,11 @@ object ScalaCollectionRenderer {
 
     override def getUniqueId: String = "ScalaToArrayRenderer"
 
-    override def isExpandable(value: Value, context: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = {
+    override def isExpandableAsync(value: Value, context: EvaluationContext, parentDescriptor: NodeDescriptor): CompletableFuture[lang.Boolean] = {
+      //todo: make async
       val evaluationContext: EvaluationContext = context.createEvaluationContext(value)
       try {
-        return nonEmpty(value, context) && hasDefiniteSize(value, context)
+        return CompletableFuture.completedFuture(nonEmpty(value, context) && hasDefiniteSize(value, context))
       }
       catch {
         case _: EvaluateException =>
@@ -187,11 +227,11 @@ object ScalaCollectionRenderer {
       try {
         val children: Value = evaluateChildren(evaluationContext, parentDescriptor)
         val defaultChildrenRenderer: ChildrenRenderer = DebugProcessImpl.getDefaultRenderer(value.`type`)
-        defaultChildrenRenderer.isExpandable(children, evaluationContext, parentDescriptor)
+        defaultChildrenRenderer.isExpandableAsync(children, evaluationContext, parentDescriptor)
       }
       catch {
         case _: EvaluateException =>
-          true
+          CompletableFuture.completedFuture(true)
       }
     }
 

@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TEMPLATE_BODY, node)
-    with ScTemplateBody with ScImportsHolder {
+    with ScTemplateBody {
 
   def this(node: ASTNode) = this(null, node)
 

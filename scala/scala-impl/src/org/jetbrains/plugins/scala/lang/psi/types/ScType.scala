@@ -35,6 +35,8 @@ trait ScType extends project.ProjectContextOwner {
 
   protected def calculateAliasType: Option[AliasType] = None
 
+  // TODO: we must not override toString which does such a complex stuff (resolve, tree traversal etc...)
+  //  for such things we should always use explicit methods oText/mkString/presentableText/etc...
   override final def toString: String = extensions.ifReadAllowed {
     presentableText(TypePresentationContext.emptyContext)
   }(getClass.getSimpleName)
@@ -61,6 +63,9 @@ trait ScType extends project.ProjectContextOwner {
 
   def presentableText(implicit context: TypePresentationContext): String =
     typeSystem.presentableText(this)
+
+  def urlText(implicit context: TypePresentationContext): String =
+    typeSystem.urlText(this)
 
   def canonicalText: String = typeSystem.canonicalText(this)
 }

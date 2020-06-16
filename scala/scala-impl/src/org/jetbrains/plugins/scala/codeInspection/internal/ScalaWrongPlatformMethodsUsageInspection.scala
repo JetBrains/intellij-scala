@@ -92,5 +92,8 @@ private object ScalaWrongPlatformMethodsUsageInspection {
     )),
     ("getClasses", (Seq("com.intellij.psi.PsiClassOwner"), None)),
     ("getClassNames", (Seq("com.intellij.psi.PsiClassOwnerEx"), None)),
+    ("putUserData", (Seq("com.intellij.openapi.project.Project", "com.intellij.openapi.module.Module"),
+      Some("org.jetbrains.plugins.scala.extensions.AnyRefExt.delegateUserDataHolder.putUserData")
+    )),
   )
 }

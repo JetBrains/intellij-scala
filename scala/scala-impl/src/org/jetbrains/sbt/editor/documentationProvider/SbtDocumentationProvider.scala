@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.editor.documentationProvider
 
-import com.intellij.lang.documentation.AbstractDocumentationProvider
+import com.intellij.lang.documentation.{AbstractDocumentationProvider, DocumentationMarkup}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{Nls, NonNls}
@@ -52,8 +52,8 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
 
   private def generateSbtDoc(element: PsiElement, originalElement: PsiElement,
                              generateScalaDoc: (PsiElement, PsiElement) => String): Option[String] = for {
-    sbtKey <- Option(element).filterByType[ScNamedElement]
-    sbtDoc <- generateSBtDocFromSbtKey(sbtKey)
+    sbtKey   <- Option(element).filterByType[ScNamedElement]
+    sbtDoc   <- generateSBtDocFromSbtKey(sbtKey)
     scalaDoc <- Option(generateScalaDoc(element, originalElement))
   } yield appendToScalaDoc(scalaDoc, sbtDoc)
 
@@ -90,9 +90,9 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
 
   private def descriptionArgument(args: Seq[ScExpression]): Option[ScExpression] =
     Some(args.toList).collect {
-      case (label: ScLiteral) :: description :: _ => description //e.g. SettingKey[Unit]("some-key", "Here goes description for some-key", ...)
-      case (ref: ScReferenceExpression) :: _      => ref // e.g. SettingKey(BasicKeys.watch)
-      case description :: Nil                     => description //e.g. settingKey[Seq[ModuleID]]("Some description").withRank(BSetting)
+      case (_: ScLiteral) :: description :: _ => description //e.g. SettingKey[Unit]("some-key", "Here goes description for some-key", ...)
+      case (ref: ScReferenceExpression) :: _  => ref // e.g. SettingKey(BasicKeys.watch)
+      case description :: Nil                 => description //e.g. settingKey[Seq[ModuleID]]("Some description").withRank(BSetting)
     }
 
   @NonNls private def descriptionText(element: ScExpression): Option[String] = Some(element).collect {
@@ -101,7 +101,8 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
     case ref: ScReferenceExpression  => s"<i>${ref.getText}</i>"
   }
 
-  private def wrapIntoHtml(@Nls description: String): String = s"<br/><b>$description</b>"
+  private def wrapIntoHtml(@Nls description: String): String =
+    DocumentationMarkup.CONTENT_START + description + DocumentationMarkup.CONTENT_END
 
   private def appendToScalaDoc(@Nls scalaDoc: String, @Nls sbtDoc: String): String = {
     @NonNls val closingTags = "</body></html>"

@@ -24,7 +24,6 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
   }
 
   private def doCompile(compilationData: CompilationData, client: Client, scalac: ScalaCompiler): Unit = {
-    val startTime = System.currentTimeMillis()
     client.progress("Loading cached results...")
 
     val incrementalCompiler = new IncrementalCompilerImpl
@@ -41,7 +40,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
 
     client.progress("Searching for changed files...")
 
-    val progress = getProgress(client)
+    val progress = getProgress(client, compilationData.sources.size)
     val reporter = getReporter(client)
     val logger = getLogger(client, zincLogFilter)
 

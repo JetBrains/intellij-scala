@@ -150,7 +150,7 @@ object CompilerIndicesReferencesSearcher {
       lock.locked(indexingFinishedCondition.signal())
     }
 
-    pendingConnection = project.getMessageBus.connect(project)
+    pendingConnection = project.getMessageBus.connect(project.unloadAwareDisposable)
 
     pendingConnection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
       private[this] val targetModuleNames = ContainerUtil.newConcurrentSet[String]

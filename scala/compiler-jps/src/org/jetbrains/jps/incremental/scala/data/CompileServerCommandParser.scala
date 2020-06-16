@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala.data
 
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand}
+import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 
 import scala.util.Try
 
@@ -21,12 +22,14 @@ object CompileServerCommandParser
         }
       case CommandIds.CompileJps =>
         args match {
-          case Seq(token, projectPath, globalOptionsPath, dataStorageRootPath) =>
+          case Seq(token, projectPath, globalOptionsPath, dataStorageRootPath, testScopeOnly, forceCompileModule) =>
             CompileServerCommand.CompileJps(
               token = token,
               projectPath = projectPath,
               globalOptionsPath = globalOptionsPath,
-              dataStorageRootPath = dataStorageRootPath
+              dataStorageRootPath = dataStorageRootPath,
+              testScopeOnly = testScopeOnly.toBoolean,
+              forceCompileModule = Option(forceCompileModule).filter(_.nonEmpty)
             )
           case _ =>
             throwIllegalArgs(commandId, args)

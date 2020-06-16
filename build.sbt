@@ -359,6 +359,7 @@ addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTest
 addCommandAlias("runTypeInferenceTests", s"testOnly -- --include-categories=$typecheckerTests")
 addCommandAlias("runTestingSupportTests", s"testOnly -- --include-categories=$testingSupportTests")
 addCommandAlias("runWorksheetEvaluationTests", s"testOnly -- --include-categories=$worksheetEvaluationTests")
+addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
 
 val fastTestOptions = "-v -s -a +c +q " +
   s"--exclude-categories=$slowTests " +
@@ -368,7 +369,8 @@ val fastTestOptions = "-v -s -a +c +q " +
   s"--exclude-categories=$typecheckerTests " +
   s"--exclude-categories=$testingSupportTests " +
   s"--exclude-categories=$highlightingTests " +
-  s"--exclude-categories=$worksheetEvaluationTests "
+  s"--exclude-categories=$worksheetEvaluationTests " +
+  s"--exclude-categories=$flakyTests "
 
 addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
 // subsets of tests to split the complete test run into smaller chunks

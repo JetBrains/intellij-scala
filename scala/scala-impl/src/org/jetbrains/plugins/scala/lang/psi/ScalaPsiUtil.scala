@@ -55,7 +55,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Binding
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
@@ -199,23 +198,20 @@ object ScalaPsiUtil {
       case Seq() => Some(Unit)
       // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
       case _ =>
-        def getType(expression: Expression) = {
-          val result =
-            expression
-              .getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
-              .tr
-          result.getOrAny
-        }
+        def getType(expression: Expression): ScType =
+          expression
+            .getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
+            .tr
+            .getOrAny
+            .widenIfLiteral
 
         TupleType(s.map(getType)) match {
           case t if t.isNothing => None
-          case t => Some(t)
+          case t                => Some(t)
         }
     }
 
-    maybeType.map { t =>
-      Seq(Expression(t, firstLeaf(context)))
-    }
+    maybeType.map(t => Seq(Expression(t, firstLeaf(context))))
   }
 
   def getNextSiblingOfType[T <: PsiElement](sibling: PsiElement, aClass: Class[T]): T = {
@@ -677,19 +673,6 @@ object ScalaPsiUtil {
     TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
   }
 
-  def getMethodPresentableText(method: PsiMethod, subst: ScSubstitutor = ScSubstitutor.empty): String = {
-    method match {
-      case method: ScFunction =>
-        ScalaElementPresentation.getMethodPresentableText(method, fast = false, subst)
-      case _ =>
-        val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
-
-        implicit val elementScope: ElementScope = method.elementScope
-        PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst),
-          PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
-    }
-  }
-
   def isLineTerminator(element: PsiElement): Boolean = {
     element match {
       case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => true
@@ -732,7 +715,7 @@ object ScalaPsiUtil {
 
   /**
     * For one classOf use PsiTreeUtil.getContextOfType instead
-    */
+   */
   def getContextOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
     var el: PsiElement = if (!strict) element else {
       if (element == null) return null
@@ -742,12 +725,27 @@ object ScalaPsiUtil {
     el
   }
 
-  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = clazz match {
-    case obj: ScObject if obj.isSyntheticObject => obj.syntheticNavigationElement.asOptionOf[ScTypeDefinition]
-    case obj: ScObject                          => obj.baseCompanionModule
-    case definition: ScTypeDefinition           => definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
-    case _                                      => None
-  }
+  def getCompanionModule(typeDefinition: ScTypeDefinition): Option[ScTypeDefinition] =
+    typeDefinition match {
+      case scObject: ScObject =>
+        if (scObject.isSyntheticObject)
+          scObject.syntheticNavigationElement
+            .asOptionOf[ScTypeDefinition]
+        else
+          scObject.baseCompanionModule
+      case _: ScTypeDefinition =>
+        typeDefinition.baseCompanionModule
+          .orElse(typeDefinition.fakeCompanionModule)
+    }
+
+  def getCompanionModule(`class`: PsiClass): Option[ScTypeDefinition] =
+    `class` match {
+      case typeDefinition: ScTypeDefinition => getCompanionModule(typeDefinition)
+      case _ => None
+    }
+
+  def withCompanionModule(`class`: PsiClass): List[PsiClass] =
+    `class` :: getCompanionModule(`class`).toList
 
   // determines if an element can access other elements in a synthetic subtree that shadows
   // element's original(physical) subtree - e.g. physical method of some class referencing
@@ -1251,27 +1249,44 @@ object ScalaPsiUtil {
     )
   }
 
-  def withOriginalContextBound[T](parameter: ScParameter)
-                                 (default: => T)
-                                 (function: ((ScTypeParam, ScTypeElement, Int)) => T): T =
-    if (parameter.isPhysical) default
-    else {
-      val maybeOwner = parameter.owner match {
-        case ScPrimaryConstructor.ofClass(cls) => Option(cls)
-        case other: ScTypeParametersOwner => Option(other)
-        case _ => None
-      }
+  /**
+   * Example: lets consider T2 in this code {{{
+   * def foo[T1, T2 : Show : Render](x: T2): String = ???
+   * }}}
+   * typeParam   ~ T2 <br>
+   * contextType ~ Show OR Render <br>
+   * boundIndex  ~ 0 OR 1 <br>
+   */
+  case class ContextBoundInfo(typeParam: ScTypeParam, contextType: ScTypeElement, boundIndex: Int)
 
-      val bounds = for {
-        owner <- maybeOwner.toSeq
-        typeParameter <- owner.typeParameters
-        (bound, idx) <- typeParameter.contextBoundTypeElement.zipWithIndex
-      } yield (typeParameter, bound, idx)
+  /**
+   * @param parameter physical parameter OR
+   *                  synthetic implicit parameter corresponding to some context bound
+   * @return None if `parameter` is a normal physical parameter<br>
+   *         Some(context bound info) if parameter represents some synthetic implicit parameter of some context bound
+   */
+  def findSyntheticContextBoundInfo(parameter: ScParameter): Option[ContextBoundInfo] =
+    if (parameter.isPhysical) None
+    else extractSyntheticContextBoundInfo(parameter)
 
-      bounds.find {
-        case (typeParameter, typeElement, index) => contextBoundParameterName(typeParameter, typeElement, index) == parameter.name
-      }.fold(default)(function)
+  private def extractSyntheticContextBoundInfo(contextParameter: ScParameter): Option[ContextBoundInfo] = {
+    val maybeOwner: Option[ScTypeParametersOwner] = contextParameter.owner match {
+      case ScPrimaryConstructor.ofClass(cls) => Option(cls)
+      case other: ScTypeParametersOwner      => Option(other)
+      case _                                 => None
     }
+
+    val contextBounds: Seq[ContextBoundInfo] = for {
+      owner         <- maybeOwner.toSeq
+      typeParameter <- owner.typeParameters
+      (bound, idx)  <- typeParameter.contextBoundTypeElement.zipWithIndex
+    } yield ContextBoundInfo(typeParameter, bound, idx)
+
+    contextBounds.find { case ContextBoundInfo(typeParameter, typeElement, index) =>
+      val currentParameterName = contextBoundParameterName(typeParameter, typeElement, index)
+      contextParameter.name == currentParameterName
+    }
+  }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(parameterOwner: ScTypeParametersOwner,

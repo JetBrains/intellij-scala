@@ -4,7 +4,7 @@ package highlighting
 
 import com.intellij.codeInsight.highlighting.HighlightErrorFilter
 import com.intellij.psi.PsiErrorElement
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 final class ScalaHighlightErrorFilter extends HighlightErrorFilter {
 

@@ -7,9 +7,9 @@ object Versions {
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.4.0-RC1-190-ef7d8dba"
+  val bloopVersion = "1.4.1"
   val zincVersion = "1.1.1"
-  val intellijVersion = "202.3559"
+  val intellijVersion = "202.5428.22"
   val bspVersion = "2.0.0-M11"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
@@ -32,6 +32,7 @@ object Versions {
     val latest_2_12 = "2.12.10"
     val latest_2_13 = "2.13.1"
     val latest_3_0 = "0.24.0-RC1"
+    val latest_dotty = latest_3_0
     val latest: String = latest_2_12
     /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
     val project = "2.12.7"
@@ -119,7 +120,7 @@ object Dependencies {
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M2" % zincVersion classifier "sources"
-  val dottySbtBridge = "ch.epfl.lamp" % "dotty-sbt-bridge" % "0.24.0-RC1"
+  val dottySbtBridge = "ch.epfl.lamp" % "dotty-sbt-bridge" % Scala.latest_dotty
 
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor.documentationProvider
+package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.command.CommandProcessor
@@ -8,6 +7,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -55,19 +56,20 @@ class CreateScalaDocStubAction extends AnAction(
   }
   
   private def createStub(docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
-    val newComment = createDocCommentFromText(ScalaDocumentationProvider.createScalaDocStub(docOwner).trim())(docOwner.getManager)
+    val stubText = ScalaDocStubGenerator.createScalaDocStub(docOwner).trim()
+    val newComment = createDocCommentFromText(stubText)(docOwner.getManager)
     val project = docOwner.getProject
     val docCommentEnd = docOwner.getTextRange.getStartOffset - 1
     
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
       override def run(): Unit = {
-        extensions inWriteAction {
+        inWriteAction {
           psiDocument insertString (docCommentEnd, newComment.getText + "\n")
           PsiDocumentManager getInstance project commitDocument psiDocument
         }
         
         val docRange = docOwner.getDocComment.getTextRange
-        extensions inWriteAction {
+        inWriteAction {
           CodeStyleManager getInstance project reformatText (docOwner.getContainingFile, docRange.getStartOffset, docRange.getEndOffset + 2)
         }
       }
@@ -116,7 +118,7 @@ class CreateScalaDocStubAction extends AnAction(
     val project = docOwner.getProject
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
       override def run(): Unit = {
-        extensions inWriteAction {
+        inWriteAction {
           docOwner match {
             case fun: ScFunctionDefinition =>
               processParams(List("@param", "@tparam"), List(fun.parameters, fun.typeParameters))

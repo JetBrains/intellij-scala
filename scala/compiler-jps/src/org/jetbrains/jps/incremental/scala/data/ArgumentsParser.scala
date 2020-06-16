@@ -122,9 +122,7 @@ object ArgumentsParser
     if (s.isEmpty) None else Some(s)
   }
 
-  private val StringToSequence = extractor[String, Seq[String]] { s: String =>
-    if (s.isEmpty) Seq.empty else s.split(SerializationUtils.Delimiter).toSeq
-  }
+  private val StringToSequence = extractor[String, Seq[String]](SerializationUtils.stringToSequence)
 
   private val StringToBoolean = extractor[String, Boolean] { s: String =>
     s.toBoolean

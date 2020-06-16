@@ -56,7 +56,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   @tailrec
   private def getContextInfo(ref: ScReferenceExpression, e: ScExpression): ContextInfo = {
     e.getContext match {
-      case generic : ScGenericCall => getContextInfo(ref, generic)
+      case generic: ScGenericCall => getContextInfo(ref, generic)
       case call: ScMethodCall if !call.isUpdateCall =>
         ContextInfo(Some(call.argumentExpressions), () => call.expectedType(), isUnderscore = false)
       case call: ScMethodCall =>
@@ -81,16 +81,18 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   }
 
   @tailrec
-  private def kinds(ref: ScReferenceExpression, e: ScExpression, incomplete: Boolean): scala.collection.Set[ResolveTargets.Value] = {
-    e.getContext match {
-      case gen: ScGenericCall => kinds(ref, gen, incomplete)
-      case parents: ScParenthesisedExpr => kinds(ref, parents, incomplete)
-      case _: ScMethodCall | _: ScUnderscoreSection => StdKinds.methodRef
-      case inf: ScInfixExpr if ref == inf.operation => StdKinds.methodRef
-      case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
-      case pref: ScPrefixExpr if ref == pref.operation => StdKinds.methodRef
-      case _ => ref.getKinds(incomplete)
-    }
+  private def kinds(
+    ref:        ScReferenceExpression,
+    e:          ScExpression,
+    incomplete: Boolean
+  ): scala.collection.Set[ResolveTargets.Value] = e.getContext match {
+    case gen: ScGenericCall                             => kinds(ref, gen, incomplete)
+    case parents: ScParenthesisedExpr                   => kinds(ref, parents, incomplete)
+    case _: ScMethodCall | _: ScUnderscoreSection       => StdKinds.methodRef
+    case inf: ScInfixExpr if ref == inf.operation       => StdKinds.methodRef
+    case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
+    case pref: ScPrefixExpr if ref == pref.operation    => StdKinds.methodRef
+    case _                                              => ref.getKinds(incomplete)
   }
 
   @tailrec
@@ -619,18 +621,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   /**
    * Seek parameter with appropriate name in appropriate parameter clause.
    *
-   * @param name           parameter name
-   * @param clausePosition = -1, effective clause number, if -1 then parameter in any explicit? clause
+   * @param name        parameter name
+   * @param clauseIndex = -1, effective clause number, if -1 then parameter in any explicit? clause
    */
-  private def getParamByName(ml: ScMethodLike, name: String, clausePosition: Int = -1): Option[ScParameter] = {
-    val parameters = clausePosition match {
+  private def getParamByName(ml: ScMethodLike,
+                             name: String,
+                             clauseIndex: Int = -1): Option[ScParameter] = {
+    val parameters = clauseIndex match {
       case -1 => ml.parameters
-      case _ =>
-        ml.effectiveParameterClauses match {
-          case clauses if clausePosition < clauses.length =>
-            clauses(clausePosition).effectiveParameters
-          case _ => Seq.empty
-        }
+      case _ => ml.parametersInClause(clauseIndex)
     }
 
     parameters.find { parameter =>

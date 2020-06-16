@@ -17,6 +17,19 @@ trait StringAssertions {
         )
     }
 
+  def assertStringNotMatches(string: String, regex: Regex): Unit =
+    regex.findAllMatchIn(string).toSeq match {
+      case Seq() =>
+      case matches =>
+        fail(
+          s"""string should't match regular expression:
+             |regex: $regex
+             |actual: $string
+             |matches:
+             |${matches.map(_.matched).mkString("\n")}""".stripMargin
+        )
+    }
+
   def assertStartsWith(string: String, prefix: String): Unit =
     if (!string.startsWith(prefix)) {
       fail(

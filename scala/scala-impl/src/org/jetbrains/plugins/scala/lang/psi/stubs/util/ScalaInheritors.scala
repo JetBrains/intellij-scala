@@ -174,7 +174,7 @@ object ScalaInheritors {
     }
   }
 
-  def findInheritorObjectsForContainer(member: ScMember): Set[ScObject] =
+  def findInheritorObjectsForOwner(member: ScMember): Set[ScObject] =
     member.containingClass match {
       case null => Set.empty
       case clazz => findInheritorObjects(clazz)

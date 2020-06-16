@@ -9,33 +9,48 @@ package toplevel
 package typedef
 
 import java.util
+import java.util.concurrent.ConcurrentHashMap
 import java.util.{List => JList}
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.{PsiClass, PsiClassType, PsiNamedElement}
-import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
-import com.intellij.util.{AstLoadingFilter, SmartList}
-import gnu.trove.{THashMap, THashSet, TObjectHashingStrategy}
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiNamedElement
+import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.containers.SmartHashSet
+import com.intellij.util.AstLoadingFilter
+import com.intellij.util.SmartList
+import gnu.trove.THashMap
+import gnu.trove.THashSet
+import gnu.trove.TObjectHashingStrategy
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.SuperTypesData
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard, Measure}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ListBuffer
 
 abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor[T]) {
   type Map = MixinNodes.Map[T]
@@ -166,7 +181,7 @@ object MixinNodes {
     private val thisSignaturesByName: THashMap[String, JList[T]] = new THashMap()
     private val supersSignaturesByName: THashMap[String, JList[T]] = new THashMap()
 
-    private val forNameCache = ContainerUtil.newConcurrentMap[String, AllNodes[T]]()
+    private val forNameCache = new ConcurrentHashMap[String, AllNodes[T]]()
 
     private lazy val implicitNodes: Seq[Node[T]] = {
       val res = new ArrayBuffer[Node[T]](implicitNames.size)

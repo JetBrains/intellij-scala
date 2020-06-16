@@ -392,7 +392,7 @@ object ScalaSmartCompletionContributor {
             elementAdded
           }
 
-          scalaLookupItem.element match {
+          scalaLookupItem.getPsiElement match {
             case clazz: PsiClass if isExcluded(clazz) =>
             case fun: ScSyntheticFunction =>
               val second = checkForSecondCompletion && fun.paramClauses.flatten.isEmpty
@@ -552,7 +552,7 @@ object ScalaSmartCompletionContributor {
   }
 
   private[this] def isAccessible(item: ScalaLookupItem)
-                                (implicit place: PsiElement): Boolean = ScalaPsiUtil.nameContext(item.element) match {
+                                (implicit place: PsiElement): Boolean = ScalaPsiUtil.nameContext(item.getPsiElement) match {
     case member: ScMember => isAccessible(member)
     case _ => true
   }
@@ -694,7 +694,7 @@ object ScalaSmartCompletionContributor {
             builder.replaceElement(parameter.nameId, parameter.name)
           }
           f.result.foreach {
-            case qMarks: ScReferenceExpression if qMarks.refName == "???" =>
+            case qMarks: ScReferenceExpression if qMarks.refName == NotImplementedError =>
               builder.replaceElement(qMarks.nameId, qMarks.refName)
             case _ =>
           }
@@ -736,7 +736,7 @@ object ScalaSmartCompletionContributor {
         .append(" ")
         .append(functionArrow)
         .append(" ")
-        .append("???")
+        .append(NotImplementedError)
         .toString
 
     private def createBuffer = StringBuilder.newBuilder match {

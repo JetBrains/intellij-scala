@@ -277,13 +277,15 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchUnappliedMethodInfix(): Unit = assertErrors(
     "object O { def &(i: String): Unit = () }; val v: Int = O &")
 
-  // TODO Highlight ") ", missing argument list
   def testTypeMismatchUnappliedCurrying(): Unit = assertErrors(
-    "def f(i: Int)(s: String): Unit = (); val v: Int = f(1)")
+    "def f(i: Int)(s: String): Unit = (); val v: Int = f(1)",
+    Error(")", "Missing argument list (s: String) for Method f(Int)(String)")
+  )
 
-  // TODO Highlight ") ", missing argument list
   def testTypeMismatchUnappliedNoExpectedType(): Unit = assertErrors(
-    "def f(i: Int)(s: String): Unit = (); val v = f(1)")
+    "def f(i: Int)(s: String): Unit = (); val v = f(1)",
+    Error(")", "Missing argument list (s: String) for Method f(Int)(String)")
+  )
 
   def testTypeMismatchUnappliedEtaExpansion(): Unit = assertErrors(
     "def f(i: Int)(s: String): Unit = (); val v = f(1) _")

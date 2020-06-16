@@ -10,7 +10,7 @@ private class HtmlBuilderWrapper(delegate: StringBuilder) {
     this
   }
 
-  def append(any: Any): HtmlBuilderWrapper = {
+  def append(any: AnyRef): HtmlBuilderWrapper = {
     delegate.append(any)
     this
   }

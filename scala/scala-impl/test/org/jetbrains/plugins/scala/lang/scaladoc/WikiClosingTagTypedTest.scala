@@ -1,7 +1,5 @@
-package org.jetbrains.plugins.scala
-package lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc
 
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
 /**
@@ -10,125 +8,111 @@ import org.jetbrains.plugins.scala.base.EditorActionTestBase
  */
 class WikiClosingTagTypedTest extends EditorActionTestBase {
 
-  import CodeInsightTestFixture.CARET_MARKER
+  def testCodeLinkClosingTagInput(): Unit =
+    checkGeneratedTextAfterTyping(
+      s"/** [[java.lang.String${|}]] */",
+      s"/** [[java.lang.String]${|}] */",
+      ']'
+    )
 
-  def testCodeLinkClosingTagInput(): Unit = {
-    val text = s"/** [[java.lang.String$CARET_MARKER]] */"
-    val assumedStub = s"/** [[java.lang.String]$CARET_MARKER] */"
-
-    checkGeneratedTextAfterTyping(text, assumedStub, ']')
-  }
-
-  def testInnerCodeClosingTagInput(): Unit = {
-    val text =
+  def testInnerCodeClosingTagInput(): Unit =
+    checkGeneratedTextAfterTyping(
       s"""  /**
          |    *
          |    * {{{
          |    *  class A {
          |    *    def f(): Unit = {}
-         |    * } }}$CARET_MARKER}
+         |    * } }}${|}}
          |    */
-         |""".stripMargin.replace("\r", "")
-
-    val assumedStub =
+         |""".stripMargin,
       s"""  /**
          |    *
          |    * {{{
          |    *  class A {
          |    *    def f(): Unit = {}
-         |    * } }}}$CARET_MARKER
+         |    * } }}}${|}
          |    */
-         |""".stripMargin.replace("\r", "")
+         |""".stripMargin,
+      '}'
+    )
 
-    checkGeneratedTextAfterTyping(text, assumedStub, '}')
-  }
-
-  def testItalicClosingTagInput(): Unit = {
-    val text =
+  def testItalicClosingTagInput(): Unit =
+    checkGeneratedTextAfterTyping(
       s""" /**
          |   * ''blah blah blah blah
-         |   *   blah blah blah '$CARET_MARKER'
+         |   *   blah blah blah '${|}'
          |   */
-         |""".stripMargin.replace("\r", "")
-
-    val assumedStub =
+         |""".stripMargin,
       s""" /**
          |   * ''blah blah blah blah
-         |   *   blah blah blah ''$CARET_MARKER
+         |   *   blah blah blah ''${|}
          |   */
-         |""".stripMargin.replace("\r", "")
+         |""".stripMargin,
+      '\''
+    )
 
-    checkGeneratedTextAfterTyping(text, assumedStub, '\'')
-  }
+  def testSuperscriptClosingTagInput(): Unit =
+    checkGeneratedTextAfterTyping(
+      s"/** 2^2${|}^ = 4 */",
+      s"/** 2^2^${|} = 4 */",
+      '^'
+    )
 
-  def testSuperscriptClosingTagInput(): Unit = {
-    val text = s"/** 2^2$CARET_MARKER^ = 4 */"
-    val assumedStub = s"/** 2^2^$CARET_MARKER = 4 */"
-
-    checkGeneratedTextAfterTyping(text, assumedStub, '^')
-  }
-
-  def testMonospaceClosingTag(): Unit = {
-    val text =
+  def testMonospaceClosingTag(): Unit =
+    checkGeneratedTextAfterTyping(
       s""" /**
-         |   * `blah-blah$CARET_MARKER`
+         |   * `blah-blah${|}`
          |   */
-         |""".stripMargin.replace("\r", "")
-
-    val assumedStub =
+         |""".stripMargin,
       s""" /**
-         |   * `blah-blah`$CARET_MARKER
+         |   * `blah-blah`${|}
          |   */
-         |""".stripMargin.replace("\r", "")
+         |""".stripMargin,
+      '`'
+    )
 
-    checkGeneratedTextAfterTyping(text, assumedStub, '`')
-  }
+  def testBoldClosingTag(): Unit =
+    checkGeneratedTextAfterTyping(
+      s"/** '''blah blah blah'${|}'' */",
+      s"/** '''blah blah blah''${|}' */",
+      '\''
+    )
 
-  def testBoldClosingTag(): Unit = {
-    val text = s"/** '''blah blah blah'$CARET_MARKER'' */"
-    val assumedStub = s"/** '''blah blah blah''$CARET_MARKER' */"
-
-    checkGeneratedTextAfterTyping(text, assumedStub, '\'')
-  }
-
-  def testUnderlinedClosingTag(): Unit = {
-    val text =
+  def testUnderlinedClosingTag(): Unit =
+    checkGeneratedTextAfterTyping(
       s""" /**
          |   * __blah blahblahblahblahblah
-         |   *       blah blah blah blah${CARET_MARKER}__
+         |   *       blah blah blah blah${|}__
          |   */
-         |""".stripMargin.replace("\r", "")
-
-    val assumedStub =
+         |""".stripMargin,
       s""" /**
          |   * __blah blahblahblahblahblah
-         |   *       blah blah blah blah_${CARET_MARKER}_
+         |   *       blah blah blah blah_${|}_
          |   */
-         |""".stripMargin.replace("\r", "")
+         |""".stripMargin,
+      '_'
+    )
 
-    checkGeneratedTextAfterTyping(text, assumedStub, '_')
-  }
-
-  def testBoldTagEmpty(): Unit = {
-    val text = s"/** '''$CARET_MARKER''' */"
-    val assumedStub = s"/** ''''$CARET_MARKER'' */"
-
-    checkGeneratedTextAfterTyping(text, assumedStub, '\'')
-  }
+  def testBoldTagEmpty(): Unit =
+    checkGeneratedTextAfterTyping(
+      s"/** '''${|}''' */",
+      s"/** ''''${|}'' */",
+      '\''
+    )
 
   def testItalicTag(): Unit = {
-    val before = s"/** ''some text$CARET_MARKER'' */"
-    val after1 = s"/** ''some text'$CARET_MARKER' */"
-    val after2 = s"/** ''some text''$CARET_MARKER */"
+    val before = s"/** ''some text${|}'' */"
+    val after1 = s"/** ''some text'${|}' */"
+    val after2 = s"/** ''some text''${|} */"
 
     checkGeneratedTextAfterTyping(before, after1, '\'')
     checkGeneratedTextAfterTyping(after1, after2, '\'')
   }
 
-  def testAdvanceItalicToBold(): Unit = {
-    val before = s"/** ''$CARET_MARKER'' */"
-    val after = s"/** '''$CARET_MARKER''' */"
-
-    checkGeneratedTextAfterTyping(before, after, '\'')
-  }
+  def testAdvanceItalicToBold(): Unit =
+    checkGeneratedTextAfterTyping(
+      s"/** ''${|}'' */",
+      s"/** '''${|}''' */",
+      '\''
+    )
 }

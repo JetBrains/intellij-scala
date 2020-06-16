@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala
 package debugger.ui
 
-import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
-import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl}
+import java.lang
+import java.util.concurrent.CompletableFuture
+
+import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluateException, EvaluationContextImpl}
+import com.intellij.debugger.engine.{DebugProcessImpl, DebugProcess}
 import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
 import com.intellij.debugger.ui.tree.render._
-import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, ValueDescriptor, NodeDescriptor}
 import com.intellij.debugger.{JavaDebuggerBundle, DebuggerContext}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
@@ -21,25 +24,27 @@ import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
  */
 class RuntimeRefRenderer extends NodeRendererImpl {
 
+  setIsApplicableChecker(t => CompletableFuture.completedFuture(isApplicableFor(t)))
+
   override def getName = "Scala runtime references renderer"
   override def setName(name: String): Unit = { }
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS
   override def setEnabled(enabled: Boolean): Unit = {/*see ScalaDebuggerSettingsConfigurable */}
   override def getUniqueId: String = "ScalaRuntimeRefRenderer"
 
-  override def isApplicable(t: Type): Boolean = {
+  private def isApplicableFor(t: Type): Boolean = {
     t != null && t.name() != null && t.name().startsWith("scala.runtime.") && t.name().endsWith("Ref")
   }
-  
+
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
     val descr = unwrappedDescriptor(value, context.getProject)
     autoRenderer(context.getDebugProcess, descr).buildChildren(descr.getValue, builder, context)
   }
 
-  override def isExpandable(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = {
+  override def isExpandableAsync(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): CompletableFuture[lang.Boolean] = {
     val descr = unwrappedDescriptor(value, evaluationContext.getProject)
     val renderer = autoRenderer(evaluationContext.getDebugProcess, descr)
-    renderer.isExpandable(descr.getValue, evaluationContext, parentDescriptor)
+    renderer.isExpandableAsync(descr.getValue, evaluationContext, parentDescriptor)
   }
 
   override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiElement = {
@@ -58,16 +63,15 @@ class RuntimeRefRenderer extends NodeRendererImpl {
     }
   }
 
-
-  override def getIdLabel(value: Value, process: DebugProcess): String = {
-    val descr = unwrappedDescriptor(value, process.getProject)
-    autoRenderer(process, descr).getIdLabel(descr.getValue, process)
+  override def calcIdLabel(descriptor: ValueDescriptor, process: DebugProcess, labelListener: DescriptorLabelListener): String = {
+    val descr = unwrappedDescriptor(descriptor.getValue, process.getProject)
+    autoRenderer(process, descr).calcIdLabel(descr, process, labelListener)
   }
 
   private def autoRenderer(debugProcess: DebugProcess, valueDescriptor: ValueDescriptor) = {
     val unwrappedType = valueDescriptor.getType
 
-    if (isApplicable(unwrappedType))
+    if (isApplicableFor(unwrappedType))
       DebugProcessImpl.getDefaultRenderer(unwrappedType).asInstanceOf[NodeRendererImpl]
     else
       debugProcess.asInstanceOf[DebugProcessImpl].getAutoRenderer(valueDescriptor).asInstanceOf[NodeRendererImpl]

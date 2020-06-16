@@ -5,28 +5,27 @@ package lookups
 
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup._
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
@@ -37,14 +36,13 @@ import scala.annotation.tailrec
  * @author Alefas
  * @since 22.03.12
  */
-final class ScalaLookupItem private(val element: PsiNamedElement,
+final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
                                     override val getLookupString: String,
-                                    private val containingClass: PsiClass)
-  extends LookupItem[PsiNamedElement](element, getLookupString) {
+                                    private[completion] val containingClass: PsiClass)
+  extends LookupItem[PsiNamedElement](getPsiElement, getLookupString) {
 
+  import ScalaInsertHandler._
   import ScalaLookupItem._
-
-  private implicit val project: ProjectContext = element.projectContext
 
   def this(element: PsiNamedElement,
            name: String,
@@ -67,9 +65,7 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
   var isUnderlined: Boolean = false
   var isInImport: Boolean = false
   var isInStableCodeReference: Boolean = false
-  var usedImportStaticQuickfix: Boolean = false
-  var elementToImport: Option[PsiNamedElement] = None
-  var classToImport: Option[PsiClass] = None
+  var elementToImport: Option[(ScFunction, ScObject)] = None
   var someSmartCompletion: Boolean = false
   var bold: Boolean = false
   var etaExpanded: Boolean = false
@@ -98,22 +94,21 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
   }
 
   override def renderElement(presentation: LookupElementPresentation): Unit = {
-    if (isNamedParameter) {
-      presentation.setTailText(s" = $typeText")
-    } else {
-      val grayed = element match {
-        case _: PsiPackage | _: PsiClass => true
-        case _ => false
-      }
-      presentation.setTailText(tailText, grayed)
-      presentation.setTypeText(typeText)
+    val grayed = getPsiElement match {
+      case _: PsiPackage | _: PsiClass => true
+      case _ => false
     }
 
-    presentation.setIcon(element)
+    presentation.setTailText(
+      if (isNamedParameter) AssignmentText else tailText,
+      grayed
+    )
+    presentation.setTypeText(typeText)
+    presentation.setIcon(getPsiElement)
 
-    var itemText: String =
+    val itemText =
       if (isRenamed.nonEmpty)
-        s"$getLookupString <= ${element.name}"
+        s"$getLookupString <= ${getPsiElement.name}"
       else if (isClassName && shouldImport && containingClassName != null)
         s"$containingClassName.$getLookupString"
       else getLookupString
@@ -121,10 +116,10 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
     presentation.setItemText(itemText)
     wrapOptionIfNeeded(presentation)
 
-    presentation.setStrikeout(element)
+    presentation.setStrikeout(getPsiElement)
 
     presentation.setItemTextBold(bold)
-    if (ScalaProjectSettings.getInstance(element.getProject).isShowImplisitConversions) {
+    if (ScalaProjectSettings.getInstance(getPsiElement.getProject).isShowImplisitConversions) {
       presentation.setItemTextUnderlined(isUnderlined)
     }
   }
@@ -139,29 +134,31 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
 
   private lazy val typeText: String = {
     UIFreezingGuard.withDefaultValue("") {
-      implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-      element match {
+      implicit val pc: Project = getPsiElement.getProject
+      implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+      import PresentationUtil.{presentationStringForJavaType, presentationStringForScalaType}
+      getPsiElement match {
         case fun: ScFunction =>
           val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
-          presentationString(scType, substitutor)
+          presentationStringForScalaType(scType, substitutor)
         case fun: ScFun =>
-          presentationString(fun.retType, substitutor)
+          presentationStringForScalaType(fun.retType, substitutor)
         case alias: ScTypeAliasDefinition =>
-          presentationString(alias.aliasedType.getOrAny, substitutor)
+          presentationStringForScalaType(alias.aliasedType.getOrAny, substitutor)
         case param: ScParameter =>
-          presentationString(param.getRealParameterType.getOrAny, substitutor)
+          presentationStringForScalaType(param.getRealParameterType.getOrAny, substitutor)
         case t: ScTemplateDefinition if getLookupString == "this" || getLookupString.endsWith(".this") =>
           t.getTypeWithProjections(thisProjections = true) match {
             case Right(tp) =>
-              tp.presentableText(element)
+              tp.presentableText(t)
             case _ => ""
           }
         case f: PsiField =>
-          presentationString(f.getType, substitutor)
+          presentationStringForJavaType(f.getType, substitutor)
         case m: PsiMethod =>
-          presentationString(m.getReturnType, substitutor)
+          presentationStringForJavaType(m.getReturnType, substitutor)
         case t: Typeable =>
-          presentationString(t.`type`().getOrAny, substitutor)
+          presentationStringForScalaType(t.`type`().getOrAny, substitutor)
         case _ => ""
       }
     }
@@ -169,21 +166,31 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
 
   private lazy val tailText: String = {
     UIFreezingGuard.withDefaultValue("") {
-      implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-      element match {
+      implicit val pc: Project = getPsiElement.getProject
+      implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+      getPsiElement match {
         //scala
+        case _: ScReferencePattern => // todo should be a ScValueOrVariable instance
+          containingClassText
         case fun: ScFunction =>
           if (etaExpanded) " _"
-          else if (isAssignment) " = " + presentationString(fun.paramClauses, substitutor)
-          else textForMethod(fun)
+          else if (isAssignment) AssignmentText + PresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
+          else typeParametersText(fun) + parametersText(fun.parameterList) + containingClassText
         case fun: ScFun =>
-          val paramClausesText = fun.paramClauses.map(_.map(presentationString(_, substitutor)).mkString("(", ", ", ")")).mkString
-          withTypeParamsText + paramClausesText
+          val paramClausesText = fun.paramClauses.map { clause =>
+            clause.map {
+              PresentationUtil.presentationStringForParameter(_, substitutor)
+            }.commaSeparated(Model.Parentheses)
+          }.mkString
+
+          typeParametersText(fun.typeParameters) + paramClausesText
         case clazz: PsiClass =>
-          val location: String = clazz.getPresentation.getLocationString
-          s"$withTypeParamsText $location"
+          typeParametersText(clazz) +
+            classLocationSuffix(clazz)
         case method: PsiMethod =>
-          textForMethod(method)
+          typeParametersText(method) +
+            (if (isParameterless(method)) "" else parametersText(method.getParameterList)) +
+            containingClassText
         case p: PsiPackage =>
           s"    (${p.getQualifiedName})"
         case _ => ""
@@ -191,59 +198,60 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
     }
   }
 
-  private def withTypeParamsText(implicit tpc: TypePresentationContext): String = element match {
-    case t: ScFun =>
-      if (t.typeParameters.nonEmpty) t.typeParameters.map(param => presentationString(param, substitutor)).
-        mkString("[", ", ", "]")
-      else ""
-    case t: ScTypeParametersOwner =>
-      t.typeParametersClause match {
-        case Some(tp) => presentationString(tp, substitutor)
-        case None => ""
+  private def typeParametersText(typeParameters: Seq[_ <: PsiTypeParameter])
+                                (implicit project: Project,
+                                 context: TypePresentationContext): String =
+    if (typeParameters.isEmpty)
+      ""
+    else
+      typeParameters.map { typeParameter =>
+        val substitutor = typeParameter match {
+          case _: ScTypeParam => this.substitutor
+          case _ => ScSubstitutor.empty
+        }
+        PresentationUtil.presentationStringForPsiElement(typeParameter, substitutor)
+      }.commaSeparated(Model.SquareBrackets)
+
+  private def typeParametersText(owner: PsiTypeParameterListOwner)
+                                (implicit project: Project,
+                                 context: TypePresentationContext): String = owner match {
+    case owner: ScTypeParametersOwner =>
+      owner.typeParametersClause.fold("") {
+        PresentationUtil.presentationStringForPsiElement(_, substitutor)
       }
-    case p: PsiTypeParameterListOwner if p.getTypeParameters.nonEmpty =>
-      p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
-    case _ => ""
+    case owner =>
+      typeParametersText(owner.getTypeParameters)
   }
 
-  private def textForMethod(m: PsiMethod)(implicit tpc: TypePresentationContext): String = {
-    val params = m match {
-      case fun: ScFunction => fun.paramClauses
-      case _ => m.getParameterList
-    }
-    val paramsText =
-      if (!isOverloadedForClassName) presentationString(params, substitutor)
-      else "(...)"
-    val containingClassText: String = {
-      if (isClassName && containingClassName != null) {
-        s"${if (shouldImport) "" else " in " + containingClassName} ${containingClass.getPresentation.getLocationString}"
-      } else ""
-    }
-    withTypeParamsText + paramsText + containingClassText
-  }
+  private def parametersText(parametersList: PsiParameterList)
+                            (implicit project: Project,
+                             context: TypePresentationContext) =
+    if (isOverloadedForClassName)
+      "(...)"
+    else
+      PresentationUtil.presentationStringForPsiElement(parametersList, substitutor)
 
-  private def simpleInsert(context: InsertionContext): Unit =
-    new ScalaInsertHandler().handleInsert(context, this)
+  private def containingClassText =
+    if (isClassName && containingClassName != null)
+      (if (shouldImport) "" else " in " + containingClassName) + classLocationSuffix(containingClass)
+    else
+      ""
 
   override def handleInsert(context: InsertionContext): Unit = {
     if (getInsertHandler != null) super.handleInsert(context)
     else if (isClassName || prefixCompletion) {
       context.commitDocument()
 
-      element match {
-        case _: PsiClass |
-             _: ScTypeAlias |
-             _: ScPackage =>
+      getPsiElement match {
+        case element@(_: PsiClass |
+                      _: ScTypeAlias |
+                      _: ScPackage) =>
           if (isRenamed.isDefined) return
 
           if (isInSimpleString) {
-            new ScalaInsertHandler
-            .StringInsertPreHandler()
-              .handleInsert(context, this)
+            new StringInsertPreHandler().handleInsert(context, this)
 
-            new ScalaInsertHandler
-            .StringInsertPostHandler()
-              .handleInsert(context, this)
+            new StringInsertPostHandler().handleInsert(context, this)
           }
 
           var ref = findReferenceAtOffset(context)
@@ -286,56 +294,28 @@ final class ScalaLookupItem private(val element: PsiNamedElement,
               context.scheduleAutoPopup()
             case _ =>
           }
+        case p: PsiPackage =>
+          new ScalaImportingInsertHandler(null) {
+
+            override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+              ScImportsHolder(reference).addImportForPath(p.getQualifiedName)
+          }.handleInsert(context, this)
+        case _ if containingClass != null =>
+          new ScalaImportingInsertHandler(containingClass) {
+
+            override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+              replaceReference(reference)
+
+            override protected def qualifyOnly(reference: ScReferenceExpression): Unit = {}
+          }.handleInsert(context, this)
         case _ =>
-          simpleInsert(context)
-
-          element match {
-            case p: PsiPackage if shouldImport =>
-              context.commitDocument()
-
-              findReferenceAtOffset(context) match {
-                case null =>
-                case reference => getImportHolder(reference).addImportForPath(p.getQualifiedName)
-              }
-            case _ if containingClass != null =>
-              context.commitDocument()
-
-              context.getFile match {
-                case scalaFile: ScalaFile =>
-                  val elem = scalaFile.findElementAt(realStartOffset(context))
-
-                  def qualifyReference(reference: ScReferenceExpression): Unit = replaceReference(
-                    reference,
-                    containingClassName + "." + reference.getText
-                  )(containingClass) {
-                    case ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression) => qualifier
-                  }
-
-                  elem.getParent match {
-                    case ref: ScReferenceExpression if !usedImportStaticQuickfix =>
-                      if (shouldImport) qualifyReference(ref)
-                    case ref: ScReferenceExpression =>
-                      if (!shouldImport) qualifyReference(ref)
-                      else {
-                        elementToImport match {
-                          case None => ref.bindToElement(element, Some(containingClass))
-                          case Some(named@ScalaPsiUtil.inNameContext(ContainingClass(clazz))) =>
-                            if (clazz.qualifiedName != null) {
-                              getImportHolder(ref).addImportForPsiNamedElement(named, null, classToImport)
-                            }
-                        }
-                      }
-                    case _ =>
-                  }
-                case _ =>
-              }
-            case _ =>
-          }
       }
-    } else simpleInsert(context)
+    } else {
+      new ScalaInsertHandler().handleInsert(context, this)
+    }
   }
 
-  private def findReferenceAtOffset(context: InsertionContext) = findElementOfClassAtOffset(
+  private[completion] def findReferenceAtOffset(context: InsertionContext) = findElementOfClassAtOffset(
     context.getFile,
     realStartOffset(context),
     classOf[ScReference],
@@ -363,7 +343,7 @@ object ScalaLookupItem {
 
   def unapply(element: LookupElement): Option[(ScalaLookupItem, PsiNamedElement)] =
     delegate(element) match {
-      case item: ScalaLookupItem => Some(item, item.element)
+      case item: ScalaLookupItem => Some(item, item.getPsiElement)
       case _ => None
     }
 
@@ -373,24 +353,15 @@ object ScalaLookupItem {
     case _ => reference
   }
 
-  private def getImportHolder(reference: ScReference) = ScalaAddImportAction.getImportHolder(
-    reference,
-    reference.getProject
-  )
-
-  private def replaceReference(reference: ScReference, text: String)
-                              (elementToBindTo: PsiNamedElement)
-                              (collector: ScReference => ScReference = identity): Unit = {
-    import reference.projectContext
-
-    val newReference = reference match {
-      case _: ScReferenceExpression => createExpressionFromText(text).asInstanceOf[ScReferenceExpression]
-      case _ => createReferenceFromText(text)
+  private def classLocationSuffix(`class`: PsiClass) = {
+    val location = `class`.getPresentation match {
+      case null => null
+      case presentation => presentation.getLocationString
     }
 
-    val node = reference.getNode
-    node.getTreeParent.replaceChild(node, newReference.getNode)
-
-    collector(newReference).bindToElement(elementToBindTo)
+    location match {
+      case null | "" => ""
+      case _ => " " + location
+    }
   }
 }

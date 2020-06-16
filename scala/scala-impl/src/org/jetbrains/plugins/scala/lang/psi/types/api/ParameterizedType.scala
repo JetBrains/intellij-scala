@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
@@ -45,7 +45,7 @@ trait ParameterizedType extends ValueType {
 
 object ParameterizedType {
   val substitutorCache: ConcurrentMap[ParameterizedType, ScSubstitutor] =
-    ContainerUtil.newConcurrentMap[ParameterizedType, ScSubstitutor]()
+    new ConcurrentHashMap[ParameterizedType, ScSubstitutor]()
 
   def apply(designator: ScType, typeArguments: Seq[ScType]): ValueType =
     designator.typeSystem.parameterizedType(designator, typeArguments)

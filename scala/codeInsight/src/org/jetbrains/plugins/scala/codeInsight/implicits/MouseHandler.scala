@@ -1,22 +1,27 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import java.awt.event._
-import java.awt.{Cursor, Point}
+import java.awt.Cursor
+import java.awt.Point
 
-import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.event._
-import com.intellij.openapi.editor.{Editor, EditorFactory}
-import com.intellij.openapi.project.{Project, ProjectManagerListener}
-import com.intellij.openapi.util.{Key, SystemInfo}
-import com.intellij.ui.{AncestorListenerAdapter, LightweightHint}
-import com.intellij.util.ui.{JBUI, UIUtil}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.SystemInfo
+import com.intellij.ui.AncestorListenerAdapter
+import com.intellij.util.ui.UIUtil
 import javax.swing.event.AncestorEvent
-import javax.swing.{JLabel, SwingUtilities}
+import javax.swing.SwingUtilities
+import org.jetbrains.plugins.scala.annotator.hints.ErrorTooltip
+import org.jetbrains.plugins.scala.annotator.hints.TooltipUI
 import org.jetbrains.plugins.scala.annotator.hints.Text
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.JavaConverters._
@@ -26,8 +31,8 @@ class MouseHandler extends ProjectManagerListener {
   private var activeHyperlink = Option.empty[(Inlay, Text)]
   private var highlightedMatches = Set.empty[(Inlay, Text)]
 
-  private var hyperlinkTooltip = Option.empty[LightweightHint]
-  private var errorTooltip = Option.empty[LightweightHint]
+  private var hyperlinkTooltip = Option.empty[TooltipUI]
+  private var errorTooltip = Option.empty[TooltipUI]
 
   private val mousePressListener = new EditorMouseListener {
     override def mousePressed(e: EditorMouseEvent): Unit = {
@@ -40,6 +45,7 @@ class MouseHandler extends ProjectManagerListener {
       if (handlingRequired(e) && !e.isConsumed) {
         val editor = e.getEditor
         val event = e.getMouseEvent
+        errorTooltip.foreach(_.cancel())
 
         if (SwingUtilities.isLeftMouseButton(event)) {
           if (SystemInfo.isMac && event.isMetaDown || event.isControlDown) {
@@ -52,7 +58,7 @@ class MouseHandler extends ProjectManagerListener {
             expandableAt(editor, event.getPoint).foreach { case (inlay, text) =>
               inlay.getRenderer.asOptionOf[TextPartsHintRenderer].foreach { renderer =>
                 renderer.expand(text)
-                inlay.updateSize()
+                inlay.update()
                 if (!ImplicitHints.expanded) {
                   addEscKeyListenerTo(editor)
                 }
@@ -95,13 +101,15 @@ class MouseHandler extends ProjectManagerListener {
           }
         } else {
           textAtPoint match {
-            case Some((_, text)) =>
-              if (text.errorTooltip.nonEmpty && !errorTooltip.exists(_.isVisible)) {
-                errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
-                errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
+            case Some((inlay, text)) =>
+              val sameUiShown = errorTooltip.exists(ui => text.errorTooltip.map(_.message).contains(ui.message) && !ui.isDisposed)
+              if (text.errorTooltip.nonEmpty && !sameUiShown) {
+                errorTooltip.foreach(_.cancel())
+                errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, _, e.getMouseEvent, inlay))
+                errorTooltip.foreach(_.addHideListener(() => errorTooltip = None))
               }
             case None =>
-              errorTooltip.foreach(_.hide())
+              errorTooltip.foreach(_.cancel())
           }
           deactivateActiveHyperlink(e.getEditor)
         }
@@ -112,8 +120,8 @@ class MouseHandler extends ProjectManagerListener {
 
   override def projectOpened(project: Project): Unit = {
     val multicaster = EditorFactory.getInstance().getEventMulticaster
-    multicaster.addEditorMouseListener(mousePressListener, project)
-    multicaster.addEditorMouseMotionListener(mouseMovedListener, project)
+    multicaster.addEditorMouseListener(mousePressListener, project.unloadAwareDisposable)
+    multicaster.addEditorMouseMotionListener(mouseMovedListener, project.unloadAwareDisposable)
   }
 
   override def projectClosed(project: Project): Unit = {
@@ -145,8 +153,8 @@ class MouseHandler extends ProjectManagerListener {
     inlay.repaint()
     UIUtil.setCursor(editor.getContentComponent, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
 
-    if (!hyperlinkTooltip.exists(_.isVisible)) {
-      hyperlinkTooltip = text.tooltip.map(showTooltip(editor, event, _))
+    if (!hyperlinkTooltip.exists(_.isDisposed)) {
+      hyperlinkTooltip = text.tooltip.map(showTooltip(editor, event, _, inlay))
     }
 
     editor.getContentComponent.addKeyListener(new KeyAdapter {
@@ -174,7 +182,7 @@ class MouseHandler extends ProjectManagerListener {
     }
     activeHyperlink = None
 
-    hyperlinkTooltip.foreach(_.hide())
+    hyperlinkTooltip.foreach(_.cancel())
     hyperlinkTooltip = None
   }
 
@@ -225,30 +233,12 @@ class MouseHandler extends ProjectManagerListener {
     }
   }
 
-  private def showTooltip(editor: Editor, e: MouseEvent, text: String): LightweightHint = {
-    val hint = {
-      // TODO Why HTML is rewritten by com.intellij.ide.IdeTooltipManager.initPane(com.intellij.util.ui.Html, com.intellij.ui.HintHint, javax.swing.JLayeredPane) ?
-      val label = if (text.contains(ScalaCodeInsightBundle.message("type.mismatch.dot"))) new JLabel(text) else HintUtil.createInformationLabel(text)
-      label.setBorder(JBUI.Borders.empty(6, 6, 5, 6))
-      new LightweightHint(label)
-    }
+  private def showTooltip(editor: Editor, errorTooltip: ErrorTooltip, e: MouseEvent, inlay: Inlay): TooltipUI = {
+    TooltipUI(errorTooltip, editor).show(editor, e.getPoint, inlay.getOffset)
+  }
 
-    val constraint = HintManager.ABOVE
-
-    val point = {
-      val p = HintManagerImpl.getHintPosition(hint, editor,
-        editor.xyToVisualPosition(e.getPoint), constraint)
-      p.x = e.getXOnScreen - editor.getContentComponent.getTopLevelAncestor.getLocationOnScreen.x
-      p
-    }
-
-    val manager = HintManagerImpl.getInstanceImpl
-
-    manager.showEditorHint(hint, editor, point,
-      HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING, 0, false,
-      HintManagerImpl.createHintHint(editor, point, hint, constraint).setContentActive(false))
-
-    hint
+  private def showTooltip(editor: Editor, e: MouseEvent, text: String, inlay: Inlay): TooltipUI = {
+    TooltipUI(text, editor).show(editor, e.getPoint, inlay.getOffset)
   }
 
   private def highlightMatches(editor: Editor, inlay: Inlay, text: Text): Unit = {

@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, ScalaAddImportAction, TypeAliasToImport}
+import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, TypeAliasToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -25,8 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroD
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -174,13 +174,12 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                 case (qual, true) => createReferenceFromText(qual, getContext, this)
                 case (qual, false) => createReferenceFromText(qual)
               }) {
+                val importsHolder = ScImportsHolder(this)
                 c match {
                   case ClassToImport(clazz) =>
-                    ScalaAddImportAction.getImportHolder(ref = this, project = getProject).
-                      addImportForClass(clazz, ref = this)
+                    importsHolder.addImportForClass(clazz, ref = this)
                   case ta =>
-                    ScalaAddImportAction.getImportHolder(ref = this, project = getProject).
-                      addImportForPath(ta.qualifiedName, ref = this)
+                    importsHolder.addImportForPath(ta.qualifiedName, ref = this)
                 }
                 if (qualifier.isDefined) {
                   //let's make our reference unqualified
@@ -482,13 +481,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         }
       }
     }
-    if (!accessibilityCheck)
-      processor.doNotCheckAccessibility()
-    var x = false
+
+    if (!accessibilityCheck) processor.doNotCheckAccessibility()
     //performance improvement
     ScalaPsiUtil.fileContext(this) match {
       case s: ScalaFile if s.isCompiled =>
-        x = true
         //todo: improve checking for this and super
         val refText = getText
 

@@ -1,27 +1,26 @@
-package org.jetbrains.plugins.scala
-package lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc
 
 import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.openapi.editor.{Document, EditorFactory}
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase.MyDataContext
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.ShortCaretMarker
 import org.junit.Assert._
 
 
 // TODO: unify with org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase ?
-abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter
+  with ShortCaretMarker{
 
   protected def editor = getEditor
   protected def file = getFile
-
-  protected val | = CARET
-  protected val || = s"/**$CARET"
 
   override protected def setUp(): Unit = {
     super.setUp()

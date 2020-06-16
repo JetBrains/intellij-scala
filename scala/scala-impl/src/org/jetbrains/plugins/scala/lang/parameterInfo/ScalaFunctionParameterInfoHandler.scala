@@ -13,7 +13,6 @@ import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.AnnotationParameters
@@ -26,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ModifiersRenderer, ParameterRenderer, TypeAnnotationRenderer, TypeRenderer}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -103,8 +104,16 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
+
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaDocumentationProvider.parseParameter(param, escape = false, memberModifiers = false)(subst(_).presentableText)
+          val typeRenderer: TypeRenderer = subst(_).presentableText
+          val renderer = new ParameterRenderer(
+            typeRenderer,
+            ModifiersRenderer.SimpleText(),
+            new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll),
+            withAnnotations = true
+          )
+          renderer.render(param)
         }
         p match {
           case x: String if x == "" =>
