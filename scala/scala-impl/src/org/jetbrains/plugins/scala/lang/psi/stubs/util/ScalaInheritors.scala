@@ -6,27 +6,88 @@ package util
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.searches.{ClassInheritorsSearch, ReferencesSearch}
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.SearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParenthesisedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.getSignatures
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.macroAnnotations.ModCount
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
 object ScalaInheritors {
+  private val defaultParents   : Array[String] = Array("Object")
+  private val caseClassDefaults: Array[String] = defaultParents :+ "Product" :+ "Serializable"
+
+  def directSupersNames(extBlock: ScExtendsBlock): Array[String] = {
+    def default = if (extBlock.isUnderCaseClass) caseClassDefaults else defaultParents
+
+    collectForDirectSuperReferences(extBlock, _.refName) ++ default
+  }
+
+  private def directSuperReferenceTexts(extendsBlock: ScExtendsBlock): Array[String] = {
+    collectForDirectSuperReferences(extendsBlock, _.getText)
+  }
+
+  private def collectForDirectSuperReferences(extBlock: ScExtendsBlock,
+                                                 function: ScStableCodeReference => String): Array[String] = {
+    @tailrec
+    def extractReference(te: ScTypeElement): Option[ScStableCodeReference] = {
+      te match {
+        case simpleType: ScSimpleTypeElement => simpleType.reference
+        case infixType: ScInfixTypeElement => Option(infixType.operation)
+        case x: ScParameterizedTypeElement => extractReference(x.typeElement)
+        case x: ScParenthesisedTypeElement =>
+          x.innerElement match {
+            case Some(e) => extractReference(e)
+            case _ => None
+          }
+        case _ => None
+      }
+    }
+
+    extBlock.templateParents match {
+      case None => Array.empty
+      case Some(parents) =>
+        val parentElements = parents.typeElements.iterator
+        val result = new ArrayBuffer[String]()
+        while (parentElements.hasNext) {
+          extractReference(parentElements.next()) match {
+            case Some(value) =>
+              result += function(value)
+            case _ =>
+          }
+        }
+        result.toArray
+    }
+  }
 
   def directInheritorCandidates(clazz: PsiClass, scope: SearchScope): Seq[ScTemplateDefinition] =
     scope match {
@@ -37,6 +98,7 @@ object ScalaInheritors {
 
   def directInheritorCandidates(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.name
+    val qName = clazz.qualifiedNameOpt.getOrElse(name)
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
 
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
@@ -48,7 +110,12 @@ object ScalaInheritors {
     while (extendsBlocks.hasNext) {
       val extendsBlock = extendsBlocks.next
       extendsBlock.getParent match {
-        case tp: ScTemplateDefinition => inheritors += tp
+        case tp: ScTemplateDefinition =>
+          // simple names are stored in index, but in decompiled files they are qualified
+          val superReferenceTexts = directSuperReferenceTexts(extendsBlock).map(_.stripPrefix("_root_."))
+          if (superReferenceTexts.exists(qName.endsWith)) {
+            inheritors += tp
+          }
         case _ =>
       }
     }
