@@ -20,7 +20,7 @@ private[completion] final class ExtensionMethodsFinder(originalType: ScType, pla
   private lazy val originalTypeMemberNames: collection.Set[String] = candidatesForType(originalType).map(_.name)
 
   override protected def candidates: Iterable[GlobalMemberResult] = for {
-    (GlobalImplicitConversion(classToImport, elementToImport), conversionData) <- ImplicitConversionCache.getOrScheduleUpdate(place.resolveScope)(place.getProject)
+    (GlobalImplicitConversion(classToImport, elementToImport), conversionData) <- ImplicitConversionCache(place.getProject).getOrScheduleUpdate(place.resolveScope)
     if ImplicitConversionProcessor.applicable(elementToImport, place)
 
     (resultType, _) <- ScImplicitlyConvertible.targetTypeAndSubstitutor(

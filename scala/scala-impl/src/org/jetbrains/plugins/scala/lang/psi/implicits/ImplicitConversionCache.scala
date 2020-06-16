@@ -3,10 +3,15 @@ package lang
 package psi
 package implicits
 
-import java.util.concurrent.{Callable, ConcurrentHashMap, TimeUnit}
+import java.util.concurrent.Callable
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
-import com.intellij.openapi.application.{ApplicationManager, ReadAction}
-import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.LowMemoryWatcher
 import com.intellij.openapi.util.LowMemoryWatcher.LowMemoryWatcherType
 import com.intellij.psi.search.GlobalSearchScope
@@ -17,20 +22,20 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 import scala.util.Try
 
-object ImplicitConversionCache {
+@Service
+final class ImplicitConversionCache(implicit val project: Project) extends Disposable {
 
   import GlobalImplicitConversion._
 
   private val implicitConversionDataCache = new ConcurrentHashMap[GlobalSearchScope, Timestamped[ImplicitConversionMap]]
 
+  LowMemoryWatcher.register(() => implicitConversionDataCache.clear(), LowMemoryWatcherType.ALWAYS, this)
+
   private val defaultTimeoutMs: Int =
     if (ApplicationManager.getApplication.isUnitTestMode) 10000
     else 100
 
-  registerCleanups()
-
-  def getOrScheduleUpdate(scope: GlobalSearchScope)
-                         (implicit project: Project): ImplicitConversionMap = {
+  def getOrScheduleUpdate(scope: GlobalSearchScope): ImplicitConversionMap = {
     val currentCount = currentTopLevelModCount
 
     implicitConversionDataCache.get(scope) match {
@@ -48,26 +53,9 @@ object ImplicitConversionCache {
     }
   }
 
-  private def registerCleanups(): Unit = {
-    val listener = new ProjectManagerListener with Runnable {
+  override def dispose(): Unit = implicitConversionDataCache.clear()
 
-      override def run(): Unit = {
-        implicitConversionDataCache.clear()
-      }
-
-      override def projectClosed(project: Project): Unit = run()
-    }
-
-    LowMemoryWatcher.register(listener, LowMemoryWatcherType.ALWAYS)
-
-    ApplicationManager.getApplication
-      .getMessageBus
-      .connect
-      .subscribe(ProjectManager.TOPIC, listener)
-  }
-
-  private def scheduleUpdateFor(scope: GlobalSearchScope)
-                               (implicit project: Project): CancellablePromise[Timestamped[ImplicitConversionMap]] = {
+  private def scheduleUpdateFor(scope: GlobalSearchScope): CancellablePromise[Timestamped[ImplicitConversionMap]] = {
     val callback: Callable[Timestamped[ImplicitConversionMap]] = () => {
       val currentCount = currentTopLevelModCount
       implicitConversionDataCache.computeIfAbsent(
@@ -80,6 +68,10 @@ object ImplicitConversionCache {
       .submit(AppExecutorUtil.getAppExecutorService)
   }
 
-  private def currentTopLevelModCount(implicit project: Project) =
+  private def currentTopLevelModCount =
     ScalaPsiManager.instance.TopLevelModificationTracker.getModificationCount
+}
+
+object ImplicitConversionCache {
+  def apply(project: Project): ImplicitConversionCache = project.getService(classOf[ImplicitConversionCache])
 }
