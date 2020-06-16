@@ -169,7 +169,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       throw new RuntimeException("Unable to find parent doc comment")
     }
 
-    def isScalaDocList(str: String) = str.startsWith("- ") || Pattern.matches("^([MDCLXVI]+|[a-zA-Z]+|\\d+)\\..+", str)
+    def isScalaDocListHead(node: ASTNode): Boolean = node.getElementType == ScalaDocTokenType.DOC_LIST_ITEM_HEAD
 
     val tagSpacing =
       if (scalaSettings.SD_PRESERVE_SPACES_IN_TAGS)
@@ -190,7 +190,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(y) && !scalaSettings.ENABLE_SCALADOC_FORMATTING =>
         Spacing.getReadOnlySpacing
       case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _, _) =>
-        if (isScalaDocList(getText(rightNode, fileText))) Spacing.getReadOnlySpacing
+        if (isScalaDocListHead(rightNode)) Spacing.getReadOnlySpacing
         else if (getText(rightNode, fileText).apply(0) == ' ') WITHOUT_SPACING
         else WITH_SPACING
       case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _) =>

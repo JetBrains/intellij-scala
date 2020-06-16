@@ -21,6 +21,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 %%
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ATTENTION!
+// Some extra lexer magic is done inside
+// org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocAsteriskStripperLexer
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 %class _ScalaDocLexer
 %implements FlexLexer, ScalaDocTokenType, ScalaTokenTypes
 %unicode
@@ -59,11 +65,13 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////// ScalaDoc lexems ////////////////////////////////////////////////////////////////////////////////////////////
+////////// ScalaDoc lexems /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %state COMMENT_DATA_START
 %state COMMENT_DATA
+%state LIST_ITEM_HEAD
+%state LIST_ITEM_DATA_START
 %state TAG_DOC_SPACE
 %state PARAM_TAG_DOC_SPACE
 %state PARAM_THROWS_TAG_DOC_SPACE
@@ -100,6 +108,8 @@ MACRO_IDENTIFIER=("{" .* "}") | ({ALPHA} | {DIGIT})+ // SCL-9720
 COMMENT_BEGIN = "/*"
 DOC_COMMENT_BEGIN = "/*""*"
 COMMENT_END = "*/"
+
+LIST_ITEM_HEAD_REG= (\-|1\.|I\.|i\.|A\.|a\.)
 
 /////////////////////////////////// for arbitrary scala identifiers////////////////////////////////////////////////////
 special = \u0021 | \u0023 | [\u0025-\u0026] | [\u002A-\u002B] | \u002D | \u005E | \u003A| [\u003C-\u0040]| \u007E
@@ -145,6 +155,17 @@ plainid = {varid} | {op}
     return DOC_COMMENT_DATA;
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// List item head, e.g. '  1. list item'
+////////////////////////////////////////////////////////////////////////////////////////////
+// looks like jlex doesn't support {2,} syntax (2 or more), using fixed big magic constant
+<COMMENT_DATA_START> {WHITE_DOC_SPACE_NO_NL}{2,999} / {LIST_ITEM_HEAD_REG}{WHITE_DOC_SPACE_CHAR} {
+  yybegin(LIST_ITEM_HEAD); return DOC_WHITESPACE;
+}
+<LIST_ITEM_HEAD> {LIST_ITEM_HEAD_REG} / {WHITE_DOC_SPACE_CHAR} { yybegin(LIST_ITEM_DATA_START); return DOC_LIST_ITEM_HEAD; }
+<LIST_ITEM_DATA_START> {WHITE_DOC_SPACE_CHAR}+ { yybegin(COMMENT_DATA); return DOC_WHITESPACE; }
+
 
 <COMMENT_DATA_START> {WHITE_DOC_SPACE_CHAR}+ { return DOC_WHITESPACE; }
 <COMMENT_DATA>  {WHITE_DOC_SPACE_NO_NL}+ { return DOC_COMMENT_DATA; }
@@ -289,7 +310,7 @@ plainid = {varid} | {op}
 <COMMENT_DATA_START> "@define" {yybegin(PARAM_DEFINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <PARAM_DEFINE_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_DEFINE_TAG_VALUE); return DOC_COMMENT_DATA;}
 <PARAM_DOC_DEFINE_TAG_VALUE> {MACRO_IDENTIFIER} { yybegin(DOC_TAG_VALUE_SPACE); return DOC_TAG_VALUE_TOKEN; }
-      
+
 <PARAM_DEFINE_TAG_DOC_SPACE, PARAM_DOC_DEFINE_TAG_VALUE> [^] {
   yypushback(1);
   yybegin(COMMENT_DATA);

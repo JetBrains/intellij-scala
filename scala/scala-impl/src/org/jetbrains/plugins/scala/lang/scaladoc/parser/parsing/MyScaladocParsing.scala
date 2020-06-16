@@ -72,6 +72,8 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
       case DOC_COMMENT_DATA | DOC_COMMENT_BAD_CHARACTER | DOC_WHITESPACE | DOC_COMMENT_LEADING_ASTERISKS |
            DOC_COMMENT_START | DOC_COMMENT_END | DOC_MACROS =>
         builder.advanceLexer()
+      case DOC_LIST_ITEM_HEAD =>
+        builder.advanceLexer()
       case badToken @ _ =>
         System.out.println(ScalaBundle.message("error.bad.token", badToken))
         builder.advanceLexer()

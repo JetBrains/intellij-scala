@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.scaladoclexer;
+package org.jetbrains.plugins.scala.lang.scaladoc.lexer;
 
 import com.intellij.lang.Language;
 import junit.framework.Test;

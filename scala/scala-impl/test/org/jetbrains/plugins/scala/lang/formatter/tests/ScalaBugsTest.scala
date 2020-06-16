@@ -1768,7 +1768,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         | *    line 2
         | * 1. 1
         | * line 2
-        | *  1.1 1.1
+        | *  1.1 1.1 // not a list item (no space after)
         | *  line 2
         | * 2. 2
         | * i. 1
@@ -1776,12 +1776,13 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         | *  i. 1.1
         | * ii. 2
         | * A. 1
-        | * B. 2
-        | *   B. 3
+        | * A. 2
+        | *   A. 3
+        | *   A.A.A.A // not a list item (no space after)
         | *  line 2
         | * a. 1
-        | *   c. 1.1
-        | * b. 2
+        | *   a. 1.1
+        | * a. 2
         | */
         |val a = 42
       """.stripMargin
@@ -1801,7 +1802,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         | * line 2
         | * 1. 1
         | * line 2
-        | *  1.1 1.1
+        | * 1.1 1.1 // not a list item (no space after)
         | * line 2
         | * 2. 2
         | * i. 1
@@ -1809,12 +1810,13 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         | *  i. 1.1
         | * ii. 2
         | * A. 1
-        | * B. 2
-        | *   B. 3
+        | * A. 2
+        | *   A. 3
+        | * A.A.A.A // not a list item (no space after)
         | * line 2
         | * a. 1
-        | *   c. 1.1
-        | * b. 2
+        | *   a. 1.1
+        | * a. 2
         | */
         |val a = 42
       """.stripMargin

@@ -101,18 +101,20 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
       val lf = skipWhiteSpaces()
 
       val state = myFlex.yystate
-      if (state == _ScalaDocLexer.COMMENT_DATA ||
+
+      val isCommentDataStart  = state == _ScalaDocLexer.COMMENT_DATA ||
         !isEof() &&
           (myBuffer.charAt(myTokenEndOffset) match {
             case '@' | '{' | '\"' | '<' => true
             case _                      => false
           }) &&
           state != _ScalaDocLexer.COMMENT_INNER_CODE
-      )
+      if (isCommentDataStart)
         myFlex.yybegin(_ScalaDocLexer.COMMENT_DATA_START)
 
-
-      if (myBufferIndex < myTokenEndOffset) {
+      if (myFlex.yystate() == _ScalaDocLexer.COMMENT_DATA_START)
+        flexLocateToken()
+      else if (myBufferIndex < myTokenEndOffset) {
         val tokenType = if (lf)
           DOC_WHITESPACE
         else if (isInTagSpace(state))
@@ -125,11 +127,10 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
           DOC_WHITESPACE
 
         myTokenType = tokenType
-        return
       }
     }
-
-    flexLocateToken()
+    else
+      flexLocateToken()
   }
 
   @inline private def hasChar(idx: Int, c: Char): Boolean =
@@ -173,8 +174,8 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
     myState = myFlex.yystate
     myFlex.goTo(myBufferIndex)
     myTokenType = myFlex.advance
-
     myTokenEndOffset = myFlex.getTokenEnd
+
     if (
       myTokenType == DOC_BOLD_TAG &&
         myTokenEndOffset < myBufferEndOffset - 1 &&
