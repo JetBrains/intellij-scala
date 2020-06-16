@@ -15,8 +15,8 @@ import org.junit.Assert._
 
 case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryLoader {
 
-  private object DependencyManager extends DependencyManagerBase {
-    override protected val artifactBlackList = Set.empty[String]
+  protected lazy val dependencyManager: DependencyManagerBase = new DependencyManagerBase {
+    override protected val artifactBlackList: Set[String] = Set.empty
   }
 
   import DependencyManagerBase._
@@ -46,13 +46,13 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
     scalaLibraryDescription % Types.SRC
 
   final def sourceRoot(implicit version: ScalaVersion): VirtualFile = {
-    val ResolvedDependency(_, file) = DependencyManager.resolveSingle(sourcesDependency)
+    val ResolvedDependency(_, file) = dependencyManager.resolveSingle(sourcesDependency)
     findJarFile(file)
   }
 
   override final def init(implicit module: Module, version: ScalaVersion): Unit = {
     val dependencies = binaryDependencies
-    val resolved = DependencyManager.resolve(dependencies: _*)
+    val resolved = dependencyManager.resolve(dependencies: _*)
 
     if (version.languageLevel == ScalaLanguageLevel.Scala_3_0)
       assertTrue(
