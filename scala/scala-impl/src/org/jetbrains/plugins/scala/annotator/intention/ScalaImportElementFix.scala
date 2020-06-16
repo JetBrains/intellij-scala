@@ -20,8 +20,8 @@ import org.jetbrains.plugins.scala.extensions.executeUndoTransparentAction
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
-abstract class ScalaImportElementFix(elements: Array[ElementToImport],
-                                     place: PsiElement) extends HintAction {
+abstract class ScalaImportElementFix(val elements: Array[ElementToImport],
+                                     val place: PsiElement) extends HintAction {
 
   private val modificationCount = currentModCount()
 

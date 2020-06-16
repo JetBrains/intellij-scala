@@ -5,6 +5,7 @@ package template
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.annotator.quickfix.SearchImplicitQuickFix
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
@@ -48,8 +49,9 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
         val annotation = holder.createErrorAnnotation(lastLineRange(element), message(presentableTypes))
 
         val notFound = parameters.filter(_.isNotFoundImplicitParameter)
-        if (notFound.nonEmpty) {
-          SearchImplicitQuickFix(notFound, element).foreach(annotation.registerFix)
+        val importImplicitInstanceFix = ImportImplicitInstanceFix(notFound, element)
+        if (importImplicitInstanceFix.exists(_.isAvailable)) {
+          importImplicitInstanceFix.foreach(annotation.registerFix)
         }
 
         //make annotation invisible in editor in favor of inlay hint
