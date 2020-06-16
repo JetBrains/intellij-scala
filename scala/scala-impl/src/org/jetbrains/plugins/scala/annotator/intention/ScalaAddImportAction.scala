@@ -117,9 +117,9 @@ sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor,
 
 object ScalaAddImportAction {
 
-  def apply(reference: ScReference,
-            variants: Array[ElementToImport])
-           (implicit editor: Editor): ScalaAddImportAction[_] = reference match {
+  def apply(editor: Editor,
+            reference: ScReference,
+            variants: Array[ElementToImport]): ScalaAddImportAction[_] = reference match {
     case reference: ScDocResolvableCodeReference => new ForScalaDoc(editor, variants, reference)
     case _ => new ForReference(editor, variants, reference)
   }

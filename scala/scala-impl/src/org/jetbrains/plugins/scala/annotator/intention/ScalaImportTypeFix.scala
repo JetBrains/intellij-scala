@@ -2,31 +2,30 @@ package org.jetbrains.plugins.scala
 package annotator
 package intention
 
-import java.awt.Point
-
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
-import com.intellij.codeInsight.hint.HintManagerImpl
 import com.intellij.codeInsight.intention.HighPriorityAction
-import com.intellij.codeInspection.HintAction
-import com.intellij.openapi.editor.{Editor, LogicalPosition}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{getCompanionModule, hasStablePath}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.hasStablePath
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScSugarCallExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSugarCallExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.{isAccessible, kindMatches}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.kindMatches
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
 
@@ -34,20 +33,14 @@ import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
  * User: Alexander Podkhalyuzin
  * Date: 15.07.2009
  */
-final class ScalaImportTypeFix private(private var classes_ : Array[ElementToImport], ref: ScReference)
-  extends HintAction with HighPriorityAction {
+final class ScalaImportTypeFix private(elements: Array[ElementToImport], ref: ScReference)
+  extends ScalaImportElementFix(elements, ref) with HighPriorityAction {
 
-  import ScalaImportTypeFix._
-
-  def classes: Array[ElementToImport] = classes_
-
-  def isValid: Boolean = classes.nonEmpty
-
-  override def getText: String = classes match {
+  override def getText: String = elements match {
     case Array(head) =>
       ScalaBundle.message("import.with", head.qualifiedName)
     case _ =>
-      ElementToImport.messageByType(classes)(
+      ElementToImport.messageByType(elements)(
         ScalaBundle.message("import.class"),
         ScalaBundle.message("import.package"),
         ScalaBundle.message("import.something")
@@ -56,80 +49,18 @@ final class ScalaImportTypeFix private(private var classes_ : Array[ElementToImp
 
   override def getFamilyName: String = ScalaBundle.message("import.class")
 
-  override def isAvailable(project: Project,
-                           editor: Editor,
-                           file: PsiFile): Boolean = file.hasScalaPsi
+  override def isAvailable: Boolean =
+    super.isAvailable && ref.qualifier.isEmpty && !isSugarCallReference
 
-  override def invoke(project: Project,
-                      editor: Editor,
-                      file: PsiFile): Unit = executeUndoTransparentAction {
-    if (ref.isValid) {
-      classes_ = getTypesToImport(ref)
-      addImportAction(editor).execute()
-    }
+  private def isSugarCallReference: Boolean = ref.getContext match {
+    case ScSugarCallExpr(_, `ref`, _) => true
+    case _ => false
   }
 
-  override def showHint(editor: Editor): Boolean = {
-    if (!ref.isValid ||
-      ref.qualifier.isDefined ||
-      isShowErrorsFromCompilerEnabled) return false
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_] =
+    ScalaAddImportAction(editor, ref, elements)
 
-    ref.getContext match {
-      case ScSugarCallExpr(_, `ref`, _) => false
-      case _ =>
-        classes_ = getTypesToImport(ref)
-        classes.length match {
-          case 0 => false
-          case 1 if ScalaApplicationSettings.getInstance.ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
-            !caretNear(editor) =>
-            executeUndoTransparentAction {
-              addImportAction(editor).execute()
-            }
-            false
-          case _ =>
-            invokeLater {
-              fixesAction(editor)
-            }
-            true
-        }
-    }
-  }
-
-  private def caretNear(editor: Editor): Boolean = ref.getTextRange.grown(1).contains(editor.getCaretModel.getOffset)
-
-  private def fixesAction(implicit editor: Editor): Unit = {
-    val hintManager = HintManagerImpl.getInstanceImpl
-    val TextRangeExt(refStart, refEnd) = ref.getTextRange
-
-    if (ref.isValid &&
-      ref.resolve() == null &&
-      classes.nonEmpty &&
-      !hintManager.hasShownHintsThatWillHideByOtherHint(true) &&
-      editorRange.containsOffset(refStart) &&
-      refEnd < editor.getDocument.getTextLength) {
-      val hintText = ScalaBundle.message(
-        "import.hint.text",
-        classes.head.qualifiedName,
-        if (classes.length == 1) "" else ScalaBundle.message("import.multiple.choices")
-      )
-
-      hintManager.showQuestionHint(
-        editor,
-        hintText,
-        refStart,
-        refEnd,
-        addImportAction
-      )
-    }
-  }
-
-  override def startInWriteAction: Boolean = true
-
-  private def addImportAction(implicit editor: Editor) =
-    ScalaAddImportAction(ref, classes)
-
-  private def isShowErrorsFromCompilerEnabled =
-    ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(ref.getContainingFile)
+  override def isAddUnambiguous: Boolean = ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY
 }
 
 object ScalaImportTypeFix {
@@ -160,7 +91,7 @@ object ScalaImportTypeFix {
     case _ => true
   }
 
-  private def getTypesToImport(ref: ScReference): Array[ElementToImport] = {
+  def getTypesToImport(ref: ScReference): Array[ElementToImport] = {
     if (!ref.isValid || ref.isInstanceOf[ScTypeProjection])
       return Array.empty
 
@@ -250,21 +181,6 @@ object ScalaImportTypeFix {
       packages)
       .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
       .toArray
-  }
-
-  private def editorRange(implicit editor: Editor) = {
-    val visibleRectangle = editor.getScrollingModel.getVisibleArea
-
-    val startPosition = editor.xyToLogicalPosition(visibleRectangle.getLocation)
-    val startOffset = editor.logicalPositionToOffset(startPosition)
-
-    val endPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x + visibleRectangle.width, visibleRectangle.y + visibleRectangle.height))
-    val endOffset = editor.logicalPositionToOffset(new LogicalPosition(endPosition.line + 1, 0))
-
-    TextRange.create(
-      startOffset,
-      startOffset max endOffset
-    )
   }
 
   private def hasApplyMethod(`class`: PsiClass) = `class` match {
