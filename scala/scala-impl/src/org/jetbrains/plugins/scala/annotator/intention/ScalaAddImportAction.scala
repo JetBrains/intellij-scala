@@ -52,6 +52,7 @@ sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor,
       ScalaBundle.message("import.something.chooser.title")
     )
 
+  protected def mayExcludeImports: Boolean = true
 
   private def showChooser(validVariants: Array[ElementToImport]): Unit = {
     val title = chooserTitle(validVariants)
@@ -79,7 +80,9 @@ sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor,
           return FINAL_CHOICE
         }
         val qname: String = selectedValue.qualifiedName
-        if (qname == null) return FINAL_CHOICE
+        if (qname == null || !mayExcludeImports)
+          return FINAL_CHOICE
+
         val toExclude: java.util.List[String] = AddImportAction.getAllExcludableStrings(qname)
         new BaseListPopupStep[String](null, toExclude) {
           override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
@@ -95,9 +98,7 @@ sealed abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor,
         }
       }
 
-      override def hasSubstep(selectedValue: ElementToImport): Boolean = {
-        true
-      }
+      override def hasSubstep(selectedValue: ElementToImport): Boolean = mayExcludeImports
     }
     val popup = JBPopupFactory.getInstance.createListPopup(firstPopupStep)
     popupPosition.showPopup(popup, editor)
@@ -157,6 +158,8 @@ object ScalaAddImportAction {
                                       title: String,
                                       popupPosition: PopupPosition)
     extends ScalaAddImportAction(editor, variants, place, popupPosition) {
+
+    override protected def mayExcludeImports: Boolean = false
 
     override protected def chooserTitle(variants: Array[ElementToImport]): String = title
 
