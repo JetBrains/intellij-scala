@@ -1,6 +1,6 @@
 /**
   *__underlined text__ ^''mixed syntax''^ [[http://google.com ^http link^]]
-  * [[code.Link.~ with bad syntax at the end]] [[http://google.com and this is valid
+  * [[code.Link.~ code link label]] [[http://google.com and this is valid
   * link]] {{{
   * class A extends B with C {
   * var a: Int = 0
@@ -38,7 +38,8 @@ DOC_ITALIC_TAG 2 {''}
 DOC_SUPERSCRIPT_TAG 16 {^}
 DOC_COMMENT_DATA { }
 DOC_HTTP_LINK_TAG 128 {[[}
-DOC_COMMENT_DATA {http://google.com }
+DOC_HTTP_LINK_VALUE {http://google.com}
+DOC_WHITESPACE { }
 DOC_SUPERSCRIPT_TAG 16 {^}
 DOC_COMMENT_DATA {http link}
 DOC_SUPERSCRIPT_TAG 16 {^}
@@ -53,37 +54,14 @@ identifier {code}
 identifier {Link}
 . {.}
 identifier {~}
-DOC_COMMENT_BAD_CHARACTER { }
-DOC_COMMENT_BAD_CHARACTER {w}
-DOC_COMMENT_BAD_CHARACTER {i}
-DOC_COMMENT_BAD_CHARACTER {t}
-DOC_COMMENT_BAD_CHARACTER {h}
-DOC_COMMENT_BAD_CHARACTER { }
-DOC_COMMENT_BAD_CHARACTER {b}
-DOC_COMMENT_BAD_CHARACTER {a}
-DOC_COMMENT_BAD_CHARACTER {d}
-DOC_COMMENT_BAD_CHARACTER { }
-DOC_COMMENT_BAD_CHARACTER {s}
-DOC_COMMENT_BAD_CHARACTER {y}
-DOC_COMMENT_BAD_CHARACTER {n}
-DOC_COMMENT_BAD_CHARACTER {t}
-DOC_COMMENT_BAD_CHARACTER {a}
-DOC_COMMENT_BAD_CHARACTER {x}
-DOC_COMMENT_BAD_CHARACTER { }
-DOC_COMMENT_BAD_CHARACTER {a}
-DOC_COMMENT_BAD_CHARACTER {t}
-DOC_COMMENT_BAD_CHARACTER { }
-DOC_COMMENT_BAD_CHARACTER {t}
-DOC_COMMENT_BAD_CHARACTER {h}
-DOC_COMMENT_BAD_CHARACTER {e}
-DOC_COMMENT_BAD_CHARACTER { }
-DOC_COMMENT_BAD_CHARACTER {e}
-DOC_COMMENT_BAD_CHARACTER {n}
-DOC_COMMENT_BAD_CHARACTER {d}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {code link label}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_COMMENT_DATA { }
 DOC_HTTP_LINK_TAG 128 {[[}
-DOC_COMMENT_DATA {http://google.com and this is valid}
+DOC_HTTP_LINK_VALUE {http://google.com}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {and this is valid}
 DOC_WHITESPACE {
   }
 DOC_COMMENT_LEADING_ASTERISKS {*}
@@ -168,7 +146,9 @@ DOC_WHITESPACE { }
 DOC_TAG_NAME {@see}
 DOC_WHITESPACE { }
 DOC_HTTP_LINK_TAG 128 {[[}
-DOC_COMMENT_DATA {http://scala-lang.org this link}
+DOC_HTTP_LINK_VALUE {http://scala-lang.org}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {this link}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_WHITESPACE {
   }
