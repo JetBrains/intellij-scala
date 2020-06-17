@@ -11,6 +11,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader._
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 class ScalaCompilerLoader extends StartupActivity.DumbAware {
   override def runActivity(project: Project): Unit = {
@@ -18,7 +19,7 @@ class ScalaCompilerLoader extends StartupActivity.DumbAware {
       val mapper = new ScalaNameMapper
       DebuggerManager.getInstance(project).addClassNameMapper(mapper)
 
-      invokeOnScalaPluginUnload(project) {
+      invokeOnDispose(project.unloadAwareDisposable) {
         DebuggerManager.getInstance(project).removeClassNameMapper(mapper)
       }
     }

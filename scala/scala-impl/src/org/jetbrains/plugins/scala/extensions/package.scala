@@ -1267,38 +1267,8 @@ package object extensions {
     connection.subscribe(DynamicPluginListener.TOPIC, listener)
   }
 
-  def invokeOnAnyPluginUnload(body: => Unit): Disposable = {
-    val disposable = Disposer.newDisposable()
-    registerDynamicPluginListener(new DynamicPluginListener {
-      override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
-        body
-        if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
-          // last time we are called before unload
-          Disposer.dispose(disposable)
-        }
-      }
-    }, disposable)
-    disposable
-  }
-
-  def invokeOnScalaPluginUnload(body: => Unit): Disposable = {
-    val disposable = Disposer.newDisposable()
-    registerDynamicPluginListener(new DynamicPluginListener {
-      override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit = {
-        if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
-          body
-          Disposer.dispose(disposable)
-        }
-      }
-    }, disposable)
-    disposable
-  }
-
-  def invokeOnScalaPluginUnload(parentDisposable: Disposable)(body: => Unit): Disposable = {
-    val disposable = invokeOnScalaPluginUnload(body)
-    Disposer.register(parentDisposable, disposable)
-    disposable
-  }
+  def invokeOnDispose(parentDisposable: Disposable)(body: => Unit): Unit =
+    Disposer.register(parentDisposable, () => body)
 
   private def preservingControlFlow(body: => Unit): Unit =
     try {
