@@ -61,6 +61,9 @@ object ImportImplicitInstanceFix {
       allInstances
         .distinctBy(_.instance)
         .filterNot(x => alreadyImported.contains(x.instance))
+        .sortBy {
+          case FoundImplicit(instance, path, scType) => (path.size, scType.hashCode(), instance.qualifiedName)
+        }
 
     if (instances.nonEmpty)
       Some(new ImportImplicitInstanceFix(instances.toArray, owner, popupPosition))

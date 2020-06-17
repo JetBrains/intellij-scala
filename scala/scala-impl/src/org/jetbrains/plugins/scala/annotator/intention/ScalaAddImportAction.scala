@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.ListSeparator
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
@@ -56,6 +57,8 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
       ScalaBundle.message("import.something.chooser.title")
     )
 
+  protected def separatorAbove(variant: Elem): ListSeparator = null
+
   private def showChooser(validVariants: Seq[Elem]): Unit = {
     val title = chooserTitle(validVariants)
     val firstPopupStep: BaseListPopupStep[Elem] = new BaseListPopupStep[Elem](title, validVariants: _*) {
@@ -70,6 +73,8 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
       override def isSpeedSearchEnabled: Boolean = true
 
       import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
+
+      override def getSeparatorAbove(value: Elem): ListSeparator = separatorAbove(value)
 
       override def onChosen(selectedValue: Elem, finalChoice: Boolean): PopupStep[_] = {
         if (selectedValue == null) {
@@ -180,6 +185,13 @@ object ScalaAddImportAction {
 
         override def hasSubstep(selectedValue: ImplicitToImport): Boolean = false
       }
+    }
+
+    override protected def separatorAbove(variant: ImplicitToImport): ListSeparator = {
+      val firstWithType = variants.find(_.found.scType == variant.found.scType).get
+
+      if (firstWithType.found.instance != variant.found.instance) null
+      else new ListSeparator(variant.found.scType.presentableText(place))
     }
 
     override protected def alwaysAsk: Boolean = true
