@@ -230,7 +230,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
-  def testCompanionObjectValue(): Unit = doCompletionTest(
+  def testCompanionObjectValue(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
          |  f$CARET
@@ -251,9 +251,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |object Foo {
          |  val (_, foo) = (42, 42)
          |}
-         |""".stripMargin,
-    item = "foo"
-  )
+         |""".stripMargin
+  ) {
+    hasItemText(_, "foo")(tailText = " in Foo <default>")
+  }
 
   def testNestedCompanionObjectValue(): Unit = doCompletionTest(
     fileText =
@@ -306,7 +307,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin
   ) {
-    hasItemText(_, "foo")(tailText = " in Foo <default>")
+    hasItemText(_, "foo")(
+      itemText = "Foo.foo",
+      tailText = " <default>"
+    )
   }
 
   def testCompanionObjectExtensionLikeMethod(): Unit = doCompletionTest(

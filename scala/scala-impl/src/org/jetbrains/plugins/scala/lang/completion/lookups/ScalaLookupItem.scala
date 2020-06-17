@@ -109,7 +109,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     val itemText =
       if (isRenamed.nonEmpty)
         s"$getLookupString <= ${getPsiElement.name}"
-      else if (isClassName && shouldImport && containingClassName != null)
+      else if (isClassName && !shouldImport && containingClassName != null)
         s"$containingClassName.$getLookupString"
       else getLookupString
 
@@ -173,9 +173,15 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
         case _: ScReferencePattern => // todo should be a ScValueOrVariable instance
           containingClassText
         case fun: ScFunction =>
-          if (etaExpanded) " _"
-          else if (isAssignment) AssignmentText + PresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
-          else typeParametersText(fun) + parametersText(fun.parameterList) + containingClassText
+          if (etaExpanded)
+            " _"
+          else if (isAssignment)
+            AssignmentText +
+              PresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
+          else
+            typeParametersText(fun) +
+              parametersText(fun.parameterList) +
+              containingClassText
         case fun: ScFun =>
           val paramClausesText = fun.paramClauses.map { clause =>
             clause.map {
@@ -233,7 +239,8 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
 
   private def containingClassText =
     if (isClassName && containingClassName != null)
-      (if (shouldImport) "" else " in " + containingClassName) + classLocationSuffix(containingClass)
+      (if (shouldImport) " in " + containingClassName else "") +
+        classLocationSuffix(containingClass)
     else
       ""
 
