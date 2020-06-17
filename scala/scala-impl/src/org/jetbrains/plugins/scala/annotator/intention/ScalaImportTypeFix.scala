@@ -33,11 +33,13 @@ import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
  * User: Alexander Podkhalyuzin
  * Date: 15.07.2009
  */
-final class ScalaImportTypeFix private(elements: Array[ElementToImport], ref: ScReference)
-  extends ScalaImportElementFix(elements, ref) with HighPriorityAction {
+final class ScalaImportTypeFix private (override val elements: Seq[ElementToImport],
+                                        ref: ScReference)
+
+  extends ScalaImportElementFix(ref) with HighPriorityAction {
 
   override def getText: String = elements match {
-    case Array(head) =>
+    case Seq(head) =>
       ScalaBundle.message("import.with", head.qualifiedName)
     case _ =>
       ElementToImport.messageByType(elements)(
@@ -57,7 +59,7 @@ final class ScalaImportTypeFix private(elements: Array[ElementToImport], ref: Sc
     case _ => false
   }
 
-  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_] =
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
     ScalaAddImportAction(editor, ref, elements)
 
   override def isAddUnambiguous: Boolean = ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY

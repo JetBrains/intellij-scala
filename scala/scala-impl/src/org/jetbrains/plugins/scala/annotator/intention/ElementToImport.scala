@@ -4,11 +4,15 @@ package intention
 
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
+import org.jetbrains.plugins.scala.extensions.ClassQualifiedName
+import org.jetbrains.plugins.scala.extensions.ContainingClass
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.implicits.GlobalImplicitInstance
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 sealed trait ElementToImport {
   protected type E <: PsiNamedElement
@@ -24,7 +28,7 @@ sealed trait ElementToImport {
 
 object ElementToImport {
   @Nls
-  def messageByType(toImport: Array[ElementToImport])(@Nls classes: String, @Nls packages: String, @Nls mixed: String): String = {
+  def messageByType(toImport: Seq[ElementToImport])(@Nls classes: String, @Nls packages: String, @Nls mixed: String): String = {
     val toImportSeq = toImport.toSeq
     if (toImportSeq.forall(_.element.isInstanceOf[PsiClass])) classes
     else if (toImportSeq.forall(_.element.isInstanceOf[PsiPackage])) packages
@@ -80,10 +84,17 @@ final case class PrefixPackageToImport(override val element: ScPackage) extends 
   override def qualifiedName: String = element.getQualifiedName
 }
 
-final case class ImplicitToImport(instance: GlobalImplicitInstance) extends ElementToImport {
+final case class ImplicitToImport(found: FoundImplicit) extends ElementToImport {
   protected type E = ScNamedElement
 
-  override def element: ScNamedElement = instance.named
+  override def element: ScNamedElement = found.instance.named
 
-  override def qualifiedName: String = instance.qualifiedName
+  override def qualifiedName: String = found.instance.qualifiedName
+
+  def derivation: String = {
+    val prefix = found.path.dropRight(1).map(_.name).mkString("", "(", "(")
+    val suffix = ")" * (found.path.size - 1)
+
+    s"$prefix$name$suffix"
+  }
 }

@@ -17,9 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.OptionExt
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
 import org.jetbrains.plugins.scala.lang.psi.types.WrongTypeParameterInferred
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 
 final case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) {
 
@@ -76,10 +80,12 @@ object GlobalImplicitInstance {
   }
 
   private def containingObject(srr: ScalaResolveResult): Option[ScObject] = {
-    val scopeObject = srr.implicitScopeObject.flatMap(_.extractClass).flatMap(_.asOptionOf[ScObject])
-    scopeObject.orElse {
-      srr.element.asOptionOf[ScMember].flatMap(_.containingClass.asOptionOf[ScObject])
+    val ownerType = srr.implicitScopeObject.orElse {
+      srr.element.containingClassOfNameContext
+        .filterByType[ScTemplateDefinition]
+        .map(c => srr.substitutor(ScThisType(c)))
     }
+    ownerType.flatMap(_.extractClass).filterByType[ScObject]
   }
 
   private def checkCompatible(global: GlobalImplicitInstance, collector: ImplicitCollector): Boolean = {

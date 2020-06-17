@@ -20,12 +20,13 @@ import org.jetbrains.plugins.scala.extensions.executeUndoTransparentAction
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
-abstract class ScalaImportElementFix(val elements: Array[ElementToImport],
-                                     val place: PsiElement) extends HintAction {
+abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction {
 
   private val modificationCount = currentModCount()
 
-  def createAddImportAction(editor: Editor): ScalaAddImportAction[_]
+  val elements: Seq[ElementToImport]
+
+  def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
 
   def shouldShowHint(): Boolean =
     !isShowErrorsFromCompilerEnabled(place.getContainingFile)
