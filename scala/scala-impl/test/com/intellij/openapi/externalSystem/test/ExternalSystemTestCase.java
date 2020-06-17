@@ -53,6 +53,7 @@ import com.intellij.util.io.TestFileSystemItem;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable;
 import org.junit.After;
 import org.junit.Before;
 
@@ -415,7 +416,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
 
     private void compile(final CompileScope scope) {
         try {
-            CompilerTester tester = new CompilerTester(myProject, Arrays.asList(scope.getAffectedModules()), myProject);
+            CompilerTester tester = new CompilerTester(myProject, Arrays.asList(scope.getAffectedModules()), UnloadAwareDisposable.forProject(myProject));
             try {
                 List<CompilerMessage> messages = tester.make(scope);
                 for (CompilerMessage message : messages) {

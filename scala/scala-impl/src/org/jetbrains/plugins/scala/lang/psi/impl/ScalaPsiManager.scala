@@ -3,8 +3,8 @@ package lang
 package psi
 package impl
 
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
@@ -17,8 +17,8 @@ import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, 
 import com.intellij.util.ObjectUtils
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{CalledInAwt, TestOnly}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, CleanupScheduler, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, CleanupScheduler, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -31,14 +31,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticP
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.{Map => SMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{StableNodes, TermNodes, TypeNodes}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{StableNodes, TermNodes, TypeNodes}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithoutModificationCount, ValueWrapper}
@@ -457,7 +457,7 @@ object ScalaPsiManager {
       LOG.debug("Clear caches on low memory")
       val manager = ScalaPsiManager.instance(project)
       manager.clearOnLowMemory()
-    }, project)
+    }, project.unloadAwareDisposable)
   }
 
   object AnyScalaPsiModificationTracker extends SimpleModificationTracker

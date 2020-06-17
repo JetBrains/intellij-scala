@@ -71,7 +71,7 @@ final class CompileServerManager(project: Project) extends Disposable {
       case (true, true) => // do nothing
       case (true, false) =>
         statusBar.foreach { b =>
-          b.addWidget(Widget, "before Position", project)
+          b.addWidget(Widget, "before Position", project.unloadAwareDisposable)
           installed = true
         }
       case (false, true) =>

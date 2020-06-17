@@ -19,13 +19,13 @@ import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixt
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
-
 /**
   * Nikolay.Tropin
   * 14-Dec-17
@@ -91,7 +91,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
       val jdkTable = ProjectJdkTable.getInstance
       if (jdkTable.findJdk(jdk.getName) == null) {
-        jdkTable.addJdk(jdk, myProject)
+        jdkTable.addJdk(jdk, myProject.unloadAwareDisposable)
       }
       ProjectRootManager.getInstance(myProject).setProjectSdk(jdk)
       reporter.notify("Finished sbt setup, starting import")

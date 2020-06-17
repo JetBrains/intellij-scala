@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.util;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -185,8 +184,8 @@ public class TestUtils {
 
 
   public static void disableTimerThread() {
-    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "Timer");
-    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "BaseDataReader");
-    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "ProcessWaitFor");
+    ThreadTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "Timer");
+    ThreadTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "BaseDataReader");
+    ThreadTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "ProcessWaitFor");
   }
 }

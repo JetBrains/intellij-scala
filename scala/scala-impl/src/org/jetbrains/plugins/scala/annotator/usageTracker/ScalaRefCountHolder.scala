@@ -18,6 +18,7 @@ import com.intellij.psi._
 import com.intellij.util.containers.{ContainerUtil, hash}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -165,7 +166,7 @@ final class ScalaRefCountHolderService(project: Project) extends Disposable {
       ju.concurrent.TimeUnit.MILLISECONDS
     )
 
-    LowMemoryWatcher.register(cleanupTask(autoCleaningMap), project)
+    LowMemoryWatcher.register(cleanupTask(autoCleaningMap), project.unloadAwareDisposable)
   }
 
   override def dispose(): Unit = {
