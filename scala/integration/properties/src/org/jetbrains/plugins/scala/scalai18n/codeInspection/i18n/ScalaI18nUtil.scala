@@ -40,14 +40,29 @@ object ScalaI18nUtil {
 
   object PassedToNlsChecker extends AnnotationChecker {
     override def check(owner: PsiModifierListOwner): Boolean = {
+      def resolveAnnotation(annotation: PsiAnnotation): Option[PsiModifierListOwner] = {
+        def resolveInScala =
+          annotation
+            .asOptionOf[ScAnnotation]
+            .flatMap(_.typeElement.`type`().toOption)
+            .flatMap(_.extractClass)
+
+        def resolveInJava =
+          annotation
+            .getNameReferenceElement
+            .toOption
+            .flatMap(_.resolve().asOptionOf[PsiModifierListOwner])
+
+        resolveInJava.orElse(resolveInScala)
+      }
+
+
       // annotated with @Nls
       AnnotationUtil.findAnnotation(owner, AnnotationUtil.NLS) != null ||
         // annotated with Annotation itself annotated with @Nls
         owner
           .getAnnotations.iterator
-          .flatMap(_.asOptionOf[ScAnnotation])
-          .flatMap(_.typeElement.`type`().toOption)
-          .flatMap(_.extractClass)
+          .flatMap(resolveAnnotation)
           .exists(AnnotationUtil.findAnnotation(_, AnnotationUtil.NLS) != null)
     }
   }
