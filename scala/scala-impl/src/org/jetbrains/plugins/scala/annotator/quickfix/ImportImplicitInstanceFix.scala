@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.GlobalImplicitInstance
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.Seq
@@ -85,6 +86,10 @@ object ImportImplicitInstanceFix {
   }
 
   private def findCompatibleInstances(typeToSearch: ScType, owner: ImplicitArgumentsOwner): Set[GlobalImplicitInstance] = {
+    //this happens for view bounds, let's skip this for now
+    if (isScalaFunction1Type(typeToSearch))
+      return Set.empty
+
     val allInstances =
       GlobalImplicitInstance.compatibleInstances(typeToSearch, owner.resolveScope, owner)
 
@@ -97,4 +102,9 @@ object ImportImplicitInstanceFix {
   private def implicitTypeToSearch(parameter: ScalaResolveResult): Option[ScType] =
     parameter.implicitSearchState.map(_.tp)
 
+  private def isScalaFunction1Type(scType: ScType): Boolean =
+    scType match {
+      case FunctionType(_, _) => true
+      case _ => false
+    }
 }
