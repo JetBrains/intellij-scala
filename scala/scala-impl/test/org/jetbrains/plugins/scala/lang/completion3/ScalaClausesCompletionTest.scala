@@ -11,7 +11,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   import ScalaClausesCompletionTest._
   import ScalaCodeInsightTestBase._
   import completion.ScalaKeyword.{CASE, MATCH}
-  import completion.clauses.DirectInheritors.BlackListedNames
+  import completion.clauses.DirectInheritors.FqnBlockList
 
   def testSyntheticUnapply(): Unit = doPatternCompletionTest(
     fileText =
@@ -1281,8 +1281,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin,
   )(isExhaustiveCase)
 
-  def testBlackList(): Unit = for {
-    fqn <- BlackListedNames
+  def testFqnBlockList(): Unit = for {
+    fqn <- FqnBlockList
   } checkNoCompletion(s"(_: $fqn) m$CARET")(isExhaustiveMatch)
 
   def testQualifiedReference(): Unit = checkNoCompletion(
