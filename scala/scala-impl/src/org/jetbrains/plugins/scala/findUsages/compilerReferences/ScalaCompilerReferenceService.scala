@@ -2,25 +2,19 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.LongAdder
+import java.util.concurrent.atomic.{AtomicInteger, LongAdder}
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.startup.StartupActivity
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.ModificationTracker
-import com.intellij.psi.search.ScopeOptimizer
-import com.intellij.psi.search.SearchScope
-import com.intellij.psi.PsiClass
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.PsiElement
+import com.intellij.psi.search.{ScopeOptimizer, SearchScope}
+import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
@@ -33,6 +27,7 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters._
 
@@ -215,7 +210,7 @@ final private[findUsages] class ScalaCompilerReferenceService(project: Project) 
     dirtyScopeHolder.markProjectAsOutdated()
     dirtyScopeHolder.installVFSListener()
 
-    Disposer.register(project, () => {
+    invokeOnDispose(project.unloadAwareDisposable) {
       openCloseLock.locked {
         if (isIndexingInProgress) {
           // if the project is force-closed while indexing is in progress - invalidate index
@@ -223,7 +218,7 @@ final private[findUsages] class ScalaCompilerReferenceService(project: Project) 
         }
         closeReader(incrementBuildCount = false)
       }
-    })
+    }
   }
 
   private[this] def toCompilerRef(e: PsiElement): Option[CompilerRef] = readDataLock.locked {

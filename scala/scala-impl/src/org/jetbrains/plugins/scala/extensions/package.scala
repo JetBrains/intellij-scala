@@ -11,7 +11,7 @@ import java.util.{Arrays, Set => JSet}
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
-import com.intellij.ide.plugins.{DynamicPluginListener, IdeaPluginDescriptor}
+import com.intellij.ide.plugins.DynamicPluginListener
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
@@ -38,7 +38,6 @@ import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
-import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -1203,7 +1202,9 @@ package object extensions {
 
   def schedulePeriodicTask(delay: Long, unit: TimeUnit, parentDisposable: Disposable)(body: => Unit): Unit = {
     val task = AppExecutorUtil.getAppScheduledExecutorService.scheduleWithFixedDelay(() => body, delay, delay, unit)
-    Disposer.register(parentDisposable, () => task.cancel(true))
+    invokeOnDispose(parentDisposable) {
+      task.cancel(true)
+    }
   }
 
   def withProgressSynchronously[T](@Nls title: String)(body: => T): T = {
