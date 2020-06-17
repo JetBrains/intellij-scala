@@ -132,12 +132,12 @@ object ScalaInheritors {
     else selfTypeInheritorsInner()
   }
 
-  def withStableScalaInheritors(clazz: PsiClass): Set[String] =
-    collectStableInheritors[ScTypeDefinition](clazz).map(_.qualifiedName)
+  def withStableInheritors(clazz: PsiClass): Set[String] =
+    collectStableInheritors[PsiClass](clazz).map(_.qualifiedName)
 
-  private def collectStableInheritors[T <: ScTypeDefinition : ClassTag](clazz: PsiClass,
-                                                                        visited: Set[PsiClass] = Set.empty,
-                                                                        buffer: ArrayBuffer[T] = ArrayBuffer.empty[T]): Set[T] = {
+  private def collectStableInheritors[T <: PsiClass : ClassTag](clazz: PsiClass,
+                                                                visited: Set[PsiClass] = Set.empty,
+                                                                buffer: ArrayBuffer[T] = ArrayBuffer.empty[T]): Set[T] = {
     if (!visited(clazz)) {
 
       clazz match {
@@ -150,6 +150,8 @@ object ScalaInheritors {
           val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope).filter(_.isInheritor(td, false))
           directInheritors
             .foreach(collectStableInheritors(_, visited + clazz, buffer))
+
+        //todo collect inheritors of java classes
         case _ =>
       }
     }

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.findInheritorObjectsForOwner
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableScalaInheritors
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
@@ -63,7 +63,7 @@ object GlobalImplicitInstance {
     for {
       clazz <- `type`.extractClass.toSet[PsiClass]
 
-      qualifiedName <- withStableScalaInheritors(clazz)
+      qualifiedName <- withStableInheritors(clazz)
       if !isRootClass(qualifiedName)
 
       candidateMember <- ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)(place.getProject)
