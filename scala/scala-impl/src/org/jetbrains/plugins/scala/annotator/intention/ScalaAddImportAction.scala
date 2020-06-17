@@ -2,23 +2,38 @@ package org.jetbrains.plugins.scala
 package annotator
 package intention
 
+import java.awt.Point
+
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.codeInsight.hint.QuestionAction
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.JBPopupListener
+import com.intellij.openapi.ui.popup.LightweightWindowEvent
+import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.ui.popup.ListSeparator
 import com.intellij.openapi.ui.popup.PopupStep
+import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
+import com.intellij.ui.components.JBLabel
+import com.intellij.util.ui.JBUI
 import javax.swing.Icon
+import javax.swing.JLabel
+import javax.swing.JList
+import javax.swing.event.ListSelectionEvent
+import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
@@ -91,6 +106,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
         secondPopupStep(selectedValue) != FINAL_CHOICE
     }
     val popup = JBPopupFactory.getInstance.createListPopup(firstPopupStep)
+    customizePopup(popup, editor)
     popupPosition.showPopup(popup, editor)
   }
 
@@ -114,6 +130,8 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
       }
     }
   }
+
+  protected def customizePopup(popup: ListPopup, editor: Editor): Unit = {}
 
   protected def addImport(toImport: Elem): Unit = invokeLater {
     if (place.isValid && FileModificationService.getInstance.prepareFileForWrite(place.getContainingFile))
@@ -174,18 +192,8 @@ object ScalaAddImportAction {
     override protected def doAddImport(toImport: ImplicitToImport): Unit =
       ScImportsHolder(place).addImportForPath(toImport.qualifiedName)
 
-    override protected def secondPopupStep(element: ImplicitToImport): PopupStep[_] = {
-      if (element.found.path.size <= 1)
-        return PopupStep.FINAL_CHOICE
-
-      new BaseListPopupStep[ImplicitToImport](null, element) {
-        override def getTextFor(value: ImplicitToImport): String = element.derivation
-
-        override def isSelectable(value: ImplicitToImport): Boolean = false
-
-        override def hasSubstep(selectedValue: ImplicitToImport): Boolean = false
-      }
-    }
+    override protected def secondPopupStep(element: ImplicitToImport): PopupStep[_] =
+      PopupStep.FINAL_CHOICE
 
     override protected def separatorAbove(variant: ImplicitToImport): ListSeparator = {
       val firstWithType = variants.find(_.found.scType == variant.found.scType).get
@@ -195,6 +203,75 @@ object ScalaAddImportAction {
     }
 
     override protected def alwaysAsk: Boolean = true
+
+    override protected def customizePopup(popup: ListPopup, editor: Editor): Unit = {
+      popup.addListSelectionListener { (e: ListSelectionEvent) =>
+        val jList = e.getSource.asInstanceOf[JList[ImplicitToImport]]
+        val value = jList.getSelectedValue
+
+        if (value.found.path.size > 1)
+          showDerivationPopup(value, editor, jList)
+        else
+          replaceDerivationPopup(editor, None)
+      }
+      popup.addListener(new JBPopupListener {
+        override def onClosed(event: LightweightWindowEvent): Unit = {
+          replaceDerivationPopup(editor, None)
+        }
+      })
+    }
   }
+
+  private val derivationPopupKey: Key[JBPopup] = Key.create("derivation.popup.key")
+
+  private def replaceDerivationPopup(editor: Editor, newPopup: Option[JBPopup]): Unit = {
+    val current = Option(derivationPopupKey.get(editor))
+    derivationPopupKey.set(editor, newPopup.orNull)
+    current.foreach(_.cancel())
+  }
+
+  private def showDerivationPopup(variant: ImplicitToImport, editor: Editor, jList: JList[ImplicitToImport]): JBPopup = {
+    val label = new JLabel(derivation(variant.found))
+
+    label.setBorder(JBUI.Borders.empty(2))
+    label.setFont(editor.getColorsScheme.getFont(EditorFontType.PLAIN))
+
+    val popup: JBPopup =
+      JBPopupFactory.getInstance().createComponentPopupBuilder(label, null)
+        .setFocusable(false)
+        .createPopup
+
+    popup.getContent.setBackground(jList.getBackground)
+
+    val index = jList.getSelectedIndex
+    val cellBounds = jList.getCellBounds(index, index)
+
+    val jListLocation = jList.getLocationOnScreen
+    val x = jListLocation.x + cellBounds.width
+    val y = jListLocation.y + cellBounds.y + cellBounds.height - label.getPreferredSize.height
+    val location = new Point(x, y)
+    popup.showInScreenCoordinates(editor.getContentComponent, location)
+
+    replaceDerivationPopup(editor, Some(popup))
+    popup
+  }
+
+
+  private def derivation(found: FoundImplicit): String = {
+    val prefix = found.path.dropRight(1).map(_.name).mkString("", "(", "(")
+    val suffix = ")" * (found.path.size - 1)
+    val name = found.instance.named.name
+    val params = found.instance.member match {
+      case f: ScFunction if f.parameters.nonEmpty => "(...)"
+      case _ => ""
+    }
+
+    html(s"${gray(prefix)}$name${gray(params)}${gray(suffix)}")
+  }
+
+  private def gray(text: String) = s"""<span style="color:gray">$text</span>"""
+
+  private def html(text: String): String =
+    s"""<html>$text</html>"""
 }
 

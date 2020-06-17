@@ -9,10 +9,13 @@ import org.jetbrains.plugins.scala.extensions.ClassQualifiedName
 import org.jetbrains.plugins.scala.extensions.ContainingClass
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
+import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils.psiElementLink
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 sealed trait ElementToImport {
   protected type E <: PsiNamedElement
@@ -90,11 +93,4 @@ final case class ImplicitToImport(found: FoundImplicit) extends ElementToImport 
   override def element: ScNamedElement = found.instance.named
 
   override def qualifiedName: String = found.instance.qualifiedName
-
-  def derivation: String = {
-    val prefix = found.path.dropRight(1).map(_.name).mkString("", "(", "(")
-    val suffix = ")" * (found.path.size - 1)
-
-    s"$prefix$name$suffix"
-  }
 }
