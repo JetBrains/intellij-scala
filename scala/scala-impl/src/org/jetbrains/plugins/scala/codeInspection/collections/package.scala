@@ -83,6 +83,7 @@ package object collections {
   private[collections] val `.sameElements` = invocation("sameElements").from(likeCollectionClasses)
   private[collections] val `.corresponds` = invocation("corresponds").from(likeCollectionClasses)
 
+  private[collections] val `.toString` = invocation("toString") // on everything
   private[collections] val `.to` = invocation("to").from(Array("RichInt", "RichChar", "RichLong", "RichDouble", "RichFloat").map("scala.runtime." + _))
 
   val `!=`: Qualified = invocation("!=")
@@ -382,6 +383,9 @@ package object collections {
     case Typeable(JavaArrayType(_)) => true
     case _ => isOfClassFrom(expr, Array("scala.Array"))
   }
+
+  def isString: ScExpression => Boolean =
+    isExpressionOfType("java.lang.String")
 
   def isSet: ScExpression => Boolean =
     isExpressionOfType("scala.collection.GenSetLike", "scala.collection.SetOps")

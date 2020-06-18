@@ -1476,6 +1476,12 @@
                          groupPath="Scala,Collections" groupName="Simplifications: other"
                          shortName="IndexBoundsCheck" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MakeArrayToStringInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.make.array.to.string"
+                         groupPath="Scala,Collections" groupName="Simplifications: other"
+                         shortName="MakeArrayToString" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--maps-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
