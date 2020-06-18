@@ -22,7 +22,6 @@ import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
-import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBUI
 import javax.swing.Icon
 import javax.swing.JLabel
@@ -48,7 +47,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
 
   protected def doAddImport(toImport: Elem): Unit
 
-  protected def alwaysAsk: Boolean = false
+  protected def importSingleOptionAutomatically: Boolean = true
 
   override def execute(): Boolean = {
     val validVariants = variants.filter(_.isValid)
@@ -57,7 +56,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
       return false
 
     PsiDocumentManager.getInstance(project).commitAllDocuments()
-    if (validVariants.length == 1 && !alwaysAsk) {
+    if (validVariants.length == 1 && importSingleOptionAutomatically) {
       addImport(validVariants.head)
     }
     else showChooser(validVariants)
@@ -176,18 +175,17 @@ object ScalaAddImportAction {
   def importImplicits(editor: Editor,
                       variants: Seq[ImplicitToImport],
                       place: ImplicitArgumentsOwner,
-                      title: String,
                       popupPosition: PopupPosition): ScalaAddImportAction[ImplicitArgumentsOwner, ImplicitToImport] =
-    new ImportImplicits(editor, variants, place, title, popupPosition)
+    new ImportImplicits(editor, variants, place, popupPosition)
 
   private final class ImportImplicits(editor: Editor,
                                       variants: Seq[ImplicitToImport],
                                       place: ImplicitArgumentsOwner,
-                                      title: String,
                                       popupPosition: PopupPosition)
     extends ScalaAddImportAction[ImplicitArgumentsOwner, ImplicitToImport](editor, variants, place, popupPosition) {
 
-    override protected def chooserTitle(variants: Seq[ImplicitToImport]): String = title
+    override protected def chooserTitle(variants: Seq[ImplicitToImport]): String =
+      ScalaBundle.message("import.implicit")
 
     override protected def doAddImport(toImport: ImplicitToImport): Unit =
       ScImportsHolder(place).addImportForPath(toImport.qualifiedName)
@@ -201,8 +199,6 @@ object ScalaAddImportAction {
       if (firstWithType.found.instance != variant.found.instance) null
       else new ListSeparator(variant.found.scType.presentableText(place))
     }
-
-    override protected def alwaysAsk: Boolean = true
 
     override protected def customizePopup(popup: ListPopup, editor: Editor): Unit = {
       popup.addListSelectionListener { (e: ListSelectionEvent) =>

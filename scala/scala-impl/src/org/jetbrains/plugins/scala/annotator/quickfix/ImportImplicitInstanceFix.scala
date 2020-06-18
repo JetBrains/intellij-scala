@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.Seq
 
-final class ImportImplicitInstanceFix private (found: Array[FoundImplicit],
+final class ImportImplicitInstanceFix private (found: Seq[FoundImplicit],
                                                owner: ImplicitArgumentsOwner,
                                                popupPosition: PopupPosition)
   extends ScalaImportElementFix(owner) {
@@ -27,18 +27,20 @@ final class ImportImplicitInstanceFix private (found: Array[FoundImplicit],
 
   override def shouldShowHint(): Boolean = false
 
-  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] = {
-    val title = ScalaBundle.message("implicit.instance.to.import")
-    ScalaAddImportAction.importImplicits(
-      editor, elements, owner, title, popupPosition
-    )
-  }
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
+    ScalaAddImportAction.importImplicits(editor, elements, owner, popupPosition)
 
   override def isAddUnambiguous: Boolean = false
 
-  override def getText: String = ScalaBundle.message("import.implicit.instance")
+  override def getText: String = {
+    if (found.size == 1)
+      ScalaBundle.message("import.with", found.head.instance.qualifiedName)
+    else
+      ScalaBundle.message("import.implicit.instance")
+  }
 
-  override def getFamilyName: String = getText
+  override def getFamilyName: String =
+    ScalaBundle.message("import.implicit.instance")
 }
 
 case class FoundImplicit(instance: GlobalImplicitInstance, path: Seq[ScalaResolveResult], scType: ScType)
@@ -66,7 +68,7 @@ object ImportImplicitInstanceFix {
         }
 
     if (instances.nonEmpty)
-      Some(new ImportImplicitInstanceFix(instances.toArray, owner, popupPosition))
+      Some(new ImportImplicitInstanceFix(instances, owner, popupPosition))
     else None
   }
 
