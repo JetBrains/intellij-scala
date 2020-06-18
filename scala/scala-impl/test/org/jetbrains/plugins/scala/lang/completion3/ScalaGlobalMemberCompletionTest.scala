@@ -485,8 +485,8 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     val expected = Set(
       "D1.zeeGlobalDef",
       "D1.zeeGlobalVal",
-      "D2.zeeGlobalDefInherited",
-      "D2.zeeGlobalValInherited"
+      "D1.zeeGlobalDefInherited",
+      "D1.zeeGlobalValInherited"
     )
     assertEquals(expected, actual)
   }

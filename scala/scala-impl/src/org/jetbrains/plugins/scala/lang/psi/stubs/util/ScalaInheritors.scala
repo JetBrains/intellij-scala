@@ -235,7 +235,7 @@ object ScalaInheritors {
       allObjects
     } else {
       //if `clazz` is not generic, members in all objects are the same, so we return one with the shortest qualified name
-      Set(allObjects.minBy(_.qualifiedName.length))
+      Set(allObjects.minBy(o => (o.qualifiedName.length, o.qualifiedName)))
     }
   }
 
