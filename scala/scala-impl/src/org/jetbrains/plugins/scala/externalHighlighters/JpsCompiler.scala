@@ -32,9 +32,9 @@ import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
 import scala.collection.JavaConverters._
 
 trait JpsCompiler {
-  def compile(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit
-  
-  def rescheduleCompilation(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit
+  def rescheduleCompilation(testScopeOnly: Boolean,
+                            delayedProgressShow: Boolean,
+                            forceCompileModule: Option[String]): Unit
   
   def cancel(): Unit
   
@@ -59,12 +59,20 @@ private class JpsCompilerImpl(project: Project)
   @Cached(ProjectRootManager.getInstance(project), null)
   private def saveProjectOnce(): Unit = project.save()
 
-  override def rescheduleCompilation(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit =
+  override def rescheduleCompilation(testScopeOnly: Boolean,
+                                     delayedProgressShow: Boolean,
+                                     forceCompileModule: Option[String]): Unit =
     executor.schedule(ScalaHighlightingMode.compilationDelay) {
-      compile(testScopeOnly, forceCompileModule)
+      compile(
+        testScopeOnly = testScopeOnly,
+        delayedProgressShow = delayedProgressShow,
+        forceCompileModule = forceCompileModule
+      )
     }
 
-  override def compile(testScopeOnly: Boolean, forceCompileModule: Option[String]): Unit = {
+  private def compile(testScopeOnly: Boolean,
+                      delayedProgressShow: Boolean,
+                      forceCompileModule: Option[String]): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
 
@@ -74,14 +82,6 @@ private class JpsCompilerImpl(project: Project)
       new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory)),
       projectPath
     ).getCanonicalPath
-    val sortedModules = ModuleCompilerUtil
-      .getSortedModuleChunks(project, project.modules.asJava).asScala
-      .flatMap { chunk =>
-        val modules = chunk.getNodes
-        if (modules.size > 1) throw new IllegalStateException(s"More than one module in the chunk: $modules")
-        modules.asScala
-      }
-      .map(_.getName)
     val command = CompileServerCommand.CompileJps(
       token = "",
       projectPath = projectPath,
@@ -106,7 +106,11 @@ private class JpsCompilerImpl(project: Project)
     
     val indicator = new DeferredShowProgressIndicator(task)
     ProgressManager.getInstance.runProcessWithProgressAsynchronously(task, indicator)
-    showIndicatorExecutor.schedule(ScalaHighlightingMode.compilationTimeoutToShowProgress) {
+    val showProgressDelay = if (delayedProgressShow)
+      ScalaHighlightingMode.compilationTimeoutToShowProgress
+    else
+      Duration.Zero
+    showIndicatorExecutor.schedule(showProgressDelay) {
       indicator.show()
     }
     future.onComplete { _ =>

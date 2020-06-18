@@ -9,7 +9,11 @@ class CompileOnProjectOpenedListener
   override def projectOpened(project: Project): Unit = if (!ApplicationManager.getApplication.isUnitTestMode) {
     DumbService.getInstance(project).runWhenSmart { () =>
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) 
-        JpsCompiler.get(project).rescheduleCompilation(testScopeOnly = false, forceCompileModule = None)
+        JpsCompiler.get(project).rescheduleCompilation(
+          testScopeOnly = false,
+          delayedProgressShow = false,
+          forceCompileModule = None
+        )
     }
   }
 }
