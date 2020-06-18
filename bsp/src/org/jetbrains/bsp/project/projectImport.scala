@@ -1,6 +1,7 @@
 package org.jetbrains.bsp.project
 
 import java.io.File
+import java.nio.file.Path
 import java.util
 import java.util.Collections
 
@@ -81,9 +82,9 @@ class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
   override def canOpenProject(file: VirtualFile): Boolean =
     BspProjectOpenProcessor.canOpenProject(file)
 
-  override def linkAndRefreshProject(projectDirectory: String, project: Project): Unit = {
+  override def linkAndRefreshProject(projectDirectory: Path, project: Project): Unit = {
     val bspProjectSettings = new BspProjectSettings()
-    bspProjectSettings.setExternalProjectPath(projectDirectory)
+    bspProjectSettings.setExternalProjectPath(projectDirectory.toString)
     attachBspProjectAndRefresh(bspProjectSettings, project)
   }
 
