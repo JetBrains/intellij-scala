@@ -38,8 +38,7 @@ abstract class GlobalMembersFinder {
         ).map { lookupItem =>
           lookupItem.shouldImport = shouldImport(lookupItem.getPsiElement)
           patchItem(lookupItem)
-          lookupItem.putUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR, Boolean.box(true))
-          lookupItem
+          lookupItem.withBooleanUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR)
         }
       else
         None
