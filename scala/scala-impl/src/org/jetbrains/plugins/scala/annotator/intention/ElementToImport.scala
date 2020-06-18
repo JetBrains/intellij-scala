@@ -5,17 +5,10 @@ package intention
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
-import org.jetbrains.plugins.scala.extensions.ClassQualifiedName
-import org.jetbrains.plugins.scala.extensions.ContainingClass
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
-import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils.psiElementLink
+import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 
 sealed trait ElementToImport {
   protected type E <: PsiNamedElement
@@ -31,12 +24,16 @@ sealed trait ElementToImport {
 
 object ElementToImport {
   @Nls
-  def messageByType(toImport: Seq[ElementToImport])(@Nls classes: String, @Nls packages: String, @Nls mixed: String): String = {
-    val toImportSeq = toImport.toSeq
-    if (toImportSeq.forall(_.element.isInstanceOf[PsiClass])) classes
-    else if (toImportSeq.forall(_.element.isInstanceOf[PsiPackage])) packages
-    else mixed
-  }
+  def messageByType(toImport: Seq[ElementToImport])
+                   (@Nls classes: String,
+                    @Nls packages: String,
+                    @Nls mixed: String): String =
+    if (toImport.forall(_.element.isInstanceOf[PsiClass]))
+      classes
+    else if (toImport.forall(_.element.isInstanceOf[PsiPackage]))
+      packages
+    else
+      mixed
 }
 
 final case class ClassToImport(override val element: PsiClass) extends ElementToImport {
