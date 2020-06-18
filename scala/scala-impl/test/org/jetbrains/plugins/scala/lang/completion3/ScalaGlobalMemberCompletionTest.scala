@@ -216,9 +216,9 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""class Foo {
-         |  import Foo.{bar, foo}
+         |  import Foo.bar
          |
-         |  foo($CARET)
+         |  Foo.foo($CARET)
          |}
          |
          |object Foo {
@@ -242,10 +242,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""class Foo {
-         |
-         |  import Foo.foo
-         |
-         |  foo$CARET
+         |  Foo.foo$CARET
          |}
          |
          |object Foo {
@@ -253,7 +250,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin
   ) {
-    hasItemText(_, "foo")(tailText = " in Foo <default>")
+    hasItemText(_, "foo")(
+      itemText = "Foo.foo",
+      tailText = " <default>"
+    )
   }
 
   def testNestedCompanionObjectValue(): Unit = doCompletionTest(
@@ -271,10 +271,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""class Foo {
          |  class Bar {
-         |
-         |    import Foo.foo
-         |
-         |    foo$CARET
+         |    Foo.foo$CARET
          |  }
          |}
          |

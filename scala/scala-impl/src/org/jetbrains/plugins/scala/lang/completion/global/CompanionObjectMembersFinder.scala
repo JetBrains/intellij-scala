@@ -4,7 +4,6 @@ package completion
 package global
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
-import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
@@ -12,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -82,19 +80,14 @@ private[completion] object CompanionObjectMembersFinder {
                                         `object`: ScObject): CompanionObjectMemberResult =
       new CompanionObjectMemberResult(member, `object`) {
 
-        override protected def patchItem(lookupItem: ScalaLookupItem): Unit =
+        override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
+          lookupItem.shouldImport = true
           lookupItem.setInsertHandler(new ScalaImportingInsertHandler(`object`) {
 
             override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
-              getParentOfType(
-                reference,
-                classOf[ScTemplateBody]
-              ).addImportForPsiNamedElement(
-                member,
-                reference,
-                Some(`object`)
-              )
+              replaceReference(reference)
           })
+        }
       }
   }
 
