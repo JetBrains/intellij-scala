@@ -22,6 +22,7 @@ import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
+import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.ui.JBUI
 import javax.swing.Icon
 import javax.swing.JLabel
@@ -201,14 +202,16 @@ object ScalaAddImportAction {
     }
 
     override protected def customizePopup(popup: ListPopup, editor: Editor): Unit = {
+      popup.asInstanceOf[ListPopupImpl].getList.clearSelection()
+
       popup.addListSelectionListener { (e: ListSelectionEvent) =>
         val jList = e.getSource.asInstanceOf[JList[ImplicitToImport]]
-        val value = jList.getSelectedValue
-
-        if (value.found.path.size > 1)
-          showDerivationPopup(value, editor, jList)
-        else
-          replaceDerivationPopup(editor, None)
+        Option(jList.getSelectedValue).foreach { value =>
+          if (value.found.path.size > 1)
+            showDerivationPopup(value, editor, jList)
+          else
+            replaceDerivationPopup(editor, None)
+        }
       }
       popup.addListener(new JBPopupListener {
         override def onClosed(event: LightweightWindowEvent): Unit = {

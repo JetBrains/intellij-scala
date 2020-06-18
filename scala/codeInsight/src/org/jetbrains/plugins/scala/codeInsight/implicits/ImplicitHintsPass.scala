@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.annotator.intention.PopupPosition
 import org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitInstanceFix
-import org.jetbrains.plugins.scala.annotator.quickfix.SearchImplicitQuickFix
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass
