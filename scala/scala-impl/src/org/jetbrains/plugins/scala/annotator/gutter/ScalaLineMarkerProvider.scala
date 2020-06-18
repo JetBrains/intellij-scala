@@ -316,7 +316,7 @@ private object GutterUtil {
       typeDefinition.baseCompanionModule.map { companion =>
         new LineMarkerInfo(identifier,
           identifier.getTextRange,
-          iconFor(typeDefinition), (_: PsiElement) => "Has companion " + nameOf(companion),
+          iconFor(typeDefinition), (_: PsiElement) => ScalaBundle.message("has.a.companion", nameOf(companion)),
           (_: MouseEvent, _: PsiElement) => companion.navigate(/* requestFocus = */ true), Alignment.LEFT)
       }
 
@@ -324,10 +324,10 @@ private object GutterUtil {
   }
 
   private[this] def nameOf(definition: ScTypeDefinition) = definition match {
-    case _: ScClass => "class"
-    case _: ScTrait => "trait"
-    case _: ScObject => "object"
-    case _ => ""
+    case _: ScClass => ScalaBundle.message("companion.class")
+    case _: ScTrait => ScalaBundle.message("companion.trait")
+    case _: ScObject => ScalaBundle.message("companion.object")
+    case _ => "" // Just "Has a companion" is OK.
   }
 
   private[this] def iconFor(definition: ScTypeDefinition): Icon = definition match {
