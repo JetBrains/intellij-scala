@@ -18,18 +18,17 @@ import scala.collection.mutable.ArrayBuffer
  *       From the gitter channel [[https://gitter.im/scala/contributors?at=5eda0c937da67d06faf2e43e]]:<br>
  *       "I'm pretty sure that no such (spec) thing exists if you want to try and extract one yourself,
  *       the main place to look would be [[scala.tools.nsc.doc.base.CommentFactoryBase]]"
+ * @todo remove maximum common indentation from code examples { { { }}} not to shift it far to the right
+ * @todo unify with description from https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html#markup<br>
+ *       `Comment Inheritance - Implicit
+ *       If a comment is not provided for an entity at the current inheritance level, but is supplied for the overridden entity at a higher level
+ *       in the inheritance hierarchy, the comment from the super-class will be used.
+ *       Likewise if @param, @tparam, @return and other entity tags are omitted but available from a superclass, those comments will be used.`
  */
-//noinspection ScalaDocInlinedTag,ScalaDocParserErrorInspection
-// TODO: remove maximum common indentation from code examples {{{ }}} not to shift it far to the right
-// TODO: from https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html#markup
-//  Comment Inheritance - Implicit
-//  If a comment is not provided for an entity at the current inheritance level, but is supplied for the overridden entity at a higher level
-//  in the inheritance hierarchy, the comment from the super-class will be used.
-//  Likewise if @param, @tparam, @return and other entity tags are omitted but available from a superclass, those comments will be used.
 private class ScalaDocContentWithSectionsGenerator(
   comment: ScDocComment,
   macroFinder: MacroFinder,
-  rendered: Boolean // TODO: use
+  rendered: Boolean
 ) {
 
   private val resolveContext: PsiElement = comment
@@ -187,14 +186,14 @@ private class ScalaDocContentWithSectionsGenerator(
         scalaDocOwner.docComment.map { superComment =>
           buffer.append("<p>")
           newContentGenerator.appendCommentDescription(buffer, superComment)
-          buffer.append("<br>")
+          buffer.append("<p>")
         }
       case javaDocOwner =>
         val superContent = ScalaDocUtil.generateJavaDocInfoContentInner(javaDocOwner)
         superContent.foreach { content =>
           buffer.append("<p>")
           buffer.append(content)
-          buffer.append("<br>")
+          buffer.append("<p>")
         }
     }
   }

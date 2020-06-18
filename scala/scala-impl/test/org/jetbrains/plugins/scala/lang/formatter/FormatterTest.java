@@ -42,6 +42,10 @@ public class FormatterTest extends ScalaFileSetTestCase {
     super(path);
   }
 
+  public static Test suite() {
+    return new FormatterTest("/formatter/data/");
+  }
+
   @Override
   protected void setSettings(@NotNull Project project) {
     super.setSettings(project);
@@ -66,11 +70,6 @@ public class FormatterTest extends ScalaFileSetTestCase {
     CommandProcessor.getInstance().executeCommand(project, runnable, null, null);
     return psiFile.getText();
   }
-
-  public static Test suite() {
-    return new FormatterTest("/formatter/data/");
-  }
-
 }
 
 

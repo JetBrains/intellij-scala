@@ -5,13 +5,13 @@ import java.lang.reflect.Field
 import com.intellij.psi.tree.IElementType
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.extensions.TraversableExt
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.junit.Assert._
 
 class ScalaDocTokenTypeTest extends TestCase {
 
   def testAllScaladocSyntaxElementShouldHaveUniqueFlags(): Unit = {
-    val syntaxElements = ScalaDocTokenType.ALL_SCALADOC_TOKENS.getTypes.toSeq.filterBy[ScaladocSyntaxElementType]
+    val syntaxElements = ScalaDocTokenType.ALL_SCALADOC_TOKENS.getTypes.toSeq.filterBy[ScalaDocSyntaxElementType]
     assertTrue(syntaxElements.nonEmpty)
 
     val map = syntaxElements.groupBy(_.getFlagConst)
@@ -42,7 +42,7 @@ class ScalaDocTokenTypeTest extends TestCase {
   def testAllScalaDocSyntaxTokensShouldContainAllTokensIndeed(): Unit = {
     val declaredTokensField = declaredTokenTypesFields
     val nonRegisteredElementsFields = declaredTokensField.filterNot { tokenField =>
-      val elementValue = tokenField.value.asInstanceOf[ScaladocSyntaxElementType]
+      val elementValue = tokenField.value.asInstanceOf[ScalaDocSyntaxElementType]
       ScalaDocTokenType.ALL_SCALADOC_SYNTAX_ELEMENTS.contains(elementValue)
     }
     assertTrue(

@@ -8,12 +8,13 @@ ScalaFile
     ScPsiDocToken(DOC_COMMENT_START)('/**')
     ScPsiDocToken(DOC_WHITESPACE)('\n ')
     ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    ScPsiDocToken(DOC_WHITESPACE)(' ')
-    ScPsiDocToken(DOC_COMMENT_DATA)('This is doc <code>2 + 2</code>')
-    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    ScPsiDocToken(DOC_WHITESPACE)(' ')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('This is doc <code>2 + 2</code>')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_TAG_NAME)('@return')
       ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_COMMENT_DATA)('x')

@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -190,7 +190,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
 
   @inline
   private def isClosingScaladocTagOrMarkup(c: Char, element: PsiElement, elementType: IElementType) = {
-    (elementType.isInstanceOf[ScaladocSyntaxElementType] || elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
+    (elementType.isInstanceOf[ScalaDocSyntaxElementType] || elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
       isInDocComment(element) &&
       element.getParent.getLastChild == element && element.getText.startsWith("" + c) &&
       // handling case when '`' was type right after second '`' inside "````" to enable bold syntax ("```bold text```)"
@@ -230,12 +230,12 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def completeScalaDocWikiSyntax(tagToInsert: String)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    if (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType] || tagToInsert == "}}}") {
+    if (element.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType] || tagToInsert == "}}}") {
       insertAndCommit(offset, tagToInsert, document, project)
     }
 
   private def completeScalaDocBoldSyntaxElement(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    if (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType]) {
+    if (element.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType]) {
       insertAndCommit(offset, "'", document, project)
     }
 

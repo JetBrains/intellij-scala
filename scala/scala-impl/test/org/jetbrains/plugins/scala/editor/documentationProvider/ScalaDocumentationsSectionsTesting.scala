@@ -6,8 +6,10 @@ import org.junit.Assert._
 trait ScalaDocumentationsSectionsTesting {
   self: DocumentationTesting =>
 
-  protected val DocStart = "<html><body>"
-  protected val DocEnd   = "</body></html>"
+  protected val DocHtmlHeader = s"<head><style>${ScalaDocCss.value}</style></head>"
+  protected val DocStart      = s"<html>$DocHtmlHeader<body>"
+  protected val DocEnd        = "</body></html>"
+
   protected val DefinitionStart: String = DocumentationMarkup.DEFINITION_START
   protected val DefinitionEnd  : String = DocumentationMarkup.DEFINITION_END
   protected val ContentStart   : String = DocumentationMarkup.CONTENT_START
@@ -15,22 +17,23 @@ trait ScalaDocumentationsSectionsTesting {
   protected val SectionsStart  : String = DocumentationMarkup.SECTIONS_START
   protected val SectionsEnd    : String = DocumentationMarkup.SECTIONS_END
 
-  protected def doGenerateDocBodyTest(fileContent: String, expectedDoc: String): Unit = {
+  protected def doGenerateDocBodyTest(fileContent: String, expectedBody: String): Unit = {
     val actualDoc = generateDoc(fileContent)
-    assertDocHtml(DocStart + expectedDoc + DocEnd, actualDoc)
+    val actualPart = extractSectionInner(actualDoc, "body", DocStart, DocEnd)
+    assertDocHtml(expectedBody, actualPart)
   }
 
   protected def doGenerateDocDefinitionTest(fileContent: String, expectedDefinition: String): Unit = {
     val actualDoc = generateDoc(fileContent)
-    val actualSections = extractSection(actualDoc, "definition", DefinitionStart, DefinitionEnd)
-    assertDocHtml(DefinitionStart + expectedDefinition + DefinitionEnd, actualSections)
+    val actualPart = extractSectionInner(actualDoc, "definition", DefinitionStart, DefinitionEnd)
+    assertDocHtml(expectedDefinition, actualPart)
   }
 
-  /** NOTE: doesn't support inner <div> tags, see [[extractSection]] */
+  /** NOTE: doesn't support inner <div> tags, see [[extractSectionInner]] */
   protected def doGenerateDocContentTest(fileContent: String, expectedContent: String): Unit = {
     val actualDoc = generateDoc(fileContent)
-    val actualSections = extractSection(actualDoc, "content", ContentStart, ContentEnd)
-    assertDocHtml(ContentStart + expectedContent + ContentEnd, actualSections)
+    val actualPart = extractSectionInner(actualDoc, "content", ContentStart, ContentEnd)
+    assertDocHtml(expectedContent, actualPart)
   }
 
   /** The same as [[doGenerateDocContentTest]] but accepts a comment without any definition */
@@ -43,17 +46,17 @@ trait ScalaDocumentationsSectionsTesting {
 
   protected def doGenerateDocSectionsTest(fileContent: String, expectedDoSections: String): Unit = {
     val actualDoc = generateDoc(fileContent)
-    val actualSections = extractSection(actualDoc, "sections", SectionsStart, SectionsEnd)
-    assertDocHtml(SectionsStart + expectedDoSections + SectionsEnd, actualSections)
+    val actualPart = extractSectionInner(actualDoc, "sections", SectionsStart, SectionsEnd)
+    assertDocHtml(expectedDoSections, actualPart)
   }
 
   // NOTE: doesn't support nested tags,
   // so will not detect "<div>a <div> b </div></div>"
   // will find first closing tag: "<div>a <div> b </div>"
-  private def extractSection(doc: String, sectionName: String, tagStart: String, tagEnd: String): String =
+  private def extractSectionInner(doc: String, sectionName: String, tagStart: String, tagEnd: String): String =
     doc.indexOf(tagStart) match {
       case -1 => fail(s"no '$sectionName' section found\n$doc").asInstanceOf[Nothing]
-      case idx  => doc.substring(idx, doc.indexOf(tagEnd, idx)) + tagEnd
+      case idx  => doc.substring(idx + tagStart.length, doc.indexOf(tagEnd, idx))
     }
 }
 

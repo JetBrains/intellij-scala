@@ -9,27 +9,27 @@ ScalaFile
     ScPsiDocToken(DOC_COMMENT_START)('/**')
     ScPsiDocToken(DOC_WHITESPACE)('\n ')
     ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_TAG_NAME)('@see')
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_INLINE_TAG_START)('{')
     DocTag
       ScPsiDocToken(DOC_TAG_NAME)('@aaa')
-      PsiErrorElement:unknown tag
+      PsiErrorElement:Unknown tag: @aaa
         <empty list>
       ScPsiDocToken(DOC_INLINE_TAG_END)('}')
       ScPsiDocToken(DOC_WHITESPACE)('\n    ')
       ScPsiDocToken(DOC_INLINE_TAG_START)('{')
     DocTag
       ScPsiDocToken(DOC_TAG_NAME)('@bbb')
-      PsiErrorElement:unknown tag
+      PsiErrorElement:Unknown tag: @bbb
         <empty list>
       ScPsiDocToken(DOC_INLINE_TAG_END)('}')
-      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
     DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
       ScPsiDocToken(DOC_TAG_NAME)('@ccc')
-      PsiErrorElement:unknown tag
+      PsiErrorElement:Unknown tag: @ccc
         <empty list>
       ScPsiDocToken(DOC_WHITESPACE)('\n ')
     ScPsiDocToken(DOC_COMMENT_END)('*/')

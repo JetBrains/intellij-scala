@@ -24,7 +24,8 @@ ScalaFile
   PsiWhiteSpace(' ')
   DocComment
     ScPsiDocToken(DOC_COMMENT_START)('/**')
-    ScPsiDocToken(DOC_WHITESPACE)('\n\n')
-    ScPsiDocToken(DOC_COMMENT_DATA)('/*')
-    ScPsiDocToken(DOC_WHITESPACE)('\n\n')
-    ScPsiDocToken(DOC_COMMENT_DATA)('*/  }')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)('\n\n')
+      ScPsiDocToken(DOC_COMMENT_DATA)('/*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n\n')
+      ScPsiDocToken(DOC_COMMENT_DATA)('*/  }')

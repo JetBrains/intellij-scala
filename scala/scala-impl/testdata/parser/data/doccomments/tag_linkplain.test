@@ -7,10 +7,10 @@ ScalaFile
     ScPsiDocToken(DOC_COMMENT_START)('/**')
     ScPsiDocToken(DOC_WHITESPACE)('\n ')
     ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_TAG_NAME)('@linkplain')
-      PsiErrorElement:unknown tag
+      PsiErrorElement:Unknown tag: @linkplain
         <empty list>
       ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_COMMENT_DATA)('scala.collection.Set#apply')

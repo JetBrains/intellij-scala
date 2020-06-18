@@ -8,8 +8,8 @@ ScalaFile
     ScPsiDocToken(DOC_COMMENT_START)('/**')
     ScPsiDocToken(DOC_WHITESPACE)('\n ')
     ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_TAG_NAME)('@param')
       ScPsiDocToken(DOC_COMMENT_DATA)(' ')
       ScalaDocTagValue: String
@@ -18,8 +18,8 @@ ScalaFile
       ScPsiDocToken(DOC_COMMENT_DATA)('this is book's test')
       ScPsiDocToken(DOC_WHITESPACE)('\n ')
       ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      ScPsiDocToken(DOC_WHITESPACE)(' ')
     DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_TAG_NAME)('@param')
       ScPsiDocToken(DOC_COMMENT_DATA)(' ')
       ScalaDocTagValue: <

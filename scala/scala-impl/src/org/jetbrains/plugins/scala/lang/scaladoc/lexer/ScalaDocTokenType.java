@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.scaladoc.lexer;
 
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType;
 
 // TODO: rename to ScalaDocTokenTypes (with S in the end)
 public interface ScalaDocTokenType {
@@ -38,22 +38,22 @@ public interface ScalaDocTokenType {
 
   IElementType DOC_LIST_ITEM_HEAD = new ScalaDocElementType("DOC_LIST_ITEM_HEAD");
 
-  ScaladocSyntaxElementType DOC_BOLD_TAG = new ScaladocSyntaxElementType("DOC_BOLD_TAG", 1);
-  ScaladocSyntaxElementType DOC_ITALIC_TAG = new ScaladocSyntaxElementType("DOC_ITALIC_TAG", 1 << 1);
-  ScaladocSyntaxElementType DOC_UNDERLINE_TAG = new ScaladocSyntaxElementType("DOC_UNDERLINE_TAG", 1 << 2);
-  ScaladocSyntaxElementType DOC_MONOSPACE_TAG = new ScaladocSyntaxElementType("DOC_MONOSPACE_TAG", 1 << 3);
-  ScaladocSyntaxElementType DOC_SUPERSCRIPT_TAG = new ScaladocSyntaxElementType("DOC_SUPERSCRIPT_TAG", 1 << 4);
-  ScaladocSyntaxElementType DOC_SUBSCRIPT_TAG = new ScaladocSyntaxElementType("DOC_SUBSCRIPT_TAG", 1 << 5);
-  ScaladocSyntaxElementType DOC_LINK_TAG = new ScaladocSyntaxElementType("DOC_LINK_TAG", 1 << 6); // rename to DOC_LINK_START_TAG
-  ScaladocSyntaxElementType DOC_HTTP_LINK_TAG = new ScaladocSyntaxElementType("DOC_HTTP_LINK_TAG", 1 << 7);
-  ScaladocSyntaxElementType DOC_LINK_CLOSE_TAG = new ScaladocSyntaxElementType("DOC_LINK_CLOSE_TAG", 0); // TODO: rename to DOC_LINK_END
+  ScalaDocSyntaxElementType DOC_BOLD_TAG = new ScalaDocSyntaxElementType("DOC_BOLD_TAG", 1);
+  ScalaDocSyntaxElementType DOC_ITALIC_TAG = new ScalaDocSyntaxElementType("DOC_ITALIC_TAG", 1 << 1);
+  ScalaDocSyntaxElementType DOC_UNDERLINE_TAG = new ScalaDocSyntaxElementType("DOC_UNDERLINE_TAG", 1 << 2);
+  ScalaDocSyntaxElementType DOC_MONOSPACE_TAG = new ScalaDocSyntaxElementType("DOC_MONOSPACE_TAG", 1 << 3);
+  ScalaDocSyntaxElementType DOC_SUPERSCRIPT_TAG = new ScalaDocSyntaxElementType("DOC_SUPERSCRIPT_TAG", 1 << 4);
+  ScalaDocSyntaxElementType DOC_SUBSCRIPT_TAG = new ScalaDocSyntaxElementType("DOC_SUBSCRIPT_TAG", 1 << 5);
+  ScalaDocSyntaxElementType DOC_LINK_TAG = new ScalaDocSyntaxElementType("DOC_LINK_TAG", 1 << 6); // rename to DOC_LINK_START_TAG
+  ScalaDocSyntaxElementType DOC_HTTP_LINK_TAG = new ScalaDocSyntaxElementType("DOC_HTTP_LINK_TAG", 1 << 7);
+  ScalaDocSyntaxElementType DOC_LINK_CLOSE_TAG = new ScalaDocSyntaxElementType("DOC_LINK_CLOSE_TAG", 0); // TODO: rename to DOC_LINK_END
   // TODO: something is wrong with header parsing.
   //  everything between `===` ===header =content= 42=== should be a content `header =content= 42`
   //  and inner `=` should not be parsed as inner DOC_HEADER
   //  DOC_HEADER should be renamed to DOC_HEADER_END after this is fixed
   //  VALID_DOC_HEADER should be renamed to DOC_HEADER_START after this is fixed
-  ScaladocSyntaxElementType VALID_DOC_HEADER = new ScaladocSyntaxElementType("VALID_DOC_HEADER", 1 << 8);
-  ScaladocSyntaxElementType DOC_HEADER = new ScaladocSyntaxElementType("DOC_HEADER", 1 << 8);
+  ScalaDocSyntaxElementType VALID_DOC_HEADER = new ScalaDocSyntaxElementType("VALID_DOC_HEADER", 1 << 8);
+  ScalaDocSyntaxElementType DOC_HEADER = new ScalaDocSyntaxElementType("DOC_HEADER", 1 << 8);
 
   IElementType DOC_COMMENT_BAD_CHARACTER = new ScalaDocElementType("DOC_COMMENT_BAD_CHARACTER");
 

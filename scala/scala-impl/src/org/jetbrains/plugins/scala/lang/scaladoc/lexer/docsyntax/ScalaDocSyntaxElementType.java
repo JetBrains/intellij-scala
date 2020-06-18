@@ -4,14 +4,11 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 
-/**
- * User: Dmitry Naidanov
- * Date: 29.10.11
- */
-public class ScaladocSyntaxElementType extends ScalaDocElementType{
+
+public class ScalaDocSyntaxElementType extends ScalaDocElementType {
   private final int flagConst;
 
-  public ScaladocSyntaxElementType(String debugName, int flagConst) {
+  public ScalaDocSyntaxElementType(String debugName, int flagConst) {
     super(debugName);
     this.flagConst = flagConst;
   }
@@ -28,7 +25,7 @@ public class ScaladocSyntaxElementType extends ScalaDocElementType{
   public static boolean canClose(IElementType opening, IElementType closing) {
     if (opening == ScalaDocTokenType.DOC_INNER_CODE_TAG && closing == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG)
       return true;
-    if (opening.getClass() != ScaladocSyntaxElementType.class || closing.getClass() != ScaladocSyntaxElementType.class)
+    if (opening.getClass() != ScalaDocSyntaxElementType.class || closing.getClass() != ScalaDocSyntaxElementType.class)
       return false;
 
     if (opening == ScalaDocTokenType.DOC_LINK_TAG || opening == ScalaDocTokenType.DOC_HTTP_LINK_TAG) {

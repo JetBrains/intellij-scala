@@ -1,0 +1,38 @@
+/**
+ *  - some list
+ *
+ *    this is a new paragraph and
+ *
+ *  - another list
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocList
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScDocListItem
+        ScPsiDocToken(DOC_LIST_ITEM_HEAD)('-')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('some list')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)('    ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('this is a new paragraph and')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocList
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScDocListItem
+        ScPsiDocToken(DOC_LIST_ITEM_HEAD)('-')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('another list')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

@@ -7,9 +7,9 @@ import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocLexer, ScalaDocTokenType}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -35,7 +35,10 @@ final class ScalaDocParserDefinition extends ParserDefinition {
 
   override def createParser(project: Project) = new ScalaDocParser
 
-  /** see also [[org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory#createLeaf]] */
+  /**
+   * see also [[org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory.createLeaf]]
+   * @inheritdoc
+   */
   override def createElement(node: ASTNode): PsiElement = node.getElementType match {
     case DOC_INNER_CODE_TAG   => new ScDocInnerCodeElementImpl(node)
     case DOC_INLINED_TAG      => new ScDocInlinedTagImpl(node)
@@ -50,7 +53,7 @@ final class ScalaDocParserDefinition extends ParserDefinition {
       if (isInsideThrowsTag(node)) new ScDocThrowTagValueImpl(node)
       else if (isInsideJavaLinkTag(node)) new ScDocResolvableCodeReferenceImpl(node)
       else new ScDocTagValueImpl(node)
-    case syntaxType: ScaladocSyntaxElementType =>
+    case syntaxType: ScalaDocSyntaxElementType =>
       val result = new ScDocSyntaxElementImpl(node)
       result.setFlag(syntaxType.getFlagConst)
 
@@ -60,14 +63,17 @@ final class ScalaDocParserDefinition extends ParserDefinition {
 
         parentNode = parentNode.getTreeParent
         parentNode.getElementType match {
-          case elementType: ScaladocSyntaxElementType =>
+          case elementType: ScalaDocSyntaxElementType =>
             result.setFlag(elementType.getFlagConst)
           case _ =>
         }
       }
 
       result
-    case _ => new ASTWrapperPsiElement(node)
+    case DOC_LIST      => new ScDocListImpl(node)
+    case DOC_LIST_ITEM => new ScDocListItemImpl(node)
+    case DOC_PARAGRAPH => new ScDocParagraphImpl(node)
+    case _             => new ASTWrapperPsiElement(node)
   }
 
   override def createFile(viewProvider: FileViewProvider): PsiFile = null

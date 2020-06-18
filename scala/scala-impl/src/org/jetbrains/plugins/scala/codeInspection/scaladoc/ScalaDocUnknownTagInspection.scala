@@ -20,7 +20,7 @@ class ScalaDocUnknownTagInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitTag(s: ScDocTag): Unit = {
-        val tagNameElement = s.getFirstChild
+        val tagNameElement = s.getNameElement
         assert(tagNameElement != null)
         assert(tagNameElement.getNode.getElementType == ScalaDocTokenType.DOC_TAG_NAME)
         

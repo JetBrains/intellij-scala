@@ -1024,7 +1024,9 @@ package object extensions {
 
   implicit class ASTNodeExt(private val node: ASTNode) extends AnyVal {
     def treeNextNodes: Iterator[ASTNode] = new ASTNodeTreeNextIterator(node)
+    def withTreeNextNodes: Iterator[ASTNode] = Iterator(node) ++ new ASTNodeTreeNextIterator(node)
     def treePrevNodes: Iterator[ASTNode] = new ASTNodeTreePrevIterator(node)
+    def withTreePrevNodes: Iterator[ASTNode] = Iterator(node) ++ new ASTNodeTreePrevIterator(node)
 
     def hasElementType(elementType: IElementType): Boolean =
       node.nullSafe.exists(_.getElementType == elementType)

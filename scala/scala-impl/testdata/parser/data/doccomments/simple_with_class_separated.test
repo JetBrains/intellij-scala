@@ -1,17 +1,19 @@
 /**
  comment
  */
+
 type A
 -----
 ScalaFile
   ScTypeAliasDeclaration: A
     DocComment
       ScPsiDocToken(DOC_COMMENT_START)('/**')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('comment')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('comment')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       ScPsiDocToken(DOC_COMMENT_END)('*/')
-    PsiWhiteSpace('\n')
+    PsiWhiteSpace('\n\n')
     AnnotationsList
       <empty list>
     Modifiers

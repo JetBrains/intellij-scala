@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotesLength => QuotesLength}
@@ -43,7 +43,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
         if (element.getParent.getLastChild != element) {
           val tagToDelete = element.getParent.getLastChild
 
-          if (ScaladocSyntaxElementType.canClose(element.getNode.getElementType, tagToDelete.getNode.getElementType)) {
+          if (ScalaDocSyntaxElementType.canClose(element.getNode.getElementType, tagToDelete.getNode.getElementType)) {
             val textLength =
               if (tagToDelete.getNode.getElementType != ScalaDocTokenType.DOC_BOLD_TAG) tagToDelete.getTextLength else 1
             document.deleteString(tagToDelete.getTextOffset, tagToDelete.getTextOffset + textLength)
@@ -121,7 +121,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     })
 
   private def needCorrectWiki(element: PsiElement): Boolean = {
-    (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType] || element.textMatches("{{{")) &&
+    (element.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType] || element.textMatches("{{{")) &&
       (element.getParent.getLastChild != element ||
         element.textMatches("'''") && element.getPrevSibling != null &&
           element.getPrevSibling.textMatches("'"))

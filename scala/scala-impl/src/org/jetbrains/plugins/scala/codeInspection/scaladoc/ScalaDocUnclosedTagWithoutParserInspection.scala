@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 
@@ -28,7 +28,7 @@ class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
     new ScalaElementVisitor {
       override def visitWikiSyntax(s: ScDocSyntaxElement): Unit = {
         val firstElementType = s.getFirstChild.getNode.getElementType
-        if (!ScaladocSyntaxElementType.canClose(firstElementType,
+        if (!ScalaDocSyntaxElementType.canClose(firstElementType,
           s.getLastChild.getNode.getElementType) &&
           firstElementType != ScalaDocTokenType.DOC_HEADER && firstElementType != ScalaDocTokenType.VALID_DOC_HEADER) {
 

@@ -1187,24 +1187,28 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     val before =
       """
         |/**
-        |  *    Pooly formatted scalaDoc.
+        |  *    Poorly formatted scalaDoc.
         |    *Will still be formatted poorly.
         |
         |*                If formatting
         |   is disabled.
         |  Asterisks will be aligned and added though, like in java.
+        | *{@link qweqwe}
+        | *@since 42
         |   */
       """.stripMargin
 
     val after =
       """
         |/**
-        | *    Pooly formatted scalaDoc.
+        | *    Poorly formatted scalaDoc.
         | *Will still be formatted poorly.
         | *
         | *                If formatting
         | *is disabled.
         | *Asterisks will be aligned and added though, like in java.
+        | *{@link qweqwe}
+        | *@since 42
         | */
       """.stripMargin
 

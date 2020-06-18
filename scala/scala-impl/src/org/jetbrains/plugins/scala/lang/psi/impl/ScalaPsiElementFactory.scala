@@ -948,8 +948,10 @@ object ScalaPsiElementFactory {
     children(1).getLastChildNode.getPsi
   }
 
-  def createDocWhiteSpace(implicit ctx: ProjectContext): PsiElement =
-    createDocCommentFromText(" *").getNode.getChildren(null)(1).getPsi
+  def createDocWhiteSpaceWithNewLine(implicit ctx: ProjectContext): PsiElement = {
+    val node = createDocComment(s"/**\n *\n*/").getNode
+    node.getChildren(null)(1).getPsi
+  }
 
   def createLeadingAsterisk(implicit ctx: ProjectContext): PsiElement =
     createDocCommentFromText(" *").getNode.getChildren(null)(2).getPsi

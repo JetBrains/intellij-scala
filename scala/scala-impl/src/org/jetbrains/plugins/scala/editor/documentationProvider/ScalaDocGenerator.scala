@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
@@ -11,15 +12,29 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
+import scala.util.{Failure, Try}
+
 object ScalaDocGenerator {
 
   private final case class ActualComment(owner: PsiDocCommentOwner, comment: PsiDocComment, isInherited: Boolean)
 
-  def generateDoc(elementWithDoc: PsiElement, originalElement: Option[PsiElement]): String = {
+  // IDEA doesn't log exceptions occurred during doc rendering,
+  // we would like to at least show them in internal mode, during development
+  private def internalLog[T](body: => T): T = Try(body).fold(
+    ex => {
+      if (ApplicationManager.getApplication.isInternal)
+        ex.printStackTrace()
+      throw ex
+    },
+    identity
+  )
 
+  def generateDoc(elementWithDoc: PsiElement, originalElement: Option[PsiElement]): String = internalLog {
     val builder = new StringBuilder
 
+
     builder.append("<html>")
+    builder.append("<head><style>").append(ScalaDocCss.value).append("</style></head>")
     builder.append("<body>")
 
     val e = elementWithDoc.getNavigationElement // TODO: check what is this?
@@ -33,7 +48,7 @@ object ScalaDocGenerator {
     result
   }
 
-  def generateDocRendered(commentOwner: ScDocCommentOwner, comment: ScDocComment): String = {
+  def generateDocRendered(commentOwner: ScDocCommentOwner, comment: ScDocComment): String = internalLog {
     val builder = new StringBuilder
     new ScalaDocContentWithSectionsGenerator(commentOwner, comment, rendered = true).generate(builder)
     builder.result

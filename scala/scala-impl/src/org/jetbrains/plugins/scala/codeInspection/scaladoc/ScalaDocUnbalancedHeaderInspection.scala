@@ -82,7 +82,7 @@ class ScalaDocMoveTextToNewLineQuickFix(textData: PsiElement)
   override protected def doApplyFix(data: PsiElement)
                                    (implicit project: Project): Unit = {
     val parent = data.getParent
-    parent.addBefore(createDocWhiteSpace, data)
+    parent.addBefore(createDocWhiteSpaceWithNewLine, data)
     parent.addBefore(createLeadingAsterisk, data)
   }
 }
