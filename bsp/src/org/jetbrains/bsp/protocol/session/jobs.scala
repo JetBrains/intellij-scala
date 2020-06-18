@@ -12,6 +12,7 @@ import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.{BspError, BspTaskCancelled}
 
 import scala.concurrent.{CancellationException, Future, Promise}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object jobs {
 
@@ -43,7 +44,6 @@ object jobs {
   }
 }
 
-
 private[session] class FailedBspSessionJob[T,A](problem: BspError) extends BspSessionJob[T,A] {
 
   override private[protocol] def log(@Nls message: String): Unit = ()
@@ -59,6 +59,7 @@ private[session] class FailedBspSessionJob[T,A](problem: BspError) extends BspSe
 
 }
 
+case class Bsp4JJobFailure[A](error: Throwable, messages: A) extends Throwable
 
 private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
                                      default: A,
@@ -105,7 +106,9 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
       }
     }
 
-  override def future: Future[(T, A)] = promise.future
+  override def future: Future[(T, A)] = promise.future.recoverWith{
+    case err  => Future.failed(Bsp4JJobFailure(err, a))
+  }
 
   override def cancel() : Unit =
     if (! promise.isCompleted)
