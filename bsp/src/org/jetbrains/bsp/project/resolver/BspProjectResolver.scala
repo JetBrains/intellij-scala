@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j._
 import com.intellij.build.events.impl.SuccessResultImpl
-import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
@@ -17,7 +17,8 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.resolver.BspProjectResolver._
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.project.resolver.BspResolverLogic._
-import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback}
+import org.jetbrains.bsp.protocol.session.Bsp4JJobFailure
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, NotificationCallback}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled, BspUtil}
@@ -27,7 +28,7 @@ import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam, upgradedSbtVersion}
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
-import org.jetbrains.sbt.project.structure.{MillPreImporter, Cancellable, SbtStructureDump}
+import org.jetbrains.sbt.project.structure.{Cancellable, MillPreImporter, SbtStructureDump}
 import org.jetbrains.sbt.project.{MillProjectImportProvider, SbtExternalSystemManager, SbtProjectImportProvider}
 import org.jetbrains.sbt.{Sbt, SbtUtil}
 
@@ -113,11 +114,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
   private def runImport(workspace: File, executionSettings: BspExecutionSettings)
                        (implicit reporter: BuildReporter) = {
-    val notifications: NotificationCallback = {
+    def notifications(implicit reporter: BuildReporter): NotificationAggregator[BuildMessages] =
+    (messages, notification) => notification match {
       case BspNotifications.LogMessage(params) =>
-        // TODO use params.id for tree structure?
         reporter.log(params.getMessage)
+        messages.addWarning(params.getMessage)
       case _ =>
+        // ignore
+        BuildMessages.empty
     }
 
     // special handling for sbt projects: run bloopInstall first
@@ -136,14 +140,21 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     sbtMessages match {
       case Success(messages) if messages.status == BuildMessages.OK =>
-        val projectJob = communication.run(requests(workspace)(_,_,reporter), notifications, reporter.log)
+        val projectJob: BspJob[(DataNode[ProjectData], BuildMessages)] = communication.run(requests(workspace)(_,_,reporter),BuildMessages.empty, notifications, reporter.log)
         waitForProjectCancelable(projectJob) match {
-          case Success(data) =>
+          case Success((data, _)) =>
             reporter.finish(messages)
             data
           case Failure(BspTaskCancelled) =>
             reporter.finishCanceled()
             null
+          case Failure(Bsp4JJobFailure(err, messages: BuildMessages)) =>
+            val newLine = System.lineSeparator()
+            val joinedMessage = err.getMessage + newLine + newLine + messages.warnings.map(_.getMessage).mkString(newLine)
+            val ansiColorCodePattern = "\\u001B?\\[[0-9;]+m".r
+            val cleanMsg = ansiColorCodePattern.replaceAllIn(joinedMessage, "")
+            reporter.finishWithFailure(err)
+            throw new ExternalSystemException(cleanMsg)
           case Failure(err: Throwable) =>
             reporter.finishWithFailure(err)
             throw err
@@ -157,7 +168,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
   }
 
-  @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[DataNode[ProjectData]]): Try[DataNode[ProjectData]] =
+  @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[(DataNode[ProjectData], BuildMessages)]): Try[(DataNode[ProjectData], BuildMessages)] =
 
     importState match {
       case Active | PreImportTask(_) | BspTask(_) =>
