@@ -78,6 +78,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def deleteMember(member: ScMember): Unit
 
   def allFunctionsByName(name: String): Iterator[PsiMethod]
+
+  def allTermsByName(name: String): Seq[PsiNamedElement]
 }
 
 object ScTemplateDefinition {

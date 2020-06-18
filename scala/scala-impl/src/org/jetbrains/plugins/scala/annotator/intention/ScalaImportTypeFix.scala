@@ -10,8 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.hasStablePath
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{getCompanionModule, hasStablePath, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
@@ -102,9 +101,10 @@ object ScalaImportTypeFix {
     val kinds = ref.getKinds(incomplete = false)
     val manager = ScalaPsiManager.instance(project)
 
-    def kindMatchesAndIsAccessible(member: PsiMember) =
-      kindMatches(member, kinds) &&
-        isAccessible(member, ref)
+    def kindMatchesAndIsAccessible(named: PsiNamedElement) = named match {
+      case member: PsiMember => kindMatches(member, kinds) && isAccessible(member, ref)
+      case _ => false
+    }
 
     val predicate: PsiClass => Boolean = ref.getParent match {
       case _: ScMethodCall => hasApplyMethod
@@ -132,23 +132,11 @@ object ScalaImportTypeFix {
 
     } yield ClassToImport(classOrCompanion)
 
-    val functions = for {
+    val membersFromCompanion = for {
       CompanionObject(companion) <- ref.withContexts.toIterable
-
-      function <- companion.allFunctionsByName(referenceName)
-      if kindMatchesAndIsAccessible(function)
-    } yield MethodToImport(function)
-
-    val members = for {
-      CompanionObject(companion) <- ref.withContexts.toIterable
-
-      ValueOrVariable(member) <- companion.members
-      if isAccessible(member, ref)
-
-      definition <- member.declaredElements
-      if definition.name == referenceName &&
-        kindMatches(definition, kinds)
-    } yield DefinitionToImport(definition)
+      term <- companion.allTermsByName(referenceName)
+      if kindMatchesAndIsAccessible(term)
+    } yield MemberToImport(term, companion)
 
     val aliases = for {
       alias <- manager.getStableAliasesByName(referenceName, ref.resolveScope)
@@ -160,7 +148,7 @@ object ScalaImportTypeFix {
         kindMatchesAndIsAccessible(alias) &&
         !isInExcludedPackage(containingClass, false)
 
-    } yield TypeAliasToImport(alias)
+    } yield MemberToImport(alias, containingClass)
 
     val packagesList = importsWithPrefix(referenceName).map { s =>
       s.reverse.dropWhile(_ != '.').tail.reverse
@@ -177,8 +165,7 @@ object ScalaImportTypeFix {
     } yield PrefixPackageToImport(pack)
 
     (classes ++
-      functions ++
-      members ++
+      membersFromCompanion ++
       aliases ++
       packages)
       .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))

@@ -122,6 +122,16 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       }
   }
 
+  override def allTermsByName(name: String): Seq[PsiNamedElement] = {
+    TypeDefinitionMembers.getSignatures(this).forName(name)
+      .iterator
+      .collect {
+        case s: TermSignature => s.namedElement
+      }
+      .toSeq
+  }
+
+
   protected def isInterface(namedElement: PsiNamedElement): Boolean = namedElement match {
     case definition: ScTypedDefinition => definition.isAbstractMember
     case _ => false

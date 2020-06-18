@@ -5,10 +5,9 @@ package intention
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
-import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 sealed trait ElementToImport {
   protected type E <: PsiNamedElement
@@ -43,34 +42,13 @@ final case class ClassToImport(override val element: PsiClass) extends ElementTo
   override def qualifiedName: String = element.qualifiedName
 }
 
-final case class MethodToImport(override val element: PsiMethod) extends MemberToImport {
+final case class MemberToImport(override val element: PsiNamedElement,
+                                owner: PsiClass) extends ElementToImport {
 
-  override protected type E = PsiMethod
-}
+  override protected type E = PsiNamedElement
 
-final case class DefinitionToImport(override val element: ScTypedDefinition) extends ElementToImport {
-
-  override protected type E = ScTypedDefinition
-
-  override def qualifiedName: String = element match {
-    case ContainingClass(ClassQualifiedName(qualifiedName)) if qualifiedName.nonEmpty =>
-      qualifiedName + "." + name
-    case _ =>
-      name
-  }
-}
-
-final case class TypeAliasToImport(override val element: ScTypeAlias) extends MemberToImport {
-
-  override protected type E = ScTypeAlias
-}
-
-sealed abstract class MemberToImport extends ElementToImport {
-
-  override protected type E <: PsiMember with PsiNamedElement
-
-  override final def qualifiedName: String = element match {
-    case ContainingClass(ClassQualifiedName(qualifiedName)) if qualifiedName.nonEmpty =>
+  override def qualifiedName: String = owner match {
+    case ClassQualifiedName(qualifiedName) if qualifiedName.nonEmpty =>
       qualifiedName + "." + name
     case _ =>
       name
