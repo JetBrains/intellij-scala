@@ -22,15 +22,16 @@ object Main {
   def main(args: Array[String]): Unit = {
     val home = System.getProperty("user.home")
 
-    val Version = "0.24"
+    val Version = "0.25"
+    val FullVersion = s"$Version.0-RC2"
 
     val files = Seq(
       home + "/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.13.1.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-interfaces/jars/dotty-interfaces-$Version.0-RC1.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-library_$Version/jars/dotty-library_$Version-$Version.0-RC1.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-compiler_$Version/jars/dotty-compiler_$Version-$Version.0-RC1.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-tasty-inspector_$Version/jars/dotty-tasty-inspector_$Version-$Version.0-RC1.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/tasty-core_$Version/jars/tasty-core_$Version-$Version.0-RC1.jar",
+      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-interfaces/jars/dotty-interfaces-$FullVersion.jar",
+      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-library_$Version/jars/dotty-library_$Version-$FullVersion.jar",
+      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-compiler_$Version/jars/dotty-compiler_$Version-$FullVersion.jar",
+      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-tasty-inspector_$Version/jars/dotty-tasty-inspector_$Version-$FullVersion.jar",
+      s"$home/.ivy2/cache/ch.epfl.lamp/tasty-core_$Version/jars/tasty-core_$Version-$FullVersion.jar",
       "target/plugin/Scala/lib/tasty/tasty-runtime.jar",
     )
 
