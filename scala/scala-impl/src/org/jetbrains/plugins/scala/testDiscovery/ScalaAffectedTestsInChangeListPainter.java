@@ -61,7 +61,7 @@ final public class ScalaAffectedTestsInChangeListPainter implements ChangeListDe
       }
     };
 
-    MessageBusConnection connection = myProject.getMessageBus().connect();
+    MessageBusConnection connection = myProject.getMessageBus().connect(this);
     connection.subscribe(ChangeListListener.TOPIC, changeListListener);
     connection.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
       @Override

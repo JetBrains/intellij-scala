@@ -7,6 +7,8 @@ import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 
+import scala.concurrent.duration.DurationLong
+
 object CompileServerNotifications {
 
   private val title = ScalaBundle.message("scala.compile.server.title")
@@ -47,7 +49,8 @@ object CompileServerNotifications {
         settings.COMPILE_SERVER_SDK = fixedSdk
       }
       invokeAndWait(ApplicationManager.getApplication.saveSettings())
-      CompileServerLauncher.stop()
+      CompileServerLauncher.stop(timeoutMs = 3.seconds.toMillis)
+      CompileServerLauncher.tryToStart(project)
     }
   }
 }

@@ -58,7 +58,7 @@ object LatestScalaVersions {
   val Scala_2_11 = new ScalaVersion(ScalaLanguageLevel.Scala_2_11, "12")
   val Scala_2_12 = new ScalaVersion(ScalaLanguageLevel.Scala_2_12, "10")
   val Scala_2_13 = new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "1")
-  val Scala_3_0 = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0-RC1")
+  val Scala_3_0 = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0-RC2")
   final val Dotty = Scala_3_0
   
   val all: Seq[ScalaVersion] = Seq(

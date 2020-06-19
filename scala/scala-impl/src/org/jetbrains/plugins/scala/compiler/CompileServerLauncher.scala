@@ -136,7 +136,7 @@ object CompileServerLauncher {
           // in worksheet tests we reuse compile server between project
           // so we initialize it before the first test starts
           val pluginsClasspath = if (isUnitTestMode && project == null) Seq() else
-            new BuildProcessClasspathManager(project).getBuildProcessPluginsClasspath(project).asScala
+            new BuildProcessClasspathManager(project.unloadAwareDisposable).getBuildProcessPluginsClasspath(project).asScala
           val applicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath.asScala
           pluginsClasspath ++ applicationClasspath
         }

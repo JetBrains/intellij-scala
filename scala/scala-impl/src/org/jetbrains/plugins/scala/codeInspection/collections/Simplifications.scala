@@ -51,11 +51,16 @@ class SimplificationBuilder private[collections] (val exprToReplace: ScExpressio
     this
   }
 
+  def wrapInBlock(): SimplificationBuilder = {
+    this.replacementText = "{" + this.replacementText + "}"
+    this
+  }
+
+
   def withHint(@Nls s: String): SimplificationBuilder = {
     this.hint = s
     this
   }
-
   def toSimplification: Simplification = {
     val smartPointer = exprToReplace.createSmartPointer
     Simplification(smartPointer, replacementText, hint, rangeInParent)

@@ -259,7 +259,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           )
 
           val importTypeFix = ScalaImportTypeFix(refElement)
-          if (importTypeFix.isValid) {
+          if (importTypeFix.isAvailable) {
             annotation.registerFix(importTypeFix)
           }
         }
@@ -273,7 +273,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         if ((refElement.getManager.isInProject(refElement) || refElement.containingScalaFile.exists(_.isWorksheetFile)) &&
           resolve.isEmpty) {
           val importTypeFix = ScalaImportTypeFix(refElement)
-          if (importTypeFix.isValid || countError) {
+          if (importTypeFix.isAvailable || countError) {
             createUnknownSymbolProblem(refElement)(Seq(importTypeFix))
           }
         }

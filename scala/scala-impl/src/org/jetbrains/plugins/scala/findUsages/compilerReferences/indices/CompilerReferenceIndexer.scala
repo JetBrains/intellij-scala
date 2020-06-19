@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicReference
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -16,6 +15,7 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.{Class
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexerFailure._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexingStage._
 import org.jetbrains.plugins.scala.indices.protocol.{CompilationInfo, CompiledClass}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
@@ -32,7 +32,9 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   private[this] val jobFailures  = ContainerUtil.newConcurrentSet[IndexerJobFailure]()
   private[this] val fatalFailure = new AtomicReference[Option[Throwable]](Option.empty)
 
-  Disposer.register(project, () => shutdown())
+  invokeOnDispose(project.unloadAwareDisposable){
+    shutdown()
+  }
 
   private[this] def shutdown(): Unit =
     if (!isShutdown) indexingExecutor.shutdownNow()

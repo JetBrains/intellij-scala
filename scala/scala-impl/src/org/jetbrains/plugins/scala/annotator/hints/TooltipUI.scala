@@ -23,12 +23,23 @@ trait TooltipUI {
 
 object TooltipUI {
 
+  private object NoOpUI extends TooltipUI {
+    override val message: String = ""
+    override protected def showImpl(editor: Editor, mousePoint: Point, inlayOffset: Int): Unit = ()
+    override def isDisposed: Boolean = true
+    override def cancel(): Unit = ()
+    override def addHideListener(action: () => Unit): Unit = ()
+  }
+
   def apply(errorTooltip: ErrorTooltip, editor: Editor): TooltipUI = {
     errorTooltip match {
       case ErrorTooltip.JustText(message) =>
         HintUI(message, editor)
       case ErrorTooltip.WithAction(message, action, element) =>
-        PopupUI(message, action, element, editor)
+        if (element.isValid && action.isAvailable(element.getProject, editor, element.getContainingFile))
+          PopupUI(message, action, element, editor)
+        else
+          NoOpUI
     }
   }
 }

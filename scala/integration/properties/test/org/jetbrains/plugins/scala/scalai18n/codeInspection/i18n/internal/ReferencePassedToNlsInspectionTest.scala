@@ -19,10 +19,13 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
        |  object jetbrains {
        |    object annotations {
        |      class Nls extends scala.annotation.StaticAnnotation
+       |      @Nls
+       |      class SpecificNls extends scala.annotation.StaticAnnotation
        |    }
        |  }
        |}
        |import org.jetbrains.annotations.Nls
+       |import org.jetbrains.annotations.SpecificNls
        |
        |@Nls
        |val nls: String = null
@@ -141,5 +144,13 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
          |def ref2 = "blub2"
          |toNls2(ref1)(${START}ref2$END)
          |""".stripMargin
+    )
+  def test_specific_annotation(): Unit =
+    checkTextHasError(
+      raw"""
+           |def toSpecificNls(@SpecificNls arg: String): Unit = ()
+           |def ref = "blub2"
+           |toSpecificNls(${START}ref$END)
+           |""".stripMargin
     )
 }

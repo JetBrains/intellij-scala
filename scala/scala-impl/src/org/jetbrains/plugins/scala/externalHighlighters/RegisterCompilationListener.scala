@@ -103,7 +103,11 @@ object RegisterCompilationListener {
           val projectFileIndex = ProjectFileIndex.getInstance(project)
           val testScopeOnly = projectFileIndex.isInTestSourceContent(virtualFile)
           val forceCompileModule = Option(projectFileIndex.getModuleForFile(virtualFile)).map(_.getName)
-          compiler.rescheduleCompilation(testScopeOnly, forceCompileModule)
+          compiler.rescheduleCompilation(
+            testScopeOnly = testScopeOnly,
+            delayedProgressShow = true,
+            forceCompileModule = forceCompileModule
+          )
         case _ =>
       }
     }

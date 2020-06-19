@@ -34,6 +34,11 @@ case class I18nBundleContent(entries: Seq[Entry]) {
   private def writeTo(printWriter: PrintWriter): Unit = try {
     import printWriter._
     var path: String = null
+    //make println platform-independent
+    def println(s: String = ""): Unit = {
+      print(s)
+      print("\n")
+    }
     for (entry <- entries) {
       if (path != entry.path) {
         if (path != null) {

@@ -19,10 +19,14 @@ class ScalaExtractStringToBundleInspectionTest extends ScalaInspectionTestBase{
        |  object jetbrains {
        |    object annotations {
        |      class Nls extends scala.annotation.StaticAnnotation
+       |
+       |      @Nls
+       |      class SpecificNls extends scala.annotation.StaticAnnotation
        |    }
        |  }
        |}
        |import org.jetbrains.annotations.Nls
+       |import org.jetbrains.annotations.SpecificNls
        |
        |def toNls(@Nls arg: String): Unit = ()
        |
@@ -37,7 +41,7 @@ class ScalaExtractStringToBundleInspectionTest extends ScalaInspectionTestBase{
     checkTextHasError(raw"""val v = 3; toNls(${START}s"$$v blub"$END) """)
 
   def test_concated_string(): Unit =
-    checkTextHasError(raw""" toNls(${START}"blub" + "abc"$END) """)
+    checkTextHasError(raw""" toNls($START"blub" + "abc"$END) """)
 
   def test_string_in_parenthesis(): Unit =
     checkTextHasError(raw""" toNls( ($START"blub"$END) ) """)
@@ -175,4 +179,13 @@ class ScalaExtractStringToBundleInspectionTest extends ScalaInspectionTestBase{
            |
            |X.test = $START"blub"$END
            |""".stripMargin)
+
+  def test_specific_annotation(): Unit =
+    checkTextHasError(
+      raw"""
+           |def test(@SpecificNls arg: String): Unit = ()
+           |test($START"blub"$END)
+           |""".stripMargin
+    )
+
 }

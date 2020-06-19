@@ -15,7 +15,7 @@ import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.annotator.intention.PopupPosition
-import org.jetbrains.plugins.scala.annotator.quickfix.SearchImplicitQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass
@@ -327,7 +327,7 @@ private object ImplicitHintsPass {
 
   private def notFoundErrorTooltip(message: String, notFoundArgs: Seq[ScalaResolveResult])
                                   (implicit owner: ImplicitArgumentsOwner): ErrorTooltip = {
-    val quickFix = SearchImplicitQuickFix(notFoundArgs, owner, PopupPosition.atCustomLocation)
+    val quickFix = ImportImplicitInstanceFix(notFoundArgs, owner, PopupPosition.atCustomLocation)
     quickFix match {
       case Some(fix) => ErrorTooltip(message, fix, owner)
       case _         => ErrorTooltip(message)

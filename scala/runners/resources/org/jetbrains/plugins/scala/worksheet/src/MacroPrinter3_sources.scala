@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet
 
 import scala.quoted._
-import scala.quoted.matching._
-
-import dotty.tools.dotc.tastyreflect.TastyTreeExpr
+import dotty.tools.dotc.ast.tpd.Tree
 import dotty.tools.dotc.core.Contexts.{Context => InternalContext}
 import dotty.tools.dotc.ast.{Trees => InternalTrees}
 
 object MacroPrinter3 {
+
+  type TastyTreeExpr = scala.internal.quoted.Expr[Tree]
 
   inline def showType[T](inline expr: => T): String = ${ showTypeImpl('expr) }
   inline def showMethodDefinition[T](inline expr: T): String = ${ showMethodDefinitionImpl('expr) }
