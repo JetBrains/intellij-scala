@@ -290,15 +290,11 @@ object SameSignatureCallParametersProvider {
         new MoveCaretInsertHandler
       }
 
-    def withSuperMethodParameters(hasSuperQualifier: Boolean): LookupElementBuilder = {
-      if (hasSuperQualifier) {
-        builder.putUserData(
-          JavaCompletionUtil.SUPER_METHOD_PARAMETERS,
-          java.lang.Boolean.TRUE
-        )
-      }
-      builder
-    }
+    def withSuperMethodParameters(hasSuperQualifier: Boolean): LookupElementBuilder =
+      if (hasSuperQualifier)
+        builder.withBooleanUserData(JavaCompletionUtil.SUPER_METHOD_PARAMETERS)
+      else
+        builder
   }
 
   private[this] object LookupElementBuilderExt {

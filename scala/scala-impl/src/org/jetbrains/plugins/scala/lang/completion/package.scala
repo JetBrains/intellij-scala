@@ -6,6 +6,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
@@ -102,6 +103,14 @@ package object completion {
     def &&(pattern: ElementPattern[_ <: PsiElement]): ElementPattern[_ <: PsiElement] = and(this.pattern, pattern)
 
     def ||(pattern: ElementPattern[_ <: PsiElement]): ElementPattern[_ <: PsiElement] = or(this.pattern, pattern)
+  }
+
+  private[completion] implicit class LookupElementExt[E <: LookupElement](private val lookupElement: E) extends AnyVal {
+
+    def withBooleanUserData(key: Key[java.lang.Boolean]): E = {
+      lookupElement.putUserData(key, java.lang.Boolean.TRUE)
+      lookupElement
+    }
   }
 
   private[completion] implicit class OffsetMapExt(private val offsetMap: OffsetMap) extends AnyVal {

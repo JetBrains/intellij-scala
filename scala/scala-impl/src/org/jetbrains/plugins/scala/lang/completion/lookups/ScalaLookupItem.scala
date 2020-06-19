@@ -109,7 +109,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     val itemText =
       if (isRenamed.nonEmpty)
         s"$getLookupString <= ${getPsiElement.name}"
-      else if (isClassName && !shouldImport && containingClassName != null)
+      else if (isClassName && shouldImport && containingClassName != null)
         s"$containingClassName.$getLookupString"
       else getLookupString
 
@@ -239,7 +239,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
 
   private def containingClassText =
     if (isClassName && containingClassName != null)
-      (if (shouldImport) " in " + containingClassName else "") +
+      (if (shouldImport) "" else " in " + containingClassName) +
         classLocationSuffix(containingClass)
     else
       ""

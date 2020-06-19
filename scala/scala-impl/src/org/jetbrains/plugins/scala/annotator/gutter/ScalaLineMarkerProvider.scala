@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
+import java.awt.event.MouseEvent
 import java.{util => ju}
 
 import com.intellij.codeInsight.daemon._
@@ -17,6 +18,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Function => IJFunction}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScPattern}
@@ -25,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil._
 
@@ -45,6 +47,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
       val lineMarkerInfo =
         getOverridesImplementsMarkers(element)
           .orElse(getImplementsSAMTypeMarker(element))
+          .orElse(companionMarker(element))
           .orNull
 
       if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
@@ -185,6 +188,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
   }
 }
 
+// TODO Split methods between a companion object and packet object (so that methods can be more private)
 private object GutterUtil {
 
   import Gutter._
@@ -302,5 +306,36 @@ private object GutterUtil {
     case _: ScVariableDeclaration  => true
     case _: ScTypeAliasDeclaration => true
     case _                         => false
+  }
+
+  // Show companion for class / trait / object in the gutter, https://youtrack.jetbrains.com/issue/SCL-17697
+  private[gutter] def companionMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
+    // TODO Enable in tests when GutterMarkersTest will be able to separate different maker providers
+    if (ApplicationManager.getApplication.isUnitTestMode) None else element match {
+      case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) && Parent(_: ScClass | _: ScTrait | _: ScObject) =>
+        val typeDefinition = identifier.getParent.asInstanceOf[ScTypeDefinition]
+
+        typeDefinition.baseCompanionModule.map { companion =>
+          new LineMarkerInfo(identifier,
+            identifier.getTextRange,
+            iconFor(typeDefinition), (_: PsiElement) => ScalaBundle.message("has.a.companion", nameOf(companion)),
+            (_: MouseEvent, _: PsiElement) => companion.navigate(/* requestFocus = */ true), Alignment.LEFT)
+        }
+
+      case _ => None
+    }
+
+  private[this] def nameOf(definition: ScTypeDefinition) = definition match {
+    case _: ScClass => ScalaBundle.message("companion.class")
+    case _: ScTrait => ScalaBundle.message("companion.trait")
+    case _: ScObject => ScalaBundle.message("companion.object")
+    case _ => "" // Just "Has a companion" is OK.
+  }
+
+  private[this] def iconFor(definition: ScTypeDefinition): Icon = definition match {
+    case _: ScClass => Icons.CLASS_COMPANION
+    case _: ScTrait => Icons.TRAIT_COMPANION
+    case _: ScObject => Icons.OBECT_COMPANION
+    case _ => null
   }
 }
