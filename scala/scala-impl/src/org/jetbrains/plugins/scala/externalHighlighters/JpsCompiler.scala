@@ -2,34 +2,31 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import java.io.File
 
-import com.intellij.compiler.ModuleCompilerUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
-import com.intellij.openapi.progress.{ProgressManager, Task, ProgressIndicator}
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.util.io.PathKt
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.compiler.{RemoteServerRunner, CompileServerLauncher}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.externalHighlighters.CompilerLock.From
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
 import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
-
-import scala.collection.JavaConverters._
 
 trait JpsCompiler {
   def rescheduleCompilation(testScopeOnly: Boolean,
@@ -47,8 +44,9 @@ object JpsCompiler {
     ServiceManager.getService(project, classOf[JpsCompiler])
 }
 
-private class JpsCompilerImpl(project: Project)
-  extends JpsCompiler with Disposable {
+class JpsCompilerImpl(project: Project)
+  extends JpsCompiler
+    with Disposable {
 
   private val executor = new RescheduledExecutor("CompileJpsExecutor", this)
   private val showIndicatorExecutor = new RescheduledExecutor(s"ShowIndicator-${project.getName}", this)
@@ -76,7 +74,9 @@ private class JpsCompilerImpl(project: Project)
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
 
-    val projectPath = project.getBasePath
+    val projectPath = Option(project.getPresentableUrl)
+      .map(VirtualFileManager.extractPath)
+      .getOrElse(throw new IllegalStateException("Can't determine project path"))
     val globalOptionsPath = PathManager.getOptionsPath
     val dataStorageRootPath = Utils.getDataStorageRoot(
       new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory)),

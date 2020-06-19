@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -16,7 +17,8 @@ class SetSameJdkToBuildProcessAsInCompileServer
 
   override def execute(context: CompileContext): Boolean = {
     val project = context.getProject
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+    val isUnitTestMode = !ApplicationManager.getApplication.isUnitTestMode
+    if (!isUnitTestMode && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
       setBuildProcessJdk(project)
     true
   }

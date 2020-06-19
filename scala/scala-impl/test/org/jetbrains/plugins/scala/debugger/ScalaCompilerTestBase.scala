@@ -49,8 +49,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
     revertable =
       CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
-        CompilerTestUtil.withCompileServerJdk(getTestProjectJdk) |+|
-        CompilerTestUtil.withForcedJdkForBuildProcess(getTestProjectJdk)
+        CompilerTestUtil.withCompileServerJdk(compileServerJdk) |+|
+        CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk)
     revertable.apply()
   }
 
@@ -106,6 +106,10 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     else super.defaultJdkVersion
 
   override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK(testProjectJdkVersion)
+
+  protected def compileServerJdk: Sdk = getTestProjectJdk
+
+  protected def buildProcessJdk: Sdk = getTestProjectJdk
 
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
