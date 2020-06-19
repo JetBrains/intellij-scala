@@ -100,6 +100,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     val scalaSettings: ScalaCodeStyleSettings =
       left.settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+
     def getDependentLFSpacing(x: Int, y: Int, range: TextRange) = {
       if (keepLineBreaks) Spacing.createDependentLFSpacing(y, y, range, true, x)
       else Spacing.createDependentLFSpacing(y, y, range, false, 0)
@@ -210,6 +211,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         }
       case (_, ScalaDocElementTypes.DOC_LIST_ITEM | ScalaDocElementTypes.DOC_LIST, _, _) =>
         Spacing.getReadOnlySpacing
+      case (ScalaDocTokenType.DOC_LIST_ITEM_HEAD, _, _, _) if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT =>
+        WITH_SPACING
       case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _)                                                   =>
         val rightText = getText(rightNode, fileText) //rightString is not semantically equal for PsiError nodes
         if (rightText.nonEmpty && rightText.apply(0) == ' ') Spacing.getReadOnlySpacing

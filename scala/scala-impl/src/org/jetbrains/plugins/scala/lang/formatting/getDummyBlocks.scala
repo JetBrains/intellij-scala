@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocList, ScDocTag}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocListItem, ScDocTag}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
@@ -122,7 +122,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
   private def applyInner(node: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
-    node.getPsi match {
+    val nodePsi = node.getPsi
+    nodePsi match {
       case _: ScValue | _: ScVariable if cs.ALIGN_GROUP_FIELD_DECLARATIONS =>
         subBlocks.addAll(getFieldGroupSubBlocks(node))
         return subBlocks
@@ -202,7 +203,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
     val sharedAlignment: Alignment = createAlignment(node)
 
-    for (child <- node.getChildren(null) if isCorrectBlock(child)) {
+    val children = node.getChildren(null)
+    for (child <- children if isCorrectBlock(child)) {
       val childAlignment: Alignment = calcChildAlignment(node, child, sharedAlignment)
 
       val needFlattenInterpolatedStrings = child.getFirstChildNode == null &&
@@ -218,9 +220,17 @@ class getDummyBlocks(private val block: ScalaBlock) {
     subBlocks
   }
 
-  private def calcChildAlignment(node: ASTNode, child: ASTNode, sharedAlignment: Alignment): Alignment =
-    node.getPsi match {
-      case params: ScParameters =>
+  private def calcChildAlignment(parent: ASTNode, child: ASTNode, sharedAlignment: Alignment): Alignment =
+    parent.getPsi match {
+      case _: ScDocListItem if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT =>
+        child.getElementType match {
+          case ScalaDocTokenType.DOC_LIST_ITEM_HEAD |
+               ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS |
+               ScalaDocTokenType.DOC_WHITESPACE |
+               ScalaDocElementTypes.DOC_LIST => null
+          case _ => sharedAlignment
+        }
+      case params: ScParameters                                         =>
         val firstParameterStartsFromNewLine =
           commonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE ||
             params.clauses.headOption.flatMap(_.parameters.headOption).forall(_.startsFromNewLine())
@@ -791,29 +801,29 @@ class getDummyBlocks(private val block: ScalaBlock) {
   private def isComment(node: ASTNode) = COMMENTS_TOKEN_SET.contains(node.getElementType)
 
   private def createAlignment(node: ASTNode): Alignment = {
-    if (mustAlignment(node)) Alignment.createAlignment
-    else null
-  }
-
-  private def mustAlignment(node: ASTNode): Boolean = {
     import commonSettings._
+    import Alignment.{createAlignment => create}
     node.getPsi match {
-      case _: ScXmlStartTag => true //todo:
-      case _: ScXmlEmptyTag => true //todo:
-      case _: ScParameters if ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScParameterClause if ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScArgumentExprList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
-      case _: ScPatternArgumentList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
-      case _: ScEnumerators if ALIGN_MULTILINE_FOR => true
-      case _: ScParenthesisedExpr if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-      case _: ScParenthesisedTypeElement if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-      case _: ScParenthesisedPattern if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-      case _: ScInfixExpr if ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScInfixPattern if ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScInfixTypeElement if ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScCompositePattern if ss.ALIGN_COMPOSITE_PATTERN => true
-      case _: ScMethodCall | _: ScReferenceExpression | _: ScThisReference | _: ScSuperReference if ALIGN_MULTILINE_CHAINED_METHODS => true
-      case _ => false
+      case _: ScXmlStartTag                                                          => create //todo:
+      case _: ScXmlEmptyTag                                                          => create //todo:
+      case _: ScParameters if ALIGN_MULTILINE_PARAMETERS                             => create
+      case _: ScParameterClause if ALIGN_MULTILINE_PARAMETERS                        => create
+      case _: ScArgumentExprList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS              => create
+      case _: ScPatternArgumentList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS           => create
+      case _: ScEnumerators if ALIGN_MULTILINE_FOR                                   => create
+      case _: ScParenthesisedExpr if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION        => create
+      case _: ScParenthesisedTypeElement if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => create
+      case _: ScParenthesisedPattern if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION     => create
+      case _: ScInfixExpr if ALIGN_MULTILINE_BINARY_OPERATION                        => create
+      case _: ScInfixPattern if ALIGN_MULTILINE_BINARY_OPERATION                     => create
+      case _: ScInfixTypeElement if ALIGN_MULTILINE_BINARY_OPERATION                 => create
+      case _: ScCompositePattern if ss.ALIGN_COMPOSITE_PATTERN                       => create
+      case _: ScMethodCall |
+           _: ScReferenceExpression |
+           _: ScThisReference |
+           _: ScSuperReference if ALIGN_MULTILINE_CHAINED_METHODS => create
+      case _: ScDocListItem if ss.SD_ALIGN_LIST_ITEM_CONTENT      => create(true)
+      case _                                                      => null
     }
   }
 

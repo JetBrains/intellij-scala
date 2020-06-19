@@ -213,11 +213,15 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   @NonNls public Set<String> TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES = asSet("sbt.*", "slick.*");
 
   //scaladoc formatting
+  // TODO: not all ScalaDoc settings are ignored if this setting is disabled
   public boolean ENABLE_SCALADOC_FORMATTING = true;
+
   public boolean SD_ALIGN_OTHER_TAGS_COMMENTS = true;
   public boolean SD_ALIGN_PARAMETERS_COMMENTS = true;
   public boolean SD_ALIGN_EXCEPTION_COMMENTS = true;
   public boolean SD_ALIGN_RETURN_COMMENTS = true;
+
+  public boolean SD_ALIGN_LIST_ITEM_CONTENT = true;
 
   public boolean SD_BLANK_LINE_BEFORE_TAGS = true;
   public boolean SD_BLANK_LINE_AFTER_PARAMETERS_COMMENTS = false;
@@ -227,6 +231,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SD_KEEP_BLANK_LINES_BETWEEN_TAGS = false;
 
   public boolean SD_PRESERVE_SPACES_IN_TAGS = false;
+
 
   //other
   public boolean ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;

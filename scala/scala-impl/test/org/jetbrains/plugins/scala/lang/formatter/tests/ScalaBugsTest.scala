@@ -1756,7 +1756,62 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL6599(): Unit = {
+  // SCL-6599
+  def testListsMix(): Unit = {
+    scalaSettings.ENABLE_SCALADOC_FORMATTING = true
+    val before =
+      """/**
+        | * description
+        | *
+        | *  1. item text
+        | *item text
+        | * item text
+        | *          item text
+        | *    I.      item text
+        | * item text
+        | *
+        | *
+        | *    I.    item
+        | *  1. item
+        | *      - item
+        | *      -     item text
+        | * item text
+        | *
+        | *  1.    item
+        | */
+        |class DocWithLists
+        |""".stripMargin
+
+    val after =
+      """/**
+        | * description
+        | *
+        | *  1. item text
+        | *     item text
+        | *     item text
+        | *     item text
+        | *    I. item text
+        | *       item text
+        | *
+        | *
+        | *    I. item
+        | *  1. item
+        | *      - item
+        | *      - item text
+        | *        item text
+        | *
+        | *  1. item
+        | */
+        |class DocWithLists
+        |""".stripMargin
+
+    doTextTest(before, after)
+  }
+
+  // SCL-6599
+  def testListsMix_ItemsFormattingDisabled(): Unit = {
+    scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT = false
+
     val before =
       """"
         |/**
@@ -1826,6 +1881,46 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       """.stripMargin
 
     doTextTest(before, after)
+  }
+
+  def testListsMix_ScalaDocFormattingDisabled(): Unit = {
+    scalaSettings.ENABLE_SCALADOC_FORMATTING = false
+
+    val before =
+      """"
+        |/**
+        | *      Description
+        | *
+        | * == header ==
+        | *
+        | * - list item 1
+        | *   line 2
+        | *  - list item 1.1
+        | *    line 2
+        | *  - list item 1.2
+        | *    line 2
+        | * 1. 1
+        | * line 2
+        | *  1.1 1.1 // not a list item (no space after)
+        | *  line 2
+        | * 2. 2
+        | * i. 1
+        | *    line 2
+        | *  i. 1.1
+        | * ii. 2
+        | * A. 1
+        | * A. 2
+        | *   A. 3
+        | *   A.A.A.A // not a list item (no space after)
+        | *  line 2
+        | * a. 1
+        | *   a. 1.1
+        | * a. 2
+        | */
+        |val a = 42
+      """.stripMargin
+
+    doTextTest(before, before)
   }
 
   def testSCL10477(): Unit = {
