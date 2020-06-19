@@ -6,9 +6,9 @@ import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j._
 import com.intellij.build.events.impl.SuccessResultImpl
-import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
+import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.util.io.FileUtil
@@ -18,7 +18,7 @@ import org.jetbrains.bsp.project.resolver.BspProjectResolver._
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.project.resolver.BspResolverLogic._
 import org.jetbrains.bsp.protocol.session.Bsp4JJobFailure
-import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, NotificationCallback}
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled, BspUtil}
@@ -117,11 +117,11 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     def notifications(implicit reporter: BuildReporter): NotificationAggregator[BuildMessages] =
     (messages, notification) => notification match {
       case BspNotifications.LogMessage(params) =>
+        //noinspection ReferencePassedToNls
         reporter.log(params.getMessage)
-        messages.addWarning(params.getMessage)
+        messages.message(params.getMessage)
       case _ =>
-        // ignore
-        BuildMessages.empty
+        messages
     }
 
     // special handling for sbt projects: run bloopInstall first
@@ -150,7 +150,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             null
           case Failure(Bsp4JJobFailure(err, messages: BuildMessages)) =>
             val newLine = System.lineSeparator()
-            val joinedMessage = err.getMessage + newLine + newLine + messages.warnings.map(_.getMessage).mkString(newLine)
+            val joinedMessage = err.getMessage + newLine + newLine + messages.messages.mkString(newLine)
             val ansiColorCodePattern = "\\u001B?\\[[0-9;]+m".r
             val cleanMsg = ansiColorCodePattern.replaceAllIn(joinedMessage, "")
             reporter.finishWithFailure(err)
@@ -202,7 +202,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         importState = Inactive
         listener.onCancel(taskId)
         true
-      case BspTask(session) =>
+      case BspTask(_) =>
         listener.beforeCancel(taskId)
         importState = Inactive
         listener.onCancel(taskId)
@@ -220,7 +220,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     importState = PreImportTask(preImporter)
     preImporter.waitFinish()
 
-    BuildMessages(Seq.empty, Seq.empty, Seq.empty, BuildMessages.OK)
+    BuildMessages.empty.status(BuildMessages.OK)
   }.recoverWith {
     case fail => Failure(ImportCancelledException(fail))
   }
@@ -279,6 +279,7 @@ object BspProjectResolver {
   private case class PreImportTask(dumper: Cancellable) extends ImportState
   private case class BspTask(communication: BspCommunication) extends ImportState
 
+  //noinspection ReferencePassedToNls
   private[resolver] def targetData(targets: List[BuildTarget], parentId: EventId)
                                   (implicit bsp: BspServer, capabilities: BuildServerCapabilities, reporter: BuildReporter):
   CompletableFuture[TargetData] = {
