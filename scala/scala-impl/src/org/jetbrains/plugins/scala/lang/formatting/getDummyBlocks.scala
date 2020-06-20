@@ -223,13 +223,16 @@ class getDummyBlocks(private val block: ScalaBlock) {
   private def calcChildAlignment(parent: ASTNode, child: ASTNode, sharedAlignment: Alignment): Alignment =
     parent.getPsi match {
       case _: ScDocListItem if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT =>
-        child.getElementType match {
+        val doNotAlignInListItem = child.getElementType match {
           case ScalaDocTokenType.DOC_LIST_ITEM_HEAD |
                ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS |
                ScalaDocTokenType.DOC_WHITESPACE |
-               ScalaDocElementTypes.DOC_LIST => null
-          case _ => sharedAlignment
+               ScalaDocTokenType.DOC_INNER_CODE_TAG |
+               ScalaDocElementTypes.DOC_LIST => true
+          case _ => false
         }
+        if (doNotAlignInListItem) null
+        else sharedAlignment
       case params: ScParameters                                         =>
         val firstParameterStartsFromNewLine =
           commonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE ||
