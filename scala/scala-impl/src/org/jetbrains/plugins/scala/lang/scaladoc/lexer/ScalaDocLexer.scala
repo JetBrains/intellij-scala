@@ -5,6 +5,7 @@ import java.io.IOException
 import com.intellij.lexer.{LexerBase, MergingLexerAdapter}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.util.text.CharArrayUtil
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocAsteriskStripperLexer.contains
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
 
 final class ScalaDocLexer() extends MergingLexerAdapter(
@@ -97,40 +98,12 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
 
     if (isInLeadingSpace) {
       isInLeadingSpace = false
-
-      val lf = skipWhiteSpaces()
-
-      val state = myFlex.yystate
-
-      val isCommentDataStart  = state == _ScalaDocLexer.COMMENT_DATA ||
-        !isEof() &&
-          (myBuffer.charAt(myTokenEndOffset) match {
-            case '@' | '{' | '\"' | '<' => true
-            case _                      => false
-          }) &&
-          state != _ScalaDocLexer.COMMENT_INNER_CODE
-      if (isCommentDataStart)
+      if (myFlex.yystate != _ScalaDocLexer.COMMENT_INNER_CODE) {
         myFlex.yybegin(_ScalaDocLexer.COMMENT_DATA_START)
-
-      if (myFlex.yystate() == _ScalaDocLexer.COMMENT_DATA_START)
-        flexLocateToken()
-      else if (myBufferIndex < myTokenEndOffset) {
-        val tokenType = if (lf)
-          DOC_WHITESPACE
-        else if (isInTagSpace(state))
-          DOC_WHITESPACE
-        else if (!hasWhitespacesOnly(myBuffer, myBufferIndex, myTokenEndOffset - 1))
-          DOC_COMMENT_DATA
-        else if (state == _ScalaDocLexer.COMMENT_INNER_CODE)
-          DOC_INNER_CODE
-        else
-          DOC_WHITESPACE
-
-        myTokenType = tokenType
       }
     }
-    else
-      flexLocateToken()
+
+    flexLocateToken()
   }
 
   @inline private def hasChar(idx: Int, c: Char): Boolean =
@@ -139,14 +112,11 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
   @inline private def isEof(offset: Int = myTokenEndOffset): Boolean =
     offset >= myBufferEndOffset
 
-  @inline private def skipWhiteSpaces(): Boolean = {
-    var lf = false
-    while (!isEof() && myBuffer.charAt(myTokenEndOffset).isWhitespace) {
-      if (myBuffer.charAt(myTokenEndOffset) == '\n')
-        lf = true
-      myTokenEndOffset += 1
-    }
-    lf
+  @inline private def skipWhiteSpaces(startIdx: Int): Int = {
+    var idx = startIdx
+    while (!isEof(idx) && myBuffer.charAt(idx).isWhitespace)
+      idx += 1
+    idx
   }
 
   @inline private def isInTagSpace(state: Int) = state match {
@@ -205,5 +175,18 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
       i += 1
     }
     true
+  }
+}
+
+object ScalaDocAsteriskStripperLexer {
+
+  private def contains(char: Char, text: CharSequence, start: Int, end: Int): Boolean = {
+    var idx = start
+    while (start < end){
+      if (text.charAt(idx) == char)
+        return true
+      idx += 1
+    }
+    false
   }
 }
