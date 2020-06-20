@@ -7,7 +7,7 @@ package parsing
 import java.util
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.lang.PsiBuilder
+import com.intellij.lang.{ASTNode, PsiBuilder}
 import com.intellij.lexer.HtmlLexer
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
@@ -51,16 +51,31 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
   private def clearFlag(flag: Int): Unit =
     flags &= ~flag
 
-  def parse(): Unit = {
-    assert(builder.getTokenType == DOC_COMMENT_START)
-    builder.advanceLexer()
-    updateLineBreakFlagAfterAsterisks()
+  def parse(root: IElementType): Unit = {
+    val rootMarker = builder.mark
 
-    parseDescription()
-    parseTags()
+    /**
+     * TODO: This is a very dirty hack.
+     *  For some reason Play2Template comments are parsed as an ordinary ScalaDoc comment.
+     *  [[org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes#SCALA_DOC_COMMENT]]
+     *  with all inner token types as DOC_COMMENT_BAD_CHARACTER.
+     *  Play2Templates should have a dedicated PSI element for a template comment with own parsing rules (simple, though)
+     *  NOTE: this was so before implementing ScalaDoc paragraphs, I've just added more assertions...)
+     */
+    val isPlay2TemplateComment = builder.getTokenType != DOC_COMMENT_BAD_CHARACTER
+    if (isPlay2TemplateComment) {
+      assert(builder.getTokenType == DOC_COMMENT_START)
+      builder.advanceLexer()
+      updateLineBreakFlagAfterAsterisks()
+
+      parseDescription()
+      parseTags()
+    }
 
     while (!builder.eof())
       builder.advanceLexer()
+
+    rootMarker.done(root)
   }
 
   private def isEndOfComment: Boolean =
