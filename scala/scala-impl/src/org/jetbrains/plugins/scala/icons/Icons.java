@@ -42,13 +42,18 @@ public interface Icons {
     Icon TRAIT = getIcon("/org/jetbrains/plugins/scala/images/trait_scala.svg");
     Icon PACKAGE_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/package_object.svg");
     Icon CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/class_object_scala.svg");
-    Icon CLASS_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/class_companion_scala.svg");
-    Icon TRAIT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/trait_companion_scala.svg");
-    Icon OBECT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/object_companion.svg");
     Icon ABSTRACT_CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/abstract_class_object_scala.svg");
     Icon TRAIT_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/trait_object_scala.svg");
     Icon PACKAGE_WITH_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/packageWithObject.svg");
     Icon MULTIPLE_TYPE_DEFINITONS = getIcon("/org/jetbrains/plugins/scala/images/multipleTypeDefinitions.svg");
+
+    //Companion gutter icons
+    Icon CLASS_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/class_companion.svg");
+    Icon CLASS_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/class_companion_swapped.svg");
+    Icon TRAIT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/trait_companion.svg");
+    Icon TRAIT_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/trait_companion_swapped.svg");
+    Icon OBECT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/object_companion.svg");
+    Icon OBECT_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/object_companion_swapped.svg");
 
     //Internal nodes
     Icon FIELD_VAR = getIcon("/org/jetbrains/plugins/scala/images/field_variable.svg");

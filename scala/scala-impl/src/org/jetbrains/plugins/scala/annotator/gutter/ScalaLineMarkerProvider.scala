@@ -316,9 +316,11 @@ private object GutterUtil {
         val typeDefinition = identifier.getParent.asInstanceOf[ScTypeDefinition]
 
         typeDefinition.baseCompanionModule.map { companion =>
+          val swapped = typeDefinition.startOffset > companion.startOffset ^ typeDefinition.is[ScObject]
+
           new LineMarkerInfo(identifier,
             identifier.getTextRange,
-            iconFor(typeDefinition), (_: PsiElement) => ScalaBundle.message("has.a.companion", nameOf(companion)),
+            iconFor(typeDefinition, swapped), (_: PsiElement) => ScalaBundle.message("has.a.companion", nameOf(companion)),
             (_: MouseEvent, _: PsiElement) => companion.navigate(/* requestFocus = */ true), Alignment.LEFT)
         }
 
@@ -332,10 +334,10 @@ private object GutterUtil {
     case _ => "" // Just "Has a companion" is OK.
   }
 
-  private[this] def iconFor(definition: ScTypeDefinition): Icon = definition match {
-    case _: ScClass => Icons.CLASS_COMPANION
-    case _: ScTrait => Icons.TRAIT_COMPANION
-    case _: ScObject => Icons.OBECT_COMPANION
+  private[this] def iconFor(definition: ScTypeDefinition, swapped: Boolean): Icon = definition match {
+    case _: ScClass => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
+    case _: ScTrait => if (swapped) Icons.TRAIT_COMPANION_SWAPPED else Icons.TRAIT_COMPANION
+    case _: ScObject => if (swapped) Icons.OBECT_COMPANION_SWAPPED else Icons.OBECT_COMPANION
     case _ => null
   }
 }
