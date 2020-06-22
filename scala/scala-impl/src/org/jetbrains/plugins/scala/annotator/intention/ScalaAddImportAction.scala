@@ -10,26 +10,16 @@ import com.intellij.codeInsight.hint.QuestionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.JBPopup
+import com.intellij.openapi.ui.popup._
 import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.ui.popup.JBPopupListener
-import com.intellij.openapi.ui.popup.LightweightWindowEvent
-import com.intellij.openapi.ui.popup.ListPopup
-import com.intellij.openapi.ui.popup.ListSeparator
-import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.ui.JBUI
-import javax.swing.Icon
-import javax.swing.JLabel
-import javax.swing.JList
+import javax.swing.{Icon, JLabel, JList}
 import javax.swing.event.ListSelectionEvent
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -63,7 +53,19 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
     if (validVariants.length == 1 && importSingleOptionAutomatically) {
       addImport(validVariants.head)
     }
-    else showChooser(validVariants)
+    else {
+      val model = editor.getCaretModel
+      val carets = model.getCaretsAndSelections
+      val offset = model.getOffset
+      try {
+        if (!place.getTextRange.contains(offset)) {
+          model.moveToOffset(place.endOffset - 1)
+        }
+        showChooser(validVariants)
+      } finally {
+        model.setCaretsAndSelections(carets)
+      }
+    }
 
     true
   }

@@ -70,6 +70,8 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
 
   override def startInWriteAction: Boolean = true
 
+  protected def getHintRange: (Int, Int) = hintRange(place)
+
   private def hintRange(element: PsiElement): (Int, Int) = {
     element match {
       case ref: ScReference     => (ref.nameId.startOffset, ref.nameId.endOffset)
@@ -80,7 +82,7 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
 
   private def showHintWithAction(editor: Editor): Unit = {
     val hintManager = HintManagerImpl.getInstanceImpl
-    val (elementStart, elementEnd) = hintRange(place)
+    val (elementStart, elementEnd) = getHintRange
 
     if (place.isValid &&
       elements.nonEmpty &&
