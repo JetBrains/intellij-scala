@@ -32,6 +32,8 @@ class ScGivenDefinitionImpl(stub:      ScTemplateDefinitionStub[ScGivenDefinitio
 
   override def declaredElements: Seq[PsiNamedElement] = Seq(this)
 
+  override def isObject: Boolean = givenTypeParamClause.isEmpty && givenParameters.isEmpty
+
   override protected def typeElementForAnonymousName: Option[ScTypeElement] =
     findChildByType[ScTemplateParents](ScalaElementType.TEMPLATE_PARENTS)
       .toOption

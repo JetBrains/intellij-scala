@@ -56,10 +56,13 @@ object GivenDef {
   }
 
   def parseGivenDefinition()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val extendsBlockMarker = builder.mark()
     if (ConstrApps()) {
       TemplateBody()
+      extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
       true
     } else {
+      extendsBlockMarker.drop()
       false
     }
   }

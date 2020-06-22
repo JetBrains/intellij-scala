@@ -81,6 +81,7 @@ object ScTypeDefinition {
         case _: ScTrait  => "trait "
         case _: ScClass  => "class "
         case _: ScEnum   => "enum "
+        case _: ScGiven   => "given "
         case _           => ""
       }
   }
