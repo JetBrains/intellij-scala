@@ -263,7 +263,7 @@ private class ScalaDocContentGenerator(
 
 object ScalaDocContentGenerator {
 
-  private val Log = Logger.getInstance(classOf[ScalaDocContentWithSectionsGenerator])
+  private val Log = Logger.getInstance(classOf[ScalaDocContentGenerator])
 
   private case class PsiElementResolveResult(refText: String, label: String)
 

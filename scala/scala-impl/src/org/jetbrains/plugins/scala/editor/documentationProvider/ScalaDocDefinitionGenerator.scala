@@ -233,20 +233,22 @@ private class ScalaDocDefinitionGenerator private(
     )
   }
 
-    private def parseExtendsBlock(elem: ScExtendsBlock)
+  private def parseExtendsBlock(elem: ScExtendsBlock)
                                (implicit typeToString: TypeRenderer): String = {
     val buffer: StringBuilder = new StringBuilder()
     elem.templateParents match {
       case Some(x: ScTemplateParents) =>
         val seq = x.allTypeElements
-        buffer.append(typeToString(seq.head.`type`().getOrAny))
-        if (seq.length > 1) {
-          buffer.append("\n")
-          for (i <- 1 until seq.length) {
-            if (i > 1)
-              buffer.append(" ")
-            buffer.append("with ")
-            buffer.append(typeToString(seq(i).`type`().getOrAny))
+        if (seq.nonEmpty) {
+          buffer.append(typeToString(seq.head.`type`().getOrAny))
+          if (seq.length > 1) {
+            buffer.append("\n")
+            for (i <- 1 until seq.length) {
+              if (i > 1)
+                buffer.append(" ")
+              buffer.append("with ")
+              buffer.append(typeToString(seq(i).`type`().getOrAny))
+            }
           }
         }
       case None =>

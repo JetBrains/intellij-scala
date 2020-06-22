@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
@@ -16,6 +17,8 @@ import scala.util.{Failure, Try}
 
 object ScalaDocGenerator {
 
+  private val Log = Logger.getInstance(this.getClass)
+
   private final case class ActualComment(owner: PsiDocCommentOwner, comment: PsiDocComment, isInherited: Boolean)
 
   // IDEA doesn't log exceptions occurred during doc rendering,
@@ -23,7 +26,7 @@ object ScalaDocGenerator {
   private def internalLog[T](body: => T): T = Try(body).fold(
     ex => {
       if (ApplicationManager.getApplication.isInternal)
-        ex.printStackTrace()
+        Log.error("Unexpected exception occurred during doc info generation", ex)
       throw ex
     },
     identity

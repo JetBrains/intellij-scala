@@ -1603,4 +1603,11 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     doGenerateDocContentTest(input, expectedContent)
   }
+
+
+  def testBrokenCode_ClassWithoutExtendsListItems(): Unit =
+    doGenerateDocDefinitionTest(
+      s"""class Test${|} extends""".stripMargin,
+      s"""class <b>Test</b>""".stripMargin
+    )
 }
