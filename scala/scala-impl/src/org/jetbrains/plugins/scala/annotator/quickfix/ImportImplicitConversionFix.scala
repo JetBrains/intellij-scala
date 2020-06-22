@@ -5,8 +5,9 @@ import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.annotator.intention.{MemberToImport, ScalaAddImportAction, ScalaImportElementFix}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitConversion, ImplicitConversionCache}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -46,12 +47,19 @@ object ImportImplicitConversionFix {
 
   def apply(ref: ScReferenceExpression): Option[ImportImplicitConversionFix] = {
     val conversions = for {
-      qualifier                <- ref.qualifier.toSeq
+      qualifier                <- qualifier(ref).toSeq
       (conversion, resultType) <- ImplicitConversionCache(ref.getProject).getPossibleConversions(qualifier).toSeq
       if CompletionProcessor.variantsWithName(resultType, qualifier, ref.refName).nonEmpty
     } yield conversion
 
     if (conversions.isEmpty) None
     else Some(new ImportImplicitConversionFix(ref, conversions))
+  }
+
+  private def qualifier(ref: ScReferenceExpression): Option[ScExpression] = ref match {
+    case prefix: ScInterpolatedExpressionPrefix =>
+      prefix.getParent.asInstanceOf[ScInterpolatedStringLiteral]
+        .desugaredExpression.flatMap(_._1.qualifier)
+    case _ => ref.qualifier
   }
 }
