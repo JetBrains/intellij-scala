@@ -36,11 +36,11 @@ final class ImportImplicitInstanceFix private (found: Seq[FoundImplicit],
     if (found.size == 1)
       ScalaBundle.message("import.with", found.head.instance.qualifiedName)
     else
-      ScalaBundle.message("import.implicit.instance")
+      ScalaBundle.message("import.implicit")
   }
 
   override def getFamilyName: String =
-    ScalaBundle.message("import.implicit.instance")
+    ScalaBundle.message("import.implicit")
 }
 
 case class FoundImplicit(instance: GlobalImplicitInstance, path: Seq[ScalaResolveResult], scType: ScType)
