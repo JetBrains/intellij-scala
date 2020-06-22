@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.intention
 import java.awt.Point
 
 import com.intellij.codeInsight.hint.HintManagerImpl
+import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInspection.HintAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
@@ -19,6 +20,8 @@ import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.executeUndoTransparentAction
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
 
 abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction {
 
@@ -67,10 +70,17 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction {
 
   override def startInWriteAction: Boolean = true
 
+  private def hintRange(element: PsiElement): (Int, Int) = {
+    element match {
+      case ref: ScReference     => (ref.nameId.startOffset, ref.nameId.endOffset)
+      case gcall: ScGenericCall => (hintRange(gcall.referencedExpr)._1, gcall.endOffset)
+      case _                    => (element.startOffset, element.endOffset)
+    }
+  }
+
   private def showHintWithAction(editor: Editor): Unit = {
     val hintManager = HintManagerImpl.getInstanceImpl
-    val elementStart = place.startOffset
-    val elementEnd = place.endOffset
+    val (elementStart, elementEnd) = hintRange(place)
 
     if (place.isValid &&
       elements.nonEmpty &&
