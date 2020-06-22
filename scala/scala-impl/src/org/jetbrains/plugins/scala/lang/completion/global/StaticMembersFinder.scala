@@ -73,9 +73,13 @@ private[completion] final class StaticMembersFinder private(namePredicate: NameP
       classToImport,
       Some(classToImport)
     ) {
-    override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
+    override protected def buildItem(lookupItem: ScalaLookupItem,
+                                     shouldImport: Boolean): Option[ScalaLookupItem] = {
       lookupItem.isOverloadedForClassName = isOverloadedForClassName
+      super.buildItem(lookupItem, shouldImport)
     }
+
+    override protected def createInsertHandler: Null = null
   }
 
 }

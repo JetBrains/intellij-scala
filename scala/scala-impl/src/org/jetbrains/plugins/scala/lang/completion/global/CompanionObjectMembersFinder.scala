@@ -80,13 +80,17 @@ private[completion] object CompanionObjectMembersFinder {
                                         `object`: ScObject): CompanionObjectMemberResult =
       new CompanionObjectMemberResult(member, `object`) {
 
-        override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
-          lookupItem.shouldImport = true
-          lookupItem.setInsertHandler(new ScalaImportingInsertHandler(`object`) {
+        override protected def buildItem(lookupItem: ScalaLookupItem,
+                                         shouldImport: Boolean): Option[ScalaLookupItem] =
+          if (shouldImport)
+            super.buildItem(lookupItem, shouldImport)
+          else
+            None
 
-            override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
-              replaceReference(reference)
-          })
+        override protected def createInsertHandler: ScalaImportingInsertHandler = new ScalaImportingInsertHandler(`object`) {
+
+          override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+            replaceReference(reference)
         }
       }
   }
@@ -124,13 +128,8 @@ private[completion] object CompanionObjectMembersFinder {
                                         `object`: ScObject): CompanionObjectMemberResult =
       new CompanionObjectMemberResult(member.asInstanceOf[ScFunction], `object`) {
 
-        override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
-          lookupItem.setInsertHandler(createPostfixInsertHandler)
-        }
-
-        private def createPostfixInsertHandler = new InsertHandler[ScalaLookupItem] {
-
-          override def handleInsert(context: InsertionContext, item: ScalaLookupItem): Unit = {
+        override protected def createInsertHandler: InsertHandler[ScalaLookupItem] =
+          (context: InsertionContext, _: ScalaLookupItem) => {
             val reference@ScReferenceExpression.withQualifier(qualifier) = context
               .getFile
               .findReferenceAt(context.getStartOffset)
@@ -146,7 +145,6 @@ private[completion] object CompanionObjectMembersFinder {
               removeParenthesis = true
             )
           }
-        }
       }
   }
 

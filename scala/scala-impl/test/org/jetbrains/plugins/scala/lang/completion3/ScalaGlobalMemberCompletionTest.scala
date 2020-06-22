@@ -256,6 +256,25 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testImportedCompanionObjectValue(): Unit = checkNoCompletion(
+    fileText =
+      s"""class Foo {
+         |  import Foo._
+         |
+         |  f$CARET
+         |}
+         |
+         |object Foo {
+         |  val foo = 42
+         |}
+         |""".stripMargin,
+  ) {
+    hasItemText(_, "foo")(
+      itemText = "Foo.foo",
+      tailText = " <default>"
+    )
+  }
+
   def testNestedCompanionObjectValue(): Unit = doCompletionTest(
     fileText =
       s"""class Foo {

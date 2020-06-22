@@ -4,7 +4,7 @@ package completion
 package global
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeInsight.completion.{JavaCompletionFeatures, JavaCompletionUtil}
+import com.intellij.codeInsight.completion.{InsertHandler, JavaCompletionFeatures, JavaCompletionUtil}
 import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.psi.{PsiClass, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
@@ -35,16 +35,27 @@ abstract class GlobalMembersFinder {
         resolveResult.getLookupElement(
           isClassName = true,
           containingClass = containingClass
-        ).map { lookupItem =>
-          lookupItem.shouldImport = shouldImport(lookupItem.getPsiElement)
-          patchItem(lookupItem)
-          lookupItem.withBooleanUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR)
+        ).flatMap { lookupItem =>
+          buildItem(
+            lookupItem,
+            shouldImport(lookupItem.getPsiElement)
+          )
         }
       else
         None
 
-    protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
+    protected def buildItem(lookupItem: ScalaLookupItem,
+                            shouldImport: Boolean): Option[ScalaLookupItem] = {
+      lookupItem.shouldImport = shouldImport
+      createInsertHandler match {
+        case null =>
+        case handler => lookupItem.setInsertHandler(handler)
+      }
+      lookupItem.withBooleanUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR)
+      Some(lookupItem)
     }
+
+    protected def createInsertHandler: InsertHandler[ScalaLookupItem]
 
     private def isApplicable: Boolean = Option(classToImport.qualifiedName).forall(isNotExcluded)
   }
@@ -62,22 +73,17 @@ object GlobalMembersFinder {
 
     override def apply(element: PsiNamedElement): Boolean = element.getContainingFile match {
       case `originalFile` =>
-        contextContainingClassName(element).forall { className =>
+        element.containingClassOfNameContext.forall { containingClass =>
           //complex logic to detect static methods in the same file, which we shouldn't import
           val name = element.name
           !elements
             .filter(_.getContainingFile == originalFile)
             .filter(_.name == name)
-            .flatMap(contextContainingClassName)
-            .contains(className)
+            .flatMap(_.containingClassOfNameContext)
+            .contains(containingClass)
         }
       case _ => !elements.contains(element)
     }
-
-    private def contextContainingClassName(element: PsiNamedElement) =
-      element.containingClassOfNameContext.flatMap { clazz =>
-        Option(clazz.qualifiedName)
-      }
   }
 
   private def isNotExcluded(qualifiedName: String): Boolean = {

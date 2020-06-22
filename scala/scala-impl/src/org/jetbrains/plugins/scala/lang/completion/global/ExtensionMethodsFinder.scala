@@ -5,7 +5,6 @@ package global
 
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -45,11 +44,7 @@ private[completion] final class ExtensionMethodsFinder(originalType: ScType, pla
                                                     private val classToImport: ScObject)
     extends GlobalMemberResult(resolveResult, classToImport) {
 
-    override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
-      lookupItem.setInsertHandler(new ExtensionMethodInsertHandler)
-    }
-
-    private final class ExtensionMethodInsertHandler extends ScalaImportingInsertHandler(classToImport) {
+    override protected def createInsertHandler: ScalaImportingInsertHandler = new ScalaImportingInsertHandler(classToImport) {
 
       override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = for {
         ContainingClass(ClassQualifiedName(_)) <- Option(elementToImport.nameContext)
