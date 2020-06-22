@@ -33,7 +33,7 @@ class ParametersRenderer(
   }
 
   def renderClause(clause: ScParameterClause, buffer: StringBuilder): Unit = {
-    val prefix = if (renderImplicitModifier && clause.isImplicit) "(implicit" else "("
+    val prefix = if (renderImplicitModifier && clause.isImplicit) "(implicit " else "("
     val suffix = ")"
     buffer.append(prefix)
     renderParameters(clause.parameters, buffer)
