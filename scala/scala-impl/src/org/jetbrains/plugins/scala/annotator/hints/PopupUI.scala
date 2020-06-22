@@ -87,8 +87,8 @@ private object PopupUI {
         editor.getContentComponent.removeKeyListener(this)
       }
       override def keyTyped(e: KeyEvent): Unit = cancel()
-      override def keyPressed(e: KeyEvent): Unit = cancel()
-      override def keyReleased(e: KeyEvent): Unit = cancel()
+      override def keyPressed(e: KeyEvent): Unit = ()
+      override def keyReleased(e: KeyEvent): Unit = ()
     }
     editor.getContentComponent.addKeyListener(keyListener)
 
