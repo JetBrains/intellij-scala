@@ -14,6 +14,14 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, Scal
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
+/**
+ * TODO: Extract scaladoc highlighter completely,
+ *  now it's something intermediate in
+ *  [[org.jetbrains.plugins.scala.highlighter]]
+ *  and
+ *  [[org.jetbrains.plugins.scalaDoc.highlighter]]
+ *  packages
+ */
 final class ScalaSyntaxHighlighter(
   scalaLexer: Lexer,
   scalaDocHighlighter: SyntaxHighlighter,
