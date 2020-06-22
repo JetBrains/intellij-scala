@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames.PredefFqn
 final case class GlobalImplicitConversion(containingObject: ScObject, function: ScFunction) {
   def substitutor: ScSubstitutor =
     MixinNodes.asSeenFromSubstitutor(containingObject, function.containingClass)
+
+  def qualifiedName: String = containingObject.qualifiedName + "." + function.name
 }
 
 object GlobalImplicitConversion {

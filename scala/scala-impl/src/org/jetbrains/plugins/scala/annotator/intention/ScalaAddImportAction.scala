@@ -28,11 +28,14 @@ import javax.swing.Icon
 import javax.swing.JLabel
 import javax.swing.JList
 import javax.swing.event.ListSelectionEvent
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -65,6 +68,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
     true
   }
 
+  @Nls
   protected def chooserTitle(variants: Seq[Elem]): String =
     ElementToImport.messageByType(variants)(
       ScalaBundle.message("import.class.chooser.title"),
@@ -153,10 +157,10 @@ object ScalaAddImportAction {
     case _ => new ForReference(editor, variants, reference)
   }
 
-  private final class ForReference(editor: Editor, variants: Seq[ElementToImport], ref: ScReference)
-    extends ScalaAddImportAction[ScReference, ElementToImport](editor, variants, ref) {
+  private sealed class ForReference[Ref <: ScReference, ToImport <: ElementToImport](editor: Editor, variants: Seq[ToImport], ref: Ref)
+    extends ScalaAddImportAction[Ref, ToImport](editor, variants, ref) {
 
-    override protected def doAddImport(toImport: ElementToImport): Unit = {
+    override protected def doAddImport(toImport: ToImport): Unit = {
       toImport match {
         case PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
         case _ => ref.bindToElement(toImport.element)
@@ -173,6 +177,22 @@ object ScalaAddImportAction {
     }
   }
 
+  private final class ImportImplicitConversionAction(editor: Editor, variants: Seq[MemberToImport], ref: ScReferenceExpression)
+    extends ForReference[ScReferenceExpression, MemberToImport](editor, variants, ref) {
+
+    override protected def chooserTitle(variants: Seq[MemberToImport]): String =
+      ScalaBundle.message("import.conversion.chooser.title")
+
+    override protected def doAddImport(toImport: MemberToImport): Unit = {
+      ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
+    }
+  }
+
+  def importImplicitConversion(editor: Editor,
+                               variants: Seq[MemberToImport],
+                               ref: ScReferenceExpression): ScalaAddImportAction[ScReferenceExpression, MemberToImport] =
+    new ImportImplicitConversionAction(editor, variants, ref)
+
   def importImplicits(editor: Editor,
                       variants: Seq[ImplicitToImport],
                       place: ImplicitArgumentsOwner,
@@ -186,7 +206,7 @@ object ScalaAddImportAction {
     extends ScalaAddImportAction[ImplicitArgumentsOwner, ImplicitToImport](editor, variants, place, popupPosition) {
 
     override protected def chooserTitle(variants: Seq[ImplicitToImport]): String =
-      ScalaBundle.message("import.implicit")
+      ScalaBundle.message("import.implicit.chooser.title")
 
     override protected def doAddImport(toImport: ImplicitToImport): Unit =
       ScImportsHolder(place).addImportForPath(toImport.qualifiedName)
