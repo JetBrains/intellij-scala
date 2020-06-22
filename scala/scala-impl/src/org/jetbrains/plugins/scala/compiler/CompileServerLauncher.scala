@@ -232,7 +232,7 @@ object CompileServerLauncher {
   
   def defaultSdk(project: Project): Sdk =
     CompileServerJdkManager.recommendedSdk(project)
-      .getOrElse(BuildManager.getBuildProcessRuntimeSdk(project).first)
+      .getOrElse(synchronized(BuildManager.getBuildProcessRuntimeSdk(project).first))
 
   def compileServerSdk(project: Project): Either[String, Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance()
