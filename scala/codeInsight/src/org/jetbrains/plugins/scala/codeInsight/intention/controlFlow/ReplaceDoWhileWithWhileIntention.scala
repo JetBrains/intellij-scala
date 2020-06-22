@@ -137,7 +137,7 @@ object ReplaceDoWhileWithWhileIntention {
     implicit val ctx: ProjectContext = element
 
     val firstChild: PsiElement = element.getFirstChild
-    val processor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, isImplicit = true)
+    val processor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, withImplicitConversions = true)
     element.processDeclarations(processor, ScalaResolveState.empty, firstChild, firstChild)
     val candidates: Set[ScalaResolveResult] = processor.candidatesS
 

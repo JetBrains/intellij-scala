@@ -147,7 +147,7 @@ object ScalaBasicCompletionProvider {
     extends CompletionProcessor(
       getPlace.getKinds(incomplete = false, completion = true),
       getPlace,
-      isImplicit = getPlace.isInstanceOf[ScReferenceExpression]
+      withImplicitConversions = getPlace.isInstanceOf[ScReferenceExpression]
     ) {
 
     private val lookupElements_ = mutable.ArrayBuffer.empty[LookupElement]

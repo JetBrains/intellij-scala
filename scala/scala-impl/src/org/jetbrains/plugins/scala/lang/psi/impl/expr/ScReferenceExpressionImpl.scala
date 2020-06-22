@@ -146,7 +146,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     getSimpleVariants(incomplete = true, completion = false, implicits).flatMap(toLookupItem)
 
   override def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
-    new CompletionProcessor(getKinds(incomplete = true), this, isImplicit = true) {
+    new CompletionProcessor(getKinds(incomplete = true), this, withImplicitConversions = true) {
 
       override protected val forName: Option[String] = Some(refName)
     })

@@ -36,7 +36,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 abstract class ImplicitConversionData {
-  protected def element: PsiNamedElement
+  def element: PsiNamedElement
+
   protected def paramType: ScType
   protected def returnType: ScType
   protected def substitutor: ScSubstitutor
@@ -63,6 +64,9 @@ abstract class ImplicitConversionData {
         }
     }
   }
+
+  def resultType(from: ScType, place: PsiElement): Option[ScType] =
+    isCompatible(from: ScType, place: PsiElement).toOption.map(_._1)
 
   private def returnTypeWithLocalTypeInference(function: ScFunction,
                                                fromType: ScType,
@@ -191,7 +195,7 @@ object ImplicitConversionData {
       param <- function.parameters.headOption
       paramType <- param.`type`().toOption
     } yield {
-      new RegularImplicitConversionCheck(function, paramType, retType, ScSubstitutor.empty)
+      new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
     }
   }
 
@@ -202,7 +206,7 @@ object ImplicitConversionData {
       elementType   <- named.`type`().toOption
       if elementType.conforms(function1Type)
     } yield {
-      new ElementWithFunctionTypeCheck(named, elementType, ScSubstitutor.empty)
+      new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
     }
   }
 
@@ -217,10 +221,10 @@ object ImplicitConversionData {
   }
 
 
-  private class RegularImplicitConversionCheck (override val element: PsiNamedElement,
-                                                rawParamType: ScType,
-                                                rawReturnType: ScType,
-                                                override val substitutor: ScSubstitutor) extends ImplicitConversionData {
+  private class RegularImplicitConversionData(override val element: PsiNamedElement,
+                                              rawParamType: ScType,
+                                              rawReturnType: ScType,
+                                              override val substitutor: ScSubstitutor) extends ImplicitConversionData {
 
     protected override lazy val paramType: ScType = {
       val undefiningSubst = element match {
@@ -233,12 +237,12 @@ object ImplicitConversionData {
     protected override lazy val returnType: ScType = substitutor(rawReturnType)
 
     override def withSubstitutor(s: ScSubstitutor): ImplicitConversionData =
-      new RegularImplicitConversionCheck(element, rawParamType, rawReturnType, substitutor)
+      new RegularImplicitConversionData(element, rawParamType, rawReturnType, substitutor)
   }
 
-  private class ElementWithFunctionTypeCheck(override val element: PsiNamedElement with Typeable,
-                                             rawElementType: ScType,
-                                             override val substitutor: ScSubstitutor = ScSubstitutor.empty)
+  private class ElementWithFunctionTypeData(override val element: PsiNamedElement with Typeable,
+                                            rawElementType: ScType,
+                                            override val substitutor: ScSubstitutor = ScSubstitutor.empty)
     extends ImplicitConversionData {
     private def stdTypes = StdTypes.instance(element.getProject)
 
@@ -259,7 +263,7 @@ object ImplicitConversionData {
     override protected def returnType: ScType = functionTypeParams.map(_._2).getOrElse(stdTypes.Any)
 
     override def withSubstitutor(s: ScSubstitutor): ImplicitConversionData =
-      new ElementWithFunctionTypeCheck(element, rawElementType, substitutor)
+      new ElementWithFunctionTypeData(element, rawElementType, substitutor)
 
     private def extractFunctionTypeParameters(functionTypeCandidate: ScType,
                                               functionType: ScParameterizedType): Option[(ScType, ScType)] = {

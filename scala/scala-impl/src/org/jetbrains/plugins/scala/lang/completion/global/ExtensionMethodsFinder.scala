@@ -20,24 +20,13 @@ private[completion] final class ExtensionMethodsFinder(originalType: ScType, pla
   private lazy val originalTypeMemberNames: collection.Set[String] = candidatesForType(originalType).map(_.name)
 
   override protected def candidates: Iterable[GlobalMemberResult] = for {
-    (GlobalImplicitConversion(classToImport, elementToImport), conversionData) <- ImplicitConversionCache(place.getProject).getOrScheduleUpdate(place.resolveScope)
-    if ImplicitConversionProcessor.applicable(elementToImport, place)
-
-    (resultType, _) <- ScImplicitlyConvertible.targetTypeAndSubstitutor(
-      conversionData,
-      originalType,
-      place
-    ).toIterable
-
+    (conversion, resultType) <- ImplicitConversionCache(place.getProject).getPossibleConversions(place)
     resolveResult <- candidatesForType(resultType)
     if !originalTypeMemberNames.contains(resolveResult.name)
-  } yield ExtensionMethodCandidate(resolveResult, elementToImport, classToImport)
+  } yield ExtensionMethodCandidate(resolveResult, conversion.function, conversion.containingObject)
 
-  private def candidatesForType(`type`: ScType): collection.Set[ScalaResolveResult] = {
-    val processor = new CompletionProcessor(StdKinds.methodRef, place)
-    processor.processType(`type`, place)
-    processor.candidatesS
-  }
+  private def candidatesForType(`type`: ScType): collection.Set[ScalaResolveResult] =
+    CompletionProcessor.variants(`type`, place)
 
   private final case class ExtensionMethodCandidate(resolveResult: ScalaResolveResult,
                                                     private val elementToImport: ScFunction,

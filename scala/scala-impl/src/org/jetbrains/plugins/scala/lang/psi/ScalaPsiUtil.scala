@@ -116,12 +116,6 @@ object ScalaPsiUtil {
     paramText
   }
 
-  def debug(message: => String, logger: Logger): Unit = {
-    if (logger.isDebugEnabled) {
-      logger.debug(message)
-    }
-  }
-
   def functionArrow(implicit project: ProjectContext): String = {
     val useUnicode = project.project != null && ScalaCodeStyleSettings.getInstance(project).REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
     if (useUnicode) ScalaTypedHandler.unicodeCaseArrow else "=>"

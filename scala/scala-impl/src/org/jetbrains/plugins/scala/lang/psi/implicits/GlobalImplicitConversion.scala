@@ -20,7 +20,7 @@ final case class GlobalImplicitConversion(containingObject: ScObject, function: 
 
 object GlobalImplicitConversion {
 
-  private[implicits] type ImplicitConversionMap = collection.Map[GlobalImplicitConversion, ImplicitConversionData]
+  private[implicits] type ImplicitConversionMap = Map[GlobalImplicitConversion, ImplicitConversionData]
 
   private[implicits] def computeImplicitConversionMap(scope: GlobalSearchScope)
                                                      (implicit project: Project): ImplicitConversionMap =

@@ -18,7 +18,10 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.concurrency.CancellablePromise
 import org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.util.Try
 
@@ -50,6 +53,20 @@ final class ImplicitConversionCache(implicit val project: Project) extends Dispo
           scheduleUpdateFor(scope)
         }
         data
+    }
+  }
+
+  def getPossibleConversions(expr: ScExpression): Map[GlobalImplicitConversion, ScType] = {
+    expr.getTypeWithoutImplicits().toOption match {
+      case None               => Map.empty
+      case Some(originalType) =>
+        getOrScheduleUpdate(expr.resolveScope)
+          .filter {
+            case (_, data) => ImplicitConversionProcessor.applicable(data.element, expr)
+          }
+          .flatMap {
+            case (conversion, data) => data.resultType(originalType, expr).map((conversion, _))
+          }
     }
   }
 

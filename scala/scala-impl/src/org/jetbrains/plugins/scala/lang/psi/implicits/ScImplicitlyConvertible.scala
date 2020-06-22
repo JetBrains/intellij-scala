@@ -58,14 +58,14 @@ object ScImplicitlyConvertible {
   private def adaptResults[IR <: ImplicitResolveResult](candidates: Set[ScalaResolveResult], `type`: ScType, place: PsiElement)
                                                        (f: (ScalaResolveResult, ScType, ScSubstitutor) => IR): Set[IR] =
     for {
-      resolveResult             <- candidates
-      (resultType, substitutor) <- targetTypeAndSubstitutor(resolveResult, `type`, place)
+      resolveResult  <- candidates
+      substitutor    =  resolveResult.substitutor
+      conversion     <- ImplicitConversionData(resolveResult.element, substitutor)
+      resultType     <- conversion.resultType(`type`, place)
     } yield f(resolveResult, resultType, substitutor)
 
   @CachedWithRecursionGuard(place, Set.empty, ModCount.getBlockModificationCount)
   private def collectRegulars(place: ScExpression, placeType: ScType): Set[RegularImplicitResolveResult] = {
-    ScalaPsiUtil.debug(s"Regular implicit map", LOG)
-
     placeType match {
       case _: UndefinedType => Set.empty
       case _ if placeType.isNothing => Set.empty
@@ -81,8 +81,6 @@ object ScImplicitlyConvertible {
 
   @CachedWithRecursionGuard(place, Set.empty, ModCount.getBlockModificationCount)
   private def collectCompanions(placeType: ScType, arguments: Seq[ScType], place: PsiElement): Set[CompanionImplicitResolveResult] = {
-    ScalaPsiUtil.debug(s"Companions implicit map", LOG)
-
     val expandedType = arguments match {
       case Seq() => placeType
       case seq => TupleType(Seq(placeType) ++ seq)(place.elementScope)
@@ -94,34 +92,6 @@ object ScImplicitlyConvertible {
     adaptResults(candidates, placeType, place) {
       CompanionImplicitResolveResult
     }
-  }
-
-  def targetTypeAndSubstitutor(conversion: ImplicitConversionData,
-                               fromType: ScType,
-                               place: PsiElement): Option[(ScType, ScSubstitutor)] = {
-
-    ScalaPsiUtil.debug(s"Check implicit: $conversion for type: $fromType", LOG)
-    conversion.isCompatible(fromType, place) match {
-      case Right(compatibleResult) =>
-        ScalaPsiUtil.debug(s"Implicit $conversion is compatible for type $fromType", LOG)
-        Some(compatibleResult)
-      case Left(msg) =>
-        ScalaPsiUtil.debug(msg, LOG)
-        None
-    }
-  }
-
-  def targetTypeAndSubstitutor(resolveResult: ScalaResolveResult,
-                               fromType: ScType,
-                               place: PsiElement): Option[(ScType, ScSubstitutor)] =
-    targetTypeAndSubstitutor(resolveResult.element, resolveResult.substitutor, fromType, place)
-
-  def targetTypeAndSubstitutor(element: PsiNamedElement,
-                               substitutor: ScSubstitutor,
-                               fromType: ScType,
-                               place: PsiElement): Option[(ScType, ScSubstitutor)] = {
-    ImplicitConversionData(element, substitutor)
-      .flatMap(targetTypeAndSubstitutor(_, fromType, place))
   }
 
 }

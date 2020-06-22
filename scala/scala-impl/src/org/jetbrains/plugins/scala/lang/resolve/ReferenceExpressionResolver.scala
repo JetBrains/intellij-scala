@@ -546,7 +546,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       if (candidates.isEmpty || (!shape && candidates.forall(!_.isApplicable())) || (processor match {
-        case cp: CompletionProcessor => cp.isImplicit
+        case cp: CompletionProcessor => cp.withImplicitConversions
         case _ => false
       })) {
         processor match {
