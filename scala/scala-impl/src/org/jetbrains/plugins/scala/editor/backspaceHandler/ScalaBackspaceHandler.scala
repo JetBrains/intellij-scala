@@ -11,14 +11,15 @@ import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.editor._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler.BraceWrapInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScBlockStatement, ScIf, ScTry}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -132,21 +133,25 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
       if element.isInstanceOf[ScBlockExpr]
       block = element.asInstanceOf[ScBlockExpr]
-      if canRemoveClosingBrace(block)
       rBrace <- block.getRBrace
+      if canRemoveClosingBrace(block, rBrace)
       project = file.getProject
       tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
       if IndentUtil.compare(rBrace, parent, tabSize) >= 0
     } {
       val (start, end) = PsiTreeUtil.nextLeaf(rBrace) match {
-        case ws: PsiWhiteSpace if !ws.textContains('\n') =>
-          (rBrace.startOffset, ws.endOffset)
-        case _ =>
-          val start = PsiTreeUtil.prevLeaf(rBrace) match {
-            case ws@Whitespace(wsText) => ws.startOffset + wsText.lastIndexOf('\n').max(0)
-            case _ => rBrace.startOffset
+        case ws: PsiWhiteSpace =>
+          if (ws.textContains('\n')) {
+            val start = PsiTreeUtil.prevLeaf(rBrace) match {
+              case ws: PsiWhiteSpace => ws.startOffset + StringUtils.lastIndexOf(ws.getNode.getChars, '\n')
+              case _                 => rBrace.startOffset
+            }
+            (start, rBrace.endOffset)
+          } else {
+            (rBrace.startOffset, ws.endOffset)
           }
-          (start, rBrace.startOffset + 1)
+        case _                                           =>
+          (rBrace.startOffset, rBrace.endOffset)
       }
 
       val document = editor.getDocument
@@ -155,15 +160,49 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
   }
 
-  private def canRemoveClosingBrace(block: ScBlockExpr): Boolean = {
-    block.statements.size <= 1
+  private def canRemoveClosingBrace(block: ScBlockExpr, blockRBrace: PsiElement): Boolean = {
+    val statements = block.statements
+
+    if (statements.isEmpty)
+      true
+    else if (statements.size == 1)
+      canRemoveClosingBrace(statements.head, blockRBrace)
+    else
+      false
+  }
+
+  /**
+   * do not remove brace if it breaks the code semantics (and leaves the code syntax correct)
+   * e.g. here we can't remove the brace cause `else` will transfer to the inner `if`
+   * {{{
+   * if (condition1) {<CARET>
+   *   if (condition2)
+   *     foo()
+   * } else
+   *   bar()
+   * }}}
+   */
+  private def canRemoveClosingBrace(statement: ScBlockStatement, blockRBrace: PsiElement) =
+    statement match {
+      case innerIf: ScIf   =>
+        innerIf.elseKeyword.isDefined || !isFollowedBy(blockRBrace, ScalaTokenTypes.kELSE)
+      case innerTry: ScTry =>
+        val okFromFinally = innerTry.finallyBlock.isDefined || !isFollowedBy(blockRBrace, ScalaTokenTypes.kFINALLY)
+        val okFromCatch   = innerTry.catchBlock.isDefined || !isFollowedBy(blockRBrace, ScalaTokenTypes.kCATCH)
+        okFromFinally && okFromCatch
+      case _               => true
+    }
+
+  private def isFollowedBy(element: PsiElement, elementType: IElementType): Boolean = {
+    val next = element.getNextNonWhitespaceAndNonEmptyLeaf
+    next != null && next.elementType == elementType
   }
 
   /*
-    In some cases with nested braces (like '{()}' ) IDEA can't properly handle backspace action due to 
-    bag in BraceMatchingUtil (it looks for every lbrace/rbrace token regardless of they are a pair or not)
-    So we have to fix it in our handler
-   */
+      In some cases with nested braces (like '{()}' ) IDEA can't properly handle backspace action due to
+      bag in BraceMatchingUtil (it looks for every lbrace/rbrace token regardless of they are a pair or not)
+      So we have to fix it in our handler
+     */
   override def charDeleted(charRemoved: Char, file: PsiFile, editor: Editor): Boolean = {
     val document = editor.getDocument
     val offset = editor.getCaretModel.getOffset

@@ -772,10 +772,16 @@ package object extensions {
     /** skips empty annotations, modifiers, etc.. */
     def getPrevNonEmptyLeaf: PsiElement = {
       var prev = PsiTreeUtil.prevLeaf(element)
-      while (prev != null && prev.getTextLength == 0) {
+      while (prev != null && prev.getTextLength == 0)
         prev = PsiTreeUtil.prevLeaf(prev)
-      }
       prev
+    }
+
+    def getNextNonWhitespaceAndNonEmptyLeaf: PsiElement = {
+      var next = PsiTreeUtil.nextLeaf(element)
+      while (next != null && (next.getTextLength == 0 || next.isInstanceOf[PsiWhiteSpace]))
+        next = PsiTreeUtil.nextLeaf(next)
+      next
     }
 
     def resolveScope: GlobalSearchScope =
