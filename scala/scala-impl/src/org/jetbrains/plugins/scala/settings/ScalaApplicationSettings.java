@@ -35,6 +35,11 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = false;
   public boolean OPTIMIZE_IMPORTS_ON_THE_FLY = false;
 
+  public boolean SHOW_IMPORT_POPUP_CLASSES = true;
+  public boolean SHOW_IMPORT_POPUP_STATIC_METHODS = true;
+  public boolean SHOW_IMPORT_POPUP_CONVERSIONS = true;
+  public boolean SHOW_IMPORT_POPUP_IMPLICITS = true;
+
   public int ADD_IMPORTS_ON_PASTE = CodeInsightSettings.ASK;
   public boolean RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = false;
   public boolean RENAME_SEARCH_IN_NON_CODE_FILES = false;

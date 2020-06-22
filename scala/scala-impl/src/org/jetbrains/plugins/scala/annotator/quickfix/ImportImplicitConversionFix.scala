@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitConversion, ImplicitConversionCache}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 class ImportImplicitConversionFix private (ref: ScReferenceExpression,
                                            found: Seq[GlobalImplicitConversion])
@@ -28,6 +29,9 @@ class ImportImplicitConversionFix private (ref: ScReferenceExpression,
 
   override def getFamilyName: String =
     ScalaBundle.message("import.implicit.conversion")
+
+  override def shouldShowHint(): Boolean =
+    super.shouldShowHint() && ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CONVERSIONS
 }
 
 object ImportImplicitConversionFix {

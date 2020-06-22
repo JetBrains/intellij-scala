@@ -27,6 +27,10 @@ public class ScalaAutoImportOptionsProviderForm {
     private JComboBox importOnPasteComboBox;
     private JCheckBox addUnambiguousImportsOnCheckBox;
     private JCheckBox optimizeImportsOnTheCheckBox;
+    private JCheckBox classesCheckBox;
+    private JCheckBox methodsCheckbox;
+    private JCheckBox conversionsCheckbox;
+    private JCheckBox implicitsCheckbox;
 
     public ScalaAutoImportOptionsProviderForm() {
         importOnPasteComboBox.addItem(INSERT_IMPORTS_ALWAYS);
@@ -40,6 +44,38 @@ public class ScalaAutoImportOptionsProviderForm {
 
     public void setAddUnambiguous(boolean addUnambiguous) {
         addUnambiguousImportsOnCheckBox.setSelected(addUnambiguous);
+    }
+
+    public boolean isShowPopupClasses() {
+        return classesCheckBox.isSelected();
+    }
+
+    public void setShowPopupClasses(boolean value) {
+        classesCheckBox.setSelected(value);
+    }
+
+    public boolean isShowPopupMethods() {
+        return methodsCheckbox.isSelected();
+    }
+
+    public void setShowPopupMethods(boolean value) {
+        methodsCheckbox.setSelected(value);
+    }
+
+    public boolean isShowPopupConversions() {
+        return conversionsCheckbox.isSelected();
+    }
+
+    public void setShowPopupConversions(boolean value) {
+        conversionsCheckbox.setSelected(value);
+    }
+
+    public boolean isShowPopupImplicits() {
+        return implicitsCheckbox.isSelected();
+    }
+
+    public void setShowPopupImplicits(boolean value) {
+        implicitsCheckbox.setSelected(value);
     }
 
     public boolean isOptimizeImports() {
@@ -106,12 +142,27 @@ public class ScalaAutoImportOptionsProviderForm {
         addUnambiguousImportsOnCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(addUnambiguousImportsOnCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "auto.import.add.unambiguous.imports.on.the.fly"));
         panel1.add(addUnambiguousImportsOnCheckBox, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "auto.import.to.disable.import.popup.use.java.setting"));
-        panel1.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         optimizeImportsOnTheCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(optimizeImportsOnTheCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "auto.import.optimize.imports.on.the.fly"));
         panel1.add(optimizeImportsOnTheCheckBox, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "auto.import.show.import.popup.for"));
+        panel2.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        classesCheckBox = new JCheckBox();
+        this.$$$loadButtonText$$$(classesCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "auto.import.show.popup.classes"));
+        panel2.add(classesCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        methodsCheckbox = new JCheckBox();
+        this.$$$loadButtonText$$$(methodsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "auto.import.show.popup.methods"));
+        panel2.add(methodsCheckbox, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        conversionsCheckbox = new JCheckBox();
+        this.$$$loadButtonText$$$(conversionsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "auto.import.show.popup.conversions"));
+        panel2.add(conversionsCheckbox, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        implicitsCheckbox = new JCheckBox();
+        this.$$$loadButtonText$$$(implicitsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "auto.import.show.popup.implicits"));
+        panel2.add(implicitsCheckbox, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;

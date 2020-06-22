@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.Seq
 
@@ -25,7 +26,8 @@ final class ImportImplicitInstanceFix private (found: Seq[FoundImplicit],
 
   override val elements: Seq[ImplicitToImport] = found.map(ImplicitToImport)
 
-  override def shouldShowHint(): Boolean = false
+  override def shouldShowHint(): Boolean =
+    super.shouldShowHint() && ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS
 
   override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
     ScalaAddImportAction.importImplicits(editor, elements, owner, popupPosition)
