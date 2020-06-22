@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
 
-abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction {
+abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction with HighPriorityAction {
 
   private val modificationCount = currentModCount()
 

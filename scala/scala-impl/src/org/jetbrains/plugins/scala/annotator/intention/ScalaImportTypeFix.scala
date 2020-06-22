@@ -34,8 +34,7 @@ import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
  */
 final class ScalaImportTypeFix private (override val elements: Seq[ElementToImport],
                                         ref: ScReference)
-
-  extends ScalaImportElementFix(ref) with HighPriorityAction {
+  extends ScalaImportElementFix(ref) {
 
   override def getText: String = elements match {
     case Seq(head) =>
