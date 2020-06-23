@@ -10,15 +10,15 @@ import com.intellij.codeInsight.hint.QuestionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup._
 import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
+import com.intellij.openapi.ui.popup._
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.ui.JBUI
-import javax.swing.{Icon, JLabel, JList}
 import javax.swing.event.ListSelectionEvent
+import javax.swing.{Icon, JLabel, JList}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
 import org.jetbrains.plugins.scala.extensions._
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDocLinkValue, createReferenceExpressionFromText}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToImport](
@@ -37,7 +37,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
   popupPosition: PopupPosition = PopupPosition.best
 ) extends QuestionAction {
 
-  private implicit val project: Project = place.getProject
+  protected implicit val project: Project = place.getProject
 
   protected def doAddImport(toImport: Elem): Unit
 
@@ -179,6 +179,20 @@ object ScalaAddImportAction {
     }
   }
 
+  private class ImportMemberWithPrefix(editor: Editor, variants: Seq[MemberToImport], ref: ScReferenceExpression)
+    extends ScalaAddImportAction(editor, variants, ref) {
+
+    assert(ref.qualifier.isEmpty, "Cannot invoke import with prefix for already qualified reference")
+
+    override protected def doAddImport(toImport: MemberToImport): Unit = {
+      val withPrefix = toImport.owner.name + "." + toImport.name
+      val newRef = ref.replace(createReferenceExpressionFromText(withPrefix)).asInstanceOf[ScReferenceExpression]
+      newRef.qualifier.foreach {
+        case qRef: ScReferenceExpression => qRef.bindToElement(toImport.owner)
+      }
+    }
+  }
+
   private final class ImportImplicitConversionAction(editor: Editor, variants: Seq[MemberToImport], ref: ScReferenceExpression)
     extends ForReference[ScReferenceExpression, MemberToImport](editor, variants, ref) {
 
@@ -200,6 +214,11 @@ object ScalaAddImportAction {
                       place: ImplicitArgumentsOwner,
                       popupPosition: PopupPosition): ScalaAddImportAction[ImplicitArgumentsOwner, ImplicitToImport] =
     new ImportImplicits(editor, variants, place, popupPosition)
+
+  def importWithPrefix(editor: Editor,
+                       variants: Seq[MemberToImport],
+                       ref: ScReferenceExpression): ScalaAddImportAction[ScReferenceExpression, MemberToImport] =
+    new ImportMemberWithPrefix(editor, variants, ref)
 
   private final class ImportImplicits(editor: Editor,
                                       variants: Seq[ImplicitToImport],

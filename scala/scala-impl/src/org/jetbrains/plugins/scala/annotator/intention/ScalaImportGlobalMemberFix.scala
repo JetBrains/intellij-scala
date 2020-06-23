@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
-import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.{IntentionAction, PriorityAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.java.stubs.index.JavaStaticMemberNameIndex
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiMemberExt, SeqExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, SeqExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
-class ScalaImportGlobalMemberFix(override val elements: Seq[MemberToImport],
+private class ScalaImportGlobalMemberFix(override val elements: Seq[MemberToImport],
                                          ref: ScReferenceExpression) extends ScalaImportElementFix(ref) {
 
   override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
@@ -37,28 +37,58 @@ class ScalaImportGlobalMemberFix(override val elements: Seq[MemberToImport],
   override def getFamilyName: String = ScalaBundle.message("import.global.member")
 }
 
+private class ScalaImportGlobalMemberWithPrefixFix(override val elements: Seq[MemberToImport],
+                                                   ref: ScReferenceExpression) extends ScalaImportElementFix(ref) {
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
+    ScalaAddImportAction.importWithPrefix(editor, elements, ref)
+
+  override def isAddUnambiguous: Boolean = false
+
+  override def shouldShowHint(): Boolean = false
+
+  override def getPriority: PriorityAction.Priority = PriorityAction.Priority.HIGH
+
+  override def getText: String = elements match {
+    case Seq(elem) => ScalaBundle.message("import.as", elem.owner.name + "." + elem.name)
+    case _         => ScalaBundle.message("import.with.prefix.ellipsis")
+  }
+
+  override def getFamilyName: String =
+    ScalaBundle.message("import.with.prefix")
+}
+
 object ScalaImportGlobalMemberFix {
 
   final class Provider extends UnresolvedReferenceFixProvider {
     override def fixesFor(reference: ScReference): Seq[IntentionAction] =
       reference match {
-        case refExpr: ScReferenceExpression if !refExpr.isQualified => ScalaImportGlobalMemberFix(refExpr).toSeq
+        case refExpr: ScReferenceExpression if !refExpr.isQualified => ScalaImportGlobalMemberFix.create(refExpr)
         case _ => Nil
       }
   }
 
-  def apply(ref: ScReferenceExpression): Option[ScalaImportGlobalMemberFix] = {
+  private def create(ref: ScReferenceExpression): Seq[IntentionAction] = {
     val allCandidates =
       (findJavaCandidates(ref) ++ findScalaCandidates(ref))
         .toSeq
         .distinctBy(_.qualifiedName)
 
+    //check for compatibility takes too long if there are that many candidates
+    //in this case it's probably better to use qualified reference anyway
+    if (allCandidates.size > 30) {
+      Seq(new ScalaImportGlobalMemberWithPrefixFix(allCandidates, ref))
+    }
+    else {
+      val compatible = allCandidates.filter(isCompatible(ref, _))
+      val candidates = if (compatible.isEmpty) allCandidates else compatible
 
-    val compatible = allCandidates.filter(isCompatible(ref, _))
-    val candidates = if (compatible.isEmpty) allCandidates else compatible
-
-    if (candidates.isEmpty || candidates.size > 30) None
-    else Option(new ScalaImportGlobalMemberFix(candidates, ref))
+      if (candidates.isEmpty) Seq.empty
+      else {
+        val withoutPrefixFix = new ScalaImportGlobalMemberFix(candidates, ref)
+        val withPrefixFix = new ScalaImportGlobalMemberWithPrefixFix(candidates, ref)
+        Seq(withoutPrefixFix, withPrefixFix)
+      }
+    }
   }
 
   private def findJavaCandidates(ref: ScReferenceExpression): Iterable[MemberToImport] =

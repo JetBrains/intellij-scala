@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator.intention
 import java.awt.Point
 
 import com.intellij.codeInsight.hint.HintManagerImpl
-import com.intellij.codeInsight.intention.HighPriorityAction
+import com.intellij.codeInsight.intention.{HighPriorityAction, PriorityAction}
 import com.intellij.codeInspection.HintAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
 
-abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction with HighPriorityAction {
+abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction with PriorityAction {
 
   private val modificationCount = currentModCount()
 
@@ -35,6 +35,9 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
     !isShowErrorsFromCompilerEnabled(place.getContainingFile)
 
   def isAddUnambiguous: Boolean
+
+  override def getPriority: PriorityAction.Priority =
+    PriorityAction.Priority.TOP
 
   override def isAvailable(project: Project,
                            editor: Editor,
