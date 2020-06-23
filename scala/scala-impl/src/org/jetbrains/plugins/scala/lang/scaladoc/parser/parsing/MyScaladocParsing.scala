@@ -675,7 +675,7 @@ object MyScaladocParsing {
             htmlLexer.advance()
             if (htmlLexer.getTokenType == XmlTokenType.XML_NAME) {
               val tagName = htmlLexer.getTokenText
-              if (htmlTagsStack.peek() == tagName)
+              if (!htmlTagsStack.isEmpty && htmlTagsStack.peek() == tagName)
                 htmlTagsStack.pop()
               htmlLexer.advance()
             }
