@@ -51,6 +51,7 @@
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ui.WorksheetFileDeclarationsContributor"/>
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
         <unresolvedReferenceFixProvider implementation="org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitConversionFix$Provider"/>
+        <unresolvedReferenceFixProvider implementation="org.jetbrains.plugins.scala.annotator.intention.ScalaImportGlobalMemberFix$Provider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">

@@ -40,7 +40,7 @@ object ImportImplicitConversionFix {
   final class Provider extends UnresolvedReferenceFixProvider {
     override def fixesFor(reference: ScReference): Seq[IntentionAction] =
       reference match {
-        case refExpr: ScReferenceExpression => ImportImplicitConversionFix(refExpr).toSeq
+        case refExpr: ScReferenceExpression if refExpr.isQualified => ImportImplicitConversionFix(refExpr).toSeq
         case _ => Nil
       }
   }
