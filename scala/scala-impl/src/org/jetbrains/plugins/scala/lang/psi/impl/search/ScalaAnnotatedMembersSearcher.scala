@@ -68,7 +68,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
         }
 
         import ScalaIndexKeys._
-        val iter = ANNOTATED_MEMBER_KEY.elements(annClass.name, scope, classOf[ScAnnotation])(annClass.getProject)
+        val iter = ANNOTATED_MEMBER_KEY.elements(annClass.name, scope)(annClass.getProject)
             .iterator
         while (iter.hasNext) {
           val annotation = iter.next

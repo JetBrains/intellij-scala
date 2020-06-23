@@ -80,9 +80,9 @@ object ScSyntheticPackage {
     }
 
     import ScalaIndexKeys._
-    PACKAGE_FQN_KEY.integerElements(fqn, classOf[ScPackaging]) match {
+    PACKAGE_FQN_KEY.allElementsByHash(fqn) match {
       case seq if seq.isEmpty =>
-        val packages = PACKAGE_OBJECT_KEY.integerElements(fqn, classOf[PsiClass])
+        val packages = PACKAGE_OBJECT_KEY.allElementsByHash(fqn)
         if (packages.exists { pc =>
           ScalaNamesUtil.equivalentFqn(pc.qualifiedName, fqn)
         }) {

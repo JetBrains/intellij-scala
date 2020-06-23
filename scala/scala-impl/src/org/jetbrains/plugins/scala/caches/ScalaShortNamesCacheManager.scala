@@ -62,7 +62,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
   }
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Iterable[PsiClass] =
-    SHORT_NAME_KEY.elements(name, scope, classOf[PsiClass])
+    SHORT_NAME_KEY.elements(name, scope)
 
   def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScObject] = {
     if (DumbService.getInstance(project).isDumb) {
@@ -84,7 +84,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
 
       cleanName = cleanFqn(propertyName)
 
-      property <- PROPERTY_NAME_KEY.elements(cleanName, scope, classOf[ScValueOrVariable])
+      property <- PROPERTY_NAME_KEY.elements(cleanName, scope)
       if property.declaredNames.map(cleanFqn).contains(cleanName)
     } yield property
 
@@ -99,7 +99,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
 
   private def allFunctionsByName(cleanName: String)
                                 (implicit scope: GlobalSearchScope): Iterable[ScFunction] =
-    METHOD_NAME_KEY.elements(cleanName, scope, classOf[ScFunction]).filter { function =>
+    METHOD_NAME_KEY.elements(cleanName, scope).filter { function =>
       equivalentFqn(cleanName, function.name)
     }
 
@@ -139,7 +139,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
 
   private def classesFromIndex(name: String, scope: GlobalSearchScope,
                               indexKey: StubIndexKey[java.lang.Integer, PsiClass] = FQN_KEY): Iterable[PsiClass] =
-    indexKey.integerElements(name, scope, classOf[PsiClass])
+    indexKey.elementsByHash(name, scope)
 }
 
 object ScalaShortNamesCacheManager {

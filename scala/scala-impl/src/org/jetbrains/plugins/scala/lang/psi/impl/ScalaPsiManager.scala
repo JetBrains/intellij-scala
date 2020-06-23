@@ -114,7 +114,7 @@ class ScalaPsiManager(implicit val project: Project) {
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Iterable[ScObject] =
-    IMPLICIT_OBJECT_KEY.elements(cleanFqn(fqn), scope, classOf[ScObject])
+    IMPLICIT_OBJECT_KEY.elements(cleanFqn(fqn), scope)
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def getCachedPackage(inFqn: String): Option[PsiPackage] = {
@@ -161,11 +161,11 @@ class ScalaPsiManager(implicit val project: Project) {
   }
 
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
-    TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope, classOf[ScTypeAlias])
+    TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)
 
   def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     STABLE_ALIAS_FQN_KEY
-      .integerElements(fqn, scope, classOf[ScTypeAlias])
+      .elementsByHash(fqn, scope)
       .filter(_.qualifiedNameOpt.contains(fqn))
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
@@ -268,7 +268,7 @@ class ScalaPsiManager(implicit val project: Project) {
   @CachedWithoutModificationCount(ValueWrapper.None, clearCacheOnTopLevelChange)
   private def getJavaPackageClassNamesCached(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
     val key = cleanFqn(psiPackage.getQualifiedName)
-    val classes = JAVA_CLASS_NAME_IN_PACKAGE_KEY.elements(key, scope, classOf[PsiClass]).toSet
+    val classes = JAVA_CLASS_NAME_IN_PACKAGE_KEY.elements(key, scope).toSet
 
     val additionalClasses = classes.flatMap {
       case definition: ScTypeDefinition => definition.additionalClassJavaName
@@ -287,8 +287,7 @@ class ScalaPsiManager(implicit val project: Project) {
                                             (implicit scope: GlobalSearchScope): Set[String] =
     CLASS_NAME_IN_PACKAGE_KEY.elements(
       scalaQualifiedName,
-      scope,
-      classOf[PsiClass]
+      scope
     ).map(_.name).toSet
 
   private def clearCaches(): Unit = {

@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
+import scala.reflect.ClassTag
+
 /**
  * @author ilyas
  */
@@ -52,19 +54,18 @@ object ScalaIndexKeys {
   val IMPLICIT_CONVERSION_KEY = createIndexKey[String, ScMember]("sc.implicit.conversion")
   val IMPLICIT_INSTANCE_KEY = createIndexKey[String, ScMember]("sc.implicit.instance")
 
-  implicit class StubIndexKeyExt[Key, Psi <: PsiElement](private val indexKey: StubIndexKey[Key, Psi]) extends AnyVal {
+  implicit class StubIndexKeyExt[Key, Psi <: PsiElement : ClassTag](private val indexKey: StubIndexKey[Key, Psi]) {
 
     import collection.JavaConverters._
 
-    def elements(key: Key, scope: GlobalSearchScope,
-                 requiredClass: Class[Psi])
+    def elements(key: Key, scope: GlobalSearchScope)
                 (implicit project: Project): Iterable[Psi] =
       StubIndex.getElements(
         indexKey,
         key,
         project,
         ScalaFilterScope(scope),
-        requiredClass
+        implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]]
       ).asScala
 
     def allKeys(implicit project: Project): Iterable[Key] =
@@ -83,17 +84,17 @@ object ScalaIndexKeys {
       ) // processElements will return true only there is no elements
   }
 
-  implicit class StubIndexIntegerKeyExt[Psi <: PsiElement](private val indexKey: StubIndexKey[Integer, Psi]) extends AnyVal {
+  implicit class StubIndexIntegerKeyExt[Psi <: PsiElement : ClassTag](private val indexKey: StubIndexKey[Integer, Psi]) {
 
     private def key(fqn: String): Integer = ScalaNamesUtil.cleanFqn(fqn).hashCode
 
-    def integerElements(name: String, requiredClass: Class[Psi])
-                       (implicit project: Project): Iterable[Psi] =
-      integerElements(name, GlobalSearchScope.allScope(project), requiredClass)
+    def allElementsByHash(name: String)
+                         (implicit project: Project): Iterable[Psi] =
+      elementsByHash(name, GlobalSearchScope.allScope(project))
 
-    def integerElements(name: String, scope: GlobalSearchScope, requiredClass: Class[Psi])
-                       (implicit project: Project): Iterable[Psi] =
-      indexKey.elements(key(name), scope, requiredClass)
+    def elementsByHash(name: String, scope: GlobalSearchScope)
+                      (implicit project: Project): Iterable[Psi] =
+      indexKey.elements(key(name), scope)
 
     def hasIntegerElements(name: String, scope: GlobalSearchScope, requiredClass: Class[Psi])
                           (implicit project: Project): Boolean =

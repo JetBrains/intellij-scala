@@ -32,7 +32,7 @@ object ImplicitConversionIndex extends ImplicitIndex {
   def allConversions(scope: GlobalSearchScope)
                     (implicit project: Project): Iterable[ScFunction] = for {
     key      <- indexKey.allKeys
-    member   <- indexKey.elements(key, scope, classOf[ScMember])
+    member   <- indexKey.elements(key, scope)
 
     function <- member match {
       case f: ScFunction => f :: Nil

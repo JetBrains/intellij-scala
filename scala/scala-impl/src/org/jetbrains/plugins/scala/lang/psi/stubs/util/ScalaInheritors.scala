@@ -104,7 +104,7 @@ object ScalaInheritors {
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
 
     import ScalaIndexKeys._
-    val extendsBlockIterable = SUPER_CLASS_NAME_KEY.elements(name, scope, classOf[ScExtendsBlock])(clazz.getProject)
+    val extendsBlockIterable = SUPER_CLASS_NAME_KEY.elements(name, scope)(clazz.getProject)
     val extendsBlocks = extendsBlockIterable.iterator
 
     while (extendsBlocks.hasNext) {
@@ -177,7 +177,7 @@ object ScalaInheritors {
         inReadAction {
           import ScalaIndexKeys._
           for {
-            selfTypeElement <- SELF_TYPE_CLASS_NAME_KEY.elements(name, resolveScope, classOf[ScSelfTypeElement])
+            selfTypeElement <- SELF_TYPE_CLASS_NAME_KEY.elements(name, resolveScope)
             typeElement <- selfTypeElement.typeElement
             tp <- typeElement.`type`().toOption
             if checkTp(tp)

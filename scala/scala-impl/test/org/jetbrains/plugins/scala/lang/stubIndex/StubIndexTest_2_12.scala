@@ -25,8 +25,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   private def moduleWithLibraries: GlobalSearchScope = GlobalSearchScope.moduleWithLibrariesScope(getModule)
 
   private def elementsInScalaLibrary[Key, Psi <: PsiElement : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[Psi] = {
-    val classOfPsi = implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]]
-    indexKey.elements(key, moduleWithLibraries, classOfPsi)(getProject).toList
+    indexKey.elements(key, moduleWithLibraries)(getProject).toList
   }
 
   private def fqnsInScalaLibrary[Key, Psi <: PsiMember : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[String] = {
