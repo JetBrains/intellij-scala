@@ -71,6 +71,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SCALAFMT_SHOW_INVALID_CODE_WARNINGS = true;
   public boolean SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true;
   public boolean SCALAFMT_REFORMAT_ON_FILES_SAVE = false;
+  public boolean SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS = false;
 
   public static final int INTELLIJ_FORMATTER = 0;
   public static final int SCALAFMT_FORMATTER = 1;

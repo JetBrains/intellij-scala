@@ -8,12 +8,14 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.util.TestUtils
 
 trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase {
+
   override def setUp(): Unit = {
     super.setUp()
     val scalaSettings = getScalaSettings
     scalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
     scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
     scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = false
+    scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS = true
 
     // emulate  `beforeAll` or `setupAll` that is not available in AbstractScalaFormatterTestBase
     ScalaFmtTestBase.initDefaultScalafmtVersion

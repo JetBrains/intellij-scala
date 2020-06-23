@@ -8,9 +8,12 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfi
 
 object ScalafmtConfigUtils {
 
+  def actualConfigPath(configPath: String): String =
+    if (configPath.nonEmpty) configPath else DefaultConfigurationFileName
+
   def projectConfigFile(project: Project, configPath: String): Option[VirtualFile] = {
-    val configPathActual = if (configPath.nonEmpty) configPath else DefaultConfigurationFileName
-    projectConfigFileImpl(project, configPathActual)
+    val actualPath = actualConfigPath(configPath)
+    projectConfigFileImpl(project, actualPath)
   }
 
   private def projectConfigFileImpl(project: Project, configPath: String): Option[VirtualFile] =

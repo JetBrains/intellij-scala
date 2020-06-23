@@ -1,11 +1,17 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
-import com.intellij.application.options.CodeStyle
+import java.io.File
+import java.nio.charset.Charset
+
+import com.intellij.application.options.{CodeStyle, CodeStyleAbstractConfigurable}
+import com.intellij.notification.{Notification, NotificationAction}
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.PsiFile
+import org.apache.commons.io.FileUtils
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
@@ -14,9 +20,10 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.ScalafmtConfigException
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflectConfig, ScalafmtReflect}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaFmtSettingsPanel}
+import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.jetbrains.sbt.language.SbtFileImpl
 
@@ -66,10 +73,17 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
-    val configFile = ScalafmtConfigUtils.projectConfigFile(project, configPath)
+    val actualConfigPath = ScalafmtConfigUtils.actualConfigPath(configPath)
+
+    val configFile = ScalafmtConfigUtils.projectConfigFile(project, actualConfigPath)
     val config = configFile match {
-      case Some(file) => resolveConfig(file, DefaultVersion, verbosity, resolveFast).toOption
-      case None       => intellijDefaultConfig
+      case Some(file) =>
+        resolveConfig(file, DefaultVersion, verbosity, resolveFast).toOption
+      case _ if settings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS =>
+        intellijDefaultConfig
+      case _ =>
+        reportCantFindConfigurationFile(actualConfigPath)
+        None
     }
     val configWithDialect =
       if (psiFile.isInstanceOf[SbtFileImpl]) {
@@ -86,6 +100,35 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
     ScalafmtDynamicService.instance
       .resolve(DefaultVersion, downloadIfMissing = false, FmtVerbosity.FailSilent)
       .toOption.map(_.intellijScalaFmtConfig)
+  }
+
+  private def reportCantFindConfigurationFile(configPath: String): Unit = {
+    val actionConfigure = new NotificationAction(ScalaBundle.message("scalafmt.can.not.find.config.file.go.to.settings")) {
+      override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+        notification.expire()
+        val filter = ScalaFmtSettingsPanel.SearchFilter.ScalafmtConfiguration
+        ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[CodeStyleAbstractConfigurable], filter)
+      }
+    }
+    val actionCreate = new NotificationAction(ScalaBundle.message("scalafmt.can.not.find.config.file.create.new")) {
+      override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+        notification.expire()
+
+        val result = createConfigurationFile(project)
+        result match {
+          case Left(ex)  =>
+            ex.foreach(Log.error("Couldn't create scalafmt configuration file", _))
+            val message = ScalaBundle.message("scalafmt.can.not.create.config.file") + ex.fold("")(":<br>" + _.getMessage)
+            ScalafmtNotifications.displayError(message)
+          case Right(_) =>
+        }
+      }
+    }
+
+    ScalafmtNotifications.displayError(
+      ScalaBundle.message("scalafmt.can.not.find.config.file", configPath),
+      Seq(actionCreate, actionConfigure)
+    )
   }
 
   private def resolveConfig(
@@ -193,4 +236,20 @@ object ScalafmtDynamicConfigServiceImpl {
   private case class CachedConfig(config: ScalafmtReflectConfig,
                                   vFileModificationTimestamp: Long,
                                   docModificationTimestamp: Long)
+
+  private def createConfigurationFile(project: Project): Either[Option[Throwable], Unit] =
+    ScalafmtConfigUtils.projectConfigFileAbsolutePath(project, DefaultConfigurationFileName) match {
+      case Some(path) =>
+        val tri = Try {
+          val file = new File(path)
+          file.createNewFile()
+          val vFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)
+          FileUtils.writeStringToFile(file, "version = 2.5.0", Charset.forName("UTF-8"))
+          FileEditorManager.getInstance(project).openFile(vFile, true)
+        }
+        tri.toEither.left.map(Some(_)).map(_ => ())
+      case _ =>
+        Left(None)
+    }
+
 }
