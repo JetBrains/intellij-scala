@@ -26,8 +26,14 @@ trait ScGivenImpl extends ScGiven  {
   override def givenParameters: Option[ScParameters] =
     findChild(classOf[ScParameters])
 
-  override def nameInner: String =
-    typeElementForAnonymousName.fold("given_unknown")(ScGiven.generateAnonymousGivenName)
+  override def nameInner: String = {
+    def nameFromTypeElement = typeElementForAnonymousName.map(ScGiven.generateAnonymousGivenName)
+    val nameFromSpecifiedName = givenName.map(_.getText)
+
+    nameFromSpecifiedName
+      .orElse(nameFromTypeElement)
+      .getOrElse("given_unknown")
+  }
 
   override def nameId: PsiElement = {
     givenName

@@ -42,22 +42,23 @@ class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(as)('as')
       |    PsiWhiteSpace(' ')
-      |    TemplateParents
-      |      ConstructorInvocation
-      |        ParametrizedType: Ord[Int]
-      |          SimpleType: Ord
-      |            CodeReferenceElement: Ord
-      |              PsiElement(identifier)('Ord')
-      |          TypeArgumentsList
-      |            PsiElement([)('[')
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
-      |            PsiElement(])(']')
-      |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      PsiElement({)('{')
-      |      PsiElement(})('}')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Int]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -101,22 +102,23 @@ class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(as)('as')
       |    PsiWhiteSpace(' ')
-      |    TemplateParents
-      |      ConstructorInvocation
-      |        ParametrizedType: Ord[Int]
-      |          SimpleType: Ord
-      |            CodeReferenceElement: Ord
-      |              PsiElement(identifier)('Ord')
-      |          TypeArgumentsList
-      |            PsiElement([)('[')
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
-      |            PsiElement(])(']')
-      |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      PsiElement({)('{')
-      |      PsiElement(})('}')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Int]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -156,22 +158,23 @@ class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(as)('as')
       |    PsiWhiteSpace(' ')
-      |    TemplateParents
-      |      ConstructorInvocation
-      |        ParametrizedType: Ord[Double]
-      |          SimpleType: Ord
-      |            CodeReferenceElement: Ord
-      |              PsiElement(identifier)('Ord')
-      |          TypeArgumentsList
-      |            PsiElement([)('[')
-      |            SimpleType: Double
-      |              CodeReferenceElement: Double
-      |                PsiElement(identifier)('Double')
-      |            PsiElement(])(']')
-      |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      PsiElement({)('{')
-      |      PsiElement(})('}')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Double]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Double
+      |                CodeReferenceElement: Double
+      |                  PsiElement(identifier)('Double')
+      |              PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -201,22 +204,23 @@ class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(as)('as')
       |    PsiWhiteSpace(' ')
-      |    TemplateParents
-      |      ConstructorInvocation
-      |        ParametrizedType: Ord[Int]
-      |          SimpleType: Ord
-      |            CodeReferenceElement: Ord
-      |              PsiElement(identifier)('Ord')
-      |          TypeArgumentsList
-      |            PsiElement([)('[')
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
-      |            PsiElement(])(']')
-      |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      PsiElement({)('{')
-      |      PsiElement(})('}')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Int]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -245,22 +249,23 @@ class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(as)('as')
       |    PsiWhiteSpace(' ')
-      |    TemplateParents
-      |      ConstructorInvocation
-      |        ParametrizedType: Ord[T]
-      |          SimpleType: Ord
-      |            CodeReferenceElement: Ord
-      |              PsiElement(identifier)('Ord')
-      |          TypeArgumentsList
-      |            PsiElement([)('[')
-      |            SimpleType: T
-      |              CodeReferenceElement: T
-      |                PsiElement(identifier)('T')
-      |            PsiElement(])(']')
-      |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      PsiElement({)('{')
-      |      PsiElement(})('}')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[T]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: T
+      |                CodeReferenceElement: T
+      |                  PsiElement(identifier)('T')
+      |              PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -285,22 +290,23 @@ class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(as)('as')
       |    PsiWhiteSpace(' ')
-      |    TemplateParents
-      |      ConstructorInvocation
-      |        ParametrizedType: Ord[Int]
-      |          SimpleType: Ord
-      |            CodeReferenceElement: Ord
-      |              PsiElement(identifier)('Ord')
-      |          TypeArgumentsList
-      |            PsiElement([)('[')
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
-      |            PsiElement(])(']')
-      |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      PsiElement({)('{')
-      |      PsiElement(})('}')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Int]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -323,22 +329,23 @@ class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(as)('as')
       |    PsiWhiteSpace(' ')
-      |    TemplateParents
-      |      ConstructorInvocation
-      |        ParametrizedType: Ord[Int]
-      |          SimpleType: Ord
-      |            CodeReferenceElement: Ord
-      |              PsiElement(identifier)('Ord')
-      |          TypeArgumentsList
-      |            PsiElement([)('[')
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
-      |            PsiElement(])(']')
-      |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      PsiElement({)('{')
-      |      PsiElement(})('}')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Int]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -357,15 +364,16 @@ class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      <empty list>
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
-      |    TemplateParents
-      |      ConstructorInvocation
-      |        SimpleType: Test
-      |          CodeReferenceElement: Test
-      |            PsiElement(identifier)('Test')
-      |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      PsiElement({)('{')
-      |      PsiElement(})('}')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: Test
+      |            CodeReferenceElement: Test
+      |              PsiElement(identifier)('Test')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -385,11 +393,12 @@ class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      <empty list>
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
-      |    TemplateParents
-      |      ConstructorInvocation
-      |        SimpleType: Test
-      |          CodeReferenceElement: Test
-      |            PsiElement(identifier)('Test')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: Test
+      |            CodeReferenceElement: Test
+      |              PsiElement(identifier)('Test')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )

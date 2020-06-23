@@ -11,9 +11,7 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -35,8 +33,8 @@ class ScGivenDefinitionImpl(stub:      ScTemplateDefinitionStub[ScGivenDefinitio
   override def isObject: Boolean = givenTypeParamClause.isEmpty && givenParameters.isEmpty
 
   override protected def typeElementForAnonymousName: Option[ScTypeElement] =
-    findChildByType[ScTemplateParents](ScalaElementType.TEMPLATE_PARENTS)
-      .toOption
+    extendsBlock.toOption
+      .flatMap(_.templateParents)
       .flatMap(_.constructorInvocation)
       .flatMap(_.typeElement.toOption)
 }
