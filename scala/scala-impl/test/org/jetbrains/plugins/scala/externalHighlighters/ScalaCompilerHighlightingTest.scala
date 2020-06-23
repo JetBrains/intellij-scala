@@ -4,11 +4,11 @@ import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerImpl, HighlightIn
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.EdtTestUtil
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withErrorsFromCompiler
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, invokeAndWait}
@@ -261,14 +261,5 @@ object ScalaCompilerHighlightingTest {
       }.mkString(",")
       s"HighlightInfo($values)"
     }
-  }
-
-  private def withErrorsFromCompiler(body: => Unit): Unit = {
-    val registry = Registry.get(ScalaHighlightingMode.ShowScalacErrorsKey)
-
-    registry.setValue(true)
-
-    try body
-    finally registry.setValue(false)
   }
 }
