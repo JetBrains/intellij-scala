@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiMethod, PsiTarget}
 import com.intellij.psi.search.searches.SuperMethodsSearch
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -25,11 +25,10 @@ private object extensions {
         case scalaMethod: ScFunction => scalaMethod.superMethod
         case javaMethod              => Option(SuperMethodsSearch.search(javaMethod, null, true, false).findFirst).map(_.getMethod)
       }
-      res.map(selectActualMethod)
+      res.map(selectMethodFromSources)
     }
 
-    // TODO: check for what is this? apply / unapply?
-    private def selectActualMethod(method: PsiMethod): PsiMethod =
+    private def selectMethodFromSources(method: PsiMethod): PsiMethod =
       method.getNavigationElement match {
         case m: PsiMethod => m
         case _            => method

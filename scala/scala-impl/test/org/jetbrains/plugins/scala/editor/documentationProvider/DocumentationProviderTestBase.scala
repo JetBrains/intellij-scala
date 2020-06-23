@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.openapi.editor.Editor
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.Assert
 
 abstract class DocumentationProviderTestBase
@@ -30,18 +30,13 @@ abstract class DocumentationProviderTestBase
   /** see parameters of [[com.intellij.lang.documentation.DocumentationProvider#generateDoc]] */
   protected def extractReferredAndOriginalElements(editor: Editor, file: PsiFile): (PsiElement, PsiElement) = {
     val elementAtCaret = file.findElementAt(editor.getCaretModel.getOffset)
-    val namedElement = elementAtCaret.parentOfType(classOf[PsiNamedElement])
-    namedElement match {
-      case Some(definition) => // if caret is placed at a the key definition itself
-        (definition, definition)
-      case None =>
-        elementAtCaret.parentOfType(classOf[ScReferenceExpression]) match {
-          case Some(reference) => // if caret is placed at a reference to the key definition
-            val resolved = reference.resolve()
-            (resolved, reference)
-          case None =>
-            Assert.fail("No appropriate original element found at caret position").asInstanceOf[Nothing]
-        }
+    val leaf = PsiTreeUtil.getDeepestFirst(elementAtCaret)
+    val parents = leaf.parentsInFile.toArray
+    parents.collectFirst {
+      case reference: ScReference => (reference.resolve(), reference)
+      case named: PsiNamedElement => (named, named)
+    }.getOrElse {
+      Assert.fail("No appropriate original element found at caret position").asInstanceOf[Nothing]
     }
   }
 }

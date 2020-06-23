@@ -35,14 +35,14 @@ object ScalaDocGenerator {
   def generateDoc(elementWithDoc: PsiElement, originalElement: Option[PsiElement]): String = internalLog {
     val builder = new StringBuilder
 
-
     builder.append("<html>")
     builder.append("<head><style>").append(ScalaDocCss.value).append("</style></head>")
     builder.append("<body>")
 
-    val e = elementWithDoc.getNavigationElement // TODO: check what is this?
-    ScalaDocDefinitionGenerator.generate(builder, e, originalElement)
-    generateDocContent(builder, e)
+    // for library, get class from sources jar
+    val actualElementWithDoc = elementWithDoc.getNavigationElement
+    ScalaDocDefinitionGenerator.generate(builder, actualElementWithDoc, originalElement)
+    generateDocContent(builder, actualElementWithDoc)
 
     builder.append("</body>")
     builder.append("</html>")

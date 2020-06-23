@@ -6,12 +6,13 @@ import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
 
 import scala.collection.mutable
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 /**
  * TODO: $seqInfo is not found in scala.collection.immutable.Seq
@@ -51,8 +52,9 @@ private class MacroFinderImpl(
   private def findMacroValue(macroName: String): Option[String] = {
     val commentOwners   = dequeueIterator(processingQueue)
     val comments = for {
-      owner   <- commentOwners
-      comment <- owner.docComment
+      owner       <- commentOwners
+      actualOwner <- owner.getNavigationElement.asOptionOf[ScDocCommentOwner]
+      comment     <- actualOwner.docComment
     } yield comment
 
     val defineTags = comments.flatMap(findDefineTags)
