@@ -420,7 +420,7 @@ object ScalaFmtSettingsPanel {
 
   object SearchFilter {
     // TODO: will not work in non-english localization, also see ScalaCompileServerForm
-    val ScalafmtConfiguration = "Scalafmt Configuration"
+    def ScalafmtConfiguration = "Scalafmt Configuration"
   }
 
   //copied from CodeStyleAbstractPanel

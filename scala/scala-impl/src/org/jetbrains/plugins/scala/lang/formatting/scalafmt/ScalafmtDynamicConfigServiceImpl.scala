@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 import java.io.File
 import java.nio.charset.Charset
 
-import com.intellij.application.options.{CodeStyle, CodeStyleAbstractConfigurable}
+import com.intellij.application.options.CodeStyle
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
@@ -82,7 +82,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
       case _ if settings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS =>
         intellijDefaultConfig
       case _ =>
-        reportCantFindConfigurationFile(actualConfigPath)
+        reportConfigurationFileNotFound(actualConfigPath)
         None
     }
     val configWithDialect =
@@ -102,12 +102,12 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
       .toOption.map(_.intellijScalaFmtConfig)
   }
 
-  private def reportCantFindConfigurationFile(configPath: String): Unit = {
+  private def reportConfigurationFileNotFound(configPath: String): Unit = {
     val actionConfigure = new NotificationAction(ScalaBundle.message("scalafmt.can.not.find.config.file.go.to.settings")) {
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
         notification.expire()
         val filter = ScalaFmtSettingsPanel.SearchFilter.ScalafmtConfiguration
-        ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[CodeStyleAbstractConfigurable], filter)
+        ShowSettingsUtilImplExt.showScalaCodeStyleSettingsDialog(project, filter)
       }
     }
     val actionCreate = new NotificationAction(ScalaBundle.message("scalafmt.can.not.find.config.file.create.new")) {
