@@ -6,6 +6,7 @@ package compiled
 import java.{util => ju}
 
 import com.intellij.lang.Language
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{OrderEntry, OrderRootType, ProjectRootManager, impl => rootsImpl}
@@ -128,9 +129,9 @@ object ScClsFileViewProvider {
       val entriesIterator = entries.iterator
 
       while (entriesIterator.hasNext) {
-        val filesIterator = entriesIterator.next()
+        val filesIterator: Iterator[VirtualFile] = ReadAction.compute(() => entriesIterator.next()
           .getFiles(OrderRootType.SOURCES)
-          .iterator
+          .iterator)
 
         while (filesIterator.hasNext) {
           filesIterator.next().findFileByRelativePath(relPath) match {
