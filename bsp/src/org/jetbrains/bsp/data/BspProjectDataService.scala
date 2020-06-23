@@ -15,8 +15,10 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsDirectoryMapping
+import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vcs.roots.VcsRootDetector
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VfsUtilCore
 import org.jetbrains.bsp.data.BspProjectDataService._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project.external.JdkByHome
@@ -27,6 +29,7 @@ import org.jetbrains.plugins.scala.project.external.Importer
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 
 class BspProjectDataService extends AbstractDataService[BspProjectData, Project](BspProjectData.Key) {
@@ -48,10 +51,16 @@ object BspProjectDataService {
   private def configureVcs(vcsRootsCandidates: Seq[File], project: Project): Unit = {
     val detectedRoots = {
       val detector = ServiceManager.getService(project, classOf[VcsRootDetector])
-      vcsRootsCandidates.flatMap { candidate =>
+      val detected = mutable.Set[VcsRoot]()
+      vcsRootsCandidates.foreach { candidate =>
         val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(candidate)
-        detector.detect(virtualFile).asScala
-      }.distinct
+        val isUnderDetectedVcsRoot = VfsUtilCore.isUnder(virtualFile, detected.map(_.getPath).asJava)
+        if (!isUnderDetectedVcsRoot) {
+          val roots = detector.detect(virtualFile).asScala
+          detected ++= roots
+        }
+      }
+      detected
     }
 
     val vcsManager = ProjectLevelVcsManager.getInstance(project)
