@@ -320,7 +320,7 @@ private object GutterUtil {
 
           new LineMarkerInfo(identifier,
             identifier.getTextRange,
-            iconFor(typeDefinition, swapped), (_: PsiElement) => ScalaBundle.message("has.a.companion", nameOf(companion)),
+            iconFor(typeDefinition, swapped), (_: PsiElement) => ScalaBundle.message("has.companion", nameOf(companion)),
             (_: MouseEvent, _: PsiElement) => companion.navigate(/* requestFocus = */ true), Alignment.LEFT)
         }
 
