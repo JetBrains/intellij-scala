@@ -10,9 +10,10 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiMemb
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
@@ -47,10 +48,14 @@ object ScalaImportGlobalMemberFix {
   }
 
   def apply(ref: ScReferenceExpression): Option[ScalaImportGlobalMemberFix] = {
-    val candidates =
+    val allCandidates =
       (findJavaCandidates(ref) ++ findScalaCandidates(ref))
         .toSeq
         .distinctBy(_.qualifiedName)
+
+
+    val compatible = allCandidates.filter(isCompatible(ref, _))
+    val candidates = if (compatible.isEmpty) allCandidates else compatible
 
     if (candidates.isEmpty || candidates.size > 30) None
     else Option(new ScalaImportGlobalMemberFix(candidates, ref))
@@ -83,4 +88,12 @@ object ScalaImportGlobalMemberFix {
 
   private def isImplicit(f: ScFunctionDefinition) =
     ScalaPsiUtil.isImplicit(f: ScModifierListOwner)
+
+  private def isCompatible(originalRef: ScReferenceExpression, candidate: MemberToImport): Boolean = {
+    val qualifiedRef =
+      ScalaPsiElementFactory.createExpressionWithContextFromText(candidate.qualifiedName, originalRef.getContext, originalRef)
+        .asInstanceOf[ScReferenceExpression]
+
+    qualifiedRef.multiResolveScala(false).exists(_.problems.isEmpty)
+  }
 }
