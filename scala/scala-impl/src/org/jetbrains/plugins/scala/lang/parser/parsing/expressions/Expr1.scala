@@ -200,11 +200,7 @@ object Expr1 extends ParsingRule {
           case _ =>
             builder error ErrMsg("enumerators.expected")
         }
-        if (builder.twoNewlinesBeforeCurrentToken) {
-          builder.error(ErrMsg("wrong.expression"))
-          exprMarker.done(ScalaElementType.FOR_STMT)
-          return true
-        }
+
         if (builder.getTokenType == ScalaTokenTypes.kYIELD ||
             (builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kDO)) {
           builder.advanceLexer() //Ate yield or do
