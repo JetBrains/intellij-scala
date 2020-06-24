@@ -18,7 +18,7 @@ import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
-import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
+import org.jetbrains.plugins.scala.editor.{AutoBraceUtils, DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence
@@ -183,6 +183,8 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       Result.STOP
     } else if (c == '{' && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBrace(offset, element)
+    } else if (!c.isWhitespace && c != '{' && c != '}') {
+      handleAutoBraces(c, offset, element)
     } else {
       Result.CONTINUE
     }
@@ -500,6 +502,88 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
       document.commit(project)
     }
+
+  private def handleAutoBraces(c: Char, caretOffset: Int, element: PsiElement)
+                              (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
+    import AutoBraceUtils._
+
+    val caretWS = element match {
+      case ws: PsiWhiteSpace => ws
+      case _ => return Result.CONTINUE
+    }
+
+    val caretWSText = caretWS.getText
+    val posInWs = caretOffset - element.getTextOffset
+    val newlinePosBeforeCaret = caretWSText.lastIndexOf('\n', posInWs - 1)
+
+    if (newlinePosBeforeCaret < 0) {
+      // caret is not at some indentation position but rather there is something before us in the same line
+      return Result.CONTINUE
+    }
+
+
+    // ========= Get block that should be wraped ==========
+    // caret could be before or after the expression that should be wrapped
+    val (expr, exprWS, caretIsBeforeExpr) = nextExpressionInIndentationContext(element) match {
+      case Some(expr) => (expr, caretWS, true)
+      case None =>
+        previousExpressionInIndentationContext(element) match {
+          case Some(expr) =>
+            val exprWs = expr.prevElement match {
+              case Some(ws: PsiWhiteSpace) => ws
+              case _ => return Result.CONTINUE
+            }
+            (expr, exprWs, false)
+          case None => return Result.CONTINUE
+        }
+    }
+    val exprWSText = exprWS.getText
+
+    // ========= Check correct indention ==========
+    val newlinePosBeforeExpr = exprWSText.lastIndexOf('\n')
+    if (newlinePosBeforeExpr < 0) {
+      return Result.CONTINUE
+    }
+    val exprIndent = exprWSText.substring(newlinePosBeforeExpr)
+    val caretIndent = caretWSText.substring(newlinePosBeforeCaret, posInWs)
+
+    if (exprIndent != caretIndent) {
+      return Result.CONTINUE
+    }
+
+    // ========= Insert braces ==========
+    // Start with the opening brace, then the user input, and then the closing brace
+    val document = editor.getDocument
+
+    val openingBraceOffset = exprWS.startOffset
+    document.insertString(openingBraceOffset, "{")
+    val openingBraceRange = TextRange.from(openingBraceOffset, 1)
+    val displacementAfterClosingBrace = 1
+
+    val closingBraceRange = if (caretIsBeforeExpr) {
+      document.insertString(caretOffset + displacementAfterClosingBrace, c.toString)
+
+      val displacementAfterUserInput = displacementAfterClosingBrace + 1
+      editor.getCaretModel.moveToOffset(caretOffset + displacementAfterUserInput)
+
+      val closingBraceOffset = expr.endOffset + displacementAfterUserInput
+      document.insertString(closingBraceOffset, "\n}")
+      TextRange.from(closingBraceOffset, 3)
+    } else {
+      // we want the closing brace right after the user input, so put it here
+      val inputAndClosingBraceOffset = caretOffset + displacementAfterClosingBrace
+      document.insertString(inputAndClosingBraceOffset, c + "\n}")
+
+      val afterInputOffset = inputAndClosingBraceOffset + 1
+      editor.getCaretModel.moveToOffset(afterInputOffset)
+      TextRange.from(afterInputOffset, 3)
+    }
+    document.commit(project)
+
+    CodeStyleManager.getInstance(project).reformatText(file, ju.Arrays.asList(openingBraceRange, closingBraceRange))
+
+    Result.STOP
+  }
 
   private def handleLeftBrace(caretOffset: Int, element: PsiElement)
                              (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result =

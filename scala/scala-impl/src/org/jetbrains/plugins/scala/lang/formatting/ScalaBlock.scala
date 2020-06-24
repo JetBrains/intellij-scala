@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
@@ -76,6 +77,11 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     val indentSize = settings.getIndentSize(ScalaFileType.INSTANCE)
     val braceShifted = settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED
 
+    object ElementType {
+      def unapply(psi: PsiElement): Some[IElementType] =
+        Some(psi.getNode.getElementType)
+    }
+
     parent match {
       case m: ScMatch =>
         val indent =
@@ -99,7 +105,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         }
         new ChildAttributes(indent, null)
       case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody |
-           _: ScFor | _: ScWhile | _: ScCatchBlock =>
+           _: ScFor | _: ScWhile | _: ScCatchBlock | ElementType(ScalaTokenTypes.kYIELD)  =>
         val indent =
           if (braceShifted) {
             Indent.getNoneIndent
@@ -143,7 +149,9 @@ class ScalaBlock(val parentBlock: ScalaBlock,
       case _: ScDocComment =>
         val indent = Indent.getSpaceIndent(if (scalaSettings.USE_SCALADOC2_FORMATTING) 2 else 1)
         new ChildAttributes(indent, null)
-      case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
+      case ElementType(ScalaTokenTypes.kIF) =>
+        new ChildAttributes(Indent.getNormalIndent, null)
+      case ElementType(ScalaTokenTypes.kELSE) =>
         new ChildAttributes(Indent.getNormalIndent, null)
       case p: ScParameterClause
         if scalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS && isConstructorArgOrMemberFunctionParameter(p) =>
