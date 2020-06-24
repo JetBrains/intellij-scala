@@ -9,17 +9,35 @@ object Metering {
 
   def metered[A](action: => A)
                 (implicit scaleConfig: ScaleConfig, handler: MeteringHandler): A = {
-    val ScaleConfig(scale, unit) = scaleConfig
+    val (elapsedNanos, result) = meteredNanos(action)
+    handleNanos(elapsedNanos)
+    result
+  }
+
+  def benchmarked(times: Int)
+                 (action: => Unit)
+                 (implicit scalaConfig: ScaleConfig, handler: MeteringHandler): Unit = {
+    val (elapsedNanos, _) = meteredNanos(for (_ <- Range(0, times)) action)
+    val elapsedNanosPerAction = elapsedNanos / times
+    handleNanos(elapsedNanosPerAction)
+  }
+
+  private def meteredNanos[A](action: => A): (Long, A) = {
     val startTime = System.nanoTime()
     val result = action
-    val endTime = System.nanoTime() - startTime
-    val elapsed = FiniteDuration(endTime, TimeUnit.NANOSECONDS)
+    val elapsedNanos = System.nanoTime() - startTime
+    (elapsedNanos, result)
+  }
+
+  private def handleNanos(nanos: Long)
+                         (implicit scaleConfig: ScaleConfig, handler: MeteringHandler): Unit = {
+    val ScaleConfig(scale, unit) = scaleConfig
+    val elapsed = FiniteDuration(nanos, TimeUnit.NANOSECONDS)
       .toUnit(unit)
     val elapsedScaled = BigDecimal(elapsed)
       .setScale(scale, RoundingMode.HALF_UP)
       .toDouble
     handler.handle(elapsedScaled, scaleConfig.unit)
-    result
   }
 
   case class ScaleConfig(scale: Int, unit: TimeUnit)
