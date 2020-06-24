@@ -18,16 +18,23 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 private class ScalaImportGlobalMemberFix(override val elements: Seq[MemberToImport],
-                                         ref: ScReferenceExpression) extends ScalaImportElementFix(ref) {
+                                         ref: ScReferenceExpression,
+                                         candidatesAreCompatible: Boolean) extends ScalaImportElementFix(ref) {
 
   override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
     ScalaAddImportAction(editor, ref, elements)
 
   override def isAddUnambiguous: Boolean = false
+
+  override def shouldShowHint(): Boolean =
+    super.shouldShowHint() &&
+      candidatesAreCompatible &&
+      ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_STATIC_METHODS
 
   override def getText: String = elements match {
     case Seq(element) => ScalaBundle.message("import.with", element.qualifiedName)
@@ -84,7 +91,7 @@ object ScalaImportGlobalMemberFix {
 
       if (candidates.isEmpty) Seq.empty
       else {
-        val withoutPrefixFix = new ScalaImportGlobalMemberFix(candidates, ref)
+        val withoutPrefixFix = new ScalaImportGlobalMemberFix(candidates, ref, compatible.nonEmpty)
         val withPrefixFix = new ScalaImportGlobalMemberWithPrefixFix(candidates, ref)
         Seq(withoutPrefixFix, withPrefixFix)
       }
