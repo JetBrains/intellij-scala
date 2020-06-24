@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.project.resolver
 
+import ch.epfl.scala.bsp4j.BuildTargetTag
 import java.io.File
 import java.net.URI
 import java.nio.file.Paths
@@ -346,14 +347,16 @@ private[resolver] object BspResolverLogic {
     // the synthetic module "inherits" most of the "ancestors" data
     val merged = mergeModules(ancestors)
     val id = sharedModuleId(targets)
+    val sources = sourceRoots ++ generatedSourceRoots
+    val isTest = targets.forall(_.getTags.asScala.contains(BuildTargetTag.TEST))
 
     val inheritorData = merged.data.copy(
       id = id,
       name = id + " (shared)",
       targets = targets,
       resourceDirs = resources,
-      sourceDirs = sourceRoots ++ generatedSourceRoots,
-      testSourceDirs = Seq.empty,
+      sourceDirs = if (isTest) Seq.empty else sources,
+      testSourceDirs = if (isTest) sources else Seq.empty,
       basePath = None
     )
     merged.copy(data = inheritorData)
