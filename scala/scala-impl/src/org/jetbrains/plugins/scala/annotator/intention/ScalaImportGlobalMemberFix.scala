@@ -29,7 +29,8 @@ private class ScalaImportGlobalMemberFix(override val elements: Seq[MemberToImpo
   override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
     ScalaAddImportAction(editor, ref, elements)
 
-  override def isAddUnambiguous: Boolean = false
+  override def isAddUnambiguous: Boolean =
+    ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS
 
   override def shouldShowHint(): Boolean =
     super.shouldShowHint() &&

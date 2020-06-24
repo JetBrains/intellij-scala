@@ -33,6 +33,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean INTRODUCE_PARAMETER_CREATE_DEFAULT = true;
   public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = false;
+  public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS = false;
   public boolean OPTIMIZE_IMPORTS_ON_THE_FLY = false;
 
   public boolean SHOW_IMPORT_POPUP_CLASSES = true;
