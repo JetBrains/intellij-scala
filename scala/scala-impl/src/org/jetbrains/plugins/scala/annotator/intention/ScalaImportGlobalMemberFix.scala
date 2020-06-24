@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
@@ -128,8 +129,9 @@ object ScalaImportGlobalMemberFix {
     ScalaPsiUtil.isImplicit(f: ScModifierListOwner)
 
   private def isCompatible(originalRef: ScReferenceExpression, candidate: MemberToImport): Boolean = {
+    val fixedQualifiedName = ScalaNamesUtil.escapeKeywordsFqn(candidate.qualifiedName)
     val qualifiedRef =
-      ScalaPsiElementFactory.createExpressionWithContextFromText(candidate.qualifiedName, originalRef.getContext, originalRef)
+      ScalaPsiElementFactory.createExpressionWithContextFromText(fixedQualifiedName, originalRef.getContext, originalRef)
         .asInstanceOf[ScReferenceExpression]
 
     qualifiedRef.multiResolveScala(false).exists(_.problems.isEmpty)
