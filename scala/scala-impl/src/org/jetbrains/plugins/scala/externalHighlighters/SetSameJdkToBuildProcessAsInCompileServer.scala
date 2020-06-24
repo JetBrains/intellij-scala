@@ -21,6 +21,7 @@ class SetSameJdkToBuildProcessAsInCompileServer
 
   import SetSameJdkToBuildProcessAsInCompileServer.previousJdkHome
 
+  // BEFORE
   override def execute(context: CompileContext): Boolean = {
     val project = context.getProject
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))

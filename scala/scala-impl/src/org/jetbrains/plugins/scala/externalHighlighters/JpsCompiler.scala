@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.externalHighlighters.CompilerLock.From
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
 import scala.concurrent.duration._
@@ -95,7 +94,7 @@ class JpsCompilerImpl(project: Project)
     val future = promise.future
     val taskMsg = ScalaBundle.message("highlighting.compilation")
     val task: Task.Backgroundable = new Task.Backgroundable(project, taskMsg, true) {
-      override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock(From.JpsCompiler) {
+      override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         progressIndicator = Some(indicator)
         val client = new CompilerEventGeneratingClient(project, indicator)
         val result = Try(new RemoteServerRunner(project).buildProcess(command, client).runSync())

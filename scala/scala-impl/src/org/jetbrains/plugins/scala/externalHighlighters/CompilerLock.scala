@@ -4,30 +4,24 @@ import java.util.concurrent.Semaphore
 
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.externalHighlighters.CompilerLock.From
 
 trait CompilerLock {
-  def lock(from: From): Unit
+  def lock(): Unit
 
-  def unlock(from: From): Unit
+  /**
+   * @param exceptionIfNotLocked #SCL-17720
+   */
+  def unlock(exceptionIfNotLocked: Boolean = true): Unit
 
-  final def withLock[A](from: From)
-                       (action: => A): A = {
-    lock(from)
+  final def withLock[A](action: => A): A = {
+    lock()
     try action
-    finally unlock(from)
+    finally unlock()
   }
 }
 
 object CompilerLock {
   
-  sealed trait From
-  
-  object From {
-    case object BuildProcess extends From
-    case object JpsCompiler extends From
-  }
-
   def get(project: Project): CompilerLock =
     ServiceManager.getService(project, classOf[CompilerLock])
 }
@@ -38,26 +32,17 @@ private class CompilerLockImpl(project: Project)
   private val lockSynchronizer = new Object
   private val unlockSynchronizer = new Object
   private val semaphore = new Semaphore(1, true)
-  @volatile private var lastFrom: Option[From] = None
-  
-  override def lock(from: From): Unit = lockSynchronizer.synchronized {
-    if (from == From.BuildProcess && lastFrom.contains(from) && semaphore.availablePermits() == 0) { // #SCL-17623
-      unlockInternal(from)
-    }
+
+  override def lock(): Unit = lockSynchronizer.synchronized {
     semaphore.acquire()
-    lastFrom = Some(from)
   }
 
-  override def unlock(from: From): Unit =
-    unlockInternal(from: From)
-  
-  private def unlockInternal(from: From): Unit = unlockSynchronizer.synchronized {
+  override def unlock(exceptionIfNotLocked: Boolean): Unit = unlockSynchronizer.synchronized {
     val permits = semaphore.availablePermits()
-    if (lastFrom.contains(from) && permits == 0) {
-      lastFrom = None
+    if (permits == 0) {
       semaphore.release()
-    } else {
-      val msg = s"Can't unlock compiler for $project ($from). Available permits: $permits. Last from: $lastFrom"
+    } else if (exceptionIfNotLocked) {
+      val msg = s"Can't unlock compiler for $project. Available permits: $permits."
       throw new IllegalStateException(msg)
     }
   }
