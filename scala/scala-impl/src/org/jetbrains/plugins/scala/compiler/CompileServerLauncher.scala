@@ -232,7 +232,16 @@ object CompileServerLauncher {
   
   def defaultSdk(project: Project): Sdk =
     CompileServerJdkManager.recommendedSdk(project)
-      .getOrElse(synchronized(BuildManager.getBuildProcessRuntimeSdk(project).first))
+      .getOrElse(getBuildProcessRuntimeSdk(project))
+
+  /**
+   * Returns the Build Process runtime SDK.
+   * The method isn't thread-safe, so the synchronized is used.
+   * @see SCL-17710
+   */
+  private def getBuildProcessRuntimeSdk(project: Project): Sdk = synchronized {
+    BuildManager.getBuildProcessRuntimeSdk(project).first
+  }
 
   def compileServerSdk(project: Project): Either[String, Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance()
