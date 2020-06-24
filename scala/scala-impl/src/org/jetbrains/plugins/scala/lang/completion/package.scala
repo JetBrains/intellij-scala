@@ -11,14 +11,14 @@ import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker.parentWithStableType
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker.{hasStableType, parentWithStableType}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
 package object completion {
@@ -166,6 +167,15 @@ package object completion {
   }
 
   private def mirrorPosition(originalFile: PsiFile, positionInCompletionFile: PsiElement): Option[PsiElement] = {
+    //similar to BlockModificationTracker.parentWithStableType, but may return last expression in block without explicit type
+    @tailrec
+    def locallyStableParent(element: PsiElement): Option[ScExpression] =
+      element match {
+        case null | _: ScalaFile => None
+        case (expr: ScExpression) childOf (_: ScBlock) => Some(expr)
+        case expr: ScExpression if hasStableType(expr) => Some(expr)
+        case element => locallyStableParent(element.getParent)
+      }
 
     @CachedInUserData(originalFile, CachesUtil.fileModTracker(originalFile))
     def cachedFor(positionInCompletionFile: PsiElement): Option[PsiElement] = {
@@ -177,8 +187,8 @@ package object completion {
 
       //todo: we may probably choose a smaller fragment to copy in many cases SCL-17106
       for {
-        anchor           <- parentWithStableType(placeInOriginalFile)
-        expressionToCopy <- parentWithStableType(positionInCompletionFile)
+        anchor           <- locallyStableParent(placeInOriginalFile)
+        expressionToCopy <- locallyStableParent(positionInCompletionFile)
       } yield {
 
         val copy = expressionToCopy.copy().asInstanceOf[ScExpression]
