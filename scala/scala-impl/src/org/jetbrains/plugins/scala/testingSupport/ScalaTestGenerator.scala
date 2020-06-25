@@ -32,16 +32,16 @@ import scala.collection.JavaConverters._
 
 class ScalaTestGenerator extends TestGenerator {
 
-  override def generateTest(project: Project, d: CreateTestDialog): PsiElement = {
+  override def generateTest(project: Project, dialog: CreateTestDialog): PsiElement = {
     postponeFormattingWithin(project) {
       inWriteAction {
         try {
-          val file: PsiFile = generateTestInternal(project, d)
+          val file: PsiFile = generateTestInternal(project, dialog)
           file
         } catch {
           case _: IncorrectOperationException =>
             invokeLater {
-              val message = CodeInsightBundle.message("intention.error.cannot.create.class.message", d.getClassName)
+              val message = CodeInsightBundle.message("intention.error.cannot.create.class.message", dialog.getClassName)
               val title = CodeInsightBundle.message("intention.error.cannot.create.class.title")
               Messages.showErrorDialog(project, message, title)
             }
@@ -395,7 +395,7 @@ object ScalaTestGenerator {
   }
 
   private implicit class MemberInfoOps(private val info: MemberInfo) extends AnyVal {
-    def name: String = info.name
+    def name: String = info.getMember.getName
     def nameQuoted: String = info.name.quoted
   }
 }
