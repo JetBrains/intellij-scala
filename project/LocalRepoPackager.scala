@@ -2,6 +2,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 
 import sbt._
+import scala.sys.process._
 
 /**
   * Download artifacts from jetbrains bintray to mimic a simple local ivy repo that sbt can resolve artifacts from.
@@ -43,7 +44,10 @@ object LocalRepoPackager {
           IO.write(localFile, Array.empty[Byte])
         } else if (path.endsWith("-javadoc.jar.md5")) {
           IO.write(localFile, emptyMD5.getBytes(StandardCharsets.US_ASCII))
-        } else IO.download(downloadUrl, localFile)
+        } else {
+          localFile.getParentFile.mkdirs()
+          downloadUrl #> localFile !!
+        }
       }
 
       localFile
