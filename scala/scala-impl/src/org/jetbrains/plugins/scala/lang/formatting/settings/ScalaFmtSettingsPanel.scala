@@ -116,7 +116,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       case None => return
     }
 
-    val versionOpt = ScalafmtDynamicConfigService.readVersion(configFile) match {
+    val versionOpt = ScalafmtDynamicConfigServiceImpl.readVersion(project, configFile) match {
       case Right(v) => v
       case Left(ex) =>
         reportConfigParseError(ex.getMessage)
@@ -157,10 +157,11 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private def reportConfigResolveError(configResolveError: ConfigResolveError): Unit = {
     import ConfigResolveError._
     configResolveError match {
-      case ConfigFileNotFound(configPath)    => reportConfigFileNotFound(configPath)
-      case ConfigParseError(_, errorMessage) => reportConfigParseError(errorMessage.getMessage)
-      case UnknownError(message, _)          => reportConfigParseError(message)
-      case ConfigScalafmtResolveError(error) => reportCantResolveVersion(error.version)
+      case ConfigFileNotFound(configPath)      => reportConfigFileNotFound(configPath)
+      case ConfigParseError(_, exception)      => reportConfigParseError(exception.getMessage)
+      case ConfigCyclicDependenciesError(_, _) => reportConfigParseError(ScalaBundle.message("scalafmt.config.load.errors.cyclic.includes.detected"))
+      case UnknownError(message, _)            => reportConfigParseError(message)
+      case ConfigScalafmtResolveError(error)   => reportCantResolveVersion(error.version)
     }
   }
 

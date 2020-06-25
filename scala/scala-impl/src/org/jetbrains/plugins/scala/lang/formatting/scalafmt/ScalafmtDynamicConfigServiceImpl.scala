@@ -11,10 +11,12 @@ import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.PsiFile
+import com.typesafe.config._
 import org.apache.commons.io.FileUtils
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.ConfigCyclicDependencyException
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtVersion}
@@ -27,6 +29,7 @@ import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.jetbrains.sbt.language.SbtFileImpl
 
+import scala.collection.JavaConverters.mapAsJavaMapConverter
 import scala.collection.mutable
 import scala.util.Try
 
@@ -42,7 +45,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
     val isScalafmtEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
     if (isScalafmtEnabled) {
       val configFile = ScalafmtConfigUtils.projectConfigFile(project, scalaSettings.SCALAFMT_CONFIG_PATH)
-      val version = configFile.flatMap(readVersion(_).toOption.flatten).getOrElse(DefaultVersion)
+      val version = configFile.flatMap(readVersion(project, _).toOption.flatten).getOrElse(DefaultVersion)
       ScalafmtDynamicService.instance.resolveAsync(version, project)
     }
   }
@@ -174,7 +177,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
       _ <- Option(configFile).filter(_.exists).toRight {
         ConfigResolveError.ConfigFileNotFound(configPath)
       }
-      version <- readVersion(configFile) match {
+      version <- readVersion(project, configFile) match {
         case Right(value) => Right(value.getOrElse(defaultVersion))
         case Left(e)      => Left(ConfigResolveError.ConfigParseError(configPath, e))
       }
@@ -185,17 +188,21 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
     } yield config
   }
 
-  private def parseConfig(configFile: VirtualFile, fmtReflect: ScalafmtReflect): ConfigResolveResult = {
-    val document = inReadAction(FileDocumentManager.getInstance.getDocument(configFile))
-    val configText = document.getText()
-    Try(fmtReflect.parseConfigFromString(configText)).toEither.left.map {
+  private def parseConfig(configFile: VirtualFile, fmtReflect: ScalafmtReflect): ConfigResolveResult =
+    Try {
+      val configText = parseHoconFile(project, configFile).root.render()
+      fmtReflect.parseConfigFromString(configText)
+    }.toEither.left.map {
       case e: ScalafmtConfigException =>
         ConfigResolveError.ConfigParseError(configFile.getPath, e)
+      case e: ConfigCyclicDependencyException =>
+        ConfigResolveError.ConfigCyclicDependenciesError(configFile.getCanonicalPath, e)
       case e =>
         Log.error(e)
         ConfigResolveError.UnknownError(e)
     }
-  }
+
+
 
   private def notifyConfigChanges(config: ScalafmtReflectConfig, cachedConfig: Option[CachedConfig]): Unit = {
     val contentChanged = !cachedConfig.map(_.config).contains(config)
@@ -207,11 +214,18 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
   private def reportConfigResolveError(configFile: VirtualFile, configError: ConfigResolveError): Unit = {
     import ConfigResolveError._
     val details = configError match {
-      case ConfigFileNotFound(_)           => ScalaBundle.message("scalafmt.config.load.errors.file.not.found")
-      case ConfigParseError(_, cause)      => ScalaBundle.message("scalafmt.config.load.errors.parse.error", cause.getMessage)
-      case UnknownError(unknownMessage, _) => ScalaBundle.message("scalafmt.config.load.errors.unknown.error", unknownMessage)
-      /** reported in [[ScalafmtDynamicServiceImpl.reportResolveError]] */
-      case _: ConfigScalafmtResolveError   => return
+      case ConfigFileNotFound(_)                   => ScalaBundle.message("scalafmt.config.load.errors.file.not.found")
+      case ConfigParseError(_, cause)              => ScalaBundle.message("scalafmt.config.load.errors.parse.error", cause.getMessage)
+      case UnknownError(unknownMessage, _)         => ScalaBundle.message("scalafmt.config.load.errors.unknown.error", unknownMessage)
+      /** reported in [[ScalafmtDynamicServiceImpl.reportResolveError]]*/
+      case _: ConfigScalafmtResolveError => return
+      case ConfigCyclicDependenciesError(configPath, ex) =>
+        val stackReverse = ex.filesResolveStack.reverse
+        val filesStackText = stackReverse.mkString("  ", "\n  ", "")
+        Log.warn(s"Cyclic includes detected during scalafmt config parse: $configPath. Files include stack:\n$filesStackText")
+
+        val filesStackShortNotificationText = stackReverse.map(_.getName).mkString("<br>  ", "<br>  ", "")
+        ScalaBundle.message("scalafmt.config.load.errors.parse.error", ScalaBundle.message("scalafmt.config.load.errors.cyclic.includes.detected")) + filesStackShortNotificationText
     }
     val errorMessage = ScalaBundle.message("scalafmt.config.load.errors.failed.to.load.config") + ":<br>" + details
     // NOTE: ConfError does not provide any information about parsing error position, so setting offset to zero
@@ -255,4 +269,62 @@ object ScalafmtDynamicConfigServiceImpl {
         Left(None)
     }
 
+  def readVersion(project: Project, configFile: VirtualFile): Either[Throwable, Option[String]] =
+    Try {
+      val config = parseHoconFile(project, configFile)
+      Option(config.getString("version").trim)
+    }.toEither.left.flatMap {
+      case _: ConfigException.Missing => Right(None)
+      case _: ConfigCyclicDependencyException => Right(None)
+      case e => Left(e)
+    }
+
+  private def parseHoconFile(project: Project, configFile: VirtualFile): Config = {
+    implicit val manager: FileDocumentManager = FileDocumentManager.getInstance
+    parseHoconFileImpl(project, configFile, configFile :: Nil).get // TODO: handle empty case
+  }
+
+  /** @param filesResolveStack track currently-resolved files to detect cyclic dependencies */
+  private def parseHoconFileImpl(project: Project, configFile: VirtualFile, filesResolveStack: List[VirtualFile])
+                                (implicit manager: FileDocumentManager): Option[Config] = {
+    val includer = new MyConfigIncluder(project, configFile, filesResolveStack)
+    val parseOpts = ConfigParseOptions.defaults.setIncluder(includer)
+    val configText = fileText(configFile)
+    configText.map(ConfigFactory.parseString(_, parseOpts))
+  }
+
+  private def fileText(file: VirtualFile)
+                      (implicit manager: FileDocumentManager): Option[ScalafmtVersion] =
+    inReadAction {
+      manager.getDocument(file).toOption.map(_.getText())
+    }
+
+  private class MyConfigIncluder(project: Project, configFile: VirtualFile, filesResolveStack: List[VirtualFile])
+                                (implicit manager: FileDocumentManager) extends ConfigIncluder {
+    private var fallbackOpt: Option[ConfigIncluder] = None
+
+    // NOTE: it doesn't fully satisfied the overridden method contract (left as was in PR from nadavwr):
+    // "Returns a new includer that falls back to the given includer."
+    override def withFallback(fallback: ConfigIncluder): ConfigIncluder = {
+      fallbackOpt = Some(fallback)
+      this
+    }
+
+    override def include(context: ConfigIncludeContext, includedFile: String): ConfigObject = {
+      val vFileRelative = ScalafmtConfigUtils.resolveConfigIncludeFile(configFile, includedFile)
+      val vFile = vFileRelative.orElse(ScalafmtConfigUtils.projectConfigFile(project, includedFile))
+      val config = vFile.flatMap { file =>
+        if (filesResolveStack.contains(file))
+          throw ConfigCyclicDependencyException(file :: filesResolveStack)
+        parseHoconFileImpl(project, file, file :: filesResolveStack)
+      }
+      config
+        .map(_.root)
+        .orElse(fallbackOpt.map(_.include(context, includedFile)))
+        .getOrElse(emptyConfigObj)
+    }
+  }
+
+  private def emptyConfigObj: ConfigObject =
+    ConfigValueFactory.fromMap(Map.empty[String, Any].asJava)
 }

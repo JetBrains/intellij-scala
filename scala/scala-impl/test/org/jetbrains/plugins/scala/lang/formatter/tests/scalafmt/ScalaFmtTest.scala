@@ -251,7 +251,7 @@ class ScalaFmtTest extends ScalaFmtTestBase {
   }
 
   def testRewriteRules_avoidInfix(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
          |class C {
@@ -268,7 +268,7 @@ class ScalaFmtTest extends ScalaFmtTestBase {
   }
 
   def testRewriteRules_expandImport(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "expandImport.conf"
+    setScalafmtConfig("expandImport.conf")
     val before =
       s"""
          |import a.{
@@ -299,8 +299,29 @@ class ScalaFmtTest extends ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
+  def testConfigWithIncludes(): Unit = {
+    setScalafmtConfig("config_root.conf")
+    doTextTest(
+      """class A {
+        |  def foo(parameterName: Int): Unit = {
+        |    val x = 42
+        |    val xxxxxxxx = 23
+        |  }
+        |}
+        |""".stripMargin,
+      """class A {
+        |  def foo(
+        |      parameterName: Int)
+        |    : Unit = {
+        |    val x        = 42
+        |    val xxxxxxxx = 23
+        |  }
+        |}""".stripMargin
+    )
+  }
+
   def testRewriteRules_sortImports(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "sortImports.conf"
+    setScalafmtConfig("sortImports.conf")
     val before =
       s"""
          |import foo.{Zilch, bar, Random, sand}

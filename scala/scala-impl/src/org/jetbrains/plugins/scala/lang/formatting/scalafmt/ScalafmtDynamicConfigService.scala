@@ -1,18 +1,13 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile}
-import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.jetbrains.annotations.{CalledInAwt, NonNls}
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveResult
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtReflectConfig
-
-import scala.util.Try
 
 trait ScalafmtDynamicConfigService {
 
@@ -71,21 +66,14 @@ object ScalafmtDynamicConfigService {
     sealed trait ConfigError extends ConfigResolveError
     case class ConfigFileNotFound(configPath: String) extends ConfigError
     case class ConfigParseError(configPath: String, cause: Throwable) extends ConfigError
+    case class ConfigCyclicDependenciesError(configPath: String, exception: ConfigCyclicDependencyException) extends ConfigError
     case class ConfigScalafmtResolveError(error: ScalafmtResolveError) extends ConfigResolveError
     case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigResolveError
 
     object UnknownError {
       def apply(cause: Throwable): UnknownError = new UnknownError(cause.getMessage, Option(cause))
     }
-  }
 
-  def readVersion(configFile: VirtualFile): Either[Throwable, Option[String]] =
-    Try {
-      val document = inReadAction(FileDocumentManager.getInstance.getDocument(configFile))
-      val config = ConfigFactory.parseString(document.getText)
-      Option(config.getString("version").trim)
-    }.toEither.left.flatMap {
-      case _: ConfigException.Missing => Right(None)
-      case e => Left(e)
-    }
+    case class ConfigCyclicDependencyException(filesResolveStack: List[VirtualFile]) extends RuntimeException
+  }
 }

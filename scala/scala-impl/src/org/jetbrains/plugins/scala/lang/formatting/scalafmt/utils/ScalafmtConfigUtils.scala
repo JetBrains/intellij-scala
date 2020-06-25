@@ -23,7 +23,7 @@ object ScalafmtConfigUtils {
     }
 
   def projectConfigFileAbsolutePath(project: Project, configPath: String): Option[String] = {
-    val isRelativePath = configPath.startsWith(".")
+    val isRelativePath = !isAbsolutePath(configPath)
     if (project.isDefault) {
       if (isRelativePath) None
       else Some(configPath)
@@ -32,8 +32,6 @@ object ScalafmtConfigUtils {
         val prefix = if (isRelativePath) baseDir.getCanonicalPath + "/" else ""
         prefix + configPath
       }
-
-      def exists(path: String): Boolean = StandardFileSystems.local.findFileByPath(path) != null
 
       val projectRoot = ProjectUtil.guessProjectDir(project).toOption
       projectRoot.flatMap { baseDir =>
@@ -48,4 +46,22 @@ object ScalafmtConfigUtils {
       }
     }
   }
+
+  def resolveConfigIncludeFile(baseConfig: VirtualFile, includeConfig: String): Option[VirtualFile] = {
+    val baseDir      = baseConfig.getParent match {
+      case null => return None
+      case parent => parent
+    }
+    val prefix = if (isAbsolutePath(includeConfig)) "" else baseDir.getCanonicalPath + "/"
+    val absolutePath = prefix + includeConfig
+    Option(StandardFileSystems.local.findFileByPath(absolutePath))
+  }
+
+  private def exists(path: String): Boolean =
+    StandardFileSystems.local.findFileByPath(path) != null
+
+  private def isAbsolutePath(s: String): Boolean =
+    s.startsWith("/") ||
+      s.startsWith("\\") ||
+      s.matches("""[\\/]?\w:[\\/].*""") // windows-style, e.g. C:/path/... /c:/path/... C:\path\...
 }
